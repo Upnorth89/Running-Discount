@@ -65,7 +65,7 @@ PTL = {
 }
 # Fallback on product names (first match wins). Kept strict so "Short Sleeve" isn't shorts, "Light Jacket" isn't a light.
 RULES = [
-    ("shoes",     r"\bshoes?\b|\bspikes\b"),
+    ("shoes",     r"\bshoes?\b|\bspikes\b|\bfootwear\b|\bsneakers?\b"),
     ("bras",      r"\bbras?\b"),
     ("socks",     r"\bsocks?\b"),
     ("gloves",    r"\bgloves?\b|\bmitts?\b|mittens"),
@@ -223,11 +223,32 @@ def usd_cad():
             pass
     return 1.38
 
+_FX = {"CAD": 1.0}
+FX_FALLBACK = {"USD": 1.38, "EUR": 1.50, "GBP": 1.80, "AUD": 0.90, "NZD": 0.82, "CHF": 1.60}
+def fx_to_cad(cur):
+    """Daily rate to convert a store's currency into CAD (Bank of Canada, then a public API)."""
+    cur = (cur or "CAD").upper()
+    if cur in _FX:
+        return _FX[cur]
+    rate = None
+    for url, pick in [
+        (f"https://www.bankofcanada.ca/valet/observations/FX{cur}CAD/json?recent=1",
+         lambda j: float(j["observations"][0][f"FX{cur}CAD"]["v"])),
+        (f"https://open.er-api.com/v6/latest/{cur}", lambda j: float(j["rates"]["CAD"])),
+    ]:
+        try:
+            rate = pick(get(url, tries=2).json())
+            break
+        except Exception:
+            pass
+    _FX[cur] = rate or FX_FALLBACK.get(cur)
+    return _FX[cur]
+
 BB = re.compile(r"\s*\(?\s*best\s*by:?\s*([0-9/.-]+)\s*\)?", re.I)
 
-def shopify_products(base):
+def shopify_products(base, max_pages=40):
     prods, page = [], 1
-    while True:
+    while page <= max_pages:
         batch = get(f"{base}/products.json?limit=250&page={page}").json()["products"]
         if not batch:
             break
@@ -630,6 +651,105 @@ def scrape_sportinglife():
     return out
 
 # ---------------------------------------------------------------- merge + main
+
+# ---------------------------------------------------------------- Any Shopify store (brands + shops): one line each
+# Each store is tested during the run: if it isn't Shopify, blocks us, or sells nothing running-related,
+# it is skipped and noted in the log. Currency is read from the store and converted to CAD.
+# kind: "gear" = classify each product; "food" = everything is nutrition (race-fuel brands).
+SHOPIFY_STORES = [
+    # Canadian running shops
+    ("vanrunco",       "https://vanrunco.com",               "gear"),   # Run As You Are / Vancouver Running Co.
+    ("nordarun",       "https://nordarun.com",               "gear"),
+    ("ciele",          "https://cieleathletics.com",         "gear"),
+    # running & trail brands
+    ("janji",          "https://runjanji.com",               "gear"),
+    ("rabbit",         "https://www.runinrabbit.com",        "gear"),
+    ("satisfy",        "https://satisfyrunning.com",         "gear"),
+    ("soar",           "https://www.soarrunning.com",        "gear"),
+    ("districtvision", "https://www.districtvision.com",     "gear"),
+    ("bandit",         "https://banditrunning.com",          "gear"),
+    ("nathan",         "https://www.nathansports.com",       "gear"),
+    ("mounttocoast",   "https://mounttocoast.com",           "gear"),
+    ("kogalla",        "https://kogalla.com",                "gear"),
+    ("goodr",          "https://goodr.com",                  "gear"),
+    ("feetures",       "https://www.feetures.com",           "gear"),
+    ("balega",         "https://www.balega.com",             "gear"),
+    ("darntough",      "https://www.darntough.com",          "gear"),
+    ("tenthousand",    "https://www.tenthousand.cc",         "gear"),
+    ("oiselle",        "https://www.oiselle.com",            "gear"),
+    ("ultimatedirection", "https://www.ultimatedirection.com", "gear"),
+    ("inov8",          "https://www.inov-8.com",             "gear"),
+    ("2xu",            "https://www.2xu.com",                "gear"),
+    ("roka",           "https://www.roka.com",               "gear"),
+    ("sunski",         "https://sunski.com",                 "gear"),
+    ("tifosi",         "https://www.tifosioptics.com",       "gear"),
+    ("nakedsports",    "https://www.nakedsportsinnovations.com", "gear"),
+    # race fuel
+    ("tailwind",       "https://www.tailwindnutrition.com",  "food"),
+    ("skratch",        "https://www.skratchlabs.com",        "food"),
+    ("spring",         "https://spring-energy.com",          "food"),
+    ("naak",           "https://naak.com",                   "food"),
+    ("untapped",       "https://untapped.com",               "food"),
+    ("honeystinger",   "https://www.honeystinger.com",       "food"),
+    ("gu",             "https://guenergy.com",               "food"),
+    ("huma",           "https://www.humagel.com",            "food"),
+]
+
+NOT_RUNNING = re.compile(r"gift ?card|e-?gift|\bbike\b|cycling|\bbib\b|swim|golf|\bski\b|snowboard|\bdog\b|\bpet\b|"
+                         r"\btent\b|sleeping bag|stickers?|poster|\bmug\b|\bbundle builder\b|warranty|shipping protection|"
+                         r"route protection|insurance|\bsample\b|donation", re.I)
+FOOD = re.compile(r"\bgels?\b|\bchews?\b|\bbars?\b|electrolyte|drink mix|hydration mix|energy|\bfuel\b|"
+                  r"nutrition|recovery drink|protein|waffle|stroopwafel|salt tab|capsule", re.I)
+
+def generic_size(label):
+    """Common Shopify size labels -> the site's sizes: 'M10 / W11.5', "Men's 10", 'US 10', 'EU 36-38' socks."""
+    t = re.sub(r"\s*\(.*?\)", "", (label or "")).strip()
+    m = re.match(r"^\s*(?:M|Men'?s|US M|Mens)\s*(\d+(?:\.5)?)\b", t, re.I) or re.match(r"^\s*(\d+(?:\.5)?)\s*M\b", t)
+    if m:
+        return m.group(1)
+    m = re.match(r"^\s*US\s*(\d+(?:\.5)?)\s*$", t, re.I)
+    if m:
+        return m.group(1)
+    return sp_size(t)
+
+def generic_group(kind):
+    def g(p):
+        title = p.get("title") or ""
+        ptype = p.get("product_type") or ""
+        tags = " ".join(p.get("tags") or [])
+        if NOT_RUNNING.search(f"{title} {ptype}"):
+            return None
+        if kind == "food":             # fuel brands: food, unless it's clearly merch/gear (a cap, a flask)
+            g = group_of(title)
+            return g if g and not FOOD.search(title) else "nutrition"
+        if FOOD.search(ptype) or (FOOD.search(title) and not group_of(title)):
+            return "nutrition"
+        return group_of(ptype) or group_of(title) or (group_of(tags) if re.search(r"run|trail", tags, re.I) else None)
+    return g
+
+def make_shopify_scraper(st, base, kind):
+    def run():
+        # quick probe so a dead / blocked / non-Shopify store costs one request, not minutes of retries
+        r = S.get(f"{base}/products.json?limit=1", timeout=20)
+        if r.status_code != 200 or not r.text.lstrip().startswith("{"):
+            raise RuntimeError(f"no Shopify product feed (HTTP {r.status_code})")
+        cur = None
+        for path, key in (("/meta.json", "currency"), ("/cart.js", "currency")):
+            try:
+                cur = get(f"{base}{path}", tries=2).json().get(key)
+                if cur:
+                    break
+            except Exception:
+                pass
+        if not cur:
+            print(f"  ! {st}: currency unknown, assuming CAD", file=sys.stderr)
+            cur = "CAD"
+        prods = shopify_products(base, max_pages=24)
+        fx = fx_to_cad(cur)
+        print(f"  {st}: {len(prods)} products, {cur}" + (f" x{fx}" if cur != "CAD" else ""), file=sys.stderr)
+        return shopify_items(st, base, prods, generic_group(kind), fx=fx, size_aware=True, size_fn=generic_size)
+    return run
+
 STORES = {
     "altitude": lambda: scrape_commercetools("altitude", "https://www.altitude-sports.com"),
     "lasthunt": lambda: scrape_commercetools("lasthunt", "https://www.thelasthunt.com"),
@@ -640,6 +760,8 @@ STORES = {
     "mec": scrape_mec,
     "rei": scrape_rei,
 }
+for _st, _base, _kind in SHOPIFY_STORES:
+    STORES[_st] = make_shopify_scraper(_st, _base, _kind)
 
 def name_gender(n):
     """Product names ("... - Women's", "Mens Pressio Tee") beat a store's gender tag, which is
@@ -695,7 +817,7 @@ def main():
             continue
         try:
             got = fn()
-            if not got:
+            if not got and st not in dict((x[0], 1) for x in SHOPIFY_STORES):
                 raise RuntimeError("0 items")
             raw[st] = got
             stamps[st] = now()
@@ -704,7 +826,9 @@ def main():
         except Exception as e:
             failed.append(st)
             raw[st] = prev_offers.get(st, [])
-            print(f"{st}: FAILED ({e}); kept {len(raw[st])} from last run", file=sys.stderr)
+            msg = str(e)
+            m = re.search(r"(Tunnel connection failed: \d+ \w+|\d{3} Client Error: \w+|HTTP \d{3}|no [^;]{0,60})", msg)
+            print(f"{st}: FAILED ({m.group(1) if m else msg[:120]}); kept {len(raw[st])} from last run", file=sys.stderr)
         offers += raw[st]
     items = merge(offers)
     for it in items:
@@ -715,6 +839,10 @@ def main():
                               separators=(",", ":"), ensure_ascii=False))
     # raw offers go in a side file so a failed store can be restored tomorrow
     (OUT.parent / "offers.json").write_text(json.dumps(raw, separators=(",", ":"), ensure_ascii=False))
+    ok = [st for st in STORES if st not in failed]
+    print(f"stores OK ({len(ok)}): {', '.join(ok)}", file=sys.stderr)
+    if failed:
+        print(f"stores skipped ({len(failed)}): {', '.join(failed)}", file=sys.stderr)
     n_sale = sum(1 for i in items if any(p < r * 0.99 for _, p, _, r in i["sz"]))
     print(f"wrote {len(items)} items ({n_sale} on sale) from {len(offers)} store listings to {OUT}", file=sys.stderr)
     return 1 if len(failed) == len(STORES) else 0
