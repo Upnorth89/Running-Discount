@@ -2,7 +2,7 @@
 """Running Discount scraper.
 
 Pulls the full running catalogue (full price and on sale) from Altitude Sports, The Last Hunt,
-The Feed and Sea2Sky Nutrition, merges the same product sold by several stores, and writes
+The Feed, Sea2Sky Nutrition and Sporting Life, merges the same product sold by several stores, and writes
 site/deals.json in the compact format the page reads:
 
   {v:2, updated, stores:{id: iso}, items:[{b,n,g,sx,w,img,lp,bb,sz:[[size,price,offer]],of:[url,...]}]}
@@ -73,7 +73,7 @@ RULES = [
     ("headwear",  r"\bhats?\b|\bcaps?\b|gocap|trlcap|beanie|toque|tuque|headband|\bbuffs?\b|neck ?gaiter|visor"),
     ("packs",     r"hydration (vest|pack)|race vest|running vest|backpack|\bbelts?\b|waist ?pack|\bpinnacle\b|\bvest \d|\d+ ?l\b"),
     ("bottoms",   r"(?<!short sleeve )\bshorts\b|\bshort\b(?! sleeve)|tights?\b|\bpants?\b|leggings?|joggers?|skirts?|skorts?|boxers?|briefs?"),
-    ("tops",      r"t-?shirts?|\btees?\b|\bshirts?|\btops?\b|tanks?|singlets?|jackets?|hood(ie|y)|\bvests?\b|gilets?|jersey|sweaters?|base ?layer|pullovers?|fleece|anorak|windbreaker|\bcrew\b|half zip|quarter zip|1/2 zip|1/4 zip"),
+    ("tops",      r"t-?shirts?|\btees?\b|\bshirts?|\btops?\b|tanks?|singlets?|jackets?|\bcoats?\b|raincoats?|hood(ie|y)|\bvests?\b|gilets?|jersey|sweaters?|base ?layer|pullovers?|fleece|anorak|windbreaker|\bcrew\b|half zip|quarter zip|1/2 zip|1/4 zip"),
     ("gear",      r"poles?\b|headlamp|bottles?|flasks?|sunglass|sleeves?\b|gaiters|roller|massage|insoles?"),
 ]
 def group_of(*texts):
@@ -313,12 +313,119 @@ def scrape_sea2sky():
     base = "https://sea2skynutrition.ca"   # Vancouver, prices already in CAD
     return shopify_items("sea2sky", base, shopify_products(base), s2s_group)
 
+
+# ---------------------------------------------------------------- Sporting Life (Salesforce Commerce Cloud)
+SL_BASE = "https://www.sportinglife.ca"
+SL_TILE = re.compile(r'<div class="product-tile[^"]*"[^>]*data-itemid="([^"]+)"[^>]*>(.*?)<!-- END: \.product-tile -->', re.S)
+
+def _txt(html):
+    import html as H
+    return H.unescape(re.sub(r"<[^>]+>", " ", html or "")).strip()
+
+def _money(t):
+    m = re.search(r"\$\s*([\d,]+(?:\.\d+)?)", t or "")
+    return float(m.group(1).replace(",", "")) if m else None
+
+def sl_parse_listing(html):
+    """Tiles on a category page: link, brand, name, image, regular + current price."""
+    import html as H
+    out = []
+    for itemid, t in SL_TILE.findall(html):
+        link = re.search(r'class="name-link"\s+href="([^"]+)"', t)
+        brand = re.search(r'class="product-brand">(.*?)</span>', t, re.S)
+        name = re.search(r'class="product-name">(.*?)</span>', t, re.S)
+        img = re.search(r'<img src="(https://cdn\.media\.amplience\.net/[^"]+)"', t)
+        std = re.search(r'class="price-standard">(.*?)</span>', t, re.S)
+        sale = re.search(r'class="price-sales[^"]*">(.*?)</span>', t, re.S)
+        if not (link and name):
+            continue
+        u = H.unescape(link.group(1))
+        out.append({"id": itemid, "u": u if u.startswith("http") else SL_BASE + u,
+                    "b": _txt(brand.group(1)) if brand else "", "n": _txt(name.group(1)),
+                    "img": re.sub(r"w=\d+&h=\d+", "w=400&h=400", H.unescape(img.group(1))) if img else None,
+                    "std": _money(_txt(std.group(1))) if std else None,
+                    "cur": _money(_txt(sale.group(1))) if sale else None})
+    return out
+
+def sl_parse_product(html):
+    """Per-size price + stock and the product type, from the page's schema.org data."""
+    for m in re.finditer(r'<script[^>]*application/ld\+json[^>]*>(.*?)</script>', html, re.S):
+        try:
+            d = json.loads(m.group(1))
+        except Exception:
+            continue
+        nodes = d.get("@graph", [d]) if isinstance(d, dict) else d
+        for n in nodes:
+            if not isinstance(n, dict) or n.get("@type") != "Product":
+                continue
+            ptype = ""
+            for pv in n.get("additionalProperty") or []:
+                if pv.get("name") == "Product Type":
+                    ptype = pv.get("value") or ""
+            offers = (n.get("offers") or {}).get("offers") or []
+            sizes = {}
+            for o in offers:
+                if "InStock" not in (o.get("availability") or "") and "LimitedAvailability" not in (o.get("availability") or ""):
+                    continue
+                sz = norm_size(o.get("size"))
+                pr = float(o.get("price") or 0)
+                if pr and (sz not in sizes or pr < sizes[sz]):
+                    sizes[sz] = pr
+            return ptype, sizes
+    return "", {}
+
+SL_FOOD = r"\bgels?\b|\bchews?\b|\bbars?\b|electrolyte|drink mix|energy|hydration mix|nutrition"
+def sl_group(ptype, name):
+    if re.search(SL_FOOD, (ptype or "").lower()):
+        return "nutrition"
+    return group_of(ptype) or group_of(name)
+
+def scrape_sportinglife():
+    listing, start, total = {}, 0, None
+    while total is None or start < total:
+        html = get(f"{SL_BASE}/en-CA/running/?start={start}&sz=48").text
+        if total is None:
+            m = re.search(r"([\d,]+)\s+Items", html)
+            total = int(m.group(1).replace(",", "")) if m else 0
+            print(f"  sportinglife: {total} running listings", file=sys.stderr)
+        tiles = sl_parse_listing(html)
+        if not tiles:
+            break
+        for t in tiles:
+            listing.setdefault(t["id"], t)
+        start += 48
+        time.sleep(1)
+    out, errors = [], 0
+    def one(t):
+        try:
+            ptype, sizes = sl_parse_product(get(t["u"]).text)
+        except Exception as e:
+            return e
+        g = sl_group(ptype, t["n"])
+        if not g or not sizes:
+            return None
+        std = t["std"]                          # regular price shown on the tile, if on sale
+        sz = [[k, v, max(std or v, v)] for k, v in sizes.items()]
+        return {"st": "sportinglife", "b": t["b"], "n": t["n"], "u": t["u"], "g": g, "sx": [],
+                "w": bool(re.search(r"\bwide\b", t["n"], re.I)), "img": t["img"],
+                "lp": max(r for _, _, r in sz), "bb": None, "sz": sz}
+    with ThreadPoolExecutor(4) as ex:          # gentle: 4 pages at a time
+        for r in ex.map(one, listing.values()):
+            if isinstance(r, Exception):
+                errors += 1
+            elif r:
+                out.append(r)
+    if listing and errors > len(listing) * 0.3:
+        raise RuntimeError(f"sportinglife: {errors}/{len(listing)} product pages failed")
+    return out
+
 # ---------------------------------------------------------------- merge + main
 STORES = {
     "altitude": lambda: scrape_commercetools("altitude", "https://www.altitude-sports.com"),
     "lasthunt": lambda: scrape_commercetools("lasthunt", "https://www.thelasthunt.com"),
     "thefeed": scrape_thefeed,
     "sea2sky": scrape_sea2sky,
+    "sportinglife": scrape_sportinglife,
 }
 
 def name_gender(n):
