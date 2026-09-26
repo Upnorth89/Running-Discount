@@ -111,11 +111,11 @@ def card(d):
 </td></tr></table></a></td></tr>'''
 
 def shop_link(p):
-    """Site link that opens this person's tailored shop on any device (profile in the #hash)."""
+    """Site link that opens this person's tailored shop on any device (profile in the address)."""
     import base64
     keep = {k: p.get(k) for k in ("name", "gender", "activities", "groups", "sizes", "brands", "min_discount", "max_price")}
     b = base64.urlsafe_b64encode(json.dumps(keep, separators=(",", ":")).encode()).decode().rstrip("=")
-    return f"{SITE_URL}#p={b}"
+    return f"{SITE_URL}?p={b}"          # query string survives email link-wrappers better than #
 
 def build(p, sale):
     shop = shop_link(p)
