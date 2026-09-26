@@ -2,7 +2,7 @@
 """Running Discount scraper.
 
 Pulls the full running catalogue (full price and on sale) from Altitude Sports, The Last Hunt,
-The Feed, Sea2Sky Nutrition, Sporting Life, Stampeak and MEC, merges the same product sold by several stores, and writes
+The Feed, Sea2Sky Nutrition, Sporting Life, Stampeak, MEC and REI, merges the same product sold by several stores, and writes
 site/deals.json in the compact format the page reads:
 
   {v:2, updated, stores:{id: iso}, items:[{b,n,g,sx,w,img,lp,bb,sz:[[size,price,offer]],of:[url,...]}]}
@@ -468,6 +468,62 @@ def scrape_mec():
             out.append(it)
     return out
 
+
+# ---------------------------------------------------------------- REI (US store, prices in USD -> CAD; data is embedded in the listing pages)
+REI_BASE = "https://www.rei.com"
+
+def rei_page(url):
+    html = get(url).text
+    m = re.search(r'<script type="application/json" id="initial-props">(.*?)</script>', html, re.S)
+    if not m:
+        raise RuntimeError("no product data on page (blocked or redesigned)")
+    return json.loads(m.group(1))["ProductSearch"]["products"]["searchResults"]
+
+def rei_item(r, fx):
+    if not r.get("available", True):
+        return None
+    title = r.get("cleanTitle") or r.get("title") or ""
+    g = "nutrition" if re.search(SL_FOOD, title.lower()) else group_of(title)
+    if not g:
+        return None
+    dp = r.get("displayPrice") or {}
+    now = dp.get("min")
+    reg = dp.get("compareAt") or (float(r["regularPrice"]) if r.get("regularPrice") else None) or now
+    if not now:
+        return None
+    sizes = [x["size"] for x in ((r.get("sizeDetails") or {}).get("sizeDetails") or [])
+             if x.get("filterState", "available") == "available" and x.get("size")]
+    sizes = sizes or ["OS"]
+    now_c, reg_c = round(float(now) * fx, 2), round(max(float(reg), float(now)) * fx, 2)
+    return {"st": "rei", "b": r.get("brand") or "", "n": title, "u": REI_BASE + r["link"], "g": g, "sx": [],
+            "w": bool(re.search(r"\bwide\b", title, re.I)), "img": r.get("thumbnailImageLink"),
+            "lp": reg_c, "bb": None,
+            "sz": [[norm_size(re.sub(r"\s*wide\s*$", "", x, flags=re.I)), now_c, reg_c] for x in dict.fromkeys(sizes)]}
+
+def scrape_rei():
+    fx = usd_cad()
+    out, seen, page, last = [], set(), 1, None
+    while last is None or page <= last:
+        sr = rei_page(f"{REI_BASE}/c/running?page={page}&pagesize=90")
+        if last is None:
+            q = ((sr.get("pagination") or {}).get("lastPage") or {}).get("queryString") or ""
+            m = re.search(r"[?&]page=(\d+)", q)
+            last = int(m.group(1)) if m else 1
+            print(f"  rei: {last} pages of running gear, USD->CAD {fx}", file=sys.stderr)
+        results = sr.get("results") or []
+        if not results:
+            break
+        for r in results:
+            if r.get("prodId") in seen:
+                continue
+            seen.add(r.get("prodId"))
+            it = rei_item(r, fx)
+            if it:
+                out.append(it)
+        page += 1
+        time.sleep(1)
+    return out
+
 # ---------------------------------------------------------------- Sporting Life (Salesforce Commerce Cloud)
 SL_BASE = "https://www.sportinglife.ca"
 SL_TILE = re.compile(r'<div class="product-tile[^"]*"[^>]*data-itemid="([^"]+)"[^>]*>(.*?)<!-- END: \.product-tile -->', re.S)
@@ -582,6 +638,7 @@ STORES = {
     "sportinglife": scrape_sportinglife,
     "stampeak": scrape_stampeak,
     "mec": scrape_mec,
+    "rei": scrape_rei,
 }
 
 def name_gender(n):
