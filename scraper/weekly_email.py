@@ -46,9 +46,12 @@ def match(items, p):
     """Mirror of matchItems() on the site: items in stock in the profile's sizes, with best price."""
     favs = {b.lower() for b in p.get("brands") or []}
     groups, gender = set(p.get("groups") or []), p.get("gender")
+    ca_only = (p.get("ships") or "ca") != "all"
     out = []
     for d in items:
         if d["g"] not in groups:
+            continue
+        if ca_only and d.get("ca") is False:
             continue
         if gender and gender != "any" and d["sx"] and gender not in d["sx"]:
             continue
@@ -97,6 +100,9 @@ def card(d):
     fav = " ★" if d["fav"] else ""
     sz = sizes_label(d)
     bb = f'<div style="font-size:12px;color:#B3261E;font-weight:600">Best by {E(d["bb"])}</div>' if d.get("bb") else ""
+    if d.get("ca") is False:
+        bb += '<div style="font-size:12px;color:#5C6660">Ships from outside Canada · converted to CAD, duties may apply</div>'
+
     return f'''<tr><td style="padding:10px 0;border-top:1px solid #E3E7E2">
 <a href="{E(d["url"])}" style="text-decoration:none;color:#17201C;display:block">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
@@ -113,7 +119,7 @@ def card(d):
 def shop_link(p):
     """Site link that opens this person's tailored shop on any device (profile in the address)."""
     import base64
-    keep = {k: p.get(k) for k in ("name", "gender", "activities", "groups", "sizes", "brands", "min_discount", "max_price")}
+    keep = {k: p.get(k) for k in ("name", "gender", "ships", "activities", "groups", "sizes", "brands", "min_discount", "max_price")}
     b = base64.urlsafe_b64encode(json.dumps(keep, separators=(",", ":")).encode()).decode().rstrip("=")
     return f"{SITE_URL}?p={b}"          # query string survives email link-wrappers better than #
 
