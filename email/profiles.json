@@ -1,0 +1,66 @@
+[
+  {
+    "name": "Bastien",
+    "email": "bastien.hammond@gmail.com",
+    "gender": "men",
+    "activities": [
+      "trail"
+    ],
+    "groups": [
+      "shoes",
+      "tops",
+      "bottoms",
+      "bras",
+      "socks",
+      "gloves",
+      "headwear",
+      "packs",
+      "gear",
+      "watches",
+      "nutrition"
+    ],
+    "sizes": {
+      "shoes": {
+        "sizes": [
+          "11",
+          "11.5"
+        ],
+        "width": [
+          "Regular"
+        ]
+      },
+      "tops": {
+        "sizes": [
+          "M"
+        ]
+      },
+      "bottoms": {
+        "sizes": [
+          "M"
+        ],
+        "inseam": [
+          "5",
+          "3"
+        ]
+      },
+      "socks": {
+        "sizes": [
+          "L"
+        ]
+      },
+      "gloves": {
+        "sizes": [
+          "M"
+        ]
+      },
+      "headwear": {
+        "sizes": [
+          "L/XL"
+        ]
+      }
+    },
+    "brands": [],
+    "min_discount": 30,
+    "max_price": null
+  }
+]
