@@ -5,7 +5,8 @@ Pulls the full running catalogue (full price and on sale) from Altitude Sports, 
 The Feed, Sea2Sky Nutrition, Sporting Life, Stampeak, MEC and REI, merges the same product sold by several stores, and writes
 site/deals.json in the compact format the page reads:
 
-  {v:2, updated, stores:{id: iso}, items:[{b,n,g,sx,w,img,lp,bb,sz:[[size,price,offer]],of:[url,...]}]}
+  {v:2, updated, stores:{id: iso}, items:[{b,n,g,sx,w,img,lp,bb,ca,sz:[[size,price,offer,reg]],of:[url,...]}]}
+  ca = sold and shipped from a Canadian store (no cross-border shipping, duties or currency conversion).
 
   sz = in-stock sizes: [size, today's lowest price, index of the offer (store link) that has it,
   that size's regular price]. A size is on sale when its price is below its regular price.
@@ -747,7 +748,10 @@ def make_shopify_scraper(st, base, kind):
         prods = shopify_products(base, max_pages=24)
         fx = fx_to_cad(cur)
         print(f"  {st}: {len(prods)} products, {cur}" + (f" x{fx}" if cur != "CAD" else ""), file=sys.stderr)
-        return shopify_items(st, base, prods, generic_group(kind), fx=fx, size_aware=True, size_fn=generic_size)
+        items = shopify_items(st, base, prods, generic_group(kind), fx=fx, size_aware=True, size_fn=generic_size)
+        for o in items:
+            o["ca"] = cur == "CAD"          # a store selling in CAD ships from Canada; USD/EUR/GBP stores are cross-border
+        return items
     return run
 
 STORES = {
@@ -771,9 +775,13 @@ def name_gender(n):
     m = bool(re.search(r"(?<!wo)\bmen'?s?\b", low))
     return ["women"] if w and not m else ["men"] if m and not w else None
 
+# Stores that sell and ship from Canada (no border fees). Generic Shopify stores decide by their currency.
+CA_STORES = {"altitude", "lasthunt", "sea2sky", "sportinglife", "stampeak", "mec"}
+
 def mkey(o):
     name = re.sub(r"[^a-z0-9]+", " ", o["n"].lower()).strip()
-    return (o["b"].lower().strip(), name, o["w"], o["g"])
+    # Canadian and cross-border offers stay separate, so "Canadian stores only" never hides a cheaper US price inside a card
+    return (o["b"].lower().strip(), name, o["w"], o["g"], bool(o.get("ca")))
 
 def merge(offers):
     """Same product at several stores -> one item; each size keeps the cheapest store."""
@@ -783,7 +791,8 @@ def merge(offers):
         it = items.get(mkey(o))
         if not it:
             it = items[mkey(o)] = {"b": o["b"], "n": o["n"].strip(), "g": o["g"], "sx": list(o["sx"]), "w": o["w"],
-                                   "img": o.get("img"), "lp": o["lp"], "bb": o.get("bb"), "sz": {}, "of": [], "_st": []}
+                                   "img": o.get("img"), "lp": o["lp"], "bb": o.get("bb"), "sz": {}, "of": [], "_st": [],
+                                   "ca": bool(o.get("ca"))}
         oi = len(it["of"])
         it["of"].append(o["u"]); it["_st"].append(o["st"])
         it["lp"] = max(it["lp"], o["lp"])
@@ -813,12 +822,16 @@ def main():
         t = time.time()
         if REMERGE:
             raw[st] = prev_offers.get(st, [])
+            for o in raw[st]:
+                o.setdefault("ca", st in CA_STORES)
             offers += raw[st]
             continue
         try:
             got = fn()
             if not got and st not in dict((x[0], 1) for x in SHOPIFY_STORES):
                 raise RuntimeError("0 items")
+            for o in got:
+                o.setdefault("ca", st in CA_STORES)
             raw[st] = got
             stamps[st] = now()
             n_sale = sum(1 for o in got if any(p < r * 0.99 for _, p, r in o["sz"]))
@@ -826,6 +839,8 @@ def main():
         except Exception as e:
             failed.append(st)
             raw[st] = prev_offers.get(st, [])
+            for o in raw[st]:
+                o.setdefault("ca", st in CA_STORES)
             msg = str(e)
             m = re.search(r"(Tunnel connection failed: \d+ \w+|\d{3} Client Error: \w+|HTTP \d{3}|no [^;]{0,60})", msg)
             print(f"{st}: FAILED ({m.group(1) if m else msg[:120]}); kept {len(raw[st])} from last run", file=sys.stderr)
