@@ -63,6 +63,10 @@ input:focus-visible,button:focus-visible{outline:3px solid var(--moss);outline-o
 .sizebox h3{font:700 20px/1.1 var(--display);margin:0 0 10px}
 .sizebox .sub{font-size:14px;font-weight:600;color:var(--muted);margin:14px 0 8px}
 .sizebox:first-child{margin-top:0}
+.sizehint{margin:18px 0 0}
+.sizebox.flash{border-color:var(--ink);box-shadow:0 0 0 3px var(--hivis)}
+.sizebox.need h3::after{content:"  · pick a size";font:600 14px/1 var(--body);color:var(--err)}
+#groups .chip small.sz{font-weight:600}
 
 .range{display:flex;align-items:center;gap:14px}
 .range input{flex:1;accent-color:var(--moss);height:44px}
@@ -176,12 +180,10 @@ input:focus-visible,button:focus-visible{outline:3px solid var(--moss);outline-o
       <button class="chip" data-v="watches">Watches</button>
       <button class="chip" data-v="nutrition">Nutrition</button>
     </div>
-  </section>
-
-  <section id="sizesSection" class="hidden">
-    <h2>Your sizes</h2>
-    <p class="hint">Pick every size you'd buy. Gear not in stock in these sizes is hidden.</p>
-    <div id="sizes"></div>
+    <div id="sizesSection" class="hidden">
+      <p class="hint sizehint">Pick every size you'd buy for each one. Gear not in stock in these sizes is hidden.</p>
+      <div id="sizes"></div>
+    </div>
   </section>
 
   <section>
@@ -211,6 +213,13 @@ input:focus-visible,button:focus-visible{outline:3px solid var(--moss);outline-o
       <label class="field" for="maxPrice">Hide gear over this price, in CAD (optional)</label>
       <input id="maxPrice" type="number" min="0" step="5" inputmode="numeric" placeholder="No limit">
     </div>
+  </section>
+
+  <section>
+    <h2>Weekly email</h2>
+    <p class="hint">Copies your profile so you can paste it into <code>email/profiles.json</code> in your GitHub repo. Update it there whenever your sizes change.</p>
+    <button class="btn" id="copyProfile" type="button">Copy my profile for the email</button>
+    <textarea id="profileJson" class="hidden" rows="8" readonly style="width:100%;margin-top:10px;font:13px/1.4 ui-monospace,Menlo,monospace;border:1.5px solid var(--line);border-radius:10px;padding:10px;background:var(--card);color:var(--ink)"></textarea>
   </section>
 
 </div>
@@ -261,6 +270,7 @@ let customBrands=[];
 const $=id=>document.getElementById(id);
 function esc(s){const d=document.createElement("div");d.textContent=s;return d.innerHTML}
 
+let justAdded=null;
 function bindChipGroup(el){
   const single=el.dataset.single, multi=el.dataset.multi, key=single||multi;
   el.addEventListener("click",e=>{
@@ -268,8 +278,10 @@ function bindChipGroup(el){
     const v=b.dataset.v;
     if(single){state[key]=state[key]===v?"":v}
     else if(v==="__all"){const all=optsOf(el);state[key]=all.every(o=>state[key].includes(o))?[]:all.slice()}
-    else{const a=state[key];const i=a.indexOf(v);i<0?a.push(v):a.splice(i,1)}
+    else{const a=state[key];const i=a.indexOf(v);i<0?a.push(v):a.splice(i,1);if(key==="groups"&&i<0&&SIZE_SPEC[v])justAdded=v}
     render();
+    if(justAdded){const box=document.getElementById("sz-"+justAdded);justAdded=null;
+      if(box){box.scrollIntoView({behavior:"smooth",block:"center"});box.classList.add("flash");setTimeout(()=>box.classList.remove("flash"),1600)}}
   });
 }
 function optsOf(el){return [...el.querySelectorAll(".chip")].filter(b=>!b.disabled&&b.dataset.v!=="__all").map(b=>b.dataset.v)}
@@ -281,6 +293,11 @@ function syncChips(){
         :b.dataset.v==="__all"?optsOf(el).every(o=>state[key].includes(o))
         :state[key].includes(b.dataset.v);
       b.setAttribute("aria-pressed",on?"true":"false");
+      if(key==="groups"&&SIZE_SPEC[b.dataset.v]){
+        let t=b.querySelector("small.sz");if(!t){t=document.createElement("small");t.className="sz";b.appendChild(t)}
+        const sz=((state.sizes[b.dataset.v]||{}).sizes||[]);
+        t.textContent=on?(sz.length?sz.slice(0,3).join(", ")+(sz.length>3?"…":""):"pick size"):"";
+      }
     });
   });
 }
@@ -293,7 +310,8 @@ function renderSizes(){
   $("sizesSection").classList.toggle("hidden",groups.length===0);
   $("sizes").innerHTML=groups.map(g=>{
     const spec=SIZE_SPEC[g]; state.sizes[g]=state.sizes[g]||{};
-    return `<div class="sizebox"><h3>${spec.title}</h3>${spec.sub.map(s=>{
+    const need=!(state.sizes[g].sizes||[]).length;
+    return `<div class="sizebox${need?" need":""}" id="sz-${g}"><h3>${spec.title}</h3>${spec.sub.map(s=>{
       const cur=state.sizes[g][s.k]||[];
       return `<div class="sub">${s.label}</div><div class="${s.scale?"scale":"chips"}" data-g="${g}" data-k="${s.k}">${
         s.opts.map(o=>`<button class="chip" data-v="${esc(o)}" aria-pressed="${cur.includes(o)}">${esc(o)}</button>`).join("")}</div>`;
@@ -306,7 +324,8 @@ $("sizes").addEventListener("click",e=>{
   const a=state.sizes[g][k]=state.sizes[g][k]||[];
   const i=a.indexOf(b.dataset.v);i<0?a.push(b.dataset.v):a.splice(i,1);
   b.setAttribute("aria-pressed",i<0?"true":"false");
-  renderSummary();updateCount();
+  document.getElementById("sz-"+g).classList.toggle("need",!(state.sizes[g].sizes||[]).length);
+  syncChips();renderSummary();updateCount();
 });
 
 function renderSummary(){
@@ -337,6 +356,14 @@ $("name").addEventListener("input",e=>state.name=e.target.value.trim());
 $("email").addEventListener("input",e=>state.email=e.target.value.trim());
 $("maxPrice").addEventListener("input",e=>{const v=parseFloat(e.target.value);state.max_price=isNaN(v)?null:v;updateCount()});
 
+$("copyProfile").addEventListener("click",async()=>{
+  const problem=validate(); if(problem){setMsg(problem,true);return}
+  const {frequency,updated_at,...p}=cleanProfile();
+  const txt=JSON.stringify([p],null,2);
+  const ta=$("profileJson");ta.value=txt;ta.classList.remove("hidden");
+  try{await navigator.clipboard.writeText(txt);setMsg("Profile copied. Paste it into email/profiles.json on GitHub.")}
+  catch(e){ta.select();setMsg("Select the text below and copy it.")}
+});
 function setMsg(t,err){const m=$("msg");m.textContent=t;m.classList.toggle("err",!!err)}
 function validate(){
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(state.email))return "Add a valid email so we can send your deals.";
