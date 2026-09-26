@@ -119,7 +119,7 @@ def card(d):
 def shop_link(p):
     """Site link that opens this person's tailored shop on any device (profile in the address)."""
     import base64
-    keep = {k: p.get(k) for k in ("name", "gender", "ships", "activities", "groups", "sizes", "brands", "min_discount", "max_price")}
+    keep = {k: p.get(k) for k in ("name", "gender", "ships", "activities", "groups", "sizes", "brands", "max_price")}
     b = base64.urlsafe_b64encode(json.dumps(keep, separators=(",", ":")).encode()).decode().rstrip("=")
     return f"{SITE_URL}?p={b}"          # query string survives email link-wrappers better than #
 
@@ -143,7 +143,7 @@ def build(p, sale):
     top = max(d["pct"] for d in sale)
     subject = f"{len(sale)} running deals in your size this week, up to {top}% off"
     intro = (f"{E(first)}, here are this week's sales on running gear in your sizes, "
-             f"{p.get('min_discount') or 1}% off or more. Biggest discounts first.")
+             f"every price drop, big or small. Biggest discounts first.")
     body = f'''<!doctype html><html><body style="margin:0;background:#EEF1EC">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#EEF1EC"><tr><td align="center" style="padding:20px 12px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#FFFFFF;border:2px solid #17201C;border-radius:14px">
@@ -173,7 +173,7 @@ def main():
     for p in profiles:
         if not p.get("email"):
             continue
-        sale = [d for d in match(items, p) if d["pct"] >= max(1, p.get("min_discount") or 0)]
+        sale = [d for d in match(items, p) if d["pct"] >= 1]      # anything below full price
         who = p["email"]
         if not sale:
             print(f"{who}: nothing on sale in their sizes this week, no email sent")
