@@ -206,19 +206,9 @@ input:focus-visible,button:focus-visible{outline:3px solid var(--moss);outline-o
   </section>
 
   <section>
-    <h2>Sale alerts</h2>
-    <p class="hint">Your weekly email lists sales at least this big. The On sale section in your shop uses it too.</p>
-    <div class="chips" id="disc">
-      <button class="chip" data-v="0">Any sale</button>
-      <button class="chip" data-v="10">10%+</button>
-      <button class="chip" data-v="20">20%+</button>
-      <button class="chip" data-v="30">30%+</button>
-      <button class="chip" data-v="40">40%+</button>
-      <button class="chip" data-v="50">50%+</button>
-      <button class="chip" data-v="60">60%+</button>
-      <button class="chip" data-v="70">70%+</button>
-    </div>
-    <div style="margin-top:14px">
+    <h2>Price limit</h2>
+    <p class="hint">Every sale shows up, however small. Optionally hide pricier gear.</p>
+    <div>
       <label class="field" for="maxPrice">Hide gear over this price, in CAD (optional)</label>
       <input id="maxPrice" type="number" min="0" step="5" inputmode="numeric" placeholder="No limit">
     </div>
@@ -275,7 +265,7 @@ const SIZE_SPEC={
 };
 const NOSIZE=["packs","gear","watches","nutrition"];
 
-const state={name:"",email:"",gender:"",ships:"ca",activities:[],groups:[],sizes:{},brands:[],min_discount:30,max_price:null};
+const state={name:"",email:"",gender:"",ships:"ca",activities:[],groups:[],sizes:{},brands:[],min_discount:0,max_price:null};
 let customBrands=[];
 
 const $=id=>document.getElementById(id);
@@ -346,10 +336,10 @@ function renderSummary(){
   const shoe=state.groups.includes("shoes")&&state.sizes.shoes&&state.sizes.shoes.sizes;
   if(shoe&&shoe.length)parts.push("shoes in "+shoe.slice().sort((a,b)=>a-b).join(", "));
   if(state.ships==="all")parts.push("any store");else parts.push("Canadian stores");
-  parts.push(state.min_discount?state.min_discount+"% off or more":"any sale");
+  parts.push("every sale");
   $("summary").textContent=parts.join(", ");
 }
-function render(){syncChips();renderSizes();syncChips();syncDisc();renderSummary();if(typeof updateCount==="function")updateCount()}
+function render(){syncChips();renderSizes();syncChips();renderSummary();if(typeof updateCount==="function")updateCount()}
 
 document.querySelectorAll("[data-single],[data-multi]").forEach(bindChipGroup);
 renderBrands();
@@ -362,8 +352,7 @@ function addBrand(){
   if(!state.brands.includes(name))state.brands.push(name);
   $("brandInput").value=""; renderBrands(); render();
 }
-$("disc").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;state.min_discount=+b.dataset.v;syncDisc();renderSummary();updateCount()});
-function syncDisc(){$("disc").querySelectorAll(".chip").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.v===state.min_discount?"true":"false"))}
+
 $("name").addEventListener("input",e=>state.name=e.target.value.trim());
 $("email").addEventListener("input",e=>state.email=e.target.value.trim());
 $("maxPrice").addEventListener("input",e=>{const v=parseFloat(e.target.value);state.max_price=isNaN(v)?null:v;updateCount()});
@@ -393,7 +382,7 @@ function cleanProfile(){
 }
 function applyProfile(p){
   Object.assign(state,{name:p.name||"",email:p.email||"",gender:p.gender||"",ships:p.ships||"ca",activities:p.activities||[],groups:p.groups||[],
-    sizes:p.sizes||{},brands:p.brands||[],min_discount:p.min_discount??30,max_price:p.max_price??null});
+    sizes:p.sizes||{},brands:p.brands||[],min_discount:0,max_price:p.max_price??null});
   customBrands=state.brands.filter(b=>!BRANDS.includes(b));
   $("name").value=state.name;$("email").value=state.email;$("maxPrice").value=state.max_price??"";
   renderBrands();render();
@@ -494,9 +483,9 @@ function renderDeals(){
   const shown=(view.saleOnly?onSale:all).slice().sort(SORTS[view.sort]);
   let body="";
   if(!view.saleOnly){
-    const min=p.min_discount||1;
+    const min=1;                       // anything below full price counts
     const hot=onSale.filter(d=>d.pct>=min).sort(SORTS[view.sort==="price"?"price":"discount"]);
-    body+=section("__sale",`On sale${p.min_discount?`, ${p.min_discount}%+ off`:""}`,hot,"sale");
+    body+=section("__sale","On sale",hot,"sale");
   }
   body+=ORDER.filter(g=>p.groups.includes(g)).map(g=>section(g,GROUP_LABEL[g],shown.filter(d=>d.g===g))).join("");
   const missing=p.groups.filter(g=>SIZE_SPEC[g]&&!((p.sizes[g]||{}).sizes||[]).length&&g!=="bras");
@@ -509,7 +498,7 @@ $("dShow").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)
 $("dSort").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;view.sort=b.dataset.v;view.open={};renderDeals()});
 let searchT;$("dSearch").addEventListener("input",e=>{clearTimeout(searchT);searchT=setTimeout(()=>{view.q=e.target.value;view.open={};renderDeals()},200)});
 $("dealList").addEventListener("click",e=>{const b=e.target.closest("[data-open]");if(!b)return;const k=b.dataset.open;view.open[k]=(view.open[k]||PAGE)+MORE;renderDeals()});
-function updateCount(){const n=DATA?matchItems(cleanProfile()).filter(d=>d.pct>=Math.max(1,state.min_discount||0)).length:0;const t=$("tabCount");t.textContent=n?n:"";t.title=n?`${n} on sale in your sizes`:""}
+function updateCount(){const n=DATA?matchItems(cleanProfile()).filter(d=>d.pct>=1).length:0;const t=$("tabCount");t.textContent=n?n:"";t.title=n?`${n} on sale in your sizes`:""}
 function showView(v){
   document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected",t.dataset.view===v?"true":"false"));
   $("profileView").classList.toggle("hidden",v!=="profile");
