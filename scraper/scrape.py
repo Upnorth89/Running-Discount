@@ -66,16 +66,16 @@ PTL = {
 }
 # Fallback on product names (first match wins). Kept strict so "Short Sleeve" isn't shorts, "Light Jacket" isn't a light.
 RULES = [
-    ("shoes",     r"\bshoes?\b|\bspikes\b|\bfootwear\b|\bsneakers?\b"),
+    ("shoes",     r"\bshoes?\b|\bchaussures?\b|\bspikes\b|\bfootwear\b|\bsneakers?\b"),
     ("bras",      r"\bbras?\b"),
-    ("socks",     r"\bsocks?\b"),
+    ("socks",     r"\bsocks?\b|mini crew|no[- ]show|over[- ]the[- ]calf|\bquarter\b(?![- ]?zip)"),
     ("gloves",    r"\bgloves?\b|\bmitts?\b|mittens"),
     ("watches",   r"\bwatch(es)?\b"),
     ("headwear",  r"\bhats?\b|\bcaps?\b|gocap|trlcap|beanie|toque|tuque|headband|\bbuffs?\b|neck ?gaiter|visor"),
     ("packs",     r"hydration (vest|pack)|race vest|running vest|backpack|\bbelts?\b|waist ?pack|\bpinnacle\b|\bvest \d|\d+ ?l\b"),
-    ("bottoms",   r"(?<!short sleeve )\bshorts\b|\bshort\b(?! sleeve)|tights?\b|\bpants?\b|leggings?|joggers?|skirts?|skorts?|boxers?|briefs?"),
-    ("tops",      r"t-?shirts?|\btees?\b|\bshirts?|\btops?\b|tanks?|singlets?|jackets?|\bcoats?\b|raincoats?|hood(ie|y)|\bvests?\b|gilets?|jersey|sweaters?|base ?layer|pullovers?|fleece|anorak|windbreaker|\bcrew\b|half zip|quarter zip|1/2 zip|1/4 zip"),
-    ("gear",      r"poles?\b|headlamp|bottles?|flasks?|sunglass|sleeves?\b|gaiters|roller|massage|insoles?"),
+    ("bottoms",   r"\bbottoms?\b|(?<!short sleeve )\bshorts\b|\bshort\b(?! sleeve)|tights?\b|\bpants?\b|leggings?|joggers?|skirts?|skorts?|boxers?|briefs?"),
+    ("tops",      r"t-?shirts?|\btees?\b|\bshirts?|\btops?\b|tanks?|singlets?|jackets?|\bcoats?\b|raincoats?|hood(ie|y)|\bvests?\b|gilets?|jersey|sweaters?|base ?layer|pullovers?|fleece|anorak|windbreaker|\bcrew\b|half zip|quarter zip|1/2 zip|1/4 zip|long sleeve|short sleeve|\bcrop\b"),
+    ("gear",      r"poles?\b|headlamp|bottles?|flasks?|sunglass|(?:arm|calf|leg|compression) sleeves?\b|gaiters|roller|massage|insoles?|chafe|chafing|\bbalm\b|\bglide\b"),
 ]
 def group_of(*texts):
     t = " ".join(x for x in texts if x).lower()
@@ -259,7 +259,7 @@ def shopify_products(base, max_pages=40):
 
 SIZE_OPT = re.compile(r"^(size|taille|pointure|shoe size)$", re.I)
 
-def shopify_items(st, base, prods, group_fn, fx=1.0, size_aware=False, size_fn=None):
+def shopify_items(st, base, prods, group_fn, fx=1.0, size_aware=False, size_fn=None, collapse=False):
     """One card per first option (pack size / colour) when a product has several options;
     flavours or sizes become the card's "sizes". Every in-stock variant is included."""
     out = []
@@ -291,6 +291,8 @@ def shopify_items(st, base, prods, group_fn, fx=1.0, size_aware=False, size_fn=N
                 label = rest if len(opts) > 1 else o1
             if size_fn:
                 label = size_fn(label)
+            if collapse and si is not None:
+                key = ""                  # one card per product; colours folded together
             bb = None
             m = BB.search(label) or BB.search(o1)
             if m:
@@ -302,8 +304,10 @@ def shopify_items(st, base, prods, group_fn, fx=1.0, size_aware=False, size_fn=N
             if lab.lower() == "default title":
                 lab = "OS"
             cad, reg = round(price * fx, 2), round(cmp_ * fx, 2)
-            if lab not in b["sz"] or cad < b["sz"][lab][0]:
-                b["sz"][lab] = (cad, reg)
+            m2 = re.match(r"^(2?XS|S|M|L|XL|2XL|XXL)\s*[-/]\s*(S|M|L|XL|2XL|XXL|3XL)$", lab.strip(), re.I)
+            for one in ([m2.group(1).upper(), m2.group(2).upper()] if m2 and g != "headwear" else [lab]):  # "S - M" fits S and M
+                if one not in b["sz"] or cad < b["sz"][one][0]:
+                    b["sz"][one] = (cad, reg)
             b["bb"] = b["bb"] or bb
         for key, b in buckets.items():
             out.append({"st": st, "b": p.get("vendor") or "", "n": p["title"] + (f" · {key}" if key else ""),
@@ -656,50 +660,61 @@ def scrape_sportinglife():
 # ---------------------------------------------------------------- Any Shopify store (brands + shops): one line each
 # Each store is tested during the run: if it isn't Shopify, blocks us, or sells nothing running-related,
 # it is skipped and noted in the log. Currency is read from the store and converted to CAD.
-# kind: "gear" = classify each product; "food" = everything is nutrition (race-fuel brands).
+# kind: "gear" = classify each product; "food" = race-fuel brand; "socks" = sock brand; "eyewear" = sunglasses brand.
 SHOPIFY_STORES = [
-    # Canadian running shops
+    # Canadian running & outdoor shops (sell in CAD)
     ("vanrunco",       "https://vanrunco.com",               "gear"),   # Run As You Are / Vancouver Running Co.
+    ("coureurnordique","https://lecoureurnordique.ca",       "gear"),   # Le Coureur Nordique (QC)
+    ("bushtukah",      "https://bushtukah.com",              "gear"),   # Bushtukah (Ottawa)
     ("nordarun",       "https://nordarun.com",               "gear"),
-    ("ciele",          "https://cieleathletics.com",         "gear"),
+    ("ciele",          "https://ca.cieleathletics.com",      "gear"),   # Ciele's Canadian store
+    ("xact",           "https://xactnutrition.com",          "food"),
+    ("naak",           "https://naak.com",                   "food"),
     # running & trail brands
+    ("altra",          "https://altrarunning.com",           "gear"),
     ("janji",          "https://runjanji.com",               "gear"),
     ("rabbit",         "https://www.runinrabbit.com",        "gear"),
     ("satisfy",        "https://satisfyrunning.com",         "gear"),
+    ("saysky",         "https://saysky.com",                 "gear"),
     ("soar",           "https://www.soarrunning.com",        "gear"),
+    ("raidlight",      "https://raidlight.com",              "gear"),
     ("districtvision", "https://www.districtvision.com",     "gear"),
     ("bandit",         "https://banditrunning.com",          "gear"),
-    ("nathan",         "https://www.nathansports.com",       "gear"),
-    ("mounttocoast",   "https://mounttocoast.com",           "gear"),
-    ("kogalla",        "https://kogalla.com",                "gear"),
-    ("goodr",          "https://goodr.com",                  "gear"),
-    ("feetures",       "https://www.feetures.com",           "gear"),
-    ("balega",         "https://www.balega.com",             "gear"),
-    ("darntough",      "https://www.darntough.com",          "gear"),
     ("tenthousand",    "https://www.tenthousand.cc",         "gear"),
     ("oiselle",        "https://www.oiselle.com",            "gear"),
-    ("ultimatedirection", "https://www.ultimatedirection.com", "gear"),
-    ("inov8",          "https://www.inov-8.com",             "gear"),
     ("2xu",            "https://www.2xu.com",                "gear"),
-    ("roka",           "https://www.roka.com",               "gear"),
-    ("sunski",         "https://sunski.com",                 "gear"),
-    ("tifosi",         "https://www.tifosioptics.com",       "gear"),
+    ("rnnr",           "https://rnnr.com",                   "gear"),
+    ("smartwool",      "https://smartwool.com",              "gear"),
+    ("nathan",         "https://www.nathansports.com",       "gear"),
     ("nakedsports",    "https://www.nakedsportsinnovations.com", "gear"),
+    ("mounttocoast",   "https://mounttocoast.com",           "gear"),
+    ("kogalla",        "https://kogalla.com",                "gear"),
+    ("squirrels",      "https://squirrelsnutbutter.com",     "gear"),
+    # socks
+    ("feetures",       "https://www.feetures.com",           "socks"),
+    ("balega",         "https://www.balega.com",             "socks"),
+    ("darntough",      "https://www.darntough.com",          "socks"),
+    ("swiftwick",      "https://swiftwick.com",              "socks"),
+    ("stance",         "https://stance.com",                 "socks"),
+    ("wigwam",         "https://wigwam.com",                 "socks"),
+    # sunglasses
+    ("goodr",          "https://goodr.com",                  "eyewear"),
+    ("roka",           "https://roka.com",                   "eyewear"),
+    ("sunski",         "https://sunski.com",                 "eyewear"),
+    ("tifosi",         "https://www.tifosioptics.com",       "eyewear"),
     # race fuel
     ("tailwind",       "https://www.tailwindnutrition.com",  "food"),
     ("skratch",        "https://www.skratchlabs.com",        "food"),
-    ("spring",         "https://spring-energy.com",          "food"),
-    ("naak",           "https://naak.com",                   "food"),
-    ("untapped",       "https://untapped.com",               "food"),
+    ("nuun",           "https://nuun.com",                   "food"),
     ("honeystinger",   "https://www.honeystinger.com",       "food"),
     ("gu",             "https://guenergy.com",               "food"),
     ("huma",           "https://www.humagel.com",            "food"),
 ]
 
-NOT_RUNNING = re.compile(r"gift ?card|e-?gift|\bbike\b|cycling|\bbib\b|swim|golf|\bski\b|snowboard|\bdog\b|\bpet\b|"
+NOT_RUNNING = re.compile(r"gift ?card|pannier|eyeglasses|optical|reading glass|blue light|prescription|e-?gift|\bbike\b|cycling|\bbib\b|swim|golf|\bski\b|snowboard|\bdog\b|\bpet\b|"
                          r"\btent\b|sleeping bag|stickers?|poster|\bmug\b|\bbundle builder\b|warranty|shipping protection|"
                          r"route protection|insurance|\bsample\b|donation", re.I)
-FOOD = re.compile(r"\bgels?\b|\bchews?\b|\bbars?\b|electrolyte|drink mix|hydration mix|energy|\bfuel\b|"
+FOOD = re.compile(r"\bgels?\b(?!-)|[ée]lectrolyte|boisson|\bbarres?\b|jujubes?|\bchews?\b|\bbars?\b|electrolyte|drink mix|hydration mix|energy|\bfuel\b|"
                   r"nutrition|recovery drink|protein|waffle|stroopwafel|salt tab|capsule", re.I)
 
 def generic_size(label):
@@ -717,15 +732,19 @@ def generic_group(kind):
     def g(p):
         title = p.get("title") or ""
         ptype = p.get("product_type") or ""
-        tags = " ".join(p.get("tags") or [])
+        tags = re.sub(r"[_:>/-]+", " ", " ".join(p.get("tags") or []))
         if NOT_RUNNING.search(f"{title} {ptype}"):
             return None
+        g = group_of(title)
         if kind == "food":             # fuel brands: food, unless it's clearly merch/gear (a cap, a flask)
-            g = group_of(title)
             return g if g and not FOOD.search(title) else "nutrition"
-        if FOOD.search(ptype) or (FOOD.search(title) and not group_of(title)):
+        if kind == "socks":            # sock brands: socks unless it's clearly a tee/hoodie/etc.
+            return g if g and g != "tops" or re.search(r"\btee\b|shirt|tank|hoodie|jacket|pullover", title, re.I) else "socks"
+        if kind == "eyewear":          # sunglasses brands: everything is eyewear except hats/apparel
+            return g if g in ("headwear", "tops", "bottoms") else "gear"
+        if FOOD.search(ptype) or (FOOD.search(title) and not g):
             return "nutrition"
-        return group_of(ptype) or group_of(title) or (group_of(tags) if re.search(r"run|trail", tags, re.I) else None)
+        return g or group_of(ptype) or group_of(tags)
     return g
 
 def make_shopify_scraper(st, base, kind):
@@ -748,7 +767,8 @@ def make_shopify_scraper(st, base, kind):
         prods = shopify_products(base, max_pages=24)
         fx = fx_to_cad(cur)
         print(f"  {st}: {len(prods)} products, {cur}" + (f" x{fx}" if cur != "CAD" else ""), file=sys.stderr)
-        items = shopify_items(st, base, prods, generic_group(kind), fx=fx, size_aware=True, size_fn=generic_size)
+        items = shopify_items(st, base, prods, generic_group(kind), fx=fx, size_aware=True, collapse=True,
+                              size_fn=(lambda _l: "OS") if kind == "eyewear" else generic_size)
         for o in items:
             o["ca"] = cur == "CAD"          # a store selling in CAD ships from Canada; USD/EUR/GBP stores are cross-border
         return items
@@ -771,8 +791,8 @@ def name_gender(n):
     """Product names ("... - Women's", "Mens Pressio Tee") beat a store's gender tag, which is
     often "unisex" for women's-cut gear."""
     low = n.lower()
-    w = bool(re.search(r"\bwom[ae]n'?s?\b", low))
-    m = bool(re.search(r"(?<!wo)\bmen'?s?\b", low))
+    w = bool(re.search(r"\bwom[ae]n'?s?\b|\bfemmes?\b", low))
+    m = bool(re.search(r"(?<!wo)\bmen'?s?\b|\bhommes?\b", low))
     return ["women"] if w and not m else ["men"] if m and not w else None
 
 # Stores that sell and ship from Canada (no border fees). Generic Shopify stores decide by their currency.
