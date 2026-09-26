@@ -2,7 +2,7 @@
 """Running Discount scraper.
 
 Pulls the full running catalogue (full price and on sale) from Altitude Sports, The Last Hunt,
-The Feed, Sea2Sky Nutrition, Sporting Life and Stampeak, merges the same product sold by several stores, and writes
+The Feed, Sea2Sky Nutrition, Sporting Life, Stampeak and MEC, merges the same product sold by several stores, and writes
 site/deals.json in the compact format the page reads:
 
   {v:2, updated, stores:{id: iso}, items:[{b,n,g,sx,w,img,lp,bb,sz:[[size,price,offer]],of:[url,...]}]}
@@ -363,6 +363,111 @@ def scrape_stampeak():
     base = "https://www.stampeak.com/en"
     return shopify_items("stampeak", base, shopify_products(base), sp_group, size_aware=True, size_fn=sp_size)
 
+
+# ---------------------------------------------------------------- MEC (Next.js + Algolia; everything we need is in the listing pages)
+MEC_BASE = "https://www.mec.ca"
+MEC_CAT = {  # "Products > Running > X" -> our group
+    "running and training footwear": "shoes", "running clothing": None, "running packs": "packs",
+    "sunglasses": "gear", "headlamps": "gear", "water bottles": "gear", "injury prevention": "gear",
+    "training electronics": "watches", "training food & drinks": "nutrition",
+}
+
+def mec_results(url):
+    d = next_data(url)
+    ir = d["props"]["pageProps"]["serverState"]["initialResults"]
+    return ir[[k for k in ir if k.startswith("products")][0]]["results"][0], d
+
+def mec_list(url):
+    """All hits for one listing URL; figures out whether ?page= is 0- or 1-based."""
+    first, d = mec_results(url)
+    hits, pages = list(first["hits"]), first.get("nbPages", 1)
+    sep = "&" if "?" in url else "?"
+    offset = None
+    for n in range(1, pages):
+        for cand in ([n + 1, n] if offset is None else [n + offset]):
+            r, _ = mec_results(f"{url}{sep}page={cand}")
+            if r.get("page") == n:
+                offset = cand - n
+                hits += r["hits"]
+                break
+        else:
+            print(f"  ! mec: could not page {url}", file=sys.stderr)
+            break
+        time.sleep(0.5)
+    return first, d, hits
+
+def mec_group(h):
+    cats = [c for c in (h.get("categories") or {}).get("lvl2", []) if c.startswith("Products > Running > ")]
+    for c in cats:
+        key = c.split(" > ")[-1].lower()
+        if key in MEC_CAT:
+            return MEC_CAT[key] or group_of(h.get("title", "")) or "tops"
+    return group_of(h.get("title", ""))
+
+def mec_item(h):
+    if (h.get("inventoryStatus") or "IN_STOCK") == "OUT_OF_STOCK":
+        return None
+    g = mec_group(h)
+    if not g:
+        return None
+    best, reg, img = None, None, h.get("image")
+    for v in (h.get("variants") or {}).values():
+        gp = ((v.get("prices") or {}).get("guest")) or {}
+        price, sale = gp.get("price") or v.get("price"), gp.get("salePrice") or v.get("salePrice")
+        if not price:
+            continue
+        now = sale or gp.get("effectivePrice") or price
+        if best is None or now < best:
+            best, reg, img = now, price, v.get("image") or img
+    if best is None:
+        gp = ((h.get("prices") or {}).get("guest")) or {}
+        reg = gp.get("price") or h.get("price")
+        best = gp.get("salePrice") or h.get("salePrice") or reg
+    if not best:
+        return None
+    sz = h.get("size") or {}
+    g_ = h.get("gender")
+    sizes = (sz.get("US Men's") if g_ != "womens" else None) or sz.get("US Women's") or sz.get("US Men's") \
+        or h.get("sizeClothingMens") or h.get("sizeClothingWomens") or (h.get("clothingSize") or {}).get("Alpha") \
+        or sz.get("Alpha") or ["OS"]
+    sx = {"mens": ["men"], "womens": ["women"], "unisex": ["men", "women"]}.get(g_, [])
+    if img:
+        img = img.replace(".1280.1280.", ".500.500.")
+    return {"st": "mec", "b": h.get("brand") or "", "n": h.get("title") or "", "u": MEC_BASE + h["url"], "g": g,
+            "sx": sx, "w": (h.get("shoeWidth") or "").lower() == "wide" or bool(re.search(r"\bwide\b", h.get("title", ""), re.I)),
+            "img": img, "lp": round(float(reg), 2), "bb": None,
+            "sz": [[norm_size(x), round(float(best), 2), round(float(reg), 2)] for x in dict.fromkeys(sizes)]}
+
+def scrape_mec():
+    root = f"{MEC_BASE}/en/products/running"
+    first, d, hits = mec_list(root)
+    total = first.get("nbHits", 0)
+    print(f"  mec: {total} running listings", file=sys.stderr)
+    if total > 1000:        # search caps at 1000; walk the sub-categories instead
+        html = get(root).text + json.dumps(d)
+        subs = sorted(set(re.findall(r'/en/products/running/[a-z0-9-]+(?:/[a-z0-9-]+)?(?=["?#])', html)))
+        subs = {x[:-len("/deals")] if x.endswith("/deals") else x for x in subs}
+        subs = sorted(x for x in subs if x.count("/") > 3 and "new-arrivals" not in x)
+        print(f"  mec: walking {len(subs)} sub-categories", file=sys.stderr)
+        for sub in subs:
+            try:
+                f2, _, h2 = mec_list(MEC_BASE + sub)
+                hits += h2
+                if f2.get("nbHits", 0) > 1000:
+                    print(f"  ! mec: {sub} has {f2['nbHits']} listings, only 1000 reachable", file=sys.stderr)
+            except Exception as e:
+                print(f"  ! mec: {sub} failed ({e})", file=sys.stderr)
+    seen, out = set(), []
+    for h in hits:
+        key = h.get("parentSku") or h.get("url")
+        if key in seen:
+            continue
+        seen.add(key)
+        it = mec_item(h)
+        if it:
+            out.append(it)
+    return out
+
 # ---------------------------------------------------------------- Sporting Life (Salesforce Commerce Cloud)
 SL_BASE = "https://www.sportinglife.ca"
 SL_TILE = re.compile(r'<div class="product-tile[^"]*"[^>]*data-itemid="([^"]+)"[^>]*>(.*?)<!-- END: \.product-tile -->', re.S)
@@ -476,6 +581,7 @@ STORES = {
     "sea2sky": scrape_sea2sky,
     "sportinglife": scrape_sportinglife,
     "stampeak": scrape_stampeak,
+    "mec": scrape_mec,
 }
 
 def name_gender(n):
