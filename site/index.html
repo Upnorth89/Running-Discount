@@ -155,6 +155,15 @@ input:focus-visible,button:focus-visible{outline:3px solid var(--moss);outline-o
   </section>
 
   <section>
+    <h2>Stores</h2>
+    <p class="hint">Canadian stores ship without border fees, duties or currency surprises.</p>
+    <div class="chips" data-single="ships">
+      <button class="chip" data-v="ca">Canadian stores only</button>
+      <button class="chip" data-v="all">Include US &amp; international</button>
+    </div>
+  </section>
+
+  <section>
     <h2>Where you run</h2>
     <div class="chips" data-multi="activities">
       <button class="chip" data-v="road">Road</button>
@@ -231,6 +240,8 @@ input:focus-visible,button:focus-visible{outline:3px solid var(--moss);outline-o
     <div class="summary" id="dealsSummary" aria-live="polite"></div>
   </header>
   <div class="filters">
+    <div class="lbl">Ships from</div>
+    <div class="chips" id="dShips"></div>
     <div class="lbl">Show</div>
     <div class="chips" id="dShow"></div>
     <div class="lbl">Sort</div>
@@ -264,7 +275,7 @@ const SIZE_SPEC={
 };
 const NOSIZE=["packs","gear","watches","nutrition"];
 
-const state={name:"",email:"",gender:"",activities:[],groups:[],sizes:{},brands:[],min_discount:30,max_price:null};
+const state={name:"",email:"",gender:"",ships:"ca",activities:[],groups:[],sizes:{},brands:[],min_discount:30,max_price:null};
 let customBrands=[];
 
 const $=id=>document.getElementById(id);
@@ -276,7 +287,7 @@ function bindChipGroup(el){
   el.addEventListener("click",e=>{
     const b=e.target.closest(".chip"); if(!b||b.disabled)return;
     const v=b.dataset.v;
-    if(single){state[key]=state[key]===v?"":v}
+    if(single){state[key]=(state[key]===v&&key!=="ships")?"":v}
     else if(v==="__all"){const all=optsOf(el);state[key]=all.every(o=>state[key].includes(o))?[]:all.slice()}
     else{const a=state[key];const i=a.indexOf(v);i<0?a.push(v):a.splice(i,1);if(key==="groups"&&i<0&&SIZE_SPEC[v])justAdded=v}
     render();
@@ -334,6 +345,7 @@ function renderSummary(){
   if(state.activities.length)parts.push(state.activities.join(" and ")+" gear");
   const shoe=state.groups.includes("shoes")&&state.sizes.shoes&&state.sizes.shoes.sizes;
   if(shoe&&shoe.length)parts.push("shoes in "+shoe.slice().sort((a,b)=>a-b).join(", "));
+  if(state.ships==="all")parts.push("any store");else parts.push("Canadian stores");
   parts.push(state.min_discount?state.min_discount+"% off or more":"any sale");
   $("summary").textContent=parts.join(", ");
 }
@@ -375,12 +387,12 @@ function validate(){
 function cleanProfile(){
   const sizes={};
   state.groups.forEach(g=>{if(state.sizes[g])sizes[g]=state.sizes[g]});
-  return {name:state.name,email:state.email,gender:state.gender,activities:state.activities,groups:state.groups,
+  return {name:state.name,email:state.email,gender:state.gender,ships:state.ships||"ca",activities:state.activities,groups:state.groups,
     sizes,brands:state.brands,min_discount:state.min_discount,max_price:state.max_price,
     frequency:"weekly",updated_at:new Date().toISOString()};
 }
 function applyProfile(p){
-  Object.assign(state,{name:p.name||"",email:p.email||"",gender:p.gender||"",activities:p.activities||[],groups:p.groups||[],
+  Object.assign(state,{name:p.name||"",email:p.email||"",gender:p.gender||"",ships:p.ships||"ca",activities:p.activities||[],groups:p.groups||[],
     sizes:p.sizes||{},brands:p.brands||[],min_discount:p.min_discount??30,max_price:p.max_price??null});
   customBrands=state.brands.filter(b=>!BRANDS.includes(b));
   $("name").value=state.name;$("email").value=state.email;$("maxPrice").value=state.max_price??"";
@@ -404,7 +416,7 @@ const ORDER=Object.keys(GROUP_LABEL);
 const PAGE=8, MORE=24;
 const WORD={"ONE SIZE":"OS","O/S":"OS","X-SMALL":"XS","XSMALL":"XS","SMALL":"S","MEDIUM":"M","LARGE":"L","X-LARGE":"XL","XLARGE":"XL"};
 function norm(s){s=String(s).trim().toUpperCase();s=WORD[s]||s;return s.replace("XXXL","3XL").replace("XXL","2XL").replace("XXS","2XS")}
-const view={saleOnly:false,sort:"match",q:"",open:{}};
+const view={saleOnly:false,sort:"match",q:"",open:{},ships:null};
 const money=v=>"$"+v.toFixed(2);
 
 /* Every item in stock in the profile's sizes. Each gets its best price, the regular price of that
@@ -412,8 +424,10 @@ const money=v=>"$"+v.toFixed(2);
 function matchItems(p){
   const favs=(p.brands||[]).map(b=>b.toLowerCase());
   const out=[];
+  const caOnly=(p.ships||"ca")!=="all";
   for(const d of ITEMS){
     if(!p.groups.includes(d.g))continue;
+    if(caOnly&&d.ca===false)continue;
     if(p.gender&&p.gender!=="any"&&d.sx.length&&!d.sx.includes(p.gender))continue;
     let ok=d.sz;
     if(SIZE_SPEC[d.g]){
@@ -452,6 +466,7 @@ function card(d){
     <div class="price"><b>${money(d.best)}</b>${d.pct?`<s>${money(d.reg)}</s>`:""}</div>
     ${sizes}
     ${d.bb?`<div class="warn">Short-dated: best by ${esc(d.bb)}</div>`:""}
+    ${d.ca===false?`<div class="sizes">Ships from outside Canada · price converted to CAD, duties may apply</div>`:""}
   </a>`;
 }
 function section(key,title,list,cls){
@@ -462,10 +477,13 @@ function section(key,title,list,cls){
 }
 function renderDeals(){
   const p=cleanProfile();
+  if(view.ships===null)view.ships=p.ships||"ca";
+  p.ships=view.ships;
+  $("dShips").innerHTML=[["ca","Canada only"],["all","Anywhere"]].map(([v,l])=>`<button class="chip" data-v="${v}" aria-pressed="${view.ships===v}">${l}</button>`).join("");
   $("dShow").innerHTML=[["all","Everything"],["sale","On sale only"]].map(([v,l])=>`<button class="chip" data-v="${v}" aria-pressed="${(v==="sale")===view.saleOnly}">${l}</button>`).join("");
   $("dSort").innerHTML=[["match","Best match"],["price","Lowest price"],["discount","Biggest discount"]].map(([v,l])=>`<button class="chip" data-v="${v}" aria-pressed="${view.sort===v}">${l}</button>`).join("");
   const who=p.name?`${p.name}, here`:"Here";
-  $("dealsLede").textContent=`${who}'s the running gear in stock in your sizes, from stores across Canada.`;
+  $("dealsLede").textContent=`${who}'s the running gear in stock in your sizes, from ${view.ships==="all"?"Canadian, US and international stores":"stores across Canada"}.`;
   if(!DATA){$("dealList").innerHTML=`<div class="empty">Loading gear…</div>`;$("dealsSummary").textContent="";return}
   if(!p.groups.length){$("dealList").innerHTML=`<div class="empty">Pick at least one category under What to watch in your profile.</div>`;$("dealsSummary").textContent="";return}
   const q=view.q.trim().toLowerCase().split(/\s+/).filter(Boolean);
@@ -486,6 +504,7 @@ function renderDeals(){
   $("dealsFoot").textContent=(missing.length?`No sizes picked for ${missing.map(g=>GROUP_LABEL[g].toLowerCase()).join(", ")}, so only one-size items show there. `:"")
     +"Prices and stock change daily; the product page has the final price.";
 }
+$("dShips").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;view.ships=b.dataset.v;view.open={};renderDeals()});
 $("dShow").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;view.saleOnly=b.dataset.v==="sale";view.open={};renderDeals()});
 $("dSort").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;view.sort=b.dataset.v;view.open={};renderDeals()});
 let searchT;$("dSearch").addEventListener("input",e=>{clearTimeout(searchT);searchT=setTimeout(()=>{view.q=e.target.value;view.open={};renderDeals()},200)});
@@ -496,7 +515,7 @@ function showView(v){
   $("profileView").classList.toggle("hidden",v!=="profile");
   $("dealsView").classList.toggle("hidden",v!=="deals");
   $("savebar").classList.toggle("hidden",v!=="profile");
-  if(v==="deals"){view.open={};renderDeals()}
+  if(v==="deals"){view.open={};view.ships=null;renderDeals()}
   window.scrollTo(0,0);
 }
 document.querySelector(".tabs").addEventListener("click",e=>{const t=e.target.closest(".tab");if(t)showView(t.dataset.view)});
