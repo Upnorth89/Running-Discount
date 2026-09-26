@@ -2,7 +2,7 @@
 """Running Discount scraper.
 
 Pulls the full running catalogue (full price and on sale) from Altitude Sports, The Last Hunt,
-The Feed, Sea2Sky Nutrition and Sporting Life, merges the same product sold by several stores, and writes
+The Feed, Sea2Sky Nutrition, Sporting Life and Stampeak, merges the same product sold by several stores, and writes
 site/deals.json in the compact format the page reads:
 
   {v:2, updated, stores:{id: iso}, items:[{b,n,g,sx,w,img,lp,bb,sz:[[size,price,offer]],of:[url,...]}]}
@@ -235,7 +235,9 @@ def shopify_products(base):
         page += 1
     return prods
 
-def shopify_items(st, base, prods, group_fn, fx=1.0):
+SIZE_OPT = re.compile(r"^(size|taille|pointure|shoe size)$", re.I)
+
+def shopify_items(st, base, prods, group_fn, fx=1.0, size_aware=False, size_fn=None):
     """One card per first option (pack size / colour) when a product has several options;
     flavours or sizes become the card's "sizes". Every in-stock variant is included."""
     out = []
@@ -256,9 +258,17 @@ def shopify_items(st, base, prods, group_fn, fx=1.0):
                 continue
             cmp_ = max(price, float(v.get("compare_at_price") or 0))
             o1 = v.get("option1") or ""
-            rest = " / ".join(x for x in (v.get("option2"), v.get("option3")) if x)
-            key = o1 if len(opts) > 1 else ""
-            label = rest if len(opts) > 1 else o1
+            vals = [v.get(f"option{i}") or "" for i in (1, 2, 3)][:len(opts)]
+            si = next((i for i, n in enumerate(opts) if SIZE_OPT.match(n)), None) if size_aware else None
+            if si is not None:            # apparel: one card per colour, sizes as the "sizes"
+                key = " / ".join(x for i, x in enumerate(vals) if i != si and x)
+                label = vals[si]
+            else:
+                rest = " / ".join(x for x in (v.get("option2"), v.get("option3")) if x)
+                key = o1 if len(opts) > 1 else ""
+                label = rest if len(opts) > 1 else o1
+            if size_fn:
+                label = size_fn(label)
             bb = None
             m = BB.search(label) or BB.search(o1)
             if m:
@@ -313,6 +323,45 @@ def scrape_sea2sky():
     base = "https://sea2skynutrition.ca"   # Vancouver, prices already in CAD
     return shopify_items("sea2sky", base, shopify_products(base), s2s_group)
 
+
+
+# ---------------------------------------------------------------- Stampeak (Montreal, Shopify, CAD; English catalogue under /en)
+SP_TYPES = {
+    "running shoes": "shoes", "nutrition": "nutrition", "caps / visors": "headwear", "hydration packs": "packs",
+    "socks": "socks", "recovery & wellness socks": "socks", "headlamp": "gear", "watch": "watches", "sensors": "watches",
+    "men's tops": "tops", "women's tops": "tops", "tops": "tops", "flasks": "gear", "short": "bottoms",
+    "bib shorts / leggings": "bottoms", "running/trail belt": "packs", "belts": "packs", "anti-friction": "gear",
+    "arm warmers": "gear", "neck gaiter": "headwear", "glasses": "gear", "ice crampons": "gear",
+}
+SP_BY_TITLE = {"clothing", "compression socks & sleeves", "beanies & mittens", "tuques & mittens", "bib shorts", "", "bands"}
+def sp_group(p):
+    t = (p.get("product_type") or "").strip().lower()
+    title = p["title"]
+    if re.search(r"cycling|\bbike\b|\bski\b|gift card", title, re.I):
+        return None
+    if t in SP_TYPES:
+        return SP_TYPES[t]
+    if t in SP_BY_TITLE:
+        g = group_of(title)
+        if t == "compression socks & sleeves" and g != "socks":
+            g = "gear"                      # calf/arm sleeves
+        return g
+    return None                             # electrostimulation, braces, luggage, paddleboards, ...
+
+SOCK_EU = {"36/38": "S", "39/41": "M", "42/44": "L", "45/47": "XL"}
+def sp_size(label):
+    """'10 M / 11 W' (unisex shoes) -> men's US '10'; EU sock ranges -> S/M/L/XL."""
+    m = re.match(r"^\s*(\d+(?:\.\d)?)\s*M\b", label or "")
+    if m:
+        return m.group(1)
+    m = re.search(r"\b(3[5-9]|4[0-7])/(3[5-9]|4[0-7])\b", label or "")
+    if m and m.group(0) in SOCK_EU:
+        return SOCK_EU[m.group(0)]
+    return norm_size(label)
+
+def scrape_stampeak():
+    base = "https://www.stampeak.com/en"
+    return shopify_items("stampeak", base, shopify_products(base), sp_group, size_aware=True, size_fn=sp_size)
 
 # ---------------------------------------------------------------- Sporting Life (Salesforce Commerce Cloud)
 SL_BASE = "https://www.sportinglife.ca"
@@ -426,6 +475,7 @@ STORES = {
     "thefeed": scrape_thefeed,
     "sea2sky": scrape_sea2sky,
     "sportinglife": scrape_sportinglife,
+    "stampeak": scrape_stampeak,
 }
 
 def name_gender(n):
