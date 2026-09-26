@@ -110,7 +110,15 @@ def card(d):
 <div style="font-size:12px;color:#5C6660;margin-top:3px">{E(sz)}</div>{bb}
 </td></tr></table></a></td></tr>'''
 
+def shop_link(p):
+    """Site link that opens this person's tailored shop on any device (profile in the #hash)."""
+    import base64
+    keep = {k: p.get(k) for k in ("name", "gender", "activities", "groups", "sizes", "brands", "min_discount", "max_price")}
+    b = base64.urlsafe_b64encode(json.dumps(keep, separators=(",", ":")).encode()).decode().rstrip("=")
+    return f"{SITE_URL}#p={b}"
+
 def build(p, sale):
+    shop = shop_link(p)
     first = (p.get("name") or "").split(" ")[0] or "Hi"
     sale.sort(key=lambda d: (-d["fav"], -d["pct"], d["best"]))
     sections, shown = [], 0
@@ -121,7 +129,7 @@ def build(p, sale):
             continue
         take = ds[:min(PER_GROUP, TOTAL - shown)]
         shown += len(take)
-        more = (f'<tr><td style="padding:6px 0 0;font:13px Arial,sans-serif"><a href="{E(SITE_URL)}" style="color:#2F4A3A">'
+        more = (f'<tr><td style="padding:6px 0 0;font:13px Arial,sans-serif"><a href="{E(shop)}" style="color:#2F4A3A">'
                 f'See all {len(ds)} on sale →</a></td></tr>') if len(ds) > len(take) else ""
         sections.append(f'''<tr><td style="padding:22px 0 4px;font:800 20px Arial,Helvetica,sans-serif;color:#17201C">
 {E(GROUP_LABEL[g])} <span style="font:400 14px Arial,sans-serif;color:#5C6660">{len(ds)}</span></td></tr>
@@ -137,12 +145,12 @@ def build(p, sale):
 <tr><td style="padding:0 20px 8px;text-align:center;font:15px/1.45 Arial,sans-serif;color:#5C6660">{intro}</td></tr>
 <tr><td style="padding:0 20px 20px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">{"".join(sections)}</table></td></tr>
 <tr><td style="padding:14px 20px 22px;text-align:center;border-top:2px dashed #CBD2CC">
-<a href="{E(SITE_URL)}" style="display:inline-block;background:#D7F23A;color:#17201C;border:2px solid #17201C;border-radius:10px;padding:12px 20px;font:800 16px Arial,sans-serif;text-decoration:none">Open your shop</a>
+<a href="{E(shop)}" style="display:inline-block;background:#D7F23A;color:#17201C;border:2px solid #17201C;border-radius:10px;padding:12px 20px;font:800 16px Arial,sans-serif;text-decoration:none">Open your shop</a>
 <div style="font:12px/1.4 Arial,sans-serif;color:#5C6660;margin-top:14px">Prices and stock change daily; the product page has the final price.<br>
 You get this because you set up weekly deals on Running Discount.</div></td></tr>
 </table></td></tr></table></body></html>'''
     text = f"{subject}\n\n" + "\n".join(f"- {d['b']} {d['n']}: ${d['best']:.2f} (was ${d['reg']:.2f}, -{d['pct']}%) {d['url']}"
-                                         for d in sale[:TOTAL]) + f"\n\nAll deals: {SITE_URL}\n"
+                                         for d in sale[:TOTAL]) + f"\n\nAll deals: {shop}\n"
     return subject, body, text
 
 def main():
