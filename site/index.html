@@ -513,11 +513,21 @@ $("save").addEventListener("click",async()=>{
 
 render();
 const hosted=!(window.claude&&window.claude.use);   // standalone site: profile lives in this browser for now
+/* Links from the weekly email carry the profile in the address (#p=...), so they open your
+   tailored shop on any device. Returning visitors with a saved profile land on the shop too. */
+function profileFromLink(){
+  const m=location.hash.match(/[#&]p=([^&]+)/);if(!m)return null;
+  try{const b=m[1].replace(/-/g,"+").replace(/_/g,"/");
+    return JSON.parse(decodeURIComponent(escape(atob(b+"===".slice((b.length+3)%4)))))}catch(e){return null}
+}
 if(hosted){
-  try{const p=JSON.parse(localStorage.getItem("rd-profile")||"null");
-    if(p){applyProfile(p);$("save").textContent="Update profile";setMsg("Your saved profile is loaded.")}else setMsg("Takes about a minute.")}
-  catch(e){setMsg("Takes about a minute.")}
-  docRef={set:async p=>{localStorage.setItem("rd-profile",JSON.stringify(p))}};
+  let p=null;const fromLink=profileFromLink();
+  try{p=JSON.parse(localStorage.getItem("rd-profile")||"null")}catch(e){}
+  if(fromLink){p=fromLink;try{localStorage.setItem("rd-profile",JSON.stringify(p))}catch(e){}
+    try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}}
+  if(p){applyProfile(p);$("save").textContent="Update profile";setMsg("Your saved profile is loaded.");showView("deals")}
+  else setMsg("Takes about a minute.");
+  docRef={set:async p=>{try{localStorage.setItem("rd-profile",JSON.stringify(p))}catch(e){}}};
   $("save").disabled=false;
 }
 if(!hosted)(async()=>{
