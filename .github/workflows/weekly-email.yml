@@ -19,4 +19,5 @@ jobs:
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           SITE_URL: "https://thegearfox.com/"
+          FROM_EMAIL: "The Gear Fox <deals@thegearfox.com>"
         run: python scraper/weekly_email.py
