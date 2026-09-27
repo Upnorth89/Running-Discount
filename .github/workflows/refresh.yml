@@ -22,7 +22,7 @@ jobs:
     timeout-minutes: 50
     steps:
       - uses: actions/checkout@v4
-              with:
+        with:
           fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
