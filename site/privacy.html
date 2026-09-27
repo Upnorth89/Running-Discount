@@ -21,6 +21,9 @@ p,li{color:var(--ink)}
 .muted{color:var(--muted)}
 a{color:var(--link)}
 ul{padding-left:20px}
+.langsw{margin:0 0 8px;text-align:right}
+.langsw button{font:600 15px system-ui,sans-serif;color:var(--link);background:none;border:1.5px solid var(--line);border-radius:999px;min-height:40px;padding:0 14px;cursor:pointer}
+[hidden]{display:none!important}
 </style>
 </head>
 <body>
@@ -28,6 +31,8 @@ ul{padding-left:20px}
   <picture><source srcset="logo-mark-dark.svg" media="(prefers-color-scheme: dark)"><img src="logo-mark.svg" alt="The Gear Fox" width="1534" height="664"></picture>
 </a></div>
 <main>
+  <p class="langsw"><button type="button" id="sw"></button></p>
+  <div lang="en" id="en">
   <h1>Privacy</h1>
   <p class="muted">Last updated September 27, 2026</p>
 
@@ -38,8 +43,8 @@ ul{padding-left:20px}
 
   <h2>If you sign up for the Saturday email</h2>
   <ul>
-    <li><b>What we keep:</b> your email address, your profile, and when you confirmed and (if you do) unsubscribed. We keep the confirmation date as proof you asked for the email, as Canada's anti-spam law requires.</li>
-    <li><b>Why:</b> only to send you the week's deals in your sizes and to let you open your profile from any device.</li>
+    <li><b>What we keep:</b> your email address, your profile, your watchlist, and when you confirmed and (if you do) unsubscribed. We keep the confirmation date as proof you asked for the email, as Canada's anti-spam law requires.</li>
+    <li><b>Why:</b> only to send you the week's deals in your sizes, tell you when something on your watchlist drops in price, and let you open your profile from any device.</li>
     <li><b>Where:</b> in a database hosted by Supabase in Canada. Emails are sent through Resend, whose servers are in the United States.</li>
     <li><b>Your private link:</b> links in our emails contain a private key that opens your profile. Don't forward them if you'd rather others didn't see your sizes.</li>
   </ul>
@@ -51,6 +56,43 @@ ul{padding-left:20px}
   <p>Every email has a one-click unsubscribe link. To have your email and profile deleted completely, write to <a href="mailto:hello@thegearfox.com">hello@thegearfox.com</a> and we'll do it within 30 days.</p>
 
   <p class="muted" style="margin-top:36px"><a href="./">← Back to The Gear Fox</a></p>
+</div>
+  <div lang="fr" id="fr" hidden>
+  <h1>Confidentialité</h1>
+  <p class="muted">Dernière mise à jour : 27 septembre 2026</p>
+
+  <p>The Gear Fox trouve l'équipement de plein air et de course en solde dans votre taille. On garde le moins d'information possible sur vous, et on ne la vend jamais.</p>
+
+  <h2>Si vous naviguez seulement</h2>
+  <p>Votre profil (tailles, catégories, marques préférées) est enregistré dans votre propre navigateur pour que le site se souvienne de vous. Il ne nous est pas envoyé. On n'utilise ni témoins de suivi ni publicités.</p>
+
+  <h2>Si vous vous abonnez au courriel du samedi</h2>
+  <ul>
+    <li><b>Ce qu'on garde :</b> votre adresse courriel, votre profil, vos favoris, et les dates de votre confirmation et, le cas échéant, de votre désabonnement. On garde la date de confirmation comme preuve de votre consentement, tel que l'exige la loi canadienne anti-pourriel.</li>
+    <li><b>Pourquoi :</b> seulement pour vous envoyer les aubaines de la semaine dans vos tailles, vous avertir quand un article de vos favoris baisse de prix, et vous permettre d'ouvrir votre profil sur n'importe quel appareil.</li>
+    <li><b>Où :</b> dans une base de données hébergée par Supabase au Canada. Les courriels sont envoyés par Resend, dont les serveurs sont aux États-Unis.</li>
+    <li><b>Votre lien privé :</b> les liens dans nos courriels contiennent une clé privée qui ouvre votre profil. Ne les transférez pas si vous préférez que d'autres ne voient pas vos tailles.</li>
+  </ul>
+
+  <h2>Liens vers les boutiques</h2>
+  <p>Quand vous cliquez sur une aubaine, vous allez sur le site de la boutique, et sa politique de confidentialité s'applique. Certains liens peuvent nous rapporter une petite commission sans frais pour vous; ça ne change jamais les aubaines qu'on affiche.</p>
+
+  <h2>Se désabonner ou supprimer vos données</h2>
+  <p>Chaque courriel contient un lien de désabonnement en un clic. Pour faire supprimer complètement votre courriel et votre profil, écrivez à <a href="mailto:hello@thegearfox.com">hello@thegearfox.com</a> et on le fera dans les 30 jours.</p>
+
+  <p class="muted" style="margin-top:36px"><a href="./">← Retour à The Gear Fox</a></p>
+</div>
 </main>
+<script>
+(function(){
+  let L;try{L=JSON.parse(localStorage.getItem("gf-lang")||"null")}catch(e){}
+  if(!L)L=/^fr/i.test(navigator.language||"")?"fr":"en";
+  function show(l){L=l;document.documentElement.lang=l;document.getElementById("en").hidden=l!=="en";document.getElementById("fr").hidden=l!=="fr";
+    const b=document.getElementById("sw");b.textContent=l==="fr"?"English":"Français";b.lang=l==="fr"?"en":"fr";
+    document.title=l==="fr"?"Confidentialité — The Gear Fox":"Privacy — The Gear Fox"}
+  document.getElementById("sw").addEventListener("click",()=>{const n=L==="fr"?"en":"fr";try{localStorage.setItem("gf-lang",JSON.stringify(n))}catch(e){}show(n)});
+  show(L);
+})();
+</script>
 </body>
 </html>

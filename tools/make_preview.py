@@ -59,7 +59,7 @@ rep("/* top bar */", '''/* preview panel (not part of the site) */
 .pvb{font:600 14px var(--body);color:var(--band-ink);background:transparent;border:1.5px solid var(--band-muted);border-radius:8px;min-height:40px;padding:0 12px;cursor:pointer}
 .pvb:hover{border-color:var(--hivis)}
 .pv p{margin:6px 0 0;font-size:13px;color:var(--band-muted)}
-.sheet .panel{max-height:calc(100vh - 150px)!important}
+.sheet .panel{max-height:calc(100vh - 250px)!important}
 /* top bar */''')
 
 # embedded data, pretend server

@@ -56,13 +56,39 @@ def best_for(items_by_key, key, profile):
     return min(hits, key=lambda d: d["best"]) if hits else None
 
 
-def alert_row(kind, a):
-    d, w = a["deal"], a["watch"]
-    head = "Price drop" if kind == "drop" else "Back in your size"
+A_STR = {
+    "en": dict(drop="Price drop", back="Back in your size", was="was {} when we last told you",
+               subj_drop=lambda b, n, m: f"Price drop: {b} {n} is now {m} in your size",
+               subj_back=lambda b, n: f"Back in your size: {b} {n}",
+               subj_many=lambda k: f"{k} items on your Gear Fox watchlist changed",
+               watchlist="Your watchlist", title="Your watchlist moved",
+               intro="Things you're watching changed today, in your sizes. Prices and stock move fast.",
+               button="Open your watchlist",
+               fine="You get this because you're watching these items on The Gear Fox. Remove an item from your watchlist to stop alerts about it."),
+    "fr": dict(drop="Baisse de prix", back="De retour dans votre taille", was="était à {} à notre dernier avis",
+               subj_drop=lambda b, n, m: f"Baisse de prix : {b} {n} maintenant à {m} dans votre taille",
+               subj_back=lambda b, n: f"De retour dans votre taille : {b} {n}",
+               subj_many=lambda k: f"{k} articles de vos favoris The Gear Fox ont changé",
+               watchlist="Vos favoris", title="Vos favoris ont bougé",
+               intro="Des articles de vos favoris ont changé aujourd'hui, dans vos tailles. Les prix et les stocks bougent vite.",
+               button="Voir mes favoris",
+               fine="Vous recevez ce courriel parce que ces articles sont dans vos favoris sur The Gear Fox. Retirez un article de vos favoris pour ne plus recevoir d'alertes à son sujet."),
+}
+
+
+def at(lang, key, *a):
+    v = A_STR[lang][key]
+    return v(*a) if callable(v) else (v.format(*a) if a else v)
+
+
+def alert_row(kind, a, lang="en"):
+    d = a["deal"]
+    money = lambda v: W.money(v, lang)
+    head = at(lang, "drop") if kind == "drop" else at(lang, "back")
     was = a.get("was")
-    was_txt = (f'<span style="font-size:13px;color:#5C6660;margin-left:6px">was ${was:.2f} when we last told you</span>'
+    was_txt = (f'<span style="font-size:13px;color:#5C6660;margin-left:6px">{E(at(lang, "was", money(was)))}</span>'
                if kind == "drop" and was else "")
-    reg = (f'<span style="font-size:13px;color:#5C6660;text-decoration:line-through;margin-left:6px">${d["reg"]:.2f}</span>'
+    reg = (f'<span style="font-size:13px;color:#5C6660;text-decoration:line-through;margin-left:6px">{money(d["reg"])}</span>'
            if d["pct"] else "")
     img = (f'<img src="{E(d["img"])}" width="84" height="84" alt="" '
            f'style="display:block;width:84px;height:84px;object-fit:contain;background:#fff;border-radius:8px">') if d.get("img") else ""
@@ -71,44 +97,45 @@ def alert_row(kind, a):
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
 <td width="96" valign="top">{img}</td>
 <td valign="top" style="font-family:Arial,Helvetica,sans-serif">
-<div style="font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#B8470A">{head}</div>
+<div style="font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#B8470A">{E(head)}</div>
 <div style="font-size:13px;font-weight:700;color:#17201C;margin-top:2px">{E(d["b"])}</div>
 <div style="font-size:15px;line-height:1.3;margin:2px 0 4px">{E(d["n"])}</div>
-<div><span style="font-size:20px;font-weight:800">${d["best"]:.2f}</span>{reg}{was_txt}</div>
-<div style="font-size:12px;color:#5C6660;margin-top:3px">{E(W.sizes_label(d))}</div>
+<div><span style="font-size:20px;font-weight:800">{money(d["best"])}</span>{reg}{was_txt}</div>
+<div style="font-size:12px;color:#5C6660;margin-top:3px">{E(W.sizes_label(d, lang))}</div>
 </td></tr></table></a></td></tr>'''
 
 
 def build(sub, drops, backs):
+    lang = W.lang_of(sub.get("profile"))
     n = len(drops) + len(backs)
     if len(drops) == 1 and not backs:
         d = drops[0]["deal"]
-        subject = f"Price drop: {d['b']} {d['n']} is now ${d['best']:.2f} in your size"
+        subject = at(lang, "subj_drop", d["b"], d["n"], W.money(d["best"], lang))
     elif len(backs) == 1 and not drops:
         d = backs[0]["deal"]
-        subject = f"Back in your size: {d['b']} {d['n']}"
+        subject = at(lang, "subj_back", d["b"], d["n"])
     else:
-        subject = f"{n} items on your Gear Fox watchlist changed"
+        subject = at(lang, "subj_many", n)
     shop = f"{W.SITE_URL}?k={sub['token']}"
-    rows = "".join(alert_row("drop", a) for a in drops) + "".join(alert_row("back", a) for a in backs)
-    footer = (f'<a href="{E(shop)}" style="color:#5C6660">Your watchlist</a> · '
-              f'<a href="{E(W.SITE_URL)}?unsub={sub["token"]}" style="color:#5C6660">Unsubscribe</a> · '
-              f'<a href="{E(W.SITE_URL)}privacy.html" style="color:#5C6660">Privacy</a>'
+    rows = "".join(alert_row("drop", a, lang) for a in drops) + "".join(alert_row("back", a, lang) for a in backs)
+    footer = (f'<a href="{E(shop)}" style="color:#5C6660">{E(at(lang, "watchlist"))}</a> · '
+              f'<a href="{E(W.SITE_URL)}?unsub={sub["token"]}" style="color:#5C6660">{E(W.tr(lang, "unsubscribe"))}</a> · '
+              f'<a href="{E(W.SITE_URL)}privacy.html" style="color:#5C6660">{E(W.tr(lang, "privacy"))}</a>'
               + (f"<br>The Gear Fox · {E(W.ADDRESS)}" if W.ADDRESS else ""))
-    body = f'''<!doctype html><html><body style="margin:0;background:#EEF1EC">
+    body = f'''<!doctype html><html lang="{lang}"><body style="margin:0;background:#EEF1EC">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#EEF1EC"><tr><td align="center" style="padding:20px 12px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#FFFFFF;border:2px solid #17201C;border-radius:14px">
-<tr><td style="padding:18px 20px 0;text-align:center"><a href="{E(shop)}"><img src="{E(W.SITE_URL)}logo-email.png" width="220" alt="The Gear Fox" style="display:inline-block;width:220px;max-width:70%;height:auto;border:0"></a></td></tr>
-<tr><td style="padding:8px 20px 4px;text-align:center;font:800 26px Arial Narrow,Arial,sans-serif;color:#17201C">Your watchlist moved</td></tr>
-<tr><td style="padding:0 20px 8px;text-align:center;font:15px/1.45 Arial,sans-serif;color:#5C6660">Things you're watching changed today, in your sizes. Prices and stock move fast.</td></tr>
+<tr><td style="padding:18px 20px 0;text-align:center"><a href="{E(shop)}"><img src="{E(W.SITE_URL)}{W.tr(lang, "logo")}" width="220" alt="The Gear Fox" style="display:inline-block;width:220px;max-width:70%;height:auto;border:0"></a></td></tr>
+<tr><td style="padding:8px 20px 4px;text-align:center;font:800 26px Arial Narrow,Arial,sans-serif;color:#17201C">{E(at(lang, "title"))}</td></tr>
+<tr><td style="padding:0 20px 8px;text-align:center;font:15px/1.45 Arial,sans-serif;color:#5C6660">{E(at(lang, "intro"))}</td></tr>
 <tr><td style="padding:0 20px 16px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">{rows}</table></td></tr>
 <tr><td style="padding:14px 20px 22px;text-align:center;border-top:2px dashed #CBD2CC">
-<a href="{E(shop)}" style="display:inline-block;background:#F26A1B;color:#17201C;border:2px solid #17201C;border-radius:10px;padding:12px 20px;font:800 16px Arial,sans-serif;text-decoration:none">Open your watchlist</a>
-<div style="font:12px/1.4 Arial,sans-serif;color:#5C6660;margin-top:14px">You get this because you're watching these items on The Gear Fox. Remove an item from your watchlist to stop alerts about it.<br>{footer}</div></td></tr>
+<a href="{E(shop)}" style="display:inline-block;background:#F26A1B;color:#17201C;border:2px solid #17201C;border-radius:10px;padding:12px 20px;font:800 16px Arial,sans-serif;text-decoration:none">{E(at(lang, "button"))}</a>
+<div style="font:12px/1.4 Arial,sans-serif;color:#5C6660;margin-top:14px">{E(at(lang, "fine"))}<br>{footer}</div></td></tr>
 </table></td></tr></table></body></html>'''
     text = subject + "\n\n" + "\n".join(
-        f"- {'Price drop' if a in drops else 'Back in your size'}: {a['deal']['b']} {a['deal']['n']} ${a['deal']['best']:.2f} {a['deal']['url']}"
-        for a in drops + backs) + f"\n\nYour watchlist: {shop}\nUnsubscribe: {W.SITE_URL}?unsub={sub['token']}\n"
+        f"- {at(lang, 'drop') if a in drops else at(lang, 'back')}: {a['deal']['b']} {a['deal']['n']} {W.money(a['deal']['best'], lang)} {a['deal']['url']}"
+        for a in drops + backs) + (f"\n\n{at(lang, 'watchlist')}: {shop}\n{W.tr(lang, 'unsubscribe')}: {W.SITE_URL}?unsub={sub['token']}\n")
     return subject, body, text
 
 

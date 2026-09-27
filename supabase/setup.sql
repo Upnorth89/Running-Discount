@@ -42,22 +42,27 @@ begin
                                   'subject', p_subject, 'html', p_html, 'text', p_text));
 end $$;
 
-create or replace function public._gf_letter(p_title text, p_body text, p_button text, p_url text)
+create or replace function public._gf_letter(p_title text, p_body text, p_button text, p_url text, p_lang text default 'en')
 returns text language sql immutable as $$
-  select '<!doctype html><html><body style="margin:0;background:#EEF1EC">'
+  select '<!doctype html><html lang="' || case when p_lang = 'fr' then 'fr' else 'en' end || '"><body style="margin:0;background:#EEF1EC">'
       || '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#EEF1EC"><tr><td align="center" style="padding:24px 12px">'
       || '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#FFFFFF;border:2px solid #17201C;border-radius:14px">'
-      || '<tr><td style="padding:22px 24px 0;text-align:center"><img src="https://thegearfox.com/logo-email.png" width="220" alt="The Gear Fox" style="width:220px;max-width:80%;height:auto;border:0"></td></tr>'
+      || '<tr><td style="padding:22px 24px 0;text-align:center"><img src="https://thegearfox.com/'
+      || case when p_lang = 'fr' then 'logo-email-fr.png' else 'logo-email.png' end
+      || '" width="220" alt="The Gear Fox" style="width:220px;max-width:80%;height:auto;border:0"></td></tr>'
       || '<tr><td style="padding:14px 24px 4px;text-align:center;font:800 24px Arial,Helvetica,sans-serif;color:#17201C">' || p_title || '</td></tr>'
       || '<tr><td style="padding:0 24px 18px;text-align:center;font:15px/1.5 Arial,Helvetica,sans-serif;color:#5C6660">' || p_body || '</td></tr>'
       || '<tr><td style="padding:0 24px 24px;text-align:center"><a href="' || p_url || '" style="display:inline-block;background:#F26A1B;color:#17201C;border:2px solid #17201C;border-radius:10px;padding:12px 22px;font:800 16px Arial,Helvetica,sans-serif;text-decoration:none">' || p_button || '</a></td></tr>'
       || '<tr><td style="padding:14px 24px 20px;text-align:center;border-top:2px dashed #CBD2CC;font:12px/1.5 Arial,Helvetica,sans-serif;color:#5C6660">'
-      || 'If you didn''t ask for this, ignore this email and nothing happens.<br>The Gear Fox · Outfox full price</td></tr>'
-      || '</table></td></tr></table></body></html>'
+      || case when p_lang = 'fr'
+              then 'Si vous n''avez rien demandé, ignorez ce courriel et rien ne se passera.<br>The Gear Fox · Flairez les aubaines'
+              else 'If you didn''t ask for this, ignore this email and nothing happens.<br>The Gear Fox · Outfox full price' end
+      || '</td></tr></table></td></tr></table></body></html>'
 $$;
 
 revoke all on function public._gf_mail(text, text, text, text) from public, anon, authenticated;
-revoke all on function public._gf_letter(text, text, text, text) from public, anon, authenticated;
+drop function if exists public._gf_letter(text, text, text, text);   -- older version without a language
+revoke all on function public._gf_letter(text, text, text, text, text) from public, anon, authenticated;
 
 -- ---------- functions the website calls ----------
 
@@ -71,6 +76,7 @@ declare
   recent int;
   active boolean;
   link text;
+  fr boolean := coalesce(p_profile->>'lang', '') = 'fr';
 begin
   if length(e) > 254 or e !~ '^[^@\s<>"'']+@[^@\s<>"'']+\.[a-z]{2,}$' then raise exception 'invalid email'; end if;
   if p_profile is null or jsonb_typeof(p_profile) <> 'object' or octet_length(p_profile::text) > 20000 then
@@ -87,17 +93,29 @@ begin
 
   active := r.confirmed_at is not null and r.unsubscribed_at is null;
   link := 'https://thegearfox.com/?confirm=' || r.token;
-  if active then
+  if active and fr then
+    perform public._gf_mail(e, 'Enregistrez vos changements The Gear Fox',
+      public._gf_letter('Enregistrez vos changements',
+        'Quelqu''un (vous, on l''espère) a modifié votre profil The Gear Fox. Cliquez ci-dessous pour enregistrer les changements et voir vos aubaines sur cet appareil.',
+        'Enregistrer mes changements', link, 'fr'),
+      'Enregistrez vos changements The Gear Fox : ' || link);
+  elsif active then
     perform public._gf_mail(e, 'Save your Gear Fox changes',
       public._gf_letter('Save your changes',
         'Someone (hopefully you) updated your Gear Fox profile. Tap below to save the changes and open your deals on this device.',
-        'Save my changes', link),
+        'Save my changes', link, 'en'),
       'Save your Gear Fox profile changes: ' || link);
+  elsif fr then
+    perform public._gf_mail(e, 'Confirmez vos aubaines du samedi de The Gear Fox',
+      public._gf_letter('Un clic pour confirmer',
+        'Confirmez votre courriel et chaque samedi matin, on vous envoie ce qui est en solde dans vos tailles. Désabonnement en un clic, en tout temps.',
+        'Oui, envoyez-moi les aubaines', link, 'fr'),
+      'Confirmez vos aubaines du samedi de The Gear Fox : ' || link);
   else
     perform public._gf_mail(e, 'Confirm your Saturday deals from The Gear Fox',
       public._gf_letter('One tap to confirm',
         'Confirm your email and every Saturday morning we''ll send you what''s on sale in your sizes. Unsubscribe anytime with one click.',
-        'Yes, send me deals', link),
+        'Yes, send me deals', link, 'en'),
       'Confirm your Saturday deals from The Gear Fox: ' || link);
   end if;
   update public.subscribers set last_mail_at = now() where id = r.id;

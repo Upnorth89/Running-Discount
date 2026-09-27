@@ -85,7 +85,60 @@ def match(items, p):
                     "fav": d["b"].lower() in favs})
     return out
 
-def sizes_label(d):
+# ---------- English / French (the subscriber's site language is saved in their profile as "lang") ----------
+GROUP_FR = {"shoes": "Chaussures", "tops": "Hauts et manteaux", "bottoms": "Shorts et collants", "bras": "Soutiens-gorge de sport",
+            "socks": "Bas", "gloves": "Gants", "headwear": "Casquettes et cache-cous", "packs": "Vestes et sacs d'hydratation",
+            "gear": "Frontales, bâtons et gourdes", "watches": "Montres", "nutrition": "Nutrition"}
+STR = {
+    "en": dict(your_size="Your size: ", best_by="Best by {}", abroad="Ships from outside Canada · converted to CAD, duties may apply",
+               see_all="See all {} on sale →", watch_head="Your watchlist",
+               changes=lambda n: f"{n} {'change' if n == 1 else 'changes'} this week",
+               change_sizes="Change your sizes", unsubscribe="Unsubscribe", privacy="Privacy",
+               subject=lambda n, top: f"The Gear Fox: {n} deals in your size this week, up to {top}% off",
+               subject_watch=lambda n: f"The Gear Fox: your watchlist moved, plus {n} deals in your size",
+               hi="Hi", intro="{}, here are this week's sales on gear in your sizes, every price drop, big or small. Biggest discounts first.",
+               title="Your weekly deals", open_shop="Open your shop",
+               fine="Prices and stock change daily; the product page has the final price.<br>"
+                    "You get this because you signed up for Saturday deals on The Gear Fox. Outfox full price.",
+               was="was", all_deals="All deals", logo="logo-email.png"),
+    "fr": dict(your_size="Votre taille : ", best_by="Meilleur avant le {}",
+               abroad="Expédié de l'extérieur du Canada · converti en $ CA, des droits peuvent s'appliquer",
+               see_all="Voir les {} articles en solde →", watch_head="Vos favoris",
+               changes=lambda n: f"{n} {'changement' if n == 1 else 'changements'} cette semaine",
+               change_sizes="Modifier vos tailles", unsubscribe="Se désabonner", privacy="Confidentialité",
+               subject=lambda n, top: f"The Gear Fox : {n} aubaines à votre taille cette semaine, jusqu'à {top} % de rabais",
+               subject_watch=lambda n: f"The Gear Fox : vos favoris ont bougé, et {n} aubaines à votre taille",
+               hi="Bonjour", intro="{}, voici les soldes de la semaine dans vos tailles, chaque baisse de prix, petite ou grande. "
+                                   "Les plus gros rabais d'abord.",
+               title="Vos aubaines de la semaine", open_shop="Voir ma boutique",
+               fine="Les prix et les stocks changent chaque jour; le prix final est sur la page du produit.<br>"
+                    "Vous recevez ce courriel parce que vous êtes abonné aux aubaines du samedi de The Gear Fox. Flairez les aubaines.",
+               was="avant", all_deals="Toutes les aubaines", logo="logo-email-fr.png"),
+}
+
+
+def lang_of(p):
+    return "fr" if (p or {}).get("lang") == "fr" else "en"
+
+
+def tr(lang, key, *a):
+    v = STR[lang][key]
+    return v(*a) if callable(v) else (v.format(*a) if a else v)
+
+
+def money(v, lang="en"):
+    return f"{v:.2f}".replace(".", ",") + " $" if lang == "fr" else f"${v:.2f}"
+
+
+def pct_txt(n, lang="en"):
+    return f"−{n} %" if lang == "fr" else f"−{n}%"
+
+
+def group_label(g, lang="en"):
+    return GROUP_FR.get(g, GROUP_LABEL[g]) if lang == "fr" else GROUP_LABEL[g]
+
+
+def sizes_label(d, lang="en"):
     labels = list(dict.fromkeys(e[0] for e in d["ok"]))
     if d["g"] in SIZED:
         order = ["2XS", "XS", "S", "M", "L", "XL", "2XL", "3XL"]
@@ -95,20 +148,20 @@ def sizes_label(d):
             except ValueError:
                 return (1, order.index(norm(v)) if norm(v) in order else 99)
         labels.sort(key=k)
-        return "Your size: " + ", ".join(labels)
+        return tr(lang, "your_size") + ", ".join(labels)
     if labels and labels[0] != "OS":
         return " · ".join(labels[:3]) + (" · …" if len(labels) > 3 else "")
     return ""
 
 E = html.escape
-def card(d):
+def card(d, lang="en"):
     img = (f'<img src="{E(d["img"])}" width="84" height="84" alt="" '
            f'style="display:block;width:84px;height:84px;object-fit:contain;background:#fff;border-radius:8px">') if d.get("img") else ""
     fav = " ★" if d["fav"] else ""
-    sz = sizes_label(d)
-    bb = f'<div style="font-size:12px;color:#B3261E;font-weight:600">Best by {E(d["bb"])}</div>' if d.get("bb") else ""
+    sz = sizes_label(d, lang)
+    bb = f'<div style="font-size:12px;color:#B3261E;font-weight:600">{E(tr(lang, "best_by", d["bb"]))}</div>' if d.get("bb") else ""
     if d.get("ca") is False:
-        bb += '<div style="font-size:12px;color:#5C6660">Ships from outside Canada · converted to CAD, duties may apply</div>'
+        bb += f'<div style="font-size:12px;color:#5C6660">{E(tr(lang, "abroad"))}</div>'
 
     return f'''<tr><td style="padding:10px 0;border-top:1px solid #E3E7E2">
 <a href="{E(d["url"])}" style="text-decoration:none;color:#17201C;display:block">
@@ -117,9 +170,9 @@ def card(d):
 <td valign="top" style="font-family:Arial,Helvetica,sans-serif">
 <div style="font-size:13px;font-weight:700;color:#B8470A">{E(d["b"])}{fav}</div>
 <div style="font-size:15px;line-height:1.3;margin:2px 0 4px">{E(d["n"])}</div>
-<div><span style="font-size:20px;font-weight:800">${d["best"]:.2f}</span>
-<span style="font-size:13px;color:#5C6660;text-decoration:line-through;margin-left:6px">${d["reg"]:.2f}</span>
-<span style="font-size:13px;font-weight:800;background:#F26A1B;border:1px solid #17201C;border-radius:4px;padding:1px 5px;margin-left:6px">−{d["pct"]}%</span></div>
+<div><span style="font-size:20px;font-weight:800">{money(d["best"], lang)}</span>
+<span style="font-size:13px;color:#5C6660;text-decoration:line-through;margin-left:6px">{money(d["reg"], lang)}</span>
+<span style="font-size:13px;font-weight:800;background:#F26A1B;border:1px solid #17201C;border-radius:4px;padding:1px 5px;margin-left:6px">{pct_txt(d["pct"], lang)}</span></div>
 <div style="font-size:12px;color:#5C6660;margin-top:3px">{E(sz)}</div>{bb}
 </td></tr></table></a></td></tr>'''
 
@@ -128,13 +181,14 @@ def shop_link(p):
     import base64
     if p.get("token"):
         return f"{SITE_URL}?k={p['token']}"      # private key: loads their saved profile from the database
-    keep = {k: p.get(k) for k in ("name", "gender", "ships", "activities", "groups", "sizes", "brands", "max_price")}
+    keep = {k: p.get(k) for k in ("name", "gender", "ships", "activities", "groups", "sizes", "brands", "max_price", "lang")}
     b = base64.urlsafe_b64encode(json.dumps(keep, separators=(",", ":")).encode()).decode().rstrip("=")
     return f"{SITE_URL}?p={b}"          # query string survives email link-wrappers better than #
 
 def build(p, sale, watch=None):
+    lang = lang_of(p)
     shop = shop_link(p)
-    first = (p.get("name") or "").split(" ")[0] or "Hi"
+    first = (p.get("name") or "").split(" ")[0] or tr(lang, "hi")
     sale.sort(key=lambda d: (-d["fav"], -d["pct"], d["best"]))
     sections, shown = [], 0
     order = [g for g in GROUP_LABEL if g in set(p.get("groups") or [])]
@@ -145,44 +199,45 @@ def build(p, sale, watch=None):
         take = ds[:min(PER_GROUP, TOTAL - shown)]
         shown += len(take)
         more = (f'<tr><td style="padding:6px 0 0;font:13px Arial,sans-serif"><a href="{E(shop)}" style="color:#B8470A">'
-                f'See all {len(ds)} on sale →</a></td></tr>') if len(ds) > len(take) else ""
+                f'{E(tr(lang, "see_all", len(ds)))}</a></td></tr>') if len(ds) > len(take) else ""
         sections.append(f'''<tr><td style="padding:22px 0 4px;font:800 20px Arial,Helvetica,sans-serif;color:#17201C">
-{E(GROUP_LABEL[g])} <span style="font:400 14px Arial,sans-serif;color:#5C6660">{len(ds)}</span></td></tr>
-{"".join(card(d) for d in take)}{more}''')
-    if watch and (watch["drops"] or watch["backs"]):
+{E(group_label(g, lang))} <span style="font:400 14px Arial,sans-serif;color:#5C6660">{len(ds)}</span></td></tr>
+{"".join(card(d, lang) for d in take)}{more}''')
+    has_watch = bool(watch and (watch["drops"] or watch["backs"]))
+    if has_watch:
         import alerts as A
-        rows = "".join(A.alert_row("drop", a) for a in watch["drops"]) + "".join(A.alert_row("back", a) for a in watch["backs"])
+        rows = ("".join(A.alert_row("drop", a, lang) for a in watch["drops"])
+                + "".join(A.alert_row("back", a, lang) for a in watch["backs"]))
         n = len(watch["drops"]) + len(watch["backs"])
         sections.insert(0, f'''<tr><td style="padding:22px 0 4px;font:800 20px Arial,Helvetica,sans-serif;color:#17201C">
-Your watchlist <span style="font:400 14px Arial,sans-serif;color:#5C6660">{n} {"change" if n == 1 else "changes"} this week</span></td></tr>{rows}''')
+{E(tr(lang, "watch_head"))} <span style="font:400 14px Arial,sans-serif;color:#5C6660">{E(tr(lang, "changes", n))}</span></td></tr>{rows}''')
     top = max([d["pct"] for d in sale] or [0])
-    links = [f'<a href="{E(shop)}" style="color:#5C6660">Change your sizes</a>']
+    links = [f'<a href="{E(shop)}" style="color:#5C6660">{E(tr(lang, "change_sizes"))}</a>']
     if p.get("token"):
-        links.append(f'<a href="{E(SITE_URL)}?unsub={p["token"]}" style="color:#5C6660">Unsubscribe</a>')
-    links.append(f'<a href="{E(SITE_URL)}privacy.html" style="color:#5C6660">Privacy</a>')
+        links.append(f'<a href="{E(SITE_URL)}?unsub={p["token"]}" style="color:#5C6660">{E(tr(lang, "unsubscribe"))}</a>')
+    links.append(f'<a href="{E(SITE_URL)}privacy.html" style="color:#5C6660">{E(tr(lang, "privacy"))}</a>')
     footer_links = " · ".join(links) + (f"<br>The Gear Fox · {E(ADDRESS)}" if ADDRESS else "")
-    subject = f"The Gear Fox: {len(sale)} deals in your size this week, up to {top}% off"
-    if watch and (watch["drops"] or watch["backs"]):
-        subject = f"The Gear Fox: your watchlist moved, plus {len(sale)} deals in your size"
-    intro = (f"{E(first)}, here are this week's sales on gear in your sizes, "
-             f"every price drop, big or small. Biggest discounts first.")
-    body = f'''<!doctype html><html><body style="margin:0;background:#EEF1EC">
+    subject = tr(lang, "subject_watch", len(sale)) if has_watch else tr(lang, "subject", len(sale), top)
+    intro = E(tr(lang, "intro", first))
+    body = f'''<!doctype html><html lang="{lang}"><body style="margin:0;background:#EEF1EC">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#EEF1EC"><tr><td align="center" style="padding:20px 12px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#FFFFFF;border:2px solid #17201C;border-radius:14px">
-<tr><td style="padding:18px 20px 0;text-align:center"><a href="{E(shop)}"><img src="{E(SITE_URL)}logo-email.png" width="260" alt="The Gear Fox" style="display:inline-block;width:260px;max-width:80%;height:auto;border:0"></a></td></tr>
-<tr><td style="padding:8px 20px 6px;text-align:center;font:800 28px Arial Narrow,Arial,sans-serif;color:#17201C">Your weekly deals</td></tr>
+<tr><td style="padding:18px 20px 0;text-align:center"><a href="{E(shop)}"><img src="{E(SITE_URL)}{tr(lang, "logo")}" width="260" alt="The Gear Fox" style="display:inline-block;width:260px;max-width:80%;height:auto;border:0"></a></td></tr>
+<tr><td style="padding:8px 20px 6px;text-align:center;font:800 28px Arial Narrow,Arial,sans-serif;color:#17201C">{E(tr(lang, "title"))}</td></tr>
 <tr><td style="padding:0 20px 8px;text-align:center;font:15px/1.45 Arial,sans-serif;color:#5C6660">{intro}</td></tr>
 <tr><td style="padding:0 20px 20px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">{"".join(sections)}</table></td></tr>
 <tr><td style="padding:14px 20px 22px;text-align:center;border-top:2px dashed #CBD2CC">
-<a href="{E(shop)}" style="display:inline-block;background:#F26A1B;color:#17201C;border:2px solid #17201C;border-radius:10px;padding:12px 20px;font:800 16px Arial,sans-serif;text-decoration:none">Open your shop</a>
-<div style="font:12px/1.4 Arial,sans-serif;color:#5C6660;margin-top:14px">Prices and stock change daily; the product page has the final price.<br>
-You get this because you signed up for Saturday deals on The Gear Fox. Outfox full price.<br>
+<a href="{E(shop)}" style="display:inline-block;background:#F26A1B;color:#17201C;border:2px solid #17201C;border-radius:10px;padding:12px 20px;font:800 16px Arial,sans-serif;text-decoration:none">{E(tr(lang, "open_shop"))}</a>
+<div style="font:12px/1.4 Arial,sans-serif;color:#5C6660;margin-top:14px">{tr(lang, "fine")}<br>
 {footer_links}</div></td></tr>
 </table></td></tr></table></body></html>'''
-    text = f"{subject}\n\n" + "\n".join(f"- {d['b']} {d['n']}: ${d['best']:.2f} (was ${d['reg']:.2f}, -{d['pct']}%) {d['url']}"
-                                         for d in sale[:TOTAL]) + f"\n\nAll deals: {shop}\n" + (
-        f"Unsubscribe: {SITE_URL}?unsub={p['token']}\n" if p.get("token") else "") + (f"The Gear Fox, {ADDRESS}\n" if ADDRESS else "")
+    text = f"{subject}\n\n" + "\n".join(
+        f"- {d['b']} {d['n']}: {money(d['best'], lang)} ({tr(lang, 'was')} {money(d['reg'], lang)}, {pct_txt(d['pct'], lang)}) {d['url']}"
+        for d in sale[:TOTAL]) + f"\n\n{tr(lang, 'all_deals')}: {shop}\n" + (
+        f"{tr(lang, 'unsubscribe')}: {SITE_URL}?unsub={p['token']}\n" if p.get("token") else "") + (
+        f"The Gear Fox, {ADDRESS}\n" if ADDRESS else "")
     return subject, body, text
+
 
 def subscribers():
     """Confirmed, still-subscribed people from Supabase, as profile dicts with email + token."""
