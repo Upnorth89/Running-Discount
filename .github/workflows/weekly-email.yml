@@ -20,4 +20,7 @@ jobs:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           SITE_URL: "https://thegearfox.com/"
           FROM_EMAIL: "The Gear Fox <deals@thegearfox.com>"
+          SUPABASE_URL: "https://krwymmkauwqqxjxbvkyq.supabase.co"
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          MAILING_ADDRESS: ${{ secrets.MAILING_ADDRESS }}
         run: python scraper/weekly_email.py
