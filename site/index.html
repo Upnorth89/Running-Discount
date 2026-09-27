@@ -130,6 +130,11 @@ input:focus-visible,button:focus-visible{outline:3px solid var(--moss);outline-o
 .grp.sale h2::before{content:"";width:12px;height:12px;border-radius:3px;background:var(--hivis);border:1.5px solid var(--ink);align-self:center}
 .deal .reg{font-size:14px;color:var(--muted)}
 .empty{background:var(--card);border:1.5px dashed var(--line);border-radius:12px;padding:22px;text-align:center;color:var(--muted)}
+.optin{display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:14px;cursor:pointer;font-size:16px;line-height:1.4}
+.optin input{width:22px;height:22px;flex:0 0 auto;margin:1px 0 0;accent-color:var(--hivis)}
+.notice-wrap{padding-top:0;padding-bottom:0}
+.notice{margin:14px 0 0;background:var(--card);border:1.5px solid var(--hivis);border-left-width:6px;border-radius:12px;padding:14px 16px;font-size:16px;line-height:1.45}
+.notice .btn{margin-top:10px}
 .foot{font-size:13px;color:var(--muted);text-align:center;margin-top:10px}
 .hidden{display:none!important}
 @media (prefers-reduced-motion:no-preference){.chip{transition:background .12s,border-color .12s}}
@@ -149,6 +154,7 @@ input:focus-visible,button:focus-visible{outline:3px solid var(--moss);outline-o
     <button class="tab" role="tab" data-view="deals" aria-selected="false">Shop<span class="n" id="tabCount"></span></button>
   </nav>
 </div></header>
+<div class="wrap notice-wrap"><div class="notice hidden" id="notice" role="status"></div></div>
 <div class="wrap" id="profileView">
   <div class="hero">
     <h1>Gear deals in your size</h1>
@@ -160,7 +166,7 @@ input:focus-visible,button:focus-visible{outline:3px solid var(--moss);outline-o
     <h2>You</h2>
     <div class="row two">
       <div><label class="field" for="name">First name</label><input id="name" type="text" autocomplete="given-name"></div>
-      <div><label class="field" for="email">Email for the weekly deals</label><input id="email" type="email" autocomplete="email" inputmode="email"></div>
+      <div><label class="field" for="email">Email <span style="font-weight:400;color:var(--muted)">(for the Saturday deals)</span></label><input id="email" type="email" autocomplete="email" inputmode="email"></div>
     </div>
   </section>
 
@@ -234,11 +240,11 @@ input:focus-visible,button:focus-visible{outline:3px solid var(--moss);outline-o
     </div>
   </section>
 
-  <section>
-    <h2>Weekly email</h2>
-    <p class="hint">Copies your profile so you can paste it into <code>email/profiles.json</code> in your GitHub repo. Update it there whenever your sizes change.</p>
-    <button class="btn" id="copyProfile" type="button">Copy my profile for the email</button>
-    <textarea id="profileJson" class="hidden" rows="8" readonly style="width:100%;margin-top:10px;font:13px/1.4 ui-monospace,Menlo,monospace;border:1.5px solid var(--line);border-radius:10px;padding:10px;background:var(--card);color:var(--ink)"></textarea>
+  <section id="emailSection">
+    <h2>Saturday email</h2>
+    <label class="optin"><input type="checkbox" id="optin"><span>Email me what's on sale in my sizes every Saturday morning. Unsubscribe anytime with one click.</span></label>
+    <p class="hint" id="subStatus" style="margin-top:10px"></p>
+    <p class="hint" style="font-size:13px">We only use your email for these deals. <a href="privacy.html">Privacy</a></p>
   </section>
 
 </div>
@@ -378,17 +384,70 @@ $("name").addEventListener("input",e=>state.name=e.target.value.trim());
 $("email").addEventListener("input",e=>state.email=e.target.value.trim());
 $("maxPrice").addEventListener("input",e=>{const v=parseFloat(e.target.value);state.max_price=isNaN(v)?null:v;updateCount()});
 
-$("copyProfile").addEventListener("click",async()=>{
-  const problem=validate(); if(problem){setMsg(problem,true);return}
-  const {frequency,updated_at,...p}=cleanProfile();
-  const txt=JSON.stringify([p],null,2);
-  const ta=$("profileJson");ta.value=txt;ta.classList.remove("hidden");
-  try{await navigator.clipboard.writeText(txt);setMsg("Profile copied. Paste it into email/profiles.json on GitHub.")}
-  catch(e){ta.select();setMsg("Select the text below and copy it.")}
-});
+/* ---------- Saturday email: subscribers live in Supabase ---------- */
+const SB_URL="https://krwymmkauwqqxjxbvkyq.supabase.co",SB_KEY="sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2";
+async function rpc(fn,args){
+  const r=await fetch(`${SB_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:{apikey:SB_KEY,"Content-Type":"application/json"},body:JSON.stringify(args||{})});
+  const t=await r.text();if(!r.ok){let m="";try{m=JSON.parse(t).message}catch(e){}throw new Error(m||("HTTP "+r.status))}
+  return t?JSON.parse(t):null;
+}
+const LS={get(k){try{return JSON.parse(localStorage.getItem(k)||"null")}catch(e){return null}},
+          set(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let sub=LS.get("gf-sub");            // {key, email, active} once this device is linked by an email link
+function setSub(v){sub=v;LS.set("gf-sub",v);renderSub()}
+function renderSub(){
+  const s=$("subStatus");
+  if(sub&&sub.active){s.textContent=`You're subscribed as ${sub.email}. Changes you save here update your Saturday email.`;}
+  else if(sub&&sub.pending){s.textContent=`We sent a confirmation link to ${sub.pending}. Tap it to start your Saturday email.`;}
+  else s.textContent="";
+  state.optin=$("optin").checked;
+}
+$("optin").addEventListener("change",()=>{state.optin=$("optin").checked});
+function notice(html,btn){
+  const n=$("notice");n.innerHTML=html+(btn?`<div><button class="btn" id="noticeBtn" type="button">${btn.label}</button></div>`:"");
+  n.classList.remove("hidden");if(btn)$("noticeBtn").addEventListener("click",btn.run);
+}
+async function syncEmail(p){
+  // called after the profile is saved on this device; returns the message to show
+  const want=$("optin").checked,email=(p.email||"").toLowerCase();
+  if(sub&&sub.key&&sub.email===email){
+    await rpc("save_profile",{p_token:sub.key,p_profile:p});
+    if(want&&sub.active)return "Saved. Your Saturday email uses these sizes.";
+    if(!want&&sub.active){await rpc("unsubscribe",{p_token:sub.key});setSub({...sub,active:false});return "Saved. You won't get the Saturday email anymore."}
+    if(!want)return "Profile saved on this device.";
+  }
+  if(!want)return "Profile saved on this device.";
+  if(sub&&sub.key&&sub.active&&sub.email!==email){await rpc("unsubscribe",{p_token:sub.key}).catch(()=>{});}
+  await rpc("subscribe",{p_email:email,p_profile:p});
+  setSub({pending:email});
+  return "Almost done: check your inbox (and Promotions) for a confirmation email from The Gear Fox.";
+}
+async function linkFromEmail(){
+  const q=new URLSearchParams(location.search);
+  const conf=q.get("confirm"),key=q.get("k"),unsub=q.get("unsub");
+  const tok=conf||key||unsub; if(!tok)return false;
+  try{history.replaceState(null,"",location.pathname)}catch(e){}
+  if(!/^[0-9a-f-]{36}$/i.test(tok)){notice("That link looks incomplete. Try copying the whole link from the email.");return false}
+  try{
+    if(unsub){
+      notice("Stop the Saturday deals email?",{label:"Unsubscribe",run:async()=>{
+        try{await rpc("unsubscribe",{p_token:tok});if(sub&&sub.key===tok)setSub({...sub,active:false});$("optin").checked=false;
+          notice("You're unsubscribed. No more Saturday emails. You can turn it back on anytime from your profile.")}
+        catch(e){notice("Couldn't unsubscribe just now. Check your connection and tap the link again.")}}});
+      return false;
+    }
+    const r=conf?await rpc("confirm",{p_token:tok}):await rpc("get_profile",{p_token:tok});
+    if(!r){notice("That link has expired or was already replaced. Save your profile again to get a new one.");return false}
+    const p={...r.profile,email:r.email};
+    LS.set("rd-profile",p);applyProfile(p);$("optin").checked=!!r.subscribed;
+    setSub({key:tok,email:r.email,active:!!r.subscribed});
+    if(conf)notice("<b>You're in.</b> Your first deals email arrives Saturday morning. This device is now linked to your profile.");
+    return true;
+  }catch(e){notice("Couldn't reach the server. Check your connection and reload.");return false}
+}
 function setMsg(t,err){const m=$("msg");m.textContent=t;m.classList.toggle("err",!!err)}
 function validate(){
-  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(state.email))return "Add a valid email so we can send your deals.";
+  if($("optin").checked&&!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(state.email))return "Add a valid email so we can send your Saturday deals.";
   if(!state.gender)return "Pick men's, women's or both.";
   if(!state.groups.length)return "Pick at least one category to watch.";
   if(state.groups.includes("shoes")&&!((state.sizes.shoes||{}).sizes||[]).length)return "Pick at least one shoe size.";
@@ -535,7 +594,10 @@ $("save").addEventListener("click",async()=>{
   const problem=validate(); if(problem){setMsg(problem,true);return}
   if(!docRef){setMsg("Saving isn't available in this view.",true);return}
   $("save").disabled=true; setMsg("Saving…");
-  try{await docRef.set(cleanProfile());$("save").textContent="Update profile";setMsg(hosted?"Profile saved on this device.":"Profile saved. Your first email arrives next week.");showView("deals")}
+  try{const p=cleanProfile();await docRef.set(p);$("save").textContent="Update profile";
+    if(hosted){let m;try{m=await syncEmail(p)}catch(e){setMsg("Saved on this device, but the email sign-up didn't go through: "+e.message,true);return}
+      setMsg(m);if(/check your inbox/.test(m)){notice(m);}showView("deals")}
+    else{setMsg("Profile saved. Your first email arrives next week.");showView("deals")}}
   catch(e){setMsg(e&&e.code==="invalid_argument"?"You can view this page but not save to it. Ask for Contributor access.":"Couldn't save. Check your connection and try again.",true)}
   finally{$("save").disabled=false}
 });
@@ -549,7 +611,10 @@ function profileFromLink(){
   try{const b=m[1].replace(/-/g,"+").replace(/_/g,"/");
     return JSON.parse(decodeURIComponent(escape(atob(b+"===".slice((b.length+3)%4)))))}catch(e){return null}
 }
-if(hosted){
+if(hosted)(async()=>{
+  renderSub();
+  if(await linkFromEmail()){$("save").textContent="Update profile";setMsg("Your saved profile is loaded.");showView("deals");
+    docRef={set:async p=>LS.set("rd-profile",p)};$("save").disabled=false;return}
   let p=null;const fromLink=profileFromLink();
   try{p=JSON.parse(localStorage.getItem("rd-profile")||"null")}catch(e){}
   if(fromLink){p=fromLink;try{localStorage.setItem("rd-profile",JSON.stringify(p))}catch(e){}
@@ -558,7 +623,13 @@ if(hosted){
   else setMsg("Takes about a minute.");
   docRef={set:async p=>{try{localStorage.setItem("rd-profile",JSON.stringify(p))}catch(e){}}};
   $("save").disabled=false;
-}
+  $("optin").checked=!!(sub&&(sub.active||sub.pending));renderSub();
+  if(sub&&sub.key){   // another device may have changed the profile: the server copy wins
+    try{const r=await rpc("get_profile",{p_token:sub.key});
+      if(r){const q={...r.profile,email:r.email};LS.set("rd-profile",q);applyProfile(q);setSub({...sub,email:r.email,active:!!r.subscribed});$("optin").checked=!!r.subscribed}}
+    catch(e){}
+  }
+})();
 if(!hosted)(async()=>{
   try{
     const [db,user]=await Promise.all([window.claude.use("db"),window.claude.use("user")]);

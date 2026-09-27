@@ -9,8 +9,12 @@ Env:
   RESEND_API_KEY   required to send (without it the email is only written to email/preview.html)
   DEALS_URL        where to read deals.json (default: the site's own copy)
   SITE_URL         link to the site in the email
-  FROM_EMAIL       sender, default "The Gear Fox <onboarding@resend.dev>" (Resend's test sender,
-                   which can only deliver to the address you signed up to Resend with)
+  FROM_EMAIL       sender, default "The Gear Fox <deals@thegearfox.com>"
+  SUPABASE_URL, SUPABASE_SECRET_KEY
+                   where subscribers who signed up on the site live (confirmed and not unsubscribed)
+  MAILING_ADDRESS  postal address for the footer (required by Canada's anti-spam law, CASL)
+
+Subscribers come from Supabase plus email/profiles.json (the database wins if an address is in both).
 
 Usage: python scraper/weekly_email.py [--dry-run]
 """
@@ -27,7 +31,10 @@ ROOT = Path(__file__).resolve().parents[1]
 DRY = "--dry-run" in sys.argv or not os.environ.get("RESEND_API_KEY")
 SITE_URL = os.environ.get("SITE_URL", "").rstrip("/") + "/"
 DEALS_URL = os.environ.get("DEALS_URL") or (SITE_URL + "deals.json" if SITE_URL != "/" else "")
-FROM = os.environ.get("FROM_EMAIL", "The Gear Fox <onboarding@resend.dev>")
+FROM = os.environ.get("FROM_EMAIL", "The Gear Fox <deals@thegearfox.com>")
+SB_URL = os.environ.get("SUPABASE_URL", "").rstrip("/")
+SB_KEY = os.environ.get("SUPABASE_SECRET_KEY", "")
+ADDRESS = os.environ.get("MAILING_ADDRESS", "").strip()
 
 GROUP_LABEL = {"shoes": "Shoes", "tops": "Tops & jackets", "bottoms": "Shorts & tights", "bras": "Sports bras",
                "socks": "Socks", "gloves": "Gloves", "headwear": "Hats & buffs", "packs": "Vests & packs",
@@ -117,8 +124,10 @@ def card(d):
 </td></tr></table></a></td></tr>'''
 
 def shop_link(p):
-    """Site link that opens this person's tailored shop on any device (profile in the address)."""
+    """Site link that opens this person's tailored shop on any device."""
     import base64
+    if p.get("token"):
+        return f"{SITE_URL}?k={p['token']}"      # private key: loads their saved profile from the database
     keep = {k: p.get(k) for k in ("name", "gender", "ships", "activities", "groups", "sizes", "brands", "max_price")}
     b = base64.urlsafe_b64encode(json.dumps(keep, separators=(",", ":")).encode()).decode().rstrip("=")
     return f"{SITE_URL}?p={b}"          # query string survives email link-wrappers better than #
@@ -141,6 +150,11 @@ def build(p, sale):
 {E(GROUP_LABEL[g])} <span style="font:400 14px Arial,sans-serif;color:#5C6660">{len(ds)}</span></td></tr>
 {"".join(card(d) for d in take)}{more}''')
     top = max(d["pct"] for d in sale)
+    links = [f'<a href="{E(shop)}" style="color:#5C6660">Change your sizes</a>']
+    if p.get("token"):
+        links.append(f'<a href="{E(SITE_URL)}?unsub={p["token"]}" style="color:#5C6660">Unsubscribe</a>')
+    links.append(f'<a href="{E(SITE_URL)}privacy.html" style="color:#5C6660">Privacy</a>')
+    footer_links = " · ".join(links) + (f"<br>The Gear Fox · {E(ADDRESS)}" if ADDRESS else "")
     subject = f"The Gear Fox: {len(sale)} deals in your size this week, up to {top}% off"
     intro = (f"{E(first)}, here are this week's sales on gear in your sizes, "
              f"every price drop, big or small. Biggest discounts first.")
@@ -154,16 +168,40 @@ def build(p, sale):
 <tr><td style="padding:14px 20px 22px;text-align:center;border-top:2px dashed #CBD2CC">
 <a href="{E(shop)}" style="display:inline-block;background:#F26A1B;color:#17201C;border:2px solid #17201C;border-radius:10px;padding:12px 20px;font:800 16px Arial,sans-serif;text-decoration:none">Open your shop</a>
 <div style="font:12px/1.4 Arial,sans-serif;color:#5C6660;margin-top:14px">Prices and stock change daily; the product page has the final price.<br>
-You get this because you set up weekly deals on The Gear Fox. Outfox full price.</div></td></tr>
+You get this because you signed up for Saturday deals on The Gear Fox. Outfox full price.<br>
+{footer_links}</div></td></tr>
 </table></td></tr></table></body></html>'''
     text = f"{subject}\n\n" + "\n".join(f"- {d['b']} {d['n']}: ${d['best']:.2f} (was ${d['reg']:.2f}, -{d['pct']}%) {d['url']}"
-                                         for d in sale[:TOTAL]) + f"\n\nAll deals: {shop}\n"
+                                         for d in sale[:TOTAL]) + f"\n\nAll deals: {shop}\n" + (
+        f"Unsubscribe: {SITE_URL}?unsub={p['token']}\n" if p.get("token") else "") + (f"The Gear Fox, {ADDRESS}\n" if ADDRESS else "")
     return subject, body, text
 
+def subscribers():
+    """Confirmed, still-subscribed people from Supabase, as profile dicts with email + token."""
+    if not (SB_URL and SB_KEY):
+        print("Supabase not configured, using email/profiles.json only")
+        return []
+    r = requests.get(f"{SB_URL}/rest/v1/subscribers", timeout=60,
+                     params={"select": "email,profile,token", "confirmed_at": "not.is.null", "unsubscribed_at": "is.null"},
+                     headers={"apikey": SB_KEY, "Authorization": f"Bearer {SB_KEY}"} if SB_KEY.count(".") == 2
+                     else {"apikey": SB_KEY})
+    r.raise_for_status()
+    out = [{**(row["profile"] or {}), "email": row["email"], "token": row["token"]} for row in r.json()]
+    print(f"{len(out)} subscribers in Supabase")
+    return out
+
 def main():
-    profiles = json.loads((ROOT / "email" / "profiles.json").read_text())
-    if isinstance(profiles, dict):
-        profiles = [profiles]
+    profiles = []
+    f = ROOT / "email" / "profiles.json"
+    if f.exists():
+        profiles = json.loads(f.read_text())
+        if isinstance(profiles, dict):
+            profiles = [profiles]
+    db = subscribers()
+    seen = {p["email"].lower() for p in db}
+    profiles = db + [p for p in profiles if (p.get("email") or "").lower() not in seen]
+    if not ADDRESS:
+        print("WARNING: MAILING_ADDRESS is not set; CASL requires a postal address in the footer")
     if DEALS_URL:
         data = requests.get(DEALS_URL, timeout=60).json()
     else:
@@ -187,7 +225,8 @@ def main():
             continue
         r = requests.post("https://api.resend.com/emails", timeout=60,
                           headers={"Authorization": f"Bearer {os.environ['RESEND_API_KEY']}"},
-                          json={"from": FROM, "to": [who], "subject": subject, "html": body, "text": text})
+                          json={"from": FROM, "to": [who], "subject": subject, "html": body, "text": text,
+                                **({"headers": {"List-Unsubscribe": f"<{SITE_URL}?unsub={p['token']}>"}} if p.get("token") else {})})
         if r.ok:
             print(f"{who}: sent {len(sale)} deals")
         else:
