@@ -3,14 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Running Discount — your deals</title>
+<title>The Gear Fox — gear deals in your size</title>
+<meta name="description" content="The Gear Fox finds running and outdoor gear on sale in your size, from stores across Canada and beyond. Outfox full price.">
+<meta name="theme-color" content="#F26A1B">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:title" content="The Gear Fox — Outfox full price">
+<meta property="og:description" content="Gear deals in your size, from stores across Canada and beyond.">
+<meta property="og:image" content="logo-email.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
   --ink:#17201C; --muted:#5C6660; --mist:#EEF1EC; --card:#FFFFFF; --line:#CBD2CC;
-  --moss:#2F4A3A; --hivis:#D7F23A; --hivis-ink:#17201C; --err:#B3261E;
+  --moss:#B8470A; --hivis:#F26A1B; --hivis-ink:#17201C; --err:#B3261E;
   --body:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --display:"Barlow Condensed","Arial Narrow",Impact,system-ui,sans-serif;
   box-sizing:border-box;
@@ -20,12 +26,12 @@
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
     --ink:#E7ECE8; --muted:#9BA6A0; --mist:#121815; --card:#1B2320; --line:#34403A;
-    --moss:#9CC4A8; --hivis:#D7F23A; --hivis-ink:#121815; --err:#FF8A80;
+    --moss:#FF9A5C; --hivis:#F26A1B; --hivis-ink:#121815; --err:#FF8A80;
   }
 }
 :root[data-theme="dark"]{
   --ink:#E7ECE8; --muted:#9BA6A0; --mist:#121815; --card:#1B2320; --line:#34403A;
-  --moss:#9CC4A8; --hivis:#D7F23A; --hivis-ink:#121815; --err:#FF8A80;
+  --moss:#FF9A5C; --hivis:#F26A1B; --hivis-ink:#121815; --err:#FF8A80;
 }
 *,*::before,*::after{box-sizing:inherit}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
@@ -36,6 +42,8 @@ body{margin:0;background:var(--mist);color:var(--ink);font:400 17px/1.5 var(--bo
 .bib{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:22px 22px 18px;position:relative;margin-bottom:28px}
 .bib::before,.bib::after{content:"";position:absolute;top:14px;width:10px;height:10px;border-radius:50%;border:2px solid var(--ink);background:var(--mist)}
 .bib::before{left:14px}.bib::after{right:14px}
+.bib h1.brand{margin:0 0 12px;text-align:center}
+.bib h1.brand img{display:block;width:100%;max-width:420px;height:auto;margin:0 auto;background:#fff;border-radius:10px;padding:6px 10px}
 .bib h1{font:800 clamp(44px,12vw,72px)/.9 var(--display);letter-spacing:-.5px;margin:10px 0 10px;text-align:center}
 .bib p{margin:0 auto;max-width:44ch;text-align:center;color:var(--muted)}
 .bib .summary{margin-top:16px;padding-top:14px;border-top:2px dashed var(--line);text-align:center;font:600 18px/1.35 var(--display);letter-spacing:.2px;min-height:1.4em}
@@ -131,8 +139,8 @@ input:focus-visible,button:focus-visible{outline:3px solid var(--moss);outline-o
 </nav>
 <div class="wrap" id="profileView">
   <header class="bib">
-    <h1>Running Discount</h1>
-    <p>Tell us what you run in and what fits. We pull running gear from across Canada into one place, only in your size, and email you when it goes on sale.</p>
+    <h1 class="brand"><img src="logo.png" alt="The Gear Fox — Outfox full price" width="900" height="437"></h1>
+    <p>Tell us what you're into and what fits. We gather running and outdoor gear from stores across Canada and beyond, show only what's in your size, and email you when it goes on sale.</p>
     <div class="summary" id="summary" aria-live="polite">Pick your sizes below</div>
   </header>
 
@@ -240,6 +248,7 @@ input:focus-visible,button:focus-visible{outline:3px solid var(--moss);outline-o
   </div>
   <div id="dealList"></div>
   <p class="foot" id="dealsFoot"></p>
+  <p class="foot">The Gear Fox · Outfox full price</p>
 </div>
 
 <div class="savebar" id="savebar">

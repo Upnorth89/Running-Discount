@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Weekly sale email.
+"""The Gear Fox weekly sale email.
 
 Reads today's deals.json (the live site's copy) and each profile in email/profiles.json, finds
 the gear on sale in that person's sizes (same matching rules as the Shop page), and emails it
@@ -9,7 +9,7 @@ Env:
   RESEND_API_KEY   required to send (without it the email is only written to email/preview.html)
   DEALS_URL        where to read deals.json (default: the site's own copy)
   SITE_URL         link to the site in the email
-  FROM_EMAIL       sender, default "Running Discount <onboarding@resend.dev>" (Resend's test sender,
+  FROM_EMAIL       sender, default "The Gear Fox <onboarding@resend.dev>" (Resend's test sender,
                    which can only deliver to the address you signed up to Resend with)
 
 Usage: python scraper/weekly_email.py [--dry-run]
@@ -27,7 +27,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DRY = "--dry-run" in sys.argv or not os.environ.get("RESEND_API_KEY")
 SITE_URL = os.environ.get("SITE_URL", "").rstrip("/") + "/"
 DEALS_URL = os.environ.get("DEALS_URL") or (SITE_URL + "deals.json" if SITE_URL != "/" else "")
-FROM = os.environ.get("FROM_EMAIL", "Running Discount <onboarding@resend.dev>")
+FROM = os.environ.get("FROM_EMAIL", "The Gear Fox <onboarding@resend.dev>")
 
 GROUP_LABEL = {"shoes": "Shoes", "tops": "Tops & jackets", "bottoms": "Shorts & tights", "bras": "Sports bras",
                "socks": "Socks", "gloves": "Gloves", "headwear": "Hats & buffs", "packs": "Vests & packs",
@@ -108,11 +108,11 @@ def card(d):
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
 <td width="96" valign="top">{img}</td>
 <td valign="top" style="font-family:Arial,Helvetica,sans-serif">
-<div style="font-size:13px;font-weight:700;color:#2F4A3A">{E(d["b"])}{fav}</div>
+<div style="font-size:13px;font-weight:700;color:#B8470A">{E(d["b"])}{fav}</div>
 <div style="font-size:15px;line-height:1.3;margin:2px 0 4px">{E(d["n"])}</div>
 <div><span style="font-size:20px;font-weight:800">${d["best"]:.2f}</span>
 <span style="font-size:13px;color:#5C6660;text-decoration:line-through;margin-left:6px">${d["reg"]:.2f}</span>
-<span style="font-size:13px;font-weight:800;background:#D7F23A;border:1px solid #17201C;border-radius:4px;padding:1px 5px;margin-left:6px">−{d["pct"]}%</span></div>
+<span style="font-size:13px;font-weight:800;background:#F26A1B;border:1px solid #17201C;border-radius:4px;padding:1px 5px;margin-left:6px">−{d["pct"]}%</span></div>
 <div style="font-size:12px;color:#5C6660;margin-top:3px">{E(sz)}</div>{bb}
 </td></tr></table></a></td></tr>'''
 
@@ -135,25 +135,26 @@ def build(p, sale):
             continue
         take = ds[:min(PER_GROUP, TOTAL - shown)]
         shown += len(take)
-        more = (f'<tr><td style="padding:6px 0 0;font:13px Arial,sans-serif"><a href="{E(shop)}" style="color:#2F4A3A">'
+        more = (f'<tr><td style="padding:6px 0 0;font:13px Arial,sans-serif"><a href="{E(shop)}" style="color:#B8470A">'
                 f'See all {len(ds)} on sale →</a></td></tr>') if len(ds) > len(take) else ""
         sections.append(f'''<tr><td style="padding:22px 0 4px;font:800 20px Arial,Helvetica,sans-serif;color:#17201C">
 {E(GROUP_LABEL[g])} <span style="font:400 14px Arial,sans-serif;color:#5C6660">{len(ds)}</span></td></tr>
 {"".join(card(d) for d in take)}{more}''')
     top = max(d["pct"] for d in sale)
-    subject = f"{len(sale)} running deals in your size this week, up to {top}% off"
-    intro = (f"{E(first)}, here are this week's sales on running gear in your sizes, "
+    subject = f"The Gear Fox: {len(sale)} deals in your size this week, up to {top}% off"
+    intro = (f"{E(first)}, here are this week's sales on gear in your sizes, "
              f"every price drop, big or small. Biggest discounts first.")
     body = f'''<!doctype html><html><body style="margin:0;background:#EEF1EC">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#EEF1EC"><tr><td align="center" style="padding:20px 12px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#FFFFFF;border:2px solid #17201C;border-radius:14px">
-<tr><td style="padding:22px 20px 6px;text-align:center;font:800 32px Arial Narrow,Arial,sans-serif;color:#17201C">Your weekly deals</td></tr>
+<tr><td style="padding:18px 20px 0;text-align:center"><a href="{E(shop)}"><img src="{E(SITE_URL)}logo-email.png" width="260" alt="The Gear Fox" style="display:inline-block;width:260px;max-width:80%;height:auto;border:0"></a></td></tr>
+<tr><td style="padding:8px 20px 6px;text-align:center;font:800 28px Arial Narrow,Arial,sans-serif;color:#17201C">Your weekly deals</td></tr>
 <tr><td style="padding:0 20px 8px;text-align:center;font:15px/1.45 Arial,sans-serif;color:#5C6660">{intro}</td></tr>
 <tr><td style="padding:0 20px 20px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">{"".join(sections)}</table></td></tr>
 <tr><td style="padding:14px 20px 22px;text-align:center;border-top:2px dashed #CBD2CC">
-<a href="{E(shop)}" style="display:inline-block;background:#D7F23A;color:#17201C;border:2px solid #17201C;border-radius:10px;padding:12px 20px;font:800 16px Arial,sans-serif;text-decoration:none">Open your shop</a>
+<a href="{E(shop)}" style="display:inline-block;background:#F26A1B;color:#17201C;border:2px solid #17201C;border-radius:10px;padding:12px 20px;font:800 16px Arial,sans-serif;text-decoration:none">Open your shop</a>
 <div style="font:12px/1.4 Arial,sans-serif;color:#5C6660;margin-top:14px">Prices and stock change daily; the product page has the final price.<br>
-You get this because you set up weekly deals on Running Discount.</div></td></tr>
+You get this because you set up weekly deals on The Gear Fox. Outfox full price.</div></td></tr>
 </table></td></tr></table></body></html>'''
     text = f"{subject}\n\n" + "\n".join(f"- {d['b']} {d['n']}: ${d['best']:.2f} (was ${d['reg']:.2f}, -{d['pct']}%) {d['url']}"
                                          for d in sale[:TOTAL]) + f"\n\nAll deals: {shop}\n"

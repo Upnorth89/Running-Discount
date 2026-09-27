@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Running Discount scraper.
+"""The Gear Fox scraper.
 
 Pulls the full running catalogue (full price and on sale) from Altitude Sports, The Last Hunt,
 The Feed, Sea2Sky Nutrition, Sporting Life, Stampeak, MEC and REI, merges the same product sold by several stores, and writes
@@ -657,6 +657,108 @@ def scrape_sportinglife():
 
 # ---------------------------------------------------------------- merge + main
 
+
+# ---------------------------------------------------------------- Pages you save yourself (MEC, REI)
+# MEC and REI block automated access, so instead you save their running-deals pages from your own
+# browser (Cmd+S, "Webpage, HTML only") and upload them to the saved-pages/ folder in the repo.
+# Files older than SAVED_MAX_DAYS are ignored so stale prices never linger.
+SAVED_DIR = Path(__file__).resolve().parents[1] / "saved-pages"
+SAVED_MAX_DAYS = 10
+
+def _file_age_days(path):
+    """Age from the git commit that last touched the file (upload date on GitHub); falls back to mtime."""
+    import subprocess
+    try:
+        out = subprocess.run(["git", "log", "-1", "--format=%ct", "--", str(path)], cwd=path.parent,
+                             capture_output=True, text=True, timeout=20).stdout.strip()
+        ts = float(out) if out else path.stat().st_mtime
+    except Exception:
+        ts = path.stat().st_mtime
+    return (time.time() - ts) / 86400
+
+def saved_pages():
+    files = []
+    if SAVED_DIR.is_dir():
+        for f in list(SAVED_DIR.glob("*.htm*")) + list(SAVED_DIR.glob("*.json")):
+            age = _file_age_days(f)
+            if f.suffix == ".json":         # files from the "Grab deals" bookmark carry their own date
+                try:
+                    import datetime as _d
+                    saved = json.loads(f.read_text()).get("saved")
+                    age = (time.time() - _d.datetime.fromisoformat(saved.replace("Z", "+00:00")).timestamp()) / 86400
+                except Exception:
+                    pass
+            if age > SAVED_MAX_DAYS:
+                print(f"  saved page {f.name} is {age:.0f} days old, skipped (upload a fresh one)", file=sys.stderr)
+                continue
+            files.append((age, f))
+    return [f for _, f in sorted(files)]    # newest first, so this week's price wins over last week's
+
+def scrape_mec_saved():
+    out, seen, used = [], set(), 0
+    for f in saved_pages():
+        text = f.read_text(errors="ignore")
+        if f.suffix == ".json":
+            try:
+                d = json.loads(text)
+            except Exception:
+                continue
+            if d.get("store") != "mec":
+                continue
+            hits = d.get("hits") or []
+        else:
+            m = re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', text, re.S)
+            if not m or "mec.ca" not in text[:200000]:
+                continue
+            try:
+                ir = json.loads(m.group(1))["props"]["pageProps"]["serverState"]["initialResults"]
+                hits = ir[[k for k in ir if k.startswith("products")][0]]["results"][0]["hits"]
+            except Exception:
+                continue
+        used += 1
+        for h in hits:
+            key = h.get("parentSku") or h.get("url")
+            if key in seen:
+                continue
+            seen.add(key)
+            it = mec_item(h)
+            if it:
+                out.append(it)
+    print(f"  mec: {used} saved page(s)", file=sys.stderr)
+    return out                      # no fresh pages -> no MEC items (never keep stale prices)
+
+def scrape_rei_saved():
+    fx = usd_cad()
+    out, seen, used = [], set(), 0
+    for f in saved_pages():
+        text = f.read_text(errors="ignore")
+        if f.suffix == ".json":
+            try:
+                d = json.loads(text)
+            except Exception:
+                continue
+            if d.get("store") != "rei":
+                continue
+            results = d.get("results") or []
+        else:
+            m = re.search(r'<script type="application/json" id="initial-props">(.*?)</script>', text, re.S)
+            if not m:
+                continue
+            try:
+                results = json.loads(m.group(1))["ProductSearch"]["products"]["searchResults"]["results"]
+            except Exception:
+                continue
+        used += 1
+        for r in results:
+            if r.get("prodId") in seen:
+                continue
+            seen.add(r.get("prodId"))
+            it = rei_item(r, fx)
+            if it:
+                out.append(it)
+    print(f"  rei: {used} saved page(s), USD->CAD {fx}", file=sys.stderr)
+    return out
+
 # ---------------------------------------------------------------- Any Shopify store (brands + shops): one line each
 # Each store is tested during the run: if it isn't Shopify, blocks us, or sells nothing running-related,
 # it is skipped and noted in the log. Currency is read from the store and converted to CAD.
@@ -781,8 +883,8 @@ STORES = {
     "sea2sky": scrape_sea2sky,
     "sportinglife": scrape_sportinglife,
     "stampeak": scrape_stampeak,
-    "mec": scrape_mec,
-    "rei": scrape_rei,
+    "mec": scrape_mec_saved,       # from pages you save (their sites block automated access)
+    "rei": scrape_rei_saved,
 }
 for _st, _base, _kind in SHOPIFY_STORES:
     STORES[_st] = make_shopify_scraper(_st, _base, _kind)
@@ -848,7 +950,7 @@ def main():
             continue
         try:
             got = fn()
-            if not got and st not in dict((x[0], 1) for x in SHOPIFY_STORES):
+            if not got and st not in dict((x[0], 1) for x in SHOPIFY_STORES) and st not in ("mec", "rei"):
                 raise RuntimeError("0 items")
             for o in got:
                 o.setdefault("ca", st in CA_STORES)
