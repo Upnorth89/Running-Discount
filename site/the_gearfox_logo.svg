@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">The GearFox — Outfox Full Price</title>
+  <desc id="desc">Orange and charcoal fox carrying a backpack and a discount tag, with The GearFox wordmark and Outfox Full Price tagline.</desc>
+
+  <defs>
+    <linearGradient id="orange" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ff7a00"/>
+      <stop offset="1" stop-color="#ff4f00"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1600" height="900" fill="#fff"/>
+
+  <!-- Fox -->
+  <g transform="translate(90 80)">
+    <!-- sweeping tail -->
+    <path d="M80 290 C230 100 455 105 625 225 C690 270 755 285 835 255
+             C735 350 585 395 430 360 C290 330 185 285 80 330 Z"
+          fill="url(#orange)"/>
+    <path d="M80 290 C175 260 250 275 330 315 C270 245 205 220 135 235"
+          fill="#fff"/>
+    <!-- rear body -->
+    <path d="M545 285 C650 205 805 195 925 245 C1010 280 1040 350 975 405
+             C900 465 760 425 650 385 L535 350 Z"
+          fill="url(#orange)"/>
+    <!-- dark underside / leg -->
+    <path d="M700 365 C785 390 835 415 885 445 L775 490 C720 485 665 450 625 420 Z"
+          fill="#17212b"/>
+    <path d="M850 400 C920 390 990 420 1020 470 L970 505 C915 500 865 475 820 440 Z"
+          fill="#17212b"/>
+
+    <!-- backpack -->
+    <path d="M650 170 Q700 115 790 135 L850 180 L815 285 L665 280 L625 235 Z"
+          fill="#17212b"/>
+    <path d="M680 185 Q730 145 785 160 L815 185 L790 205 L705 198 Z"
+          fill="#fff"/>
+    <path d="M680 205 L650 255 M790 205 L760 275"
+          stroke="#fff" stroke-width="12" stroke-linecap="round"/>
+
+    <!-- fox neck/head -->
+    <path d="M820 235 C875 135 985 90 1085 135 L1175 190
+             C1220 215 1255 250 1295 260 L1245 305
+             C1180 310 1140 300 1085 285 C1015 325 945 350 865 320 Z"
+          fill="url(#orange)"/>
+    <!-- ears -->
+    <path d="M920 170 L950 55 L1020 150 Z" fill="#17212b"/>
+    <path d="M1010 145 L1070 65 L1100 180 Z" fill="#17212b"/>
+    <path d="M945 145 L955 90 L990 145 Z" fill="#ff5b00"/>
+    <!-- face -->
+    <path d="M1035 205 C1080 185 1120 190 1150 210 L1120 230 L1070 225 Z"
+          fill="#17212b"/>
+    <path d="M1125 275 C1170 255 1220 265 1260 280 C1225 315 1180 320 1135 305 Z"
+          fill="#fff"/>
+    <circle cx="1175" cy="222" r="9" fill="#17212b"/>
+    <path d="M1260 278 Q1290 275 1305 290 Q1290 315 1265 307 Z" fill="#17212b"/>
+
+    <!-- cheek / chest -->
+    <path d="M1080 285 C1015 300 960 350 925 405 C1005 390 1070 350 1115 305 Z"
+          fill="#fff"/>
+    <path d="M1115 305 C1050 325 1005 365 970 415 C1050 400 1110 360 1160 315 Z"
+          fill="#17212b"/>
+
+    <!-- discount tag -->
+    <g transform="translate(1270 295) rotate(18)">
+      <path d="M0 0 H92 L120 28 V105 H0 Z" fill="#17212b"/>
+      <circle cx="12" cy="14" r="6" fill="#fff"/>
+      <text x="58" y="75" text-anchor="middle"
+            font-family="Arial, Helvetica, sans-serif" font-size="52"
+            font-weight="700" fill="#fff">%</text>
+    </g>
+  </g>
+
+  <!-- Wordmark -->
+  <g font-family="Arial, Helvetica, sans-serif" font-weight="800">
+    <text x="800" y="690" text-anchor="middle" font-size="138" letter-spacing="-7">
+      <tspan fill="#17212b">The Gear</tspan><tspan fill="#ff6200">Fox</tspan>
+    </text>
+  </g>
+
+  <!-- Flowing tagline lines -->
+  <g fill="none" stroke="#ff6200" stroke-linecap="round">
+    <path d="M235 755 C280 748 320 748 365 755" stroke-width="6"/>
+    <path d="M1235 755 C1280 748 1320 748 1365 755" stroke-width="6"/>
+  </g>
+  <text x="800" y="770" text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif" font-size="42"
+        font-weight="600" letter-spacing="9" fill="#17212b">
+    OUTFOX FULL PRICE
+  </text>
+</svg>
