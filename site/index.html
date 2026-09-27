@@ -139,6 +139,8 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
 .sheet details[open] summary::after{content:"−"}
 .brandadd{display:flex;gap:8px;margin-top:10px}
 .sheet .go{width:100%;margin-top:20px}
+.sheet .fine{font-size:13px;color:var(--muted);margin:8px 0 0}
+.sheet .gerr{color:var(--err);font-weight:600;font-size:15px;margin:14px 0 0}
 .sheet .subline{font-size:14px;color:var(--muted);margin:14px 0 0;text-align:center}
 .sheet .subline button{font:inherit;color:var(--moss);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer;min-height:24px}
 @media (prefers-reduced-motion:no-preference){.chip,.seg button{transition:background .12s,border-color .12s}}
@@ -215,6 +217,12 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
       </div>
     </details>
 
+    <div id="gateBox" class="hidden">
+      <h3><label for="gateEmail">Your email</label> <small>for your deals and the Saturday email</small></h3>
+      <input id="gateEmail" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com">
+      <p class="fine">You'll get one email every Saturday with the best deals in your sizes. We'll send a link to confirm first. Unsubscribe with one tap. <a href="privacy.html">Privacy</a></p>
+    </div>
+    <p class="gerr hidden" id="gateErr" role="alert"></p>
     <button class="primary go" id="saveSizes" type="button">Show my deals</button>
     <p class="subline" id="subLine"></p>
   </div>
@@ -286,16 +294,38 @@ function addBrand(){const v=$("brandInput").value.trim();if(!v)return;
 $("brandAdd").addEventListener("click",addBrand);
 $("brandInput").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();addBrand()}});
 
+function gated(){return !(sub&&(sub.key||sub.pending))}     // first visit: sizes + email before any deals
+function gateErr(t){const e=$("gateErr");e.textContent=t||"";e.classList.toggle("hidden",!t)}
 let lastFocus=null;
-function openSheet(){lastFocus=document.activeElement;renderSheet();$("sheet").classList.remove("hidden");document.body.classList.add("locked");
+function openSheet(){lastFocus=document.activeElement;renderSheet();
+  const g=gated();
+  $("gateBox").classList.toggle("hidden",!g);$("closeSheet").classList.toggle("hidden",g);
+  $("sheetTitle").textContent=g?"Deals in your size":"What fits you?";
+  document.querySelector("#sheet .intro").textContent=g?"Pick what fits and add your email. We'll show every deal in your size, from stores across Canada.":"Three taps and we'll hide everything that won't fit.";
+  $("saveSizes").textContent=g?"Subscribe & show my deals":"Show my deals";
+  if(g)$("gateEmail").value=state.email||"";
+  gateErr("");$("sheet").classList.remove("hidden");document.body.classList.add("locked");
   setTimeout(()=>$("panel").focus(),30)}
 function closeSheet(){$("sheet").classList.add("hidden");document.body.classList.remove("locked");if(lastFocus&&lastFocus.focus)lastFocus.focus()}
 $("openSizes").addEventListener("click",openSheet);
 $("sizePill").addEventListener("click",openSheet);
-$("closeSheet").addEventListener("click",()=>{closeSheet();renderAll()});
-$("sheet").addEventListener("click",e=>{if(e.target===$("sheet")){closeSheet();renderAll()}});
-document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("sheet").classList.contains("hidden")){closeSheet();renderAll()}});
-$("saveSizes").addEventListener("click",()=>{
+$("closeSheet").addEventListener("click",()=>{if(gated())return;closeSheet();renderAll()});
+$("sheet").addEventListener("click",e=>{if(e.target===$("sheet")&&!gated()){closeSheet();renderAll()}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("sheet").classList.contains("hidden")&&!gated()){closeSheet();renderAll()}});
+$("saveSizes").addEventListener("click",async()=>{
+  if(gated()){
+    if(!state.gender)return gateErr("Pick men's, women's or both.");
+    if(!state.shoe.length&&!state.cloth.length)return gateErr("Pick at least one shoe or clothing size.");
+    const email=$("gateEmail").value.trim().toLowerCase();
+    if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)){gateErr("Add a valid email to see your deals.");$("gateEmail").focus();return}
+    const btn=$("saveSizes");btn.disabled=true;btn.textContent="One moment…";gateErr("");
+    state.email=email;const p=toProfile();LS.set("rd-profile",p);
+    try{await rpc("subscribe",{p_email:email,p_profile:p});setSub({pending:email})}
+    catch(e){btn.disabled=false;btn.textContent="Subscribe & show my deals";return gateErr("Couldn't reach our server. Check your connection and try again.")}
+    btn.disabled=false;closeSheet();view.open={};renderAll();window.scrollTo({top:0});
+    notice(`<b>Here are your deals.</b> We sent a link to ${esc(email)}. Tap it to start your Saturday email (check Promotions too).`);
+    return;
+  }
   if(!state.gender){state.gender="any"}
   saveProfile();closeSheet();view.open={};renderAll();window.scrollTo({top:0});
 });
@@ -402,6 +432,9 @@ function renderAll(){
   $("sizeSummary").textContent=sizeSummary();
   renderFilters();
   if(!DATA){$("dealList").innerHTML=`<div class="empty">Loading gear…</div>`;return}
+  if(gated()){$("lede").textContent="Pick your sizes and add your email to see today's deals.";
+    $("dealList").innerHTML=`<div class="empty"><button class="primary" type="button" id="unlock">See deals in my size</button></div>`;
+    $("unlock").addEventListener("click",openSheet);$("dealsFoot").textContent="";return}
   const p=toProfile();
   const q=view.q.trim().toLowerCase().split(/\s+/).filter(Boolean);
   let all=matchItems(p);
@@ -453,7 +486,7 @@ function bindSignup(){
     catch(err){signupErr="Couldn't sign you up just now: "+err.message}
     renderAll();
   });
-  const r=$("suRetry");if(r)r.addEventListener("click",()=>{setSub(null);renderAll();setTimeout(()=>$("suEmail")&&$("suEmail").focus(),0)});
+  const r=$("suRetry");if(r)r.addEventListener("click",()=>{setSub(null);renderAll();openSheet();setTimeout(()=>$("gateEmail").focus(),60)});
 }
 function renderSubLine(){
   const el=$("subLine");
@@ -506,7 +539,7 @@ async function linkFromEmail(){
     catch(e){}
   }
   renderAll();
-  if(!hasSizes()&&!new URLSearchParams(location.search).get("unsub")&&$("notice").classList.contains("hidden"))openSheet();
+  if((gated()||!hasSizes())&&$("notice").classList.contains("hidden"))openSheet();
 })();
 })();
 </script>
