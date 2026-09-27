@@ -122,6 +122,106 @@ begin
   return 'sent';
 end $$;
 
+-- ---------- Sign in with Google ----------
+-- The website signs the visitor in through Supabase Auth with a Google ID token. These two functions
+-- only work for a signed-in visitor, and only with the email Google verified for them.
+alter table public.subscribers add column if not exists consent_via text;   -- 'email' (confirm link) or 'google'
+
+create or replace function public._gf_google_email()
+returns text language sql stable security definer set search_path = public, auth as $$
+  select lower(u.email) from auth.users u
+   where u.id = auth.uid() and u.email is not null and u.email_confirmed_at is not null;
+$$;
+revoke all on function public._gf_google_email() from public, anon, authenticated;
+
+-- Returning visitor: is this Google account a subscriber? Returns their profile and private key, or null.
+create or replace function public.google_profile()
+returns jsonb language plpgsql stable security definer set search_path = public as $$
+declare e text := public._gf_google_email(); r public.subscribers;
+begin
+  if e is null then return null; end if;
+  select * into r from public.subscribers where email = e;
+  if not found then return jsonb_build_object('email', e, 'found', false); end if;
+  return jsonb_build_object('email', r.email, 'found', true, 'key', r.token,
+    'profile', coalesce(r.pending_profile, r.profile),
+    'subscribed', r.confirmed_at is not null and r.unsubscribed_at is null);
+end $$;
+
+-- New visitor who tapped "Subscribe with Google": subscribe them straight away (Google already verified
+-- the email, and tapping the button next to the Saturday-email promise is their consent).
+create or replace function public.google_subscribe(p_profile jsonb)
+returns jsonb language plpgsql security definer set search_path = public as $$
+declare e text := public._gf_google_email(); r public.subscribers;
+begin
+  if e is null then raise exception 'not signed in with Google'; end if;
+  if p_profile is null or jsonb_typeof(p_profile) <> 'object' or octet_length(p_profile::text) > 20000 then
+    raise exception 'invalid profile'; end if;
+  insert into public.subscribers (email) values (e) on conflict (email) do nothing;
+  update public.subscribers
+     set profile = p_profile - 'email', pending_profile = null, updated_at = now(),
+         confirmed_at = case when confirmed_at is null or unsubscribed_at is not null then now() else confirmed_at end,
+         consent_via = case when confirmed_at is null or unsubscribed_at is not null then 'google' else consent_via end,
+         unsubscribed_at = null
+   where email = e returning * into r;
+  return jsonb_build_object('email', r.email, 'found', true, 'key', r.token, 'profile', r.profile, 'subscribed', true);
+end $$;
+
+revoke all on function public.google_profile(), public.google_subscribe(jsonb) from public, anon;
+grant execute on function public.google_profile(), public.google_subscribe(jsonb) to authenticated;
+
+-- "Already signed up?": email a link that opens this person's deals on a new device.
+-- Always answers 'sent' so it never reveals who is subscribed.
+create or replace function public.send_link(p_email text, p_lang text default 'en')
+returns text language plpgsql security definer set search_path = public as $$
+declare
+  e text := lower(trim(coalesce(p_email, '')));
+  r public.subscribers;
+  recent int;
+  fr boolean;
+  link text;
+begin
+  if length(e) > 254 or e !~ '^[^@\s<>"'']+@[^@\s<>"'']+\.[a-z]{2,}$' then raise exception 'invalid email'; end if;
+  select * into r from public.subscribers where email = e;
+  if not found then return 'sent'; end if;
+  if r.last_mail_at > now() - interval '2 minutes' then return 'sent'; end if;
+  select count(*) into recent from public.subscribers where last_mail_at > now() - interval '1 hour';
+  if recent >= 40 then raise exception 'too many requests right now, try again in a few minutes'; end if;
+  fr := coalesce(r.profile->>'lang', r.pending_profile->>'lang', p_lang) = 'fr';
+  if r.confirmed_at is not null and r.unsubscribed_at is null then
+    link := 'https://thegearfox.com/?k=' || r.token;
+    if fr then
+      perform public._gf_mail(e, 'Votre lien The Gear Fox',
+        public._gf_letter('Vos aubaines, sur cet appareil',
+          'Cliquez ci-dessous pour ouvrir vos aubaines avec vos tailles sur cet appareil. Pas besoin de vous réabonner.',
+          'Ouvrir mes aubaines', link, 'fr'),
+        'Ouvrez vos aubaines The Gear Fox : ' || link);
+    else
+      perform public._gf_mail(e, 'Your Gear Fox link',
+        public._gf_letter('Your deals, on this device',
+          'Tap below to open your deals with your sizes on this device. No need to sign up again.',
+          'Open my deals', link, 'en'),
+        'Open your Gear Fox deals: ' || link);
+    end if;
+  else
+    link := 'https://thegearfox.com/?confirm=' || r.token;
+    if fr then
+      perform public._gf_mail(e, 'Confirmez vos aubaines du samedi de The Gear Fox',
+        public._gf_letter('Un clic pour confirmer',
+          'Confirmez votre courriel et chaque samedi matin, on vous envoie ce qui est en solde dans vos tailles. Désabonnement en un clic, en tout temps.',
+          'Oui, envoyez-moi les aubaines', link, 'fr'),
+        'Confirmez vos aubaines du samedi de The Gear Fox : ' || link);
+    else
+      perform public._gf_mail(e, 'Confirm your Saturday deals from The Gear Fox',
+        public._gf_letter('One tap to confirm',
+          'Confirm your email and every Saturday morning we''ll send you what''s on sale in your sizes. Unsubscribe anytime with one click.',
+          'Yes, send me deals', link, 'en'),
+        'Confirm your Saturday deals from The Gear Fox: ' || link);
+    end if;
+  end if;
+  update public.subscribers set last_mail_at = now() where id = r.id;
+  return 'sent';
+end $$;
+
 -- The link in the confirmation email. Saves pending changes and (re)starts the Saturday email.
 create or replace function public.confirm(p_token uuid)
 returns jsonb language plpgsql security definer set search_path = public as $$
@@ -129,6 +229,7 @@ declare r public.subscribers;
 begin
   update public.subscribers
      set profile = coalesce(pending_profile, profile), pending_profile = null,
+         consent_via = coalesce(consent_via, 'email'),
          confirmed_at = case when confirmed_at is null or unsubscribed_at is not null then now() else confirmed_at end,
          unsubscribed_at = null, updated_at = now()
    where token = p_token returning * into r;
@@ -168,6 +269,8 @@ returns text language sql stable security definer set search_path = public as $$
   select 'ok ' || count(*) from public.subscribers;
 $$;
 
+revoke all on function public.send_link(text, text) from public;
+grant execute on function public.send_link(text, text) to anon, authenticated;
 revoke all on function public.subscribe(text, jsonb), public.confirm(uuid), public.get_profile(uuid),
                        public.save_profile(uuid, jsonb), public.unsubscribe(uuid), public.ping() from public;
 grant execute on function public.subscribe(text, jsonb), public.confirm(uuid), public.get_profile(uuid),

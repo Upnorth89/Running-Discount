@@ -60,6 +60,8 @@ rep("/* top bar */", '''/* preview panel (not part of the site) */
 .pvb:hover{border-color:var(--hivis)}
 .pv p{margin:6px 0 0;font-size:13px;color:var(--band-muted)}
 .sheet .panel{max-height:calc(100vh - 250px)!important}
+.pvg{width:100%;max-width:400px;min-height:44px;border:1.5px solid #DADCE0;border-radius:999px;background:#fff;color:#1F1F1F;font:500 15px Arial,sans-serif;cursor:pointer}
+.pvg small{color:#777;font-weight:400}
 /* top bar */''')
 
 # embedded data, pretend server
@@ -74,15 +76,25 @@ items = [{k: v for k, v in x.items() if k != "img"} for x in data["items"] if x.
 blob = json.dumps({"updated": data["updated"], "items": items}, separators=(",", ":")).replace("</", "<\\/")
 rep('fetch("deals.json",{cache:"no-store"}).then(r=>r.json()).then(',
     'Promise.resolve(JSON.parse(document.getElementById("gfdata").textContent)).then(')
-a = s.index("async function rpc(fn,args){")
+a = s.index("async function rpc(fn,args,bearer){")
 b = s.index("\n}\n", a) + 3
-s = s[:a] + '''async function rpc(fn,args){   // preview: pretend server, nothing leaves the page
+s = s[:a] + '''async function rpc(fn,args,bearer){   // preview: pretend server, nothing leaves the page
   await new Promise(r=>setTimeout(r,300));
-  return {subscribe:"sent",save_profile:true,unsubscribe:true,watch_add:true,watch_remove:true,watch_list:[]}[fn]??null;
+  const fake={lang:LANG,gender:"men",ships:"ca",sizes:{shoes:{sizes:["10"],width:["Regular"]},tops:{sizes:["M"]},bottoms:{sizes:["M"]},socks:{sizes:["M"]}}};
+  if(fn==="google_profile")return signinMode?{found:true,email:"you@gmail.com",key:"00000000-0000-0000-0000-000000000000",profile:fake,subscribed:true}:{found:false,email:"you@gmail.com"};
+  if(fn==="google_subscribe")return {found:true,email:"you@gmail.com",key:"00000000-0000-0000-0000-000000000000",profile:args.p_profile,subscribed:true};
+  return {subscribe:"sent",send_link:"sent",save_profile:true,unsubscribe:true,watch_add:true,watch_remove:true,watch_list:[]}[fn]??null;
 }
 ''' + s[b:]
 
-rep("/* ---------- start ---------- */", '''/* ---------- preview panel ---------- */
+rep("/* ---------- start ---------- */", '''/* ---------- preview: stand-in for Google sign-in (the real one only runs on thegearfox.com) ---------- */
+G.load=function(){G.ready=true};
+G.exchange=async()=>"preview";
+G.render=function(){["gBtnUp","gBtnIn"].forEach(id=>{const el=$(id);if(!el)return;
+  el.innerHTML=`<button type="button" class="pvg">${LANG==="fr"?"Continuer avec Google":"Continue with Google"} <small>(stand-in)</small></button>`;
+  el.firstChild.addEventListener("click",()=>onGoogle("preview"))})};
+
+/* ---------- preview panel ---------- */
 function pvMsg(t){$("pvMsg").textContent=t}
 function pvClear(){["rd-profile","gf-sub","gf-watch","gf-last","gf-base","gf-clicks"].forEach(k=>LS.set(k,null))}
 $("pvReset").addEventListener("click",()=>{pvClear();location.reload()});

@@ -174,7 +174,21 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
 .sheet summary::after{content:"+";margin-left:auto;font:600 22px var(--body);color:var(--muted)}
 .sheet details[open] summary::after{content:"−"}
 .brandadd{display:flex;gap:8px;margin-top:10px}
-.sheet .go{width:100%;margin-top:20px}
+.sheet .go{width:100%;margin:0}
+.sheet .panel{padding-bottom:0}
+.already{margin:-6px 0 14px;font-size:15px;color:var(--muted)}
+.already button{font:600 15px var(--body);color:var(--moss);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer;min-height:44px}
+label.field{display:block;font-weight:600;font-size:15px;margin:0 0 6px}
+.gwrap{margin:0 0 4px}
+.gbtn{display:flex;justify-content:center;min-height:44px}
+.or{display:flex;align-items:center;gap:10px;margin:12px 0;color:var(--muted);font-size:14px}
+.or::before,.or::after{content:"";flex:1;height:1.5px;background:var(--line)}
+.gsigned{margin:0 0 8px;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;font-size:15px;background:var(--mist)}
+.sheetfoot{position:sticky;bottom:0;z-index:2;margin:20px -20px 0;padding:12px 20px calc(14px + env(safe-area-inset-bottom,0px));background:var(--card);border-top:1.5px solid var(--line);box-shadow:0 -8px 16px -12px rgba(0,0,0,.35)}
+.sheetfoot .gerr{margin:0 0 10px}
+.sheetfoot .subline:empty{display:none}
+.need{border-radius:12px;box-shadow:0 0 0 3px var(--hivis)}
+@media (prefers-reduced-motion:no-preference){.need{transition:box-shadow .2s}}
 .sheet .fine{font-size:13px;color:var(--muted);margin:8px 0 0}
 .sheet .gerr{color:var(--err);font-weight:600;font-size:15px;margin:14px 0 0}
 .sheet .subline{font-size:14px;color:var(--muted);margin:14px 0 0;text-align:center}
@@ -242,6 +256,15 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
       </button>
     </div>
     <p class="intro">Three taps and we'll hide everything that won't fit.</p>
+    <p class="already hidden" id="already"><span data-i18n="alreadyQ">Already signed up?</span> <button type="button" id="toSignin" data-i18n="getLink">Get your link</button></p>
+    <div id="signinBox" class="hidden">
+      <div class="gwrap hidden" id="gIn"><div class="gbtn" id="gBtnIn"></div><p class="or"><span data-i18n="orLink">or get a link by email</span></p></div>
+      <label class="field" for="signinEmail" data-i18n="yourEmail">Your email</label>
+      <input id="signinEmail" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" data-i18n-ph="emailPh">
+      <p class="fine" data-i18n="signinFine">We'll email you a link that opens your deals and sizes on this device.</p>
+      <p class="already"><button type="button" id="toSignup" data-i18n="newHere">New here? Sign up instead</button></p>
+    </div>
+    <div id="signupParts">
 
     <div class="seg" id="fit" role="group" aria-label="Fit" data-i18n-aria="fit">
       <button type="button" data-v="men" data-i18n="men">Men's</button>
@@ -268,12 +291,17 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
 
     <div id="gateBox" class="hidden">
       <h3 data-i18n="gateEmailH"><label for="gateEmail">Your email</label> <small>for your deals and the Saturday email</small></h3>
+      <div class="gwrap hidden" id="gUp"><div class="gbtn" id="gBtnUp"></div><p class="or"><span data-i18n="orEmail">or type your email</span></p></div>
+      <p class="gsigned hidden" id="gSigned"></p>
       <input id="gateEmail" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" data-i18n-ph="emailPh">
       <p class="fine" data-i18n="gateFine">You'll get one email every Saturday with the best deals in your sizes. We'll send a link to confirm first. Unsubscribe with one tap. <a href="privacy.html">Privacy</a></p>
     </div>
-    <p class="gerr hidden" id="gateErr" role="alert"></p>
-    <button class="primary go" id="saveSizes" type="button">Show my deals</button>
-    <p class="subline" id="subLine"></p>
+    </div>
+    <div class="sheetfoot">
+      <p class="gerr hidden" id="gateErr" role="alert"></p>
+      <button class="primary go" id="saveSizes" type="button">Show my deals</button>
+      <p class="subline" id="subLine"></p>
+    </div>
   </div>
 </div>
 
@@ -344,6 +372,16 @@ en:{
   youreIn:"<b>You're in.</b> Your first deals email arrives Saturday morning. This device is now linked to your profile.",
   offline:"Couldn't reach the server. Check your connection and reload.",
   langSwitch:"FR",langName:"Français",
+  orEmail:"or type your email",orLink:"or get a link by email",
+  gSigned:e=>`Signed in with Google as <b>${e}</b>.`,
+  gateFineG:'You\'ll get one email every Saturday with the best deals in your sizes. Unsubscribe with one tap. <a href="privacy.html">Privacy</a>',gPick:"Pick your fit and at least one size, then tap the orange button.",
+  gWelcome:"<b>Welcome back.</b> Your sizes and watchlist are loaded on this device.",gFail:"Google sign-in didn't work. Use your email instead.",
+  gIn:"<b>You're in.</b> Your first deals email arrives Saturday morning.",
+  alreadyQ:"Already signed up?",getLink:"Get your link",yourEmail:"Your email",newHere:"New here? Sign up instead",
+  signinFine:"We'll email you a link that opens your deals and sizes on this device.",signinTitle:"Welcome back",
+  signinIntro:"Enter the email you signed up with.",emailLink:"Email me my link",
+  linkSent:e=>`<b>Check your inbox.</b> We sent a link to ${e}. Tap it to open your deals and sizes on this device.`,
+  signinCard:e=>`Tap the link we sent to ${e} to load your sizes on this device.`,
   groups:{shoes:"Shoes",tops:"Tops & jackets",bottoms:"Shorts & tights",bras:"Sports bras",socks:"Socks",gloves:"Gloves",
     headwear:"Hats & buffs",packs:"Vests & packs",gear:"Lights, poles & bottles",watches:"Watches",nutrition:"Nutrition"}
 },
@@ -406,6 +444,16 @@ fr:{
   youreIn:"<b>C'est fait.</b> Votre premier courriel d'aubaines arrive samedi matin. Cet appareil est maintenant lié à votre profil.",
   offline:"Impossible de joindre le serveur. Vérifiez votre connexion et rechargez la page.",
   langSwitch:"EN",langName:"English",
+  orEmail:"ou entrez votre courriel",orLink:"ou recevez un lien par courriel",
+  gSigned:e=>`Connecté avec Google : <b>${e}</b>.`,
+  gateFineG:'Vous recevrez un courriel chaque samedi avec les meilleures aubaines dans vos tailles. Désabonnement en un clic. <a href="privacy.html">Confidentialité</a>',gPick:"Choisissez votre coupe et au moins une taille, puis touchez le bouton orange.",
+  gWelcome:"<b>Bon retour!</b> Vos tailles et vos favoris sont chargés sur cet appareil.",gFail:"La connexion Google n'a pas fonctionné. Utilisez plutôt votre courriel.",
+  gIn:"<b>C'est fait.</b> Votre premier courriel d'aubaines arrive samedi matin.",
+  alreadyQ:"Déjà abonné?",getLink:"Recevoir votre lien",yourEmail:"Votre courriel",newHere:"Nouveau? Abonnez-vous plutôt",
+  signinFine:"On vous envoie un lien qui ouvre vos aubaines et vos tailles sur cet appareil.",signinTitle:"Bon retour",
+  signinIntro:"Entrez le courriel avec lequel vous vous êtes abonné.",emailLink:"M'envoyer mon lien",
+  linkSent:e=>`<b>Vérifiez vos courriels.</b> On a envoyé un lien à ${e}. Cliquez dessus pour ouvrir vos aubaines et vos tailles sur cet appareil.`,
+  signinCard:e=>`Cliquez sur le lien envoyé à ${e} pour charger vos tailles sur cet appareil.`,
   groups:{shoes:"Chaussures",tops:"Hauts et manteaux",bottoms:"Shorts et collants",bras:"Soutiens-gorge de sport",socks:"Bas",gloves:"Gants",
     headwear:"Casquettes et cache-cous",packs:"Vestes et sacs d'hydratation",gear:"Frontales, bâtons et gourdes",watches:"Montres",nutrition:"Nutrition"}
 }};
@@ -482,16 +530,27 @@ function addBrand(){const v=$("brandInput").value.trim();if(!v)return;
 $("brandAdd").addEventListener("click",addBrand);
 $("brandInput").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();addBrand()}});
 
+let signinMode=false;
+$("toSignin").addEventListener("click",()=>{signinMode=true;openSheet();setTimeout(()=>$("signinEmail").focus(),60)});
+$("toSignup").addEventListener("click",()=>{signinMode=false;openSheet()});
 function gated(){return !(sub&&(sub.key||sub.pending))}     // first visit: sizes + email before any deals
-function gateErr(t){const e=$("gateErr");e.textContent=t||"";e.classList.toggle("hidden",!t)}
+function gateErr(msg,el){const e=$("gateErr");e.textContent=msg||"";e.classList.toggle("hidden",!msg);
+  document.querySelectorAll("#sheet .need").forEach(x=>x.classList.remove("need"));
+  if(el){el.classList.add("need");el.scrollIntoView({behavior:"smooth",block:"center"});setTimeout(()=>el.classList.remove("need"),2500)}}
 let lastFocus=null;
 function openSheet(){lastFocus=document.activeElement;renderSheet();
-  const g=gated();
+  const g=gated(),si=g&&signinMode;
   $("gateBox").classList.toggle("hidden",!g);$("closeSheet").classList.toggle("hidden",g);
-  $("sheetTitle").textContent=g?t("sheetGateTitle"):t("sheetTitle");
-  document.querySelector("#sheet .intro").textContent=g?t("sheetGateIntro"):t("sheetIntro");
-  $("saveSizes").textContent=g?t("subscribeShow"):t("showDeals");
+  $("already").classList.toggle("hidden",!g||si);$("signinBox").classList.toggle("hidden",!si);$("signupParts").classList.toggle("hidden",si);
+  $("sheetTitle").textContent=si?t("signinTitle"):g?t("sheetGateTitle"):t("sheetTitle");
+  document.querySelector("#sheet .intro").textContent=si?t("signinIntro"):g?t("sheetGateIntro"):t("sheetIntro");
+  $("saveSizes").textContent=si?t("emailLink"):g?t("subscribeShow"):t("showDeals");
   if(g)$("gateEmail").value=state.email||"";
+  const gOn=G.ready&&g;$("gUp").classList.toggle("hidden",!gOn||!!gSession);$("gIn").classList.toggle("hidden",!gOn);
+  $("gSigned").classList.toggle("hidden",!gSession);if(gSession)$("gSigned").innerHTML=t("gSigned",esc(gSession.email));
+  $("gateEmail").classList.toggle("hidden",!!gSession);
+  document.querySelector('#gateBox [data-i18n="gateFine"]').innerHTML=gSession?t("gateFineG"):t("gateFine");
+  if(gOn)G.render();
   gateErr("");$("sheet").classList.remove("hidden");document.body.classList.add("locked");
   setTimeout(()=>$("panel").focus(),30)}
 function closeSheet(){$("sheet").classList.add("hidden");document.body.classList.remove("locked");if(lastFocus&&lastFocus.focus)lastFocus.focus()}
@@ -501,11 +560,26 @@ $("closeSheet").addEventListener("click",()=>{if(gated())return;closeSheet();ren
 $("sheet").addEventListener("click",e=>{if(e.target===$("sheet")&&!gated()){closeSheet();renderAll()}});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("sheet").classList.contains("hidden")&&!gated()){closeSheet();renderAll()}});
 $("saveSizes").addEventListener("click",async()=>{
+  if(gated()&&signinMode){
+    const email=$("signinEmail").value.trim().toLowerCase();
+    if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)){gateErr(t("errEmail"),$("signinEmail"));return}
+    const btn=$("saveSizes");btn.disabled=true;btn.textContent=t("oneMoment");gateErr("");
+    try{await rpc("send_link",{p_email:email,p_lang:LANG})}
+    catch(e){btn.disabled=false;btn.textContent=t("emailLink");return gateErr(t("errServer"))}
+    btn.disabled=false;state.email=email;setSub({pending:email,signin:true});signinMode=false;
+    closeSheet();view.open={};renderAll();window.scrollTo({top:0});notice(t("linkSent",esc(email)));
+    return;
+  }
+  if(gated()&&gSession){
+    if(!state.gender)return gateErr(t("errFit"),$("fit"));
+    if(!state.shoe.length&&!state.cloth.length)return gateErr(t("errSize"),$("shoeSizes"));
+    return googleSubscribe();
+  }
   if(gated()){
-    if(!state.gender)return gateErr(t("errFit"));
-    if(!state.shoe.length&&!state.cloth.length)return gateErr(t("errSize"));
+    if(!state.gender)return gateErr(t("errFit"),$("fit"));
+    if(!state.shoe.length&&!state.cloth.length)return gateErr(t("errSize"),$("shoeSizes"));
     const email=$("gateEmail").value.trim().toLowerCase();
-    if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)){gateErr(t("errEmail"));$("gateEmail").focus();return}
+    if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)){gateErr(t("errEmail"),$("gateEmail"));setTimeout(()=>$("gateEmail").focus({preventScroll:true}),400);return}
     const btn=$("saveSizes");btn.disabled=true;btn.textContent=t("oneMoment");gateErr("");
     state.email=email;const p=toProfile();LS.set("rd-profile",p);
     try{await rpc("subscribe",{p_email:email,p_profile:p});setSub({pending:email})}
@@ -763,8 +837,9 @@ function renderAll(){
 
 /* ---------- Saturday email: subscribers live in Supabase ---------- */
 const SB_URL="https://krwymmkauwqqxjxbvkyq.supabase.co",SB_KEY="sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2";
-async function rpc(fn,args){
-  const r=await fetch(`${SB_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:{apikey:SB_KEY,"Content-Type":"application/json"},body:JSON.stringify(args||{})});
+async function rpc(fn,args,bearer){
+  const h={apikey:SB_KEY,"Content-Type":"application/json"};if(bearer)h.Authorization="Bearer "+bearer;
+  const r=await fetch(`${SB_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:h,body:JSON.stringify(args||{})});
   const t=await r.text();if(!r.ok){let m="";try{m=JSON.parse(t).message}catch(e){}throw new Error(m||("HTTP "+r.status))}
   return t?JSON.parse(t):null;
 }
@@ -773,7 +848,7 @@ function setSub(v){sub=v;LS.set("gf-sub",v)}
 let signupErr="";
 function signupHTML(){
   if(sub&&sub.active)return "";
-  if(sub&&sub.pending)return `<div class="signup"><h3>${t("checkInbox")}</h3><p style="margin:0">${t("checkInboxTxt",esc(sub.pending))}</p>
+  if(sub&&sub.pending)return `<div class="signup"><h3>${t("checkInbox")}</h3><p style="margin:0">${sub.signin?t("signinCard",esc(sub.pending)):t("checkInboxTxt",esc(sub.pending))}</p>
     <p class="fine"><button type="button" id="suRetry" style="font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;cursor:pointer">${t("otherEmail")}</button></p></div>`;
   return `<div class="signup"><h3>${t("getDeals")}</h3>
     <p>${t("getDealsTxt")}</p>
@@ -837,15 +912,70 @@ async function linkFromEmail(){
 }
 
 function switchLang(){
+  if(G.ready)setTimeout(()=>G.render(),0);
   LANG=LANG==="fr"?"en":"fr";LS.set("gf-lang",LANG);applyStatic();saveProfile();
   $("notice").classList.add("hidden");
   if(!$("sheet").classList.contains("hidden"))openSheet();renderSheet();renderAll();
 }
 $("langBtn").addEventListener("click",switchLang);$("langBtn2").addEventListener("click",switchLang);
 
+/* ---------- Sign in with Google (Google Identity Services + Supabase Auth) ---------- */
+const GOOGLE_CLIENT_ID="628549321119-s7ofaqkuu3v3s7su0oschoshd1bcu2jm.apps.googleusercontent.com";     // paste the Web client ID from Google Cloud here; empty = Google sign-in hidden
+let gSession=null;             // {email, access} after a Google sign-in on this page
+const G={ready:false,nonce:"",
+  load(){
+    if(!GOOGLE_CLIENT_ID)return;
+    const sc=document.createElement("script");sc.src="https://accounts.google.com/gsi/client";sc.async=true;
+    sc.onload=()=>G.init().catch(()=>{});document.head.appendChild(sc);
+  },
+  async init(){
+    const raw=[...crypto.getRandomValues(new Uint8Array(16))].map(b=>b.toString(16).padStart(2,"0")).join("");
+    const hash=[...new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(raw)))].map(b=>b.toString(16).padStart(2,"0")).join("");
+    G.nonce=raw;
+    google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:r=>onGoogle(r.credential),nonce:hash,
+      auto_select:false,cancel_on_tap_outside:true,use_fedcm_for_prompt:true,itp_support:true,context:"signin"});
+    G.ready=true;
+    if(!$("sheet").classList.contains("hidden"))openSheet();
+    if(gated())google.accounts.id.prompt();      // the "Continue as …" bubble
+  },
+  render(){
+    ["gBtnUp","gBtnIn"].forEach(id=>{const el=$(id);if(!el||el.offsetParent===null)return;el.innerHTML="";
+      google.accounts.id.renderButton(el,{theme:"outline",size:"large",shape:"pill",text:"continue_with",
+        width:Math.min(400,el.clientWidth||320),locale:LANG==="fr"?"fr_CA":"en"})});
+  },
+  async exchange(credential){       // Google ID token -> Supabase session for this visitor
+    const r=await fetch(`${SB_URL}/auth/v1/token?grant_type=id_token`,{method:"POST",headers:{apikey:SB_KEY,"Content-Type":"application/json"},
+      body:JSON.stringify({provider:"google",id_token:credential,nonce:G.nonce})});
+    const j=await r.json();if(!r.ok||!j.access_token)throw new Error(j.msg||j.error_description||"sign-in failed");
+    return j.access_token;
+  }
+};
+function linkFromGoogle(r,welcome){
+  applyProfile({...(r.profile||{}),email:r.email});LS.set("rd-profile",toProfile());
+  setSub({key:r.key,email:r.email,active:!!r.subscribed});gSession=null;signinMode=false;
+  closeSheet();view.open={};renderAll();syncWatches();window.scrollTo({top:0});notice(welcome);
+}
+async function onGoogle(credential){
+  gateErr("");
+  try{
+    const access=await G.exchange(credential);
+    const r=await rpc("google_profile",{},access);
+    if(r&&r.found)return linkFromGoogle(r,t("gWelcome"));              // returning subscriber: straight in
+    gSession={email:r.email,access};state.email=r.email;
+    if(state.gender&&(state.shoe.length||state.cloth.length))return googleSubscribe();
+    signinMode=false;openSheet();gateErr(t("gPick"),$("fit"));        // new: sizes first, then the orange button
+  }catch(e){gateErr(t("gFail"))}
+}
+async function googleSubscribe(){
+  const btn=$("saveSizes");btn.disabled=true;btn.textContent=t("oneMoment");
+  try{const r=await rpc("google_subscribe",{p_profile:toProfile()},gSession.access);btn.disabled=false;linkFromGoogle(r,t("gIn"))}
+  catch(e){btn.disabled=false;btn.textContent=t("subscribeShow");gSession=null;openSheet();gateErr(t("gFail"))}
+}
+
 /* ---------- start ---------- */
 (async()=>{
   applyStatic();
+  G.load();
   applyProfile(LS.get("rd-profile"));
   renderAll();
   const fromEmail=await linkFromEmail();
@@ -856,7 +986,7 @@ $("langBtn").addEventListener("click",switchLang);$("langBtn2").addEventListener
   }
   renderAll();
   syncWatches();
-  if((gated()||!hasSizes())&&$("notice").classList.contains("hidden"))openSheet();
+  if((gated()||(!hasSizes()&&!(sub&&sub.signin)))&&$("notice").classList.contains("hidden"))openSheet();
 })();
 })();
 </script>
