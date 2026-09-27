@@ -132,7 +132,7 @@ def shop_link(p):
     b = base64.urlsafe_b64encode(json.dumps(keep, separators=(",", ":")).encode()).decode().rstrip("=")
     return f"{SITE_URL}?p={b}"          # query string survives email link-wrappers better than #
 
-def build(p, sale):
+def build(p, sale, watch=None):
     shop = shop_link(p)
     first = (p.get("name") or "").split(" ")[0] or "Hi"
     sale.sort(key=lambda d: (-d["fav"], -d["pct"], d["best"]))
@@ -149,13 +149,21 @@ def build(p, sale):
         sections.append(f'''<tr><td style="padding:22px 0 4px;font:800 20px Arial,Helvetica,sans-serif;color:#17201C">
 {E(GROUP_LABEL[g])} <span style="font:400 14px Arial,sans-serif;color:#5C6660">{len(ds)}</span></td></tr>
 {"".join(card(d) for d in take)}{more}''')
-    top = max(d["pct"] for d in sale)
+    if watch and (watch["drops"] or watch["backs"]):
+        import alerts as A
+        rows = "".join(A.alert_row("drop", a) for a in watch["drops"]) + "".join(A.alert_row("back", a) for a in watch["backs"])
+        n = len(watch["drops"]) + len(watch["backs"])
+        sections.insert(0, f'''<tr><td style="padding:22px 0 4px;font:800 20px Arial,Helvetica,sans-serif;color:#17201C">
+Your watchlist <span style="font:400 14px Arial,sans-serif;color:#5C6660">{n} {"change" if n == 1 else "changes"} this week</span></td></tr>{rows}''')
+    top = max([d["pct"] for d in sale] or [0])
     links = [f'<a href="{E(shop)}" style="color:#5C6660">Change your sizes</a>']
     if p.get("token"):
         links.append(f'<a href="{E(SITE_URL)}?unsub={p["token"]}" style="color:#5C6660">Unsubscribe</a>')
     links.append(f'<a href="{E(SITE_URL)}privacy.html" style="color:#5C6660">Privacy</a>')
     footer_links = " · ".join(links) + (f"<br>The Gear Fox · {E(ADDRESS)}" if ADDRESS else "")
     subject = f"The Gear Fox: {len(sale)} deals in your size this week, up to {top}% off"
+    if watch and (watch["drops"] or watch["backs"]):
+        subject = f"The Gear Fox: your watchlist moved, plus {len(sale)} deals in your size"
     intro = (f"{E(first)}, here are this week's sales on gear in your sizes, "
              f"every price drop, big or small. Biggest discounts first.")
     body = f'''<!doctype html><html><body style="margin:0;background:#EEF1EC">
@@ -208,16 +216,30 @@ def main():
         data = json.loads((ROOT / "site" / "deals.json").read_text())
     items = data.get("items", [])
     print(f"{len(items)} items in deals.json (updated {data.get('updated')})")
+    watch_news = {}
+    if SB_URL and SB_KEY and any(p.get("token") for p in profiles):
+        try:
+            import alerts as A
+            from datetime import datetime, timezone
+            by_key = {}
+            for d in items:
+                by_key.setdefault(A.item_key(d), []).append(d)
+            watch_news = A.evaluate(A.fetch_rows(), by_key, datetime.now(timezone.utc), cooldown=False)
+            print(f"watchlist news for {sum(1 for w in watch_news.values() if w['drops'] or w['backs'])} people")
+        except Exception as e:                      # the deals email still goes out without it
+            print(f"watchlist news skipped: {e}")
     failed = 0
     for p in profiles:
         if not p.get("email"):
             continue
         sale = [d for d in match(items, p) if d["pct"] >= 1]      # anything below full price
         who = p["email"]
-        if not sale:
+        watch = watch_news.get(p.get("token"))
+        has_watch = bool(watch and (watch["drops"] or watch["backs"]))
+        if not sale and not has_watch:
             print(f"{who}: nothing on sale in their sizes this week, no email sent")
             continue
-        subject, body, text = build(p, sale)
+        subject, body, text = build(p, sale, watch)
         if DRY:
             out = ROOT / "email" / "preview.html"
             out.write_text(body)
@@ -228,7 +250,14 @@ def main():
                           json={"from": FROM, "to": [who], "subject": subject, "html": body, "text": text,
                                 **({"headers": {"List-Unsubscribe": f"<{SITE_URL}?unsub={p['token']}>"}} if p.get("token") else {})})
         if r.ok:
-            print(f"{who}: sent {len(sale)} deals")
+            print(f"{who}: sent {len(sale)} deals" + (" + watchlist news" if has_watch else ""))
+            if watch:
+                import alerts as A
+                for wid, upd in watch["updates"]:
+                    try:
+                        A.sb("PATCH", f"watches?id=eq.{wid}", json=upd)
+                    except Exception as e:
+                        print(f"  could not update watch {wid}: {e}")
         else:
             failed += 1
             print(f"{who}: FAILED {r.status_code} {r.text[:300]}")

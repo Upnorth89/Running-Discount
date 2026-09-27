@@ -4,8 +4,11 @@
 Runs once a day after the deals refresh. For every confirmed subscriber's watched product it works
 out today's best price in their sizes (same rules as the site and the Saturday email), then sends
 ONE email per person when something changed:
-  * price drop: cheaper than the last price we told them about (at least 1% and $1 lower)
+  * price drop: at least 10% or $10 below the last price we told them about
   * back in your size: out of stock in their sizes at the last check, in stock today
+Rules that keep email volume low:
+  * at most one alert every 3 days per person (changes in between wait and go out together)
+  * no alerts on Saturdays: the Saturday deals email carries the watchlist news instead
 It then saves today's price and stock on each watch so the next run only reports new changes.
 
 Env: RESEND_API_KEY, SUPABASE_URL, SUPABASE_SECRET_KEY, SITE_URL, FROM_EMAIL, MAILING_ADDRESS
@@ -15,6 +18,7 @@ import json
 import os
 import sys
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 from pathlib import Path
 
 import requests
@@ -22,7 +26,10 @@ import requests
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import weekly_email as W  # noqa: E402  (shares match(), branding and settings)
 
+FORCE = "--any-day" in sys.argv
 DRY = "--dry-run" in sys.argv or not os.environ.get("RESEND_API_KEY")
+COOLDOWN_H = 70           # "every 3 days" with a little slack for run times
+TZ = "America/Vancouver"
 E = W.E
 ALL_GROUPS = list(W.GROUP_LABEL)
 
@@ -105,6 +112,51 @@ def build(sub, drops, backs):
     return subject, body, text
 
 
+def fetch_rows():
+    return sb("GET", "watches", params={
+        "select": "id,item_key,meta,last_price,last_in_stock,notified_price,notified_at,"
+                  "subscribers!inner(email,token,profile,confirmed_at,unsubscribed_at)",
+        "subscribers.confirmed_at": "not.is.null", "subscribers.unsubscribed_at": "is.null"})
+
+
+def is_drop(told, price):
+    return told is not None and price is not None and (told - price >= 10 or price <= float(told) * 0.90)
+
+
+def evaluate(rows, by_key, now, cooldown=True):
+    """Per person: what to tell them and how to update their watches.
+    Returns {token: {"sub", "drops", "backs", "updates": [(id, fields)], "held": bool}}."""
+    people = {}
+    for w in rows:
+        s = w["subscribers"]
+        people.setdefault(s["token"], {"sub": s, "rows": []})["rows"].append(w)
+    iso = now.isoformat()
+    for tok, p in people.items():
+        last = max((datetime.fromisoformat(r["notified_at"]) for r in p["rows"] if r.get("notified_at")), default=None)
+        p.update(drops=[], backs=[], updates=[], held=False)
+        plain = []
+        for w in p["rows"]:
+            deal = best_for(by_key, w["item_key"], p["sub"]["profile"] or {})
+            price = deal["best"] if deal else None
+            upd = {"last_price": price if price is not None else w["last_price"], "last_in_stock": bool(deal)}
+            if deal and w["last_in_stock"] is False:
+                p["backs"].append({"deal": deal, "watch": w})
+                upd.update(notified_price=price, notified_at=iso)
+            elif deal and is_drop(w["notified_price"] and float(w["notified_price"]), price):
+                p["drops"].append({"deal": deal, "watch": w, "was": float(w["notified_price"])})
+                upd.update(notified_price=price, notified_at=iso)
+            elif deal and w["notified_price"] is None:
+                upd["notified_price"] = price
+            plain.append((w["id"], upd))
+        recent = last is not None and (now - last).total_seconds() < COOLDOWN_H * 3600
+        if (p["drops"] or p["backs"]) and cooldown and recent:
+            p.update(drops=[], backs=[], held=True)       # wait: nothing updated, so the changes keep
+        else:
+            p["updates"] = plain
+        del p["rows"]
+    return people
+
+
 def main():
     src = next((a for a in sys.argv[1:] if not a.startswith("--")), "site/deals.json")
     items = json.loads(Path(src).read_text()).get("items", [])
@@ -114,32 +166,17 @@ def main():
     if not (W.SB_URL and W.SB_KEY):
         print("Supabase not configured, no alerts")
         return 0
-    rows = sb("GET", "watches", params={
-        "select": "id,item_key,meta,last_price,last_in_stock,notified_price,"
-                  "subscribers!inner(email,token,profile,confirmed_at,unsubscribed_at)",
-        "subscribers.confirmed_at": "not.is.null", "subscribers.unsubscribed_at": "is.null"})
+    rows = fetch_rows()
     print(f"{len(rows)} watched items from confirmed subscribers, {len(items)} products today")
 
-    people, updates = {}, []
-    now = datetime.now(timezone.utc).isoformat()
-    for w in rows:
-        s = w["subscribers"]
-        deal = best_for(by_key, w["item_key"], s["profile"] or {})
-        price = deal["best"] if deal else None
-        upd = {"last_price": price if price is not None else w["last_price"], "last_in_stock": bool(deal)}
-        p = people.setdefault(s["token"], {"sub": s, "drops": [], "backs": []})
-        if deal:
-            told = w["notified_price"]
-            if w["last_in_stock"] is False:
-                p["backs"].append({"deal": deal, "watch": w})
-                upd.update(notified_price=price, notified_at=now)
-            elif told is not None and price < told * 0.99 and told - price >= 1:
-                p["drops"].append({"deal": deal, "watch": w, "was": float(told)})
-                upd.update(notified_price=price, notified_at=now)
-            elif told is None:
-                upd["notified_price"] = price
-        updates.append((w["id"], upd))
-
+    now = datetime.now(timezone.utc)
+    if not FORCE and now.astimezone(ZoneInfo(TZ)).weekday() == 5:
+        print("Saturday: no alerts today, the Saturday email carries watchlist news")
+        return 0
+    people = evaluate(rows, by_key, now)
+    updates = []
+    for p in people.values():
+        updates += p["updates"]
     sent = failed = 0
     for tok, p in people.items():
         if not (p["drops"] or p["backs"]):
@@ -161,14 +198,14 @@ def main():
             failed += 1
             print(f"{who}: FAILED {r.status_code} {r.text[:200]}")
             # keep their notified prices as they were so tomorrow retries
-            ids = {a["watch"]["id"] for a in p["drops"] + p["backs"]}
-            updates = [(i, {k: v for k, v in u.items() if k not in ("notified_price", "notified_at")}) if i in ids else (i, u)
-                       for i, u in updates]
+            ids = {i for i, _ in p["updates"]}
+            updates = [(i, u) for i, u in updates if i not in ids]
 
     if not DRY:
         for wid, upd in updates:
             sb("PATCH", f"watches?id=eq.{wid}", json=upd)
-    print(f"alerts: {sent} sent, {failed} failed, {len(updates)} watches updated")
+    held = sum(1 for p in people.values() if p["held"])
+    print(f"alerts: {sent} sent, {failed} failed, {held} waiting for their 3-day gap, {len(updates)} watches updated")
     return 1 if failed else 0
 
 

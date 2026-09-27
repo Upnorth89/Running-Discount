@@ -67,6 +67,24 @@ input:focus-visible,button:focus-visible,summary:focus-visible,select:focus-visi
 .deal.gone{border-style:dashed}
 .deal.gone .gonetxt{font-size:14px;color:var(--muted)}
 .backlink{font:600 16px var(--body);color:var(--moss);background:none;border:0;padding:0;min-height:44px;cursor:pointer}
+.badge{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;font:700 13px/1.2 var(--body);border-radius:6px;padding:4px 8px;margin-top:4px}
+.badge.drop{background:var(--hivis);color:var(--hivis-ink);border:1.5px solid var(--ink)}
+.badge.low{background:var(--ink);color:var(--card)}
+.badge.back{background:transparent;color:var(--ink);border:1.5px solid var(--ink)}
+.badge.new{background:transparent;color:var(--moss);border:1.5px solid var(--moss);padding:2px 6px;font-size:12px}
+.watchbtn.hot .n{background:var(--hivis);color:var(--hivis-ink)}
+.watchbtn .n{background:var(--ink);color:var(--card)}
+.watchbtn.hot::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid var(--hivis);opacity:.8}
+@media (prefers-reduced-motion:no-preference){.watchbtn.hot::after{animation:ping 2.4s ease-out 3}}
+@keyframes ping{0%{transform:scale(.85);opacity:.9}100%{transform:scale(1.25);opacity:0}}
+.stats{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.stat{display:inline-flex;align-items:center;gap:6px;font:600 14px/1.2 var(--body);background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:8px 12px;color:var(--ink)}
+.stat b{font:800 17px/1 var(--display)}
+.stat button{font:inherit;color:var(--moss);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;min-height:24px}
+.watchnews{display:flex;align-items:center;gap:12px;background:var(--card);border:1.5px solid var(--hivis);border-radius:12px;padding:12px 14px;margin:0 0 14px;font-size:15px}
+.watchnews span{flex:1}
+.watchnews .btn{border-color:var(--hivis);white-space:nowrap}
+.grp.new h2::before{content:"";width:12px;height:12px;border-radius:50%;background:transparent;border:2px solid var(--moss);align-self:center}
 .toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:50;background:var(--ink);color:var(--card);border-radius:12px;padding:12px 16px;font-size:15px;max-width:min(92vw,460px);box-shadow:0 6px 24px rgba(0,0,0,.25)}
 
 /* size pill + heading */
@@ -188,6 +206,8 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
   <button class="backlink hidden" id="backToDeals" type="button">← All deals</button>
   <h1 id="pageTitle">On sale in your size</h1>
   <p class="lede" id="lede">Loading today's gear…</p>
+  <div class="watchnews hidden" id="watchNews"></div>
+  <div class="stats hidden" id="stats"></div>
 
   <div id="filtersBox">
   <div class="chips scroll" id="cats" role="group" aria-label="Categories"></div>
@@ -408,18 +428,21 @@ const SORTS={
   price:(a,b)=>(a.best-b.best)||(b.pct-a.pct),
   discount:(a,b)=>(b.pct-a.pct)||(a.best-b.best)
 };
-function card(d){
+const RENDERED={};   // key -> deal as shown, for the savings tally
+function card(d,extra){
   const sized=SIZED.has(d.g);
   const labels=[...new Set(d.ok.map(x=>x[0]))];
   if(sized){const SO=["2XS","XS","S","M","L","XL","2XL","3XL"],ix=v=>{const i=SO.indexOf(norm(v));return i<0?99:i};labels.sort((a,b)=>(isNaN(a)||isNaN(b))?ix(a)-ix(b):a-b)}
   const sizes=sized?`<div class="sizes">In your size: <strong>${esc(labels.join(", "))}</strong></div>`
     :labels.length&&labels[0]!=="OS"?`<div class="sizes">${esc(labels.slice(0,3).join(" · "))}${labels.length>3?" · …":""}</div>`:"";
-  const k=itemKey(d),on=!!watches[k];
+  const k=itemKey(d),on=!!watches[k];RENDERED[k]=d;
+  const isNew=!extra&&NEWSET.has(k);
   return `<div class="dw"><a class="deal" href="${esc(d.url)}" target="_blank" rel="noopener">
     ${d.img?`<div class="pic"><img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"></div>`:""}
     <div class="top"><span class="brand">${esc(d.b)}${d.fav?" ★":""}</span>${d.pct?`<span class="pct">−${d.pct}%</span>`:""}</div>
     <div class="name">${esc(d.n)}</div>
     <div class="price"><b>${money(d.best)}</b>${d.pct?`<s>${money(d.reg)}</s>`:""}</div>
+    ${extra||""}${isNew?`<span class="badge new">New</span>`:""}
     ${sizes}
     ${d.bb?`<div class="warn">Short-dated: best by ${esc(d.bb)}</div>`:""}
     ${d.ca===false?`<div class="sizes">Ships from outside Canada · price converted to CAD, duties may apply</div>`:""}
@@ -468,7 +491,7 @@ function toggleWatch(k){
   const d=(byKey[k]||[])[0];if(!d)return;
   const m=matchItems({...toProfile(),groups:ORDER},byKey[k]);const best=m.length?Math.min(...m.map(x=>x.best)):null;
   const url=m.length?m.sort((a,b)=>a.best-b.best)[0].url:(d.of||[])[0];
-  watches[k]={b:d.b,n:d.n,g:d.g,url,price:best,saved:new Date().toISOString()};saveWatches();
+  watches[k]={b:d.b,n:d.n,g:d.g,url,price:best,low:best,seen:best,gone:best==null,saved:new Date().toISOString()};saveWatches();
   if(sub&&sub.key&&sub.active){rpc("watch_add",{p_token:sub.key,p_key:k,p_meta:watches[k]}).catch(()=>{});
     toast("Watching. We'll email you if it drops or comes back in your size.")}
   else toast(sub&&sub.pending?"Watching. Confirm your email to get price-drop alerts.":"Watching. Sign up for the Saturday email to get price-drop alerts.");
@@ -490,23 +513,78 @@ function setWatchView(on){view.watch=on;$("openWatch").setAttribute("aria-presse
 $("openWatch").addEventListener("click",()=>setWatchView(!view.watch));
 $("backToDeals").addEventListener("click",()=>setWatchView(false));
 let byKey={};
+/* What changed on the watchlist: price vs when saved, vs when last looked, lowest seen, back in size. */
+function watchStatus(k){
+  const w=watches[k];const m=matchItems({...toProfile(),groups:ORDER},byKey[k]||[]).sort((a,b)=>a.best-b.best);
+  const d=m[0]||null,cur=d?d.best:null;
+  const since=w.seen!=null?w.seen:w.price;
+  return {w,d,cur,
+    dropSaved:cur!=null&&w.price!=null&&cur<w.price-0.5?w.price-cur:0,
+    changed:(cur!=null&&since!=null&&cur<since-0.5)||(cur!=null&&w.gone===true),
+    back:cur!=null&&w.gone===true,
+    lowest:cur!=null&&w.low!=null&&cur<w.low-0.5};
+}
+function watchChanges(){return Object.keys(watches).map(watchStatus).filter(x=>x.changed)}
+function renderWatchButton(){
+  const ch=DATA&&!gated()?watchChanges():[];
+  const b=$("openWatch");b.classList.toggle("hot",ch.length>0&&!view.watch);
+  b.setAttribute("aria-label",ch.length?`Your watchlist, ${ch.length} ${ch.length===1?"change":"changes"}`:"Your watchlist");
+  const box=$("watchNews");
+  if(ch.length&&!view.watch){
+    const drops=ch.filter(x=>!x.back).length,backs=ch.filter(x=>x.back).length;
+    const txt=[drops?`${drops} ${drops===1?"thing":"things"} you're watching dropped in price`:"",backs?`${backs} ${backs===1?"is":"are"} back in your size`:""].filter(Boolean).join(" and ");
+    box.innerHTML=`<span><b>Good news.</b> ${txt}.</span><button type="button" class="btn" id="seeWatch">See them</button>`;
+    box.classList.remove("hidden");$("seeWatch").addEventListener("click",()=>setWatchView(true));
+  }else box.classList.add("hidden");
+}
 function renderWatch(){
   const keys=Object.keys(watches).sort((a,b)=>String(watches[b].saved||"").localeCompare(String(watches[a].saved||"")));
   const p={...toProfile(),groups:ORDER};
   const cards=keys.map(k=>{
-    const m=matchItems(p,byKey[k]||[]).sort((a,b)=>a.best-b.best);
-    if(m.length)return card(m[0]);
-    const w=watches[k];
+    const st=watchStatus(k),w=st.w;
+    if(st.d){
+      const b=[];
+      if(st.back)b.push(`<span class="badge back">Back in your size</span>`);
+      if(st.dropSaved)b.push(`<span class="badge drop">Dropped ${money(st.dropSaved)} since you saved it</span>`);
+      if(st.lowest)b.push(`<span class="badge low">Lowest since you started watching</span>`);
+      w.low=Math.min(w.low??st.cur,st.cur);w.seen=st.cur;w.gone=false;     // you've now seen today's price
+      return card(st.d,b.join(""));
+    }
+    w.gone=true;
     return `<div class="dw"><a class="deal gone" href="${esc(w.url||"#")}" target="_blank" rel="noopener">
       <div class="top"><span class="brand">${esc(w.b||"")}</span></div><div class="name">${esc(w.n||"")}</div>
       <div class="gonetxt">Not in stock in your size right now. We'll email you when it's back.</div></a>${heartBtn(k,true,{b:w.b||"",n:w.n||""})}</div>`;
   });
   const n=keys.length;
   $("lede").textContent=n?(sub&&sub.active?"We'll email you when any of these drop in price or come back in your size.":"Confirm your email to get alerts when these drop in price or come back in your size."):"";
+  saveWatches();renderWatchButton();
   $("dealList").innerHTML=n?`<div class="grid">${cards.join("")}</div>`
     :`<div class="empty">Tap the ♡ on any deal to watch it. We'll email you when it drops in price or comes back in your size.</div>`;
   $("dealsFoot").textContent=n?"Prices and stock change daily; the product page has the final price.":"";
 }
+
+/* New on sale since your last visit (a visit = more than 6 hours after the previous one). */
+let NEWSET=new Set(),newReady=false;
+function computeNew(onSale){
+  if(newReady)return;newReady=true;
+  const now=Date.now(),keys=onSale.map(itemKey);
+  const last=LS.get("gf-last");let base=LS.get("gf-base");
+  if(last&&now-last.at>6*3600e3){base=last;LS.set("gf-base",base)}
+  if(!last||now-last.at>6*3600e3)LS.set("gf-last",{at:now,keys});
+  if(base){const old=new Set(base.keys);NEWSET=new Set(keys.filter(k=>!old.has(k)))}
+}
+/* Money off in deals you've opened (it's what you found, not what you spent). */
+let clicks=LS.get("gf-clicks")||{};
+function recordClick(k){const d=RENDERED[k];if(!d||!d.pct||clicks[k])return;clicks[k]=Math.round((d.reg-d.best)*100)/100;LS.set("gf-clicks",clicks)}
+function renderStats(){
+  const el=$("stats");const parts=[];
+  if(NEWSET.size)parts.push(`<span class="stat"><b>${NEWSET.size}</b> new since your last visit <button type="button" id="jumpNew">Show</button></span>`);
+  const off=Object.values(clicks).reduce((a,b)=>a+b,0),n=Object.keys(clicks).length;
+  if(off>0)parts.push(`<span class="stat"><b>${money(off).replace(".00","")}</b> off in the ${n} ${n===1?"deal":"deals"} you've opened</span>`);
+  el.innerHTML=parts.join("");el.classList.toggle("hidden",!parts.length);
+  const j=$("jumpNew");if(j)j.addEventListener("click",()=>{const s=document.querySelector(".grp.new");if(s)s.scrollIntoView({behavior:"smooth",block:"start"})});
+}
+$("dealList").addEventListener("click",e=>{const a=e.target.closest("a.deal");if(!a)return;const h=a.parentNode.querySelector(".heart");if(h){recordClick(h.dataset.key);setTimeout(renderStats,0)}},true);
 
 function renderAll(){
   $("sizeSummary").textContent=sizeSummary();
@@ -518,8 +596,8 @@ function renderAll(){
   if(!DATA){$("dealList").innerHTML=`<div class="empty">Loading gear…</div>`;return}
   if(gated()){$("lede").textContent="Pick your sizes and add your email to see today's deals.";
     $("dealList").innerHTML=`<div class="empty"><button class="primary" type="button" id="unlock">See deals in my size</button></div>`;
-    $("unlock").addEventListener("click",openSheet);$("dealsFoot").textContent="";return}
-  if(w)return renderWatch();
+    $("unlock").addEventListener("click",openSheet);$("dealsFoot").textContent="";$("stats").classList.add("hidden");$("watchNews").classList.add("hidden");return}
+  if(w){$("stats").classList.add("hidden");return renderWatch()}
   const p=toProfile();
   const q=view.q.trim().toLowerCase().split(/\s+/).filter(Boolean);
   let all=matchItems(p);
@@ -527,8 +605,10 @@ function renderAll(){
   const onSale=all.filter(d=>d.pct>0);
   const where=state.ships==="all"?"stores in Canada and abroad":"Canadian stores";
   $("lede").textContent=`${onSale.length.toLocaleString()} on sale and ${all.length.toLocaleString()} in stock from ${where}`+(DATA.updated?` · updated ${ago(DATA.updated)}`:"")+".";
+  computeNew(onSale);renderStats();renderWatchButton();
   const shown=(view.saleOnly?onSale:all).slice().sort(SORTS[view.sort]);
   const parts=[];
+  if(!q.length)parts.push(section("__new","New since your last visit",onSale.filter(d=>NEWSET.has(itemKey(d))).sort(SORTS.discount),"new"));
   if(!view.saleOnly)parts.push(section("__sale","On sale",onSale.slice().sort(SORTS[view.sort==="price"?"price":"discount"]),"sale"));
   ORDER.filter(g=>p.groups.includes(g)).forEach(g=>parts.push(section(g,GROUP_LABEL[g],shown.filter(d=>d.g===g))));
   const body=parts.filter(Boolean);
