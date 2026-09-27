@@ -52,6 +52,22 @@ input:focus-visible,button:focus-visible,summary:focus-visible,select:focus-visi
 @media(min-width:560px){.topbar .logo img{height:48px}.topbar .logo .tag{font-size:10px}.topbar .logo .tag::before,.topbar .logo .tag::after{width:16px}}
 .iconbtn{margin-left:auto;display:flex;align-items:center;gap:8px;font:600 16px/1 var(--body);color:var(--ink);background:transparent;border:1.5px solid var(--line);border-radius:999px;padding:0 14px 0 10px;min-height:44px;cursor:pointer}
 .iconbtn svg{flex:0 0 auto}
+.watchbtn{position:relative;display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;flex:0 0 auto}
+.watchbtn[aria-pressed="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.watchbtn .n{position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;border-radius:10px;background:var(--hivis);color:var(--hivis-ink);border:1.5px solid var(--card);font:700 12px/17px var(--body);text-align:center;padding:0 4px}
+.watchbtn .n:empty{display:none}
+.iconbtn{margin-left:0}.topbar .spacer{flex:1}
+@media(max-width:400px){.iconbtn .lbl{display:none}.iconbtn{padding:0 10px}}
+.dw{position:relative;display:flex;min-width:0}
+.dw .deal{flex:1;padding-bottom:14px}
+.heart{position:absolute;right:8px;bottom:8px;width:44px;height:44px;border-radius:50%;border:0;background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.heart:hover{color:var(--ink)}
+.heart[aria-pressed="true"]{color:var(--hivis)}
+.heart[aria-pressed="true"] svg path{fill:currentColor}
+.deal.gone{border-style:dashed}
+.deal.gone .gonetxt{font-size:14px;color:var(--muted)}
+.backlink{font:600 16px var(--body);color:var(--moss);background:none;border:0;padding:0;min-height:44px;cursor:pointer}
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:50;background:var(--ink);color:var(--card);border-radius:12px;padding:12px 16px;font-size:15px;max-width:min(92vw,460px);box-shadow:0 6px 24px rgba(0,0,0,.25)}
 
 /* size pill + heading */
 .sizepill{display:flex;align-items:center;gap:10px;width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:10px 16px;min-height:48px;cursor:pointer;font:600 15px/1.3 var(--body);color:var(--ink);text-align:left}
@@ -155,18 +171,25 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
     </picture>
     <span class="tag">OUTFOX FULL PRICE</span>
   </a>
+  <span class="spacer"></span>
+  <button class="watchbtn" id="openWatch" type="button" aria-pressed="false" aria-label="Your watchlist">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 6.9 4.5c2.1 0 3.6 1.2 5.1 3 1.5-1.8 3-3 5.1-3 3.5 0 5.5 3.5 4.2 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>
+    <span class="n" id="watchCount"></span>
+  </button>
   <button class="iconbtn" id="openSizes" type="button" aria-haspopup="dialog">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
-    Your sizes
+    <span class="lbl">Your sizes</span>
   </button>
 </div></header>
 
 <main class="wrap">
   <div class="notice hidden" id="notice" role="status"></div>
   <button class="sizepill" id="sizePill" type="button" aria-haspopup="dialog"><span id="sizeSummary">Tell us what fits</span><span class="edit">Edit</span></button>
-  <h1>On sale in your size</h1>
+  <button class="backlink hidden" id="backToDeals" type="button">← All deals</button>
+  <h1 id="pageTitle">On sale in your size</h1>
   <p class="lede" id="lede">Loading today's gear…</p>
 
+  <div id="filtersBox">
   <div class="chips scroll" id="cats" role="group" aria-label="Categories"></div>
   <div class="chips scroll tools">
     <span id="toggles" style="display:contents"></span>
@@ -177,11 +200,13 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
     </select>
   </div>
   <input class="search" id="dSearch" type="search" placeholder="Search brand or model" aria-label="Search brand or model">
+  </div>
 
   <div id="dealList"></div>
   <p class="foot" id="dealsFoot"></p>
   <p class="foot">The Gear Fox · Outfox full price · <a href="privacy.html">Privacy</a></p>
 </main>
+<div class="toast hidden" id="toast" role="status"></div>
 
 <div class="sheet hidden" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
   <div class="panel" id="panel" tabindex="-1">
@@ -342,21 +367,21 @@ function sizeSummary(){
 let DATA=null, ITEMS=[];
 function ago(iso){if(!iso)return "";const m=Math.max(0,Math.round((Date.now()-new Date(iso))/60000));
   return m<60?`${m} min ago`:m<48*60?`${Math.round(m/60)} h ago`:`${Math.round(m/1440)} days ago`}
-fetch("deals.json",{cache:"no-store"}).then(r=>r.json()).then(d=>{DATA=d;ITEMS=d.items||[];renderAll()})
+fetch("deals.json",{cache:"no-store"}).then(r=>r.json()).then(d=>{DATA=d;ITEMS=d.items||[];byKey={};ITEMS.forEach(x=>(byKey[itemKey(x)]=byKey[itemKey(x)]||[]).push(x));renderAll()})
   .catch(()=>{DATA={items:[]};$("dealList").innerHTML=`<div class="empty">Couldn't load today's gear. Reload to try again.</div>`});
 const PAGE=8, MORE=24;
 const WORD={"ONE SIZE":"OS","O/S":"OS","X-SMALL":"XS","XSMALL":"XS","SMALL":"S","MEDIUM":"M","LARGE":"L","X-LARGE":"XL","XLARGE":"XL"};
 function norm(s){s=String(s).trim().toUpperCase();s=WORD[s]||s;return s.replace("XXXL","3XL").replace("XXL","2XL").replace("XXS","2XS")}
-const view={saleOnly:false,sort:"match",q:"",open:{}};
+const view={saleOnly:false,sort:"match",q:"",open:{},watch:false};
 const money=v=>"$"+v.toFixed(2);
 
 /* Every item in stock in the profile's sizes, with its best price, the regular price of that size,
    the % off, and the store link that has that price. Same rules as the weekly email. */
-function matchItems(p){
+function matchItems(p,list){
   const favs=(p.brands||[]).map(b=>b.toLowerCase());
   const out=[];
   const caOnly=(p.ships||"ca")!=="all";
-  for(const d of ITEMS){
+  for(const d of (list||ITEMS)){
     if(!p.groups.includes(d.g))continue;
     if(caOnly&&d.ca===false)continue;
     if(p.gender&&p.gender!=="any"&&d.sx.length&&!d.sx.includes(p.gender))continue;
@@ -389,7 +414,8 @@ function card(d){
   if(sized){const SO=["2XS","XS","S","M","L","XL","2XL","3XL"],ix=v=>{const i=SO.indexOf(norm(v));return i<0?99:i};labels.sort((a,b)=>(isNaN(a)||isNaN(b))?ix(a)-ix(b):a-b)}
   const sizes=sized?`<div class="sizes">In your size: <strong>${esc(labels.join(", "))}</strong></div>`
     :labels.length&&labels[0]!=="OS"?`<div class="sizes">${esc(labels.slice(0,3).join(" · "))}${labels.length>3?" · …":""}</div>`:"";
-  return `<a class="deal" href="${esc(d.url)}" target="_blank" rel="noopener">
+  const k=itemKey(d),on=!!watches[k];
+  return `<div class="dw"><a class="deal" href="${esc(d.url)}" target="_blank" rel="noopener">
     ${d.img?`<div class="pic"><img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"></div>`:""}
     <div class="top"><span class="brand">${esc(d.b)}${d.fav?" ★":""}</span>${d.pct?`<span class="pct">−${d.pct}%</span>`:""}</div>
     <div class="name">${esc(d.n)}</div>
@@ -397,7 +423,7 @@ function card(d){
     ${sizes}
     ${d.bb?`<div class="warn">Short-dated: best by ${esc(d.bb)}</div>`:""}
     ${d.ca===false?`<div class="sizes">Ships from outside Canada · price converted to CAD, duties may apply</div>`:""}
-  </a>`;
+  </a>${heartBtn(k,on,d)}</div>`;
 }
 function section(key,title,list,cls){
   if(!list.length)return "";
@@ -428,13 +454,72 @@ $("sort").addEventListener("change",e=>{view.sort=e.target.value;view.open={};re
 let searchT;$("dSearch").addEventListener("input",e=>{clearTimeout(searchT);searchT=setTimeout(()=>{view.q=e.target.value;view.open={};renderAll()},200)});
 $("dealList").addEventListener("click",e=>{const b=e.target.closest("[data-open]");if(!b)return;const k=b.dataset.open;view.open[k]=(view.open[k]||PAGE)+MORE;renderAll()});
 
+/* ---------- watchlist: saved on this device, synced to the server once the email is confirmed ---------- */
+const HEART='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 6.9 4.5c2.1 0 3.6 1.2 5.1 3 1.5-1.8 3-3 5.1-3 3.5 0 5.5 3.5 4.2 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>';
+let watches=LS.get("gf-watch")||{};           // key -> {b,n,g,url,price,saved}
+const itemKey=d=>`${d.b}|${d.n}|${d.g}|${d.w?1:0}`.toLowerCase();   // same id the alert emails use
+function heartBtn(k,on,d){return `<button type="button" class="heart" data-key="${esc(k)}" aria-pressed="${on}" aria-label="${on?"Stop watching":"Watch"} ${esc(d.b+" "+d.n)}">${HEART}</button>`}
+function saveWatches(){LS.set("gf-watch",watches);const n=Object.keys(watches).length;$("watchCount").textContent=n?String(n):""}
+let toastT;function toast(t){const e=$("toast");e.textContent=t;e.classList.remove("hidden");clearTimeout(toastT);toastT=setTimeout(()=>e.classList.add("hidden"),3200)}
+function toggleWatch(k){
+  if(watches[k]){delete watches[k];saveWatches();
+    if(sub&&sub.key)rpc("watch_remove",{p_token:sub.key,p_key:k}).catch(()=>{});
+    toast("Removed from your watchlist.");return}
+  const d=(byKey[k]||[])[0];if(!d)return;
+  const m=matchItems({...toProfile(),groups:ORDER},byKey[k]);const best=m.length?Math.min(...m.map(x=>x.best)):null;
+  const url=m.length?m.sort((a,b)=>a.best-b.best)[0].url:(d.of||[])[0];
+  watches[k]={b:d.b,n:d.n,g:d.g,url,price:best,saved:new Date().toISOString()};saveWatches();
+  if(sub&&sub.key&&sub.active){rpc("watch_add",{p_token:sub.key,p_key:k,p_meta:watches[k]}).catch(()=>{});
+    toast("Watching. We'll email you if it drops or comes back in your size.")}
+  else toast(sub&&sub.pending?"Watching. Confirm your email to get price-drop alerts.":"Watching. Sign up for the Saturday email to get price-drop alerts.");
+}
+async function syncWatches(){
+  if(!(sub&&sub.key))return;
+  try{
+    const list=await rpc("watch_list",{p_token:sub.key})||[];
+    const server=new Set(list.map(w=>w.key));
+    list.forEach(w=>{if(!watches[w.key])watches[w.key]=w.meta||{}});
+    if(sub.active)for(const [k,m] of Object.entries(watches))if(!server.has(k))await rpc("watch_add",{p_token:sub.key,p_key:k,p_meta:m}).catch(()=>{});
+    saveWatches();renderAll();
+  }catch(e){}
+}
+$("dealList").addEventListener("click",e=>{const h=e.target.closest(".heart");if(!h)return;e.preventDefault();e.stopPropagation();
+  toggleWatch(h.dataset.key);const on=!!watches[h.dataset.key];
+  if(view.watch)renderAll();else{h.setAttribute("aria-pressed",String(on))}});
+function setWatchView(on){view.watch=on;$("openWatch").setAttribute("aria-pressed",String(on));view.open={};renderAll();window.scrollTo({top:0})}
+$("openWatch").addEventListener("click",()=>setWatchView(!view.watch));
+$("backToDeals").addEventListener("click",()=>setWatchView(false));
+let byKey={};
+function renderWatch(){
+  const keys=Object.keys(watches).sort((a,b)=>String(watches[b].saved||"").localeCompare(String(watches[a].saved||"")));
+  const p={...toProfile(),groups:ORDER};
+  const cards=keys.map(k=>{
+    const m=matchItems(p,byKey[k]||[]).sort((a,b)=>a.best-b.best);
+    if(m.length)return card(m[0]);
+    const w=watches[k];
+    return `<div class="dw"><a class="deal gone" href="${esc(w.url||"#")}" target="_blank" rel="noopener">
+      <div class="top"><span class="brand">${esc(w.b||"")}</span></div><div class="name">${esc(w.n||"")}</div>
+      <div class="gonetxt">Not in stock in your size right now. We'll email you when it's back.</div></a>${heartBtn(k,true,{b:w.b||"",n:w.n||""})}</div>`;
+  });
+  const n=keys.length;
+  $("lede").textContent=n?(sub&&sub.active?"We'll email you when any of these drop in price or come back in your size.":"Confirm your email to get alerts when these drop in price or come back in your size."):"";
+  $("dealList").innerHTML=n?`<div class="grid">${cards.join("")}</div>`
+    :`<div class="empty">Tap the ♡ on any deal to watch it. We'll email you when it drops in price or comes back in your size.</div>`;
+  $("dealsFoot").textContent=n?"Prices and stock change daily; the product page has the final price.":"";
+}
+
 function renderAll(){
   $("sizeSummary").textContent=sizeSummary();
+  const w=!!view.watch;
+  $("filtersBox").classList.toggle("hidden",w);$("backToDeals").classList.toggle("hidden",!w);
+  $("pageTitle").textContent=w?"Your watchlist":"On sale in your size";
+  saveWatches();
   renderFilters();
   if(!DATA){$("dealList").innerHTML=`<div class="empty">Loading gear…</div>`;return}
   if(gated()){$("lede").textContent="Pick your sizes and add your email to see today's deals.";
     $("dealList").innerHTML=`<div class="empty"><button class="primary" type="button" id="unlock">See deals in my size</button></div>`;
     $("unlock").addEventListener("click",openSheet);$("dealsFoot").textContent="";return}
+  if(w)return renderWatch();
   const p=toProfile();
   const q=view.q.trim().toLowerCase().split(/\s+/).filter(Boolean);
   let all=matchItems(p);
@@ -539,6 +624,7 @@ async function linkFromEmail(){
     catch(e){}
   }
   renderAll();
+  syncWatches();
   if((gated()||!hasSizes())&&$("notice").classList.contains("hidden"))openSheet();
 })();
 })();
