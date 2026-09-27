@@ -3,7 +3,7 @@ name: Refresh deals
 on:
   schedule:
     - cron: "17 11 * * *"   # daily, 4:17am Vancouver (PDT)
-  workflow_dispatch: {}
+  workflow_dispatch: {}       # "Run workflow" button
   push:
     branches: [main]
 
@@ -23,17 +23,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0     # full history, so saved MEC/REI pages can be dated by upload
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - run: pip install -r scraper/requirements.txt
+      # start from the live file so a store that fails today keeps yesterday's deals
       - name: Fetch yesterday's data
         continue-on-error: true
         run: |
-          BASE="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
+          BASE="https://thegearfox.com"
           curl -fsSL "$BASE/deals.json" -o site/deals.json || true
           curl -fsSL "$BASE/offers.json" -o site/offers.json || true
+      - name: Keep the subscriber database awake
+        continue-on-error: true
+        run: |
+          curl -fsS -X POST "https://krwymmkauwqqxjxbvkyq.supabase.co/rest/v1/rpc/ping" \
+            -H "apikey: sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2" -H "Content-Type: application/json" -d '{}' || true
       - name: Scrape stores
         run: python scraper/scrape.py site/deals.json
       - uses: actions/upload-pages-artifact@v3
