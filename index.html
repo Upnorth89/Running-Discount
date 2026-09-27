@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Gear Fox — gear deals in your size</title>
+<meta name="description" content="The Gear Fox finds running and outdoor gear on sale in your size, from stores across Canada and beyond. Outfox full price.">
+<meta name="theme-color" content="#F26A1B">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:title" content="The Gear Fox — Outfox full price">
+<meta property="og:description" content="Gear deals in your size, from stores across Canada and beyond.">
+<meta property="og:image" content="logo-email.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#17201C; --muted:#5C6660; --mist:#EEF1EC; --card:#FFFFFF; --line:#CBD2CC;
+  --moss:#B8470A; --hivis:#F26A1B; --hivis-ink:#17201C; --err:#B3261E; --scrim:rgba(23,32,28,.55);
+  --band:#17201C; --band-ink:#FFFFFF; --band-muted:#C9D1CC;
+  --body:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --display:"Barlow Condensed","Arial Narrow",Impact,system-ui,sans-serif;
+  box-sizing:border-box;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ink:#E7ECE8; --muted:#9BA6A0; --mist:#121815; --card:#1B2320; --line:#34403A;
+    --moss:#FF9A5C; --hivis:#F26A1B; --hivis-ink:#121815; --err:#FF8A80; --scrim:rgba(0,0,0,.6);
+    --band:#26312C; --band-ink:#E7ECE8; --band-muted:#AEB8B2;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#E7ECE8; --muted:#9BA6A0; --mist:#121815; --card:#1B2320; --line:#34403A;
+  --moss:#FF9A5C; --hivis:#F26A1B; --hivis-ink:#121815; --err:#FF8A80; --scrim:rgba(0,0,0,.6);
+  --band:#26312C; --band-ink:#E7ECE8; --band-muted:#AEB8B2;
+}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--mist);color:var(--ink);font:400 17px/1.5 var(--body);-webkit-font-smoothing:antialiased}
+body.locked{overflow:hidden}
+.wrap{max-width:680px;margin:0 auto;padding:18px 16px 60px}
+a{color:var(--moss)}
+.hidden{display:none!important}
+input:focus-visible,button:focus-visible,summary:focus-visible,select:focus-visible{outline:3px solid var(--moss);outline-offset:2px}
+
+/* top bar */
+.topbar{position:sticky;top:0;z-index:20;background:var(--card);border-bottom:1.5px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+.topbar .in{max-width:680px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:14px}
+.topbar .logo{display:flex;flex-direction:column;align-items:center;flex:0 0 auto;text-decoration:none;color:var(--ink)}
+.topbar .logo img{height:40px;width:auto;display:block}
+.topbar .logo .tag{display:flex;align-items:center;gap:5px;margin-top:3px;font:600 8.5px/1 var(--body);letter-spacing:.16em;white-space:nowrap}
+.topbar .logo .tag::before,.topbar .logo .tag::after{content:"";width:10px;height:1.5px;background:var(--hivis);border-radius:1px}
+@media(min-width:560px){.topbar .logo img{height:48px}.topbar .logo .tag{font-size:10px}.topbar .logo .tag::before,.topbar .logo .tag::after{width:16px}}
+.iconbtn{margin-left:auto;display:flex;align-items:center;gap:8px;font:600 16px/1 var(--body);color:var(--ink);background:transparent;border:1.5px solid var(--line);border-radius:999px;padding:0 14px 0 10px;min-height:44px;cursor:pointer}
+.iconbtn svg{flex:0 0 auto}
+
+/* size pill + heading */
+.sizepill{display:flex;align-items:center;gap:10px;width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:10px 16px;min-height:48px;cursor:pointer;font:600 15px/1.3 var(--body);color:var(--ink);text-align:left}
+.sizepill span:first-child{flex:1;min-width:0}
+.sizepill .edit{color:var(--moss)}
+h1{font:800 clamp(30px,8vw,40px)/1.05 var(--display);letter-spacing:-.3px;margin:22px 0 4px}
+.lede{margin:0 0 14px;color:var(--muted);font-size:15px}
+
+/* chips + filters */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips.scroll{flex-wrap:nowrap;overflow-x:auto;margin:0 -16px;padding:2px 16px 6px;scrollbar-width:none}
+.chips.scroll::-webkit-scrollbar{display:none}
+.chip{font:500 15px/1 var(--body);color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:11px 14px;cursor:pointer;min-height:44px;white-space:nowrap;flex:0 0 auto}
+.chip[aria-pressed="true"]{background:var(--hivis);color:var(--hivis-ink);border-color:var(--ink);font-weight:600}
+.tools{margin-top:2px}
+select.sort{flex:0 0 auto;font:500 15px var(--body);color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:0 14px;min-height:44px;cursor:pointer}
+input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:11px 14px;min-height:44px}
+.search{margin-top:10px}
+.btn{font:600 16px/1 var(--body);border-radius:10px;border:1.5px solid var(--ink);background:var(--card);color:var(--ink);padding:12px 16px;cursor:pointer;min-height:44px}
+.primary{font:700 20px/1 var(--display);letter-spacing:.3px;background:var(--hivis);color:var(--hivis-ink);border:2px solid var(--ink);border-radius:12px;padding:14px 22px;cursor:pointer;min-height:52px}
+.primary:disabled{opacity:.5;cursor:not-allowed}
+
+/* deals */
+#dealList{margin-top:22px}
+.grp{margin:0 0 30px}
+.grp h2{display:flex;align-items:baseline;gap:10px;font:700 26px/1.1 var(--display);margin:0 0 10px}
+.grp h2 small{font:500 15px/1 var(--body);color:var(--muted)}
+.grp.sale h2::before{content:"";width:12px;height:12px;border-radius:3px;background:var(--hivis);border:1.5px solid var(--ink);align-self:center}
+.grid{display:grid;gap:10px}
+@media(min-width:560px){.grid{grid-template-columns:1fr 1fr}}
+.deal{display:flex;flex-direction:column;gap:4px;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:14px 14px 12px;color:inherit;text-decoration:none;min-width:0}
+.deal:hover{border-color:var(--ink)}
+.deal .pic{margin:-14px -14px 8px;aspect-ratio:1/1;background:#fff;border-radius:11px 11px 0 0;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.deal .pic img{width:100%;height:100%;object-fit:contain;padding:10px}
+.deal .top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:2px}
+.deal .pct{font:800 20px/1 var(--display);background:var(--hivis);color:var(--hivis-ink);border:1.5px solid var(--ink);border-radius:6px;padding:4px 7px}
+.deal .brand{font-weight:600;font-size:15px;color:var(--moss)}
+.deal .name{font-weight:500;line-height:1.3;overflow-wrap:anywhere}
+.deal .price{display:flex;align-items:baseline;gap:8px;margin-top:4px}
+.deal .price b{font:800 28px/1 var(--display)}
+.deal .price s{color:var(--muted);font-size:15px}
+.deal .sizes{font-size:14px;color:var(--muted)}
+.deal .sizes strong{color:var(--ink);font-weight:600}
+.deal .warn{font-size:13px;font-weight:600;color:var(--err)}
+.more{margin-top:10px;width:100%}
+.empty{background:var(--card);border:1.5px dashed var(--line);border-radius:12px;padding:22px;text-align:center;color:var(--muted)}
+.foot{font-size:13px;color:var(--muted);text-align:center;margin-top:10px}
+
+/* Saturday email card */
+.signup{background:var(--band);color:var(--band-ink);border-radius:14px;padding:18px;margin:0 0 30px}
+.signup h3{font:800 24px/1.1 var(--display);margin:0 0 4px}
+.signup p{margin:0 0 12px;color:var(--band-muted);font-size:15px}
+.signup form{display:flex;gap:8px}
+.signup input{flex:1;min-width:0}
+.signup .primary{padding:0 16px;min-height:44px;font-size:18px;border-color:var(--band-ink)}
+.signup .fine{margin:10px 0 0;font-size:13px}
+.signup .fine a{color:var(--band-ink)}
+.signup .err{color:#FFB4A8;font-size:14px;margin:8px 0 0}
+
+/* notice */
+.notice{margin:0 0 14px;background:var(--card);border:1.5px solid var(--hivis);border-left-width:6px;border-radius:12px;padding:14px 16px;font-size:16px;line-height:1.45}
+.notice .btn{margin-top:10px}
+
+/* sizes sheet */
+.sheet{position:fixed;inset:0;z-index:40;background:var(--scrim);display:flex;align-items:flex-end;justify-content:center}
+.sheet .panel{background:var(--card);width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:10px 20px calc(20px + env(safe-area-inset-bottom,0px))}
+@media(min-width:600px){.sheet{align-items:center}.sheet .panel{border-radius:20px;padding-top:20px}.sheet .grab{display:none}}
+.sheet .panel:focus{outline:none}
+.sheet .grab{width:40px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 6px}
+.sheet .head{display:flex;align-items:flex-start;gap:10px}
+.sheet h2{font:800 30px/1.05 var(--display);margin:6px 0 4px;flex:1}
+.sheet .close{background:transparent;border:0;color:var(--muted);min-width:44px;min-height:44px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.sheet .intro{margin:0 0 14px;color:var(--muted);font-size:15px}
+.sheet h3{font:700 19px/1.1 var(--display);margin:18px 0 8px}
+.sheet h3 small{font:500 14px var(--body);color:var(--muted);margin-left:6px}
+.seg{display:flex;gap:4px;background:var(--mist);border:1.5px solid var(--line);border-radius:12px;padding:4px}
+.seg button{flex:1;font:600 16px var(--body);color:var(--muted);background:transparent;border:0;border-radius:9px;min-height:44px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--card)}
+.scale{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px}
+.scale .chip{border-radius:9px;padding:10px 0;text-align:center}
+.sheet details{margin-top:18px;border-top:1.5px solid var(--line);padding-top:6px}
+.sheet summary{font:600 16px var(--body);min-height:44px;display:flex;align-items:center;cursor:pointer;list-style:none}
+.sheet summary::-webkit-details-marker{display:none}
+.sheet summary::after{content:"+";margin-left:auto;font:600 22px var(--body);color:var(--muted)}
+.sheet details[open] summary::after{content:"−"}
+.brandadd{display:flex;gap:8px;margin-top:10px}
+.sheet .go{width:100%;margin-top:20px}
+.sheet .subline{font-size:14px;color:var(--muted);margin:14px 0 0;text-align:center}
+.sheet .subline button{font:inherit;color:var(--moss);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer;min-height:24px}
+@media (prefers-reduced-motion:no-preference){.chip,.seg button{transition:background .12s,border-color .12s}}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="in">
+  <a class="logo" href="./" aria-label="The Gear Fox home">
+    <picture>
+      <source srcset="logo-mark-dark.svg" media="(prefers-color-scheme: dark)">
+      <img src="logo-mark.svg" alt="The Gear Fox" width="1534" height="664">
+    </picture>
+    <span class="tag">OUTFOX FULL PRICE</span>
+  </a>
+  <button class="iconbtn" id="openSizes" type="button" aria-haspopup="dialog">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+    Your sizes
+  </button>
+</div></header>
+
+<main class="wrap">
+  <div class="notice hidden" id="notice" role="status"></div>
+  <button class="sizepill" id="sizePill" type="button" aria-haspopup="dialog"><span id="sizeSummary">Tell us what fits</span><span class="edit">Edit</span></button>
+  <h1>On sale in your size</h1>
+  <p class="lede" id="lede">Loading today's gear…</p>
+
+  <div class="chips scroll" id="cats" role="group" aria-label="Categories"></div>
+  <div class="chips scroll tools">
+    <span id="toggles" style="display:contents"></span>
+    <select class="sort" id="sort" aria-label="Sort">
+      <option value="match">Best match</option>
+      <option value="discount">Biggest discount</option>
+      <option value="price">Lowest price</option>
+    </select>
+  </div>
+  <input class="search" id="dSearch" type="search" placeholder="Search brand or model" aria-label="Search brand or model">
+
+  <div id="dealList"></div>
+  <p class="foot" id="dealsFoot"></p>
+  <p class="foot">The Gear Fox · Outfox full price · <a href="privacy.html">Privacy</a></p>
+</main>
+
+<div class="sheet hidden" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <div class="panel" id="panel" tabindex="-1">
+    <div class="grab"></div>
+    <div class="head">
+      <h2 id="sheetTitle">What fits you?</h2>
+      <button class="close" id="closeSheet" type="button" aria-label="Close">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <p class="intro">Three taps and we'll hide everything that won't fit.</p>
+
+    <div class="seg" id="fit" role="group" aria-label="Fit">
+      <button type="button" data-v="men">Men's</button>
+      <button type="button" data-v="women">Women's</button>
+      <button type="button" data-v="any">Both</button>
+    </div>
+
+    <h3>Shoe size <small>US, pick one or more</small></h3>
+    <div class="scale" id="shoeSizes"></div>
+    <div class="chips" id="width" style="margin-top:8px" role="group" aria-label="Shoe width"></div>
+
+    <h3>Clothing size <small>tops, shorts, socks, gloves</small></h3>
+    <div class="scale" id="clothSizes"></div>
+
+    <details id="moreOpts">
+      <summary>Favourite brands <span style="font-weight:400;color:var(--muted);margin-left:6px">optional</span></summary>
+      <p class="intro" style="margin:4px 0 10px">These go to the top of your list.</p>
+      <div class="chips" id="brands"></div>
+      <div class="brandadd">
+        <input id="brandInput" type="text" placeholder="Add another brand" aria-label="Add another brand">
+        <button class="btn" id="brandAdd" type="button">Add</button>
+      </div>
+    </details>
+
+    <button class="primary go" id="saveSizes" type="button">Show my deals</button>
+    <p class="subline" id="subLine"></p>
+  </div>
+</div>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+function esc(s){const d=document.createElement("div");d.textContent=s;return d.innerHTML}
+
+/* ---------- options ---------- */
+const BRANDS=["Hoka","Salomon","Brooks","Saucony","On","Altra","Nike","Adidas","ASICS","New Balance","Norda","La Sportiva","Arc'teryx","Patagonia","Ciele","Nathan","USWE","Maurten","Science in Sport"];
+const SHOE=[];for(let s=5;s<=15;s+=0.5)SHOE.push(String(s));
+const CLOTH=["XS","S","M","L","XL","XXL"];
+const APPAREL_GROUPS=["tops","bottoms","bras","socks","gloves","headwear"];   // all use the clothing size
+const SIZED=new Set(["shoes",...APPAREL_GROUPS]);
+const GROUP_LABEL={shoes:"Shoes",tops:"Tops & jackets",bottoms:"Shorts & tights",bras:"Sports bras",socks:"Socks",gloves:"Gloves",
+  headwear:"Hats & buffs",packs:"Vests & packs",gear:"Lights, poles & bottles",watches:"Watches",nutrition:"Nutrition"};
+const ORDER=Object.keys(GROUP_LABEL);
+
+/* ---------- profile (lives in this browser; synced to the server once subscribed) ---------- */
+const LS={get(k){try{return JSON.parse(localStorage.getItem(k)||"null")}catch(e){return null}},
+          set(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const state={name:"",email:"",gender:"",ships:"ca",groups:ORDER.slice(),shoe:[],width:[],cloth:[],brands:[]};
+let customBrands=[];
+
+function toProfile(){
+  const sizes={shoes:{sizes:state.shoe,width:state.width}};
+  APPAREL_GROUPS.forEach(g=>sizes[g]={sizes:state.cloth});
+  return {name:state.name,email:state.email,gender:state.gender,ships:state.ships,groups:state.groups,sizes,brands:state.brands,activities:[]};
+}
+function applyProfile(p){
+  if(!p)return;
+  const sz=p.sizes||{};
+  const cloth=new Set();APPAREL_GROUPS.forEach(g=>((sz[g]||{}).sizes||[]).forEach(v=>{v=normSize(v);if(CLOTH.includes(v))cloth.add(v)}));
+  Object.assign(state,{name:p.name||"",email:p.email||"",gender:p.gender||"",ships:p.ships||"ca",
+    groups:(p.groups&&p.groups.length)?p.groups.filter(g=>GROUP_LABEL[g]):ORDER.slice(),
+    shoe:((sz.shoes||{}).sizes||[]).map(String),width:(sz.shoes||{}).width||[],cloth:CLOTH.filter(c=>cloth.has(c)),brands:p.brands||[]});
+  customBrands=state.brands.filter(b=>!BRANDS.includes(b));
+}
+function normSize(v){v=String(v).trim().toUpperCase();return v==="2XL"?"XXL":v}
+let syncT;
+function saveProfile(){
+  const p=toProfile();LS.set("rd-profile",p);
+  if(sub&&sub.key&&sub.active){clearTimeout(syncT);syncT=setTimeout(()=>rpc("save_profile",{p_token:sub.key,p_profile:p}).catch(()=>{}),800)}
+}
+function hasSizes(){return !!state.gender&&(state.shoe.length||state.cloth.length)}
+
+/* ---------- size sheet ---------- */
+function scaleHTML(opts,sel){return opts.map(o=>`<button type="button" class="chip" data-v="${esc(o)}" aria-pressed="${sel.includes(o)}">${esc(o)}</button>`).join("")}
+function renderSheet(){
+  document.querySelectorAll("#fit button").forEach(b=>b.setAttribute("aria-pressed",String(state.gender===b.dataset.v)));
+  $("shoeSizes").innerHTML=scaleHTML(SHOE,state.shoe);
+  $("width").innerHTML=["Regular","Wide"].map(o=>`<button type="button" class="chip" data-v="${o}" aria-pressed="${state.width.includes(o)||(o==="Regular"&&!state.width.length)}">${o} width</button>`).join("");
+  $("clothSizes").innerHTML=scaleHTML(CLOTH,state.cloth);
+  $("brands").innerHTML=[...BRANDS,...customBrands].map(b=>`<button type="button" class="chip" data-v="${esc(b)}" aria-pressed="${state.brands.includes(b)}">${esc(b)}</button>`).join("");
+  renderSubLine();
+}
+function toggle(a,v){const i=a.indexOf(v);i<0?a.push(v):a.splice(i,1)}
+$("fit").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;state.gender=b.dataset.v;renderSheet()});
+$("shoeSizes").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;toggle(state.shoe,b.dataset.v);state.shoe.sort((a,b)=>a-b);renderSheet()});
+$("width").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;
+  const w=state.width.length?state.width:["Regular"];toggle(w,b.dataset.v);state.width=w.length?w:["Regular"];renderSheet()});
+$("clothSizes").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;toggle(state.cloth,b.dataset.v);state.cloth=CLOTH.filter(c=>state.cloth.includes(c));renderSheet()});
+$("brands").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;toggle(state.brands,b.dataset.v);renderSheet()});
+function addBrand(){const v=$("brandInput").value.trim();if(!v)return;
+  const known=[...BRANDS,...customBrands].find(b=>b.toLowerCase()===v.toLowerCase());const name=known||v;
+  if(!known)customBrands.push(v);if(!state.brands.includes(name))state.brands.push(name);$("brandInput").value="";renderSheet()}
+$("brandAdd").addEventListener("click",addBrand);
+$("brandInput").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();addBrand()}});
+
+let lastFocus=null;
+function openSheet(){lastFocus=document.activeElement;renderSheet();$("sheet").classList.remove("hidden");document.body.classList.add("locked");
+  setTimeout(()=>$("panel").focus(),30)}
+function closeSheet(){$("sheet").classList.add("hidden");document.body.classList.remove("locked");if(lastFocus&&lastFocus.focus)lastFocus.focus()}
+$("openSizes").addEventListener("click",openSheet);
+$("sizePill").addEventListener("click",openSheet);
+$("closeSheet").addEventListener("click",()=>{closeSheet();renderAll()});
+$("sheet").addEventListener("click",e=>{if(e.target===$("sheet")){closeSheet();renderAll()}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("sheet").classList.contains("hidden")){closeSheet();renderAll()}});
+$("saveSizes").addEventListener("click",()=>{
+  if(!state.gender){state.gender="any"}
+  saveProfile();closeSheet();view.open={};renderAll();window.scrollTo({top:0});
+});
+
+function sizeSummary(){
+  if(!hasSizes())return "Tell us what fits";
+  const parts=[{men:"Men's",women:"Women's",any:"Men's & women's"}[state.gender]];
+  if(state.shoe.length)parts.push("Shoe "+(state.shoe.length>3?state.shoe.slice(0,3).join(", ")+"…":state.shoe.join(", ")));
+  if(state.cloth.length)parts.push("Clothing "+state.cloth.join(", "));
+  return parts.join(" · ");
+}
+
+/* ---------- deals ---------- */
+let DATA=null, ITEMS=[];
+function ago(iso){if(!iso)return "";const m=Math.max(0,Math.round((Date.now()-new Date(iso))/60000));
+  return m<60?`${m} min ago`:m<48*60?`${Math.round(m/60)} h ago`:`${Math.round(m/1440)} days ago`}
+fetch("deals.json",{cache:"no-store"}).then(r=>r.json()).then(d=>{DATA=d;ITEMS=d.items||[];renderAll()})
+  .catch(()=>{DATA={items:[]};$("dealList").innerHTML=`<div class="empty">Couldn't load today's gear. Reload to try again.</div>`});
+const PAGE=8, MORE=24;
+const WORD={"ONE SIZE":"OS","O/S":"OS","X-SMALL":"XS","XSMALL":"XS","SMALL":"S","MEDIUM":"M","LARGE":"L","X-LARGE":"XL","XLARGE":"XL"};
+function norm(s){s=String(s).trim().toUpperCase();s=WORD[s]||s;return s.replace("XXXL","3XL").replace("XXL","2XL").replace("XXS","2XS")}
+const view={saleOnly:false,sort:"match",q:"",open:{}};
+const money=v=>"$"+v.toFixed(2);
+
+/* Every item in stock in the profile's sizes, with its best price, the regular price of that size,
+   the % off, and the store link that has that price. Same rules as the weekly email. */
+function matchItems(p){
+  const favs=(p.brands||[]).map(b=>b.toLowerCase());
+  const out=[];
+  const caOnly=(p.ships||"ca")!=="all";
+  for(const d of ITEMS){
+    if(!p.groups.includes(d.g))continue;
+    if(caOnly&&d.ca===false)continue;
+    if(p.gender&&p.gender!=="any"&&d.sx.length&&!d.sx.includes(p.gender))continue;
+    let ok=d.sz;
+    if(SIZED.has(d.g)){
+      const sz=p.sizes[d.g]||{}, want=(sz.sizes||[]).map(norm);
+      if(d.g==="shoes"){
+        const w=sz.width||[], wide=w.includes("Wide"), reg=!w.length||w.includes("Regular");
+        if(d.w?!wide:!reg)continue;
+      }
+      ok=d.sz.filter(([s])=>s==="OS"||want.includes(norm(s)));
+    }
+    if(!ok.length)continue;
+    let pick=ok[0];
+    for(const e of ok)if(e[1]<pick[1]||(e[1]===pick[1]&&e[3]>pick[3]))pick=e;
+    const best=pick[1], reg=Math.max(pick[3]||best,best);
+    const pct=reg>best?Math.round(100*(1-best/reg)):0;
+    out.push({...d,best,reg,pct,ok,url:d.of[pick[2]]||d.of[0],fav:favs.includes(d.b.toLowerCase())});
+  }
+  return out;
+}
+const SORTS={
+  match:(a,b)=>(b.fav-a.fav)||(b.pct-a.pct)||(a.best-b.best),
+  price:(a,b)=>(a.best-b.best)||(b.pct-a.pct),
+  discount:(a,b)=>(b.pct-a.pct)||(a.best-b.best)
+};
+function card(d){
+  const sized=SIZED.has(d.g);
+  const labels=[...new Set(d.ok.map(x=>x[0]))];
+  if(sized){const SO=["2XS","XS","S","M","L","XL","2XL","3XL"],ix=v=>{const i=SO.indexOf(norm(v));return i<0?99:i};labels.sort((a,b)=>(isNaN(a)||isNaN(b))?ix(a)-ix(b):a-b)}
+  const sizes=sized?`<div class="sizes">In your size: <strong>${esc(labels.join(", "))}</strong></div>`
+    :labels.length&&labels[0]!=="OS"?`<div class="sizes">${esc(labels.slice(0,3).join(" · "))}${labels.length>3?" · …":""}</div>`:"";
+  return `<a class="deal" href="${esc(d.url)}" target="_blank" rel="noopener">
+    ${d.img?`<div class="pic"><img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"></div>`:""}
+    <div class="top"><span class="brand">${esc(d.b)}${d.fav?" ★":""}</span>${d.pct?`<span class="pct">−${d.pct}%</span>`:""}</div>
+    <div class="name">${esc(d.n)}</div>
+    <div class="price"><b>${money(d.best)}</b>${d.pct?`<s>${money(d.reg)}</s>`:""}</div>
+    ${sizes}
+    ${d.bb?`<div class="warn">Short-dated: best by ${esc(d.bb)}</div>`:""}
+    ${d.ca===false?`<div class="sizes">Ships from outside Canada · price converted to CAD, duties may apply</div>`:""}
+  </a>`;
+}
+function section(key,title,list,cls){
+  if(!list.length)return "";
+  const lim=view.open[key]||PAGE;
+  return `<section class="grp ${cls||""}"><h2>${title} <small>${list.length}</small></h2><div class="grid">${list.slice(0,lim).map(card).join("")}</div>
+    ${list.length>lim?`<button class="btn more" data-open="${key}">Show ${Math.min(MORE,list.length-lim)} more</button>`:""}</section>`;
+}
+
+function renderFilters(){
+  const all=ORDER.every(g=>state.groups.includes(g));
+  $("cats").innerHTML=`<button type="button" class="chip" data-v="__all" aria-pressed="${all}">All gear</button>`+
+    ORDER.map(g=>`<button type="button" class="chip" data-v="${g}" aria-pressed="${!all&&state.groups.includes(g)}">${GROUP_LABEL[g]}</button>`).join("");
+  $("toggles").innerHTML=`<button type="button" class="chip" data-t="ca" aria-pressed="${state.ships!=="all"}">Ships from Canada</button>`+
+    `<button type="button" class="chip" data-t="sale" aria-pressed="${view.saleOnly}">On sale only</button>`;
+  $("sort").value=view.sort;
+}
+$("cats").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;const v=b.dataset.v;
+  const all=ORDER.every(g=>state.groups.includes(g));
+  if(v==="__all")state.groups=ORDER.slice();
+  else if(all)state.groups=[v];                       // from "all", tapping one narrows to it
+  else{toggle(state.groups,v);if(!state.groups.length)state.groups=ORDER.slice()}
+  view.open={};saveProfile();renderAll()});
+$("toggles").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;
+  if(b.dataset.t==="ca"){state.ships=state.ships==="all"?"ca":"all";saveProfile()}
+  else view.saleOnly=!view.saleOnly;
+  view.open={};renderAll()});
+$("sort").addEventListener("change",e=>{view.sort=e.target.value;view.open={};renderAll()});
+let searchT;$("dSearch").addEventListener("input",e=>{clearTimeout(searchT);searchT=setTimeout(()=>{view.q=e.target.value;view.open={};renderAll()},200)});
+$("dealList").addEventListener("click",e=>{const b=e.target.closest("[data-open]");if(!b)return;const k=b.dataset.open;view.open[k]=(view.open[k]||PAGE)+MORE;renderAll()});
+
+function renderAll(){
+  $("sizeSummary").textContent=sizeSummary();
+  renderFilters();
+  if(!DATA){$("dealList").innerHTML=`<div class="empty">Loading gear…</div>`;return}
+  const p=toProfile();
+  const q=view.q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  let all=matchItems(p);
+  if(q.length)all=all.filter(d=>{const t=(d.b+" "+d.n).toLowerCase();return q.every(w=>t.includes(w))});
+  const onSale=all.filter(d=>d.pct>0);
+  const where=state.ships==="all"?"stores in Canada and abroad":"Canadian stores";
+  $("lede").textContent=`${onSale.length.toLocaleString()} on sale and ${all.length.toLocaleString()} in stock from ${where}`+(DATA.updated?` · updated ${ago(DATA.updated)}`:"")+".";
+  const shown=(view.saleOnly?onSale:all).slice().sort(SORTS[view.sort]);
+  const parts=[];
+  if(!view.saleOnly)parts.push(section("__sale","On sale",onSale.slice().sort(SORTS[view.sort==="price"?"price":"discount"]),"sale"));
+  ORDER.filter(g=>p.groups.includes(g)).forEach(g=>parts.push(section(g,GROUP_LABEL[g],shown.filter(d=>d.g===g))));
+  const body=parts.filter(Boolean);
+  body.splice(Math.min(1,body.length),0,signupHTML());   // the email card sits right after the first block of deals
+  $("dealList").innerHTML=body.join("")||`<div class="empty">Nothing matches right now. Try clearing the search or picking more categories.</div>`;
+  bindSignup();
+  $("dealsFoot").textContent=(hasSizes()?"":"Add your sizes to hide gear that won't fit. ")+"Prices and stock change daily; the product page has the final price.";
+}
+
+/* ---------- Saturday email: subscribers live in Supabase ---------- */
+const SB_URL="https://krwymmkauwqqxjxbvkyq.supabase.co",SB_KEY="sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2";
+async function rpc(fn,args){
+  const r=await fetch(`${SB_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:{apikey:SB_KEY,"Content-Type":"application/json"},body:JSON.stringify(args||{})});
+  const t=await r.text();if(!r.ok){let m="";try{m=JSON.parse(t).message}catch(e){}throw new Error(m||("HTTP "+r.status))}
+  return t?JSON.parse(t):null;
+}
+let sub=LS.get("gf-sub");            // {key, email, active} once this device is linked by an email link; {pending} while waiting
+function setSub(v){sub=v;LS.set("gf-sub",v)}
+let signupErr="";
+function signupHTML(){
+  if(sub&&sub.active)return "";
+  if(sub&&sub.pending)return `<div class="signup"><h3>Check your inbox</h3><p style="margin:0">Tap the link we sent to ${esc(sub.pending)} to start your Saturday email. It can land in Promotions.</p>
+    <p class="fine"><button type="button" id="suRetry" style="font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;cursor:pointer">Use a different email</button></p></div>`;
+  return `<div class="signup"><h3>Get deals like these every Saturday</h3>
+    <p>One email, Saturday morning, only gear on sale in your sizes.</p>
+    <form id="suForm" novalidate><label for="suEmail" class="hidden">Email</label>
+      <input id="suEmail" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" value="${esc(state.email)}" required>
+      <button class="primary" type="submit">Sign up</button></form>
+    ${signupErr?`<p class="err">${esc(signupErr)}</p>`:""}
+    <p class="fine">We'll email you to confirm. Unsubscribe with one tap. <a href="privacy.html">Privacy</a></p></div>`;
+}
+function bindSignup(){
+  const f=$("suForm");
+  if(f)f.addEventListener("submit",async e=>{
+    e.preventDefault();const email=$("suEmail").value.trim().toLowerCase();
+    if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)){signupErr="That email doesn't look right.";renderAll();$("suEmail").focus();return}
+    const btn=f.querySelector("button");btn.disabled=true;btn.textContent="…";
+    state.email=email;const p=toProfile();LS.set("rd-profile",p);
+    try{await rpc("subscribe",{p_email:email,p_profile:p});signupErr="";setSub({pending:email})}
+    catch(err){signupErr="Couldn't sign you up just now: "+err.message}
+    renderAll();
+  });
+  const r=$("suRetry");if(r)r.addEventListener("click",()=>{setSub(null);renderAll();setTimeout(()=>$("suEmail")&&$("suEmail").focus(),0)});
+}
+function renderSubLine(){
+  const el=$("subLine");
+  if(sub&&sub.active){el.innerHTML=`Saturday email on for ${esc(sub.email)} · <button type="button" id="stopEmail">Stop it</button>`;
+    $("stopEmail").addEventListener("click",async()=>{try{await rpc("unsubscribe",{p_token:sub.key});setSub({...sub,active:false});el.textContent="Saturday email stopped. Sign up again anytime from the shop."}catch(e){el.textContent="Couldn't reach the server. Try again."}})}
+  else el.textContent="";
+}
+function notice(html,btn){
+  const n=$("notice");n.innerHTML=html+(btn?`<div><button class="btn" id="noticeBtn" type="button">${btn.label}</button></div>`:"");
+  n.classList.remove("hidden");if(btn)$("noticeBtn").addEventListener("click",btn.run);
+}
+/* Links in our emails: ?confirm= (sign-up), ?k= (open your profile anywhere), ?unsub=. Older emails: ?p= (profile in the link). */
+function profileFromLink(){
+  const m=location.search.match(/[?&]p=([^&]+)/)||location.hash.match(/[#&]p=([^&]+)/);if(!m)return null;
+  try{const b=m[1].replace(/-/g,"+").replace(/_/g,"/");
+    return JSON.parse(decodeURIComponent(escape(atob(b+"===".slice((b.length+3)%4)))))}catch(e){return null}
+}
+async function linkFromEmail(){
+  const q=new URLSearchParams(location.search);
+  const conf=q.get("confirm"),key=q.get("k"),unsub=q.get("unsub");
+  const tok=conf||key||unsub;
+  if(!tok){const p=profileFromLink();if(p){applyProfile(p);LS.set("rd-profile",toProfile());try{history.replaceState(null,"",location.pathname)}catch(e){}return true}return false}
+  try{history.replaceState(null,"",location.pathname)}catch(e){}
+  if(!/^[0-9a-f-]{36}$/i.test(tok)){notice("That link looks incomplete. Try copying the whole link from the email.");return false}
+  try{
+    if(unsub){
+      notice("Stop the Saturday deals email?",{label:"Unsubscribe",run:async()=>{
+        try{await rpc("unsubscribe",{p_token:tok});if(sub&&sub.key===tok)setSub({...sub,active:false});
+          notice("You're unsubscribed. No more Saturday emails. You can sign up again anytime from the shop.");renderAll()}
+        catch(e){notice("Couldn't unsubscribe just now. Check your connection and tap the link again.")}}});
+      return false;
+    }
+    const r=conf?await rpc("confirm",{p_token:tok}):await rpc("get_profile",{p_token:tok});
+    if(!r){notice("That link has expired or was replaced. Sign up again from the shop to get a new one.");return false}
+    applyProfile({...r.profile,email:r.email});LS.set("rd-profile",toProfile());
+    setSub({key:tok,email:r.email,active:!!r.subscribed});
+    if(conf)notice("<b>You're in.</b> Your first deals email arrives Saturday morning. This device is now linked to your profile.");
+    return true;
+  }catch(e){notice("Couldn't reach the server. Check your connection and reload.");return false}
+}
+
+/* ---------- start ---------- */
+(async()=>{
+  applyProfile(LS.get("rd-profile"));
+  renderAll();
+  const fromEmail=await linkFromEmail();
+  if(!fromEmail&&sub&&sub.key){   // another device may have changed the profile: the server copy wins
+    try{const r=await rpc("get_profile",{p_token:sub.key});
+      if(r){applyProfile({...r.profile,email:r.email});LS.set("rd-profile",toProfile());setSub({...sub,email:r.email,active:!!r.subscribed})}}
+    catch(e){}
+  }
+  renderAll();
+  if(!hasSizes()&&!new URLSearchParams(location.search).get("unsub")&&$("notice").classList.contains("hidden"))openSheet();
+})();
+})();
+</script>
+</body>
+</html>
