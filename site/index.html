@@ -343,6 +343,13 @@ label.field{display:block;font-weight:600;font-size:15px;margin:0 0 6px}
 const $=id=>document.getElementById(id);
 function esc(s){const d=document.createElement("div");d.textContent=s;return d.innerHTML}
 
+/* ---------- Visitor stats (Umami Cloud: no cookies, no personal data) ---------- */
+const UMAMI_ID="d73c30be-171d-40d8-8101-278c2a536699";            // paste the Website ID from cloud.umami.is here; empty = no tracking
+(function(){if(!UMAMI_ID)return;const s=document.createElement("script");s.defer=true;
+  s.src="https://cloud.umami.is/script.js";s.dataset.websiteId=UMAMI_ID;s.dataset.domains="thegearfox.com,www.thegearfox.com";document.head.appendChild(s)})();
+function track(name,data){try{if(window.umami&&umami.track)umami.track(name,data)}catch(e){}}
+const storeOf=u=>{try{return new URL(u).hostname.replace(/^www\./,"")}catch(e){return "unknown"}};
+
 /* ---------- English / French ---------- */
 const PL=(n,one,many)=>n===1?one:many;
 const I18N={
@@ -634,7 +641,7 @@ function openSheet(){lastFocus=document.activeElement;renderSheet();
   let showSizes=true,showGate=g,showWelcome=false,title=t("sheetTitle"),intro=t("sheetIntro"),btn=t("showDeals");
   if(g&&!si){
     if(FLOW==="A"){title=t("sheetGateTitle");intro=t("sheetGateIntro");btn=t("subscribeShow")}
-    else if(step===0){showSizes=false;showGate=false;showWelcome=true;title=t("wTitle");intro=t("wIntro",storesLabel());btn=t("wGo");renderWelcome()}
+    else if(step===0){if(!openSheet.seenW){openSheet.seenW=1;track("welcome-view",{lang:LANG})}showSizes=false;showGate=false;showWelcome=true;title=t("wTitle");intro=t("wIntro",storesLabel());btn=t("wGo");renderWelcome()}
     else if(FLOW==="C"&&step===1){showSizes=false;title=t("cTitle");intro=t("cIntro");btn=t("cContinue")}
     else if(FLOW==="C"&&step===2){showGate=false;title=t("s1Title");intro=gSession?t("gSigned",esc(gSession.email))+" "+t("cSizesIntro"):t("cSizesIntro");btn=t("subscribeShow")}
     else if(step===1){showGate=false;title=t("s1Title");intro=gSession?t("gSigned",esc(gSession.email))+" "+t("cSizesIntro"):t("s1Intro");btn=gSession?t("subscribeShow"):t("next")}
@@ -663,7 +670,7 @@ function openSheet(){lastFocus=document.activeElement;renderSheet();
   gateErr("");$("sheet").classList.remove("hidden");document.body.classList.add("locked");
   setTimeout(()=>$("panel").focus(),30)}
 $("stepBack").addEventListener("click",()=>{step=Math.max(FLOW==="D"?0:1,step-1);openSheet();$("panel").scrollTop=0});
-function nextStep(){step+=1;openSheet();$("panel").scrollTop=0}
+function nextStep(){step+=1;track("signup-step",{flow:FLOW,step});openSheet();$("panel").scrollTop=0}
 function closeSheet(){$("sheet").classList.add("hidden");document.body.classList.remove("locked");if(lastFocus&&lastFocus.focus)lastFocus.focus()}
 $("openSizes").addEventListener("click",openSheet);
 $("sizePill").addEventListener("click",openSheet);
@@ -677,7 +684,7 @@ $("saveSizes").addEventListener("click",async()=>{
     const btn=$("saveSizes");btn.disabled=true;btn.textContent=t("oneMoment");gateErr("");
     try{await rpc("send_link",{p_email:email,p_lang:LANG})}
     catch(e){btn.disabled=false;btn.textContent=t("emailLink");return gateErr(t("errServer"))}
-    btn.disabled=false;state.email=email;setSub({pending:email,signin:true});signinMode=false;
+    btn.disabled=false;state.email=email;setSub({pending:email,signin:true});signinMode=false;track("signin",{method:"email-link"});
     closeSheet();view.open={};renderAll();window.scrollTo({top:0});notice(t("linkSent",esc(email)));
     return;
   }
@@ -708,7 +715,7 @@ $("saveSizes").addEventListener("click",async()=>{
     if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)){gateErr(t("errEmail"),$("gateEmail"));setTimeout(()=>$("gateEmail").focus({preventScroll:true}),400);return}
     const btn=$("saveSizes");btn.disabled=true;btn.textContent=t("oneMoment");gateErr("");
     state.email=email;const p=toProfile();LS.set("rd-profile",p);
-    try{await rpc("subscribe",{p_email:email,p_profile:p});setSub({pending:email})}
+    try{await rpc("subscribe",{p_email:email,p_profile:p});setSub({pending:email});track("signup",{method:"email",lang:LANG,where:"sheet"})}
     catch(e){btn.disabled=false;btn.textContent=t("subscribeShow");return gateErr(t("errServer"))}
     btn.disabled=false;closeSheet();view.open={};renderAll();window.scrollTo({top:0});
     notice(t("hereDeals",esc(email)));
@@ -844,6 +851,7 @@ function toggleWatch(k){
   const m=matchItems({...toProfile(),groups:ORDER},byKey[k]);const best=m.length?Math.min(...m.map(x=>x.best)):null;
   const url=m.length?m.sort((a,b)=>a.best-b.best)[0].url:(d.of||[])[0];
   watches[k]={b:d.b,n:d.n,g:d.g,url,price:best,low:best,seen:best,gone:best==null,saved:new Date().toISOString()};saveWatches();
+  track("watch-add",{brand:d.b,group:d.g});
   if(sub&&sub.key&&sub.active){rpc("watch_add",{p_token:sub.key,p_key:k,p_meta:watches[k]}).catch(()=>{});
     toast(t("watching"))}
   else toast(sub&&sub.pending?t("watchingPending"):t("watchingSignup"));
@@ -936,7 +944,10 @@ function renderStats(){
   el.innerHTML=parts.join("");el.classList.toggle("hidden",!parts.length);
   const j=$("jumpNew");if(j)j.addEventListener("click",()=>{const s=document.querySelector(".grp.new");if(s)s.scrollIntoView({behavior:"smooth",block:"start"})});
 }
-$("dealList").addEventListener("click",e=>{const a=e.target.closest("a.deal");if(!a)return;const h=a.parentNode.querySelector(".heart");if(h){recordClick(h.dataset.key);setTimeout(renderStats,0)}},true);
+$("dealList").addEventListener("click",e=>{const a=e.target.closest("a.deal");if(!a)return;const h=a.parentNode.querySelector(".heart");
+  const d=h&&RENDERED[h.dataset.key];
+  track("deal-click",{store:storeOf(a.href),brand:d?d.b:"",group:d?d.g:"",pct:d?d.pct:0,view:view.watch?"watchlist":"shop"});
+  if(h){recordClick(h.dataset.key);setTimeout(renderStats,0)}},true);
 
 function renderAll(){
   $("sizeSummary").textContent=sizeSummary();
@@ -1002,7 +1013,7 @@ function bindSignup(){
     if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)){signupErr=t("badEmail");renderAll();$("suEmail").focus();return}
     const btn=f.querySelector("button");btn.disabled=true;btn.textContent="…";
     state.email=email;const p=toProfile();LS.set("rd-profile",p);
-    try{await rpc("subscribe",{p_email:email,p_profile:p});signupErr="";setSub({pending:email})}
+    try{await rpc("subscribe",{p_email:email,p_profile:p});signupErr="";setSub({pending:email});track("signup",{method:"email",lang:LANG,where:"shop-card"})}
     catch(err){signupErr=t("signupFail",err.message)}
     renderAll();
   });
@@ -1043,19 +1054,20 @@ async function linkFromEmail(){
     if(!r){notice(t("linkExpired"));return false}
     applyProfile({...r.profile,email:r.email});LS.set("rd-profile",toProfile());
     setSub({key:tok,email:r.email,active:!!r.subscribed});
-    if(conf)notice(t("youreIn"));
+    if(conf){notice(t("youreIn"));track("signup-confirmed")}
     return true;
   }catch(e){notice(t("offline"));return false}
 }
 
 function switchLang(){
+  setTimeout(()=>track("language",{to:LANG}),0);
   if(G.ready)setTimeout(()=>G.render(),0);
   LANG=LANG==="fr"?"en":"fr";LS.set("gf-lang",LANG);applyStatic();saveProfile();
   $("notice").classList.add("hidden");
   if(!$("sheet").classList.contains("hidden"))openSheet();renderSheet();renderAll();
 }
 $("langBtn").addEventListener("click",switchLang);
-$("curBtn").addEventListener("click",()=>{CUR=CUR==="CAD"?"USD":"CAD";LS.set("gf-cur",CUR);applyStatic();renderAll();
+$("curBtn").addEventListener("click",()=>{CUR=CUR==="CAD"?"USD":"CAD";LS.set("gf-cur",CUR);track("currency",{to:CUR});applyStatic();renderAll();
   toast(CUR==="USD"?(LANG==="fr"?"Prix affichés en dollars américains (taux du jour).":"Showing prices in US dollars (today's rate)."):(LANG==="fr"?"Prix affichés en dollars canadiens.":"Showing prices in Canadian dollars."))});$("langBtn2").addEventListener("click",switchLang);
 
 /* ---------- Sign in with Google (Google Identity Services + Supabase Auth) ---------- */
@@ -1090,6 +1102,7 @@ const G={ready:false,nonce:"",
   }
 };
 function linkFromGoogle(r,welcome){
+  track(welcome===t("gWelcome")?"signin":"signup",{method:"google",lang:LANG});
   applyProfile({...(r.profile||{}),email:r.email});LS.set("rd-profile",toProfile());
   setSub({key:r.key,email:r.email,active:!!r.subscribed});gSession=null;signinMode=false;
   closeSheet();view.open={};renderAll();syncWatches();window.scrollTo({top:0});notice(welcome);
