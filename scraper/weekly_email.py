@@ -13,6 +13,8 @@ Env:
   SUPABASE_URL, SUPABASE_SECRET_KEY
                    where subscribers who signed up on the site live (confirmed and not unsubscribed)
   MAILING_ADDRESS  postal address for the footer (required by Canada's anti-spam law, CASL)
+  SEND_TO          test sends: only these subscribers get it (comma-separated emails), or "everyone".
+                   A manual run from the Actions tab must set it, so a test never reaches everybody by accident.
 
 Subscribers come from Supabase plus email/profiles.json (the database wins if an address is in both).
 
@@ -35,6 +37,8 @@ FROM = os.environ.get("FROM_EMAIL", "The Gear Fox <deals@thegearfox.com>")
 SB_URL = os.environ.get("SUPABASE_URL", "").rstrip("/")
 SB_KEY = os.environ.get("SUPABASE_SECRET_KEY", "")
 ADDRESS = os.environ.get("MAILING_ADDRESS", "").strip()
+SEND_TO = os.environ.get("SEND_TO", "").strip().lower()
+MANUAL = os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch"
 
 GROUP_LABEL = {"shoes": "Shoes", "tops": "Tops & jackets", "bottoms": "Shorts & tights", "bras": "Sports bras",
                "socks": "Socks", "gloves": "Gloves", "headwear": "Hats & buffs", "packs": "Vests & packs",
@@ -296,6 +300,18 @@ def main():
     db = subscribers()
     seen = {p["email"].lower() for p in db}
     profiles = db + [p for p in profiles if (p.get("email") or "").lower() not in seen]
+    if MANUAL and not SEND_TO:
+        print("Manual run with no 'send to' address: nothing sent. Type your email in the box (or 'everyone').")
+        return 1
+    if SEND_TO and SEND_TO != "everyone":
+        want = {e.strip() for e in SEND_TO.split(",") if e.strip()}
+        profiles = [p for p in profiles if (p.get("email") or "").lower() in want]
+        missing = want - {p["email"].lower() for p in profiles}
+        for e in sorted(missing):
+            print(f"{e}: not a confirmed subscriber, so no email. Sign up on the site and confirm first.")
+        print(f"TEST SEND to {len(profiles)} of the subscribers only")
+        if not profiles:
+            return 1
     if not ADDRESS:
         print("WARNING: MAILING_ADDRESS is not set; CASL requires a postal address in the footer")
     if DEALS_URL:
