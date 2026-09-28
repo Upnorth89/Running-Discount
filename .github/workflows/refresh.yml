@@ -35,6 +35,8 @@ jobs:
           BASE="https://thegearfox.com"
           curl -fsSL "$BASE/deals.json" -o site/deals.json || true
           curl -fsSL "$BASE/offers.json" -o site/offers.json || true
+          curl -fsSL "$BASE/health.json" -o site/health.json || true
+          mkdir -p /tmp/prev && cp site/deals.json site/offers.json site/health.json /tmp/prev/ 2>/dev/null || true
       - name: Keep the subscriber database awake
         continue-on-error: true
         run: |
@@ -54,6 +56,16 @@ jobs:
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           MAILING_ADDRESS: ${{ secrets.MAILING_ADDRESS }}
         run: python scraper/alerts.py site/deals.json
+      # compares today with yesterday; emails hello@thegearfox.com only about new problems (morning run only)
+      - name: Health check
+        continue-on-error: true
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          FROM_EMAIL: "The Gear Fox <deals@thegearfox.com>"
+          SUPABASE_URL: "https://krwymmkauwqqxjxbvkyq.supabase.co"
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          SEND_HEALTH: ${{ github.event_name == 'schedule' && '1' || '0' }}
+        run: python scraper/health.py /tmp/prev site
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
