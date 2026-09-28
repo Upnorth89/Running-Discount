@@ -867,6 +867,9 @@ SHOPIFY_STORES = [
     ("mounttocoast",   "https://mounttocoast.com",           "gear"),
     ("kogalla",        "https://kogalla.com",                "gear"),
     ("squirrels",      "https://squirrelsnutbutter.com",     "gear"),
+    # added 2026-09-27
+    ("endurance",      "https://www.boutiqueendurance.ca",   "gear"),   # Boutique Endurance (QC running)
+    ("fitfirst",       "https://www.fitfirst.ca",            "gear"),   # Fit First Footwear (Calgary running)
     # socks
     ("feetures",       "https://www.feetures.com",           "socks"),
     ("balega",         "https://www.balega.com",             "socks"),
@@ -965,6 +968,40 @@ STORES = {
 for _st, _base, _kind in SHOPIFY_STORES:
     STORES[_st] = make_shopify_scraper(_st, _base, _kind)
 
+# Casual footwear some running stores also sell; not what people come here for.
+CASUAL_BRANDS = {"birkenstock", "wolky", "teva", "crocs", "ugg", "blundstone", "dr. martens", "clarks"}
+CASUAL_SHOE = re.compile(r"\b(sandal|sandale|clog|sabot|slipper|pantoufle|mule|flip[- ]flop|loafer)s?\b", re.I)
+
+def shoe_width_from_name(n, sx):
+    """Widths many stores put in the product name: "Bondi 9 (2E)", "880v15 (D)", "Clifton 10 Wide".
+    Returns "wide", "narrow" or "". Women's D is wide; men's D is the regular width."""
+    low = n.lower()
+    if re.search(r"\(\s*(2e|4e|6e|ee|eee|x-?wide|wide|extra wide)\s*\)|\b(x-?wide|extra wide|wide)\b|\blarge\b(?=.*\b(pied|chaussure)\b)", low):
+        return "wide"
+    if re.search(r"\(\s*(2a|aa|4a|narrow|n)\s*\)|\bnarrow\b|\b[ée]troit", low):
+        return "narrow"
+    if re.search(r"\(\s*d\s*\)", low):
+        women = "women" in (sx or []) and "men" not in (sx or [])
+        return "wide" if women or re.search(r"\bwom[ae]n|\bfemme", low) else ""
+    if re.search(r"\(\s*b\s*\)", low) and (re.search(r"(?<!wo)\bmen'?s?\b|\bhomme", low)):
+        return "narrow"
+    return ""
+
+def tidy_shoes(offers):
+    """Drop casual footwear and narrow-only shoes; mark wide ones from the product name."""
+    out = []
+    for o in offers:
+        if o["g"] == "shoes":
+            if (o["b"] or "").lower() in CASUAL_BRANDS or CASUAL_SHOE.search(o["n"]):
+                continue
+            w = shoe_width_from_name(o["n"], name_gender(o["n"]) or o.get("sx"))
+            if w == "narrow":
+                continue
+            if w == "wide":
+                o["w"] = True
+        out.append(o)
+    return out
+
 def name_gender(n):
     """Product names ("... - Women's", "Mens Pressio Tee") beat a store's gender tag, which is
     often "unisex" for women's-cut gear."""
@@ -983,6 +1020,7 @@ def mkey(o):
 
 def merge(offers):
     """Same product at several stores -> one item; each size keeps the cheapest store."""
+    offers = tidy_shoes(offers)
     items = {}
     for o in offers:
         o["sx"] = name_gender(o["n"]) or o["sx"]
