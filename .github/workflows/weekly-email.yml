@@ -3,7 +3,12 @@ name: Weekly deals email
 on:
   schedule:
     - cron: "7 14 * * 6"    # Saturdays 7:07am Vancouver in summer (6:07am in winter)
-  workflow_dispatch: {}      # "Run workflow" button for a test send
+  workflow_dispatch:         # "Run workflow" button for a test send
+    inputs:
+      send_to:
+        description: "Your email for a test (only you get it). Type everyone to send to all subscribers."
+        required: true
+        default: ""
 
 jobs:
   email:
@@ -23,4 +28,5 @@ jobs:
           SUPABASE_URL: "https://krwymmkauwqqxjxbvkyq.supabase.co"
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           MAILING_ADDRESS: ${{ secrets.MAILING_ADDRESS }}
+          SEND_TO: ${{ inputs.send_to }}
         run: python scraper/weekly_email.py
