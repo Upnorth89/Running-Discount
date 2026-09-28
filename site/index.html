@@ -115,6 +115,42 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
 .grp{margin:0 0 30px}
 .grp h2{display:flex;align-items:baseline;gap:10px;font:700 26px/1.1 var(--display);margin:0 0 10px}
 .grp h2 small{font:500 15px/1 var(--body);color:var(--muted)}
+/* "New since your last visit" vs the rest. A: new deals in one swipeable row. B: sticky section headings. */
+.newrow .grp.new .grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 16px;gap:10px;margin:0 -16px;padding:2px 16px 10px;scrollbar-width:thin}
+.newrow .grp.new h2{font-size:22px;flex-wrap:wrap;row-gap:2px}
+.newrow .grp.new h2 .swipe{white-space:nowrap}
+.newrow .grp.new .dw{flex:0 0 78%;max-width:300px;scroll-snap-align:start}
+@media(min-width:560px){.newrow .grp.new .dw{flex-basis:46%}}
+.newrow .grp.new{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:14px 16px 6px;margin:0 0 34px;overflow:hidden}
+.newrow .grp.new .deal{background:var(--mist)}
+.seeall{flex:0 0 42%;max-width:190px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:transparent;border:1.5px dashed var(--moss);border-radius:12px;color:var(--moss);font:800 22px/1.1 var(--display);cursor:pointer;scroll-snap-align:start;text-align:center;padding:12px;min-height:120px}
+.seeall small{font:500 14px var(--body);color:var(--muted)}
+.grp h2 .swipe{margin-left:auto;font:600 14px var(--body);color:var(--muted)}
+.grp h2 .linkbtn{margin-left:auto;font:600 14px var(--body);color:var(--moss);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer;min-height:32px}
+@media(min-width:900px){.grp h2 .swipe{display:none}}
+/* Calm top (returning visitors): sizes as one line, filters behind a button, new deals right under the title */
+.subhead{margin:0 0 2px;font:600 15px/1.4 var(--body);color:var(--ink)}
+.linkbtn{font:600 15px var(--body);color:var(--moss);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer;min-height:32px}
+.searchrow{display:flex;gap:8px;margin-top:10px}
+.searchrow .search{margin-top:0;flex:1}
+.filtbtn{display:none;position:relative;flex:0 0 auto;align-items:center;gap:6px;font:600 15px var(--body);color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:0 14px;min-height:44px;cursor:pointer}
+.filtbtn[aria-expanded="true"]{border-color:var(--ink)}
+.filtbtn .dot{width:8px;height:8px;border-radius:50%;background:var(--hivis);border:1.5px solid var(--ink)}
+.calm #sizePill,.calm .stats{display:none!important}
+.calm .filtbtn{display:inline-flex}
+.calm #filtersBox{display:flex;flex-direction:column}
+.calm #filtersBox .tools{order:3;margin-top:10px}
+.calm #filtersBox:not(.open) .tools{display:none}
+.calm h1{margin-top:14px}
+.calm .lede{margin-bottom:12px}
+.calm .watchnews{padding:8px 14px;font-size:14px;margin-bottom:12px}
+.calm .watchnews .btn{border:0;background:none;color:var(--moss);text-decoration:underline;padding:0;min-height:32px;font-size:15px}
+#newBox .grp{margin-bottom:18px}
+.lede .saved{color:var(--moss);font-weight:700}
+.tally{font-size:14px;color:var(--muted);text-align:center;margin-top:18px}
+.tally b{font:800 18px/1 var(--display);color:var(--moss)}
+.sticky .grp{border-top:2px solid var(--line);padding-top:4px}
+.sticky .grp h2{position:sticky;top:var(--tb,72px);z-index:5;background:var(--mist);padding:10px 0 8px;margin:0 0 6px;box-shadow:0 1px 0 var(--line)}
 .grp.sale h2::before{content:"";width:12px;height:12px;border-radius:3px;background:var(--hivis);border:1.5px solid var(--ink);align-self:center}
 .grid{display:grid;gap:10px}
 @media(min-width:560px){.grid{grid-template-columns:1fr 1fr}}
@@ -245,10 +281,12 @@ label.field{display:block;font-weight:600;font-size:15px;margin:0 0 6px}
   <button class="sizepill" id="sizePill" type="button" aria-haspopup="dialog"><span id="sizeSummary">Tell us what fits</span><span class="edit" data-i18n="edit">Edit</span></button>
   <button class="backlink hidden" id="backToDeals" type="button" data-i18n="allDeals">← All deals</button>
   <h1 id="pageTitle">On sale in your size</h1>
+  <p class="subhead hidden" id="subhead"></p>
   <p class="lede" id="lede">Loading today's gear…</p>
   <div class="watchnews hidden" id="watchNews"></div>
   <div class="stats hidden" id="stats"></div>
 
+  <div id="newBox"></div>
   <div id="filtersBox">
   <div class="chips scroll" id="cats" role="group" aria-label="Categories" data-i18n-aria="categories"></div>
   <div class="chips scroll tools">
@@ -259,10 +297,14 @@ label.field{display:block;font-weight:600;font-size:15px;margin:0 0 6px}
       <option value="price" data-i18n="sortPrice">Lowest price</option>
     </select>
   </div>
-  <input class="search" id="dSearch" type="search" placeholder="Search brand or model" aria-label="Search brand or model" data-i18n-ph="search" data-i18n-aria="search">
+  <div class="searchrow">
+    <input class="search" id="dSearch" type="search" placeholder="Search brand or model" aria-label="Search brand or model" data-i18n-ph="search" data-i18n-aria="search">
+    <button type="button" class="filtbtn" id="filtBtn" aria-expanded="false" aria-controls="filtersBox"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg><span data-i18n="filters">Filters</span><span class="dot hidden" id="filtDot"></span></button>
+  </div>
   </div>
 
   <div id="dealList"></div>
+  <p class="tally hidden" id="tally"></p>
   <p class="foot" id="dealsFoot"></p>
   <p class="foot" data-i18n="footer">The Gear Fox · Outfox full price · <a href="privacy.html">Privacy</a></p>
 </main>
@@ -391,6 +433,9 @@ en:{
   watchEmpty:"Tap the ♡ on any deal to watch it. We'll email you when it drops in price or comes back in your size.",
   pricesChange:"Prices and stock change daily; the product page has the final price.",
   newSince:n=>`<b>${n}</b> new since your last visit`,show:"Show",
+  filters:"Filters",ledeShort:(s,u,m)=>`${s} deals today${m?` · <b class="saved">${m} off</b> found so far`:""}${u?` · updated ${u}`:""}`,
+  watchShort:(d,b)=>"<b>Watchlist:</b> "+[d?`${d} price ${PL(d,"drop","drops")}`:"",b?`${b} back in your size`:""].filter(Boolean).join(" · "),see:"See",
+  swipe:"Swipe →",seeAll:n=>`See all ${n}`,asList:"as a list",asRow:"Show as a row",
   offTally:(m,n)=>`<b>${m}</b> off in the ${n} ${PL(n,"deal","deals")} you've opened`,
   titleWatch:"Your watchlist",titleDeals:"On sale in your size",
   gatedLede:"Pick your sizes and add your email to see today's deals.",unlock:"See deals in my size",
@@ -473,6 +518,9 @@ fr:{
   watchEmpty:"Touchez le ♡ sur une aubaine pour l'ajouter à vos favoris. On vous écrit quand le prix baisse ou quand votre taille revient.",
   pricesChange:"Les prix et les stocks changent chaque jour; le prix final est sur la page du produit.",
   newSince:n=>`<b>${n}</b> ${PL(n,"nouveauté","nouveautés")} depuis votre dernière visite`,show:"Voir",
+  filters:"Filtres",ledeShort:(s,u,m)=>`${s} aubaines aujourd'hui${m?` · <b class="saved">${m} de rabais</b> trouvés`:""}${u?` · mis à jour ${u}`:""}`,
+  watchShort:(d,b)=>"<b>Favoris :</b> "+[d?`${d} ${PL(d,"baisse de prix","baisses de prix")}`:"",b?`${b} de retour dans votre taille`:""].filter(Boolean).join(" · "),see:"Voir",
+  swipe:"Glissez →",seeAll:n=>`Voir les ${n}`,asList:"en liste",asRow:"Afficher en rangée",
   offTally:(m,n)=>`<b>${m}</b> de rabais sur ${PL(n,"l'aubaine que vous avez ouverte",`les ${n} aubaines que vous avez ouvertes`)}`,
   titleWatch:"Vos favoris",titleDeals:"En solde à votre taille",
   gatedLede:"Choisissez vos tailles et entrez votre courriel pour voir les aubaines du jour.",unlock:"Voir les aubaines à ma taille",
@@ -745,7 +793,16 @@ fetch("deals.json",{cache:"no-store"}).then(r=>r.json()).then(d=>{DATA=d;ITEMS=d
 const PAGE=8, MORE=24;
 const WORD={"ONE SIZE":"OS","O/S":"OS","X-SMALL":"XS","XSMALL":"XS","SMALL":"S","MEDIUM":"M","LARGE":"L","X-LARGE":"XL","XLARGE":"XL"};
 function norm(s){s=String(s).trim().toUpperCase();s=WORD[s]||s;return s.replace("XXXL","3XL").replace("XXL","2XL").replace("XXS","2XS")}
-const view={saleOnly:false,sort:"match",q:"",open:{},watch:false};
+const view={saleOnly:false,sort:"match",q:"",open:{},watch:false,newAll:false};
+const NEWSTYLE_DEFAULT="row";                              // "row" (A) or "sticky" (B)
+const NEWSTYLE=LS0("gf-newstyle")||NEWSTYLE_DEFAULT;
+document.body.classList.add(NEWSTYLE==="row"?"newrow":"sticky");
+const TOP_DEFAULT="calm";                                  // "calm" or "full" (the older, busier top)
+const TOP=LS0("gf-top")||TOP_DEFAULT;
+const CALM=TOP==="calm";
+if(CALM)document.body.classList.add("calm");
+function setTb(){const tb=document.querySelector(".topbar");if(tb)document.documentElement.style.setProperty("--tb",tb.offsetHeight+"px")}
+setTb();addEventListener("resize",setTb);
 /* Prices are stored in CAD. The CAD/USD switch converts for display with the day's rate from the refresh. */
 let CUR=LS0("gf-cur")||"CAD";
 const usdRate=()=>(DATA&&DATA.fx&&DATA.fx.USD)||1.38;
@@ -828,8 +885,14 @@ function card(d,extra){
 }
 function section(key,title,list,cls){
   if(!list.length)return "";
+  if(key==="__new"&&NEWSTYLE==="row"&&!view.newAll){       // one swipeable row, then "See all" as a list
+    const n=list.length,row=list.slice(0,24);
+    return `<section class="grp ${cls||""}"><h2>${title} <small>${num(n)}</small>${n>1?`<span class="swipe" aria-hidden="true">${t("swipe")}</span>`:""}</h2><div class="grid">${row.map(d=>card(d)).join("")}
+      ${n>1?`<button type="button" class="seeall" data-newall>${t("seeAll",num(n))}<small>${t("asList")}</small></button>`:""}</div></section>`;
+  }
   const lim=view.open[key]||PAGE;
-  return `<section class="grp ${cls||""}"><h2>${title} <small>${num(list.length)}</small></h2><div class="grid">${list.slice(0,lim).map(d=>card(d)).join("")}</div>
+  const tail=key==="__new"&&NEWSTYLE==="row"?`<button type="button" class="linkbtn" data-newrow>${t("asRow")}</button>`:"";
+  return `<section class="grp ${cls||""}"><h2>${title} <small>${num(list.length)}</small>${tail}</h2><div class="grid">${list.slice(0,lim).map(d=>card(d)).join("")}</div>
     ${list.length>lim?`<button class="btn more" data-open="${key}">${t("showMore",Math.min(MORE,list.length-lim))}</button>`:""}</section>`;
 }
 
@@ -853,7 +916,13 @@ $("toggles").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!
   view.open={};renderAll()});
 $("sort").addEventListener("change",e=>{view.sort=e.target.value;view.open={};renderAll()});
 let searchT;$("dSearch").addEventListener("input",e=>{clearTimeout(searchT);searchT=setTimeout(()=>{view.q=e.target.value;view.open={};renderAll()},200)});
-$("dealList").addEventListener("click",e=>{const b=e.target.closest("[data-open]");if(!b)return;const k=b.dataset.open;view.open[k]=(view.open[k]||PAGE)+MORE;renderAll()});
+$("newBox").addEventListener("click",e=>{
+  if(e.target.closest("[data-newall]")){view.newAll=true;renderAll();const s=document.querySelector("#dealList .grp.new");if(s)s.scrollIntoView({block:"start"})}});
+$("filtBtn").addEventListener("click",()=>{const f=$("filtersBox"),o=!f.classList.contains("open");f.classList.toggle("open",o);$("filtBtn").setAttribute("aria-expanded",String(o))});
+$("dealList").addEventListener("click",e=>{
+  if(e.target.closest("[data-newall]")){view.newAll=true;renderAll();return}
+  if(e.target.closest("[data-newrow]")){view.newAll=false;renderAll();const s=document.querySelector(".grp.new");if(s)s.scrollIntoView({block:"start"});return}
+  const b=e.target.closest("[data-open]");if(!b)return;const k=b.dataset.open;view.open[k]=(view.open[k]||PAGE)+MORE;renderAll()});
 
 /* ---------- watchlist: saved on this device, synced to the server once the email is confirmed ---------- */
 const HEART='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 6.9 4.5c2.1 0 3.6 1.2 5.1 3 1.5-1.8 3-3 5.1-3 3.5 0 5.5 3.5 4.2 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>';
@@ -885,9 +954,9 @@ async function syncWatches(){
     saveWatches();renderAll();
   }catch(e){}
 }
-$("dealList").addEventListener("click",e=>{const h=e.target.closest(".heart");if(!h)return;e.preventDefault();e.stopPropagation();
+["dealList","newBox"].forEach(id=>$(id).addEventListener("click",e=>{const h=e.target.closest(".heart");if(!h)return;e.preventDefault();e.stopPropagation();
   toggleWatch(h.dataset.key);const on=!!watches[h.dataset.key];
-  if(view.watch)renderAll();else{h.setAttribute("aria-pressed",String(on))}});
+  if(view.watch)renderAll();else{document.querySelectorAll(`.heart[data-key="${CSS.escape(h.dataset.key)}"]`).forEach(x=>x.setAttribute("aria-pressed",String(on)))}}));
 function setWatchView(on){view.watch=on;$("openWatch").setAttribute("aria-pressed",String(on));view.open={};renderAll();window.scrollTo({top:0})}
 $("openWatch").addEventListener("click",()=>setWatchView(!view.watch));
 $("backToDeals").addEventListener("click",()=>setWatchView(false));
@@ -912,7 +981,8 @@ function renderWatchButton(){
   if(ch.length&&!view.watch){
     const drops=ch.filter(x=>!x.back).length,backs=ch.filter(x=>x.back).length;
     const txt=[drops?t("dropsTxt",drops):"",backs?t("backsTxt",backs):""].filter(Boolean).join(t("and"));
-    box.innerHTML=`<span><b>${t("goodNews")}</b> ${txt}.</span><button type="button" class="btn" id="seeWatch">${t("seeThem")}</button>`;
+    box.innerHTML=CALM?`<span>${t("watchShort",drops,backs)}</span><button type="button" class="btn" id="seeWatch">${t("see")}</button>`
+      :`<span><b>${t("goodNews")}</b> ${txt}.</span><button type="button" class="btn" id="seeWatch">${t("seeThem")}</button>`;
     box.classList.remove("hidden");$("seeWatch").addEventListener("click",()=>setWatchView(true));
   }else box.classList.add("hidden");
 }
@@ -955,7 +1025,13 @@ function computeNew(onSale){
 /* Money off in deals you've opened (it's what you found, not what you spent). */
 let clicks=LS.get("gf-clicks")||{};
 function recordClick(k){const d=RENDERED[k];if(!d||!d.pct||clicks[k])return;clicks[k]=Math.round((d.reg-d.best)*100)/100;LS.set("gf-clicks",clicks)}
+/* Calm top: "421 deals today · $150 off found so far · updated 3 h ago" */
+let saleNow=0;
+function setCalmLede(){if(!DATA||gated()||view.watch)return;
+  const off=Object.values(clicks).reduce((a,b)=>a+b,0);
+  $("lede").innerHTML=t("ledeShort",num(saleNow),DATA.updated?ago(DATA.updated):"",off>=1?money(Math.round(off)).replace(/[.,]00/,""):"")}
 function renderStats(){
+  if(CALM){$("tally").classList.add("hidden");$("stats").classList.add("hidden");setCalmLede();return}
   const el=$("stats");const parts=[];
   if(NEWSET.size)parts.push(`<span class="stat">${t("newSince",num(NEWSET.size))} <button type="button" id="jumpNew">${t("show")}</button></span>`);
   const off=Object.values(clicks).reduce((a,b)=>a+b,0),n=Object.keys(clicks).length;
@@ -963,13 +1039,17 @@ function renderStats(){
   el.innerHTML=parts.join("");el.classList.toggle("hidden",!parts.length);
   const j=$("jumpNew");if(j)j.addEventListener("click",()=>{const s=document.querySelector(".grp.new");if(s)s.scrollIntoView({behavior:"smooth",block:"start"})});
 }
-$("dealList").addEventListener("click",e=>{const a=e.target.closest("a.deal");if(!a)return;const h=a.parentNode.querySelector(".heart");
+["dealList","newBox"].forEach(id=>$(id).addEventListener("click",e=>{const a=e.target.closest("a.deal");if(!a)return;const h=a.parentNode.querySelector(".heart");
   const d=h&&RENDERED[h.dataset.key];
   track("deal-click",{store:storeOf(a.href),brand:d?d.b:"",group:d?d.g:"",pct:d?d.pct:0,view:view.watch?"watchlist":"shop"});
-  if(h){recordClick(h.dataset.key);setTimeout(renderStats,0)}},true);
+  if(h){recordClick(h.dataset.key);setTimeout(renderStats,0)}},true));
 
 function renderAll(){
   $("sizeSummary").textContent=sizeSummary();
+  $("newBox").innerHTML="";
+  const sh=$("subhead");sh.classList.toggle("hidden",!CALM||!!view.watch||gated());
+  if(CALM){sh.innerHTML=`${esc(sizeSummary())} · <button type="button" class="linkbtn" id="editSz">${t("edit")}</button>`;$("editSz").addEventListener("click",openSheet);
+    const dirty=state.ships==="all"||view.saleOnly||view.sort!=="match";$("filtDot").classList.toggle("hidden",!dirty)}
   const w=!!view.watch;
   $("filtersBox").classList.toggle("hidden",w);$("backToDeals").classList.toggle("hidden",!w);
   $("pageTitle").textContent=w?t("titleWatch"):t("titleDeals");
@@ -988,11 +1068,14 @@ function renderAll(){
   if(q.length)all=all.filter(d=>{const t=(d.b+" "+d.n).toLowerCase();return q.every(w=>t.includes(w))});
   const onSale=all.filter(d=>d.pct>0);
   const where=state.ships==="all"?t("storesAll"):t("storesCA");
-  $("lede").textContent=t("lede",num(onSale.length),num(all.length),where,DATA.updated?ago(DATA.updated):"");
+  saleNow=onSale.length;
+  if(CALM)setCalmLede();
+  else $("lede").textContent=t("lede",num(onSale.length),num(all.length),where,DATA.updated?ago(DATA.updated):"");
   computeNew(onSale);renderStats();renderWatchButton();
   const shown=(view.saleOnly?onSale:all).slice().sort(SORTS[view.sort]);
   const parts=[];
-  if(!q.length)parts.push(section("__new",t("secNew"),onSale.filter(d=>NEWSET.has(itemKey(d))).sort(SORTS.discount),"new"));
+  if(!q.length){const ns=section("__new",t("secNew"),onSale.filter(d=>NEWSET.has(itemKey(d))).sort(SORTS.discount),"new");
+    if(CALM&&NEWSTYLE==="row"&&!view.newAll)$("newBox").innerHTML=ns;else parts.push(ns)}
   if(!view.saleOnly)parts.push(section("__sale",t("secSale"),onSale.slice().sort(SORTS[view.sort==="price"?"price":"discount"]),"sale"));
   ORDER.filter(g=>p.groups.includes(g)).forEach(g=>parts.push(section(g,GL(g),shown.filter(d=>d.g===g))));
   const body=parts.filter(Boolean);
