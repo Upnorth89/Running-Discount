@@ -203,6 +203,7 @@ label.field{display:block;font-weight:600;font-size:15px;margin:0 0 6px}
 .wdeal .wp .cur{font:600 11px var(--body);color:var(--muted);letter-spacing:.04em}
 .wdeal .wp s{display:block;font:400 13px var(--body);color:var(--muted)}
 .wdeal .pct{font:800 16px/1 var(--display);background:var(--hivis);color:var(--hivis-ink);border:1.5px solid var(--ink);border-radius:6px;padding:3px 6px}
+.wsign{margin:6px 0 -8px;text-align:center}
 .tease{filter:blur(3px);opacity:.7;pointer-events:none;user-select:none}
 .sheetfoot{position:sticky;bottom:0;z-index:2;margin:20px -20px 0;padding:12px 20px calc(14px + env(safe-area-inset-bottom,0px));background:var(--card);border-top:1.5px solid var(--line);box-shadow:0 -8px 16px -12px rgba(0,0,0,.35)}
 .sheetfoot .gerr{margin:0 0 10px}
@@ -285,7 +286,7 @@ label.field{display:block;font-weight:600;font-size:15px;margin:0 0 6px}
       <label class="field" for="signinEmail" data-i18n="yourEmail">Your email</label>
       <input id="signinEmail" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" data-i18n-ph="emailPh">
       <p class="fine" data-i18n="signinFine">We'll email you a link that opens your deals and sizes on this device.</p>
-      <p class="already"><button type="button" id="toSignup" data-i18n="newHere">New here? Sign up instead</button></p>
+      <p class="already"><button type="button" id="toSignup" data-i18n="newHere">New here? Find my deals instead</button></p>
     </div>
     <div id="welcomePart" class="hidden">
       <div class="wstats" id="wStats"></div>
@@ -331,6 +332,7 @@ label.field{display:block;font-weight:600;font-size:15px;margin:0 0 6px}
       <p class="livecount hidden" id="liveCount" aria-live="polite"></p>
       <p class="gerr hidden" id="gateErr" role="alert"></p>
       <button class="primary go" id="saveSizes" type="button">Show my deals</button>
+      <p class="already wsign hidden" id="wSignin"><span data-i18n="memberQ">Already a member?</span> <button type="button" id="toSignin2" data-i18n="signIn">Sign in</button></p>
       <p class="subline" id="subLine"></p>
     </div>
   </div>
@@ -408,7 +410,7 @@ en:{
   s2Title:"Where should we send your deals?",s2Intro:"Your deals open right away. Every Saturday we'll email the best ones in your sizes.",
   cTitle:"Deals in your size",cIntro:"Sign up free, or sign back in. We'll ask your sizes only once.",cContinue:"Continue",
   cSizesIntro:"Last step: pick your fit and sizes.",
-  wTitle:"Your size. On sale. Every day.",wIntro:n=>`We scan ${n} running and outdoor stores every morning and show you only what's on sale in your size.`,
+  wTitle:"Your size. On sale. Every day.",wIntro:()=>"Every morning we check running and outdoor stores across Canada and show you only what's on sale in your size.",
   wGo:"Find my deals",wOr:"or with Google, one tap",wOnSale:"on sale today",wUpTo:p=>`up to ${p}%`,wOff:"off right now",wStores:"stores checked daily",
   liveAll:n=>`<b>${n}</b> deals on sale today`,liveYou:n=>`<b>${n}</b> deals on sale in your size right now`,
   seeN:n=>`See my ${n} deals`,
@@ -417,7 +419,8 @@ en:{
   gateFineG:'You\'ll get one email every Saturday with the best deals in your sizes. Unsubscribe with one tap. <a href="privacy.html">Privacy</a>',gPick:"Pick your fit and at least one size, then tap the orange button.",
   gWelcome:"<b>Welcome back.</b> Your sizes and watchlist are loaded on this device.",gFail:"Google sign-in didn't work. Use your email instead.",
   gIn:"<b>You're in.</b> Your first deals email arrives Saturday morning.",
-  alreadyQ:"Already signed up?",getLink:"Get your link",yourEmail:"Your email",newHere:"New here? Sign up instead",
+  memberQ:"Already a member?",signIn:"Sign in",
+  alreadyQ:"Already signed up?",getLink:"Get your link",yourEmail:"Your email",newHere:"New here? Find my deals instead",
   signinFine:"We'll email you a link that opens your deals and sizes on this device.",signinTitle:"Welcome back",
   signinIntro:"Enter the email you signed up with.",emailLink:"Email me my link",
   linkSent:e=>`<b>Check your inbox.</b> We sent a link to ${e}. Tap it to open your deals and sizes on this device.`,
@@ -489,7 +492,7 @@ fr:{
   s2Title:"Où envoyer vos aubaines?",s2Intro:"Vos aubaines s'ouvrent tout de suite. Chaque samedi, on vous envoie les meilleures dans vos tailles.",
   cTitle:"Des aubaines à votre taille",cIntro:"Abonnez-vous gratuitement ou reconnectez-vous. On vous demande vos tailles une seule fois.",cContinue:"Continuer",
   cSizesIntro:"Dernière étape : choisissez votre coupe et vos tailles.",
-  wTitle:"Votre taille. En solde. Chaque jour.",wIntro:n=>`Chaque matin, on parcourt plus de ${n.replace("+","")} boutiques de course et de plein air et on vous montre seulement ce qui est en solde dans votre taille.`,
+  wTitle:"Votre taille. En solde. Chaque jour.",wIntro:()=>"Chaque matin, on parcourt les boutiques de course et de plein air partout au Canada et on vous montre seulement ce qui est en solde dans votre taille.",
   wGo:"Trouver mes aubaines",wOr:"ou avec Google, en un clic",wOnSale:"en solde aujourd'hui",wUpTo:p=>`jusqu'à ${p} %`,wOff:"de rabais en ce moment",wStores:"boutiques vérifiées chaque jour",
   liveAll:n=>`<b>${n}</b> aubaines en solde aujourd'hui`,liveYou:n=>`<b>${n}</b> aubaines en solde dans votre taille en ce moment`,
   seeN:n=>`Voir mes ${n} aubaines`,
@@ -498,7 +501,8 @@ fr:{
   gateFineG:'Vous recevrez un courriel chaque samedi avec les meilleures aubaines dans vos tailles. Désabonnement en un clic. <a href="privacy.html">Confidentialité</a>',gPick:"Choisissez votre coupe et au moins une taille, puis touchez le bouton orange.",
   gWelcome:"<b>Bon retour!</b> Vos tailles et vos favoris sont chargés sur cet appareil.",gFail:"La connexion Google n'a pas fonctionné. Utilisez plutôt votre courriel.",
   gIn:"<b>C'est fait.</b> Votre premier courriel d'aubaines arrive samedi matin.",
-  alreadyQ:"Déjà abonné?",getLink:"Recevoir votre lien",yourEmail:"Votre courriel",newHere:"Nouveau? Abonnez-vous plutôt",
+  memberQ:"Déjà membre?",signIn:"Se connecter",
+  alreadyQ:"Déjà abonné?",getLink:"Recevoir votre lien",yourEmail:"Votre courriel",newHere:"Nouveau? Trouvez plutôt vos aubaines",
   signinFine:"On vous envoie un lien qui ouvre vos aubaines et vos tailles sur cet appareil.",signinTitle:"Bon retour",
   signinIntro:"Entrez le courriel avec lequel vous vous êtes abonné.",emailLink:"M'envoyer mon lien",
   linkSent:e=>`<b>Vérifiez vos courriels.</b> On a envoyé un lien à ${e}. Cliquez dessus pour ouvrir vos aubaines et vos tailles sur cet appareil.`,
@@ -585,6 +589,7 @@ $("brandInput").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefa
 let signinMode=false;
 $("toSignin").addEventListener("click",()=>{signinMode=true;openSheet();setTimeout(()=>$("signinEmail").focus(),60)});
 $("toSignup").addEventListener("click",()=>{signinMode=false;openSheet()});
+$("toSignin2").addEventListener("click",()=>{signinMode=true;openSheet();setTimeout(()=>$("signinEmail").focus(),60)});
 function gated(){return !(sub&&(sub.key||sub.pending))}     // first visit: sizes + email before any deals
 function gateErr(msg,el){const e=$("gateErr");e.textContent=msg||"";e.classList.toggle("hidden",!msg);
   document.querySelectorAll("#sheet .need").forEach(x=>x.classList.remove("need"));
@@ -638,7 +643,7 @@ function openSheet(){lastFocus=document.activeElement;renderSheet();
   if(si){title=t("signinTitle");intro=t("signinIntro");btn=t("emailLink")}
   $("sizesPart").classList.toggle("hidden",!showSizes);$("welcomePart").classList.toggle("hidden",!showWelcome);
   $("gateBox").classList.toggle("hidden",!showGate);$("closeSheet").classList.toggle("hidden",g);
-  const showAlready=g&&!si&&(FLOW==="A"||(FLOW!=="C"&&step<=1));
+  const showAlready=g&&!si&&FLOW==="A";
   $("already").classList.toggle("hidden",!showAlready);$("signinBox").classList.toggle("hidden",!si);$("signupParts").classList.toggle("hidden",si);
   $("sheetTitle").textContent=title;
   document.querySelector("#sheet .intro").innerHTML=intro;
@@ -649,7 +654,7 @@ function openSheet(){lastFocus=document.activeElement;renderSheet();
   renderLive();
   if(g)$("gateEmail").value=state.email||"";
   const gOn=G.ready&&g;$("gUp").classList.toggle("hidden",!gOn||!!gSession);$("gIn").classList.toggle("hidden",!gOn);
-  $("gW").classList.toggle("hidden",!gOn||!!gSession||!showWelcome);
+  $("gW").classList.add("hidden");$("wSignin").classList.toggle("hidden",!showWelcome);
   $("gSigned").classList.toggle("hidden",!gSession);if(gSession)$("gSigned").innerHTML=t("gSigned",esc(gSession.email));
   $("gateEmail").classList.toggle("hidden",!!gSession);
   document.querySelector('#gateBox [data-i18n="gateFine"]').innerHTML=gSession?t("gateFineG"):t("gateFine");
