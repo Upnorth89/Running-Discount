@@ -49,6 +49,18 @@ def norm(s):
     s = WORD.get(s, s)
     return s.replace("XXXL", "3XL").replace("XXL", "2XL").replace("XXS", "2XS")
 
+SHOE_KEY = re.compile(r"^(?:([MW]):)?(\d+(?:\.5)?)(?:~([WN]))?$")
+
+def size_url(d, e):
+    """The product page with this size already selected, when the store gives each size its own link."""
+    u = d["of"][e[2]] if len(d["of"]) > e[2] else d["of"][0]
+    if len(e) > 4 and e[4]:
+        from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
+        sp = urlsplit(u)
+        q = [(k, v) for k, v in parse_qsl(sp.query) if k != "variant"] + [("variant", str(e[4]))]
+        u = urlunsplit(sp._replace(query=urlencode(q)))
+    return u
+
 def match(items, p):
     """Mirror of matchItems() on the site: items in stock in the profile's sizes, with best price."""
     favs = {b.lower() for b in p.get("brands") or []}
@@ -68,10 +80,23 @@ def match(items, p):
             want = {norm(x) for x in spec.get("sizes") or []}
             if d["g"] == "shoes":
                 w = spec.get("width") or []
-                wide, reg = "Wide" in w, (not w or "Regular" in w)
-                if (d["w"] and not wide) or (not d["w"] and not reg):
-                    continue
-            ok = [e for e in d["sz"] if e[0] == "OS" or norm(e[0]) in want]
+                want_wide, want_reg = "Wide" in w, (not w or "Regular" in w)
+                G = {"men": "M", "women": "W"}.get(gender or "", "")
+                def fits(e):
+                    if e[0] == "OS":
+                        return True
+                    k = SHOE_KEY.match(str(e[0]))
+                    if not k or k.group(3) == "N":
+                        return False
+                    if k.group(1) and G and k.group(1) != G:
+                        return False
+                    wide = k.group(3) == "W" or (not k.group(3) and d["w"])
+                    if (wide and not want_wide) or (not wide and not want_reg):
+                        return False
+                    return k.group(2) in want
+                ok = [e for e in d["sz"] if fits(e)]
+            else:
+                ok = [e for e in d["sz"] if e[0] == "OS" or norm(e[0]) in want]
         if not ok:
             continue
         pick = min(ok, key=lambda e: (e[1], -(e[3] if len(e) > 3 else e[1])))
@@ -81,7 +106,7 @@ def match(items, p):
             continue
         pct = round(100 * (1 - best / reg)) if reg > best else 0
         out.append({**d, "best": best, "reg": reg, "pct": pct, "ok": ok,
-                    "url": d["of"][pick[2]] if len(d["of"]) > pick[2] else d["of"][0],
+                    "url": size_url(d, pick),
                     "fav": d["b"].lower() in favs})
     return out
 
@@ -138,13 +163,21 @@ def group_label(g, lang="en"):
     return GROUP_FR.get(g, GROUP_LABEL[g]) if lang == "fr" else GROUP_LABEL[g]
 
 
+def shoe_label(s, lang="en"):
+    k = SHOE_KEY.match(str(s))
+    if not k:
+        return str(s)
+    return (k.group(1) or "") + k.group(2) + ((" large" if lang == "fr" else " wide") if k.group(3) == "W" else "")
+
 def sizes_label(d, lang="en"):
-    labels = list(dict.fromkeys(e[0] for e in d["ok"]))
+    both = d["g"] == "shoes" and len({str(e[0])[:2] for e in d["ok"] if str(e[0])[:2] in ("M:", "W:")}) > 1
+    labels = list(dict.fromkeys((shoe_label(e[0], lang) if both else re.sub(r"^[MW](?=\d)", "", shoe_label(e[0], lang)))
+                                if d["g"] == "shoes" else e[0] for e in d["ok"]))
     if d["g"] in SIZED:
         order = ["2XS", "XS", "S", "M", "L", "XL", "2XL", "3XL"]
         def k(v):
             try:
-                return (0, float(v))
+                return (0, float(re.sub(r"^[MW]|\s.*$", "", v)))
             except ValueError:
                 return (1, order.index(norm(v)) if norm(v) in order else 99)
         labels.sort(key=k)

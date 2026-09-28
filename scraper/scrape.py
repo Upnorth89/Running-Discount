@@ -90,6 +90,57 @@ def norm_size(s):
     s = str(s or "").strip()
     return WORD.get(s.upper(), s)
 
+# ---------------------------------------------------------------- shoe sizes
+# Stores write shoe sizes many ways. Every label becomes zero or more standard keys:
+#   "10"      US size, for whatever gender the product is
+#   "M:10"    men's US 10 / "W:11" women's US 11 (from unisex labels like "10 H / 11 F")
+#   "…~W"     wide width, "…~N" narrow (the site never shows narrow; there's no narrow option)
+# Anything we can't read with confidence (kids, EU/UK-only, fractions) gives no key rather than a wrong match.
+def _us(n):
+    try:
+        v = float(n.replace("½", ".5").replace(",", "."))
+    except ValueError:
+        return None
+    if not (3 <= v <= 17) or (v * 2) % 1:
+        return None
+    return str(int(v)) if v == int(v) else str(v)
+
+def canon_shoe(label):
+    t = str(label or "").strip().replace("½", ".5")
+    if not t or t.upper() in ("OS", "ONE SIZE"):
+        return ["OS"]
+    low = t.lower()
+    if re.search(r"\d\s*k\b|\bkids?\b|\byouth\b|\btoddler\b|\binfant\b|\d+\s+\d/\d", low):
+        return []                                           # kids' sizes, EU/UK fractions
+    width = ""
+    if re.search(r"x-?wide|extra wide|\b4e\b|\d4e\b", low) or re.search(r"\bwide\b|\b2e\b|\d2e\b|\bee\b|\d\s?ee\b", low):
+        width = "~W"
+    elif re.search(r"\bnarrow\b|\d\s?[a2]a\b", low):
+        width = "~N"
+    # both genders in one label: "5.0 H / 6.0 F", "US M 4.5 / W 5.5", "W7/M5.5", "US M5.5 / US W6.5 / UK 5 / EU 38"
+    m = re.search(r"(?:us\s*)?m(?:en'?s?)?\s*(\d+(?:\.\d)?)\b", low) if re.search(r"(?<![a-z])w(?:omen'?s?)?\s*\d", low) else None
+    f = re.search(r"(?:us\s*)?w(?:omen'?s?)?\s*(\d+(?:\.\d)?)\b", low) if m else None
+    if not (m and f):
+        m = re.search(r"(\d+(?:\.\d)?)\s*h\b", low); f = re.search(r"(\d+(?:\.\d)?)\s*f\b", low)
+    if m and f:
+        out = []
+        if _us(m.group(1)): out.append("M:" + _us(m.group(1)) + width)
+        if _us(f.group(1)): out.append("W:" + _us(f.group(1)) + width)
+        return out
+    # one gender named: "Men / 7.5", "Women / 5.5", "W6", "US W5.5", "M10", "Men's 10"
+    m = re.match(r"^(?:us\s*)?(men'?s?|women'?s?|m|w)\s*[/:-]?\s*(\d+(?:\.\d)?)\b", low)
+    if m:
+        v = _us(m.group(2))
+        return [("W:" if m.group(1).startswith("w") else "M:") + v + width] if v else []
+    # "Medium / 7.0", "Wide / 10.5", "10.5 Wide", "11D", "10.5B", "11 2E", "US 10", "8.0"
+    t2 = re.sub(r"(?i)\b(medium|regular|standard|wide|x-?wide|extra wide|narrow)\b", " ", t)
+    t2 = re.sub(r"(?i)^\s*us\s*", "", t2).strip(" /|-")
+    m = re.match(r"^(\d+(?:[.,]\d)?)\s*(?:\+|[a-e]|[24]e|ee)?\s*$", t2, re.I)
+    if m:
+        v = _us(m.group(1))
+        return [v + width] if v else []
+    return []
+
 # ---------------------------------------------------------------- Altitude / Last Hunt (same Next.js + commercetools platform)
 
 # ---------------------------------------------------------------- Altitude / Last Hunt (same Next.js + commercetools platform)
@@ -305,7 +356,7 @@ def shopify_items(st, base, prods, group_fn, fx=1.0, size_aware=False, size_fn=N
                 rest = " / ".join(x for x in (v.get("option2"), v.get("option3")) if x)
                 key = o1 if len(opts) > 1 else ""
                 label = rest if len(opts) > 1 else o1
-            if size_fn:
+            if size_fn and g != "shoes":        # shoe labels are read by canon_shoe() in merge()
                 label = size_fn(label)
             if collapse and si is not None:
                 key = ""                  # one card per product; colours folded together
@@ -323,13 +374,13 @@ def shopify_items(st, base, prods, group_fn, fx=1.0, size_aware=False, size_fn=N
             m2 = re.match(r"^(2?XS|S|M|L|XL|2XL|XXL)\s*[-/]\s*(S|M|L|XL|2XL|XXL|3XL)$", lab.strip(), re.I)
             for one in ([m2.group(1).upper(), m2.group(2).upper()] if m2 and g != "headwear" else [lab]):  # "S - M" fits S and M
                 if one not in b["sz"] or cad < b["sz"][one][0]:
-                    b["sz"][one] = (cad, reg)
+                    b["sz"][one] = (cad, reg, v["id"])
             b["bb"] = b["bb"] or bb
         for key, b in buckets.items():
             out.append({"st": st, "b": p.get("vendor") or "", "n": p["title"] + (f" · {key}" if key else ""),
                         "u": f"{base}/products/{p['handle']}?variant={b['vid']}", "g": g, "sx": [], "w": False,
                         "img": img, "lp": round(b["lp"] * fx, 2), "bb": b["bb"],
-                        "sz": [[k, pr, rg] for k, (pr, rg) in b["sz"].items()]})
+                        "sz": [[k, pr, rg, vid] for k, (pr, rg, vid) in b["sz"].items()]})
     return out
 
 FEED_FOOD = {"Gels", "Hydration", "Bars", "Chews", "Waffles", "Protein", "Breakfast", "Snacks", "Pack", "Drink Mix", "Recovery"}
@@ -946,14 +997,20 @@ def merge(offers):
         it["img"] = it["img"] or o.get("img")
         it["bb"] = it["bb"] or o.get("bb")
         it["sx"] = sorted(set(it["sx"]) | set(o["sx"]))
-        for size, price, reg in o["sz"]:
-            cur = it["sz"].get(size)
-            if cur is None or price < cur[0]:
-                it["sz"][size] = (price, oi, reg)
+        for e in o["sz"]:
+            size, price, reg = e[0], e[1], e[2]
+            vid = e[3] if len(e) > 3 else None
+            keys = canon_shoe(size) if o["g"] == "shoes" else [size]
+            for k in keys:
+                cur = it["sz"].get(k)
+                if cur is None or price < cur[0]:
+                    it["sz"][k] = (price, oi, reg, vid)
     out = []
     for it in items.values():
-        it["sz"] = [[s, p, i, r] for s, (p, i, r) in it["sz"].items()]
-        out.append(it)
+        # [size, price, offer, regular] plus the size's own variant id when the store has one
+        it["sz"] = [[s, p, i, r] + ([v] if v else []) for s, (p, i, r, v) in it["sz"].items()]
+        if it["sz"]:
+            out.append(it)
     return out
 
 def main():
@@ -981,7 +1038,7 @@ def main():
                 o.setdefault("ca", st in CA_STORES)
             raw[st] = got
             stamps[st] = now()
-            n_sale = sum(1 for o in got if any(p < r * 0.99 for _, p, r in o["sz"]))
+            n_sale = sum(1 for o in got if any(e[1] < e[2] * 0.99 for e in o["sz"]))
             print(f"{st}: {len(got)} items ({n_sale} on sale) in {time.time()-t:.0f}s", file=sys.stderr)
         except Exception as e:
             failed.append(st)
@@ -1009,7 +1066,7 @@ def main():
     print(f"stores OK ({len(ok)}): {', '.join(ok)}", file=sys.stderr)
     if failed:
         print(f"stores skipped ({len(failed)}): {', '.join(failed)}", file=sys.stderr)
-    n_sale = sum(1 for i in items if any(p < r * 0.99 for _, p, _, r in i["sz"]))
+    n_sale = sum(1 for i in items if any(e[1] < e[3] * 0.99 for e in i["sz"]))
     print(f"wrote {len(items)} items ({n_sale} on sale) from {len(offers)} store listings to {OUT}", file=sys.stderr)
     return 1 if len(failed) == len(STORES) else 0
 

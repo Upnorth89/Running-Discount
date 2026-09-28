@@ -754,6 +754,16 @@ function money(v){
 }
 const curTag=()=>`<span class="cur">${CUR}</span>`;
 
+/* Shoe sizes come standardised from the refresh: "10", "M:10" / "W:11" (men's / women's from unisex labels),
+   "~W" wide, "~N" narrow. */
+function shoeKey(s){const m=/^(?:([MW]):)?(\d+(?:\.5)?)(?:~([WN]))?$/.exec(String(s));return m?{g:m[1]||"",n:m[2],w:m[3]||""}:null}
+function sizeLabel(s,g){const k=shoeKey(s);if(!k)return s;
+  return (k.g&&g!=="men"&&g!=="women"?k.g:"")+k.n+(k.w==="W"?(LANG==="fr"?" large":" wide"):"")}
+/* Open the product with the shopper's size already picked when the store gives each size its own link. */
+function sizeUrl(d,e){
+  const u=d.of[e[2]]||d.of[0];if(!e||e.length<5||!u)return u;
+  try{const x=new URL(u);x.searchParams.set("variant",e[4]);return x.toString()}catch(err){return u}
+}
 /* Every item in stock in the profile's sizes, with its best price, the regular price of that size,
    the % off, and the store link that has that price. Same rules as the weekly email. */
 function matchItems(p,list){
@@ -768,17 +778,24 @@ function matchItems(p,list){
     if(SIZED.has(d.g)){
       const sz=p.sizes[d.g]||{}, want=(sz.sizes||[]).map(norm);
       if(d.g==="shoes"){
-        const w=sz.width||[], wide=w.includes("Wide"), reg=!w.length||w.includes("Regular");
-        if(d.w?!wide:!reg)continue;
-      }
-      ok=d.sz.filter(([s])=>s==="OS"||want.includes(norm(s)));
+        const w=sz.width||[], wantWide=w.includes("Wide"), wantReg=!w.length||w.includes("Regular");
+        const G=p.gender==="men"?"M":p.gender==="women"?"W":"";
+        ok=d.sz.filter(e=>{
+          if(e[0]==="OS")return true;
+          const k=shoeKey(e[0]);if(!k||k.w==="N")return false;
+          if(k.g&&G&&k.g!==G)return false;                     // "M:10" is for men, "W:11" for women
+          const wide=k.w==="W"||(!k.w&&d.w);
+          if(wide?!wantWide:!wantReg)return false;
+          return want.includes(k.n);
+        });
+      }else ok=d.sz.filter(([s])=>s==="OS"||want.includes(norm(s)));
     }
     if(!ok.length)continue;
     let pick=ok[0];
     for(const e of ok)if(e[1]<pick[1]||(e[1]===pick[1]&&e[3]>pick[3]))pick=e;
     const best=pick[1], reg=Math.max(pick[3]||best,best);
     const pct=reg>best?Math.round(100*(1-best/reg)):0;
-    out.push({...d,best,reg,pct,ok,url:d.of[pick[2]]||d.of[0],fav:favs.includes(d.b.toLowerCase())});
+    out.push({...d,best,reg,pct,ok,url:sizeUrl(d,pick),fav:favs.includes(d.b.toLowerCase())});
   }
   return out;
 }
@@ -790,8 +807,8 @@ const SORTS={
 const RENDERED={};   // key -> deal as shown, for the savings tally
 function card(d,extra){
   const sized=SIZED.has(d.g);
-  const labels=[...new Set(d.ok.map(x=>x[0]))];
-  if(sized){const SO=["2XS","XS","S","M","L","XL","2XL","3XL"],ix=v=>{const i=SO.indexOf(norm(v));return i<0?99:i};labels.sort((a,b)=>(isNaN(a)||isNaN(b))?ix(a)-ix(b):a-b)}
+  const labels=[...new Set(d.ok.map(x=>d.g==="shoes"?sizeLabel(x[0],state.gender):x[0]))];
+  if(sized){const SO=["2XS","XS","S","M","L","XL","2XL","3XL"],ix=v=>{const i=SO.indexOf(norm(v));return i<0?99:i};const nv=v=>parseFloat(String(v).replace(/^[MW]/,""));labels.sort((a,b)=>(isNaN(nv(a))||isNaN(nv(b)))?ix(a)-ix(b):nv(a)-nv(b))}
   const sizes=sized?`<div class="sizes">${t("inYourSize")} <strong>${esc(labels.join(", "))}</strong></div>`
     :labels.length&&labels[0]!=="OS"?`<div class="sizes">${esc(labels.slice(0,3).join(" · "))}${labels.length>3?" · …":""}</div>`:"";
   const k=itemKey(d),on=!!watches[k];RENDERED[k]=d;
