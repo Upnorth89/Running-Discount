@@ -44,11 +44,12 @@ s = s.replace('href="privacy.html"', 'href="https://thegearfox.com/privacy.html"
 # test panel
 rep('<header class="topbar">', '''<div class="pv"><div class="pvin">
   <div class="pvrow"><b>Preview</b>
+    <span class="pvseg" id="pvFlow" role="group" aria-label="First-visit version"><button type="button" data-f="A">A</button><button type="button" data-f="B">B</button><button type="button" data-f="C">C</button><button type="button" data-f="D">D</button></span>
     <button type="button" class="pvb" id="pvReset">Start as a new visitor</button>
     <button type="button" class="pvb" id="pvConfirm">Pretend I confirmed my email</button>
     <button type="button" class="pvb" id="pvDay">Pretend a day has passed</button>
   </div>
-  <p id="pvMsg">Nothing here is saved or emailed, and product photos don't load in the preview. Everything else is the real page with today's deals.</p>
+  <p id="pvMsg">A, B, C and D are the four first-visit versions: pick one to start over as a new visitor. Nothing here is saved or emailed, and product photos don't load in the preview. Everything else is the real page with today's deals.</p>
 </div></div>
 <header class="topbar">''')
 rep("/* top bar */", '''/* preview panel (not part of the site) */
@@ -58,8 +59,11 @@ rep("/* top bar */", '''/* preview panel (not part of the site) */
 .pv b{font:700 18px var(--display);letter-spacing:.3px;margin-right:4px}
 .pvb{font:600 14px var(--body);color:var(--band-ink);background:transparent;border:1.5px solid var(--band-muted);border-radius:8px;min-height:40px;padding:0 12px;cursor:pointer}
 .pvb:hover{border-color:var(--hivis)}
+.pvseg{display:inline-flex;gap:3px;background:rgba(255,255,255,.12);border-radius:9px;padding:3px}
+.pvseg button{font:700 15px var(--body);color:var(--band-ink);background:transparent;border:0;border-radius:7px;min-width:40px;min-height:36px;cursor:pointer}
+.pvseg button[aria-pressed="true"]{background:var(--hivis);color:#17201C}
 .pv p{margin:6px 0 0;font-size:13px;color:var(--band-muted)}
-.sheet .panel{max-height:calc(100vh - 250px)!important}
+.sheet .panel{max-height:calc(100vh - 300px)!important}
 .pvg{width:100%;max-width:400px;min-height:44px;border:1.5px solid #DADCE0;border-radius:999px;background:#fff;color:#1F1F1F;font:500 15px Arial,sans-serif;cursor:pointer}
 .pvg small{color:#777;font-weight:400}
 /* top bar */''')
@@ -73,7 +77,7 @@ def on_sale(x):
 
 
 items = [{k: v for k, v in x.items() if k != "img"} for x in data["items"] if x.get("ca") is not False or on_sale(x)]
-blob = json.dumps({"updated": data["updated"], "items": items}, separators=(",", ":")).replace("</", "<\\/")
+blob = json.dumps({"updated": data["updated"], "stores": data.get("stores", {}), "fx": data.get("fx", {}), "items": items}, separators=(",", ":")).replace("</", "<\\/")
 rep('fetch("deals.json",{cache:"no-store"}).then(r=>r.json()).then(',
     'Promise.resolve(JSON.parse(document.getElementById("gfdata").textContent)).then(')
 a = s.index("async function rpc(fn,args,bearer){")
@@ -90,7 +94,7 @@ s = s[:a] + '''async function rpc(fn,args,bearer){   // preview: pretend server,
 rep("/* ---------- start ---------- */", '''/* ---------- preview: stand-in for Google sign-in (the real one only runs on thegearfox.com) ---------- */
 G.load=function(){G.ready=true};
 G.exchange=async()=>"preview";
-G.render=function(){["gBtnUp","gBtnIn"].forEach(id=>{const el=$(id);if(!el)return;
+G.render=function(){["gBtnW","gBtnUp","gBtnIn"].forEach(id=>{const el=$(id);if(!el)return;
   el.innerHTML=`<button type="button" class="pvg">${LANG==="fr"?"Continuer avec Google":"Continue with Google"} <small>(stand-in)</small></button>`;
   el.firstChild.addEventListener("click",()=>onGoogle("preview"))})};
 
@@ -98,6 +102,8 @@ G.render=function(){["gBtnUp","gBtnIn"].forEach(id=>{const el=$(id);if(!el)retur
 function pvMsg(t){$("pvMsg").textContent=t}
 function pvClear(){["rd-profile","gf-sub","gf-watch","gf-last","gf-base","gf-clicks"].forEach(k=>LS.set(k,null))}
 $("pvReset").addEventListener("click",()=>{pvClear();location.reload()});
+document.querySelectorAll("#pvFlow button").forEach(b=>{b.setAttribute("aria-pressed",String(b.dataset.f===FLOW));
+  b.addEventListener("click",()=>{try{localStorage.setItem("gf-flow",JSON.stringify(b.dataset.f))}catch(e){}pvClear();location.reload()})});
 $("pvConfirm").addEventListener("click",()=>{
   if(gated()){pvMsg("Sign up first (sizes and an email), then tap this.");return}
   setSub({key:"00000000-0000-0000-0000-000000000000",email:state.email||"you@example.com",active:true});

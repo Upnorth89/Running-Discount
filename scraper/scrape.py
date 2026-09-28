@@ -31,10 +31,10 @@ S.headers.update({"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)
 def now():
     return dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat()
 
-def get(url, tries=4):
+def get(url, tries=4, cookies=None):
     for i in range(tries):
         try:
-            r = S.get(url, timeout=45)
+            r = S.get(url, timeout=45, cookies=cookies)
             if r.status_code in (429, 500, 502, 503, 504):
                 raise requests.HTTPError(f"{r.status_code} {url}")
             r.raise_for_status()
@@ -247,10 +247,26 @@ def fx_to_cad(cur):
 
 BB = re.compile(r"\s*\(?\s*best\s*by:?\s*([0-9/.-]+)\s*\)?", re.I)
 
-def shopify_products(base, max_pages=40):
+# Shopify stores can show prices in the visitor's currency. Our daily run happens on US servers, so we ask
+# Canadian stores for Canadian prices (the cookies a Canadian shopper would have) and then check which
+# currency the prices actually came back in (cart.js reports it), converting if it isn't CAD.
+CA_COOKIES = {"cart_currency": "CAD", "localization": "CA"}
+
+def shopify_price_currency(base, cookies=None):
+    """Currency of the prices this store is serving us right now, or None."""
+    for path in ("/cart.js", "/cart.json"):
+        try:
+            cur = get(f"{base}{path}", tries=2, cookies=cookies).json().get("currency")
+            if cur:
+                return cur.upper()
+        except Exception:
+            pass
+    return None
+
+def shopify_products(base, max_pages=40, cookies=None):
     prods, page = [], 1
     while page <= max_pages:
-        batch = get(f"{base}/products.json?limit=250&page={page}").json()["products"]
+        batch = get(f"{base}/products.json?limit=250&page={page}", cookies=cookies).json()["products"]
         if not batch:
             break
         prods += batch
@@ -347,7 +363,7 @@ def s2s_group(p):
 
 def scrape_sea2sky():
     base = "https://sea2skynutrition.ca"   # Vancouver, prices already in CAD
-    return shopify_items("sea2sky", base, shopify_products(base), s2s_group)
+    return shopify_items("sea2sky", base, shopify_products(base, cookies=CA_COOKIES), s2s_group, fx=ca_store_fx("sea2sky", base))
 
 
 
@@ -385,9 +401,17 @@ def sp_size(label):
         return SOCK_EU[m.group(0)]
     return norm_size(label)
 
+def ca_store_fx(st, base):
+    """A Canadian store should now be serving CAD; if it still isn't, convert what it serves."""
+    cur = shopify_price_currency(base, CA_COOKIES) or "CAD"
+    if cur != "CAD":
+        print(f"  ! {st}: prices came back in {cur}, converting to CAD", file=sys.stderr)
+    return fx_to_cad(cur)
+
 def scrape_stampeak():
     base = "https://www.stampeak.com/en"
-    return shopify_items("stampeak", base, shopify_products(base), sp_group, size_aware=True, size_fn=sp_size)
+    return shopify_items("stampeak", base, shopify_products(base, cookies=CA_COOKIES), sp_group, size_aware=True, size_fn=sp_size,
+                         fx=ca_store_fx("stampeak", base))
 
 
 # ---------------------------------------------------------------- MEC (Next.js + Algolia; everything we need is in the listing pages)
@@ -855,24 +879,25 @@ def make_shopify_scraper(st, base, kind):
         r = S.get(f"{base}/products.json?limit=1", timeout=20)
         if r.status_code != 200 or not r.text.lstrip().startswith("{"):
             raise RuntimeError(f"no Shopify product feed (HTTP {r.status_code})")
-        cur = None
-        for path, key in (("/meta.json", "currency"), ("/cart.js", "currency")):
-            try:
-                cur = get(f"{base}{path}", tries=2).json().get(key)
-                if cur:
-                    break
-            except Exception:
-                pass
-        if not cur:
+        home = None                                    # the store's own currency (meta.json) = where it ships from
+        try:
+            home = (get(f"{base}/meta.json", tries=2).json().get("currency") or "").upper() or None
+        except Exception:
+            pass
+        cookies = CA_COOKIES if home in (None, "CAD") else None
+        served = shopify_price_currency(base, cookies)   # the currency the prices actually come back in
+        home = home or served
+        if not home:
             print(f"  ! {st}: currency unknown, assuming CAD", file=sys.stderr)
-            cur = "CAD"
-        prods = shopify_products(base, max_pages=24)
+            home = "CAD"
+        cur = served or home
+        prods = shopify_products(base, max_pages=24, cookies=cookies)
         fx = fx_to_cad(cur)
-        print(f"  {st}: {len(prods)} products, {cur}" + (f" x{fx}" if cur != "CAD" else ""), file=sys.stderr)
+        print(f"  {st}: {len(prods)} products, store {home}, prices in {cur}" + (f" x{fx}" if cur != "CAD" else ""), file=sys.stderr)
         items = shopify_items(st, base, prods, generic_group(kind), fx=fx, size_aware=True, collapse=True,
                               size_fn=(lambda _l: "OS") if kind == "eyewear" else generic_size)
         for o in items:
-            o["ca"] = cur == "CAD"          # a store selling in CAD ships from Canada; USD/EUR/GBP stores are cross-border
+            o["ca"] = home == "CAD"         # a store based in CAD ships from Canada; USD/EUR/GBP stores are cross-border
         return items
     return run
 
@@ -972,7 +997,11 @@ def main():
         it.pop("_st", None)
     items.sort(key=lambda i: (i["g"], i["b"].lower(), i["n"].lower()))
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps({"v": 2, "updated": now(), "stores": stamps, "items": items},
+    try:
+        usd = round(fx_to_cad("USD"), 4)            # for the site's CAD/USD switch
+    except Exception:
+        usd = FX_FALLBACK["USD"]
+    OUT.write_text(json.dumps({"v": 2, "updated": now(), "stores": stamps, "fx": {"USD": usd}, "items": items},
                               separators=(",", ":"), ensure_ascii=False))
     # raw offers go in a side file so a failed store can be restored tomorrow
     (OUT.parent / "offers.json").write_text(json.dumps(raw, separators=(",", ":"), ensure_ascii=False))
