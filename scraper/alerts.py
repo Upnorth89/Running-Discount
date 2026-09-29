@@ -99,7 +99,7 @@ def alert_row(kind, a, lang="en"):
 <td valign="top" style="font-family:Arial,Helvetica,sans-serif">
 <div style="font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#B8470A">{E(head)}</div>
 <div style="font-size:13px;font-weight:700;color:#17201C;margin-top:2px">{E(d["b"])}</div>
-<div style="font-size:15px;line-height:1.3;margin:2px 0 4px">{E(d["n"])}</div>
+<div style="font-size:15px;line-height:1.3;margin:2px 0 4px">{E(W.nm(d["n"], lang))}</div>
 <div><span style="font-size:20px;font-weight:800">{money(d["best"])}</span>{reg}{was_txt}</div>
 <div style="font-size:12px;color:#5C6660;margin-top:3px">{E(W.sizes_label(d, lang))}</div>
 </td></tr></table></a></td></tr>'''
@@ -110,10 +110,10 @@ def build(sub, drops, backs):
     n = len(drops) + len(backs)
     if len(drops) == 1 and not backs:
         d = drops[0]["deal"]
-        subject = at(lang, "subj_drop", d["b"], d["n"], W.money(d["best"], lang))
+        subject = at(lang, "subj_drop", d["b"], W.nm(d["n"], lang), W.money(d["best"], lang))
     elif len(backs) == 1 and not drops:
         d = backs[0]["deal"]
-        subject = at(lang, "subj_back", d["b"], d["n"])
+        subject = at(lang, "subj_back", d["b"], W.nm(d["n"], lang))
     else:
         subject = at(lang, "subj_many", n)
     shop = f"{W.SITE_URL}?k={sub['token']}"

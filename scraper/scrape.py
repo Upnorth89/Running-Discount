@@ -1123,6 +1123,54 @@ def tidy_shoes(offers):
         out.append(o)
     return out
 
+# ---------------------------------------------------------------- tidy names and accessory sizes (site, email and alerts all use these)
+BRAND_CANON = {"hoka one one": "Hoka", "hoka": "Hoka", "asics": "ASICS", "satisfy": "Satisfy", "oiselle": "Oiselle",
+               "nnormal": "NNormal", "new balance": "New Balance", "on running": "On", "the north face": "The North Face"}
+
+def tidy_brand(b):
+    b = (b or "").strip()
+    return BRAND_CANON.get(b.lower(), b)
+
+def tidy_name(b, n):
+    """"Hoka - Cielo X 2 LD - Unisexe" -> "Cielo X 2 LD - Unisex": no repeated brand, gender words in English."""
+    n = re.sub(r"\s+", " ", n or "").strip()
+    n = re.sub(r"\bHommes?\b", "Men's", n)
+    n = re.sub(r"\bFemmes?\b", "Women's", n)
+    n = re.sub(r"\bUnisexe\b", "Unisex", n)
+    first = b.split(" ")[0] if b else ""
+    toks = {b} | ({first} if len(first) >= 4 and first.lower() not in {"black", "blue", "north", "mountain", "outdoor"} else set())
+    if b.lower() == "hoka":
+        toks |= {"Hoka One One", "Hoka"}
+    for tok in sorted(toks if b else set(), key=len, reverse=True):
+        if not tok:
+            continue
+        m = re.match(re.escape(tok) + r"\b\s*[-–:|]?\s*", n, re.I)
+        if m and len(n) - m.end() >= 3:
+            n = n[m.end():]
+            break
+    return n[:1].upper() + n[1:] if n else n
+
+ACC_OS = {"", "OS", "OSFA", "OSFM", "ONE SIZE", "O/S", "STANDARD", "DEFAULT TITLE", "NA", "N/A", "UNIQUE", "TAILLE UNIQUE"}
+ACC_WORD = [("XX-LARGE", "2XL"), ("X-LARGE", "XL"), ("X-SMALL", "XS"), ("SMALL", "S"), ("MEDIUM", "M"), ("LARGE", "L"),
+            ("XXXL", "3XL"), ("XXL", "2XL"), ("XXS", "2XS")]
+ACC_LETTERS = {"2XS", "XS", "S", "M", "L", "XL", "2XL", "3XL"}
+
+def acc_sizes(label):
+    """Vests, belts, lights etc.: letter sizes -> ["M", "L"]; colours and volumes -> ["OS"]; anything else kept as is."""
+    t = re.sub(r"\(.*?\)", "", str(label or "")).strip().upper()
+    for a, b in ACC_WORD:
+        t = re.sub(r"\b" + re.escape(a) + r"\b", b, t)
+    if t in ACC_OS or re.match(r"^\d+(\.\d+)?\s*(OZ|ML|L|LITRE|LITER|LITRES|LITERS)\b", t):
+        return ["OS"]
+    parts = [x for x in re.split(r"\s*[/|]\s*|\s+-\s+|(?<=[SMLX])-(?=[SMLX2])|\s+", t) if x]
+    if parts and all(x in ACC_LETTERS for x in parts):
+        return list(dict.fromkeys(parts))
+    if {"SM": ["S", "M"], "ML": ["M", "L"], "LXL": ["L", "XL"]}.get(t):
+        return {"SM": ["S", "M"], "ML": ["M", "L"], "LXL": ["L", "XL"]}[t]
+    if not re.search(r"\d", t):                     # "BLACK", "BLACK/REFLECTIVE SILVER": a colour, not a size
+        return ["OS"]
+    return [str(label).strip()]
+
 def name_gender(n):
     """Product names ("... - Women's", "Mens Pressio Tee") beat a store's gender tag, which is
     often "unisex" for women's-cut gear."""
@@ -1144,6 +1192,8 @@ def merge(offers):
     offers = tidy_shoes(offers)
     items = {}
     for o in offers:
+        o["b"] = tidy_brand(o["b"])
+        o["n"] = tidy_name(o["b"], o["n"])
         o["sx"] = name_gender(o["n"]) or o["sx"]
         it = items.get(mkey(o))
         if not it:
@@ -1159,7 +1209,7 @@ def merge(offers):
         for e in o["sz"]:
             size, price, reg = e[0], e[1], e[2]
             vid = e[3] if len(e) > 3 else None
-            keys = canon_shoe(size) if o["g"] == "shoes" else [size]
+            keys = canon_shoe(size) if o["g"] == "shoes" else acc_sizes(size) if o["g"] in ("packs", "gear") else [size]
             for k in keys:
                 cur = it["sz"].get(k)
                 if cur is None or price < cur[0]:

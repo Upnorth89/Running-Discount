@@ -53,6 +53,24 @@ def norm(s):
     s = WORD.get(s, s)
     return s.replace("XXXL", "3XL").replace("XXL", "2XL").replace("XXS", "2XS")
 
+LETTERS = {"2XS", "XS", "S", "M", "L", "XL", "2XL", "3XL"}
+
+def acc_letters(d):
+    """Vests, belts, lights in letter sizes follow the clothing size (same rule as the site)."""
+    return d["g"] in ("packs", "gear") and any(e[0] in LETTERS for e in d["sz"]) and all(e[0] == "OS" or e[0] in LETTERS for e in d["sz"])
+
+GROUP_BONUS = {"shoes": 15, "tops": 8, "bottoms": 8, "bras": 8, "packs": 6, "watches": 6}
+
+def score(d):
+    """% off plus dollars saved and what it is, so a $200 shoe at 60% beats a $15 belt at 74% (same as the site)."""
+    return d["pct"] + GROUP_BONUS.get(d["g"], 0) + min(15, (d["reg"] - d["best"]) / 10)
+
+def nm(n, lang="en"):
+    if lang != "fr":
+        return n
+    n = re.sub(r"^(Men's|Women's|Unisex)\s+(.+)$", r"\2 - \1", n)    # "Women's Trail Tee" -> "Trail Tee - Femme"
+    return re.sub(r"\bUnisex\b", "Unisexe", re.sub(r"\bWomen's\b", "Femme", re.sub(r"\bMen's\b", "Homme", n)))
+
 SHOE_KEY = re.compile(r"^(?:([MW]):)?(\d+(?:\.5)?)(?:~([WN]))?$")
 
 def size_url(d, e):
@@ -101,6 +119,9 @@ def match(items, p):
                 ok = [e for e in d["sz"] if fits(e)]
             else:
                 ok = [e for e in d["sz"] if e[0] == "OS" or norm(e[0]) in want]
+        elif acc_letters(d):
+            want = {norm(x) for x in ((p.get("sizes") or {}).get("tops") or {}).get("sizes") or []}
+            ok = [e for e in d["sz"] if e[0] == "OS" or e[0] in want]
         if not ok:
             continue
         pick = min(ok, key=lambda e: (e[1], -(e[3] if len(e) > 3 else e[1])))
@@ -125,7 +146,7 @@ STR = {
                change_sizes="Change your sizes", unsubscribe="Unsubscribe", privacy="Privacy",
                subject=lambda n, top: f"The Gear Fox: {n} deals in your size this week, up to {top}% off",
                subject_watch=lambda n: f"The Gear Fox: your watchlist moved, plus {n} deals in your size",
-               hi="Hi", intro="{}, here are this week's sales on gear in your sizes, every price drop, big or small. Biggest discounts first.",
+               hi="Hi", intro="{}, here are this week's sales on gear in your sizes, every price drop, big or small. Best deals first.",
                title="Your weekly deals", open_shop="Open your shop",
                fine="Prices and stock change daily; the product page has the final price.<br>"
                     "You get this because you signed up for Saturday deals on The Gear Fox. Outfox full price.",
@@ -138,7 +159,7 @@ STR = {
                subject=lambda n, top: f"The Gear Fox : {n} aubaines à votre taille cette semaine, jusqu'à {top} % de rabais",
                subject_watch=lambda n: f"The Gear Fox : vos favoris ont bougé, et {n} aubaines à votre taille",
                hi="Bonjour", intro="{}, voici les soldes de la semaine dans vos tailles, chaque baisse de prix, petite ou grande. "
-                                   "Les plus gros rabais d'abord.",
+                                   "Les meilleures aubaines d'abord.",
                title="Vos aubaines de la semaine", open_shop="Voir ma boutique",
                fine="Les prix et les stocks changent chaque jour; le prix final est sur la page du produit.<br>"
                     "Vous recevez ce courriel parce que vous êtes abonné aux aubaines du samedi de The Gear Fox. Flairez les aubaines.",
@@ -177,7 +198,10 @@ def sizes_label(d, lang="en"):
     both = d["g"] == "shoes" and len({str(e[0])[:2] for e in d["ok"] if str(e[0])[:2] in ("M:", "W:")}) > 1
     labels = list(dict.fromkeys((shoe_label(e[0], lang) if both else re.sub(r"^[MW](?=\d)", "", shoe_label(e[0], lang)))
                                 if d["g"] == "shoes" else e[0] for e in d["ok"]))
-    if d["g"] in SIZED:
+    if d["g"] in SIZED or acc_letters(d):
+        labels = [x for x in labels if x != "OS"]
+        if not labels:
+            return ""
         order = ["2XS", "XS", "S", "M", "L", "XL", "2XL", "3XL"]
         def k(v):
             try:
@@ -186,9 +210,7 @@ def sizes_label(d, lang="en"):
                 return (1, order.index(norm(v)) if norm(v) in order else 99)
         labels.sort(key=k)
         return tr(lang, "your_size") + ", ".join(labels)
-    if labels and labels[0] != "OS":
-        return " · ".join(labels[:3]) + (" · …" if len(labels) > 3 else "")
-    return ""
+    return ""                     # odd labels ("T2", "115cm"): the store page explains them
 
 E = html.escape
 def card(d, lang="en"):
@@ -206,7 +228,7 @@ def card(d, lang="en"):
 <td width="96" valign="top">{img}</td>
 <td valign="top" style="font-family:Arial,Helvetica,sans-serif">
 <div style="font-size:13px;font-weight:700;color:#B8470A">{E(d["b"])}{fav}</div>
-<div style="font-size:15px;line-height:1.3;margin:2px 0 4px">{E(d["n"])}</div>
+<div style="font-size:15px;line-height:1.3;margin:2px 0 4px">{E(nm(d["n"], lang))}</div>
 <div><span style="font-size:20px;font-weight:800">{money(d["best"], lang)}</span>
 <span style="font-size:13px;color:#5C6660;text-decoration:line-through;margin-left:6px">{money(d["reg"], lang)}</span>
 <span style="font-size:13px;font-weight:800;background:#F26A1B;border:1px solid #17201C;border-radius:4px;padding:1px 5px;margin-left:6px">{pct_txt(d["pct"], lang)}</span></div>
@@ -226,7 +248,7 @@ def build(p, sale, watch=None):
     lang = lang_of(p)
     shop = shop_link(p)
     first = (p.get("name") or "").split(" ")[0] or tr(lang, "hi")
-    sale.sort(key=lambda d: (-d["fav"], -d["pct"], d["best"]))
+    sale.sort(key=lambda d: (-d["fav"], -score(d), d["best"]))
     sections, shown = [], 0
     order = [g for g in GROUP_LABEL if g in set(p.get("groups") or [])]
     for g in order:
