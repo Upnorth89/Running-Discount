@@ -262,6 +262,126 @@ def scrape_commercetools(st, base):
         raise RuntimeError(f"{st}: {errors}/{len(listing)} product pages failed")
     return out
 
+# ---------------------------------------------------------------- Decathlon Canada (server-rendered pages; robots.txt allows them)
+DEC_BASE = "https://www.decathlon.ca"
+DEC_LISTS = ["/en/clearance/running-clearance"]
+DEC_SOCKS = {"3.5 - 6": "S", "5 - 6": "S", "6.5 - 9": "M", "9.5 - 12": "L", "13 - 13.5": "XL", "12.5 - 14": "XL"}
+
+def dec_skus(html):
+    """Every size of every colour on a product page (the page embeds them as JSON)."""
+    s = html.replace('\\"', '"').replace('\\\\', '\\')
+    out = {}
+    for m in re.finditer(r'"skus":\[\{"skuId"', s):
+        seg, depth = s[m.start() + 7:m.start() + 400000], 0
+        for k, ch in enumerate(seg):
+            if ch == "[":
+                depth += 1
+            elif ch == "]":
+                depth -= 1
+                if depth == 0:
+                    break
+        try:
+            for x in json.loads(seg[:k + 1]):
+                out[x["skuId"]] = x
+        except Exception:
+            pass
+    return list(out.values())
+
+def dec_size(label, g):
+    t = str(label or "").strip()
+    if t in ("", "$undefined", "No Size", "One size") or re.search(r"\d+\s*(ml|mm)$", t, re.I):
+        return "OS"
+    if g == "shoes":
+        m = re.match(r"US\s*(\d+(?:[.,]5)?)\b", t)
+        return m.group(1).replace(",", ".") if m else None
+    if g == "socks" and t in DEC_SOCKS:
+        return DEC_SOCKS[t]
+    t = re.sub(r"\s*\(.*?\)|\s*/\s*W\d.*$", "", t).strip()        # "XS (L30)", "XL / W39 L34"
+    return t
+
+def dec_price(x):
+    for o in x.get("offers") or []:
+        for fp in o.get("fixedPrices") or []:
+            for tt in fp.get("typeTargets") or []:
+                c = (tt.get("currencies") or {}).get("main") or {}
+                p = c.get("valueWithoutTaxes")
+                if isinstance(p, (int, float)):
+                    r = c.get("referenceValueWithoutTaxes")
+                    return float(p), float(r) if isinstance(r, (int, float)) and r > p else float(p)
+    return None, None
+
+def dec_group(x):
+    t = x.get("title") or ""
+    lvl = ((x.get("productNatureGroupLevel2") or {}).get("name") or "").lower()
+    lvl1 = ((x.get("productNatureGroupLevel1") or {}).get("name") or "").lower()
+    g = group_of(t)
+    if g == "packs" and lvl1 == "apparel":             # a running vest you wear, not a hydration vest
+        g = "tops"
+    if not g:
+        g = "shoes" if "footwear" in lvl else "tops" if "top" in lvl else "bottoms" if "bottom" in lvl else None
+    return g
+
+def scrape_decathlon():
+    links = []
+    for path in DEC_LISTS:
+        start = 0
+        while start < 2000:
+            html = get(f"{DEC_BASE}{path}?from={start}&size=40").text
+            new = [u for u in dict.fromkeys(re.findall(r'href="(/en/p/[^"]+)"', html)) if u not in links]
+            if not new:
+                break
+            links += new
+            start += 40
+            time.sleep(1)
+    out, seen = [], set()
+    for u in links:
+        m = re.search(r"/p/[^/]+/(\d+)/", u)
+        if not m or m.group(1) in seen:
+            continue
+        seen.add(m.group(1))
+        time.sleep(0.7)                                   # relaxed pace
+        try:
+            skus = [x for x in dec_skus(get(DEC_BASE + u).text) if x.get("isAvailable")]
+        except Exception:
+            continue
+        if not skus:
+            continue
+        x0 = skus[0]
+        title = x0.get("title") or ""
+        if re.search(r"\b(kids?|children|boys?|girls?|junior|baby)'?s?\b", title, re.I):
+            continue
+        g = dec_group(x0)
+        if not g:
+            continue
+        gs = {(y.get("name") or "").lower() for y in x0.get("genders") or []}
+        sx = (["men"] if "men" in gs else []) + (["women"] if "women" in gs else [])
+        if g == "shoes" and len(sx) != 1:
+            continue                                      # unisex US sizes are ambiguous without a gender
+        sizes, lp = {}, 0
+        for x in skus:
+            price, reg = dec_price(x)
+            if not price:
+                continue
+            lp = max(lp, reg)
+            lab = dec_size(x.get("sizeLabel"), g)
+            if not lab:
+                continue
+            m2 = re.match(r"^(2?XS|S|M|L|XL|2XL|3XL)\s*-\s*(S|M|L|XL|2XL|3XL|4XL)$", lab)
+            for one in ([m2.group(1), m2.group(2)] if m2 else [lab]):
+                if one not in sizes or price < sizes[one][0]:
+                    sizes[one] = (price, reg)
+        if g in ("shoes", "tops", "bottoms", "bras", "socks", "gloves") and len(sizes) > 1:
+            sizes.pop("OS", None)                         # an unlabelled size must not match everyone
+        if not sizes:
+            continue
+        brand = ((x0.get("brand") or {}).get("name") or "Decathlon").title()
+        img = (x0.get("mainImage") or {}).get("url")
+        out.append({"st": "decathlon", "b": brand, "n": title, "u": DEC_BASE + u, "g": g, "sx": sx,
+                    "w": bool(re.search(r"\bwide\b", title, re.I)), "img": img + "?format=auto&f=500x0" if img else None,
+                    "lp": round(lp, 2), "bb": None, "sz": [[k, p, r] for k, (p, r) in sizes.items()], "ca": True})
+    print(f"  decathlon: {len(links)} listings, {len(out)} products in stock", file=sys.stderr)
+    return out
+
 # ---------------------------------------------------------------- Shopify stores (The Feed in USD, Sea2Sky in CAD)
 def usd_cad():
     for url, pick in [
@@ -964,6 +1084,7 @@ STORES = {
     "stampeak": scrape_stampeak,
     "mec": scrape_mec_saved,       # from pages you save (their sites block automated access)
     "rei": scrape_rei_saved,
+    "decathlon": scrape_decathlon,
 }
 for _st, _base, _kind in SHOPIFY_STORES:
     STORES[_st] = make_shopify_scraper(_st, _base, _kind)
@@ -1011,7 +1132,7 @@ def name_gender(n):
     return ["women"] if w and not m else ["men"] if m and not w else None
 
 # Stores that sell and ship from Canada (no border fees). Generic Shopify stores decide by their currency.
-CA_STORES = {"altitude", "lasthunt", "sea2sky", "sportinglife", "stampeak", "mec"}
+CA_STORES = {"altitude", "lasthunt", "sea2sky", "sportinglife", "stampeak", "mec", "decathlon"}
 
 def mkey(o):
     name = re.sub(r"[^a-z0-9]+", " ", o["n"].lower()).strip()
