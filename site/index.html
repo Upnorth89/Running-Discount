@@ -419,7 +419,7 @@ en:{
   loadFail:"Couldn't load today's gear. Reload to try again.",loading:"Loading today's gear…",
   inYourSize:"In your size:",isNew:"New",bestBy:d=>`Short-dated: best by ${d}`,
   abroad:"Ships from outside Canada · price converted to CAD, duties may apply",showMore:n=>`Show ${n} more`,
-  allGear:"All gear",shipsCA:"Ships from Canada",saleOnly:"On sale only",
+  allGear:"All gear",shipsCA:"Ships from Canada",saleOnly:"Include full price",
   stopWatching:"Stop watching",watch:"Watch",removed:"Removed from your watchlist.",
   watching:"Watching. We'll email you if it drops or comes back in your size.",
   watchingPending:"Watching. Confirm your email to get price-drop alerts.",watchingSignup:"Watching. Sign up for the Saturday email to get price-drop alerts.",
@@ -441,7 +441,7 @@ en:{
   gatedLede:"Pick your sizes and add your email to see today's deals.",unlock:"See deals in my size",
   storesAll:"stores in Canada and abroad",storesCA:"Canadian stores",
   lede:(s,a,w,u)=>`${s} on sale and ${a} in stock from ${w}${u?` · updated ${u}`:""}.`,
-  secNew:"New since your last visit",secSale:"On sale",
+  secNew:"New since your last visit",secSale:"Top deals",
   nothing:"Nothing matches right now. Try clearing the search or picking more categories.",addSizes:"Add your sizes to hide gear that won't fit. ",
   checkInbox:"Check your inbox",checkInboxTxt:e=>`Tap the link we sent to ${e} to start your Saturday email. It can land in Promotions.`,
   otherEmail:"Use a different email",getDeals:"Get deals like these every Saturday",
@@ -504,7 +504,7 @@ fr:{
   loadFail:"Impossible de charger les produits du jour. Rechargez la page.",loading:"Chargement des produits du jour…",
   inYourSize:"À votre taille :",isNew:"Nouveau",bestBy:d=>`Date courte : meilleur avant le ${d}`,
   abroad:"Expédié de l'extérieur du Canada · prix converti en $ CA, des droits peuvent s'appliquer",showMore:n=>`Voir ${n} de plus`,
-  allGear:"Tout",shipsCA:"Expédié du Canada",saleOnly:"En solde seulement",
+  allGear:"Tout",shipsCA:"Expédié du Canada",saleOnly:"Inclure le prix régulier",
   stopWatching:"Retirer des favoris",watch:"Ajouter aux favoris",removed:"Retiré de vos favoris.",
   watching:"Ajouté. On vous écrit si le prix baisse ou si votre taille revient en stock.",
   watchingPending:"Ajouté. Confirmez votre courriel pour recevoir les alertes de baisse de prix.",watchingSignup:"Ajouté. Abonnez-vous au courriel du samedi pour recevoir les alertes de baisse de prix.",
@@ -526,7 +526,7 @@ fr:{
   gatedLede:"Choisissez vos tailles et entrez votre courriel pour voir les aubaines du jour.",unlock:"Voir les aubaines à ma taille",
   storesAll:"des boutiques au Canada et à l'étranger",storesCA:"des boutiques canadiennes",
   lede:(s,a,w,u)=>`${s} en solde et ${a} en stock ${w}${u?` · mis à jour ${u}`:""}.`,
-  secNew:"Nouveau depuis votre dernière visite",secSale:"En solde",
+  secNew:"Nouveau depuis votre dernière visite",secSale:"Meilleures aubaines",
   nothing:"Rien ne correspond pour l'instant. Effacez la recherche ou choisissez plus de catégories.",addSizes:"Ajoutez vos tailles pour cacher ce qui ne vous va pas. ",
   checkInbox:"Vérifiez vos courriels",checkInboxTxt:e=>`Cliquez sur le lien envoyé à ${e} pour activer votre courriel du samedi. Il peut arriver dans Promotions.`,
   otherEmail:"Utiliser un autre courriel",getDeals:"Recevez des aubaines comme celles-ci chaque samedi",
@@ -681,7 +681,7 @@ function renderWelcome(){
   const picks=[],seen=new Set();
   const kids=/\b(junior|juniors|kids?|youth|enfants?|jr|toddler|boys?|girls?|gar[çc]ons?|filles?)\b/i;
   for(const d of sale.filter(d=>d.pct<=75&&!kids.test(d.n)&&known.has(d.b.toLowerCase())&&d.g==="shoes").sort((a,b)=>b.pct-a.pct)){if(seen.has(d.b))continue;seen.add(d.b);picks.push(d);if(picks.length===3)break}
-  $("wDeals").innerHTML=picks.map(d=>`<div class="wdeal"><span class="pct">−${d.pct}%</span><span class="wn"><b>${esc(d.b)}</b>${esc(d.n.replace(new RegExp("^"+d.b.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\s*[-–:]\\s*","i"),""))}</span><span class="wp">${money(d.price)} <small class="cur">${CUR}</small><s>${money(d.reg)}</s></span></div>`).join("");
+  $("wDeals").innerHTML=picks.map(d=>`<div class="wdeal"><span class="pct">−${d.pct}%</span><span class="wn"><b>${esc(d.b)}</b>${esc(nm(d.n))}</span><span class="wp">${money(d.price)} <small class="cur">${CUR}</small><s>${money(d.reg)}</s></span></div>`).join("");
 }
 let lastFocus=null;
 function openSheet(){lastFocus=document.activeElement;renderSheet();
@@ -793,7 +793,7 @@ fetch("deals.json",{cache:"no-store"}).then(r=>r.json()).then(d=>{DATA=d;ITEMS=d
 const PAGE=8, MORE=24;
 const WORD={"ONE SIZE":"OS","O/S":"OS","X-SMALL":"XS","XSMALL":"XS","SMALL":"S","MEDIUM":"M","LARGE":"L","X-LARGE":"XL","XLARGE":"XL"};
 function norm(s){s=String(s).trim().toUpperCase();s=WORD[s]||s;return s.replace("XXXL","3XL").replace("XXL","2XL").replace("XXS","2XS")}
-const view={saleOnly:false,sort:"match",q:"",open:{},watch:false,newAll:false};
+const view={fullPrice:false,sort:"match",q:"",open:{},watch:false,newAll:false};
 const NEWSTYLE_DEFAULT="row";                              // "row" (A) or "sticky" (B)
 const NEWSTYLE=LS0("gf-newstyle")||NEWSTYLE_DEFAULT;
 document.body.classList.add(NEWSTYLE==="row"?"newrow":"sticky");
@@ -823,6 +823,14 @@ function sizeUrl(d,e){
   const u=d.of[e[2]]||d.of[0];if(!e||e.length<5||!u)return u;
   try{const x=new URL(u);x.searchParams.set("variant",e[4]);return x.toString()}catch(err){return u}
 }
+/* Vests, belts, lights: when they come in letter sizes (S, M/L…) they follow your clothing size. */
+const LETTERS=new Set(["2XS","XS","S","M","L","XL","2XL","3XL"]);
+const accLetters=d=>(d.g==="packs"||d.g==="gear")&&d.sz.some(e=>LETTERS.has(e[0]))&&d.sz.every(e=>e[0]==="OS"||LETTERS.has(e[0]));
+/* Deal score: % off, plus the dollars saved and what it is, so a $200 shoe at 60% beats a $15 belt at 74%. */
+const GROUP_BONUS={shoes:15,tops:8,bottoms:8,bras:8,packs:6,watches:6};
+const score=d=>d.pct+(GROUP_BONUS[d.g]||0)+Math.min(15,(d.reg-d.best)/10);
+/* Names come in English; show gender words in French on the French site. */
+function nm(n){return LANG!=="fr"?n:String(n).replace(/^(Men's|Women's|Unisex)\s+(.+)$/,"$2 - $1").replace(/\bMen's\b/g,"Homme").replace(/\bWomen's\b/g,"Femme").replace(/\bUnisex\b/g,"Unisexe")}
 /* Every item in stock in the profile's sizes, with its best price, the regular price of that size,
    the % off, and the store link that has that price. Same rules as the weekly email. */
 function matchItems(p,list){
@@ -849,6 +857,7 @@ function matchItems(p,list){
         });
       }else ok=d.sz.filter(([s])=>s==="OS"||want.includes(norm(s)));
     }
+    else if(accLetters(d)){const want=((p.sizes.tops||{}).sizes||[]).map(norm);ok=d.sz.filter(e=>e[0]==="OS"||want.includes(e[0]))}
     if(!ok.length)continue;
     let pick=ok[0];
     for(const e of ok)if(e[1]<pick[1]||(e[1]===pick[1]&&e[3]>pick[3]))pick=e;
@@ -859,7 +868,7 @@ function matchItems(p,list){
   return out;
 }
 const SORTS={
-  match:(a,b)=>(b.fav-a.fav)||(b.pct-a.pct)||(a.best-b.best),
+  match:(a,b)=>(b.fav-a.fav)||(score(b)-score(a))||(a.best-b.best),
   price:(a,b)=>(a.best-b.best)||(b.pct-a.pct),
   discount:(a,b)=>(b.pct-a.pct)||(a.best-b.best)
 };
@@ -868,14 +877,14 @@ function card(d,extra){
   const sized=SIZED.has(d.g);
   const labels=[...new Set(d.ok.map(x=>d.g==="shoes"?sizeLabel(x[0],state.gender):x[0]))];
   if(sized){const SO=["2XS","XS","S","M","L","XL","2XL","3XL"],ix=v=>{const i=SO.indexOf(norm(v));return i<0?99:i};const nv=v=>parseFloat(String(v).replace(/^[MW]/,""));labels.sort((a,b)=>(isNaN(nv(a))||isNaN(nv(b)))?ix(a)-ix(b):nv(a)-nv(b))}
-  const sizes=sized?`<div class="sizes">${t("inYourSize")} <strong>${esc(labels.join(", "))}</strong></div>`
-    :labels.length&&labels[0]!=="OS"?`<div class="sizes">${esc(labels.slice(0,3).join(" · "))}${labels.length>3?" · …":""}</div>`:"";
+  const lettered=accLetters(d),real=labels.filter(x=>x!=="OS");
+  const sizes=(sized||lettered)&&real.length?`<div class="sizes">${t("inYourSize")} <strong>${esc(real.join(", "))}</strong></div>`:"";   // odd labels ("T2", "115cm"): the store page explains them
   const k=itemKey(d),on=!!watches[k];RENDERED[k]=d;
   const isNew=!extra&&NEWSET.has(k);
   return `<div class="dw"><a class="deal" href="${esc(d.url)}" target="_blank" rel="noopener">
     ${d.img?`<div class="pic"><img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"></div>`:""}
     <div class="top"><span class="brand">${esc(d.b)}${d.fav?" ★":""}</span>${d.pct?`<span class="pct">−${d.pct}%</span>`:""}</div>
-    <div class="name">${esc(d.n)}</div>
+    <div class="name">${esc(nm(d.n))}</div>
     <div class="price"><b>${money(d.best)}</b>${curTag()}${d.pct?`<s>${money(d.reg)}</s>`:""}</div>
     ${extra||""}${isNew?`<span class="badge new">${t("isNew")}</span>`:""}
     ${sizes}
@@ -901,7 +910,7 @@ function renderFilters(){
   $("cats").innerHTML=`<button type="button" class="chip" data-v="__all" aria-pressed="${all}">${t("allGear")}</button>`+
     ORDER.map(g=>`<button type="button" class="chip" data-v="${g}" aria-pressed="${!all&&state.groups.includes(g)}">${GL(g)}</button>`).join("");
   $("toggles").innerHTML=`<button type="button" class="chip" data-t="ca" aria-pressed="${state.ships!=="all"}">${t("shipsCA")}</button>`+
-    `<button type="button" class="chip" data-t="sale" aria-pressed="${view.saleOnly}">${t("saleOnly")}</button>`;
+    `<button type="button" class="chip" data-t="sale" aria-pressed="${view.fullPrice}">${t("saleOnly")}</button>`;
   $("sort").value=view.sort;
 }
 $("cats").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;const v=b.dataset.v;
@@ -912,7 +921,7 @@ $("cats").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)r
   view.open={};saveProfile();renderAll()});
 $("toggles").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;
   if(b.dataset.t==="ca"){state.ships=state.ships==="all"?"ca":"all";saveProfile()}
-  else view.saleOnly=!view.saleOnly;
+  else view.fullPrice=!view.fullPrice;
   view.open={};renderAll()});
 $("sort").addEventListener("change",e=>{view.sort=e.target.value;view.open={};renderAll()});
 let searchT;$("dSearch").addEventListener("input",e=>{clearTimeout(searchT);searchT=setTimeout(()=>{view.q=e.target.value;view.open={};renderAll()},200)});
@@ -1001,7 +1010,7 @@ function renderWatch(){
     }
     w.gone=true;
     return `<div class="dw"><a class="deal gone" href="${esc(w.url||"#")}" target="_blank" rel="noopener">
-      <div class="top"><span class="brand">${esc(w.b||"")}</span></div><div class="name">${esc(w.n||"")}</div>
+      <div class="top"><span class="brand">${esc(w.b||"")}</span></div><div class="name">${esc(nm(w.n||""))}</div>
       <div class="gonetxt">${t("goneTxt")}</div></a>${heartBtn(k,true,{b:w.b||"",n:w.n||""})}</div>`;
   });
   const n=keys.length;
@@ -1049,7 +1058,7 @@ function renderAll(){
   $("newBox").innerHTML="";
   const sh=$("subhead");sh.classList.toggle("hidden",!CALM||!!view.watch||gated());
   if(CALM){sh.innerHTML=`${esc(sizeSummary())} · <button type="button" class="linkbtn" id="editSz">${t("edit")}</button>`;$("editSz").addEventListener("click",openSheet);
-    const dirty=state.ships==="all"||view.saleOnly||view.sort!=="match";$("filtDot").classList.toggle("hidden",!dirty)}
+    const dirty=state.ships==="all"||view.fullPrice||view.sort!=="match";$("filtDot").classList.toggle("hidden",!dirty)}
   const w=!!view.watch;
   $("filtersBox").classList.toggle("hidden",w);$("backToDeals").classList.toggle("hidden",!w);
   $("pageTitle").textContent=w?t("titleWatch"):t("titleDeals");
@@ -1072,11 +1081,12 @@ function renderAll(){
   if(CALM)setCalmLede();
   else $("lede").textContent=t("lede",num(onSale.length),num(all.length),where,DATA.updated?ago(DATA.updated):"");
   computeNew(onSale);renderStats();renderWatchButton();
-  const shown=(view.saleOnly?onSale:all).slice().sort(SORTS[view.sort]);
+  // Sale items only, unless "Include full price" is on; then everything in your size, sale items first
+  const shown=(view.fullPrice?all:onSale).slice().sort((a,b)=>((b.pct>0)-(a.pct>0))||SORTS[view.sort](a,b));
   const parts=[];
-  if(!q.length){const ns=section("__new",t("secNew"),onSale.filter(d=>NEWSET.has(itemKey(d))).sort(SORTS.discount),"new");
+  if(!q.length){const ns=section("__new",t("secNew"),onSale.filter(d=>NEWSET.has(itemKey(d))).sort(SORTS[view.sort]),"new");
     if(CALM&&NEWSTYLE==="row"&&!view.newAll)$("newBox").innerHTML=ns;else parts.push(ns)}
-  if(!view.saleOnly)parts.push(section("__sale",t("secSale"),onSale.slice().sort(SORTS[view.sort==="price"?"price":"discount"]),"sale"));
+  parts.push(section("__sale",t("secSale"),onSale.slice().sort(SORTS[view.sort]),"sale"));
   ORDER.filter(g=>p.groups.includes(g)).forEach(g=>parts.push(section(g,GL(g),shown.filter(d=>d.g===g))));
   const body=parts.filter(Boolean);
   body.splice(Math.min(1,body.length),0,signupHTML());   // the email card sits right after the first block of deals
