@@ -2,7 +2,7 @@ name: Weekly deals email
 
 on:
   schedule:
-    - cron: "7 14 * * 6"    # Saturdays 7:07am Vancouver in summer (6:07am in winter)
+        - cron: "7 9-18 * * 5"  # every hour on Friday, 9:07-18:07 UTC: each run sends to people for whom it's now 7am+
   workflow_dispatch:         # "Run workflow" button for a test send
     inputs:
       send_to:
