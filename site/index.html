@@ -447,7 +447,7 @@ en:{
   watchEmpty:"Tap the ♡ on any deal to watch it. We'll email you when it drops in price or comes back in your size.",
   pricesChange:"Prices and stock change daily; the product page has the final price.",
   newSince:n=>`<b>${n}</b> new since your last visit`,show:"Show",
-  filters:"Filters",ledeShort:(s,u,m)=>`${s} deals today${m?` · <b class="saved">${m} off</b> found so far`:""}${u?` · updated ${u}`:""}`,
+  filters:"Filters",ledeShort:(s,u,m)=>`${s} deals today${m?` · <b class="saved">${m} off</b> found this month`:""}${u?` · updated ${u}`:""}`,
   watchShort:(d,b)=>"<b>Watchlist:</b> "+[d?`${d} price ${PL(d,"drop","drops")}`:"",b?`${b} back in your size`:""].filter(Boolean).join(" · "),see:"See",
   swipe:"Swipe →",seeAll:n=>`See all ${n}`,asList:"as a list",asRow:"Show as a row",
   offTally:(m,n)=>`<b>${m}</b> off in the ${n} ${PL(n,"deal","deals")} you've opened`,
@@ -532,7 +532,7 @@ fr:{
   watchEmpty:"Touchez le ♡ sur une aubaine pour l'ajouter à vos favoris. On vous écrit quand le prix baisse ou quand votre taille revient.",
   pricesChange:"Les prix et les stocks changent chaque jour; le prix final est sur la page du produit.",
   newSince:n=>`<b>${n}</b> ${PL(n,"nouveauté","nouveautés")} depuis votre dernière visite`,show:"Voir",
-  filters:"Filtres",ledeShort:(s,u,m)=>`${s} aubaines aujourd'hui${m?` · <b class="saved">${m} de rabais</b> trouvés`:""}${u?` · mis à jour ${u}`:""}`,
+  filters:"Filtres",ledeShort:(s,u,m)=>`${s} aubaines aujourd'hui${m?` · <b class="saved">${m} de rabais</b> trouvés ce mois-ci`:""}${u?` · mis à jour ${u}`:""}`,
   watchShort:(d,b)=>"<b>Favoris :</b> "+[d?`${d} ${PL(d,"baisse de prix","baisses de prix")}`:"",b?`${b} de retour dans votre taille`:""].filter(Boolean).join(" · "),see:"Voir",
   swipe:"Glissez →",seeAll:n=>`Voir les ${n}`,asList:"en liste",asRow:"Afficher en rangée",
   offTally:(m,n)=>`<b>${m}</b> de rabais sur ${PL(n,"l'aubaine que vous avez ouverte",`les ${n} aubaines que vous avez ouvertes`)}`,
@@ -1062,19 +1062,24 @@ function computeNew(onSale){
   if(!last||now-last.at>6*3600e3)LS.set("gf-last",{at:now,keys});
   if(base){const old=new Set(base.keys);NEWSET=new Set(keys.filter(k=>!old.has(k)))}
 }
-/* Money off in deals you've opened (it's what you found, not what you spent). */
-let clicks=LS.get("gf-clicks")||{};
-function recordClick(k){const d=RENDERED[k];if(!d||!d.pct||clicks[k])return;clicks[k]=Math.round((d.reg-d.best)*100)/100;LS.set("gf-clicks",clicks)}
+/* Money off in deals you've opened in the last 30 days (what you found, not what you spent).
+   Stored as {key: {off, at}}; older entries, and the old number-only format, drop out. */
+const TALLY_DAYS=30;
+let clicks=(()=>{const c=LS.get("gf-clicks")||{},cut=Date.now()-TALLY_DAYS*864e5,out={};
+  for(const [k,v] of Object.entries(c))if(v&&typeof v==="object"&&v.at>cut)out[k]=v;return out})();
+LS.set("gf-clicks",clicks);
+const tally=()=>Object.values(clicks).reduce((a,v)=>a+v.off,0);
+function recordClick(k){const d=RENDERED[k];if(!d||!d.pct||clicks[k])return;clicks[k]={off:Math.round((d.reg-d.best)*100)/100,at:Date.now()};LS.set("gf-clicks",clicks)}
 /* Calm top: "421 deals today · $150 off found so far · updated 3 h ago" */
 let saleNow=0;
 function setCalmLede(){if(!DATA||gated()||view.watch)return;
-  const off=Object.values(clicks).reduce((a,b)=>a+b,0);
+  const off=tally();
   $("lede").innerHTML=t("ledeShort",num(saleNow),DATA.updated?ago(DATA.updated):"",off>=1?money(Math.round(off)).replace(/[.,]00/,""):"")}
 function renderStats(){
   if(CALM){$("tally").classList.add("hidden");$("stats").classList.add("hidden");setCalmLede();return}
   const el=$("stats");const parts=[];
   if(NEWSET.size)parts.push(`<span class="stat">${t("newSince",num(NEWSET.size))} <button type="button" id="jumpNew">${t("show")}</button></span>`);
-  const off=Object.values(clicks).reduce((a,b)=>a+b,0),n=Object.keys(clicks).length;
+  const off=tally(),n=Object.keys(clicks).length;
   if(off>0)parts.push(`<span class="stat">${t("offTally",money(off).replace(/[.,]00/,""),n)}</span>`);
   el.innerHTML=parts.join("");el.classList.toggle("hidden",!parts.length);
   const j=$("jumpNew");if(j)j.addEventListener("click",()=>{const s=document.querySelector(".grp.new");if(s)s.scrollIntoView({behavior:"smooth",block:"start"})});
