@@ -188,7 +188,7 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
 .empty{background:var(--card);border:1.5px dashed var(--line);border-radius:12px;padding:22px;text-align:center;color:var(--muted)}
 .foot{font-size:13px;color:var(--muted);text-align:center;margin-top:10px}
 
-/* Saturday email card */
+/* Friday email card */
 .signup{background:var(--band);color:var(--band-ink);border-radius:14px;padding:18px;margin:0 0 30px}
 .signup h3{font:800 24px/1.1 var(--display);margin:0 0 4px}
 .signup p{margin:0 0 12px;color:var(--band-muted);font-size:15px}
@@ -378,11 +378,11 @@ label.field{display:block;font-weight:600;font-size:15px;margin:0 0 6px}
     </div>
 
     <div id="gateBox" class="hidden">
-      <h3 data-i18n="gateEmailH"><label for="gateEmail">Your email</label> <small>for your deals and the Saturday email</small></h3>
+      <h3 data-i18n="gateEmailH"><label for="gateEmail">Your email</label> <small>for your deals and the Friday email</small></h3>
       <div class="gwrap hidden" id="gUp"><div class="gbtn" id="gBtnUp"></div><p class="or"><span data-i18n="orEmail">or type your email</span></p></div>
       <p class="gsigned hidden" id="gSigned"></p>
       <input id="gateEmail" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" data-i18n-ph="emailPh">
-      <p class="fine" data-i18n="gateFine">You'll get one email every Saturday with the best deals in your sizes. We'll send a link to confirm first. Unsubscribe with one tap. <a href="privacy.html">Privacy</a></p>
+      <p class="fine" data-i18n="gateFine">You'll get one email every Friday with the best deals in your sizes. We'll send a link to confirm first. Unsubscribe with one tap. <a href="privacy.html">Privacy</a></p>
     </div>
     </div>
     <div class="sheetfoot">
@@ -419,15 +419,15 @@ en:{
   clothSizeH:"Clothing size <small>tops, shorts, socks, gloves</small>",
   favBrands:'Favourite brands <span style="font-weight:400;color:var(--muted);margin-left:6px">optional</span>',favIntro:"These go to the top of your list.",
   addBrand:"Add another brand",add:"Add",emailPh:"you@example.com",
-  gateEmailH:'<label for="gateEmail">Your email</label> <small>for your deals and the Saturday email</small>',
-  gateFine:'You\'ll get one email every Saturday with the best deals in your sizes. We\'ll send a link to confirm first. Unsubscribe with one tap. <a href="privacy.html">Privacy</a>',
+  gateEmailH:'<label for="gateEmail">Your email</label> <small>for your deals and the Friday email</small>',
+  gateFine:'You\'ll get one email every Friday with the best deals in your sizes. We\'ll send a link to confirm first. Unsubscribe with one tap. <a href="privacy.html">Privacy</a>',
   sheetGateTitle:"Deals in your size",sheetTitle:"What fits you?",
   sheetGateIntro:"Pick what fits and add your email. We'll show every deal in your size, from stores across Canada.",
   sheetIntro:"Three taps and we'll hide everything that won't fit.",
   subscribeShow:"Subscribe & show my deals",showDeals:"Show my deals",oneMoment:"One moment…",
   errFit:"Pick men's, women's or both.",errSize:"Pick at least one shoe or clothing size.",errEmail:"Add a valid email to see your deals.",
   errServer:"Couldn't reach our server. Check your connection and try again.",
-  hereDeals:e=>`<b>Here are your deals.</b> We sent a link to ${e}. Tap it to start your Saturday email (check Promotions too).`,
+  hereDeals:e=>`<b>Here are your deals.</b> We sent a link to ${e}. Tap it to start your Friday email (check Promotions too).`,
   tellFit:"Tell us what fits",shoe:"Shoe",clothing:"Clothing",
   minAgo:m=>`${m} min ago`,hAgo:h=>`${h} h ago`,daysAgo:d=>`${d} days ago`,
   loadFail:"Couldn't load today's gear. Reload to try again.",loading:"Loading today's gear…",
@@ -436,7 +436,7 @@ en:{
   allGear:"All gear",shipsCA:"Ships from Canada",saleOnly:"Include full price",
   stopWatching:"Stop watching",watch:"Watch",removed:"Removed from your watchlist.",
   watching:"Watching. We'll email you if it drops or comes back in your size.",
-  watchingPending:"Watching. Confirm your email to get price-drop alerts.",watchingSignup:"Watching. Sign up for the Saturday email to get price-drop alerts.",
+  watchingPending:"Watching. Confirm your email to get price-drop alerts.",watchingSignup:"Watching. Sign up for the Friday email to get price-drop alerts.",
   watchlistChanges:n=>`Your watchlist, ${n} ${PL(n,"change","changes")}`,
   dropsTxt:n=>`${n} ${PL(n,"thing","things")} you're watching dropped in price`,backsTxt:n=>`${n} ${PL(n,"is","are")} back in your size`,and:" and ",
   goodNews:"Good news.",seeThem:"See them",
@@ -457,24 +457,24 @@ en:{
   lede:(s,a,w,u)=>`${s} on sale and ${a} in stock from ${w}${u?` · updated ${u}`:""}.`,
   secNew:"New since your last visit",secSale:"Top deals",
   nothing:"Nothing matches right now. Try clearing the search or picking more categories.",addSizes:"Add your sizes to hide gear that won't fit. ",
-  checkInbox:"Check your inbox",checkInboxTxt:e=>`Tap the link we sent to ${e} to start your Saturday email. It can land in Promotions.`,
-  otherEmail:"Use a different email",getDeals:"Get deals like these every Saturday",
-  getDealsTxt:"One email, Saturday morning, only gear on sale in your sizes.",email:"Email",signUp:"Sign up",
+  checkInbox:"Check your inbox",checkInboxTxt:e=>`Tap the link we sent to ${e} to start your Friday email. It can land in Promotions.`,
+  otherEmail:"Use a different email",getDeals:"Get deals like these every Friday",
+  getDealsTxt:"One email, Friday morning, only gear on sale in your sizes.",email:"Email",signUp:"Sign up",
   signupFine:'We\'ll email you to confirm. Unsubscribe with one tap. <a href="privacy.html">Privacy</a>',
   badEmail:"That email doesn't look right.",signupFail:m=>`Couldn't sign you up just now: ${m}`,
-  emailOn:e=>`Saturday email on for ${e} · <button type="button" id="stopEmail">Stop it</button>`,
-  emailStopped:"Saturday email stopped. Sign up again anytime from the shop.",serverDown:"Couldn't reach the server. Try again.",
+  emailOn:e=>`Friday email on for ${e} · <button type="button" id="stopEmail">Stop it</button>`,
+  emailStopped:"Friday email stopped. Sign up again anytime from the shop.",serverDown:"Couldn't reach the server. Try again.",
   linkBroken:"That link looks incomplete. Try copying the whole link from the email.",
-  stopQ:"Stop the Saturday deals email?",unsubscribe:"Unsubscribe",
-  unsubbed:"You're unsubscribed. No more Saturday emails. You can sign up again anytime from the shop.",
+  stopQ:"Stop the Friday deals email?",unsubscribe:"Unsubscribe",
+  unsubbed:"You're unsubscribed. No more Friday emails. You can sign up again anytime from the shop.",
   unsubFail:"Couldn't unsubscribe just now. Check your connection and tap the link again.",
   linkExpired:"That link has expired or was replaced. Sign up again from the shop to get a new one.",
-  youreIn:"<b>You're in.</b> Your first deals email arrives Saturday morning. This device is now linked to your profile.",
+  youreIn:"<b>You're in.</b> Your first deals email arrives Friday morning. This device is now linked to your profile.",
   offline:"Couldn't reach the server. Check your connection and reload.",
   langSwitch:"FR",langName:"Français",
   back:"← Back",next:"Next",step:(a,b)=>`Step ${a} of ${b}`,
   s1Title:"What fits you?",s1Intro:"Pick your fit and sizes. We'll hide everything that won't fit.",
-  s2Title:"Where should we send your deals?",s2Intro:"Your deals open right away. Every Saturday we'll email the best ones in your sizes.",
+  s2Title:"Where should we send your deals?",s2Intro:"Your deals open right away. Every Friday we'll email the best ones in your sizes.",
   cTitle:"Deals in your size",cIntro:"Sign up free, or sign back in. We'll ask your sizes only once.",cContinue:"Continue",
   cSizesIntro:"Last step: pick your fit and sizes.",
   wTitle:"Your size. On sale. Every day.",wIntro:half=>`<b>${half?"More than half":"Many"} of gear deals aren't available in your size.</b> Every morning we check running and outdoor stores across Canada and show you only the ones that are.`,
@@ -483,9 +483,9 @@ en:{
   seeN:n=>`See my ${n} deals`,
   orEmail:"or type your email",orLink:"or get a link by email",
   gSigned:e=>`Signed in with Google as <b>${e}</b>.`,
-  gateFineG:'You\'ll get one email every Saturday with the best deals in your sizes. Unsubscribe with one tap. <a href="privacy.html">Privacy</a>',gPick:"Pick your fit and at least one size, then tap the orange button.",
+  gateFineG:'You\'ll get one email every Friday with the best deals in your sizes. Unsubscribe with one tap. <a href="privacy.html">Privacy</a>',gPick:"Pick your fit and at least one size, then tap the orange button.",
   gWelcome:"<b>Welcome back.</b> Your sizes and watchlist are loaded on this device.",gFail:"Google sign-in didn't work. Use your email instead.",
-  gIn:"<b>You're in.</b> Your first deals email arrives Saturday morning.",
+  gIn:"<b>You're in.</b> Your first deals email arrives Friday morning.",
   memberQ:"Already a member?",signIn:"Sign in",
   alreadyQ:"Already signed up?",getLink:"Get your link",yourEmail:"Your email",newHere:"New here? Find my deals instead",
   signinFine:"We'll email you a link that opens your deals and sizes on this device.",signinTitle:"Welcome back",
@@ -504,15 +504,15 @@ fr:{
   clothSizeH:"Taille de vêtements <small>hauts, shorts, bas, gants</small>",
   favBrands:'Marques préférées <span style="font-weight:400;color:var(--muted);margin-left:6px">facultatif</span>',favIntro:"Elles s'affichent en premier dans votre liste.",
   addBrand:"Ajouter une autre marque",add:"Ajouter",emailPh:"vous@exemple.com",
-  gateEmailH:'<label for="gateEmail">Votre courriel</label> <small>pour vos aubaines et le courriel du samedi</small>',
-  gateFine:'Vous recevrez un courriel chaque samedi avec les meilleures aubaines dans vos tailles. On vous envoie d\'abord un lien de confirmation. Désabonnement en un clic. <a href="privacy.html">Confidentialité</a>',
+  gateEmailH:'<label for="gateEmail">Votre courriel</label> <small>pour vos aubaines et le courriel du vendredi</small>',
+  gateFine:'Vous recevrez un courriel chaque vendredi avec les meilleures aubaines dans vos tailles. On vous envoie d\'abord un lien de confirmation. Désabonnement en un clic. <a href="privacy.html">Confidentialité</a>',
   sheetGateTitle:"Des aubaines à votre taille",sheetTitle:"Qu'est-ce qui vous va?",
   sheetGateIntro:"Choisissez vos tailles et entrez votre courriel. On vous montre toutes les aubaines à votre taille, dans les boutiques partout au Canada.",
   sheetIntro:"Trois clics et on cache tout ce qui ne vous va pas.",
   subscribeShow:"M'abonner et voir mes aubaines",showDeals:"Voir mes aubaines",oneMoment:"Un instant…",
   errFit:"Choisissez homme, femme ou les deux.",errSize:"Choisissez au moins une pointure ou une taille de vêtements.",errEmail:"Entrez un courriel valide pour voir vos aubaines.",
   errServer:"Impossible de joindre notre serveur. Vérifiez votre connexion et réessayez.",
-  hereDeals:e=>`<b>Voici vos aubaines.</b> On a envoyé un lien à ${e}. Cliquez dessus pour activer votre courriel du samedi (regardez aussi dans Promotions).`,
+  hereDeals:e=>`<b>Voici vos aubaines.</b> On a envoyé un lien à ${e}. Cliquez dessus pour activer votre courriel du vendredi (regardez aussi dans Promotions).`,
   tellFit:"Dites-nous ce qui vous va",shoe:"Pointure",clothing:"Taille",
   minAgo:m=>`il y a ${m} min`,hAgo:h=>`il y a ${h} h`,daysAgo:d=>`il y a ${d} jours`,
   loadFail:"Impossible de charger les produits du jour. Rechargez la page.",loading:"Chargement des produits du jour…",
@@ -521,7 +521,7 @@ fr:{
   allGear:"Tout",shipsCA:"Expédié du Canada",saleOnly:"Inclure le prix régulier",
   stopWatching:"Retirer des favoris",watch:"Ajouter aux favoris",removed:"Retiré de vos favoris.",
   watching:"Ajouté. On vous écrit si le prix baisse ou si votre taille revient en stock.",
-  watchingPending:"Ajouté. Confirmez votre courriel pour recevoir les alertes de baisse de prix.",watchingSignup:"Ajouté. Abonnez-vous au courriel du samedi pour recevoir les alertes de baisse de prix.",
+  watchingPending:"Ajouté. Confirmez votre courriel pour recevoir les alertes de baisse de prix.",watchingSignup:"Ajouté. Abonnez-vous au courriel du vendredi pour recevoir les alertes de baisse de prix.",
   watchlistChanges:n=>`Vos favoris, ${n} ${PL(n,"changement","changements")}`,
   dropsTxt:n=>`${n} ${PL(n,"article de vos favoris a","articles de vos favoris ont")} baissé de prix`,backsTxt:n=>`${n} ${PL(n,"est","sont")} de retour dans votre taille`,and:" et ",
   goodNews:"Bonne nouvelle!",seeThem:"Voir",
@@ -542,24 +542,24 @@ fr:{
   lede:(s,a,w,u)=>`${s} en solde et ${a} en stock ${w}${u?` · mis à jour ${u}`:""}.`,
   secNew:"Nouveau depuis votre dernière visite",secSale:"Meilleures aubaines",
   nothing:"Rien ne correspond pour l'instant. Effacez la recherche ou choisissez plus de catégories.",addSizes:"Ajoutez vos tailles pour cacher ce qui ne vous va pas. ",
-  checkInbox:"Vérifiez vos courriels",checkInboxTxt:e=>`Cliquez sur le lien envoyé à ${e} pour activer votre courriel du samedi. Il peut arriver dans Promotions.`,
-  otherEmail:"Utiliser un autre courriel",getDeals:"Recevez des aubaines comme celles-ci chaque samedi",
-  getDealsTxt:"Un courriel le samedi matin, seulement des articles en solde dans vos tailles.",email:"Courriel",signUp:"M'abonner",
+  checkInbox:"Vérifiez vos courriels",checkInboxTxt:e=>`Cliquez sur le lien envoyé à ${e} pour activer votre courriel du vendredi. Il peut arriver dans Promotions.`,
+  otherEmail:"Utiliser un autre courriel",getDeals:"Recevez des aubaines comme celles-ci chaque vendredi",
+  getDealsTxt:"Un courriel le vendredi matin, seulement des articles en solde dans vos tailles.",email:"Courriel",signUp:"M'abonner",
   signupFine:'On vous écrit pour confirmer. Désabonnement en un clic. <a href="privacy.html">Confidentialité</a>',
   badEmail:"Ce courriel ne semble pas valide.",signupFail:m=>`Impossible de vous abonner pour l'instant : ${m}`,
-  emailOn:e=>`Courriel du samedi activé pour ${e} · <button type="button" id="stopEmail">L'arrêter</button>`,
-  emailStopped:"Courriel du samedi arrêté. Vous pouvez vous réabonner en tout temps depuis la boutique.",serverDown:"Impossible de joindre le serveur. Réessayez.",
+  emailOn:e=>`Courriel du vendredi activé pour ${e} · <button type="button" id="stopEmail">L'arrêter</button>`,
+  emailStopped:"Courriel du vendredi arrêté. Vous pouvez vous réabonner en tout temps depuis la boutique.",serverDown:"Impossible de joindre le serveur. Réessayez.",
   linkBroken:"Ce lien semble incomplet. Copiez le lien au complet à partir du courriel.",
-  stopQ:"Arrêter le courriel d'aubaines du samedi?",unsubscribe:"Me désabonner",
-  unsubbed:"Vous êtes désabonné. Plus de courriels le samedi. Vous pouvez vous réabonner en tout temps depuis la boutique.",
+  stopQ:"Arrêter le courriel d'aubaines du vendredi?",unsubscribe:"Me désabonner",
+  unsubbed:"Vous êtes désabonné. Plus de courriels le vendredi. Vous pouvez vous réabonner en tout temps depuis la boutique.",
   unsubFail:"Impossible de vous désabonner pour l'instant. Vérifiez votre connexion et cliquez de nouveau sur le lien.",
   linkExpired:"Ce lien a expiré ou a été remplacé. Réabonnez-vous depuis la boutique pour en recevoir un nouveau.",
-  youreIn:"<b>C'est fait.</b> Votre premier courriel d'aubaines arrive samedi matin. Cet appareil est maintenant lié à votre profil.",
+  youreIn:"<b>C'est fait.</b> Votre premier courriel d'aubaines arrive vendredi matin. Cet appareil est maintenant lié à votre profil.",
   offline:"Impossible de joindre le serveur. Vérifiez votre connexion et rechargez la page.",
   langSwitch:"EN",langName:"English",
   back:"← Retour",next:"Suivant",step:(a,b)=>`Étape ${a} sur ${b}`,
   s1Title:"Qu'est-ce qui vous va?",s1Intro:"Choisissez votre coupe et vos tailles. On cache tout ce qui ne vous va pas.",
-  s2Title:"Où envoyer vos aubaines?",s2Intro:"Vos aubaines s'ouvrent tout de suite. Chaque samedi, on vous envoie les meilleures dans vos tailles.",
+  s2Title:"Où envoyer vos aubaines?",s2Intro:"Vos aubaines s'ouvrent tout de suite. Chaque vendredi, on vous envoie les meilleures dans vos tailles.",
   cTitle:"Des aubaines à votre taille",cIntro:"Abonnez-vous gratuitement ou reconnectez-vous. On vous demande vos tailles une seule fois.",cContinue:"Continuer",
   cSizesIntro:"Dernière étape : choisissez votre coupe et vos tailles.",
   wTitle:"Des aubaines sur mesure.",wIntro:half=>`<b>${half?"Plus de la moitié":"Beaucoup"} des aubaines ne sont pas offertes dans votre taille.</b> Chaque matin, on parcourt les boutiques de course et de plein air partout au Canada et on vous montre seulement celles qui le sont.`,
@@ -568,9 +568,9 @@ fr:{
   seeN:n=>`Voir mes ${n} aubaines`,
   orEmail:"ou entrez votre courriel",orLink:"ou recevez un lien par courriel",
   gSigned:e=>`Connecté avec Google : <b>${e}</b>.`,
-  gateFineG:'Vous recevrez un courriel chaque samedi avec les meilleures aubaines dans vos tailles. Désabonnement en un clic. <a href="privacy.html">Confidentialité</a>',gPick:"Choisissez votre coupe et au moins une taille, puis touchez le bouton orange.",
+  gateFineG:'Vous recevrez un courriel chaque vendredi avec les meilleures aubaines dans vos tailles. Désabonnement en un clic. <a href="privacy.html">Confidentialité</a>',gPick:"Choisissez votre coupe et au moins une taille, puis touchez le bouton orange.",
   gWelcome:"<b>Bon retour!</b> Vos tailles et vos favoris sont chargés sur cet appareil.",gFail:"La connexion Google n'a pas fonctionné. Utilisez plutôt votre courriel.",
-  gIn:"<b>C'est fait.</b> Votre premier courriel d'aubaines arrive samedi matin.",
+  gIn:"<b>C'est fait.</b> Votre premier courriel d'aubaines arrive vendredi matin.",
   memberQ:"Déjà membre?",signIn:"Se connecter",
   alreadyQ:"Déjà abonné?",getLink:"Recevoir votre lien",yourEmail:"Votre courriel",newHere:"Nouveau? Trouvez plutôt vos aubaines",
   signinFine:"On vous envoie un lien qui ouvre vos aubaines et vos tailles sur cet appareil.",signinTitle:"Bon retour",
@@ -609,10 +609,12 @@ const LS={get(k){try{return JSON.parse(localStorage.getItem(k)||"null")}catch(e)
 const state={name:"",email:"",gender:"",ships:"ca",groups:ORDER.slice(),shoe:[],width:[],cloth:[],brands:[]};
 let customBrands=[];
 
+/* The browser's time zone, so the Friday email lands at 7am wherever the person lives */
+const TZ=(()=>{try{return Intl.DateTimeFormat().resolvedOptions().timeZone||""}catch(e){return ""}})();
 function toProfile(){
   const sizes={shoes:{sizes:state.shoe,width:state.width}};
   APPAREL_GROUPS.forEach(g=>sizes[g]={sizes:state.cloth});
-  return {lang:LANG,name:state.name,email:state.email,gender:state.gender,ships:state.ships,groups:state.groups,sizes,brands:state.brands,activities:[]};
+  return {lang:LANG,tz:TZ,name:state.name,email:state.email,gender:state.gender,ships:state.ships,groups:state.groups,sizes,brands:state.brands,activities:[]};
 }
 function applyProfile(p){
   if(!p)return;
@@ -1131,7 +1133,7 @@ function renderAll(){
   $("dealsFoot").textContent=(hasSizes()?"":t("addSizes"))+t("pricesChange");
 }
 
-/* ---------- Saturday email: subscribers live in Supabase ---------- */
+/* ---------- Friday email: subscribers live in Supabase ---------- */
 const SB_URL="https://krwymmkauwqqxjxbvkyq.supabase.co",SB_KEY="sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2";
 async function rpc(fn,args,bearer){
   const h={apikey:SB_KEY,"Content-Type":"application/json"};if(bearer)h.Authorization="Bearer "+bearer;
@@ -1284,7 +1286,8 @@ async function googleSubscribe(){
   const fromEmail=await linkFromEmail();
   if(!fromEmail&&sub&&sub.key){   // another device may have changed the profile: the server copy wins
     try{const r=await rpc("get_profile",{p_token:sub.key});
-      if(r){applyProfile({...r.profile,email:r.email});LS.set("rd-profile",toProfile());setSub({...sub,email:r.email,active:!!r.subscribed})}}
+      if(r){applyProfile({...r.profile,email:r.email});LS.set("rd-profile",toProfile());setSub({...sub,email:r.email,active:!!r.subscribed});
+        if(r.subscribed&&(r.profile||{}).tz!==TZ&&TZ)saveProfile()}}   // record (or update) their time zone
     catch(e){}
   }
   renderAll();
