@@ -1108,6 +1108,31 @@ def shoe_width_from_name(n, sx):
         return "narrow"
     return ""
 
+# Nutrition shops also sell flasks, bottles, tees and odds and ends; sort them properly.
+NUT_FOOD = re.compile(r"\b(gels?|chews?|bars?|mix|powder|tablets?|capsules?|servings?|sachets?|shots?|fuel|drink|coffee|brew|"
+                      r"protein|electrolytes?|recovery|oat(meal)?s?|power cups|brownie|muffin|flapjack|pre-?workout|sampler|"
+                      r"creatine|collagen|caffeine|\d+\s*mg|\d+\s*ct|pack of)\b|\+\s*(free\s*)?(\d+x\s*)?(race day\s*)?(bottles?|shirt|hat)", re.I)
+NUT_GEAR = re.compile(r"\b(soft ?flasks?|flasks?|bottles?|shakers?|race cup|musette|tote|grocery bag|boulder bag)\b", re.I)
+NUT_CAMP_BRANDS = {"msr", "jetboil", "primus", "snow peak", "soto", "optimus"}   # stove fuel, not runner fuel
+NUT_WEAR = re.compile(r"\b(tee|t-?shirt|shirt|hoodie|crew ?neck|socks?|hat|trucker|beanie|toque|tuque|visor)\b", re.I)
+NUT_DROP = re.compile(r"\b(stove|fuel pump|cann?ister|cooler|rental|vip box|gift ?card|subscription)\b", re.I)
+
+def tidy_nutrition(offers):
+    out = []
+    for o in offers:
+        if o["g"] == "nutrition":
+            n = o["n"]
+            if NUT_DROP.search(n) or (o["b"] or "").lower() in NUT_CAMP_BRANDS:
+                continue
+            if not NUT_FOOD.search(n):
+                if NUT_GEAR.search(n):
+                    o["g"] = "gear"
+                elif NUT_WEAR.search(n):
+                    o["g"] = ("headwear" if re.search(r"\b(hat|trucker|beanie|toque|tuque|visor)\b", n, re.I)
+                              else "socks" if re.search(r"\bsocks?\b", n, re.I) else "tops")
+        out.append(o)
+    return out
+
 def tidy_shoes(offers):
     """Drop casual footwear and narrow-only shoes; mark wide ones from the product name."""
     out = []
@@ -1189,7 +1214,7 @@ def mkey(o):
 
 def merge(offers):
     """Same product at several stores -> one item; each size keeps the cheapest store."""
-    offers = tidy_shoes(offers)
+    offers = tidy_nutrition(tidy_shoes(offers))
     items = {}
     for o in offers:
         o["b"] = tidy_brand(o["b"])
