@@ -1009,6 +1009,8 @@ SHOPIFY_STORES = [
     # added 2026-09-27
     ("endurance",      "https://www.boutiqueendurance.ca",   "gear"),   # Boutique Endurance (QC running)
     ("fitfirst",       "https://www.fitfirst.ca",            "gear"),   # Fit First Footwear (Calgary running)
+    # added 2026-09-30
+    ("capra",          "https://www.capra.run",              "gear"),   # Capra Running Co. (Squamish trail running)
     # socks
     ("feetures",       "https://www.feetures.com",           "socks"),
     ("balega",         "https://www.balega.com",             "socks"),
