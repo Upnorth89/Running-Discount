@@ -1079,7 +1079,9 @@ def make_shopify_scraper(st, base, kind):
             home = (get(f"{base}/meta.json", tries=2).json().get("currency") or "").upper() or None
         except Exception:
             pass
-        cookies = CA_COOKIES if home in (None, "CAD") else None
+        # always ask for the store's Canadian market: the price and stock a Canadian visitor actually gets
+        # (otherwise the store guesses from GitHub's server location: Chilean pesos, or "not available here")
+        cookies = CA_COOKIES
         served = shopify_price_currency(base, cookies)   # the currency the prices actually come back in
         home = home or served
         if not home:
@@ -1316,6 +1318,8 @@ def main():
             got = fn()
             if not got and st not in dict((x[0], 1) for x in SHOPIFY_STORES) and st not in ("mec", "rei"):
                 raise RuntimeError("0 items")
+            if not got and len(prev_offers.get(st, [])) >= 20:     # a store rarely empties overnight: keep yesterday's
+                raise RuntimeError(f"0 items today (had {len(prev_offers[st])})")
             for o in got:
                 o.setdefault("ca", st in CA_STORES)
             raw[st] = got
