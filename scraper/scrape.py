@@ -521,7 +521,26 @@ def feed_group(p):
 def scrape_thefeed():
     fx = usd_cad()                   # The Feed is a US store; show CAD
     print(f"  thefeed: USD->CAD {fx}", file=sys.stderr)
-    return shopify_items("thefeed", "https://thefeed.com", shopify_products("https://thefeed.com"), feed_group, fx)
+    prods = shopify_products("https://thefeed.com")
+    feed_report(prods)
+    return shopify_items("thefeed", "https://thefeed.com", prods, feed_group, fx)
+
+def feed_report(prods):
+    """Log The Feed's catalogue by product type: how many are on sale, and which types we leave out."""
+    def sale(p):
+        return any(v.get("available") and float(v.get("compare_at_price") or 0) > float(v["price"]) for v in p["variants"])
+    def tagged(p):      # marked sale/clearance in tags but with no "was" price we can read
+        return any(re.search(r"sale|clearance|closeout|short.?dated|bargain", t, re.I) for t in p.get("tags") or [])
+    types = {}
+    for p in prods:
+        n = types.setdefault((p.get("product_type") or "").strip() or "(none)", [0, 0, 0, bool(feed_group(p))])
+        n[0] += 1
+        n[1] += sale(p)
+        n[2] += tagged(p) and not sale(p)
+    print(f"  thefeed: {len(prods)} products, {sum(sale(p) for p in prods)} with a was-price, "
+          f"{sum(tagged(p) and not sale(p) for p in prods)} tagged sale without one", file=sys.stderr)
+    for t, (a, b, c, kept) in sorted(types.items(), key=lambda x: -x[1][1]):
+        print(f"    {'kept' if kept else 'left out'}: {t}: {a} products, {b} on sale, {c} tagged sale only", file=sys.stderr)
 
 S2S_GEAR = {"sunglasses": "gear", "bottles": "gear", "flasks": "gear", "clothing": None}
 def s2s_group(p):
