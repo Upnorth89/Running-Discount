@@ -15,6 +15,7 @@ https://claude.ai/code/artifact/36e1d545-7390-44fe-b080-80f03465af61
 - **Everything is bilingual (EN/FR).** Any new text needs both. French is Québec French ("courriel",
   "aubaines", "bas" for socks).
 - Be willing to push back; he asks for honest opinions.
+- **Push straight to `main`.** No pull requests or side branches (the site deploys from `main`).
 - **Never ask him to paste secret keys into chat.** Secrets live only in GitHub secrets, Supabase or Vault.
 - After every change, verify it landed: the right file in the right folder, the site updated, nothing broken.
 - Don't touch `email/profiles.json` (old sign-up list; kept out of commits). Subscribers live in Supabase.
