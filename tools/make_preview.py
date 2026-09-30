@@ -45,6 +45,7 @@ s = s.replace('href="privacy.html"', 'href="https://thegearfox.com/privacy.html"
 rep('<header class="topbar">', '''<div class="pv"><div class="pvin">
   <div class="pvrow"><b>Preview</b>
     <span class="pvseg" id="pvFlow" role="group" aria-label="First-visit version"><button type="button" data-f="A">A</button><button type="button" data-f="B">B</button><button type="button" data-f="C">C</button><button type="button" data-f="D">D</button></span>
+    <span class="pvseg" id="pvCards" role="group" aria-label="Deal cards on phones"><button type="button" data-c="compact">Cards: compact</button><button type="button" data-c="big">Cards: before</button></span>
     <button type="button" class="pvb" id="pvReset">Start as a new visitor</button>
     <button type="button" class="pvb" id="pvConfirm">Pretend I confirmed my email</button>
     <button type="button" class="pvb" id="pvDay">Pretend a day has passed</button>
@@ -101,6 +102,8 @@ G.render=function(){["gBtnW","gBtnUp","gBtnIn"].forEach(id=>{const el=$(id);if(!
 /* ---------- preview panel ---------- */
 function pvMsg(t){$("pvMsg").textContent=t}
 function pvClear(){["rd-profile","gf-sub","gf-watch","gf-last","gf-base","gf-clicks"].forEach(k=>LS.set(k,null))}
+document.querySelectorAll("#pvCards button").forEach(b=>{b.setAttribute("aria-pressed",String(b.dataset.c===CARDS));
+  b.addEventListener("click",()=>{try{localStorage.setItem("gf-cards",JSON.stringify(b.dataset.c))}catch(e){}location.reload()})});
 $("pvReset").addEventListener("click",()=>{pvClear();location.reload()});
 document.querySelectorAll("#pvFlow button").forEach(b=>{b.setAttribute("aria-pressed",String(b.dataset.f===FLOW));
   b.addEventListener("click",()=>{try{localStorage.setItem("gf-flow",JSON.stringify(b.dataset.f))}catch(e){}pvClear();location.reload()})});

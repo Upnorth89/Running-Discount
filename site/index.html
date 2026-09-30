@@ -172,6 +172,25 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
 .deal:hover{border-color:var(--ink)}
 .deal .pic{margin:-14px -14px 8px;aspect-ratio:1/1;background:#fff;border-radius:11px 11px 0 0;overflow:hidden;display:flex;align-items:center;justify-content:center}
 .deal .pic img{width:100%;height:100%;object-fit:contain;padding:10px}
+/* Phones: compact cards (photo on the left, details beside it) so several deals fit on one screen */
+@media(max-width:559px){
+  .compact .deal{display:grid;grid-template-columns:92px minmax(0,1fr);column-gap:12px;row-gap:2px;align-content:start;padding:10px 10px 10px}
+  .compact .deal>*{grid-column:2}
+  .compact .deal:not(:has(.pic)){grid-template-columns:minmax(0,1fr)}
+  .compact .deal:not(:has(.pic))>*{grid-column:1}
+  .compact .deal .pic{grid-column:1;grid-row:1/span 9;margin:0;width:92px;height:92px;border-radius:8px;align-self:start}
+  .compact .deal .pic img{padding:4px}
+  .compact .deal .top{margin:0}
+  .compact .deal .brand{font-size:14px}
+  .compact .deal .pct{font-size:16px;padding:3px 6px}
+  .compact .deal .name{font-size:15px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .compact .deal .price{margin-top:0}
+  .compact .deal .price b{font-size:22px}
+  .compact .deal .sizes,.compact .deal .store{font-size:13px;padding-right:40px}
+  .compact .dw .deal{padding-bottom:10px}
+  .compact .heart{right:4px;bottom:4px}
+  .compact .grid{gap:8px}
+}
 .deal .top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:2px}
 .deal .pct{font:800 20px/1 var(--display);background:var(--hivis);color:var(--hivis-ink);border:1.5px solid var(--ink);border-radius:6px;padding:4px 7px}
 .deal .brand{font-weight:600;font-size:15px;color:var(--moss)}
@@ -499,7 +518,7 @@ en:{
   s2Title:"Where should we send your deals?",s2Intro:"Your deals open right away. Every Friday we'll email the best ones in your sizes.",
   cTitle:"Deals in your size",cIntro:"Sign up free, or sign back in. We'll ask your sizes only once.",cContinue:"Continue",
   cSizesIntro:"Last step: pick your fit and sizes.",
-  wTitle:"Your size. On sale. Every day.",wIntro:half=>`<b>${half?"More than half":"Many"} of gear deals aren't available in your size.</b> Every morning we check running and outdoor stores across Canada and show you only the ones that are.`,
+  wTitle:"Your size. On sale. Every day.",wIntro:half=>`<b>${half?"More than half of":"Many"} gear deals aren't available in your size.</b> Every morning we check running and outdoor stores across Canada and show you only the ones that are.`,
   wGo:"Find my deals",wOr:"or with Google, one tap",wOnSale:"on sale today",wUpTo:p=>`up to ${p}%`,wOff:"off right now",wStores:"stores checked daily",
   liveAll:n=>`<b>${n}</b> deals on sale today`,liveYou:n=>`<b>${n}</b> deals on sale in your size right now`,
   seeN:n=>`See my ${n} deals`,
@@ -584,7 +603,7 @@ fr:{
   s2Title:"Où envoyer vos aubaines?",s2Intro:"Vos aubaines s'ouvrent tout de suite. Chaque vendredi, on vous envoie les meilleures dans vos tailles.",
   cTitle:"Des aubaines à votre taille",cIntro:"Abonnez-vous gratuitement ou reconnectez-vous. On vous demande vos tailles une seule fois.",cContinue:"Continuer",
   cSizesIntro:"Dernière étape : choisissez votre coupe et vos tailles.",
-  wTitle:"Des aubaines sur mesure.",wIntro:half=>`<b>${half?"Plus de la moitié":"Beaucoup"} des aubaines ne sont pas offertes dans votre taille.</b> Chaque matin, on parcourt les boutiques de course et de plein air partout au Canada et on vous montre seulement celles qui le sont.`,
+  wTitle:"Des aubaines sur mesure.",wIntro:half=>`<b>${half?"Plus de la moitié des ":"Beaucoup d'"}aubaines ne sont pas offertes dans votre taille.</b> Chaque matin, on parcourt les boutiques de course et de plein air partout au Canada et on vous montre seulement celles qui le sont.`,
   wGo:"Trouver mes aubaines",wOr:"ou avec Google, en un clic",wOnSale:"en solde aujourd'hui",wUpTo:p=>`jusqu'à ${p} %`,wOff:"de rabais en ce moment",wStores:"boutiques vérifiées chaque jour",
   liveAll:n=>`<b>${n}</b> aubaines en solde aujourd'hui`,liveYou:n=>`<b>${n}</b> aubaines en solde dans votre taille en ce moment`,
   seeN:n=>`Voir mes ${n} aubaines`,
@@ -841,6 +860,9 @@ fetch("deals.json",{cache:"no-store"}).then(r=>r.json()).then(d=>{DATA=d;ITEMS=d
   if(!$("sheet").classList.contains("hidden"))openSheet()})
   .catch(()=>{DATA={items:[]};$("dealList").innerHTML=`<div class="empty">${t("loadFail")}</div>`});
 const PAGE=8, MORE=24;
+const CARDS=LS0("gf-cards")||"compact";                    // "compact" (phones: photo beside the text) or "big"
+if(CARDS==="compact")document.body.classList.add("compact");
+const PAGE_CAT=CARDS==="compact"?4:PAGE;                  // each category starts short; "Show more" opens it
 const WORD={"ONE SIZE":"OS","O/S":"OS","X-SMALL":"XS","XSMALL":"XS","SMALL":"S","MEDIUM":"M","LARGE":"L","X-LARGE":"XL","XLARGE":"XL"};
 function norm(s){s=String(s).trim().toUpperCase();s=WORD[s]||s;return s.replace("XXXL","3XL").replace("XXL","2XL").replace("XXS","2XS")}
 const view={fullPrice:false,sort:"match",q:"",open:{},watch:false,newAll:false};
@@ -950,7 +972,7 @@ function section(key,title,list,cls){
       ${n>1?`<button type="button" class="seeall" data-newall>${t("seeAll",num(n))}<small>${t("asList")}</small></button>`:""}</div>
       ${n>1?`<button type="button" class="rowarrow prev" data-row="-1" aria-label="${LANG==="fr"?"Précédent":"Previous"}">‹</button><button type="button" class="rowarrow next" data-row="1" aria-label="${LANG==="fr"?"Suivant":"Next"}">›</button>`:""}</section>`;
   }
-  const lim=view.open[key]||PAGE;
+  const lim=view.open[key]||(key.startsWith("__")?PAGE:PAGE_CAT);
   const tail=key==="__new"&&NEWSTYLE==="row"?`<button type="button" class="linkbtn" data-newrow>${t("asRow")}</button>`:"";
   const note=key==="nutrition"&&state.ships!=="all"?`<p class="grpnote">${t("usFuel")}</p>`:"";
   return `<section class="grp ${cls||""}"><h2>${title} <small>${num(list.length)}</small>${tail}</h2>${note}<div class="grid">${list.slice(0,lim).map(d=>card(d)).join("")}</div>
@@ -987,7 +1009,7 @@ $("dealList").addEventListener("click",e=>{
   if(ar){const g=ar.parentNode.querySelector(".grid");g.scrollBy({left:(+ar.dataset.row)*g.clientWidth*0.8,behavior:"smooth"});return}
   if(e.target.closest("[data-newall]")){view.newAll=true;renderAll();return}
   if(e.target.closest("[data-newrow]")){view.newAll=false;renderAll();const s=document.querySelector(".grp.new");if(s)s.scrollIntoView({block:"start"});return}
-  const b=e.target.closest("[data-open]");if(!b)return;const k=b.dataset.open;view.open[k]=(view.open[k]||PAGE)+MORE;renderAll()});
+  const b=e.target.closest("[data-open]");if(!b)return;const k=b.dataset.open;view.open[k]=(view.open[k]||(k.startsWith("__")?PAGE:PAGE_CAT))+MORE;renderAll()});
 
 /* ---------- watchlist: saved on this device, synced to the server once the email is confirmed ---------- */
 const HEART='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 6.9 4.5c2.1 0 3.6 1.2 5.1 3 1.5-1.8 3-3 5.1-3 3.5 0 5.5 3.5 4.2 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>';
@@ -1147,8 +1169,10 @@ function renderAll(){
   const parts=[];
   if(!q.length){const ns=section("__new",t("secNew"),onSale.filter(d=>NEWSET.has(itemKey(d))).sort(SORTS[view.sort]),"new");
     if(CALM&&NEWSTYLE==="row"&&!view.newAll)$("newBox").innerHTML=ns;else parts.push(ns)}
-  parts.push(section("__sale",t("secSale"),onSale.slice().sort(SORTS[view.sort]),"sale"));
-  ORDER.filter(g=>p.groups.includes(g)).forEach(g=>parts.push(section(g,GL(g),shown.filter(d=>d.g===g))));
+  const top=onSale.slice().sort(SORTS[view.sort]);
+  parts.push(section("__sale",t("secSale"),top,"sale"));
+  const inTop=new Set(top.slice(0,view.open.__sale||PAGE).map(itemKey));   // don't show the same deal twice
+  ORDER.filter(g=>p.groups.includes(g)).forEach(g=>parts.push(section(g,GL(g),shown.filter(d=>d.g===g&&!inTop.has(itemKey(d))))));
   const body=parts.filter(Boolean);
   body.splice(Math.min(1,body.length),0,signupHTML());   // the email card sits right after the first block of deals
   $("dealList").innerHTML=body.join("")||`<div class="empty">${t("nothing")}</div>`;
@@ -1260,7 +1284,6 @@ const G={ready:false,nonce:"",
       auto_select:false,cancel_on_tap_outside:true,use_fedcm_for_prompt:true,itp_support:true,context:"signin"});
     G.ready=true;
     if(!$("sheet").classList.contains("hidden"))openSheet();
-    if(gated())google.accounts.id.prompt();      // the "Continue as …" bubble
   },
   render(){
     ["gBtnW","gBtnUp","gBtnIn"].forEach(id=>{const el=$(id);if(!el||el.offsetParent===null)return;el.innerHTML="";
