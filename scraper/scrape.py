@@ -1116,13 +1116,16 @@ NUT_GEAR = re.compile(r"\b(soft ?flasks?|flasks?|bottles?|shakers?|race cup|muse
 NUT_CAMP_BRANDS = {"msr", "jetboil", "primus", "snow peak", "soto", "optimus"}   # stove fuel, not runner fuel
 NUT_WEAR = re.compile(r"\b(tee|t-?shirt|shirt|hoodie|crew ?neck|socks?|hat|trucker|beanie|toque|tuque|visor)\b", re.I)
 NUT_DROP = re.compile(r"\b(stove|fuel pump|cann?ister|cooler|rental|vip box|gift ?card|subscription)\b", re.I)
+# bike parts some fuel shops also sell (handlebar tape, chain lube, tubes); not running gear either
+NUT_BIKE = re.compile(r"handlebar|bar ?tape|\bbartape\b|\bgrips?\b|chain (lube|wax)|\blube\b|\bsaddles?\b|"
+                      r"inner ?tubes?|\btubeless\b|\b(tires?|tyres?)\b|\bcleats?\b|\bderailleur|\bcassette\b|\bbike\b|cycling", re.I)
 
 def tidy_nutrition(offers):
     out = []
     for o in offers:
         if o["g"] == "nutrition":
             n = o["n"]
-            if NUT_DROP.search(n) or (o["b"] or "").lower() in NUT_CAMP_BRANDS:
+            if NUT_DROP.search(n) or NUT_BIKE.search(n) or (o["b"] or "").lower() in NUT_CAMP_BRANDS:
                 continue
             if not NUT_FOOD.search(n):
                 if NUT_GEAR.search(n):
@@ -1247,6 +1250,25 @@ def merge(offers):
             out.append(it)
     return out
 
+def report_groups(items):
+    """Log how many products each category has (and how many on sale), plus where the nutrition comes from."""
+    on_sale = lambda i: any(e[1] < e[3] * 0.99 for e in i["sz"])
+    groups = {}
+    for i in items:
+        n = groups.setdefault(i["g"], [0, 0])
+        n[0] += 1
+        n[1] += on_sale(i)
+    print("categories: " + ", ".join(f"{g} {a} ({b} on sale)" for g, (a, b) in sorted(groups.items())), file=sys.stderr)
+    by_store = {}
+    for i in items:
+        if i["g"] == "nutrition":
+            for st in set(i["_st"]):
+                n = by_store.setdefault(st, [0, 0])
+                n[0] += 1
+                n[1] += on_sale(i)
+    print("nutrition by store: " + ", ".join(f"{st} {a} ({b} on sale)" for st, (a, b) in
+                                             sorted(by_store.items(), key=lambda x: -x[1][0])), file=sys.stderr)
+
 def main():
     def load(path):
         try:
@@ -1284,6 +1306,7 @@ def main():
             print(f"{st}: FAILED ({m.group(1) if m else msg[:120]}); kept {len(raw[st])} from last run", file=sys.stderr)
         offers += raw[st]
     items = merge(offers)
+    report_groups(items)
     for it in items:
         it.pop("_st", None)
     items.sort(key=lambda i: (i["g"], i["b"].lower(), i["n"].lower()))
