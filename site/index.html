@@ -100,6 +100,20 @@ h1{font:800 clamp(30px,8vw,40px)/1.05 var(--display);letter-spacing:-.3px;margin
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chips.scroll{flex-wrap:nowrap;overflow-x:auto;margin:0 -16px;padding:2px 16px 6px;scrollbar-width:none}
 .chips.scroll::-webkit-scrollbar{display:none}
+/* With a mouse there's no swipe: show every chip on wrapped lines instead of a hidden sideways row */
+/* With a mouse there's no swipe: show every category at once, on wrapped lines, with smaller chips */
+@media (hover:hover) and (pointer:fine){
+  .chips.scroll{flex-wrap:wrap;overflow:visible;margin:0;padding:2px 0 6px;gap:6px}
+  #cats .chip{font-size:14px;padding:7px 12px;min-height:34px}
+}
+.rowarrow{display:none}
+@media (hover:hover) and (pointer:fine){
+  .newrow .grp.new{position:relative}
+  .rowarrow{display:flex;align-items:center;justify-content:center;position:absolute;top:10px;z-index:3;width:38px;height:38px;border-radius:50%;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:700 22px/1 var(--body);cursor:pointer}
+  .rowarrow.prev{right:60px}.rowarrow.next{right:14px}
+  .rowarrow:hover{background:var(--hivis);color:var(--hivis-ink)}
+  .grp h2 .swipe{display:none}
+}
 .chip{font:500 15px/1 var(--body);color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:11px 14px;cursor:pointer;min-height:44px;white-space:nowrap;flex:0 0 auto}
 .chip[aria-pressed="true"]{background:var(--hivis);color:var(--hivis-ink);border-color:var(--ink);font-weight:600}
 .tools{margin-top:2px}
@@ -463,7 +477,7 @@ en:{
   s2Title:"Where should we send your deals?",s2Intro:"Your deals open right away. Every Saturday we'll email the best ones in your sizes.",
   cTitle:"Deals in your size",cIntro:"Sign up free, or sign back in. We'll ask your sizes only once.",cContinue:"Continue",
   cSizesIntro:"Last step: pick your fit and sizes.",
-  wTitle:"Your size. On sale. Every day.",wIntro:()=>"Every morning we check running and outdoor stores across Canada and show you only what's on sale in your size.",
+  wTitle:"Your size. On sale. Every day.",wIntro:half=>`<b>${half?"More than half":"Many"} of gear deals aren't available in your size.</b> Every morning we check running and outdoor stores across Canada and show you only the ones that are.`,
   wGo:"Find my deals",wOr:"or with Google, one tap",wOnSale:"on sale today",wUpTo:p=>`up to ${p}%`,wOff:"off right now",wStores:"stores checked daily",
   liveAll:n=>`<b>${n}</b> deals on sale today`,liveYou:n=>`<b>${n}</b> deals on sale in your size right now`,
   seeN:n=>`See my ${n} deals`,
@@ -548,7 +562,7 @@ fr:{
   s2Title:"Où envoyer vos aubaines?",s2Intro:"Vos aubaines s'ouvrent tout de suite. Chaque samedi, on vous envoie les meilleures dans vos tailles.",
   cTitle:"Des aubaines à votre taille",cIntro:"Abonnez-vous gratuitement ou reconnectez-vous. On vous demande vos tailles une seule fois.",cContinue:"Continuer",
   cSizesIntro:"Dernière étape : choisissez votre coupe et vos tailles.",
-  wTitle:"Des aubaines sur mesure.",wIntro:()=>"Chaque matin, on parcourt les boutiques de course et de plein air partout au Canada et on vous montre seulement ce qui est en solde dans votre taille.",
+  wTitle:"Des aubaines sur mesure.",wIntro:half=>`<b>${half?"Plus de la moitié":"Beaucoup"} des aubaines ne sont pas offertes dans votre taille.</b> Chaque matin, on parcourt les boutiques de course et de plein air partout au Canada et on vous montre seulement celles qui le sont.`,
   wGo:"Trouver mes aubaines",wOr:"ou avec Google, en un clic",wOnSale:"en solde aujourd'hui",wUpTo:p=>`jusqu'à ${p} %`,wOff:"de rabais en ce moment",wStores:"boutiques vérifiées chaque jour",
   liveAll:n=>`<b>${n}</b> aubaines en solde aujourd'hui`,liveYou:n=>`<b>${n}</b> aubaines en solde dans votre taille en ce moment`,
   seeN:n=>`Voir mes ${n} aubaines`,
@@ -669,6 +683,18 @@ function renderLive(){
   const n=sizesOK()?saleCount(p):allSale().length;
   el.innerHTML=sizesOK()?t("liveYou",num(n)):t("liveAll",num(n));el.classList.remove("hidden");
 }
+/* Share of today's sized gear deals (shoes and clothing) a typical person can't get at the sale price:
+   common men's and women's shoe + clothing sizes, averaged. Backs the welcome line
+   "More than half of gear deals aren't available in your size". */
+let MISS=null;
+function missShare(){if(MISS!==null||!DATA)return MISS||0;
+  const people=[["M","9","M"],["M","10","L"],["M","11","M"],["W","7","S"],["W","8","M"],["W","9","S"]],r=[];
+  for(const [G,shoe,cl] of people){let tot=0,fit=0;const g=G==="M"?"men":"women";
+    for(const d of ITEMS){if(!SIZED.has(d.g)||d.ca===false||(d.sx.length&&!d.sx.includes(g)))continue;
+      const sale=d.sz.filter(e=>e.length>3&&e[1]<e[3]*0.99);if(!sale.length||sale.every(e=>e[0]==="OS"))continue;tot++;
+      if(d.g==="shoes"?sale.some(e=>{const k=shoeKey(e[0]);return k&&k.n===shoe&&k.w!=="N"&&(!k.g||k.g===G)}):sale.some(e=>norm(e[0])===cl))fit++}
+    if(tot)r.push(1-fit/tot)}
+  MISS=r.length?r.reduce((a,b)=>a+b,0)/r.length:0;return MISS}
 const storesLabel=()=>{const n=Object.keys((DATA&&DATA.stores)||{}).length||40;return Math.max(10,Math.floor(n/10)*10)+"+"};
 function renderWelcome(){
   if(!DATA)return;
@@ -690,7 +716,7 @@ function openSheet(){lastFocus=document.activeElement;renderSheet();
   let showSizes=true,showGate=g,showWelcome=false,title=t("sheetTitle"),intro=t("sheetIntro"),btn=t("showDeals");
   if(g&&!si){
     if(FLOW==="A"){title=t("sheetGateTitle");intro=t("sheetGateIntro");btn=t("subscribeShow")}
-    else if(step===0){if(!openSheet.seenW){openSheet.seenW=1;track("welcome-view",{lang:LANG})}showSizes=false;showGate=false;showWelcome=true;title=t("wTitle");intro=t("wIntro",storesLabel());btn=t("wGo");renderWelcome()}
+    else if(step===0){if(!openSheet.seenW){openSheet.seenW=1;track("welcome-view",{lang:LANG})}showSizes=false;showGate=false;showWelcome=true;title=t("wTitle");intro=t("wIntro",missShare()>=0.5);btn=t("wGo");renderWelcome()}
     else if(FLOW==="C"&&step===1){showSizes=false;title=t("cTitle");intro=t("cIntro");btn=t("cContinue")}
     else if(FLOW==="C"&&step===2){showGate=false;title=t("s1Title");intro=gSession?t("gSigned",esc(gSession.email))+" "+t("cSizesIntro"):t("cSizesIntro");btn=t("subscribeShow")}
     else if(step===1){showGate=false;title=t("s1Title");intro=gSession?t("gSigned",esc(gSession.email))+" "+t("cSizesIntro"):t("s1Intro");btn=gSession?t("subscribeShow"):t("next")}
@@ -897,7 +923,8 @@ function section(key,title,list,cls){
   if(key==="__new"&&NEWSTYLE==="row"&&!view.newAll){       // one swipeable row, then "See all" as a list
     const n=list.length,row=list.slice(0,24);
     return `<section class="grp ${cls||""}"><h2>${title} <small>${num(n)}</small>${n>1?`<span class="swipe" aria-hidden="true">${t("swipe")}</span>`:""}</h2><div class="grid">${row.map(d=>card(d)).join("")}
-      ${n>1?`<button type="button" class="seeall" data-newall>${t("seeAll",num(n))}<small>${t("asList")}</small></button>`:""}</div></section>`;
+      ${n>1?`<button type="button" class="seeall" data-newall>${t("seeAll",num(n))}<small>${t("asList")}</small></button>`:""}</div>
+      ${n>1?`<button type="button" class="rowarrow prev" data-row="-1" aria-label="${LANG==="fr"?"Précédent":"Previous"}">‹</button><button type="button" class="rowarrow next" data-row="1" aria-label="${LANG==="fr"?"Suivant":"Next"}">›</button>`:""}</section>`;
   }
   const lim=view.open[key]||PAGE;
   const tail=key==="__new"&&NEWSTYLE==="row"?`<button type="button" class="linkbtn" data-newrow>${t("asRow")}</button>`:"";
@@ -926,9 +953,13 @@ $("toggles").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!
 $("sort").addEventListener("change",e=>{view.sort=e.target.value;view.open={};renderAll()});
 let searchT;$("dSearch").addEventListener("input",e=>{clearTimeout(searchT);searchT=setTimeout(()=>{view.q=e.target.value;view.open={};renderAll()},200)});
 $("newBox").addEventListener("click",e=>{
+  const ar=e.target.closest("[data-row]");
+  if(ar){const g=ar.parentNode.querySelector(".grid");g.scrollBy({left:(+ar.dataset.row)*g.clientWidth*0.8,behavior:"smooth"});return}
   if(e.target.closest("[data-newall]")){view.newAll=true;renderAll();const s=document.querySelector("#dealList .grp.new");if(s)s.scrollIntoView({block:"start"})}});
 $("filtBtn").addEventListener("click",()=>{const f=$("filtersBox"),o=!f.classList.contains("open");f.classList.toggle("open",o);$("filtBtn").setAttribute("aria-expanded",String(o))});
 $("dealList").addEventListener("click",e=>{
+  const ar=e.target.closest("[data-row]");
+  if(ar){const g=ar.parentNode.querySelector(".grid");g.scrollBy({left:(+ar.dataset.row)*g.clientWidth*0.8,behavior:"smooth"});return}
   if(e.target.closest("[data-newall]")){view.newAll=true;renderAll();return}
   if(e.target.closest("[data-newrow]")){view.newAll=false;renderAll();const s=document.querySelector(".grp.new");if(s)s.scrollIntoView({block:"start"});return}
   const b=e.target.closest("[data-open]");if(!b)return;const k=b.dataset.open;view.open[k]=(view.open[k]||PAGE)+MORE;renderAll()});
