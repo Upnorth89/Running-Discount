@@ -2,13 +2,13 @@
 """The Gear Fox watchlist alerts.
 
 Runs once a day after the deals refresh. For every confirmed subscriber's watched product it works
-out today's best price in their sizes (same rules as the site and the Saturday email), then sends
+out today's best price in their sizes (same rules as the site and the Friday email), then sends
 ONE email per person when something changed:
   * price drop: at least 10% or $10 below the last price we told them about
   * back in your size: out of stock in their sizes at the last check, in stock today
 Rules that keep email volume low:
   * at most one alert every 3 days per person (changes in between wait and go out together)
-  * no alerts on Saturdays: the Saturday deals email carries the watchlist news instead
+  * no alerts on Fridays: the Friday deals email carries the watchlist news instead
 It then saves today's price and stock on each watch so the next run only reports new changes.
 
 Env: RESEND_API_KEY, SUPABASE_URL, SUPABASE_SECRET_KEY, SITE_URL, FROM_EMAIL, MAILING_ADDRESS
@@ -197,8 +197,8 @@ def main():
     print(f"{len(rows)} watched items from confirmed subscribers, {len(items)} products today")
 
     now = datetime.now(timezone.utc)
-    if not FORCE and now.astimezone(ZoneInfo(TZ)).weekday() == 5:
-        print("Saturday: no alerts today, the Saturday email carries watchlist news")
+    if not FORCE and now.astimezone(ZoneInfo(TZ)).weekday() == 4:
+        print("Friday: no alerts today, the Friday email carries watchlist news")
         return 0
     people = evaluate(rows, by_key, now)
     updates = []

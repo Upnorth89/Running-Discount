@@ -149,7 +149,7 @@ STR = {
                hi="Hi", intro="{}, here are this week's sales on gear in your sizes, every price drop, big or small. Best deals first.",
                title="Your weekly deals", open_shop="Open your shop",
                fine="Prices and stock change daily; the product page has the final price.<br>"
-                    "You get this because you signed up for Saturday deals on The Gear Fox. Outfox full price.",
+                    "You get this because you signed up for Friday deals on The Gear Fox. Outfox full price.",
                was="was", all_deals="All deals", logo="logo-email.png"),
     "fr": dict(your_size="Votre taille : ", best_by="Meilleur avant le {}",
                abroad="Expédié de l'extérieur du Canada · converti en $ CA, des droits peuvent s'appliquer",
@@ -162,7 +162,7 @@ STR = {
                                    "Les meilleures aubaines d'abord.",
                title="Vos aubaines de la semaine", open_shop="Voir ma boutique",
                fine="Les prix et les stocks changent chaque jour; le prix final est sur la page du produit.<br>"
-                    "Vous recevez ce courriel parce que vous êtes abonné aux aubaines du samedi de The Gear Fox. Flairez les aubaines.",
+                    "Vous recevez ce courriel parce que vous êtes abonné aux aubaines du vendredi de The Gear Fox. Flairez les aubaines.",
                was="avant", all_deals="Toutes les aubaines", logo="logo-email-fr.png"),
 }
 
@@ -304,13 +304,56 @@ def subscribers():
         print("Supabase not configured, using email/profiles.json only")
         return []
     r = requests.get(f"{SB_URL}/rest/v1/subscribers", timeout=60,
-                     params={"select": "email,profile,token", "confirmed_at": "not.is.null", "unsubscribed_at": "is.null"},
+                     params={"select": "email,profile,token,weekly_sent_at", "confirmed_at": "not.is.null", "unsubscribed_at": "is.null"},
                      headers={"apikey": SB_KEY, "Authorization": f"Bearer {SB_KEY}"} if SB_KEY.count(".") == 2
                      else {"apikey": SB_KEY})
     r.raise_for_status()
-    out = [{**(row["profile"] or {}), "email": row["email"], "token": row["token"]} for row in r.json()]
+    out = [{**(row["profile"] or {}), "email": row["email"], "token": row["token"], "_sent": row.get("weekly_sent_at")}
+           for row in r.json()]
     print(f"{len(out)} subscribers in Supabase")
     return out
+
+# ---------- 7am in each subscriber's own time zone ----------
+# The workflow runs every hour on Friday morning (UTC). Each run sends to the people for whom it is now
+# Friday, 7am or later, and who haven't had this week's email (weekly_sent_at, saved after each send).
+# The time zone comes from the browser at sign-up (profile "tz"); without one: French -> Eastern, else Pacific.
+SEND_HOUR, SEND_DAY = 7, 4          # 7am, Friday (Monday = 0)
+def local_now(p, now=None):
+    from datetime import datetime, timezone
+    from zoneinfo import ZoneInfo
+    tz = p.get("tz") or ("America/Toronto" if lang_of(p) == "fr" else "America/Vancouver")
+    try:
+        z = ZoneInfo(tz)
+    except Exception:
+        z = ZoneInfo("America/Vancouver")
+    return (now or datetime.now(timezone.utc)).astimezone(z)
+
+def due(p, now=None):
+    from datetime import datetime, timezone, timedelta
+    now = now or datetime.now(timezone.utc)
+    t = local_now(p, now)
+    if t.weekday() != SEND_DAY or t.hour < SEND_HOUR:
+        return False
+    if not p.get("token"):                   # old file-based profiles: no record of sends, so only in the 7am hour
+        return t.hour == SEND_HOUR
+    sent = p.get("_sent")
+    if sent:
+        try:
+            if now - datetime.fromisoformat(sent.replace("Z", "+00:00")) < timedelta(days=3):
+                return False                 # already had this week's email
+        except Exception:
+            pass
+    return True
+
+def mark_sent(p):
+    from datetime import datetime, timezone
+    if not p.get("token"):
+        return
+    try:
+        import alerts as A
+        A.sb("PATCH", f"subscribers?token=eq.{p['token']}", json={"weekly_sent_at": datetime.now(timezone.utc).isoformat()})
+    except Exception as e:
+        print(f"  could not record the send for {p['email']}: {e}")
 
 def main():
     profiles = []
@@ -334,6 +377,10 @@ def main():
         print(f"TEST SEND to {len(profiles)} of the subscribers only")
         if not profiles:
             return 1
+    if not SEND_TO:                          # the scheduled runs: only people for whom it's 7am (or later) now
+        before = len(profiles)
+        profiles = [p for p in profiles if due(p)]
+        print(f"{len(profiles)} of {before} subscribers are due now (Friday, 7am or later where they live)")
     if not ADDRESS:
         print("WARNING: MAILING_ADDRESS is not set; CASL requires a postal address in the footer")
     if DEALS_URL:
@@ -377,6 +424,8 @@ def main():
                                 **({"headers": {"List-Unsubscribe": f"<{SITE_URL}?unsub={p['token']}>"}} if p.get("token") else {})})
         if r.ok:
             print(f"{who}: sent {len(sale)} deals" + (" + watchlist news" if has_watch else ""))
+            if not SEND_TO:
+                mark_sent(p)
             if watch:
                 import alerts as A
                 for wid, upd in watch["updates"]:

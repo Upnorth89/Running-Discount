@@ -32,8 +32,8 @@ NOW = datetime.now(timezone.utc)
 TO = os.environ.get("HEALTH_EMAIL", "hello@thegearfox.com")
 FROM = os.environ.get("FROM_EMAIL", "The Gear Fox <deals@thegearfox.com>")
 
-# Free Resend plan: 100 emails a day, 3,000 a month. Weekly email = 1 per subscriber per Saturday.
-WEEKLY_SUBS_WARN = 500      # ~650 subscribers x 4.3 Saturdays = the monthly cap
+# Free Resend plan: 100 emails a day, 3,000 a month. Weekly email = 1 per subscriber per Friday.
+WEEKLY_SUBS_WARN = 500      # ~650 subscribers x 4.3 Fridays = the monthly cap
 DAILY_SIGNUPS_WARN = 60     # confirmation emails + alerts share the 100/day cap
 SAVED = {"mec", "rei"}      # stores read from pages you save by hand (their sites block automated access)
 
@@ -126,7 +126,7 @@ def check():
             new = count({"created_at": f"gte.{(NOW - timedelta(hours=24)).isoformat()}"})
             if subs >= WEEKLY_SUBS_WARN:
                 problems.append(("subs", f"{subs} subscribers: the free email plan (3,000 a month) covers about 650. "
-                                         f"Time to upgrade Resend before a Saturday send gets cut off."))
+                                         f"Time to upgrade Resend before a Friday send gets cut off."))
             if new >= DAILY_SIGNUPS_WARN:
                 problems.append(("signups", f"{new} sign-ups in the last 24 hours: the free email plan allows 100 emails a day, "
                                             f"confirmations included. Upgrade Resend if this keeps up."))
