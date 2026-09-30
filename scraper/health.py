@@ -29,7 +29,7 @@ import requests
 
 PREV, SITE = Path(sys.argv[1]), Path(sys.argv[2])
 NOW = datetime.now(timezone.utc)
-TO = os.environ.get("HEALTH_EMAIL", "hello@thegearfox.com")
+TO = (os.environ.get("HEALTH_EMAIL") or "hello@thegearfox.com").strip()   # a GitHub secret can point it straight at your inbox
 FROM = os.environ.get("FROM_EMAIL", "The Gear Fox <deals@thegearfox.com>")
 
 # Free Resend plan: 100 emails a day, 3,000 a month. Weekly email = 1 per subscriber per Friday.
