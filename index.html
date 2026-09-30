@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Gear Fox — gear deals in your size</title>
+<meta name="description" content="The Gear Fox finds running and outdoor gear on sale in your size, from stores across Canada and beyond. Outfox full price.">
+<meta name="theme-color" content="#F26A1B">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:title" content="The Gear Fox — Outfox full price">
+<meta property="og:description" content="Gear deals in your size, from stores across Canada and beyond.">
+<meta property="og:image" content="logo-email.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#17201C; --muted:#5C6660; --mist:#EEF1EC; --card:#FFFFFF; --line:#CBD2CC;
+  --moss:#B8470A; --hivis:#F26A1B; --hivis-ink:#17201C; --err:#B3261E; --scrim:rgba(23,32,28,.55);
+  --band:#17201C; --band-ink:#FFFFFF; --band-muted:#C9D1CC;
+  --body:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --display:"Barlow Condensed","Arial Narrow",Impact,system-ui,sans-serif;
+  box-sizing:border-box;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ink:#E7ECE8; --muted:#9BA6A0; --mist:#121815; --card:#1B2320; --line:#34403A;
+    --moss:#FF9A5C; --hivis:#F26A1B; --hivis-ink:#121815; --err:#FF8A80; --scrim:rgba(0,0,0,.6);
+    --band:#26312C; --band-ink:#E7ECE8; --band-muted:#AEB8B2;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#E7ECE8; --muted:#9BA6A0; --mist:#121815; --card:#1B2320; --line:#34403A;
+  --moss:#FF9A5C; --hivis:#F26A1B; --hivis-ink:#121815; --err:#FF8A80; --scrim:rgba(0,0,0,.6);
+  --band:#26312C; --band-ink:#E7ECE8; --band-muted:#AEB8B2;
+}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--mist);color:var(--ink);font:400 17px/1.5 var(--body);-webkit-font-smoothing:antialiased}
+body.locked{overflow:hidden}
+.wrap{max-width:680px;margin:0 auto;padding:18px 16px 60px}
+a{color:var(--moss)}
+.hidden{display:none!important}
+input:focus-visible,button:focus-visible,summary:focus-visible,select:focus-visible{outline:3px solid var(--moss);outline-offset:2px}
+
+/* top bar */
+.topbar{position:sticky;top:0;z-index:20;background:var(--card);border-bottom:1.5px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+.topbar .in{max-width:680px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:14px}
+.topbar .logo{display:flex;flex-direction:column;align-items:center;flex:0 0 auto;text-decoration:none;color:var(--ink)}
+.topbar .logo img{height:40px;width:auto;display:block}
+.topbar .logo .tag{display:flex;align-items:center;gap:5px;margin-top:3px;font:600 8.5px/1 var(--body);letter-spacing:.16em;white-space:nowrap}
+.topbar .logo .tag::before,.topbar .logo .tag::after{content:"";width:10px;height:1.5px;background:var(--hivis);border-radius:1px}
+@media(min-width:560px){.topbar .logo img{height:48px}.topbar .logo .tag{font-size:10px}.topbar .logo .tag::before,.topbar .logo .tag::after{width:16px}}
+.iconbtn{margin-left:auto;display:flex;align-items:center;gap:8px;font:600 16px/1 var(--body);color:var(--ink);background:transparent;border:1.5px solid var(--line);border-radius:999px;padding:0 14px 0 10px;min-height:44px;cursor:pointer}
+.iconbtn svg{flex:0 0 auto}
+.watchbtn{position:relative;display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;flex:0 0 auto}
+.watchbtn[aria-pressed="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.watchbtn .n{position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;border-radius:10px;background:var(--hivis);color:var(--hivis-ink);border:1.5px solid var(--card);font:700 12px/17px var(--body);text-align:center;padding:0 4px}
+.watchbtn .n:empty{display:none}
+.langbtn{font:700 14px/1 var(--body);letter-spacing:.04em;color:var(--ink);background:transparent;border:1.5px solid var(--line);border-radius:999px;min-width:44px;min-height:44px;padding:0 10px;cursor:pointer}
+.iconbtn{margin-left:0}.topbar .spacer{flex:1}
+@media(max-width:400px){.iconbtn .lbl{display:none}.iconbtn{padding:0 10px}}
+@media(max-width:480px){#openSizes{display:none}.topbar .in{gap:8px}}
+.dw{position:relative;display:flex;min-width:0}
+.dw .deal{flex:1;padding-bottom:14px}
+.heart{position:absolute;right:8px;bottom:8px;width:44px;height:44px;border-radius:50%;border:0;background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.heart:hover{color:var(--ink)}
+.heart[aria-pressed="true"]{color:var(--hivis)}
+.heart[aria-pressed="true"] svg path{fill:currentColor}
+.deal.gone{border-style:dashed}
+.deal.gone .gonetxt{font-size:14px;color:var(--muted)}
+.backlink{font:600 16px var(--body);color:var(--moss);background:none;border:0;padding:0;min-height:44px;cursor:pointer}
+.badge{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;font:700 13px/1.2 var(--body);border-radius:6px;padding:4px 8px;margin-top:4px}
+.badge.drop{background:var(--hivis);color:var(--hivis-ink);border:1.5px solid var(--ink)}
+.badge.low{background:var(--ink);color:var(--card)}
+.badge.back{background:transparent;color:var(--ink);border:1.5px solid var(--ink)}
+.badge.new{background:transparent;color:var(--moss);border:1.5px solid var(--moss);padding:2px 6px;font-size:12px}
+.watchbtn.hot .n{background:var(--hivis);color:var(--hivis-ink)}
+.watchbtn .n{background:var(--ink);color:var(--card)}
+.watchbtn.hot::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid var(--hivis);opacity:.8}
+@media (prefers-reduced-motion:no-preference){.watchbtn.hot::after{animation:ping 2.4s ease-out 3}}
+@keyframes ping{0%{transform:scale(.85);opacity:.9}100%{transform:scale(1.25);opacity:0}}
+.stats{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.stat{display:inline-flex;align-items:center;gap:6px;font:600 14px/1.2 var(--body);background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:8px 12px;color:var(--ink)}
+.stat b{font:800 17px/1 var(--display)}
+.stat button{font:inherit;color:var(--moss);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;min-height:24px}
+.watchnews{display:flex;align-items:center;gap:12px;background:var(--card);border:1.5px solid var(--hivis);border-radius:12px;padding:12px 14px;margin:0 0 14px;font-size:15px}
+.watchnews span{flex:1}
+.watchnews .btn{border-color:var(--hivis);white-space:nowrap}
+.grp.new h2::before{content:"";width:12px;height:12px;border-radius:50%;background:transparent;border:2px solid var(--moss);align-self:center}
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:50;background:var(--ink);color:var(--card);border-radius:12px;padding:12px 16px;font-size:15px;max-width:min(92vw,460px);box-shadow:0 6px 24px rgba(0,0,0,.25)}
+
+/* size pill + heading */
+.sizepill{display:flex;align-items:center;gap:10px;width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:10px 16px;min-height:48px;cursor:pointer;font:600 15px/1.3 var(--body);color:var(--ink);text-align:left}
+.sizepill span:first-child{flex:1;min-width:0}
+.sizepill .edit{color:var(--moss)}
+h1{font:800 clamp(30px,8vw,40px)/1.05 var(--display);letter-spacing:-.3px;margin:22px 0 4px}
+.lede{margin:0 0 14px;color:var(--muted);font-size:15px}
+
+/* chips + filters */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips.scroll{flex-wrap:nowrap;overflow-x:auto;margin:0 -16px;padding:2px 16px 6px;scrollbar-width:none}
+.chips.scroll::-webkit-scrollbar{display:none}
+/* With a mouse there's no swipe: show every chip on wrapped lines instead of a hidden sideways row */
+/* With a mouse there's no swipe: show every category at once, on wrapped lines, with smaller chips */
+@media (hover:hover) and (pointer:fine){
+  .chips.scroll{flex-wrap:wrap;overflow:visible;margin:0;padding:2px 0 6px;gap:6px}
+  #cats .chip{font-size:14px;padding:7px 12px;min-height:34px}
+}
+.rowarrow{display:none}
+@media (hover:hover) and (pointer:fine){
+  .newrow .grp.new{position:relative}
+  .rowarrow{display:flex;align-items:center;justify-content:center;position:absolute;top:10px;z-index:3;width:38px;height:38px;border-radius:50%;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:700 22px/1 var(--body);cursor:pointer}
+  .rowarrow.prev{right:60px}.rowarrow.next{right:14px}
+  .rowarrow:hover{background:var(--hivis);color:var(--hivis-ink)}
+  .grp h2 .swipe{display:none}
+}
+.chip{font:500 15px/1 var(--body);color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:11px 14px;cursor:pointer;min-height:44px;white-space:nowrap;flex:0 0 auto}
+.chip[aria-pressed="true"]{background:var(--hivis);color:var(--hivis-ink);border-color:var(--ink);font-weight:600}
+.tools{margin-top:2px}
+select.sort{flex:0 0 auto;font:500 15px var(--body);color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:0 14px;min-height:44px;cursor:pointer}
+input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:11px 14px;min-height:44px}
+.search{margin-top:10px}
+.btn{font:600 16px/1 var(--body);border-radius:10px;border:1.5px solid var(--ink);background:var(--card);color:var(--ink);padding:12px 16px;cursor:pointer;min-height:44px}
+.primary{font:700 20px/1 var(--display);letter-spacing:.3px;background:var(--hivis);color:var(--hivis-ink);border:2px solid var(--ink);border-radius:12px;padding:14px 22px;cursor:pointer;min-height:52px}
+.primary:disabled{opacity:.5;cursor:not-allowed}
+
+/* deals */
+#dealList{margin-top:22px}
+.grp{margin:0 0 30px}
+.grp h2{display:flex;align-items:baseline;gap:10px;font:700 26px/1.1 var(--display);margin:0 0 10px}
+.grp h2 small{font:500 15px/1 var(--body);color:var(--muted)}
+/* "New since your last visit" vs the rest. A: new deals in one swipeable row. B: sticky section headings. */
+.newrow .grp.new .grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 16px;gap:10px;margin:0 -16px;padding:2px 16px 10px;scrollbar-width:thin}
+.newrow .grp.new h2{font-size:22px;flex-wrap:wrap;row-gap:2px}
+.newrow .grp.new h2 .swipe{white-space:nowrap}
+.newrow .grp.new .dw{flex:0 0 78%;max-width:300px;scroll-snap-align:start}
+@media(min-width:560px){.newrow .grp.new .dw{flex-basis:46%}}
+.newrow .grp.new{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:14px 16px 6px;margin:0 0 34px;overflow:hidden}
+.newrow .grp.new .deal{background:var(--mist)}
+.seeall{flex:0 0 42%;max-width:190px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:transparent;border:1.5px dashed var(--moss);border-radius:12px;color:var(--moss);font:800 22px/1.1 var(--display);cursor:pointer;scroll-snap-align:start;text-align:center;padding:12px;min-height:120px}
+.seeall small{font:500 14px var(--body);color:var(--muted)}
+.grp h2 .swipe{margin-left:auto;font:600 14px var(--body);color:var(--muted)}
+.grp h2 .linkbtn{margin-left:auto;font:600 14px var(--body);color:var(--moss);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer;min-height:32px}
+@media(min-width:900px){.grp h2 .swipe{display:none}}
+/* Calm top (returning visitors): sizes as one line, filters behind a button, new deals right under the title */
+.subhead{margin:0 0 2px;font:600 15px/1.4 var(--body);color:var(--ink)}
+.linkbtn{font:600 15px var(--body);color:var(--moss);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer;min-height:32px}
+.searchrow{display:flex;gap:8px;margin-top:10px}
+.searchrow .search{margin-top:0;flex:1}
+.filtbtn{display:none;position:relative;flex:0 0 auto;align-items:center;gap:6px;font:600 15px var(--body);color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:0 14px;min-height:44px;cursor:pointer}
+.filtbtn[aria-expanded="true"]{border-color:var(--ink)}
+.filtbtn .dot{width:8px;height:8px;border-radius:50%;background:var(--hivis);border:1.5px solid var(--ink)}
+.calm #sizePill,.calm .stats,.calm #openSizes{display:none!important}
+.calm .filtbtn{display:inline-flex}
+.calm #filtersBox{display:flex;flex-direction:column}
+.calm #filtersBox .tools{order:3;margin-top:10px}
+.calm #filtersBox:not(.open) .tools{display:none}
+.calm h1{margin-top:14px}
+.calm .lede{margin-bottom:12px}
+.calm .watchnews{padding:8px 14px;font-size:14px;margin-bottom:12px}
+.calm .watchnews .btn{border:0;background:none;color:var(--moss);text-decoration:underline;padding:0;min-height:32px;font-size:15px}
+#newBox .grp{margin-bottom:18px}
+.lede .saved{color:var(--moss);font-weight:700}
+.tally{font-size:14px;color:var(--muted);text-align:center;margin-top:18px}
+.tally b{font:800 18px/1 var(--display);color:var(--moss)}
+.sticky .grp{border-top:2px solid var(--line);padding-top:4px}
+.sticky .grp h2{position:sticky;top:var(--tb,72px);z-index:5;background:var(--mist);padding:10px 0 8px;margin:0 0 6px;box-shadow:0 1px 0 var(--line)}
+.grp.sale h2::before{content:"";width:12px;height:12px;border-radius:3px;background:var(--hivis);border:1.5px solid var(--ink);align-self:center}
+.grid{display:grid;gap:10px}
+@media(min-width:560px){.grid{grid-template-columns:1fr 1fr}}
+.deal{display:flex;flex-direction:column;gap:4px;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:14px 14px 12px;color:inherit;text-decoration:none;min-width:0}
+.deal:hover{border-color:var(--ink)}
+.deal .pic{margin:-14px -14px 8px;aspect-ratio:1/1;background:#fff;border-radius:11px 11px 0 0;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.deal .pic img{width:100%;height:100%;object-fit:contain;padding:10px}
+.deal .top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:2px}
+.deal .pct{font:800 20px/1 var(--display);background:var(--hivis);color:var(--hivis-ink);border:1.5px solid var(--ink);border-radius:6px;padding:4px 7px}
+.deal .brand{font-weight:600;font-size:15px;color:var(--moss)}
+.deal .name{font-weight:500;line-height:1.3;overflow-wrap:anywhere}
+.deal .price{display:flex;align-items:baseline;gap:8px;margin-top:4px}
+.deal .price b{font:800 28px/1 var(--display)}
+.deal .price s{color:var(--muted);font-size:15px}
+.deal .price .cur{font:600 12px/1 var(--body);letter-spacing:.04em;color:var(--muted);margin-left:-4px}
+#curBtn{font-size:13px;min-width:52px}
+.deal .sizes{font-size:14px;color:var(--muted)}
+.deal .sizes strong{color:var(--ink);font-weight:600}
+.deal .warn{font-size:13px;font-weight:600;color:var(--err)}
+.more{margin-top:10px;width:100%}
+.empty{background:var(--card);border:1.5px dashed var(--line);border-radius:12px;padding:22px;text-align:center;color:var(--muted)}
+.foot{font-size:13px;color:var(--muted);text-align:center;margin-top:10px}
+
+/* Friday email card */
+.signup{background:var(--band);color:var(--band-ink);border-radius:14px;padding:18px;margin:0 0 30px}
+.signup h3{font:800 24px/1.1 var(--display);margin:0 0 4px}
+.signup p{margin:0 0 12px;color:var(--band-muted);font-size:15px}
+.signup form{display:flex;gap:8px}
+.signup input{flex:1;min-width:0}
+.signup .primary{padding:0 16px;min-height:44px;font-size:18px;border-color:var(--band-ink)}
+.signup .fine{margin:10px 0 0;font-size:13px}
+.signup .fine a{color:var(--band-ink)}
+.signup .err{color:#FFB4A8;font-size:14px;margin:8px 0 0}
+
+/* notice */
+.notice{margin:0 0 14px;background:var(--card);border:1.5px solid var(--hivis);border-left-width:6px;border-radius:12px;padding:14px 16px;font-size:16px;line-height:1.45}
+.notice .btn{margin-top:10px}
+
+/* sizes sheet */
+.sheet{position:fixed;inset:0;z-index:40;background:var(--scrim);display:flex;align-items:flex-end;justify-content:center}
+.sheet .panel{background:var(--card);width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:10px 20px calc(20px + env(safe-area-inset-bottom,0px))}
+@media(min-width:600px){.sheet{align-items:center}.sheet .panel{border-radius:20px;padding-top:20px}.sheet .grab{display:none}}
+.sheet .panel:focus{outline:none}
+.sheet .grab{width:40px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 6px}
+.sheet .head{display:flex;align-items:flex-start;gap:10px}
+.sheet h2{font:800 30px/1.05 var(--display);margin:6px 0 4px;flex:1}
+.sheet .head .langbtn{margin-top:4px}
+.sheet h2 .nw{white-space:nowrap}
+.sheet .close{background:transparent;border:0;color:var(--muted);min-width:44px;min-height:44px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.sheet .intro{margin:0 0 14px;color:var(--muted);font-size:15px}
+.sheet h3{font:700 19px/1.1 var(--display);margin:18px 0 8px}
+.sheet h3 small{font:500 14px var(--body);color:var(--muted);margin-left:6px}
+.seg{display:flex;gap:4px;background:var(--mist);border:1.5px solid var(--line);border-radius:12px;padding:4px}
+.seg button{flex:1;font:600 16px var(--body);color:var(--muted);background:transparent;border:0;border-radius:9px;min-height:44px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--card)}
+.scale{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px}
+.scale .chip{border-radius:9px;padding:10px 0;text-align:center}
+.sheet details{margin-top:18px;border-top:1.5px solid var(--line);padding-top:6px}
+.sheet summary{font:600 16px var(--body);min-height:44px;display:flex;align-items:center;cursor:pointer;list-style:none}
+.sheet summary::-webkit-details-marker{display:none}
+.sheet summary::after{content:"+";margin-left:auto;font:600 22px var(--body);color:var(--muted)}
+.sheet details[open] summary::after{content:"−"}
+.brandadd{display:flex;gap:8px;margin-top:10px}
+.sheet .go{width:100%;margin:0}
+.sheet .panel{padding-bottom:0}
+.already{margin:-6px 0 14px;font-size:15px;color:var(--muted)}
+.already button{font:600 15px var(--body);color:var(--moss);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer;min-height:44px}
+label.field{display:block;font-weight:600;font-size:15px;margin:0 0 6px}
+.gwrap{margin:0 0 4px}
+.gbtn{display:flex;justify-content:center;min-height:44px}
+.or{display:flex;align-items:center;gap:10px;margin:12px 0;color:var(--muted);font-size:14px}
+.or::before,.or::after{content:"";flex:1;height:1.5px;background:var(--line)}
+.gsigned{margin:0 0 8px;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;font-size:15px;background:var(--mist)}
+.stepno{margin:6px 0 0;font:700 13px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--moss)}
+#stepBack{min-height:36px;margin-top:4px}
+.livecount{margin:0 0 10px;font-size:15px;color:var(--ink);text-align:center}
+.livecount b{font:800 22px/1 var(--display);color:var(--moss);margin-right:2px}
+.wstats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:4px 0 16px}
+.wstat{background:var(--mist);border-radius:12px;padding:12px 8px;text-align:center}
+.wstat b{display:block;font:800 26px/1 var(--display);color:var(--ink)}
+.wstat span{display:block;font-size:13px;color:var(--muted);margin-top:4px}
+.wdeals{display:grid;gap:8px}
+.wdeal{display:flex;align-items:center;gap:12px;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px}
+.wdeal .wn{flex:1;min-width:0;font-size:14px;line-height:1.3}
+.wdeal .wn b{display:block;color:var(--moss);font-size:13px}
+.wdeal .wp{text-align:right;white-space:nowrap;font:800 18px/1.1 var(--display)}
+.wdeal .wp .cur{font:600 11px var(--body);color:var(--muted);letter-spacing:.04em}
+.wdeal .wp s{display:block;font:400 13px var(--body);color:var(--muted)}
+.wdeal .pct{font:800 16px/1 var(--display);background:var(--hivis);color:var(--hivis-ink);border:1.5px solid var(--ink);border-radius:6px;padding:3px 6px}
+.wsign{margin:6px 0 -8px;text-align:center}
+.tease{filter:blur(3px);opacity:.7;pointer-events:none;user-select:none}
+.sheetfoot{position:sticky;bottom:0;z-index:2;margin:20px -20px 0;padding:12px 20px calc(14px + env(safe-area-inset-bottom,0px));background:var(--card);border-top:1.5px solid var(--line);box-shadow:0 -8px 16px -12px rgba(0,0,0,.35)}
+.sheetfoot .gerr{margin:0 0 10px}
+.sheetfoot .subline:empty{display:none}
+.need{border-radius:12px;box-shadow:0 0 0 3px var(--hivis)}
+@media (prefers-reduced-motion:no-preference){.need{transition:box-shadow .2s}}
+.sheet .fine{font-size:13px;color:var(--muted);margin:8px 0 0}
+.sheet .gerr{color:var(--err);font-weight:600;font-size:15px;margin:14px 0 0}
+.sheet .subline{font-size:14px;color:var(--muted);margin:14px 0 0;text-align:center}
+.sheet .subline button{font:inherit;color:var(--moss);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer;min-height:24px}
+@media (prefers-reduced-motion:no-preference){.chip,.seg button{transition:background .12s,border-color .12s}}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="in">
+  <a class="logo" href="./" aria-label="The Gear Fox home">
+    <picture>
+      <source srcset="logo-mark-dark.svg" media="(prefers-color-scheme: dark)">
+      <img src="logo-mark.svg" alt="The Gear Fox" width="1534" height="664">
+    </picture>
+    <span class="tag" data-i18n="tagline">OUTFOX FULL PRICE</span>
+  </a>
+  <span class="spacer"></span>
+  <button class="langbtn" id="curBtn" type="button" aria-label="Currency">CAD</button>
+  <button class="langbtn" id="langBtn" type="button" lang="fr">FR</button>
+  <button class="watchbtn" id="openWatch" type="button" aria-pressed="false" aria-label="Your watchlist" data-i18n-aria="watchlist">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 6.9 4.5c2.1 0 3.6 1.2 5.1 3 1.5-1.8 3-3 5.1-3 3.5 0 5.5 3.5 4.2 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>
+    <span class="n" id="watchCount"></span>
+  </button>
+  <button class="iconbtn" id="openSizes" type="button" aria-haspopup="dialog">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+    <span class="lbl" data-i18n="yourSizes">Your sizes</span>
+  </button>
+</div></header>
+
+<main class="wrap">
+  <div class="notice hidden" id="notice" role="status"></div>
+  <button class="sizepill" id="sizePill" type="button" aria-haspopup="dialog"><span id="sizeSummary">Tell us what fits</span><span class="edit" data-i18n="edit">Edit</span></button>
+  <button class="backlink hidden" id="backToDeals" type="button" data-i18n="allDeals">← All deals</button>
+  <h1 id="pageTitle">On sale in your size</h1>
+  <p class="subhead hidden" id="subhead"></p>
+  <p class="lede" id="lede">Loading today's gear…</p>
+  <div class="watchnews hidden" id="watchNews"></div>
+  <div class="stats hidden" id="stats"></div>
+
+  <div id="newBox"></div>
+  <div id="filtersBox">
+  <div class="chips scroll" id="cats" role="group" aria-label="Categories" data-i18n-aria="categories"></div>
+  <div class="chips scroll tools">
+    <span id="toggles" style="display:contents"></span>
+    <select class="sort" id="sort" aria-label="Sort" data-i18n-aria="sort">
+      <option value="match" data-i18n="sortMatch">Best match</option>
+      <option value="discount" data-i18n="sortDiscount">Biggest discount</option>
+      <option value="price" data-i18n="sortPrice">Lowest price</option>
+    </select>
+  </div>
+  <div class="searchrow">
+    <input class="search" id="dSearch" type="search" placeholder="Search brand or model" aria-label="Search brand or model" data-i18n-ph="search" data-i18n-aria="search">
+    <button type="button" class="filtbtn" id="filtBtn" aria-expanded="false" aria-controls="filtersBox"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg><span data-i18n="filters">Filters</span><span class="dot hidden" id="filtDot"></span></button>
+  </div>
+  </div>
+
+  <div id="dealList"></div>
+  <p class="tally hidden" id="tally"></p>
+  <p class="foot" id="dealsFoot"></p>
+  <p class="foot" data-i18n="footer">The Gear Fox · Outfox full price · <a href="privacy.html">Privacy</a></p>
+</main>
+<div class="toast hidden" id="toast" role="status"></div>
+
+<div class="sheet hidden" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <div class="panel" id="panel" tabindex="-1">
+    <div class="grab"></div>
+    <button class="backlink hidden" id="stepBack" type="button" data-i18n="back">← Back</button>
+    <p class="stepno hidden" id="stepNo"></p>
+    <div class="head">
+      <h2 id="sheetTitle">What fits you?</h2>
+      <button class="langbtn" id="langBtn2" type="button" lang="fr">FR</button>
+      <button class="close" id="closeSheet" type="button" aria-label="Close" data-i18n-aria="close">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <p class="intro">Three taps and we'll hide everything that won't fit.</p>
+    <p class="already hidden" id="already"><span data-i18n="alreadyQ">Already signed up?</span> <button type="button" id="toSignin" data-i18n="getLink">Get your link</button></p>
+    <div id="signinBox" class="hidden">
+      <div class="gwrap hidden" id="gIn"><div class="gbtn" id="gBtnIn"></div><p class="or"><span data-i18n="orLink">or get a link by email</span></p></div>
+      <label class="field" for="signinEmail" data-i18n="yourEmail">Your email</label>
+      <input id="signinEmail" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" data-i18n-ph="emailPh">
+      <p class="fine" data-i18n="signinFine">We'll email you a link that opens your deals and sizes on this device.</p>
+      <p class="already"><button type="button" id="toSignup" data-i18n="newHere">New here? Find my deals instead</button></p>
+    </div>
+    <div id="welcomePart" class="hidden">
+      <div class="wstats" id="wStats"></div>
+      <div class="wdeals" id="wDeals"></div>
+      <div class="gwrap hidden" id="gW"><p class="or"><span data-i18n="wOr">or with Google, one tap</span></p><div class="gbtn" id="gBtnW"></div></div>
+    </div>
+    <div id="signupParts">
+    <div id="sizesPart">
+
+    <div class="seg" id="fit" role="group" aria-label="Fit" data-i18n-aria="fit">
+      <button type="button" data-v="men" data-i18n="men">Men's</button>
+      <button type="button" data-v="women" data-i18n="women">Women's</button>
+      <button type="button" data-v="any" data-i18n="both">Both</button>
+    </div>
+
+    <h3 data-i18n="shoeSizeH">Shoe size <small>US, pick one or more</small></h3>
+    <div class="scale" id="shoeSizes"></div>
+    <div class="chips" id="width" style="margin-top:8px" role="group" aria-label="Shoe width" data-i18n-aria="shoeWidth"></div>
+
+    <h3 data-i18n="clothSizeH">Clothing size <small>tops, shorts, socks, gloves</small></h3>
+    <div class="scale" id="clothSizes"></div>
+
+    <details id="moreOpts">
+      <summary data-i18n="favBrands">Favourite brands <span style="font-weight:400;color:var(--muted);margin-left:6px">optional</span></summary>
+      <p class="intro2" style="margin:4px 0 10px;color:var(--muted);font-size:15px" data-i18n="favIntro">These go to the top of your list.</p>
+      <div class="chips" id="brands"></div>
+      <div class="brandadd">
+        <input id="brandInput" type="text" placeholder="Add another brand" aria-label="Add another brand" data-i18n-ph="addBrand" data-i18n-aria="addBrand">
+        <button class="btn" id="brandAdd" type="button" data-i18n="add">Add</button>
+      </div>
+    </details>
+    </div>
+
+    <div id="gateBox" class="hidden">
+      <h3 data-i18n="gateEmailH"><label for="gateEmail">Your email</label> <small>for your deals and the Friday email</small></h3>
+      <div class="gwrap hidden" id="gUp"><div class="gbtn" id="gBtnUp"></div><p class="or"><span data-i18n="orEmail">or type your email</span></p></div>
+      <p class="gsigned hidden" id="gSigned"></p>
+      <input id="gateEmail" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" data-i18n-ph="emailPh">
+      <p class="fine" data-i18n="gateFine">You'll get one email every Friday with the best deals in your sizes. We'll send a link to confirm first. Unsubscribe with one tap. <a href="privacy.html">Privacy</a></p>
+    </div>
+    </div>
+    <div class="sheetfoot">
+      <p class="livecount hidden" id="liveCount" aria-live="polite"></p>
+      <p class="gerr hidden" id="gateErr" role="alert"></p>
+      <button class="primary go" id="saveSizes" type="button">Show my deals</button>
+      <p class="already wsign hidden" id="wSignin"><span data-i18n="memberQ">Already a member?</span> <button type="button" id="toSignin2" data-i18n="signIn">Sign in</button></p>
+      <p class="subline" id="subLine"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+function esc(s){const d=document.createElement("div");d.textContent=s;return d.innerHTML}
+
+/* ---------- Visitor stats (Umami Cloud: no cookies, no personal data) ---------- */
+const UMAMI_ID="d73c30be-171d-40d8-8101-278c2a536699";            // paste the Website ID from cloud.umami.is here; empty = no tracking
+(function(){if(!UMAMI_ID)return;const s=document.createElement("script");s.defer=true;
+  s.src="https://cloud.umami.is/script.js";s.dataset.websiteId=UMAMI_ID;s.dataset.domains="thegearfox.com,www.thegearfox.com";document.head.appendChild(s)})();
+function track(name,data){try{if(window.umami&&umami.track)umami.track(name,data)}catch(e){}}
+const storeOf=u=>{try{return new URL(u).hostname.replace(/^www\./,"")}catch(e){return "unknown"}};
+
+/* ---------- English / French ---------- */
+const PL=(n,one,many)=>n===1?one:many;
+const I18N={
+en:{
+  tagline:"OUTFOX FULL PRICE",watchlist:"Your watchlist",yourSizes:"Your sizes",edit:"Edit",allDeals:"← All deals",categories:"Categories",
+  sort:"Sort",sortMatch:"Best match",sortDiscount:"Biggest discount",sortPrice:"Lowest price",search:"Search brand or model",
+  footer:'The Gear Fox · Outfox full price · <a href="privacy.html">Privacy</a>',close:"Close",fit:"Fit",
+  men:"Men's",women:"Women's",both:"Both",menWomen:"Men's & women's",
+  shoeSizeH:"Shoe size <small>US, pick one or more</small>",shoeWidth:"Shoe width",regularW:"Regular width",wideW:"Wide width",
+  clothSizeH:"Clothing size <small>tops, shorts, socks, gloves</small>",
+  favBrands:'Favourite brands <span style="font-weight:400;color:var(--muted);margin-left:6px">optional</span>',favIntro:"These go to the top of your list.",
+  addBrand:"Add another brand",add:"Add",emailPh:"you@example.com",
+  gateEmailH:'<label for="gateEmail">Your email</label> <small>for your deals and the Friday email</small>',
+  gateFine:'You\'ll get one email every Friday with the best deals in your sizes. We\'ll send a link to confirm first. Unsubscribe with one tap. <a href="privacy.html">Privacy</a>',
+  sheetGateTitle:"Deals in your size",sheetTitle:"What fits you?",
+  sheetGateIntro:"Pick what fits and add your email. We'll show every deal in your size, from stores across Canada.",
+  sheetIntro:"Three taps and we'll hide everything that won't fit.",
+  subscribeShow:"Subscribe & show my deals",showDeals:"Show my deals",oneMoment:"One moment…",
+  errFit:"Pick men's, women's or both.",errSize:"Pick at least one shoe or clothing size.",errEmail:"Add a valid email to see your deals.",
+  errServer:"Couldn't reach our server. Check your connection and try again.",
+  hereDeals:e=>`<b>Here are your deals.</b> We sent a link to ${e}. Tap it to start your Friday email (check Promotions too).`,
+  tellFit:"Tell us what fits",shoe:"Shoe",clothing:"Clothing",
+  minAgo:m=>`${m} min ago`,hAgo:h=>`${h} h ago`,daysAgo:d=>`${d} days ago`,
+  loadFail:"Couldn't load today's gear. Reload to try again.",loading:"Loading today's gear…",
+  inYourSize:"In your size:",isNew:"New",bestBy:d=>`Short-dated: best by ${d}`,
+  abroad:"Ships from outside Canada · price converted to CAD, duties may apply",showMore:n=>`Show ${n} more`,
+  allGear:"All gear",shipsCA:"Ships from Canada",saleOnly:"Include full price",
+  stopWatching:"Stop watching",watch:"Watch",removed:"Removed from your watchlist.",
+  watching:"Watching. We'll email you if it drops or comes back in your size.",
+  watchingPending:"Watching. Confirm your email to get price-drop alerts.",watchingSignup:"Watching. Sign up for the Friday email to get price-drop alerts.",
+  watchlistChanges:n=>`Your watchlist, ${n} ${PL(n,"change","changes")}`,
+  dropsTxt:n=>`${n} ${PL(n,"thing","things")} you're watching dropped in price`,backsTxt:n=>`${n} ${PL(n,"is","are")} back in your size`,and:" and ",
+  goodNews:"Good news.",seeThem:"See them",
+  backBadge:"Back in your size",dropBadge:m=>`Dropped ${m} since you saved it`,lowBadge:"Lowest since you started watching",
+  goneTxt:"Not in stock in your size right now. We'll email you when it's back.",
+  watchLedeOn:"We'll email you when any of these drop in price or come back in your size.",
+  watchLedeOff:"Confirm your email to get alerts when these drop in price or come back in your size.",
+  watchEmpty:"Tap the ♡ on any deal to watch it. We'll email you when it drops in price or comes back in your size.",
+  pricesChange:"Prices and stock change daily; the product page has the final price.",
+  newSince:n=>`<b>${n}</b> new since your last visit`,show:"Show",
+  filters:"Filters",ledeShort:(s,u,m)=>`${s} deals today${m?` · <b class="saved">${m} off</b> found this month`:""}${u?` · updated ${u}`:""}`,
+  watchShort:(d,b)=>"<b>Watchlist:</b> "+[d?`${d} price ${PL(d,"drop","drops")}`:"",b?`${b} back in your size`:""].filter(Boolean).join(" · "),see:"See",
+  swipe:"Swipe →",seeAll:n=>`See all ${n}`,asList:"as a list",asRow:"Show as a row",
+  offTally:(m,n)=>`<b>${m}</b> off in the ${n} ${PL(n,"deal","deals")} you've opened`,
+  titleWatch:"Your watchlist",titleDeals:"On sale in your size",
+  gatedLede:"Pick your sizes and add your email to see today's deals.",unlock:"See deals in my size",
+  storesAll:"stores in Canada and abroad",storesCA:"Canadian stores",
+  lede:(s,a,w,u)=>`${s} on sale and ${a} in stock from ${w}${u?` · updated ${u}`:""}.`,
+  secNew:"New since your last visit",secSale:"Top deals",
+  nothing:"Nothing matches right now. Try clearing the search or picking more categories.",addSizes:"Add your sizes to hide gear that won't fit. ",
+  checkInbox:"Check your inbox",checkInboxTxt:e=>`Tap the link we sent to ${e} to start your Friday email. It can land in Promotions.`,
+  otherEmail:"Use a different email",getDeals:"Get deals like these every Friday",
+  getDealsTxt:"One email, Friday morning, only gear on sale in your sizes.",email:"Email",signUp:"Sign up",
+  signupFine:'We\'ll email you to confirm. Unsubscribe with one tap. <a href="privacy.html">Privacy</a>',
+  badEmail:"That email doesn't look right.",signupFail:m=>`Couldn't sign you up just now: ${m}`,
+  emailOn:e=>`Friday email on for ${e} · <button type="button" id="stopEmail">Stop it</button>`,
+  emailStopped:"Friday email stopped. Sign up again anytime from the shop.",serverDown:"Couldn't reach the server. Try again.",
+  linkBroken:"That link looks incomplete. Try copying the whole link from the email.",
+  stopQ:"Stop the Friday deals email?",unsubscribe:"Unsubscribe",
+  unsubbed:"You're unsubscribed. No more Friday emails. You can sign up again anytime from the shop.",
+  unsubFail:"Couldn't unsubscribe just now. Check your connection and tap the link again.",
+  linkExpired:"That link has expired or was replaced. Sign up again from the shop to get a new one.",
+  youreIn:"<b>You're in.</b> Your first deals email arrives Friday morning. This device is now linked to your profile.",
+  offline:"Couldn't reach the server. Check your connection and reload.",
+  langSwitch:"FR",langName:"Français",
+  back:"← Back",next:"Next",step:(a,b)=>`Step ${a} of ${b}`,
+  s1Title:"What fits you?",s1Intro:"Pick your fit and sizes. We'll hide everything that won't fit.",
+  s2Title:"Where should we send your deals?",s2Intro:"Your deals open right away. Every Friday we'll email the best ones in your sizes.",
+  cTitle:"Deals in your size",cIntro:"Sign up free, or sign back in. We'll ask your sizes only once.",cContinue:"Continue",
+  cSizesIntro:"Last step: pick your fit and sizes.",
+  wTitle:"Your size. On sale. Every day.",wIntro:half=>`<b>${half?"More than half":"Many"} of gear deals aren't available in your size.</b> Every morning we check running and outdoor stores across Canada and show you only the ones that are.`,
+  wGo:"Find my deals",wOr:"or with Google, one tap",wOnSale:"on sale today",wUpTo:p=>`up to ${p}%`,wOff:"off right now",wStores:"stores checked daily",
+  liveAll:n=>`<b>${n}</b> deals on sale today`,liveYou:n=>`<b>${n}</b> deals on sale in your size right now`,
+  seeN:n=>`See my ${n} deals`,
+  orEmail:"or type your email",orLink:"or get a link by email",
+  gSigned:e=>`Signed in with Google as <b>${e}</b>.`,
+  gateFineG:'You\'ll get one email every Friday with the best deals in your sizes. Unsubscribe with one tap. <a href="privacy.html">Privacy</a>',gPick:"Pick your fit and at least one size, then tap the orange button.",
+  gWelcome:"<b>Welcome back.</b> Your sizes and watchlist are loaded on this device.",gFail:"Google sign-in didn't work. Use your email instead.",
+  gIn:"<b>You're in.</b> Your first deals email arrives Friday morning.",
+  memberQ:"Already a member?",signIn:"Sign in",
+  alreadyQ:"Already signed up?",getLink:"Get your link",yourEmail:"Your email",newHere:"New here? Find my deals instead",
+  signinFine:"We'll email you a link that opens your deals and sizes on this device.",signinTitle:"Welcome back",
+  signinIntro:"Enter the email you signed up with.",emailLink:"Email me my link",
+  linkSent:e=>`<b>Check your inbox.</b> We sent a link to ${e}. Tap it to open your deals and sizes on this device.`,
+  signinCard:e=>`Tap the link we sent to ${e} to load your sizes on this device.`,
+  groups:{shoes:"Shoes",tops:"Tops & jackets",bottoms:"Shorts & tights",bras:"Sports bras",socks:"Socks",gloves:"Gloves",
+    headwear:"Hats & buffs",packs:"Vests & packs",gear:"Lights, poles & bottles",watches:"Watches",nutrition:"Nutrition"}
+},
+fr:{
+  tagline:"FLAIREZ LES AUBAINES",watchlist:"Vos favoris",yourSizes:"Vos tailles",edit:"Modifier",allDeals:"← Toutes les aubaines",categories:"Catégories",
+  sort:"Trier",sortMatch:"Meilleur choix",sortDiscount:"Plus gros rabais",sortPrice:"Prix le plus bas",search:"Chercher une marque ou un modèle",
+  footer:'The Gear Fox · Flairez les aubaines · <a href="privacy.html">Confidentialité</a>',close:"Fermer",fit:"Coupe",
+  men:"Homme",women:"Femme",both:"Les deux",menWomen:"Homme et femme",
+  shoeSizeH:"Pointure <small>US, une ou plusieurs</small>",shoeWidth:"Largeur de chaussure",regularW:"Largeur normale",wideW:"Large",
+  clothSizeH:"Taille de vêtements <small>hauts, shorts, bas, gants</small>",
+  favBrands:'Marques préférées <span style="font-weight:400;color:var(--muted);margin-left:6px">facultatif</span>',favIntro:"Elles s'affichent en premier dans votre liste.",
+  addBrand:"Ajouter une autre marque",add:"Ajouter",emailPh:"vous@exemple.com",
+  gateEmailH:'<label for="gateEmail">Votre courriel</label> <small>pour vos aubaines et le courriel du vendredi</small>',
+  gateFine:'Vous recevrez un courriel chaque vendredi avec les meilleures aubaines dans vos tailles. On vous envoie d\'abord un lien de confirmation. Désabonnement en un clic. <a href="privacy.html">Confidentialité</a>',
+  sheetGateTitle:"Des aubaines à votre taille",sheetTitle:"Qu'est-ce qui vous va?",
+  sheetGateIntro:"Choisissez vos tailles et entrez votre courriel. On vous montre toutes les aubaines à votre taille, dans les boutiques partout au Canada.",
+  sheetIntro:"Trois clics et on cache tout ce qui ne vous va pas.",
+  subscribeShow:"M'abonner et voir mes aubaines",showDeals:"Voir mes aubaines",oneMoment:"Un instant…",
+  errFit:"Choisissez homme, femme ou les deux.",errSize:"Choisissez au moins une pointure ou une taille de vêtements.",errEmail:"Entrez un courriel valide pour voir vos aubaines.",
+  errServer:"Impossible de joindre notre serveur. Vérifiez votre connexion et réessayez.",
+  hereDeals:e=>`<b>Voici vos aubaines.</b> On a envoyé un lien à ${e}. Cliquez dessus pour activer votre courriel du vendredi (regardez aussi dans Promotions).`,
+  tellFit:"Dites-nous ce qui vous va",shoe:"Pointure",clothing:"Taille",
+  minAgo:m=>`il y a ${m} min`,hAgo:h=>`il y a ${h} h`,daysAgo:d=>`il y a ${d} jours`,
+  loadFail:"Impossible de charger les produits du jour. Rechargez la page.",loading:"Chargement des produits du jour…",
+  inYourSize:"À votre taille :",isNew:"Nouveau",bestBy:d=>`Date courte : meilleur avant le ${d}`,
+  abroad:"Expédié de l'extérieur du Canada · prix converti en $ CA, des droits peuvent s'appliquer",showMore:n=>`Voir ${n} de plus`,
+  allGear:"Tout",shipsCA:"Expédié du Canada",saleOnly:"Inclure le prix régulier",
+  stopWatching:"Retirer des favoris",watch:"Ajouter aux favoris",removed:"Retiré de vos favoris.",
+  watching:"Ajouté. On vous écrit si le prix baisse ou si votre taille revient en stock.",
+  watchingPending:"Ajouté. Confirmez votre courriel pour recevoir les alertes de baisse de prix.",watchingSignup:"Ajouté. Abonnez-vous au courriel du vendredi pour recevoir les alertes de baisse de prix.",
+  watchlistChanges:n=>`Vos favoris, ${n} ${PL(n,"changement","changements")}`,
+  dropsTxt:n=>`${n} ${PL(n,"article de vos favoris a","articles de vos favoris ont")} baissé de prix`,backsTxt:n=>`${n} ${PL(n,"est","sont")} de retour dans votre taille`,and:" et ",
+  goodNews:"Bonne nouvelle!",seeThem:"Voir",
+  backBadge:"De retour dans votre taille",dropBadge:m=>`${m} de moins depuis l'ajout`,lowBadge:"Plus bas prix depuis l'ajout",
+  goneTxt:"Pas en stock dans votre taille pour l'instant. On vous écrit dès que ça revient.",
+  watchLedeOn:"On vous écrit quand l'un de ces articles baisse de prix ou revient dans votre taille.",
+  watchLedeOff:"Confirmez votre courriel pour être avisé quand ces articles baissent de prix ou reviennent dans votre taille.",
+  watchEmpty:"Touchez le ♡ sur une aubaine pour l'ajouter à vos favoris. On vous écrit quand le prix baisse ou quand votre taille revient.",
+  pricesChange:"Les prix et les stocks changent chaque jour; le prix final est sur la page du produit.",
+  newSince:n=>`<b>${n}</b> ${PL(n,"nouveauté","nouveautés")} depuis votre dernière visite`,show:"Voir",
+  filters:"Filtres",ledeShort:(s,u,m)=>`${s} aubaines aujourd'hui${m?` · <b class="saved">${m} de rabais</b> trouvés ce mois-ci`:""}${u?` · mis à jour ${u}`:""}`,
+  watchShort:(d,b)=>"<b>Favoris :</b> "+[d?`${d} ${PL(d,"baisse de prix","baisses de prix")}`:"",b?`${b} de retour dans votre taille`:""].filter(Boolean).join(" · "),see:"Voir",
+  swipe:"Glissez →",seeAll:n=>`Voir les ${n}`,asList:"en liste",asRow:"Afficher en rangée",
+  offTally:(m,n)=>`<b>${m}</b> de rabais sur ${PL(n,"l'aubaine que vous avez ouverte",`les ${n} aubaines que vous avez ouvertes`)}`,
+  titleWatch:"Vos favoris",titleDeals:"En solde à votre taille",
+  gatedLede:"Choisissez vos tailles et entrez votre courriel pour voir les aubaines du jour.",unlock:"Voir les aubaines à ma taille",
+  storesAll:"des boutiques au Canada et à l'étranger",storesCA:"des boutiques canadiennes",
+  lede:(s,a,w,u)=>`${s} en solde et ${a} en stock ${w}${u?` · mis à jour ${u}`:""}.`,
+  secNew:"Nouveau depuis votre dernière visite",secSale:"Meilleures aubaines",
+  nothing:"Rien ne correspond pour l'instant. Effacez la recherche ou choisissez plus de catégories.",addSizes:"Ajoutez vos tailles pour cacher ce qui ne vous va pas. ",
+  checkInbox:"Vérifiez vos courriels",checkInboxTxt:e=>`Cliquez sur le lien envoyé à ${e} pour activer votre courriel du vendredi. Il peut arriver dans Promotions.`,
+  otherEmail:"Utiliser un autre courriel",getDeals:"Recevez des aubaines comme celles-ci chaque vendredi",
+  getDealsTxt:"Un courriel le vendredi matin, seulement des articles en solde dans vos tailles.",email:"Courriel",signUp:"M'abonner",
+  signupFine:'On vous écrit pour confirmer. Désabonnement en un clic. <a href="privacy.html">Confidentialité</a>',
+  badEmail:"Ce courriel ne semble pas valide.",signupFail:m=>`Impossible de vous abonner pour l'instant : ${m}`,
+  emailOn:e=>`Courriel du vendredi activé pour ${e} · <button type="button" id="stopEmail">L'arrêter</button>`,
+  emailStopped:"Courriel du vendredi arrêté. Vous pouvez vous réabonner en tout temps depuis la boutique.",serverDown:"Impossible de joindre le serveur. Réessayez.",
+  linkBroken:"Ce lien semble incomplet. Copiez le lien au complet à partir du courriel.",
+  stopQ:"Arrêter le courriel d'aubaines du vendredi?",unsubscribe:"Me désabonner",
+  unsubbed:"Vous êtes désabonné. Plus de courriels le vendredi. Vous pouvez vous réabonner en tout temps depuis la boutique.",
+  unsubFail:"Impossible de vous désabonner pour l'instant. Vérifiez votre connexion et cliquez de nouveau sur le lien.",
+  linkExpired:"Ce lien a expiré ou a été remplacé. Réabonnez-vous depuis la boutique pour en recevoir un nouveau.",
+  youreIn:"<b>C'est fait.</b> Votre premier courriel d'aubaines arrive vendredi matin. Cet appareil est maintenant lié à votre profil.",
+  offline:"Impossible de joindre le serveur. Vérifiez votre connexion et rechargez la page.",
+  langSwitch:"EN",langName:"English",
+  back:"← Retour",next:"Suivant",step:(a,b)=>`Étape ${a} sur ${b}`,
+  s1Title:"Qu'est-ce qui vous va?",s1Intro:"Choisissez votre coupe et vos tailles. On cache tout ce qui ne vous va pas.",
+  s2Title:"Où envoyer vos aubaines?",s2Intro:"Vos aubaines s'ouvrent tout de suite. Chaque vendredi, on vous envoie les meilleures dans vos tailles.",
+  cTitle:"Des aubaines à votre taille",cIntro:"Abonnez-vous gratuitement ou reconnectez-vous. On vous demande vos tailles une seule fois.",cContinue:"Continuer",
+  cSizesIntro:"Dernière étape : choisissez votre coupe et vos tailles.",
+  wTitle:"Des aubaines sur mesure.",wIntro:half=>`<b>${half?"Plus de la moitié":"Beaucoup"} des aubaines ne sont pas offertes dans votre taille.</b> Chaque matin, on parcourt les boutiques de course et de plein air partout au Canada et on vous montre seulement celles qui le sont.`,
+  wGo:"Trouver mes aubaines",wOr:"ou avec Google, en un clic",wOnSale:"en solde aujourd'hui",wUpTo:p=>`jusqu'à ${p} %`,wOff:"de rabais en ce moment",wStores:"boutiques vérifiées chaque jour",
+  liveAll:n=>`<b>${n}</b> aubaines en solde aujourd'hui`,liveYou:n=>`<b>${n}</b> aubaines en solde dans votre taille en ce moment`,
+  seeN:n=>`Voir mes ${n} aubaines`,
+  orEmail:"ou entrez votre courriel",orLink:"ou recevez un lien par courriel",
+  gSigned:e=>`Connecté avec Google : <b>${e}</b>.`,
+  gateFineG:'Vous recevrez un courriel chaque vendredi avec les meilleures aubaines dans vos tailles. Désabonnement en un clic. <a href="privacy.html">Confidentialité</a>',gPick:"Choisissez votre coupe et au moins une taille, puis touchez le bouton orange.",
+  gWelcome:"<b>Bon retour!</b> Vos tailles et vos favoris sont chargés sur cet appareil.",gFail:"La connexion Google n'a pas fonctionné. Utilisez plutôt votre courriel.",
+  gIn:"<b>C'est fait.</b> Votre premier courriel d'aubaines arrive vendredi matin.",
+  memberQ:"Déjà membre?",signIn:"Se connecter",
+  alreadyQ:"Déjà abonné?",getLink:"Recevoir votre lien",yourEmail:"Votre courriel",newHere:"Nouveau? Trouvez plutôt vos aubaines",
+  signinFine:"On vous envoie un lien qui ouvre vos aubaines et vos tailles sur cet appareil.",signinTitle:"Bon retour",
+  signinIntro:"Entrez le courriel avec lequel vous vous êtes abonné.",emailLink:"M'envoyer mon lien",
+  linkSent:e=>`<b>Vérifiez vos courriels.</b> On a envoyé un lien à ${e}. Cliquez dessus pour ouvrir vos aubaines et vos tailles sur cet appareil.`,
+  signinCard:e=>`Cliquez sur le lien envoyé à ${e} pour charger vos tailles sur cet appareil.`,
+  groups:{shoes:"Chaussures",tops:"Hauts et manteaux",bottoms:"Shorts et collants",bras:"Soutiens-gorge de sport",socks:"Bas",gloves:"Gants",
+    headwear:"Casquettes et cache-cous",packs:"Vestes et sacs d'hydratation",gear:"Frontales, bâtons et gourdes",watches:"Montres",nutrition:"Nutrition"}
+}};
+const LS0=k=>{try{return JSON.parse(localStorage.getItem(k)||"null")}catch(e){return null}};
+let LANG=LS0("gf-lang")||((LS0("rd-profile")||{}).lang)||(/^fr/i.test(navigator.language||"")?"fr":"en");
+function t(k,...a){const v=(I18N[LANG]&&I18N[LANG][k]!==undefined)?I18N[LANG][k]:I18N.en[k];return typeof v==="function"?v(...a):v}
+const num=n=>Number(n).toLocaleString(LANG==="fr"?"fr-CA":"en-CA");
+function applyStatic(){
+  document.documentElement.lang=LANG;
+  document.querySelectorAll("[data-i18n]").forEach(el=>el.innerHTML=t(el.dataset.i18n));
+  document.querySelectorAll("[data-i18n-ph]").forEach(el=>el.placeholder=t(el.dataset.i18nPh));
+  document.querySelectorAll("[data-i18n-aria]").forEach(el=>el.setAttribute("aria-label",t(el.dataset.i18nAria)));
+  const cb=document.getElementById("curBtn");cb.textContent=CUR;
+  cb.setAttribute("aria-label",LANG==="fr"?`Devise : ${CUR}. Afficher en ${CUR==="CAD"?"USD":"CAD"}`:`Currency: ${CUR}. Show in ${CUR==="CAD"?"USD":"CAD"}`);
+  ["langBtn","langBtn2"].forEach(id=>{const b=document.getElementById(id);b.textContent=t("langSwitch");b.lang=LANG==="fr"?"en":"fr";b.setAttribute("aria-label",t("langName"))});
+}
+
+/* ---------- options ---------- */
+const BRANDS=["Hoka","Salomon","Brooks","Saucony","On","Altra","Nike","Adidas","ASICS","New Balance","Norda","La Sportiva","Arc'teryx","Patagonia","Ciele","Nathan","USWE","Maurten","Science in Sport"];
+const SHOE=[];for(let s=5;s<=15;s+=0.5)SHOE.push(String(s));
+const CLOTH=["XS","S","M","L","XL","XXL"];
+const APPAREL_GROUPS=["tops","bottoms","bras","socks","gloves","headwear"];   // all use the clothing size
+const SIZED=new Set(["shoes",...APPAREL_GROUPS]);
+const ORDER=["shoes","tops","bottoms","bras","socks","gloves","headwear","packs","gear","watches","nutrition"];
+const GL=g=>t("groups")[g]||I18N.en.groups[g];
+
+/* ---------- profile (lives in this browser; synced to the server once subscribed) ---------- */
+const LS={get(k){try{return JSON.parse(localStorage.getItem(k)||"null")}catch(e){return null}},
+          set(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const state={name:"",email:"",gender:"",ships:"ca",groups:ORDER.slice(),shoe:[],width:[],cloth:[],brands:[]};
+let customBrands=[];
+
+/* The browser's time zone, so the Friday email lands at 7am wherever the person lives */
+const TZ=(()=>{try{return Intl.DateTimeFormat().resolvedOptions().timeZone||""}catch(e){return ""}})();
+function toProfile(){
+  const sizes={shoes:{sizes:state.shoe,width:state.width}};
+  APPAREL_GROUPS.forEach(g=>sizes[g]={sizes:state.cloth});
+  return {lang:LANG,tz:TZ,name:state.name,email:state.email,gender:state.gender,ships:state.ships,groups:state.groups,sizes,brands:state.brands,activities:[]};
+}
+function applyProfile(p){
+  if(!p)return;
+  const sz=p.sizes||{};
+  const cloth=new Set();APPAREL_GROUPS.forEach(g=>((sz[g]||{}).sizes||[]).forEach(v=>{v=normSize(v);if(CLOTH.includes(v))cloth.add(v)}));
+  Object.assign(state,{name:p.name||"",email:p.email||"",gender:p.gender||"",ships:p.ships||"ca",
+    groups:(p.groups&&p.groups.length)?p.groups.filter(g=>GL(g)):ORDER.slice(),
+    shoe:((sz.shoes||{}).sizes||[]).map(String),width:(sz.shoes||{}).width||[],cloth:CLOTH.filter(c=>cloth.has(c)),brands:p.brands||[]});
+  customBrands=state.brands.filter(b=>!BRANDS.includes(b));
+  if(p.lang&&!LS0("gf-lang")&&p.lang!==LANG){LANG=p.lang;applyStatic()}
+}
+function normSize(v){v=String(v).trim().toUpperCase();return v==="2XL"?"XXL":v}
+let syncT;
+function saveProfile(){
+  const p=toProfile();LS.set("rd-profile",p);
+  if(sub&&sub.key&&sub.active){clearTimeout(syncT);syncT=setTimeout(()=>rpc("save_profile",{p_token:sub.key,p_profile:p}).catch(()=>{}),800)}
+}
+function hasSizes(){return !!state.gender&&(state.shoe.length||state.cloth.length)}
+
+/* ---------- size sheet ---------- */
+function scaleHTML(opts,sel){return opts.map(o=>`<button type="button" class="chip" data-v="${esc(o)}" aria-pressed="${sel.includes(o)}">${esc(o)}</button>`).join("")}
+function renderSheet(){
+  setTimeout(renderLive,0);
+  document.querySelectorAll("#fit button").forEach(b=>b.setAttribute("aria-pressed",String(state.gender===b.dataset.v)));
+  $("shoeSizes").innerHTML=scaleHTML(SHOE,state.shoe);
+  $("width").innerHTML=["Regular","Wide"].map(o=>`<button type="button" class="chip" data-v="${o}" aria-pressed="${state.width.includes(o)||(o==="Regular"&&!state.width.length)}">${o==="Wide"?t("wideW"):t("regularW")}</button>`).join("");
+  $("clothSizes").innerHTML=scaleHTML(CLOTH,state.cloth);
+  $("brands").innerHTML=[...BRANDS,...customBrands].map(b=>`<button type="button" class="chip" data-v="${esc(b)}" aria-pressed="${state.brands.includes(b)}">${esc(b)}</button>`).join("");
+  renderSubLine();
+}
+function toggle(a,v){const i=a.indexOf(v);i<0?a.push(v):a.splice(i,1)}
+$("fit").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;state.gender=b.dataset.v;renderSheet()});
+$("shoeSizes").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;toggle(state.shoe,b.dataset.v);state.shoe.sort((a,b)=>a-b);renderSheet()});
+$("width").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;
+  const w=state.width.length?state.width:["Regular"];toggle(w,b.dataset.v);state.width=w.length?w:["Regular"];renderSheet()});
+$("clothSizes").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;toggle(state.cloth,b.dataset.v);state.cloth=CLOTH.filter(c=>state.cloth.includes(c));renderSheet()});
+$("brands").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;toggle(state.brands,b.dataset.v);renderSheet()});
+function addBrand(){const v=$("brandInput").value.trim();if(!v)return;
+  const known=[...BRANDS,...customBrands].find(b=>b.toLowerCase()===v.toLowerCase());const name=known||v;
+  if(!known)customBrands.push(v);if(!state.brands.includes(name))state.brands.push(name);$("brandInput").value="";renderSheet()}
+$("brandAdd").addEventListener("click",addBrand);
+$("brandInput").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();addBrand()}});
+
+let signinMode=false;
+$("toSignin").addEventListener("click",()=>{signinMode=true;openSheet();setTimeout(()=>$("signinEmail").focus(),60)});
+$("toSignup").addEventListener("click",()=>{signinMode=false;openSheet()});
+$("toSignin2").addEventListener("click",()=>{signinMode=true;openSheet();setTimeout(()=>$("signinEmail").focus(),60)});
+function gated(){return !(sub&&(sub.key||sub.pending))}     // first visit: sizes + email before any deals
+function gateErr(msg,el){const e=$("gateErr");e.textContent=msg||"";e.classList.toggle("hidden",!msg);
+  document.querySelectorAll("#sheet .need").forEach(x=>x.classList.remove("need"));
+  if(el){el.classList.add("need");el.scrollIntoView({behavior:"smooth",block:"center"});setTimeout(()=>el.classList.remove("need"),2500)}}
+/* First-visit flow. A: one sheet · B: sizes, then email · C: account first, then sizes · D: welcome, then B */
+const FLOW_DEFAULT="D";
+let FLOW=(()=>{try{return JSON.parse(localStorage.getItem("gf-flow")||"null")||FLOW_DEFAULT}catch(e){return FLOW_DEFAULT}})();
+let step=FLOW==="D"?0:1;
+const nSteps=()=>FLOW==="A"?1:2;
+function sizesOK(){return !!state.gender&&(state.shoe.length>0||state.cloth.length>0)}
+function saleCount(p){return DATA?matchItems(p).filter(d=>d.pct>0).length:0}
+let ALLSALE=null;   // everything on sale today in Canadian stores, any size
+function allSale(){if(ALLSALE||!DATA)return ALLSALE||[];ALLSALE=[];
+  for(const d of ITEMS){if(d.ca===false)continue;let best=null;
+    for(const e of d.sz){if(e.length>3&&e[1]<e[3]*0.99){const pct=Math.round(100*(1-e[1]/e[3]));if(!best||pct>best.pct)best={pct,price:e[1],reg:e[3]}}}
+    if(best)ALLSALE.push({...d,...best})}
+  return ALLSALE}
+function renderLive(){
+  const el=$("liveCount");if(!gated()||signinMode||!DATA||(FLOW==="C"&&step===1)||step===0){el.classList.add("hidden");return}
+  const p={...toProfile(),groups:ORDER};
+  const n=sizesOK()?saleCount(p):allSale().length;
+  el.innerHTML=sizesOK()?t("liveYou",num(n)):t("liveAll",num(n));el.classList.remove("hidden");
+}
+/* Share of today's sized gear deals (shoes and clothing) a typical person can't get at the sale price:
+   common men's and women's shoe + clothing sizes, averaged. Backs the welcome line
+   "More than half of gear deals aren't available in your size". */
+let MISS=null;
+function missShare(){if(MISS!==null||!DATA)return MISS||0;
+  const people=[["M","9","M"],["M","10","L"],["M","11","M"],["W","7","S"],["W","8","M"],["W","9","S"]],r=[];
+  for(const [G,shoe,cl] of people){let tot=0,fit=0;const g=G==="M"?"men":"women";
+    for(const d of ITEMS){if(!SIZED.has(d.g)||d.ca===false||(d.sx.length&&!d.sx.includes(g)))continue;
+      const sale=d.sz.filter(e=>e.length>3&&e[1]<e[3]*0.99);if(!sale.length||sale.every(e=>e[0]==="OS"))continue;tot++;
+      if(d.g==="shoes"?sale.some(e=>{const k=shoeKey(e[0]);return k&&k.n===shoe&&k.w!=="N"&&(!k.g||k.g===G)}):sale.some(e=>norm(e[0])===cl))fit++}
+    if(tot)r.push(1-fit/tot)}
+  MISS=r.length?r.reduce((a,b)=>a+b,0)/r.length:0;return MISS}
+const storesLabel=()=>{const n=Object.keys((DATA&&DATA.stores)||{}).length||40;return Math.max(10,Math.floor(n/10)*10)+"+"};
+function renderWelcome(){
+  if(!DATA)return;
+  const sale=allSale();
+  const top=Math.max(...sale.filter(d=>d.pct<=75).map(d=>d.pct),0);
+  $("wStats").innerHTML=`<div class="wstat"><b>${num(sale.length)}</b><span>${t("wOnSale")}</span></div>`+
+    `<div class="wstat"><b>${t("wUpTo",top)}</b><span>${t("wOff")}</span></div>`+
+    `<div class="wstat"><b>${storesLabel()}</b><span>${t("wStores")}</span></div>`;
+  const known=new Set(BRANDS.map(b=>b.toLowerCase()));
+  const picks=[],seen=new Set();
+  const kids=/\b(junior|juniors|kids?|youth|enfants?|jr|toddler|boys?|girls?|gar[çc]ons?|filles?)\b/i;
+  for(const d of sale.filter(d=>d.pct<=75&&!kids.test(d.n)&&known.has(d.b.toLowerCase())&&d.g==="shoes").sort((a,b)=>b.pct-a.pct)){if(seen.has(d.b))continue;seen.add(d.b);picks.push(d);if(picks.length===3)break}
+  $("wDeals").innerHTML=picks.map(d=>`<div class="wdeal"><span class="pct">−${d.pct}%</span><span class="wn"><b>${esc(d.b)}</b>${esc(nm(d.n))}</span><span class="wp">${money(d.price)} <small class="cur">${CUR}</small><s>${money(d.reg)}</s></span></div>`).join("");
+}
+let lastFocus=null;
+function openSheet(){lastFocus=document.activeElement;renderSheet();
+  const g=gated(),si=g&&signinMode;
+  // which parts show for this flow and step
+  let showSizes=true,showGate=g,showWelcome=false,title=t("sheetTitle"),intro=t("sheetIntro"),btn=t("showDeals");
+  if(g&&!si){
+    if(FLOW==="A"){title=t("sheetGateTitle");intro=t("sheetGateIntro");btn=t("subscribeShow")}
+    else if(step===0){if(!openSheet.seenW){openSheet.seenW=1;track("welcome-view",{lang:LANG})}showSizes=false;showGate=false;showWelcome=true;title=t("wTitle");intro=t("wIntro",missShare()>=0.5);btn=t("wGo");renderWelcome()}
+    else if(FLOW==="C"&&step===1){showSizes=false;title=t("cTitle");intro=t("cIntro");btn=t("cContinue")}
+    else if(FLOW==="C"&&step===2){showGate=false;title=t("s1Title");intro=gSession?t("gSigned",esc(gSession.email))+" "+t("cSizesIntro"):t("cSizesIntro");btn=t("subscribeShow")}
+    else if(step===1){showGate=false;title=t("s1Title");intro=gSession?t("gSigned",esc(gSession.email))+" "+t("cSizesIntro"):t("s1Intro");btn=gSession?t("subscribeShow"):t("next")}
+    else {showSizes=false;title=t("s2Title");intro=t("s2Intro");btn=t("subscribeShow")}
+  }
+  if(si){title=t("signinTitle");intro=t("signinIntro");btn=t("emailLink")}
+  $("sizesPart").classList.toggle("hidden",!showSizes);$("welcomePart").classList.toggle("hidden",!showWelcome);
+  $("gateBox").classList.toggle("hidden",!showGate);$("closeSheet").classList.toggle("hidden",g);
+  const showAlready=g&&!si&&FLOW==="A";
+  $("already").classList.toggle("hidden",!showAlready);$("signinBox").classList.toggle("hidden",!si);$("signupParts").classList.toggle("hidden",si);
+  $("sheetTitle").textContent=title;
+  if(showWelcome)$("sheetTitle").innerHTML=title.split(/(?<=\.)\s+/).map(x=>`<span class="nw">${esc(x)}</span>`).join(" ");   // "Every day." never splits
+  document.querySelector("#sheet .intro").innerHTML=intro;
+  $("saveSizes").textContent=btn;
+  const multi=g&&!si&&FLOW!=="A"&&step>0;
+  $("stepNo").classList.toggle("hidden",!multi||!!gSession);if(multi)$("stepNo").textContent=t("step",step,nSteps());
+  $("stepBack").classList.toggle("hidden",!(g&&!si&&FLOW!=="A"&&step>(FLOW==="D"?0:1)));
+  renderLive();
+  if(g)$("gateEmail").value=state.email||"";
+  const gOn=G.ready&&g;$("gUp").classList.toggle("hidden",!gOn||!!gSession);$("gIn").classList.toggle("hidden",!gOn);
+  $("gW").classList.add("hidden");$("wSignin").classList.toggle("hidden",!showWelcome);
+  $("gSigned").classList.toggle("hidden",!gSession);if(gSession)$("gSigned").innerHTML=t("gSigned",esc(gSession.email));
+  $("gateEmail").classList.toggle("hidden",!!gSession);
+  document.querySelector('#gateBox [data-i18n="gateFine"]').innerHTML=gSession?t("gateFineG"):t("gateFine");
+  document.querySelector('#gateBox h3').classList.toggle("hidden",g&&!si&&FLOW!=="A");
+  if(gOn)G.render();
+  gateErr("");$("sheet").classList.remove("hidden");document.body.classList.add("locked");
+  setTimeout(()=>$("panel").focus(),30)}
+$("stepBack").addEventListener("click",()=>{step=Math.max(FLOW==="D"?0:1,step-1);openSheet();$("panel").scrollTop=0});
+function nextStep(){step+=1;track("signup-step",{flow:FLOW,step});openSheet();$("panel").scrollTop=0}
+function closeSheet(){$("sheet").classList.add("hidden");document.body.classList.remove("locked");if(lastFocus&&lastFocus.focus)lastFocus.focus()}
+$("openSizes").addEventListener("click",openSheet);
+$("sizePill").addEventListener("click",openSheet);
+$("closeSheet").addEventListener("click",()=>{if(gated())return;closeSheet();renderAll()});
+$("sheet").addEventListener("click",e=>{if(e.target===$("sheet")&&!gated()){closeSheet();renderAll()}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("sheet").classList.contains("hidden")&&!gated()){closeSheet();renderAll()}});
+$("saveSizes").addEventListener("click",async()=>{
+  if(gated()&&signinMode){
+    const email=$("signinEmail").value.trim().toLowerCase();
+    if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)){gateErr(t("errEmail"),$("signinEmail"));return}
+    const btn=$("saveSizes");btn.disabled=true;btn.textContent=t("oneMoment");gateErr("");
+    try{await rpc("send_link",{p_email:email,p_lang:LANG})}
+    catch(e){btn.disabled=false;btn.textContent=t("emailLink");return gateErr(t("errServer"))}
+    btn.disabled=false;state.email=email;setSub({pending:email,signin:true});signinMode=false;track("signin",{method:"email-link"});
+    closeSheet();view.open={};renderAll();window.scrollTo({top:0});notice(t("linkSent",esc(email)));
+    return;
+  }
+  if(gated()&&FLOW!=="A"){
+    if(step===0)return nextStep();
+    const sizesStep=(FLOW==="C"&&step===2)||(FLOW!=="C"&&step===1);
+    if(sizesStep){
+      if(!state.gender)return gateErr(t("errFit"),$("fit"));
+      if(!state.shoe.length&&!state.cloth.length)return gateErr(t("errSize"),$("shoeSizes"));
+      if(FLOW!=="C"&&gSession)return googleSubscribe();       // signed in with Google already: done
+      if(FLOW!=="C")return nextStep();                          // B/D: sizes done, now the email step
+    }else if(FLOW==="C"&&step===1){                              // C: account first
+      if(gSession)return nextStep();
+      const email=$("gateEmail").value.trim().toLowerCase();
+      if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)){gateErr(t("errEmail"),$("gateEmail"));return}
+      state.email=email;return nextStep();
+    }
+  }
+  if(gated()&&gSession){
+    if(!state.gender)return gateErr(t("errFit"),$("fit"));
+    if(!state.shoe.length&&!state.cloth.length)return gateErr(t("errSize"),$("shoeSizes"));
+    return googleSubscribe();
+  }
+  if(gated()){
+    if(!state.gender)return gateErr(t("errFit"),$("fit"));
+    if(!state.shoe.length&&!state.cloth.length)return gateErr(t("errSize"),$("shoeSizes"));
+    const email=(FLOW==="C"&&state.email)?state.email:$("gateEmail").value.trim().toLowerCase();
+    if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)){gateErr(t("errEmail"),$("gateEmail"));setTimeout(()=>$("gateEmail").focus({preventScroll:true}),400);return}
+    const btn=$("saveSizes");btn.disabled=true;btn.textContent=t("oneMoment");gateErr("");
+    state.email=email;const p=toProfile();LS.set("rd-profile",p);
+    try{await rpc("subscribe",{p_email:email,p_profile:p});setSub({pending:email});track("signup",{method:"email",lang:LANG,where:"sheet"})}
+    catch(e){btn.disabled=false;btn.textContent=t("subscribeShow");return gateErr(t("errServer"))}
+    btn.disabled=false;closeSheet();view.open={};renderAll();window.scrollTo({top:0});
+    notice(t("hereDeals",esc(email)));
+    return;
+  }
+  if(!state.gender){state.gender="any"}
+  saveProfile();closeSheet();view.open={};renderAll();window.scrollTo({top:0});
+});
+
+function sizeSummary(){
+  if(!hasSizes())return t("tellFit");
+  const parts=[{men:t("men"),women:t("women"),any:t("menWomen")}[state.gender]];
+  if(state.shoe.length)parts.push(t("shoe")+" "+(state.shoe.length>3?state.shoe.slice(0,3).join(", ")+"…":state.shoe.join(", ")));
+  if(state.cloth.length)parts.push(t("clothing")+" "+state.cloth.join(", "));
+  return parts.join(" · ");
+}
+
+/* ---------- deals ---------- */
+let DATA=null, ITEMS=[];
+function ago(iso){if(!iso)return "";const m=Math.max(0,Math.round((Date.now()-new Date(iso))/60000));
+  return m<60?t("minAgo",m):m<48*60?t("hAgo",Math.round(m/60)):t("daysAgo",Math.round(m/1440))}
+fetch("deals.json",{cache:"no-store"}).then(r=>r.json()).then(d=>{DATA=d;ITEMS=d.items||[];byKey={};ITEMS.forEach(x=>(byKey[itemKey(x)]=byKey[itemKey(x)]||[]).push(x));renderAll();
+  if(!$("sheet").classList.contains("hidden"))openSheet()})
+  .catch(()=>{DATA={items:[]};$("dealList").innerHTML=`<div class="empty">${t("loadFail")}</div>`});
+const PAGE=8, MORE=24;
+const WORD={"ONE SIZE":"OS","O/S":"OS","X-SMALL":"XS","XSMALL":"XS","SMALL":"S","MEDIUM":"M","LARGE":"L","X-LARGE":"XL","XLARGE":"XL"};
+function norm(s){s=String(s).trim().toUpperCase();s=WORD[s]||s;return s.replace("XXXL","3XL").replace("XXL","2XL").replace("XXS","2XS")}
+const view={fullPrice:false,sort:"match",q:"",open:{},watch:false,newAll:false};
+const NEWSTYLE_DEFAULT="row";                              // "row" (A) or "sticky" (B)
+const NEWSTYLE=LS0("gf-newstyle")||NEWSTYLE_DEFAULT;
+document.body.classList.add(NEWSTYLE==="row"?"newrow":"sticky");
+const TOP_DEFAULT="calm";                                  // "calm" or "full" (the older, busier top)
+const TOP=LS0("gf-top")||TOP_DEFAULT;
+const CALM=TOP==="calm";
+if(CALM)document.body.classList.add("calm");
+function setTb(){const tb=document.querySelector(".topbar");if(tb)document.documentElement.style.setProperty("--tb",tb.offsetHeight+"px")}
+setTb();addEventListener("resize",setTb);
+/* Prices are stored in CAD. The CAD/USD switch converts for display with the day's rate from the refresh. */
+let CUR=LS0("gf-cur")||"CAD";
+const usdRate=()=>(DATA&&DATA.fx&&DATA.fx.USD)||1.38;
+function money(v){
+  if(CUR==="USD")v=v/usdRate();
+  const n=v.toFixed(2);
+  return LANG==="fr"?n.replace(".",",")+"\u00a0$":"$"+n;
+}
+const curTag=()=>`<span class="cur">${CUR}</span>`;
+
+/* Shoe sizes come standardised from the refresh: "10", "M:10" / "W:11" (men's / women's from unisex labels),
+   "~W" wide, "~N" narrow. */
+function shoeKey(s){const m=/^(?:([MW]):)?(\d+(?:\.5)?)(?:~([WN]))?$/.exec(String(s));return m?{g:m[1]||"",n:m[2],w:m[3]||""}:null}
+function sizeLabel(s,g){const k=shoeKey(s);if(!k)return s;
+  return (k.g&&g!=="men"&&g!=="women"?k.g:"")+k.n+(k.w==="W"?(LANG==="fr"?" large":" wide"):"")}
+/* Open the product with the shopper's size already picked when the store gives each size its own link. */
+function sizeUrl(d,e){
+  const u=d.of[e[2]]||d.of[0];if(!e||e.length<5||!u)return u;
+  try{const x=new URL(u);x.searchParams.set("variant",e[4]);return x.toString()}catch(err){return u}
+}
+/* Vests, belts, lights: when they come in letter sizes (S, M/L…) they follow your clothing size. */
+const LETTERS=new Set(["2XS","XS","S","M","L","XL","2XL","3XL"]);
+const accLetters=d=>(d.g==="packs"||d.g==="gear")&&d.sz.some(e=>LETTERS.has(e[0]))&&d.sz.every(e=>e[0]==="OS"||LETTERS.has(e[0]));
+/* Deal score: % off, plus the dollars saved and what it is, so a $200 shoe at 60% beats a $15 belt at 74%. */
+const GROUP_BONUS={shoes:15,tops:8,bottoms:8,bras:8,packs:6,watches:6};
+const score=d=>d.pct+(GROUP_BONUS[d.g]||0)+Math.min(15,(d.reg-d.best)/10);
+/* Names come in English; show gender words in French on the French site. */
+function nm(n){return LANG!=="fr"?n:String(n).replace(/^(Men's|Women's|Unisex)\s+(.+)$/,"$2 - $1").replace(/\bMen's\b/g,"Homme").replace(/\bWomen's\b/g,"Femme").replace(/\bUnisex\b/g,"Unisexe")}
+/* Every item in stock in the profile's sizes, with its best price, the regular price of that size,
+   the % off, and the store link that has that price. Same rules as the weekly email. */
+function matchItems(p,list){
+  const favs=(p.brands||[]).map(b=>b.toLowerCase());
+  const out=[];
+  const caOnly=(p.ships||"ca")!=="all";
+  for(const d of (list||ITEMS)){
+    if(!p.groups.includes(d.g))continue;
+    if(caOnly&&d.ca===false)continue;
+    if(p.gender&&p.gender!=="any"&&d.sx.length&&!d.sx.includes(p.gender))continue;
+    let ok=d.sz;
+    if(SIZED.has(d.g)){
+      const sz=p.sizes[d.g]||{}, want=(sz.sizes||[]).map(norm);
+      if(d.g==="shoes"){
+        const w=sz.width||[], wantWide=w.includes("Wide"), wantReg=!w.length||w.includes("Regular");
+        const G=p.gender==="men"?"M":p.gender==="women"?"W":"";
+        ok=d.sz.filter(e=>{
+          if(e[0]==="OS")return true;
+          const k=shoeKey(e[0]);if(!k||k.w==="N")return false;
+          if(k.g&&G&&k.g!==G)return false;                     // "M:10" is for men, "W:11" for women
+          const wide=k.w==="W"||(!k.w&&d.w);
+          if(wide?!wantWide:!wantReg)return false;
+          return want.includes(k.n);
+        });
+      }else ok=d.sz.filter(([s])=>s==="OS"||want.includes(norm(s)));
+    }
+    else if(accLetters(d)){const want=((p.sizes.tops||{}).sizes||[]).map(norm);ok=d.sz.filter(e=>e[0]==="OS"||want.includes(e[0]))}
+    if(!ok.length)continue;
+    let pick=ok[0];
+    for(const e of ok)if(e[1]<pick[1]||(e[1]===pick[1]&&e[3]>pick[3]))pick=e;
+    const best=pick[1], reg=Math.max(pick[3]||best,best);
+    const pct=reg>best?Math.round(100*(1-best/reg)):0;
+    out.push({...d,best,reg,pct,ok,url:sizeUrl(d,pick),fav:favs.includes(d.b.toLowerCase())});
+  }
+  return out;
+}
+const SORTS={
+  match:(a,b)=>(b.fav-a.fav)||(score(b)-score(a))||(a.best-b.best),
+  price:(a,b)=>(a.best-b.best)||(b.pct-a.pct),
+  discount:(a,b)=>(b.pct-a.pct)||(a.best-b.best)
+};
+const RENDERED={};   // key -> deal as shown, for the savings tally
+function card(d,extra){
+  const sized=SIZED.has(d.g);
+  const labels=[...new Set(d.ok.map(x=>d.g==="shoes"?sizeLabel(x[0],state.gender):x[0]))];
+  if(sized){const SO=["2XS","XS","S","M","L","XL","2XL","3XL"],ix=v=>{const i=SO.indexOf(norm(v));return i<0?99:i};const nv=v=>parseFloat(String(v).replace(/^[MW]/,""));labels.sort((a,b)=>(isNaN(nv(a))||isNaN(nv(b)))?ix(a)-ix(b):nv(a)-nv(b))}
+  const lettered=accLetters(d),real=labels.filter(x=>x!=="OS");
+  const sizes=(sized||lettered)&&real.length?`<div class="sizes">${t("inYourSize")} <strong>${esc(real.join(", "))}</strong></div>`:"";   // odd labels ("T2", "115cm"): the store page explains them
+  const k=itemKey(d),on=!!watches[k];RENDERED[k]=d;
+  const isNew=!extra&&NEWSET.has(k);
+  return `<div class="dw"><a class="deal" href="${esc(d.url)}" target="_blank" rel="noopener">
+    ${d.img?`<div class="pic"><img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"></div>`:""}
+    <div class="top"><span class="brand">${esc(d.b)}${d.fav?" ★":""}</span>${d.pct?`<span class="pct">−${d.pct}%</span>`:""}</div>
+    <div class="name">${esc(nm(d.n))}</div>
+    <div class="price"><b>${money(d.best)}</b>${curTag()}${d.pct?`<s>${money(d.reg)}</s>`:""}</div>
+    ${extra||""}${isNew?`<span class="badge new">${t("isNew")}</span>`:""}
+    ${sizes}
+    ${d.bb?`<div class="warn">${t("bestBy",esc(d.bb))}</div>`:""}
+    ${d.ca===false?`<div class="sizes">${t("abroad")}</div>`:""}
+  </a>${heartBtn(k,on,d)}</div>`;
+}
+function section(key,title,list,cls){
+  if(!list.length)return "";
+  if(key==="__new"&&NEWSTYLE==="row"&&!view.newAll){       // one swipeable row, then "See all" as a list
+    const n=list.length,row=list.slice(0,24);
+    return `<section class="grp ${cls||""}"><h2>${title} <small>${num(n)}</small>${n>1?`<span class="swipe" aria-hidden="true">${t("swipe")}</span>`:""}</h2><div class="grid">${row.map(d=>card(d)).join("")}
+      ${n>1?`<button type="button" class="seeall" data-newall>${t("seeAll",num(n))}<small>${t("asList")}</small></button>`:""}</div>
+      ${n>1?`<button type="button" class="rowarrow prev" data-row="-1" aria-label="${LANG==="fr"?"Précédent":"Previous"}">‹</button><button type="button" class="rowarrow next" data-row="1" aria-label="${LANG==="fr"?"Suivant":"Next"}">›</button>`:""}</section>`;
+  }
+  const lim=view.open[key]||PAGE;
+  const tail=key==="__new"&&NEWSTYLE==="row"?`<button type="button" class="linkbtn" data-newrow>${t("asRow")}</button>`:"";
+  return `<section class="grp ${cls||""}"><h2>${title} <small>${num(list.length)}</small>${tail}</h2><div class="grid">${list.slice(0,lim).map(d=>card(d)).join("")}</div>
+    ${list.length>lim?`<button class="btn more" data-open="${key}">${t("showMore",Math.min(MORE,list.length-lim))}</button>`:""}</section>`;
+}
+
+function renderFilters(){
+  const all=ORDER.every(g=>state.groups.includes(g));
+  $("cats").innerHTML=`<button type="button" class="chip" data-v="__all" aria-pressed="${all}">${t("allGear")}</button>`+
+    ORDER.map(g=>`<button type="button" class="chip" data-v="${g}" aria-pressed="${!all&&state.groups.includes(g)}">${GL(g)}</button>`).join("");
+  $("toggles").innerHTML=`<button type="button" class="chip" data-t="ca" aria-pressed="${state.ships!=="all"}">${t("shipsCA")}</button>`+
+    `<button type="button" class="chip" data-t="sale" aria-pressed="${view.fullPrice}">${t("saleOnly")}</button>`;
+  $("sort").value=view.sort;
+}
+$("cats").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;const v=b.dataset.v;
+  const all=ORDER.every(g=>state.groups.includes(g));
+  if(v==="__all")state.groups=ORDER.slice();
+  else if(all)state.groups=[v];                       // from "all", tapping one narrows to it
+  else{toggle(state.groups,v);if(!state.groups.length)state.groups=ORDER.slice()}
+  view.open={};saveProfile();renderAll()});
+$("toggles").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;
+  if(b.dataset.t==="ca"){state.ships=state.ships==="all"?"ca":"all";saveProfile()}
+  else view.fullPrice=!view.fullPrice;
+  view.open={};renderAll()});
+$("sort").addEventListener("change",e=>{view.sort=e.target.value;view.open={};renderAll()});
+let searchT;$("dSearch").addEventListener("input",e=>{clearTimeout(searchT);searchT=setTimeout(()=>{view.q=e.target.value;view.open={};renderAll()},200)});
+$("newBox").addEventListener("click",e=>{
+  const ar=e.target.closest("[data-row]");
+  if(ar){const g=ar.parentNode.querySelector(".grid");g.scrollBy({left:(+ar.dataset.row)*g.clientWidth*0.8,behavior:"smooth"});return}
+  if(e.target.closest("[data-newall]")){view.newAll=true;renderAll();const s=document.querySelector("#dealList .grp.new");if(s)s.scrollIntoView({block:"start"})}});
+$("filtBtn").addEventListener("click",()=>{const f=$("filtersBox"),o=!f.classList.contains("open");f.classList.toggle("open",o);$("filtBtn").setAttribute("aria-expanded",String(o))});
+$("dealList").addEventListener("click",e=>{
+  const ar=e.target.closest("[data-row]");
+  if(ar){const g=ar.parentNode.querySelector(".grid");g.scrollBy({left:(+ar.dataset.row)*g.clientWidth*0.8,behavior:"smooth"});return}
+  if(e.target.closest("[data-newall]")){view.newAll=true;renderAll();return}
+  if(e.target.closest("[data-newrow]")){view.newAll=false;renderAll();const s=document.querySelector(".grp.new");if(s)s.scrollIntoView({block:"start"});return}
+  const b=e.target.closest("[data-open]");if(!b)return;const k=b.dataset.open;view.open[k]=(view.open[k]||PAGE)+MORE;renderAll()});
+
+/* ---------- watchlist: saved on this device, synced to the server once the email is confirmed ---------- */
+const HEART='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 6.9 4.5c2.1 0 3.6 1.2 5.1 3 1.5-1.8 3-3 5.1-3 3.5 0 5.5 3.5 4.2 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>';
+let watches=LS.get("gf-watch")||{};           // key -> {b,n,g,url,price,saved}
+const itemKey=d=>`${d.b}|${d.n}|${d.g}|${d.w?1:0}`.toLowerCase();   // same id the alert emails use
+function heartBtn(k,on,d){return `<button type="button" class="heart" data-key="${esc(k)}" aria-pressed="${on}" aria-label="${on?t("stopWatching"):t("watch")} ${esc(d.b+" "+d.n)}">${HEART}</button>`}
+function saveWatches(){LS.set("gf-watch",watches);const n=Object.keys(watches).length;$("watchCount").textContent=n?String(n):""}
+let toastT;function toast(t){const e=$("toast");e.textContent=t;e.classList.remove("hidden");clearTimeout(toastT);toastT=setTimeout(()=>e.classList.add("hidden"),3200)}
+function toggleWatch(k){
+  if(watches[k]){delete watches[k];saveWatches();
+    if(sub&&sub.key)rpc("watch_remove",{p_token:sub.key,p_key:k}).catch(()=>{});
+    toast(t("removed"));return}
+  const d=(byKey[k]||[])[0];if(!d)return;
+  const m=matchItems({...toProfile(),groups:ORDER},byKey[k]);const best=m.length?Math.min(...m.map(x=>x.best)):null;
+  const url=m.length?m.sort((a,b)=>a.best-b.best)[0].url:(d.of||[])[0];
+  watches[k]={b:d.b,n:d.n,g:d.g,url,price:best,low:best,seen:best,gone:best==null,saved:new Date().toISOString()};saveWatches();
+  track("watch-add",{brand:d.b,group:d.g});
+  if(sub&&sub.key&&sub.active){rpc("watch_add",{p_token:sub.key,p_key:k,p_meta:watches[k]}).catch(()=>{});
+    toast(t("watching"))}
+  else toast(sub&&sub.pending?t("watchingPending"):t("watchingSignup"));
+}
+async function syncWatches(){
+  if(!(sub&&sub.key))return;
+  try{
+    const list=await rpc("watch_list",{p_token:sub.key})||[];
+    const server=new Set(list.map(w=>w.key));
+    list.forEach(w=>{if(!watches[w.key])watches[w.key]=w.meta||{}});
+    if(sub.active)for(const [k,m] of Object.entries(watches))if(!server.has(k))await rpc("watch_add",{p_token:sub.key,p_key:k,p_meta:m}).catch(()=>{});
+    saveWatches();renderAll();
+  }catch(e){}
+}
+["dealList","newBox"].forEach(id=>$(id).addEventListener("click",e=>{const h=e.target.closest(".heart");if(!h)return;e.preventDefault();e.stopPropagation();
+  toggleWatch(h.dataset.key);const on=!!watches[h.dataset.key];
+  if(view.watch)renderAll();else{document.querySelectorAll(`.heart[data-key="${CSS.escape(h.dataset.key)}"]`).forEach(x=>x.setAttribute("aria-pressed",String(on)))}}));
+function setWatchView(on){view.watch=on;$("openWatch").setAttribute("aria-pressed",String(on));view.open={};renderAll();window.scrollTo({top:0})}
+$("openWatch").addEventListener("click",()=>setWatchView(!view.watch));
+$("backToDeals").addEventListener("click",()=>setWatchView(false));
+let byKey={};
+/* What changed on the watchlist: price vs when saved, vs when last looked, lowest seen, back in size. */
+function watchStatus(k){
+  const w=watches[k];const m=matchItems({...toProfile(),groups:ORDER},byKey[k]||[]).sort((a,b)=>a.best-b.best);
+  const d=m[0]||null,cur=d?d.best:null;
+  const since=w.seen!=null?w.seen:w.price;
+  return {w,d,cur,
+    dropSaved:cur!=null&&w.price!=null&&cur<w.price-0.5?w.price-cur:0,
+    changed:(cur!=null&&since!=null&&cur<since-0.5)||(cur!=null&&w.gone===true),
+    back:cur!=null&&w.gone===true,
+    lowest:cur!=null&&w.low!=null&&cur<w.low-0.5};
+}
+function watchChanges(){return Object.keys(watches).map(watchStatus).filter(x=>x.changed)}
+function renderWatchButton(){
+  const ch=DATA&&!gated()?watchChanges():[];
+  const b=$("openWatch");b.classList.toggle("hot",ch.length>0&&!view.watch);
+  b.setAttribute("aria-label",ch.length?t("watchlistChanges",ch.length):t("watchlist"));
+  const box=$("watchNews");
+  if(ch.length&&!view.watch){
+    const drops=ch.filter(x=>!x.back).length,backs=ch.filter(x=>x.back).length;
+    const txt=[drops?t("dropsTxt",drops):"",backs?t("backsTxt",backs):""].filter(Boolean).join(t("and"));
+    box.innerHTML=CALM?`<span>${t("watchShort",drops,backs)}</span><button type="button" class="btn" id="seeWatch">${t("see")}</button>`
+      :`<span><b>${t("goodNews")}</b> ${txt}.</span><button type="button" class="btn" id="seeWatch">${t("seeThem")}</button>`;
+    box.classList.remove("hidden");$("seeWatch").addEventListener("click",()=>setWatchView(true));
+  }else box.classList.add("hidden");
+}
+function renderWatch(){
+  const keys=Object.keys(watches).sort((a,b)=>String(watches[b].saved||"").localeCompare(String(watches[a].saved||"")));
+  const p={...toProfile(),groups:ORDER};
+  const cards=keys.map(k=>{
+    const st=watchStatus(k),w=st.w;
+    if(st.d){
+      const b=[];
+      if(st.back)b.push(`<span class="badge back">${t("backBadge")}</span>`);
+      if(st.dropSaved)b.push(`<span class="badge drop">${t("dropBadge",money(st.dropSaved))}</span>`);
+      if(st.lowest)b.push(`<span class="badge low">${t("lowBadge")}</span>`);
+      w.low=Math.min(w.low??st.cur,st.cur);w.seen=st.cur;w.gone=false;     // you've now seen today's price
+      return card(st.d,b.join(""));
+    }
+    w.gone=true;
+    return `<div class="dw"><a class="deal gone" href="${esc(w.url||"#")}" target="_blank" rel="noopener">
+      <div class="top"><span class="brand">${esc(w.b||"")}</span></div><div class="name">${esc(nm(w.n||""))}</div>
+      <div class="gonetxt">${t("goneTxt")}</div></a>${heartBtn(k,true,{b:w.b||"",n:w.n||""})}</div>`;
+  });
+  const n=keys.length;
+  $("lede").textContent=n?(sub&&sub.active?t("watchLedeOn"):t("watchLedeOff")):"";
+  saveWatches();renderWatchButton();
+  $("dealList").innerHTML=n?`<div class="grid">${cards.join("")}</div>`
+    :`<div class="empty">${t("watchEmpty")}</div>`;
+  $("dealsFoot").textContent=n?t("pricesChange"):"";
+}
+
+/* New on sale since your last visit (a visit = more than 6 hours after the previous one). */
+let NEWSET=new Set(),newReady=false;
+function computeNew(onSale){
+  if(newReady)return;newReady=true;
+  const now=Date.now(),keys=onSale.map(itemKey);
+  const last=LS.get("gf-last");let base=LS.get("gf-base");
+  if(last&&now-last.at>6*3600e3){base=last;LS.set("gf-base",base)}
+  if(!last||now-last.at>6*3600e3)LS.set("gf-last",{at:now,keys});
+  if(base){const old=new Set(base.keys);NEWSET=new Set(keys.filter(k=>!old.has(k)))}
+}
+/* Money off in deals you've opened in the last 30 days (what you found, not what you spent).
+   Stored as {key: {off, at}}; older entries, and the old number-only format, drop out. */
+const TALLY_DAYS=30;
+let clicks=(()=>{const c=LS.get("gf-clicks")||{},cut=Date.now()-TALLY_DAYS*864e5,out={};
+  for(const [k,v] of Object.entries(c))if(v&&typeof v==="object"&&v.at>cut)out[k]=v;return out})();
+LS.set("gf-clicks",clicks);
+const tally=()=>Object.values(clicks).reduce((a,v)=>a+v.off,0);
+function recordClick(k){const d=RENDERED[k];if(!d||!d.pct||clicks[k])return;clicks[k]={off:Math.round((d.reg-d.best)*100)/100,at:Date.now()};LS.set("gf-clicks",clicks)}
+/* Calm top: "421 deals today · $150 off found so far · updated 3 h ago" */
+let saleNow=0;
+function setCalmLede(){if(!DATA||gated()||view.watch)return;
+  const off=tally();
+  $("lede").innerHTML=t("ledeShort",num(saleNow),DATA.updated?ago(DATA.updated):"",off>=1?money(Math.round(off)).replace(/[.,]00/,""):"")}
+function renderStats(){
+  if(CALM){$("tally").classList.add("hidden");$("stats").classList.add("hidden");setCalmLede();return}
+  const el=$("stats");const parts=[];
+  if(NEWSET.size)parts.push(`<span class="stat">${t("newSince",num(NEWSET.size))} <button type="button" id="jumpNew">${t("show")}</button></span>`);
+  const off=tally(),n=Object.keys(clicks).length;
+  if(off>0)parts.push(`<span class="stat">${t("offTally",money(off).replace(/[.,]00/,""),n)}</span>`);
+  el.innerHTML=parts.join("");el.classList.toggle("hidden",!parts.length);
+  const j=$("jumpNew");if(j)j.addEventListener("click",()=>{const s=document.querySelector(".grp.new");if(s)s.scrollIntoView({behavior:"smooth",block:"start"})});
+}
+["dealList","newBox"].forEach(id=>$(id).addEventListener("click",e=>{const a=e.target.closest("a.deal");if(!a)return;const h=a.parentNode.querySelector(".heart");
+  const d=h&&RENDERED[h.dataset.key];
+  track("deal-click",{store:storeOf(a.href),brand:d?d.b:"",group:d?d.g:"",pct:d?d.pct:0,view:view.watch?"watchlist":"shop"});
+  if(h){recordClick(h.dataset.key);setTimeout(renderStats,0)}},true));
+
+function renderAll(){
+  $("sizeSummary").textContent=sizeSummary();
+  $("newBox").innerHTML="";
+  const sh=$("subhead");sh.classList.toggle("hidden",!CALM||!!view.watch||gated());
+  if(CALM){sh.innerHTML=`${esc(sizeSummary())} · <button type="button" class="linkbtn" id="editSz">${t("edit")}</button>`;$("editSz").addEventListener("click",openSheet);
+    const dirty=state.ships==="all"||view.fullPrice||view.sort!=="match";$("filtDot").classList.toggle("hidden",!dirty)}
+  const w=!!view.watch;
+  $("filtersBox").classList.toggle("hidden",w);$("backToDeals").classList.toggle("hidden",!w);
+  $("pageTitle").textContent=w?t("titleWatch"):t("titleDeals");
+  saveWatches();
+  renderFilters();
+  if(!DATA){$("dealList").innerHTML=`<div class="empty">${t("loading")}</div>`;return}
+  if(gated()){$("lede").textContent=t("gatedLede");
+    const tz=matchItems({...toProfile(),gender:"",sizes:{},groups:ORDER}).filter(d=>d.pct>=20).sort(SORTS.discount).slice(0,8);
+    $("dealList").innerHTML=`<div class="empty"><button class="primary" type="button" id="unlock">${t("unlock")}</button></div>`+
+      (tz.length?`<div class="grid tease" aria-hidden="true" style="margin-top:14px">${tz.map(d=>card(d)).join("")}</div>`:"");
+    $("unlock").addEventListener("click",openSheet);$("dealsFoot").textContent="";$("stats").classList.add("hidden");$("watchNews").classList.add("hidden");return}
+  if(w){$("stats").classList.add("hidden");return renderWatch()}
+  const p=toProfile();
+  const q=view.q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  let all=matchItems(p);
+  if(q.length)all=all.filter(d=>{const t=(d.b+" "+d.n).toLowerCase();return q.every(w=>t.includes(w))});
+  const onSale=all.filter(d=>d.pct>0);
+  const where=state.ships==="all"?t("storesAll"):t("storesCA");
+  saleNow=onSale.length;
+  if(CALM)setCalmLede();
+  else $("lede").textContent=t("lede",num(onSale.length),num(all.length),where,DATA.updated?ago(DATA.updated):"");
+  computeNew(onSale);renderStats();renderWatchButton();
+  // Sale items only, unless "Include full price" is on; then everything in your size, sale items first
+  const shown=(view.fullPrice?all:onSale).slice().sort((a,b)=>((b.pct>0)-(a.pct>0))||SORTS[view.sort](a,b));
+  const parts=[];
+  if(!q.length){const ns=section("__new",t("secNew"),onSale.filter(d=>NEWSET.has(itemKey(d))).sort(SORTS[view.sort]),"new");
+    if(CALM&&NEWSTYLE==="row"&&!view.newAll)$("newBox").innerHTML=ns;else parts.push(ns)}
+  parts.push(section("__sale",t("secSale"),onSale.slice().sort(SORTS[view.sort]),"sale"));
+  ORDER.filter(g=>p.groups.includes(g)).forEach(g=>parts.push(section(g,GL(g),shown.filter(d=>d.g===g))));
+  const body=parts.filter(Boolean);
+  body.splice(Math.min(1,body.length),0,signupHTML());   // the email card sits right after the first block of deals
+  $("dealList").innerHTML=body.join("")||`<div class="empty">${t("nothing")}</div>`;
+  bindSignup();
+  $("dealsFoot").textContent=(hasSizes()?"":t("addSizes"))+t("pricesChange");
+}
+
+/* ---------- Friday email: subscribers live in Supabase ---------- */
+const SB_URL="https://krwymmkauwqqxjxbvkyq.supabase.co",SB_KEY="sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2";
+async function rpc(fn,args,bearer){
+  const h={apikey:SB_KEY,"Content-Type":"application/json"};if(bearer)h.Authorization="Bearer "+bearer;
+  const r=await fetch(`${SB_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:h,body:JSON.stringify(args||{})});
+  const t=await r.text();if(!r.ok){let m="";try{m=JSON.parse(t).message}catch(e){}throw new Error(m||("HTTP "+r.status))}
+  return t?JSON.parse(t):null;
+}
+let sub=LS.get("gf-sub");            // {key, email, active} once this device is linked by an email link; {pending} while waiting
+function setSub(v){sub=v;LS.set("gf-sub",v)}
+let signupErr="";
+function signupHTML(){
+  if(sub&&sub.active)return "";
+  if(sub&&sub.pending)return `<div class="signup"><h3>${t("checkInbox")}</h3><p style="margin:0">${sub.signin?t("signinCard",esc(sub.pending)):t("checkInboxTxt",esc(sub.pending))}</p>
+    <p class="fine"><button type="button" id="suRetry" style="font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;cursor:pointer">${t("otherEmail")}</button></p></div>`;
+  return `<div class="signup"><h3>${t("getDeals")}</h3>
+    <p>${t("getDealsTxt")}</p>
+    <form id="suForm" novalidate><label for="suEmail" class="hidden">${t("email")}</label>
+      <input id="suEmail" type="email" autocomplete="email" inputmode="email" placeholder="${t("emailPh")}" value="${esc(state.email)}" required>
+      <button class="primary" type="submit">${t("signUp")}</button></form>
+    ${signupErr?`<p class="err">${esc(signupErr)}</p>`:""}
+    <p class="fine">${t("signupFine")}</p></div>`;
+}
+function bindSignup(){
+  const f=$("suForm");
+  if(f)f.addEventListener("submit",async e=>{
+    e.preventDefault();const email=$("suEmail").value.trim().toLowerCase();
+    if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)){signupErr=t("badEmail");renderAll();$("suEmail").focus();return}
+    const btn=f.querySelector("button");btn.disabled=true;btn.textContent="…";
+    state.email=email;const p=toProfile();LS.set("rd-profile",p);
+    try{await rpc("subscribe",{p_email:email,p_profile:p});signupErr="";setSub({pending:email});track("signup",{method:"email",lang:LANG,where:"shop-card"})}
+    catch(err){signupErr=t("signupFail",err.message)}
+    renderAll();
+  });
+  const r=$("suRetry");if(r)r.addEventListener("click",()=>{setSub(null);renderAll();openSheet();setTimeout(()=>$("gateEmail").focus(),60)});
+}
+function renderSubLine(){
+  const el=$("subLine");
+  if(sub&&sub.active){el.innerHTML=t("emailOn",esc(sub.email));
+    $("stopEmail").addEventListener("click",async()=>{try{await rpc("unsubscribe",{p_token:sub.key});setSub({...sub,active:false});el.textContent=t("emailStopped")}catch(e){el.textContent=t("serverDown")}})}
+  else el.textContent="";
+}
+function notice(html,btn){
+  const n=$("notice");n.innerHTML=html+(btn?`<div><button class="btn" id="noticeBtn" type="button">${btn.label}</button></div>`:"");
+  n.classList.remove("hidden");if(btn)$("noticeBtn").addEventListener("click",btn.run);
+}
+/* Links in our emails: ?confirm= (sign-up), ?k= (open your profile anywhere), ?unsub=. Older emails: ?p= (profile in the link). */
+function profileFromLink(){
+  const m=location.search.match(/[?&]p=([^&]+)/)||location.hash.match(/[#&]p=([^&]+)/);if(!m)return null;
+  try{const b=m[1].replace(/-/g,"+").replace(/_/g,"/");
+    return JSON.parse(decodeURIComponent(escape(atob(b+"===".slice((b.length+3)%4)))))}catch(e){return null}
+}
+async function linkFromEmail(){
+  const q=new URLSearchParams(location.search);
+  const conf=q.get("confirm"),key=q.get("k"),unsub=q.get("unsub");
+  const tok=conf||key||unsub;
+  if(!tok){const p=profileFromLink();if(p){applyProfile(p);LS.set("rd-profile",toProfile());try{history.replaceState(null,"",location.pathname)}catch(e){}return true}return false}
+  try{history.replaceState(null,"",location.pathname)}catch(e){}
+  if(!/^[0-9a-f-]{36}$/i.test(tok)){notice(t("linkBroken"));return false}
+  try{
+    if(unsub){
+      notice(t("stopQ"),{label:t("unsubscribe"),run:async()=>{
+        try{await rpc("unsubscribe",{p_token:tok});if(sub&&sub.key===tok)setSub({...sub,active:false});
+          notice(t("unsubbed"));renderAll()}
+        catch(e){notice(t("unsubFail"))}}});
+      return false;
+    }
+    const r=conf?await rpc("confirm",{p_token:tok}):await rpc("get_profile",{p_token:tok});
+    if(!r){notice(t("linkExpired"));return false}
+    applyProfile({...r.profile,email:r.email});LS.set("rd-profile",toProfile());
+    setSub({key:tok,email:r.email,active:!!r.subscribed});
+    if(conf){notice(t("youreIn"));track("signup-confirmed")}
+    return true;
+  }catch(e){notice(t("offline"));return false}
+}
+
+function switchLang(){
+  setTimeout(()=>track("language",{to:LANG}),0);
+  if(G.ready)setTimeout(()=>G.render(),0);
+  LANG=LANG==="fr"?"en":"fr";LS.set("gf-lang",LANG);applyStatic();saveProfile();
+  $("notice").classList.add("hidden");
+  if(!$("sheet").classList.contains("hidden"))openSheet();renderSheet();renderAll();
+}
+$("langBtn").addEventListener("click",switchLang);
+$("curBtn").addEventListener("click",()=>{CUR=CUR==="CAD"?"USD":"CAD";LS.set("gf-cur",CUR);track("currency",{to:CUR});applyStatic();renderAll();
+  toast(CUR==="USD"?(LANG==="fr"?"Prix affichés en dollars américains (taux du jour).":"Showing prices in US dollars (today's rate)."):(LANG==="fr"?"Prix affichés en dollars canadiens.":"Showing prices in Canadian dollars."))});$("langBtn2").addEventListener("click",switchLang);
+
+/* ---------- Sign in with Google (Google Identity Services + Supabase Auth) ---------- */
+const GOOGLE_CLIENT_ID="628549321119-s7ofaqkuu3v3s7su0oschoshd1bcu2jm.apps.googleusercontent.com";     // paste the Web client ID from Google Cloud here; empty = Google sign-in hidden
+let gSession=null;             // {email, access} after a Google sign-in on this page
+const G={ready:false,nonce:"",
+  load(){
+    if(!GOOGLE_CLIENT_ID)return;
+    const sc=document.createElement("script");sc.src="https://accounts.google.com/gsi/client";sc.async=true;
+    sc.onload=()=>G.init().catch(()=>{});document.head.appendChild(sc);
+  },
+  async init(){
+    const raw=[...crypto.getRandomValues(new Uint8Array(16))].map(b=>b.toString(16).padStart(2,"0")).join("");
+    const hash=[...new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(raw)))].map(b=>b.toString(16).padStart(2,"0")).join("");
+    G.nonce=raw;
+    google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:r=>onGoogle(r.credential),nonce:hash,
+      auto_select:false,cancel_on_tap_outside:true,use_fedcm_for_prompt:true,itp_support:true,context:"signin"});
+    G.ready=true;
+    if(!$("sheet").classList.contains("hidden"))openSheet();
+    if(gated())google.accounts.id.prompt();      // the "Continue as …" bubble
+  },
+  render(){
+    ["gBtnW","gBtnUp","gBtnIn"].forEach(id=>{const el=$(id);if(!el||el.offsetParent===null)return;el.innerHTML="";
+      google.accounts.id.renderButton(el,{theme:"outline",size:"large",shape:"pill",text:"continue_with",
+        width:Math.min(400,el.clientWidth||320),locale:LANG==="fr"?"fr_CA":"en"})});
+  },
+  async exchange(credential){       // Google ID token -> Supabase session for this visitor
+    const r=await fetch(`${SB_URL}/auth/v1/token?grant_type=id_token`,{method:"POST",headers:{apikey:SB_KEY,"Content-Type":"application/json"},
+      body:JSON.stringify({provider:"google",id_token:credential,nonce:G.nonce})});
+    const j=await r.json();if(!r.ok||!j.access_token)throw new Error(j.msg||j.error_description||"sign-in failed");
+    return j.access_token;
+  }
+};
+function linkFromGoogle(r,welcome){
+  track(welcome===t("gWelcome")?"signin":"signup",{method:"google",lang:LANG});
+  applyProfile({...(r.profile||{}),email:r.email});LS.set("rd-profile",toProfile());
+  setSub({key:r.key,email:r.email,active:!!r.subscribed});gSession=null;signinMode=false;
+  closeSheet();view.open={};renderAll();syncWatches();window.scrollTo({top:0});notice(welcome);
+}
+async function onGoogle(credential){
+  gateErr("");
+  try{
+    const access=await G.exchange(credential);
+    const r=await rpc("google_profile",{},access);
+    if(r&&r.found)return linkFromGoogle(r,t("gWelcome"));              // returning subscriber: straight in
+    gSession={email:r.email,access};state.email=r.email;
+    if(state.gender&&(state.shoe.length||state.cloth.length))return googleSubscribe();
+    signinMode=false;
+    if(FLOW==="C"){step=2;openSheet();return}                          // account-first: now the sizes step
+    if(FLOW!=="A"){step=1;openSheet();$("panel").scrollTop=0;return}   // sizes next; the email step is skipped
+    openSheet();gateErr(t("gPick"),$("fit"));                          // new: sizes first, then the orange button
+  }catch(e){gateErr(t("gFail"))}
+}
+async function googleSubscribe(){
+  const btn=$("saveSizes");btn.disabled=true;btn.textContent=t("oneMoment");
+  try{const r=await rpc("google_subscribe",{p_profile:toProfile()},gSession.access);btn.disabled=false;linkFromGoogle(r,t("gIn"))}
+  catch(e){btn.disabled=false;btn.textContent=t("subscribeShow");gSession=null;openSheet();gateErr(t("gFail"))}
+}
+
+/* ---------- start ---------- */
+(async()=>{
+  applyStatic();
+  G.load();
+  applyProfile(LS.get("rd-profile"));
+  renderAll();
+  const fromEmail=await linkFromEmail();
+  if(!fromEmail&&sub&&sub.key){   // another device may have changed the profile: the server copy wins
+    try{const r=await rpc("get_profile",{p_token:sub.key});
+      if(r){applyProfile({...r.profile,email:r.email});LS.set("rd-profile",toProfile());setSub({...sub,email:r.email,active:!!r.subscribed});
+        if(r.subscribed&&(r.profile||{}).tz!==TZ&&TZ)saveProfile()}}   // record (or update) their time zone
+    catch(e){}
+  }
+  renderAll();
+  syncWatches();
+  if((gated()||(!hasSizes()&&!(sub&&sub.signin)))&&$("notice").classList.contains("hidden"))openSheet();
+})();
+})();
+</script>
+</body>
+</html>
