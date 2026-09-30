@@ -132,7 +132,13 @@ def check():
                                             f"confirmations included. Upgrade Resend if this keeps up."))
         except Exception as e:
             print(f"sign-up check skipped: {e}")
-    return problems, {"items": items, "stores": {st: len(v) for st, v in offers.items()}, "subscribers": subs, "signups_24h": new}
+    sale = lambda its: sum(1 for i in its if any(len(e) > 3 and e[1] < e[3] * 0.99 for e in i.get("sz", [])))
+    fresh_stores = sum(1 for st in offers if (t := when(stamps.get(st, ""))) and NOW - t <= timedelta(hours=30))
+    moves = sorted(((st, len(offers.get(st, [])), len(offers0.get(st, []))) for st in set(offers) | set(offers0)),
+                   key=lambda x: -abs(x[1] - x[2]))
+    return problems, {"items": items, "items0": items0, "sale": sale(deals.get("items", [])), "sale0": sale(deals0.get("items", [])),
+                      "stores": {st: len(v) for st, v in offers.items()}, "stores_ok": fresh_stores, "stores_n": len(offers),
+                      "moves": [m for m in moves if abs(m[1] - m[2]) >= 10][:5], "subscribers": subs, "signups_24h": new}
 
 
 def main():
@@ -142,7 +148,7 @@ def main():
     keys = [k for k, _ in problems]
     fresh = [(k, m) for k, m in problems if k not in emailed]
     monday = NOW.astimezone(timezone(timedelta(hours=-7))).weekday() == 0
-    send = os.environ.get("SEND_HEALTH") == "1" and os.environ.get("RESEND_API_KEY") and (fresh or (monday and problems))
+    send = os.environ.get("SEND_HEALTH") == "1" and os.environ.get("RESEND_API_KEY")      # a short report every morning
 
     lines = [f"- {m}" for _, m in problems] or ["- All good."]
     print("Health check\n" + "\n".join(lines))
@@ -154,14 +160,25 @@ def main():
     if send:
         new_part = [m for _, m in fresh]
         old_part = [m for k, m in problems if k in emailed]
-        subject = (f"Gear Fox check: {len(fresh)} new {'problem' if len(fresh) == 1 else 'problems'}" if fresh
-                   else f"Gear Fox check: {len(problems)} still to fix")
-        text = ("New today:\n" + "\n".join(f"- {m}" for m in new_part) + "\n\n" if new_part else "") + \
-               ("Still going on:\n" + "\n".join(f"- {m}" for m in old_part) + "\n\n" if old_part else "") + \
-               f"{stats['items']} products on the site today.\n" + \
-               (f"{stats['subscribers']} subscribers, {stats['signups_24h']} sign-ups in the last 24 hours.\n"
+        if fresh:
+            subject = f"Gear Fox daily check: {len(fresh)} new {'problem' if len(fresh) == 1 else 'problems'}"
+        elif problems:
+            subject = f"Gear Fox daily check: all running, {len(problems)} still to fix"
+        else:
+            subject = "Gear Fox daily check: all good"
+        d = lambda a, b: f" ({a - b:+,} vs yesterday)" if b else ""
+        text = ("All good. Every store updated and nothing looks off.\n\n" if not problems else "") + \
+               ("New today:\n" + "\n".join(f"- {m}" for m in new_part) + "\n\n" if new_part else "") + \
+               ("Still to fix:\n" + "\n".join(f"- {m}" for m in old_part) + "\n\n" if old_part else "") + \
+               "Today on the site:\n" + \
+               f"- {stats['items']:,} products{d(stats['items'], stats['items0'])}\n" + \
+               f"- {stats['sale']:,} on sale{d(stats['sale'], stats['sale0'])}\n" + \
+               f"- {stats['stores_ok']} of {stats['stores_n']} stores updated in the last day\n" + \
+               (f"- {stats['subscribers']} subscribers, {stats['signups_24h']} new sign-ups in the last 24 hours\n"
                 if stats["subscribers"] is not None else "") + \
-               "\nFull log: GitHub > Actions > Refresh deals.\n"
+               ("\nBiggest changes by store:\n" + "\n".join(f"- {st}: {a:,} products (was {b:,})" for st, a, b in stats["moves"]) + "\n"
+                if stats["moves"] else "") + \
+               "\nFull log: https://github.com/upnorth89/Running-Discount/actions\n"
         r = requests.post("https://api.resend.com/emails", timeout=60,
                           headers={"Authorization": f"Bearer {os.environ['RESEND_API_KEY']}"},
                           json={"from": FROM, "to": [TO], "subject": subject, "text": text})
