@@ -79,8 +79,8 @@ def on_sale(x):
 
 items = [{k: v for k, v in x.items() if k != "img"} for x in data["items"] if x.get("ca") is not False or on_sale(x)]
 blob = json.dumps({"updated": data["updated"], "stores": data.get("stores", {}), "fx": data.get("fx", {}), "items": items}, separators=(",", ":")).replace("</", "<\\/")
-rep('fetch("deals.json",{cache:"no-store"}).then(r=>r.json()).then(',
-    'Promise.resolve(JSON.parse(document.getElementById("gfdata").textContent)).then(')
+rep('const loadData=f=>fetch(f,{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error(f);return r.json()});',
+    'const loadData=f=>Promise.resolve(JSON.parse(document.getElementById("gfdata").textContent));')
 a = s.index("async function rpc(fn,args,bearer){")
 b = s.index("\n}\n", a) + 3
 s = s[:a] + '''async function rpc(fn,args,bearer){   // preview: pretend server, nothing leaves the page

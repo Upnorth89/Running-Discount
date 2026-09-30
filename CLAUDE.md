@@ -29,7 +29,9 @@ https://claude.ai/code/artifact/36e1d545-7390-44fe-b080-80f03465af61
 site/index.html          the whole site (one file: HTML, CSS, JS, EN/FR dictionary I18N)
 site/privacy.html        bilingual privacy page
 site/grab.html, grab.js  "Grab deals" bookmark for MEC/REI (Bastien saves their sale pages weekly)
-site/deals.json          generated daily (merged items); offers.json = raw per-store data; health.json
+site/deals.json          generated daily (merged items); sale.json = only items on sale (the site loads it first;
+                         deals.json only for "Include full price" or the watchlist); offers.json = raw per-store data;
+                         health.json
 scraper/scrape.py        all store readers + merge -> site/deals.json and site/offers.json
 scraper/weekly_email.py  the Friday email (also the size-matching rules shared with alerts)
 scraper/alerts.py        daily price-drop / back-in-your-size emails
@@ -82,7 +84,12 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
 - Accessories (packs, gear) in letter sizes follow the clothing size; odd labels are hidden on cards.
 - Merge tidies names (no repeated brand, French gender words to English; the FR site shows them in French),
   canonical brands (e.g. "Hoka One One" → "Hoka"), drops casual footwear, sorts non-food out of Nutrition.
-- Ranking ("Best match"): favourites, then a deal score = % off + category bonus + dollars saved.
+- Ranking ("Best match"): favourites, then a deal score = % off + category bonus + dollars saved; track/XC spikes
+  rank lower (`SPIKE` in index.html).
+- `ca`: true when any Canadian store sells the item. For gear, a Canadian store's price wins per size even if a
+  store abroad is cheaper; for nutrition the cheapest wins. Nutrition shows US stores even with "Ships from
+  Canada" on (site and Friday email). Cards name the store and where it ships from (`STORES` map in index.html:
+  add new stores there too).
 
 ## Supabase (project krwymmkauwqqxjxbvkyq)
 
@@ -101,6 +108,8 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
 
 - First visit: welcome screen → sizes → email or Google sign-in (flow "D"). The welcome line claims
   "More than half of gear deals aren't available in your size", recomputed daily (`missShare()`).
+- Phones: compact cards (photo beside the text); categories start with 4 deals and skip ones already in Top deals.
+  No automatic Google pop-up (the Google button is in sign-up step 2 and Sign in).
 - Returning: calm top (sizes line + Edit, one count line with the 30-day "found this month" savings,
   watchlist strip, swipe row of new deals), categories, search + Filters (Ships from Canada, Include full
   price, Sort). Sale items only by default.

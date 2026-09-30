@@ -1248,9 +1248,10 @@ def merge(offers):
         if not it:
             it = items[mkey(o)] = {"b": o["b"], "n": o["n"].strip(), "g": o["g"], "sx": list(o["sx"]), "w": o["w"],
                                    "img": o.get("img"), "lp": o["lp"], "bb": o.get("bb"), "sz": {}, "of": [], "_st": [],
-                                   "ca": bool(o.get("ca"))}
+                                   "_ca": [], "ca": False}
         oi = len(it["of"])
-        it["of"].append(o["u"]); it["_st"].append(o["st"])
+        it["of"].append(o["u"]); it["_st"].append(o["st"]); it["_ca"].append(bool(o.get("ca")))
+        it["ca"] = it["ca"] or bool(o.get("ca"))     # sold by any Canadian store = ships from Canada
         it["lp"] = max(it["lp"], o["lp"])
         it["img"] = it["img"] or o.get("img")
         it["bb"] = it["bb"] or o.get("bb")
@@ -1261,12 +1262,16 @@ def merge(offers):
             keys = canon_shoe(size) if o["g"] == "shoes" else acc_sizes(size) if o["g"] in ("packs", "gear") else [size]
             for k in keys:
                 cur = it["sz"].get(k)
-                if cur is None or price < cur[0]:
+                # gear: a Canadian store's price wins over a cheaper one from abroad (no duties, easy returns);
+                # nutrition shows US stores anyway, so there the cheapest wins
+                pref = it["g"] != "nutrition"
+                if cur is None or (pref and it["_ca"][oi], -price) > (pref and it["_ca"][cur[1]], -cur[0]):
                     it["sz"][k] = (price, oi, reg, vid)
     out = []
     for it in items.values():
         # [size, price, offer, regular] plus the size's own variant id when the store has one
         it["sz"] = [[s, p, i, r] + ([v] if v else []) for s, (p, i, r, v) in it["sz"].items()]
+        it.pop("_ca", None)
         if it["sz"]:
             out.append(it)
     return out
@@ -1338,6 +1343,10 @@ def main():
         usd = FX_FALLBACK["USD"]
     OUT.write_text(json.dumps({"v": 2, "updated": now(), "stores": stamps, "fx": {"USD": usd}, "items": items},
                               separators=(",", ":"), ensure_ascii=False))
+    # the site loads sale items first: same shape, only items with at least one size on sale
+    sale = [i for i in items if any(e[1] < e[3] for e in i["sz"])]   # same test as the site's % off
+    (OUT.parent / "sale.json").write_text(json.dumps({"v": 2, "updated": now(), "stores": stamps, "fx": {"USD": usd}, "items": sale},
+                                                     separators=(",", ":"), ensure_ascii=False))
     # raw offers go in a side file so a failed store can be restored tomorrow
     (OUT.parent / "offers.json").write_text(json.dumps(raw, separators=(",", ":"), ensure_ascii=False))
     ok = [st for st in STORES if st not in failed]

@@ -856,8 +856,14 @@ function sizeSummary(){
 let DATA=null, ITEMS=[];
 function ago(iso){if(!iso)return "";const m=Math.max(0,Math.round((Date.now()-new Date(iso))/60000));
   return m<60?t("minAgo",m):m<48*60?t("hAgo",Math.round(m/60)):t("daysAgo",Math.round(m/1440))}
-fetch("deals.json",{cache:"no-store"}).then(r=>r.json()).then(d=>{DATA=d;ITEMS=d.items||[];byKey={};ITEMS.forEach(x=>(byKey[itemKey(x)]=byKey[itemKey(x)]||[]).push(x));renderAll();
-  if(!$("sheet").classList.contains("hidden"))openSheet()})
+/* Sale items load first (sale.json, about a quarter of the size). Everything (deals.json) is fetched only
+   when needed: "Include full price", the watchlist, or hearts saved on this device. */
+const loadData=f=>fetch(f,{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error(f);return r.json()});
+let FULL=false,fullLoading=null;
+function useData(d,full){DATA=d;ITEMS=d.items||[];FULL=full;byKey={};ITEMS.forEach(x=>(byKey[itemKey(x)]=byKey[itemKey(x)]||[]).push(x));renderAll()}
+function loadFull(){if(FULL||fullLoading)return;fullLoading=loadData("deals.json").then(d=>useData(d,true)).catch(()=>{fullLoading=null})}
+loadData("sale.json").then(d=>useData(d,false)).catch(()=>loadData("deals.json").then(d=>useData(d,true)))
+  .then(()=>{if(!$("sheet").classList.contains("hidden"))openSheet();if(Object.keys(watches).length)loadFull()})
   .catch(()=>{DATA={items:[]};$("dealList").innerHTML=`<div class="empty">${t("loadFail")}</div>`});
 const PAGE=8, MORE=24;
 const CARDS=LS0("gf-cards")||"compact";                    // "compact" (phones: photo beside the text) or "big"
@@ -900,7 +906,9 @@ const LETTERS=new Set(["2XS","XS","S","M","L","XL","2XL","3XL"]);
 const accLetters=d=>(d.g==="packs"||d.g==="gear")&&d.sz.some(e=>LETTERS.has(e[0]))&&d.sz.every(e=>e[0]==="OS"||LETTERS.has(e[0]));
 /* Deal score: % off, plus the dollars saved and what it is, so a $200 shoe at 60% beats a $15 belt at 74%. */
 const GROUP_BONUS={shoes:15,tops:8,bottoms:8,bras:8,packs:6,watches:6};
-const score=d=>d.pct+(GROUP_BONUS[d.g]||0)+Math.min(15,(d.reg-d.best)/10);
+/* Track and cross-country spikes are big discounts but few visitors want them: rank them lower. */
+const SPIKE=/\bspikes?\b|\b[LM]D(-X)?\b|\bXC\b|cross[- ]?country|\bsprint|\bdragonfly|\bmaxfly|\bja fly|\bvictory\b|\bpointes?\b/i;
+const score=d=>d.pct+(GROUP_BONUS[d.g]||0)+Math.min(15,(d.reg-d.best)/10)-(d.g==="shoes"&&SPIKE.test(d.n)?30:0);
 /* Names come in English; show gender words in French on the French site. */
 function nm(n){return LANG!=="fr"?n:String(n).replace(/^(Men's|Women's|Unisex)\s+(.+)$/,"$2 - $1").replace(/\bMen's\b/g,"Homme").replace(/\bWomen's\b/g,"Femme").replace(/\bUnisex\b/g,"Unisexe")}
 /* Every item in stock in the profile's sizes, with its best price, the regular price of that size,
@@ -982,7 +990,7 @@ function section(key,title,list,cls){
 function renderFilters(){
   const all=ORDER.every(g=>state.groups.includes(g));
   $("cats").innerHTML=`<button type="button" class="chip" data-v="__all" aria-pressed="${all}">${t("allGear")}</button>`+
-    ORDER.map(g=>`<button type="button" class="chip" data-v="${g}" aria-pressed="${!all&&state.groups.includes(g)}">${GL(g)}</button>`).join("");
+    ORDER.filter(g=>!(g==="bras"&&state.gender==="men")).map(g=>`<button type="button" class="chip" data-v="${g}" aria-pressed="${!all&&state.groups.includes(g)}">${GL(g)}</button>`).join("");
   $("toggles").innerHTML=`<button type="button" class="chip" data-t="ca" aria-pressed="${state.ships!=="all"}">${t("shipsCA")}</button>`+
     `<button type="button" class="chip" data-t="sale" aria-pressed="${view.fullPrice}">${t("saleOnly")}</button>`;
   $("sort").value=view.sort;
@@ -995,7 +1003,7 @@ $("cats").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)r
   view.open={};saveProfile();renderAll()});
 $("toggles").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;
   if(b.dataset.t==="ca"){state.ships=state.ships==="all"?"ca":"all";saveProfile()}
-  else view.fullPrice=!view.fullPrice;
+  else{view.fullPrice=!view.fullPrice;if(view.fullPrice)loadFull()}
   view.open={};renderAll()});
 $("sort").addEventListener("change",e=>{view.sort=e.target.value;view.open={};renderAll()});
 let searchT;$("dSearch").addEventListener("input",e=>{clearTimeout(searchT);searchT=setTimeout(()=>{view.q=e.target.value;view.open={};renderAll()},200)});
@@ -1044,7 +1052,7 @@ async function syncWatches(){
 ["dealList","newBox"].forEach(id=>$(id).addEventListener("click",e=>{const h=e.target.closest(".heart");if(!h)return;e.preventDefault();e.stopPropagation();
   toggleWatch(h.dataset.key);const on=!!watches[h.dataset.key];
   if(view.watch)renderAll();else{document.querySelectorAll(`.heart[data-key="${CSS.escape(h.dataset.key)}"]`).forEach(x=>x.setAttribute("aria-pressed",String(on)))}}));
-function setWatchView(on){view.watch=on;$("openWatch").setAttribute("aria-pressed",String(on));view.open={};renderAll();window.scrollTo({top:0})}
+function setWatchView(on){view.watch=on;if(on)loadFull();$("openWatch").setAttribute("aria-pressed",String(on));view.open={};renderAll();window.scrollTo({top:0})}
 $("openWatch").addEventListener("click",()=>setWatchView(!view.watch));
 $("backToDeals").addEventListener("click",()=>setWatchView(false));
 let byKey={};
