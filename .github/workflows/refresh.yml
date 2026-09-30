@@ -65,6 +65,7 @@ jobs:
           SUPABASE_URL: "https://krwymmkauwqqxjxbvkyq.supabase.co"
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           SEND_HEALTH: ${{ github.event_name == 'schedule' && '1' || '0' }}
+          HEALTH_EMAIL: ${{ secrets.HEALTH_EMAIL }}
         run: python scraper/health.py /tmp/prev site
       - uses: actions/upload-pages-artifact@v3
         with:
