@@ -24,6 +24,7 @@ import statistics
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import requests
 
@@ -145,6 +146,7 @@ def main():
     problems, stats = check()
     prev = load(PREV / "health.json")
     emailed = set(prev.get("emailed", []))        # problems already sent, still ongoing
+    reported = prev.get("reported")                # Vancouver date of the last morning report (the backup run skips if it's today)
     keys = [k for k, _ in problems]
     fresh = [(k, m) for k, m in problems if k not in emailed]
     monday = NOW.astimezone(timezone(timedelta(hours=-7))).weekday() == 0
@@ -185,12 +187,13 @@ def main():
         print(f"emailed {TO}: HTTP {r.status_code}")
         if r.ok:
             emailed = set(keys)
+            reported = NOW.astimezone(ZoneInfo("America/Vancouver")).date().isoformat()
     # forget problems that are fixed, so they get reported again if they come back
     emailed &= set(keys)
     # this file is public (it's deployed with the site), so no subscriber numbers in it
     public = [m for k, m in problems if k not in ("subs", "signups")]
     (SITE / "health.json").write_text(json.dumps({"checked": NOW.isoformat(timespec="seconds"), "problems": public,
-                                                   "emailed": sorted(emailed), "items": stats["items"],
+                                                   "emailed": sorted(emailed), "reported": reported, "items": stats["items"],
                                                    "stores": stats["stores"]}, indent=1))
     return 0
 

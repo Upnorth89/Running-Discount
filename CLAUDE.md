@@ -45,8 +45,10 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
 - **Refresh deals** (`refresh.yml`): daily at 11:17 UTC (4:17am Vancouver) and on every push. Fetches
   yesterday's live data, scrapes all stores (a failed store keeps yesterday's data), runs watchlist alerts
   (not on push runs), runs the health check, deploys `site/` to GitHub Pages.
-  - Open issue: on Sep 30, 2026 the scheduled morning run did not update the site. Check the Actions
-    history; if GitHub skips schedules, add a backup time.
+  - Backup time 14:47 UTC (7:47am Vancouver): GitHub often starts schedules late (Sep 30, 2026 ran ~5.5 h
+    late) or skips them. A small `check` job skips any scheduled run once today's morning report went out
+    (`reported` date in health.json), so there's never a second health email.
+  - The scrape log ends with product counts per category (and on sale) and nutrition by store.
 - **Weekly deals email** (`weekly-email.yml`): every hour on Friday 9:07–18:07 UTC. Each run sends to
   subscribers for whom it is now Friday 7am or later in their own time zone (profile `tz` from the browser;
   default: French = Eastern, English = Pacific) and records `weekly_sent_at` so nobody gets two.

@@ -3,6 +3,7 @@ name: Refresh deals
 on:
   schedule:
     - cron: "17 11 * * *"   # daily, 4:17am Vancouver (PDT)
+    - cron: "47 14 * * *"   # backup, 7:47am Vancouver: GitHub sometimes starts schedules hours late or skips them
   workflow_dispatch: {}       # "Run workflow" button
   push:
     branches: [main]
@@ -17,7 +18,27 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # a scheduled run stops here if today's morning refresh already happened (so the backup time doesn't
+  # send a second health email); uploads and the "Run workflow" button always go ahead
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.today.outputs.skip }}
+    steps:
+      - id: today
+        run: |
+          skip=false
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            last=$(curl -fsSL "https://thegearfox.com/health.json?t=$(date +%s)" | python3 -c "import json,sys; print(json.load(sys.stdin).get('reported') or '')" || true)
+            today=$(TZ=America/Vancouver date +%F)
+            echo "last morning report: ${last:-none}, today: $today"
+            [ "$last" = "$today" ] && skip=true
+          fi
+          echo "skip=$skip" >> "$GITHUB_OUTPUT"
+
   build:
+    needs: check
+    if: needs.check.outputs.skip != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 50
     steps:
