@@ -183,6 +183,7 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
 #curBtn{font-size:13px;min-width:52px}
 .deal .sizes{font-size:14px;color:var(--muted)}
 .deal .sizes strong{color:var(--ink);font-weight:600}
+.grpnote{margin:-4px 0 10px;font-size:14px;color:var(--muted)}
 .deal .store{font-size:14px;color:var(--muted)}
 .deal .store .abroad{color:var(--ink);font-weight:600}
 .deal .warn{font-size:13px;font-weight:600;color:var(--err)}
@@ -453,7 +454,7 @@ en:{
   minAgo:m=>`${m} min ago`,hAgo:h=>`${h} h ago`,daysAgo:d=>`${d} days ago`,
   loadFail:"Couldn't load today's gear. Reload to try again.",loading:"Loading today's gear…",
   inYourSize:"In your size:",isNew:"New",bestBy:d=>`Short-dated: best by ${d}`,
-  atStore:n=>`at ${n}`,shipsFrom:c=>`ships from ${({US:"the US",UK:"the UK",FR:"France",DK:"Denmark",AU:"Australia"})[c]||"outside Canada"}, duties may apply`,showMore:n=>`Show ${n} more`,
+  atStore:n=>`at ${n}`,usFuel:"Includes US stores: fuel ships well, and each deal says where it ships from.",shipsFrom:c=>`ships from ${({US:"the US",UK:"the UK",FR:"France",DK:"Denmark",AU:"Australia"})[c]||"outside Canada"}, duties may apply`,showMore:n=>`Show ${n} more`,
   allGear:"All gear",shipsCA:"Ships from Canada",saleOnly:"Include full price",
   stopWatching:"Stop watching",watch:"Watch",removed:"Removed from your watchlist.",
   watching:"Watching. We'll email you if it drops or comes back in your size.",
@@ -538,7 +539,7 @@ fr:{
   minAgo:m=>`il y a ${m} min`,hAgo:h=>`il y a ${h} h`,daysAgo:d=>`il y a ${d} jours`,
   loadFail:"Impossible de charger les produits du jour. Rechargez la page.",loading:"Chargement des produits du jour…",
   inYourSize:"À votre taille :",isNew:"Nouveau",bestBy:d=>`Date courte : meilleur avant le ${d}`,
-  atStore:n=>`chez ${n}`,shipsFrom:c=>`expédié ${({US:"des États-Unis",UK:"du Royaume-Uni",FR:"de France",DK:"du Danemark",AU:"d'Australie"})[c]||"de l'extérieur du Canada"}, des droits peuvent s'appliquer`,showMore:n=>`Voir ${n} de plus`,
+  atStore:n=>`chez ${n}`,usFuel:"Comprend des boutiques américaines : la nutrition voyage bien, et chaque aubaine indique d'où elle est expédiée.",shipsFrom:c=>`expédié ${({US:"des États-Unis",UK:"du Royaume-Uni",FR:"de France",DK:"du Danemark",AU:"d'Australie"})[c]||"de l'extérieur du Canada"}, des droits peuvent s'appliquer`,showMore:n=>`Voir ${n} de plus`,
   allGear:"Tout",shipsCA:"Expédié du Canada",saleOnly:"Inclure le prix régulier",
   stopWatching:"Retirer des favoris",watch:"Ajouter aux favoris",removed:"Retiré de vos favoris.",
   watching:"Ajouté. On vous écrit si le prix baisse ou si votre taille revient en stock.",
@@ -888,7 +889,7 @@ function matchItems(p,list){
   const caOnly=(p.ships||"ca")!=="all";
   for(const d of (list||ITEMS)){
     if(!p.groups.includes(d.g))continue;
-    if(caOnly&&d.ca===false)continue;
+    if(caOnly&&d.ca===false&&d.g!=="nutrition")continue;   // fuel from US shops is shown anyway (card says where it ships from)
     if(p.gender&&p.gender!=="any"&&d.sx.length&&!d.sx.includes(p.gender))continue;
     let ok=d.sz;
     if(SIZED.has(d.g)){
@@ -951,7 +952,8 @@ function section(key,title,list,cls){
   }
   const lim=view.open[key]||PAGE;
   const tail=key==="__new"&&NEWSTYLE==="row"?`<button type="button" class="linkbtn" data-newrow>${t("asRow")}</button>`:"";
-  return `<section class="grp ${cls||""}"><h2>${title} <small>${num(list.length)}</small>${tail}</h2><div class="grid">${list.slice(0,lim).map(d=>card(d)).join("")}</div>
+  const note=key==="nutrition"&&state.ships!=="all"?`<p class="grpnote">${t("usFuel")}</p>`:"";
+  return `<section class="grp ${cls||""}"><h2>${title} <small>${num(list.length)}</small>${tail}</h2>${note}<div class="grid">${list.slice(0,lim).map(d=>card(d)).join("")}</div>
     ${list.length>lim?`<button class="btn more" data-open="${key}">${t("showMore",Math.min(MORE,list.length-lim))}</button>`:""}</section>`;
 }
 
