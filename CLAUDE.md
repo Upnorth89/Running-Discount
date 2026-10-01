@@ -103,7 +103,8 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
 - Shoe size keys: `"10"`, `"M:10"`/`"W:11"` (from unisex labels), suffix `~W` wide, `~N` narrow (hidden).
 - Accessories (packs, gear) in letter sizes follow the clothing size; odd labels are hidden on cards.
 - Merge tidies names (no repeated brand, French gender words to English; the FR site shows them in French),
-  canonical brands (e.g. "Hoka One One" → "Hoka"), drops casual footwear, sorts non-food out of Nutrition.
+  canonical brands (e.g. "Hoka One One" → "Hoka"), drops casual footwear and kids' gear (`KIDS`), sorts non-food
+  out of Nutrition and clothing out of gear (`tidy_gear`).
 - Ranking ("Best match"): favourites, then a deal score = % off + category bonus + dollars saved; track/XC spikes
   rank lower (`SPIKE` in index.html).
 - `ca`: true when any Canadian store sells the item. For gear, a Canadian store's price wins per size even if a
