@@ -1,0 +1,32 @@
+name: Monthly report
+
+on:
+  schedule:
+    - cron: "43 15 1 * *"    # the 1st of each month, 8:43am Vancouver: last month's report
+  workflow_dispatch:         # "Run workflow" button: this month so far (or type a month)
+    inputs:
+      month:
+        description: "Month to report, like 2026-10 (leave empty for this month so far)"
+        required: false
+        default: ""
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r scraper/requirements.txt
+      - name: Build and email the report
+        env:
+          UMAMI_API_KEY: ${{ secrets.UMAMI_API_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          HEALTH_EMAIL: ${{ secrets.HEALTH_EMAIL }}
+          FROM_EMAIL: "The Gear Fox <deals@thegearfox.com>"
+          SUPABASE_URL: "https://krwymmkauwqqxjxbvkyq.supabase.co"
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          REPORT_MONTH: ${{ inputs.month }}
+        run: python scraper/monthly_report.py

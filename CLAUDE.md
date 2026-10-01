@@ -63,8 +63,24 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   halved product counts, price jumps (currency mix-ups), piles of 70%+ discounts, and subscriber counts
   near the free email limits. Only the scheduled run emails.
 
+- **Monthly report** (`monthly-report.yml`, `scraper/monthly_report.py`): the 1st of each month emails last
+  month's visitors, sign-ups (by `?ref=` link), clicks sent to each store and paste-ready lines for affiliate
+  applications ("we sent N shoppers to X"). Manual run = this month so far. Reads Umami Cloud (needs the
+  `UMAMI_API_KEY` secret) and Supabase.
+- **Tracking links**: `?ref=name` (kept per device, sent with visits/sign-ups, saved in the profile), `?lang=fr`.
+
 GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_ADDRESS` (CASL footer),
-`HEALTH_EMAIL`.
+`HEALTH_EMAIL`, `UMAMI_API_KEY`.
+
+## Affiliate plan (Oct 1, 2026: none live yet; networks want 60–90 days of traffic)
+
+- AvantLink covers MEC and 9 of our brands (rabbit 10%, Sunski 8%, Oiselle 6% but no coupon/deal sites,
+  Swiftwick, Ciele, Janji, Nathan, Tailwind, Skratch via Shopify Collabs). The Feed and Stance: CJ (Stance
+  refuses deal sites). Altitude and The Last Hunt: Rakuten/FlexOffers. Sporting Life: Partnerize.
+  Mount to Coast: Impact. Sovrn Commerce/Skimlinks as a catch-all.
+- Small Canadian shops (Coureur Nordique, Endurance, VanRunCo, Capra, Fit First): no program, email directly
+  with the monthly click numbers.
+- When links go live: add a bilingual "we may earn a commission" note (footer + privacy page).
 
 ## Stores and data
 
