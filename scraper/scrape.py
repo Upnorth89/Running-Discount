@@ -519,11 +519,19 @@ def feed_group(p):
     return g
 
 def scrape_thefeed():
-    fx = usd_cad()                   # The Feed is a US store; show CAD
-    print(f"  thefeed: USD->CAD {fx}", file=sys.stderr)
-    prods = shopify_products("https://thefeed.com")
+    # Read The Feed as a Canadian visitor: it then lists only what it ships to Canada (about 500 products fewer)
+    # with its own CAD prices. Its site is custom-built (no cart.js), so check the currency against a page of
+    # US prices: CAD prices run ~1.4x the USD ones; if they don't, the Canadian view was ignored -> convert.
+    base = "https://thefeed.com"
+    prods = shopify_products(base, cookies=CA_COOKIES)
+    us = {v["id"]: float(v["price"]) for p in get(f"{base}/products.json?limit=250&page=1").json()["products"] for v in p["variants"]}
+    ratios = sorted(float(v["price"]) / us[v["id"]] for p in prods for v in p["variants"] if us.get(v["id"]))
+    ratio = ratios[len(ratios) // 2] if ratios else 1.0
+    fx = 1.0 if ratio > 1.2 else usd_cad()
+    print(f"  thefeed: {len(prods)} products shipping to Canada, CAD/USD price ratio {ratio:.2f} -> "
+          + ("prices in CAD" if fx == 1.0 else f"prices in USD x{fx}"), file=sys.stderr)
     feed_report(prods)
-    return shopify_items("thefeed", "https://thefeed.com", prods, feed_group, fx)
+    return shopify_items("thefeed", base, prods, feed_group, fx)
 
 def feed_report(prods):
     """Log The Feed's catalogue by product type: how many are on sale, and which types we leave out."""
