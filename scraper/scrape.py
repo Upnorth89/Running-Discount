@@ -18,7 +18,7 @@ Usage:  python scraper/scrape.py [out_path] [--remerge]
 import json, re, sys, time, datetime as dt
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from urllib.parse import quote
+from urllib.parse import quote, urlencode
 import requests
 
 ARGS = [a for a in sys.argv[1:] if not a.startswith("--")]
@@ -231,17 +231,21 @@ def product(base, slug, st, g, img):
         lp = max(lp, reg)
         if not any((r.get("availability") or {}).get("isOnStock") for r in res):
             continue
-        sz = norm_size(attr(v["attributesRaw"], "size_1") or attr(v["attributesRaw"], "size"))
+        raw = attr(v["attributesRaw"], "size_1") or attr(v["attributesRaw"], "size")
+        sz = norm_size(raw)
         price = round((disc if disc is not None else reg * 100) / 100, 2)
         if sz not in sizes or price < sizes[sz][0]:
-            sizes[sz] = (price, reg)
+            # the product page opens on this colour and size (?color=…&size=…, checked in a browser Oct 1, 2026)
+            q = {"color": attr(v["attributesRaw"], "color"), "size": attr(v["attributesRaw"], "size") or raw}
+            link = f"{base}/p/{slug}?" + urlencode({k: x for k, x in q.items() if isinstance(x, str) and x}, quote_via=quote)
+            sizes[sz] = (price, reg, link)
     if not sizes:
         return None                      # nothing in stock
     if not img:
         a = (mv.get("assets") or [{}])[0].get("sources") or [{}]
         img = a[0].get("uri")
     return {"st": st, "b": attr(A, "brand_name") or "", "n": name, "u": f"{base}/p/{slug}", "g": g,
-            "sx": sx, "w": wide, "img": img, "lp": lp, "bb": None, "sz": [[k, pr, rg] for k, (pr, rg) in sizes.items()]}
+            "sx": sx, "w": wide, "img": img, "lp": lp, "bb": None, "sz": [[k, pr, rg, u] for k, (pr, rg, u) in sizes.items()]}
 
 def scrape_commercetools(st, base):
     listing = list_catalogue(base)
