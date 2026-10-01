@@ -85,7 +85,8 @@ def group_of(*texts):
     return None
 
 WORD = {"ONE SIZE": "OS", "O/S": "OS", "NA": "OS", "": "OS", "X-SMALL": "XS", "SMALL": "S", "MEDIUM": "M",
-        "LARGE": "L", "X-LARGE": "XL", "XX-LARGE": "2XL", "XXL": "2XL", "XXXL": "3XL", "XXS": "2XS"}
+        "LARGE": "L", "X-LARGE": "XL", "XX-LARGE": "2XL", "XXL": "2XL", "XXXL": "3XL", "XXS": "2XS",
+        "EXTRA SMALL": "XS", "EXTRA LARGE": "XL", "EXTRA EXTRA LARGE": "2XL", "EXTRA EXTRA SMALL": "2XS"}
 def norm_size(s):
     s = str(s or "").strip()
     return WORD.get(s.upper(), s)
@@ -1024,6 +1025,9 @@ SHOPIFY_STORES = [
     ("fitfirst",       "https://www.fitfirst.ca",            "gear"),   # Fit First Footwear (Calgary running)
     # added 2026-09-30
     ("capra",          "https://www.capra.run",              "gear"),   # Capra Running Co. (Squamish trail running)
+    # added 2026-10-01
+    ("lecoureur",      "https://www.lecoureur.com",          "gear"),   # Le Coureur (Montréal running)
+    ("blacktoe",       "https://www.blacktoerunning.com",    "gear"),   # BlackToe Running (Toronto)
     # socks
     ("feetures",       "https://www.feetures.com",           "socks"),
     ("balega",         "https://www.balega.com",             "socks"),
@@ -1225,11 +1229,28 @@ def tidy_shoes(offers):
 
 # ---------------------------------------------------------------- tidy names and accessory sizes (site, email and alerts all use these)
 BRAND_CANON = {"hoka one one": "Hoka", "hoka": "Hoka", "asics": "ASICS", "satisfy": "Satisfy", "oiselle": "Oiselle",
-               "nnormal": "NNormal", "new balance": "New Balance", "on running": "On", "the north face": "The North Face"}
+               "nnormal": "NNormal", "new balance": "New Balance", "on running": "On", "the north face": "The North Face",
+               "karitraa": "Kari Traa", "kari traa": "Kari Traa"}
 
 def tidy_brand(b):
     b = (b or "").strip()
-    return BRAND_CANON.get(b.lower(), b)
+    if b.lower() in BRAND_CANON:
+        return BRAND_CANON[b.lower()]
+    return b
+
+CAPS_STORES = {"lecoureur"}    # stores that write brands and names in capitals ("ADIDAS ADIOS PRO 4 - FEMME")
+
+# short words that read as words, not model codes, when an ALL-CAPS name is softened ("RUN", "MID" vs "GTX", "SP")
+SOFT = {"and", "the", "for", "with", "de", "et", "en", "in", "mid", "low", "run", "pro", "one", "max", "air", "gel", "sky",
+        "top", "tee", "bra", "hat", "cap", "sun", "day", "all", "new", "men", "fit", "pant", "les", "la", "le", "du", "sur"}
+
+def soften_caps(n):
+    """"ADIZERO ADIOS PRO 4 - FEMME" -> "Adizero Adios Pro 4 - Femme"; model codes (GTX, AX4, SP) stay in capitals."""
+    def part(w):
+        if not w.isalpha():
+            return w
+        return w.capitalize() if len(w) >= 4 or w.lower() in SOFT else w
+    return " ".join("-".join(part(x) for x in word.split("-")) for word in n.split(" "))
 
 def tidy_name(b, n):
     """"Hoka - Cielo X 2 LD - Unisexe" -> "Cielo X 2 LD - Unisex": no repeated brand, gender words in English."""
@@ -1251,7 +1272,8 @@ def tidy_name(b, n):
     return n[:1].upper() + n[1:] if n else n
 
 ACC_OS = {"", "OS", "OSFA", "OSFM", "ONE SIZE", "O/S", "STANDARD", "DEFAULT TITLE", "NA", "N/A", "UNIQUE", "TAILLE UNIQUE"}
-ACC_WORD = [("XX-LARGE", "2XL"), ("X-LARGE", "XL"), ("X-SMALL", "XS"), ("SMALL", "S"), ("MEDIUM", "M"), ("LARGE", "L"),
+ACC_WORD = [("EXTRA EXTRA LARGE", "2XL"), ("EXTRA EXTRA SMALL", "2XS"), ("EXTRA LARGE", "XL"), ("EXTRA SMALL", "XS"),
+            ("XX-LARGE", "2XL"), ("X-LARGE", "XL"), ("X-SMALL", "XS"), ("SMALL", "S"), ("MEDIUM", "M"), ("LARGE", "L"),
             ("XXXL", "3XL"), ("XXL", "2XL"), ("XXS", "2XS")]
 ACC_LETTERS = {"2XS", "XS", "S", "M", "L", "XL", "2XL", "3XL"}
 
@@ -1292,6 +1314,11 @@ def merge(offers):
     offers = tidy_gear(tidy_nutrition(tidy_shoes(drop_kids(offers))))
     items = {}
     for o in offers:
+        if o.get("st") in CAPS_STORES:
+            if (o["b"] or "").lower() not in BRAND_CANON and re.fullmatch(r"[A-Z][A-Z .'&-]{3,}", o["b"] or ""):
+                o["b"] = o["b"].title()
+            if o["n"] == o["n"].upper():
+                o["n"] = soften_caps(o["n"])
         o["b"] = tidy_brand(o["b"])
         o["n"] = tidy_name(o["b"], o["n"])
         o["sx"] = name_gender(o["n"]) or o["sx"]
