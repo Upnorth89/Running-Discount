@@ -1197,6 +1197,43 @@ def tidy_gear(offers):
             o["g"] = "headwear"
     return offers
 
+# Clothing that landed in the wrong category, and the type of each top / bottom (the site's "Jackets & vests" etc. buttons)
+CLOTH_BRA = re.compile(r"\bsports? bra\b|\bbra\b|brassi[èe]re", re.I)
+CLOTH_CAPRI = re.compile(r"\bcapri\b", re.I)
+CLOTH_NOT = re.compile(r"bottom bracket|eyejacket", re.I)          # bike parts, Oakley sunglasses
+TYPES = {
+    "tops": [("jacket", r"jacket|veste\b|manteau|\bcoat\b|parka|\bshell|anorak|wind ?breaker|coupe-vent|\bvest\b|gilet|puffer|"
+                        r"insulat|\bdown\b|duvet|\brain\b|softshell|hardshell|bomber"),
+             ("layer", r"hood|houdi|kangourou|\bzip\b|half[- ]?zip|1/2 ?zip|quarter[- ]?zip|1/4 ?zip|pullover|fleece|polaire|sweat|"
+                       r"crew ?neck|mid[- ]?layer|midlayer|base ?layer|long[- ]?sleeve|long tee|\bl/?s\b|manches longues|thermal|layer one"),
+             ("tee", r"tank|singlet|camisole|\bcami\b|d[ée]bardeur|crop|t-?shirt|\btee\b|\btech t\b|\bt\b|short[- ]?sleeve|\bs/?s\b|\bss\b|"
+                     r"manches courtes|\btop\b|jersey|shirt|polo|sleeveless|\bcrew\b|go time|tunic")],
+    "bottoms": [("short", r"short|cuissard|brief|culotte|skort|jupe|skirt|\d(\.\d)?\s*(\"|''|”|in\b|inch)|buns|splitty|speedsters|shredsters"),
+                ("tight", r"tight|legging|collant|capri|7/8|3/4|leggy|base ?layer bottom"),
+                ("pant", r"pant|pantalon|jogger|trouser|sweats|cargo|jeans")],
+}
+TYPES = {g: [(k, re.compile(rx, re.I)) for k, rx in v] for g, v in TYPES.items()}
+
+def tidy_clothes(offers):
+    out = []
+    for o in offers:
+        n = o["n"]
+        if o["g"] in ("tops", "bottoms") and CLOTH_NOT.search(n):
+            continue
+        if o["g"] == "tops" and CLOTH_BRA.search(n) and not re.search(r"tank|cami|top\b", n, re.I):
+            o["g"] = "bras"
+        elif o["g"] == "tops" and CLOTH_CAPRI.search(n):
+            o["g"] = "bottoms"
+        out.append(o)
+    return out
+
+def garment_type(g, n):
+    """tops: tee / layer / jacket; bottoms: short / tight / pant; None when the name doesn't say (shown under "All" only)."""
+    for k, rx in TYPES.get(g, []):
+        if rx.search(n):
+            return k
+    return None
+
 # Kids' gear: a kids' 11 or "M" would match an adult's size. The site is for adults, so leave it out.
 KIDS = re.compile(r"\b(kids?|kid'?s|kids'|juniors?'?|jr|youth|enfants?|gar[çc]ons?|filles?|boys?|girls?|toddlers?|infants?|"
                   r"b[ée]b[ée]s?|big kids?|little kids?|grade school|pre-?school|pr[ée]scolaire|jeunesse)\b", re.I)
@@ -1238,7 +1275,8 @@ def tidy_brand(b):
         return BRAND_CANON[b.lower()]
     return b
 
-CAPS_STORES = {"lecoureur"}    # stores that write brands and names in capitals ("ADIDAS ADIOS PRO 4 - FEMME")
+CAPS_STORES = {"lecoureur"}
+OWN_BRAND = {"rabbit": "rabbit", "bandit": "Bandit Running"}    # stores that write brands and names in capitals ("ADIDAS ADIOS PRO 4 - FEMME")
 
 # short words that read as words, not model codes, when an ALL-CAPS name is softened ("RUN", "MID" vs "GTX", "SP")
 SOFT = {"and", "the", "for", "with", "de", "et", "en", "in", "mid", "low", "run", "pro", "one", "max", "air", "gel", "sky",
@@ -1311,9 +1349,11 @@ def mkey(o):
 
 def merge(offers):
     """Same product at several stores -> one item; each size keeps the cheapest store."""
-    offers = tidy_gear(tidy_nutrition(tidy_shoes(drop_kids(offers))))
+    offers = tidy_clothes(tidy_gear(tidy_nutrition(tidy_shoes(drop_kids(offers)))))
     items = {}
     for o in offers:
+        if (o["b"] or "").strip() in ("", "0") and o.get("st") in OWN_BRAND:   # brand stores that leave the brand blank or "0"
+            o["b"] = OWN_BRAND[o["st"]]
         if o.get("st") in CAPS_STORES:
             if (o["b"] or "").lower() not in BRAND_CANON and re.fullmatch(r"[A-Z][A-Z .'&-]{3,}", o["b"] or ""):
                 o["b"] = o["b"].title()
@@ -1327,6 +1367,8 @@ def merge(offers):
             it = items[mkey(o)] = {"b": o["b"], "n": o["n"].strip(), "g": o["g"], "sx": list(o["sx"]), "w": o["w"],
                                    "img": o.get("img"), "lp": o["lp"], "bb": o.get("bb"), "sz": {}, "of": [], "_st": [],
                                    "_ca": [], "ca": False}
+            if o["g"] in TYPES:
+                it["t"] = garment_type(o["g"], o["n"])
         oi = len(it["of"])
         it["of"].append(o["u"]); it["_st"].append(o["st"]); it["_ca"].append(bool(o.get("ca")))
         it["ca"] = it["ca"] or bool(o.get("ca"))     # sold by any Canadian store = ships from Canada

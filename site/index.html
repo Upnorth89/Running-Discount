@@ -109,6 +109,7 @@ h1{font:800 clamp(30px,8vw,40px)/1.05 var(--display);letter-spacing:-.3px;margin
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chips.scroll{flex-wrap:nowrap;overflow-x:auto;margin:0 -16px;padding:2px 16px 6px;scrollbar-width:none}
 .chips.scroll::-webkit-scrollbar{display:none}
+.types{margin-bottom:10px}.grp{scroll-margin-top:84px}.types .chip{min-height:38px;padding:8px 12px;font-size:14px}
 /* With a mouse there's no swipe: show every chip on wrapped lines instead of a hidden sideways row */
 /* With a mouse there's no swipe: show every category at once, on wrapped lines, with smaller chips */
 @media (hover:hover) and (pointer:fine){
@@ -494,7 +495,8 @@ en:{
   inYourSize:"In your size:",isNew:"New",bestBy:d=>`Short-dated: best by ${d}`,
   atStore:n=>`at ${n}`,shareTxt:"Know a runner who hates paying full price?",shareBtn:"Share",shareCopied:"Link copied: paste it anywhere.",shareCopy:"Copy this link:",
   shareText:"Running and outdoor gear on sale in your size, from stores across Canada.",usFuel:"Includes US stores: fuel ships well, and each deal says where it ships from.",shipsFrom:c=>`ships from ${({US:"the US",UK:"the UK",FR:"France",DK:"Denmark",AU:"Australia"})[c]||"outside Canada"}, duties may apply`,showMore:n=>`Show ${n} more`,
-  allGear:"All gear",shipsCA:"Ships from Canada",saleOnly:"Include full price",
+  allGear:"All gear",typeAll:"All",types:{tee:"T-shirts & tanks",layer:"Long sleeves & hoodies",jacket:"Jackets & vests",short:"Shorts",tight:"Tights",pant:"Pants"},
+  shipsCA:"Ships from Canada",saleOnly:"Include full price",
   stopWatching:"Stop watching",watch:"Watch",removed:"Removed from your watchlist.",
   watching:"Watching. We'll email you if it drops or comes back in your size.",
   watchingPending:"Watching. Confirm your email to get price-drop alerts.",watchingSignup:"Watching. Sign up for the Friday email to get price-drop alerts.",
@@ -582,7 +584,8 @@ fr:{
   inYourSize:"À votre taille :",isNew:"Nouveau",bestBy:d=>`Date courte : meilleur avant le ${d}`,
   atStore:n=>`chez ${n}`,shareTxt:"Un ami coureur déteste payer le plein prix ?",shareBtn:"Partager",shareCopied:"Lien copié : collez-le où vous voulez.",shareCopy:"Copiez ce lien :",
   shareText:"Des aubaines de course et de plein air dans votre taille, dans des boutiques partout au Canada.",usFuel:"Comprend des boutiques américaines : la nutrition voyage bien, et chaque aubaine indique d'où elle est expédiée.",shipsFrom:c=>`expédié ${({US:"des États-Unis",UK:"du Royaume-Uni",FR:"de France",DK:"du Danemark",AU:"d'Australie"})[c]||"de l'extérieur du Canada"}, des droits peuvent s'appliquer`,showMore:n=>`Voir ${n} de plus`,
-  allGear:"Tout",shipsCA:"Expédié du Canada",saleOnly:"Inclure le prix régulier",
+  allGear:"Tout",typeAll:"Tout",types:{tee:"T-shirts et camisoles",layer:"Manches longues et kangourous",jacket:"Manteaux et vestes",short:"Shorts",tight:"Collants",pant:"Pantalons"},
+  shipsCA:"Expédié du Canada",saleOnly:"Inclure le prix régulier",
   stopWatching:"Retirer des favoris",watch:"Ajouter aux favoris",removed:"Retiré de vos favoris.",
   watching:"Ajouté. On vous écrit si le prix baisse ou si votre taille revient en stock.",
   watchingPending:"Ajouté. Confirmez votre courriel pour recevoir les alertes de baisse de prix.",watchingSignup:"Ajouté. Abonnez-vous au courriel du vendredi pour recevoir les alertes de baisse de prix.",
@@ -897,7 +900,8 @@ if(CARDS==="compact")document.body.classList.add("compact");
 const PAGE_CAT=CARDS==="compact"?4:PAGE;                  // each category starts short; "Show more" opens it
 const WORD={"ONE SIZE":"OS","O/S":"OS","X-SMALL":"XS","XSMALL":"XS","SMALL":"S","MEDIUM":"M","LARGE":"L","X-LARGE":"XL","XLARGE":"XL"};
 function norm(s){s=String(s).trim().toUpperCase();s=WORD[s]||s;return s.replace("XXXL","3XL").replace("XXL","2XL").replace("XXS","2XS")}
-const view={fullPrice:false,sort:"match",q:"",open:{},watch:false,newAll:false};
+const view={fullPrice:false,sort:"match",q:"",open:{},watch:false,newAll:false,type:{}};
+const TYPES={tops:["tee","layer","jacket"],bottoms:["short","tight","pant"]};   // garment type buttons under these categories (deals.json "t")
 const NEWSTYLE_DEFAULT="row";                              // "row" (A) or "sticky" (B)
 const NEWSTYLE=LS0("gf-newstyle")||NEWSTYLE_DEFAULT;
 document.body.classList.add(NEWSTYLE==="row"?"newrow":"sticky");
@@ -1000,7 +1004,7 @@ function card(d,extra){
   </a>${heartBtn(k,on,d)}</div>`;
 }
 function section(key,title,list,cls){
-  if(!list.length)return "";
+  if(!list.length&&!(TYPES[key]&&view.type[key]))return "";   // keep the type buttons when a type has nothing
   if(key==="__new"&&NEWSTYLE==="row"&&!view.newAll){       // one swipeable row, then "See all" as a list
     const n=list.length,row=list.slice(0,24);
     return `<section class="grp ${cls||""}"><h2>${title} <small>${num(n)}</small>${n>1?`<span class="swipe" aria-hidden="true">${t("swipe")}</span>`:""}</h2><div class="grid">${row.map(d=>card(d)).join("")}
@@ -1010,7 +1014,8 @@ function section(key,title,list,cls){
   const lim=view.open[key]||(key.startsWith("__")?PAGE:PAGE_CAT);
   const tail=key==="__new"&&NEWSTYLE==="row"?`<button type="button" class="linkbtn" data-newrow>${t("asRow")}</button>`:"";
   const note=key==="nutrition"&&state.ships!=="all"?`<p class="grpnote">${t("usFuel")}</p>`:"";
-  return `<section class="grp ${cls||""}"><h2>${title} <small>${num(list.length)}</small>${tail}</h2>${note}<div class="grid">${list.slice(0,lim).map(d=>card(d)).join("")}</div>
+  const types=TYPES[key]?`<div class="chips scroll types">${["",...TYPES[key]].map(v=>`<button type="button" class="chip" data-type="${key}:${v}" aria-pressed="${(view.type[key]||"")===v}">${v?t("types")[v]:t("typeAll")}</button>`).join("")}</div>`:"";
+  return `<section class="grp ${cls||""}" id="grp-${key}"><h2>${title} <small>${num(list.length)}</small>${tail}</h2>${types}${note}<div class="grid">${list.slice(0,lim).map(d=>card(d)).join("")}</div>
     ${list.length>lim?`<button class="btn more" data-open="${key}">${t("showMore",Math.min(MORE,list.length-lim))}</button>`:""}</section>`;
 }
 
@@ -1044,6 +1049,9 @@ $("dealList").addEventListener("click",e=>{
   if(ar){const g=ar.parentNode.querySelector(".grid");g.scrollBy({left:(+ar.dataset.row)*g.clientWidth*0.8,behavior:"smooth"});return}
   if(e.target.closest("[data-newall]")){view.newAll=true;renderAll();return}
   if(e.target.closest("[data-newrow]")){view.newAll=false;renderAll();const s=document.querySelector(".grp.new");if(s)s.scrollIntoView({block:"start"});return}
+  const ty=e.target.closest("[data-type]");
+  if(ty){const [g,v]=ty.dataset.type.split(":");view.type[g]=v;view.open[g]=0;renderAll();
+    const s=$("grp-"+g);if(s&&s.getBoundingClientRect().top<0)s.scrollIntoView({block:"start"});return}
   const b=e.target.closest("[data-open]");if(!b)return;const k=b.dataset.open;view.open[k]=(view.open[k]||(k.startsWith("__")?PAGE:PAGE_CAT))+MORE;renderAll()});
 
 /* ---------- watchlist: saved on this device, synced to the server once the email is confirmed ---------- */
@@ -1212,7 +1220,8 @@ function renderAll(){
   const top=onSale.slice().sort(SORTS[view.sort]);
   parts.push(section("__sale",t("secSale"),top,"sale"));
   const inTop=new Set(top.slice(0,view.open.__sale||PAGE).map(itemKey));   // don't show the same deal twice
-  ORDER.filter(g=>p.groups.includes(g)).forEach(g=>parts.push(section(g,GL(g),shown.filter(d=>d.g===g&&!inTop.has(itemKey(d))))));
+  ORDER.filter(g=>p.groups.includes(g)).forEach(g=>{const ty=view.type[g];   // a type picked: every match, Top deals included
+    parts.push(section(g,GL(g),shown.filter(d=>d.g===g&&(ty?d.t===ty:!inTop.has(itemKey(d))))))});
   const body=parts.filter(Boolean);
   body.splice(Math.min(1,body.length),0,signupHTML());   // the email card sits right after the first block of deals
   $("dealList").innerHTML=body.join("")||`<div class="empty">${t("nothing")}</div>`;
