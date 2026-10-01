@@ -1160,7 +1160,7 @@ def tidy_nutrition(offers):
     return out
 
 # Clothing that stores file next to headlamps and bottles: compression sleeves, warmers, recovery tights, caps.
-GEAR_LEG = re.compile(r"\b(calf|leg|compression|booster)\b.*\b(sleeves?|warmers?)\b|\bleg warmers?\b|\bcalf (guards?|tubes?)\b", re.I)
+GEAR_LEG = re.compile(r"\b(calf|leg|compression|booster)\b.*\b(sleeves?|warmers?)\b|\b(leg|knee) warmers?\b|\bcalf (guards?|tubes?)\b", re.I)
 GEAR_ARM = re.compile(r"\barm\b.*\b(sleeves?|warmers?|coolers?)\b|\b(sleeves?|warmers?)\b.*\barm\b", re.I)
 GEAR_TIGHTS = re.compile(r"\b(tights?|leggings?|shorts)\b", re.I)
 GEAR_CAP = re.compile(r"\b(?:go|trl|crw|fst|alz|ss|gt)cap\b|\b(caps?|hats?|visors?|beanies?|toques?|tuques?)\b", re.I)
