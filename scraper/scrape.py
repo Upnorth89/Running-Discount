@@ -71,7 +71,7 @@ RULES = [
     ("socks",     r"\bsocks?\b|mini crew|no[- ]show|over[- ]the[- ]calf|\bquarter\b(?![- ]?zip)"),
     ("gloves",    r"\bgloves?\b|\bmitts?\b|mittens"),
     ("watches",   r"\bwatch(es)?\b"),
-    ("headwear",  r"\bhats?\b|\bcaps?\b|gocap|trlcap|beanie|toque|tuque|headband|\bbuffs?\b|neck ?gaiter|visor"),
+    ("headwear",  r"\bhats?\b|\bcaps?\b|\b(?:go|trl|crw|fst|alz|ss|gt)cap\b|beanie|toque|tuque|headband|\bbuffs?\b|neck ?gaiter|visor"),
     ("packs",     r"hydration (vest|pack)|race vest|running vest|backpack|\bbelts?\b|waist ?pack|\bpinnacle\b|\bvest \d|\d+ ?l\b"),
     ("bottoms",   r"\bbottoms?\b|(?<!short sleeve )\bshorts\b|\bshort\b(?! sleeve)|tights?\b|\bpants?\b|leggings?|joggers?|skirts?|skorts?|boxers?|briefs?"),
     ("tops",      r"t-?shirts?|\btees?\b|\bshirts?|\btops?\b|tanks?|singlets?|jackets?|\bcoats?\b|raincoats?|hood(ie|y)|\bvests?\b|gilets?|jersey|sweaters?|base ?layer|pullovers?|fleece|anorak|windbreaker|\bcrew\b|half zip|quarter zip|1/2 zip|1/4 zip|long sleeve|short sleeve|\bcrop\b"),
@@ -1159,6 +1159,27 @@ def tidy_nutrition(offers):
         out.append(o)
     return out
 
+# Clothing that stores file next to headlamps and bottles: compression sleeves, warmers, recovery tights, caps.
+GEAR_LEG = re.compile(r"\b(calf|leg|compression|booster)\b.*\b(sleeves?|warmers?)\b|\bleg warmers?\b|\bcalf (guards?|tubes?)\b", re.I)
+GEAR_ARM = re.compile(r"\barm\b.*\b(sleeves?|warmers?|coolers?)\b|\b(sleeves?|warmers?)\b.*\barm\b", re.I)
+GEAR_TIGHTS = re.compile(r"\b(tights?|leggings?|shorts)\b", re.I)
+GEAR_CAP = re.compile(r"\b(?:go|trl|crw|fst|alz|ss|gt)cap\b|\b(caps?|hats?|visors?|beanies?|toques?|tuques?)\b", re.I)
+
+def tidy_gear(offers):
+    for o in offers:
+        if o["g"] != "gear":
+            continue
+        n = o["n"]
+        if GEAR_ARM.search(n):
+            o["g"] = "tops"            # arm sleeves / warmers: with tops, in the clothing size
+        elif GEAR_LEG.search(n):
+            o["g"] = "socks"           # calf sleeves / leg warmers: with socks (CEP, BV Sport sell them together)
+        elif GEAR_TIGHTS.search(n):
+            o["g"] = "bottoms"
+        elif GEAR_CAP.search(n):
+            o["g"] = "headwear"
+    return offers
+
 def tidy_shoes(offers):
     """Drop casual footwear and narrow-only shoes; mark wide ones from the product name."""
     out = []
@@ -1240,7 +1261,7 @@ def mkey(o):
 
 def merge(offers):
     """Same product at several stores -> one item; each size keeps the cheapest store."""
-    offers = tidy_nutrition(tidy_shoes(offers))
+    offers = tidy_gear(tidy_nutrition(tidy_shoes(offers)))
     items = {}
     for o in offers:
         o["b"] = tidy_brand(o["b"])
