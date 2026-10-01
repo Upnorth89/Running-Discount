@@ -1193,6 +1193,21 @@ def tidy_gear(offers):
             o["g"] = "headwear"
     return offers
 
+# Kids' gear: a kids' 11 or "M" would match an adult's size. The site is for adults, so leave it out.
+KIDS = re.compile(r"\b(kids?|kid'?s|kids'|juniors?'?|jr|youth|enfants?|gar[çc]ons?|filles?|boys?|girls?|toddlers?|infants?|"
+                  r"b[ée]b[ée]s?|big kids?|little kids?|grade school|pre-?school|pr[ée]scolaire|jeunesse)\b", re.I)
+KIDS_SHOE = re.compile(r"\b(GS|PS|TD)\b")                     # grade school / preschool / toddler shoe codes
+ADULT_STYLE = re.compile(r"\bboy ?shorts?\b|\bboyfriend\b", re.I)  # women's underwear and fits, not kids
+
+def drop_kids(offers):
+    out = []
+    for o in offers:
+        n = f"{o['b']} {o['n']}"
+        if (KIDS.search(n) and not ADULT_STYLE.search(n)) or (o["g"] == "shoes" and KIDS_SHOE.search(o["n"])):
+            continue
+        out.append(o)
+    return out
+
 def tidy_shoes(offers):
     """Drop casual footwear and narrow-only shoes; mark wide ones from the product name."""
     out = []
@@ -1274,7 +1289,7 @@ def mkey(o):
 
 def merge(offers):
     """Same product at several stores -> one item; each size keeps the cheapest store."""
-    offers = tidy_gear(tidy_nutrition(tidy_shoes(offers)))
+    offers = tidy_gear(tidy_nutrition(tidy_shoes(drop_kids(offers))))
     items = {}
     for o in offers:
         o["b"] = tidy_brand(o["b"])
