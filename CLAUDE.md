@@ -100,6 +100,9 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
 - Item shape in deals.json: `b` brand, `n` name, `g` group, `sx` genders, `w` wide, `img`, `lp`, `of` store
   links, `ca` ships from Canada, `sz` = `[size, price, offerIndex, regular, variantId?]`.
 - Groups: shoes, tops, bottoms, bras, socks, gloves, headwear, packs, gear, watches, nutrition.
+- Clothing types (`t`, from the name, `TYPES` in scrape.py): tops tee/layer/jacket, bottoms short/tight/pant; buttons under
+  those categories on the site (~3% untyped show under "All" only). `tidy_clothes` moves bras/capris, drops bike parts.
+- `CAPS_STORES` (Le Coureur writes in capitals: softened), `OWN_BRAND` (rabbit/Bandit leave the brand "0").
 - Shoe size keys: `"10"`, `"M:10"`/`"W:11"` (from unisex labels), suffix `~W` wide, `~N` narrow (hidden).
 - Accessories (packs, gear) in letter sizes follow the clothing size; odd labels are hidden on cards.
 - Merge tidies names (no repeated brand, French gender words to English; the FR site shows them in French),
@@ -147,12 +150,15 @@ A ski/snowboard preview also exists (parked): https://claude.ai/artifact/QQeVvJD
 
 ## Where things stand (Oct 1, 2026)
 
-Done: size-first site live, 54 stores (Capra added), Friday 7am-local email, alerts, daily health report, calm
+Done: size-first site live, 56 stores (Capra; Oct 1: Le Coureur, BlackToe), Friday 7am-local email, alerts, daily health report, calm
 layout, compact phone cards, sale-first loading, store names on cards, US nutrition by default, The Feed read
 as a Canadian (only what ships to Canada), clothing moved out of gear, Share card + link previews + `?ref=`
 links, Junk hint + resend, own click counts + monthly report. Email test complete (EN/FR sign-up, confirmation
 in Primary from bastien@, Friday email, alert, unsubscribe). Resend open/click tracking OFF.
 Soft launch: Instagram Reel + Story Thursday Oct 1 ~7am PT (`?ref=ig-story`, `?ref=ig-bio`), Sacred Strides
 next (`?ref=sacred-strides`). Watch the 100 emails/day Resend limit; upgrade if sign-ups spike.
+Store candidates (Shopify, readable): Frontrunners Victoria (filter soccer cleats first), Aerobics First (Halifax), City Park
+Runners (Winnipeg); Boutique Courir blocks bots. Postal-code stock: not possible (stores share online stock only); maybe a
+province filter. Instagram @thegearfox live (footer + Friday email link).
 Next ideas: "where each store ships to" list (REI US-only) + country setting; "drag to Primary" line in the
 first Friday email; automated weekly top-deals post for @thegearfox; affiliate applications (AvantLink first).
