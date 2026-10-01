@@ -1,9 +1,8 @@
--- The Gear Fox: confirmation and sign-in emails as a short personal note from Bastien.
--- Gmail files emails with logos and big buttons under Promotions; a plain note with a text link usually lands in
--- Primary, and the confirmation is the one email people must not miss. Same functions and parameters as in
--- setup.sql (the sign-up and sign-in functions call them unchanged). Paste into Supabase > SQL Editor once.
--- The Friday email and alerts are sent from GitHub (scraper/), not from here, and keep "The Gear Fox".
-
+-- The Gear Fox: confirmation and sign-in emails come from "Bastien from The Gear Fox" <bastien@thegearfox.com>
+-- (a different address from the Friday deals) in the branded design from setup.sql.
+-- Oct 1, 2026 test: with Resend open/click tracking ON they landed in Gmail Promotions; with tracking OFF
+-- (Resend > Domains > thegearfox.com > Configuration) the plain version landed in Primary. Keep tracking off.
+-- Paste into Supabase > SQL Editor once.
 create or replace function public._gf_mail(p_to text, p_subject text, p_html text, p_text text)
 returns void language plpgsql security definer set search_path = public as $$
 declare k text;
@@ -19,21 +18,20 @@ end $$;
 
 create or replace function public._gf_letter(p_title text, p_body text, p_button text, p_url text, p_lang text default 'en')
 returns text language sql immutable as $$
-  select '<!doctype html><html lang="' || case when p_lang = 'fr' then 'fr' else 'en' end || '"><body style="margin:0;background:#FFFFFF">'
-      || '<div style="max-width:520px;padding:20px 16px;font:15px/1.6 Arial,Helvetica,sans-serif;color:#17201C">'
-      || '<p style="margin:0 0 12px"><b>' || p_title || '</b></p>'
-      || '<p style="margin:0 0 12px">' || p_body || '</p>'
-      || '<p style="margin:0 0 16px"><a href="' || p_url || '" style="color:#B8470A;font-weight:bold">' || p_button || '</a></p>'
-      || '<p style="margin:0 0 16px;color:#5C6660;font-size:13px">'
+  select '<!doctype html><html lang="' || case when p_lang = 'fr' then 'fr' else 'en' end || '"><body style="margin:0;background:#EEF1EC">'
+      || '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#EEF1EC"><tr><td align="center" style="padding:24px 12px">'
+      || '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#FFFFFF;border:2px solid #17201C;border-radius:14px">'
+      || '<tr><td style="padding:22px 24px 0;text-align:center"><img src="https://thegearfox.com/'
+      || case when p_lang = 'fr' then 'logo-email-fr.png' else 'logo-email.png' end
+      || '" width="220" alt="The Gear Fox" style="width:220px;max-width:80%;height:auto;border:0"></td></tr>'
+      || '<tr><td style="padding:14px 24px 4px;text-align:center;font:800 24px Arial,Helvetica,sans-serif;color:#17201C">' || p_title || '</td></tr>'
+      || '<tr><td style="padding:0 24px 18px;text-align:center;font:15px/1.5 Arial,Helvetica,sans-serif;color:#5C6660">' || p_body || '</td></tr>'
+      || '<tr><td style="padding:0 24px 24px;text-align:center"><a href="' || p_url || '" style="display:inline-block;background:#F26A1B;color:#17201C;border:2px solid #17201C;border-radius:10px;padding:12px 22px;font:800 16px Arial,Helvetica,sans-serif;text-decoration:none">' || p_button || '</a></td></tr>'
+      || '<tr><td style="padding:14px 24px 20px;text-align:center;border-top:2px dashed #CBD2CC;font:12px/1.5 Arial,Helvetica,sans-serif;color:#5C6660">'
       || case when p_lang = 'fr'
-              then 'Astuce : déplacez ce courriel dans l''onglet Principal (ou indiquez « Pas un courriel indésirable ») pour ne jamais manquer les aubaines du vendredi.'
-              else 'Tip: move this email to your Primary tab (or mark it "Not junk") so you never miss Friday''s deals.' end
-      || '</p><p style="margin:0">' || case when p_lang = 'fr' then 'Bastien<br>The Gear Fox · Flairez les aubaines'
-                                             else 'Bastien<br>The Gear Fox · Outfox full price' end || '</p>'
-      || '<p style="margin:16px 0 0;color:#5C6660;font-size:12px">'
-      || case when p_lang = 'fr' then 'Si vous n''avez rien demandé, ignorez ce courriel et rien ne se passera.'
-              else 'If you didn''t ask for this, ignore this email and nothing happens.' end
-      || '</p></div></body></html>'
+              then 'Si vous n''avez rien demandé, ignorez ce courriel et rien ne se passera.<br>The Gear Fox · Flairez les aubaines'
+              else 'If you didn''t ask for this, ignore this email and nothing happens.<br>The Gear Fox · Outfox full price' end
+      || '</td></tr></table></td></tr></table></body></html>'
 $$;
 
 revoke all on function public._gf_mail(text, text, text, text) from public, anon, authenticated;
