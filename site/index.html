@@ -518,7 +518,9 @@ en:{
   lede:(s,a,w,u)=>`${s} on sale and ${a} in stock from ${w}${u?` · updated ${u}`:""}.`,
   secNew:"New since your last visit",secSale:"Top deals",
   nothing:"Nothing matches right now. Try clearing the search or picking more categories.",addSizes:"Add your sizes to hide gear that won't fit. ",
-  checkInbox:"Check your inbox",checkInboxTxt:e=>`Tap the link we sent to ${e} to start your Friday email. It can land in Promotions.`,
+  checkInbox:"Check your inbox",checkInboxTxt:e=>`Tap the link we sent to ${e} to start your Friday email.`,
+  junkHint:"Not there after a minute? Check Junk or Promotions (Outlook and Hotmail often file us there) and mark it \"Not junk\".",
+  resend:"Send it again",resendFail:"Couldn't send just now. Try again in a minute.",resent:"Sent again. Give it a minute.",resendWait:"Just sent: wait a minute, then check Junk.",
   otherEmail:"Use a different email",getDeals:"Get deals like these every Friday",
   getDealsTxt:"One email, Friday morning, only gear on sale in your sizes.",email:"Email",signUp:"Sign up",
   signupFine:'We\'ll email you to confirm. Unsubscribe with one tap. <a href="privacy.html">Privacy</a>',
@@ -604,7 +606,9 @@ fr:{
   lede:(s,a,w,u)=>`${s} en solde et ${a} en stock ${w}${u?` · mis à jour ${u}`:""}.`,
   secNew:"Nouveau depuis votre dernière visite",secSale:"Meilleures aubaines",
   nothing:"Rien ne correspond pour l'instant. Effacez la recherche ou choisissez plus de catégories.",addSizes:"Ajoutez vos tailles pour cacher ce qui ne vous va pas. ",
-  checkInbox:"Vérifiez vos courriels",checkInboxTxt:e=>`Cliquez sur le lien envoyé à ${e} pour activer votre courriel du vendredi. Il peut arriver dans Promotions.`,
+  checkInbox:"Vérifiez vos courriels",checkInboxTxt:e=>`Cliquez sur le lien envoyé à ${e} pour activer votre courriel du vendredi.`,
+  junkHint:"Pas reçu après une minute? Vérifiez les courriels indésirables ou Promotions (Outlook et Hotmail nous y classent souvent) et indiquez « Pas un courriel indésirable ».",
+  resend:"Renvoyer",resendFail:"Envoi impossible pour l'instant. Réessayez dans une minute.",resent:"Renvoyé. Laissez-lui une minute.",resendWait:"Tout juste envoyé : attendez une minute, puis vérifiez les indésirables.",
   otherEmail:"Utiliser un autre courriel",getDeals:"Recevez des aubaines comme celles-ci chaque vendredi",
   getDealsTxt:"Un courriel le vendredi matin, seulement des articles en solde dans vos tailles.",email:"Courriel",signUp:"M'abonner",
   signupFine:'On vous écrit pour confirmer. Désabonnement en un clic. <a href="privacy.html">Confidentialité</a>',
@@ -1225,11 +1229,12 @@ async function rpc(fn,args,bearer){
 }
 let sub=LS.get("gf-sub");            // {key, email, active} once this device is linked by an email link; {pending} while waiting
 function setSub(v){sub=v;LS.set("gf-sub",v)}
-let signupErr="";
+let signupErr="",resentAt=0;
 function signupHTML(){
   if(sub&&sub.active)return "";
   if(sub&&sub.pending)return `<div class="signup"><h3>${t("checkInbox")}</h3><p style="margin:0">${sub.signin?t("signinCard",esc(sub.pending)):t("checkInboxTxt",esc(sub.pending))}</p>
-    <p class="fine"><button type="button" id="suRetry" style="font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;cursor:pointer">${t("otherEmail")}</button></p></div>`;
+    <p class="fine">${t("junkHint")}</p>
+    <p class="fine"><button type="button" id="suResend" style="font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;cursor:pointer">${t("resend")}</button> · <button type="button" id="suRetry" style="font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;cursor:pointer">${t("otherEmail")}</button></p></div>`;
   return `<div class="signup"><h3>${t("getDeals")}</h3>
     <p>${t("getDealsTxt")}</p>
     <form id="suForm" novalidate><label for="suEmail" class="hidden">${t("email")}</label>
@@ -1250,6 +1255,11 @@ function bindSignup(){
     renderAll();
   });
   const r=$("suRetry");if(r)r.addEventListener("click",()=>{setSub(null);renderAll();openSheet();setTimeout(()=>$("gateEmail").focus(),60)});
+  const rs=$("suResend");if(rs)rs.addEventListener("click",async()=>{     // same email again (the server waits 2 min between sends)
+    if(resentAt&&Date.now()-resentAt<120e3){toast(t("resendWait"));return}
+    resentAt=Date.now();track("resend",{lang:LANG,signin:!!sub.signin});
+    try{if(sub.signin)await rpc("send_link",{p_email:sub.pending,p_lang:LANG});else await rpc("subscribe",{p_email:sub.pending,p_profile:toProfile()});toast(t("resent"))}
+    catch(e){resentAt=0;toast(t("resendFail"))}});
 }
 function renderSubLine(){
   const el=$("subLine");
