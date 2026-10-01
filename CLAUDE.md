@@ -91,6 +91,8 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
 - Shopify stores: listed in `SHOPIFY_STORES` in scrape.py (~44). Read via `/products.json`, prices checked
   in CAD with Canadian cookies (cart.js tells the served currency; USD is converted).
 - Altitude Sports and The Last Hunt: commercetools readers (running category types in `CT_TYPES`).
+  Each size links to `?color=…&size=…` (opens on that size). Sporting Life, MEC, Decathlon can't preselect a size
+  (tested Oct 1); every size shown is in stock, so no note on cards (Bastien's call).
 - Sporting Life, Stampeak, Sea2Sky, The Feed: custom readers. Decathlon: running clearance pages
   (server-rendered JSON, robots allow). MEC/REI: from saved pages only.
 - Known: Honey Stinger is blocked from GitHub's servers (works elsewhere); REI needs fresh saved pages.
