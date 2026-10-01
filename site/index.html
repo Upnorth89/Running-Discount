@@ -1172,6 +1172,7 @@ function renderStats(){
 ["dealList","newBox"].forEach(id=>$(id).addEventListener("click",e=>{const a=e.target.closest("a.deal");if(!a)return;const h=a.parentNode.querySelector(".heart");
   const d=h&&RENDERED[h.dataset.key];
   track("deal-click",{store:storeOf(a.href),brand:d?d.b:"",group:d?d.g:"",pct:d?d.pct:0,view:view.watch?"watchlist":"shop"});
+  logEvent("click",storeOf(a.href),d?d.g:null);
   if(h){recordClick(h.dataset.key);setTimeout(renderStats,0)}},true));
 
 function renderAll(){
@@ -1368,8 +1369,12 @@ async function googleSubscribe(){
   catch(e){btn.disabled=false;btn.textContent=t("subscribeShow");gSession=null;openSheet();gateErr(t("gFail"))}
 }
 
+/* Our own counts for the monthly report (Supabase): one visit per browser session, and each deal clicked.
+   Nothing personal: kind, store, category, ?ref= link, language. */
+function logEvent(kind,store,group){rpc("log_event",{p_kind:kind,p_store:store||null,p_group:group||null,p_ref:REF||null,p_lang:LANG}).catch(()=>{})}
 /* ---------- start ---------- */
 (async()=>{
+  try{if(!sessionStorage.getItem("gf-visit")){sessionStorage.setItem("gf-visit","1");logEvent("visit")}}catch(e){}
   applyStatic();
   G.load();
   applyProfile(LS.get("rd-profile"));

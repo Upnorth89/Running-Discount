@@ -22,7 +22,6 @@ jobs:
       - run: pip install -r scraper/requirements.txt
       - name: Build and email the report
         env:
-          UMAMI_API_KEY: ${{ secrets.UMAMI_API_KEY }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           HEALTH_EMAIL: ${{ secrets.HEALTH_EMAIL }}
           FROM_EMAIL: "The Gear Fox <deals@thegearfox.com>"

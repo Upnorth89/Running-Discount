@@ -65,12 +65,13 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
 
 - **Monthly report** (`monthly-report.yml`, `scraper/monthly_report.py`): the 1st of each month emails last
   month's visitors, sign-ups (by `?ref=` link), clicks sent to each store and paste-ready lines for affiliate
-  applications ("we sent N shoppers to X"). Manual run = this month so far. Reads Umami Cloud (needs the
-  `UMAMI_API_KEY` secret) and Supabase.
+  applications ("we sent N shoppers to X"). Manual run = this month so far. Reads our own counts in Supabase
+  (`supabase/clicks.sql`: the site logs one visit per session and each deal click via `log_event`; nothing
+  personal), since Umami's free plan has no API. Countries/pages stay in the Umami dashboard.
 - **Tracking links**: `?ref=name` (kept per device, sent with visits/sign-ups, saved in the profile), `?lang=fr`.
 
 GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_ADDRESS` (CASL footer),
-`HEALTH_EMAIL`, `UMAMI_API_KEY`.
+`HEALTH_EMAIL`.
 
 ## Affiliate plan (Oct 1, 2026: none live yet; networks want 60–90 days of traffic)
 
