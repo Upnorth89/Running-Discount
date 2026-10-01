@@ -1,7 +1,8 @@
 -- The Gear Fox: confirmation and sign-in emails come from "Bastien from The Gear Fox" <bastien@thegearfox.com>
 -- (a different address from the Friday deals) in the branded design from setup.sql.
 -- Oct 1, 2026 test: with Resend open/click tracking ON they landed in Gmail Promotions; with tracking OFF
--- (Resend > Domains > thegearfox.com > Configuration) the plain version landed in Primary. Keep tracking off.
+-- (Resend > Domains > thegearfox.com > Configuration) both a plain and this branded version landed in Primary.
+-- The tracking was the cause: keep it off.
 -- Paste into Supabase > SQL Editor once.
 create or replace function public._gf_mail(p_to text, p_subject text, p_html text, p_text text)
 returns void language plpgsql security definer set search_path = public as $$
