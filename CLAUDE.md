@@ -39,6 +39,9 @@ scraper/health.py        daily health check + morning report email
 supabase/setup.sql       database: tables, sign-up/confirm/profile/Google functions, email templates
 supabase/watchlist.sql   watchlist table + functions
 supabase/friday-switch.sql  latest change (Friday wording + weekly_sent_at column); already applied
+supabase/clicks.sql      own visit/click counts for the monthly report (log_event, click_report); applied
+supabase/personal-emails.sql  confirmation/sign-in emails as a plain note from "Bastien from The Gear Fox"
+                         (no logo/button, Primary-tab tip) so they skip Gmail Promotions
 tools/make_preview.py    builds the playable preview artifact from site/index.html
 saved-pages/             MEC/REI files from the Grab deals bookmark (ignored after 10 days)
 ```
