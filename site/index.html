@@ -9,7 +9,16 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta property="og:title" content="The Gear Fox — Outfox full price">
 <meta property="og:description" content="Gear deals in your size, from stores across Canada and beyond.">
-<meta property="og:image" content="logo-email.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Gear Fox">
+<meta property="og:url" content="https://thegearfox.com/">
+<meta property="og:image" content="https://thegearfox.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Gear Fox: running and outdoor gear on sale in your size">
+<meta property="og:locale" content="en_CA">
+<meta property="og:locale:alternate" content="fr_CA">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
@@ -208,6 +217,9 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
 .deal .warn{font-size:13px;font-weight:600;color:var(--err)}
 .more{margin-top:10px;width:100%}
 .empty{background:var(--card);border:1.5px dashed var(--line);border-radius:12px;padding:22px;text-align:center;color:var(--muted)}
+.sharecard{display:flex;align-items:center;gap:12px;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;margin:18px 0 0;font-size:15px}
+.sharecard span{flex:1}
+.sharecard .btn{white-space:nowrap}
 .foot{font-size:13px;color:var(--muted);text-align:center;margin-top:10px}
 
 /* Friday email card */
@@ -341,6 +353,7 @@ label.field{display:block;font-weight:600;font-size:15px;margin:0 0 6px}
 
   <div id="dealList"></div>
   <p class="tally hidden" id="tally"></p>
+  <div class="sharecard hidden" id="shareCard"><span id="shareTxt"></span><button type="button" class="btn" id="shareBtn"></button></div>
   <p class="foot" id="dealsFoot"></p>
   <p class="foot" data-i18n="footer">The Gear Fox · Outfox full price · <a href="privacy.html">Privacy</a></p>
 </main>
@@ -427,6 +440,12 @@ const UMAMI_ID="d73c30be-171d-40d8-8101-278c2a536699";            // paste the W
 (function(){if(!UMAMI_ID)return;const s=document.createElement("script");s.defer=true;
   s.src="https://cloud.umami.is/script.js";s.dataset.websiteId=UMAMI_ID;s.dataset.domains="thegearfox.com,www.thegearfox.com";document.head.appendChild(s)})();
 function track(name,data){try{if(window.umami&&umami.track)umami.track(name,data)}catch(e){}}
+/* ?ref=sacred-strides etc.: which link someone came from. Kept on this device (first one wins), sent with the
+   visit and with the sign-up, and saved in the subscriber's profile. */
+const REF=(()=>{let r="";try{r=(new URLSearchParams(location.search).get("ref")||"").toLowerCase().replace(/[^a-z0-9_-]/g,"").slice(0,40)}catch(e){}
+  try{const old=JSON.parse(localStorage.getItem("gf-ref")||"null");if(old)return old;if(r)localStorage.setItem("gf-ref",JSON.stringify(r))}catch(e){}
+  if(r){let n=0;const t=setInterval(()=>{if(window.umami&&umami.track){umami.track("ref-visit",{ref:r});clearInterval(t)}else if(++n>40)clearInterval(t)},250)}
+  return r})();
 const storeOf=u=>{try{return new URL(u).hostname.replace(/^www\./,"")}catch(e){return "unknown"}};
 /* Store names shown on cards, and where each one ships from (no country = Canada) */
 const STORES={"altitude-sports.com":["Altitude Sports"],"thelasthunt.com":["The Last Hunt"],"thefeed.com":["The Feed","US"],
@@ -473,7 +492,8 @@ en:{
   minAgo:m=>`${m} min ago`,hAgo:h=>`${h} h ago`,daysAgo:d=>`${d} days ago`,
   loadFail:"Couldn't load today's gear. Reload to try again.",loading:"Loading today's gear…",
   inYourSize:"In your size:",isNew:"New",bestBy:d=>`Short-dated: best by ${d}`,
-  atStore:n=>`at ${n}`,usFuel:"Includes US stores: fuel ships well, and each deal says where it ships from.",shipsFrom:c=>`ships from ${({US:"the US",UK:"the UK",FR:"France",DK:"Denmark",AU:"Australia"})[c]||"outside Canada"}, duties may apply`,showMore:n=>`Show ${n} more`,
+  atStore:n=>`at ${n}`,shareTxt:"Know a runner who hates paying full price?",shareBtn:"Share",shareCopied:"Link copied: paste it anywhere.",shareCopy:"Copy this link:",
+  shareText:"Running and outdoor gear on sale in your size, from stores across Canada.",usFuel:"Includes US stores: fuel ships well, and each deal says where it ships from.",shipsFrom:c=>`ships from ${({US:"the US",UK:"the UK",FR:"France",DK:"Denmark",AU:"Australia"})[c]||"outside Canada"}, duties may apply`,showMore:n=>`Show ${n} more`,
   allGear:"All gear",shipsCA:"Ships from Canada",saleOnly:"Include full price",
   stopWatching:"Stop watching",watch:"Watch",removed:"Removed from your watchlist.",
   watching:"Watching. We'll email you if it drops or comes back in your size.",
@@ -558,7 +578,8 @@ fr:{
   minAgo:m=>`il y a ${m} min`,hAgo:h=>`il y a ${h} h`,daysAgo:d=>`il y a ${d} jours`,
   loadFail:"Impossible de charger les produits du jour. Rechargez la page.",loading:"Chargement des produits du jour…",
   inYourSize:"À votre taille :",isNew:"Nouveau",bestBy:d=>`Date courte : meilleur avant le ${d}`,
-  atStore:n=>`chez ${n}`,usFuel:"Comprend des boutiques américaines : la nutrition voyage bien, et chaque aubaine indique d'où elle est expédiée.",shipsFrom:c=>`expédié ${({US:"des États-Unis",UK:"du Royaume-Uni",FR:"de France",DK:"du Danemark",AU:"d'Australie"})[c]||"de l'extérieur du Canada"}, des droits peuvent s'appliquer`,showMore:n=>`Voir ${n} de plus`,
+  atStore:n=>`chez ${n}`,shareTxt:"Un ami coureur déteste payer le plein prix ?",shareBtn:"Partager",shareCopied:"Lien copié : collez-le où vous voulez.",shareCopy:"Copiez ce lien :",
+  shareText:"Des aubaines de course et de plein air dans votre taille, dans des boutiques partout au Canada.",usFuel:"Comprend des boutiques américaines : la nutrition voyage bien, et chaque aubaine indique d'où elle est expédiée.",shipsFrom:c=>`expédié ${({US:"des États-Unis",UK:"du Royaume-Uni",FR:"de France",DK:"du Danemark",AU:"d'Australie"})[c]||"de l'extérieur du Canada"}, des droits peuvent s'appliquer`,showMore:n=>`Voir ${n} de plus`,
   allGear:"Tout",shipsCA:"Expédié du Canada",saleOnly:"Inclure le prix régulier",
   stopWatching:"Retirer des favoris",watch:"Ajouter aux favoris",removed:"Retiré de vos favoris.",
   watching:"Ajouté. On vous écrit si le prix baisse ou si votre taille revient en stock.",
@@ -622,7 +643,8 @@ fr:{
     headwear:"Casquettes et cache-cous",packs:"Vestes et sacs d'hydratation",gear:"Frontales, bâtons et gourdes",watches:"Montres",nutrition:"Nutrition"}
 }};
 const LS0=k=>{try{return JSON.parse(localStorage.getItem(k)||"null")}catch(e){return null}};
-let LANG=LS0("gf-lang")||((LS0("rd-profile")||{}).lang)||(/^fr/i.test(navigator.language||"")?"fr":"en");
+const LINK_LANG=(()=>{try{const l=new URLSearchParams(location.search).get("lang");return l==="fr"||l==="en"?l:""}catch(e){return ""}})();   // ?lang=fr on shared links
+let LANG=LS0("gf-lang")||((LS0("rd-profile")||{}).lang)||LINK_LANG||(/^fr/i.test(navigator.language||"")?"fr":"en");
 function t(k,...a){const v=(I18N[LANG]&&I18N[LANG][k]!==undefined)?I18N[LANG][k]:I18N.en[k];return typeof v==="function"?v(...a):v}
 const num=n=>Number(n).toLocaleString(LANG==="fr"?"fr-CA":"en-CA");
 function applyStatic(){
@@ -655,7 +677,7 @@ const TZ=(()=>{try{return Intl.DateTimeFormat().resolvedOptions().timeZone||""}c
 function toProfile(){
   const sizes={shoes:{sizes:state.shoe,width:state.width}};
   APPAREL_GROUPS.forEach(g=>sizes[g]={sizes:state.cloth});
-  return {lang:LANG,tz:TZ,name:state.name,email:state.email,gender:state.gender,ships:state.ships,groups:state.groups,sizes,brands:state.brands,activities:[]};
+  return {lang:LANG,tz:TZ,name:state.name,email:state.email,gender:state.gender,ships:state.ships,groups:state.groups,sizes,brands:state.brands,activities:[],...(REF?{ref:REF}:{})};
 }
 function applyProfile(p){
   if(!p)return;
@@ -834,7 +856,7 @@ $("saveSizes").addEventListener("click",async()=>{
     if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)){gateErr(t("errEmail"),$("gateEmail"));setTimeout(()=>$("gateEmail").focus({preventScroll:true}),400);return}
     const btn=$("saveSizes");btn.disabled=true;btn.textContent=t("oneMoment");gateErr("");
     state.email=email;const p=toProfile();LS.set("rd-profile",p);
-    try{await rpc("subscribe",{p_email:email,p_profile:p});setSub({pending:email});track("signup",{method:"email",lang:LANG,where:"sheet"})}
+    try{await rpc("subscribe",{p_email:email,p_profile:p});setSub({pending:email});track("signup",{method:"email",lang:LANG,where:"sheet",ref:REF||"none"})}
     catch(e){btn.disabled=false;btn.textContent=t("subscribeShow");return gateErr(t("errServer"))}
     btn.disabled=false;closeSheet();view.open={};renderAll();window.scrollTo({top:0});
     notice(t("hereDeals",esc(email)));
@@ -1055,6 +1077,10 @@ async function syncWatches(){
 function setWatchView(on){view.watch=on;if(on)loadFull();$("openWatch").setAttribute("aria-pressed",String(on));view.open={};renderAll();window.scrollTo({top:0})}
 $("openWatch").addEventListener("click",()=>setWatchView(!view.watch));
 $("backToDeals").addEventListener("click",()=>setWatchView(false));
+$("shareBtn").addEventListener("click",async()=>{
+  const url="https://thegearfox.com/?ref=share"+(LANG==="fr"?"&lang=fr":"");track("share",{lang:LANG});
+  try{if(navigator.share){await navigator.share({title:"The Gear Fox",text:t("shareText"),url});return}}catch(e){if(e&&e.name==="AbortError")return}
+  try{await navigator.clipboard.writeText(url);toast(t("shareCopied"))}catch(e){prompt(t("shareCopy"),url)}});
 let byKey={};
 /* What changed on the watchlist: price vs when saved, vs when last looked, lowest seen, back in size. */
 function watchStatus(k){
@@ -1186,6 +1212,7 @@ function renderAll(){
   $("dealList").innerHTML=body.join("")||`<div class="empty">${t("nothing")}</div>`;
   bindSignup();
   $("dealsFoot").textContent=(hasSizes()?"":t("addSizes"))+t("pricesChange");
+  $("shareCard").classList.remove("hidden");$("shareTxt").textContent=t("shareTxt");$("shareBtn").textContent=t("shareBtn");
 }
 
 /* ---------- Friday email: subscribers live in Supabase ---------- */
@@ -1218,7 +1245,7 @@ function bindSignup(){
     if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)){signupErr=t("badEmail");renderAll();$("suEmail").focus();return}
     const btn=f.querySelector("button");btn.disabled=true;btn.textContent="…";
     state.email=email;const p=toProfile();LS.set("rd-profile",p);
-    try{await rpc("subscribe",{p_email:email,p_profile:p});signupErr="";setSub({pending:email});track("signup",{method:"email",lang:LANG,where:"shop-card"})}
+    try{await rpc("subscribe",{p_email:email,p_profile:p});signupErr="";setSub({pending:email});track("signup",{method:"email",lang:LANG,where:"shop-card",ref:REF||"none"})}
     catch(err){signupErr=t("signupFail",err.message)}
     renderAll();
   });
