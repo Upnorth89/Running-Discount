@@ -109,7 +109,7 @@ h1{font:800 clamp(30px,8vw,40px)/1.05 var(--display);letter-spacing:-.3px;margin
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chips.scroll{flex-wrap:nowrap;overflow-x:auto;margin:0 -16px;padding:2px 16px 6px;scrollbar-width:none}
 .chips.scroll::-webkit-scrollbar{display:none}
-.types{margin-bottom:10px}.pickhint{color:var(--muted)}.grp{scroll-margin-top:84px}.types .chip{min-height:38px;padding:8px 12px;font-size:14px}
+.types{margin-bottom:10px}.grp{scroll-margin-top:84px}.types .chip{min-height:38px;padding:8px 12px;font-size:14px}
 /* With a mouse there's no swipe: show every chip on wrapped lines instead of a hidden sideways row */
 /* With a mouse there's no swipe: show every category at once, on wrapped lines, with smaller chips */
 @media (hover:hover) and (pointer:fine){
@@ -493,7 +493,7 @@ en:{
   minAgo:m=>`${m} min ago`,hAgo:h=>`${h} h ago`,daysAgo:d=>`${d} days ago`,
   loadFail:"Couldn't load today's gear. Reload to try again.",loading:"Loading today's gear…",
   inYourSize:"In your size:",isNew:"New",bestBy:d=>`Short-dated: best by ${d}`,
-  atStore:n=>`at ${n}`,pickOnStore:"· pick it on the store page",shareTxt:"Know a runner who hates paying full price?",shareBtn:"Share",shareCopied:"Link copied: paste it anywhere.",shareCopy:"Copy this link:",
+  atStore:n=>`at ${n}`,shareTxt:"Know a runner who hates paying full price?",shareBtn:"Share",shareCopied:"Link copied: paste it anywhere.",shareCopy:"Copy this link:",
   shareText:"Running and outdoor gear on sale in your size, from stores across Canada.",usFuel:"Includes US stores: fuel ships well, and each deal says where it ships from.",shipsFrom:c=>`ships from ${({US:"the US",UK:"the UK",FR:"France",DK:"Denmark",AU:"Australia"})[c]||"outside Canada"}, duties may apply`,showMore:n=>`Show ${n} more`,
   allGear:"All gear",typeAll:"All",types:{tee:"T-shirts & tanks",layer:"Long sleeves & hoodies",jacket:"Jackets & vests",short:"Shorts",tight:"Tights",pant:"Pants"},
   shipsCA:"Ships from Canada",saleOnly:"Include full price",
@@ -582,7 +582,7 @@ fr:{
   minAgo:m=>`il y a ${m} min`,hAgo:h=>`il y a ${h} h`,daysAgo:d=>`il y a ${d} jours`,
   loadFail:"Impossible de charger les produits du jour. Rechargez la page.",loading:"Chargement des produits du jour…",
   inYourSize:"À votre taille :",isNew:"Nouveau",bestBy:d=>`Date courte : meilleur avant le ${d}`,
-  atStore:n=>`chez ${n}`,pickOnStore:"· à choisir sur le site du magasin",shareTxt:"Un ami coureur déteste payer le plein prix ?",shareBtn:"Partager",shareCopied:"Lien copié : collez-le où vous voulez.",shareCopy:"Copiez ce lien :",
+  atStore:n=>`chez ${n}`,shareTxt:"Un ami coureur déteste payer le plein prix ?",shareBtn:"Partager",shareCopied:"Lien copié : collez-le où vous voulez.",shareCopy:"Copiez ce lien :",
   shareText:"Des aubaines de course et de plein air dans votre taille, dans des boutiques partout au Canada.",usFuel:"Comprend des boutiques américaines : la nutrition voyage bien, et chaque aubaine indique d'où elle est expédiée.",shipsFrom:c=>`expédié ${({US:"des États-Unis",UK:"du Royaume-Uni",FR:"de France",DK:"du Danemark",AU:"d'Australie"})[c]||"de l'extérieur du Canada"}, des droits peuvent s'appliquer`,showMore:n=>`Voir ${n} de plus`,
   allGear:"Tout",typeAll:"Tout",types:{tee:"T-shirts et camisoles",layer:"Manches longues et kangourous",jacket:"Manteaux et vestes",short:"Shorts",tight:"Collants",pant:"Pantalons"},
   shipsCA:"Expédié du Canada",saleOnly:"Inclure le prix régulier",
@@ -974,7 +974,7 @@ function matchItems(p,list){
     for(const e of ok)if(e[1]<pick[1]||(e[1]===pick[1]&&e[3]>pick[3]))pick=e;
     const best=pick[1], reg=Math.max(pick[3]||best,best);
     const pct=reg>best?Math.round(100*(1-best/reg)):0;
-    out.push({...d,best,reg,pct,ok,url:sizeUrl(d,pick),sizeLink:pick.length>4&&!!pick[4],fav:favs.includes(d.b.toLowerCase())});
+    out.push({...d,best,reg,pct,ok,url:sizeUrl(d,pick),fav:favs.includes(d.b.toLowerCase())});
   }
   return out;
 }
@@ -989,8 +989,7 @@ function card(d,extra){
   const labels=[...new Set(d.ok.map(x=>d.g==="shoes"?sizeLabel(x[0],state.gender):x[0]))];
   if(sized){const SO=["2XS","XS","S","M","L","XL","2XL","3XL"],ix=v=>{const i=SO.indexOf(norm(v));return i<0?99:i};const nv=v=>parseFloat(String(v).replace(/^[MW]/,""));labels.sort((a,b)=>(isNaN(nv(a))||isNaN(nv(b)))?ix(a)-ix(b):nv(a)-nv(b))}
   const lettered=accLetters(d),real=labels.filter(x=>x!=="OS");
-  const pickHint=d.sizeLink?"":` <span class="pickhint">${t("pickOnStore")}</span>`;   // stores whose links open on their default size
-  const sizes=(sized||lettered)&&real.length?`<div class="sizes">${t("inYourSize")} <strong>${esc(real.join(", "))}</strong>${pickHint}</div>`:"";   // odd labels ("T2", "115cm"): the store page explains them
+  const sizes=(sized||lettered)&&real.length?`<div class="sizes">${t("inYourSize")} <strong>${esc(real.join(", "))}</strong></div>`:"";   // odd labels ("T2", "115cm"): the store page explains them
   const k=itemKey(d),on=!!watches[k];RENDERED[k]=d;
   const isNew=!extra&&NEWSET.has(k);
   return `<div class="dw"><a class="deal" href="${esc(d.url)}" target="_blank" rel="noopener">
