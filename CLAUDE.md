@@ -144,9 +144,14 @@ and a test panel (new visitor, pretend confirmed, pretend a day passed, layout s
 "Gear Fox Preview" artifact: https://claude.ai/artifact/WqbJ6uZF8eM2NqFAuxoL6K
 A ski/snowboard preview also exists (parked): https://claude.ai/artifact/QQeVvJDPSkD4dAomdeMpSo
 
-## Where things stand (Sep 30, 2026)
+## Where things stand (Oct 1, 2026)
 
-Done: size-first site live, 50+ stores, Friday 7am-local email, alerts, daily health report, calm layout,
-clean names and ranking. Next (Week 1–2 of the plan): finish the email test (sign-up EN/FR, sign-in link,
-Friday email, alert, unsubscribe), link previews + share button, Outlook "check Junk" hint + resend button,
-then soft launch to friends and Sacred Strides athletes with `?ref=` links per group.
+Done: size-first site live, 54 stores (Capra added), Friday 7am-local email, alerts, daily health report, calm
+layout, compact phone cards, sale-first loading, store names on cards, US nutrition by default, The Feed read
+as a Canadian (only what ships to Canada), clothing moved out of gear, Share card + link previews + `?ref=`
+links, Junk hint + resend, own click counts + monthly report. Email test complete (EN/FR sign-up, confirmation
+in Primary from bastien@, Friday email, alert, unsubscribe). Resend open/click tracking OFF.
+Soft launch: Instagram Reel + Story Thursday Oct 1 ~7am PT (`?ref=ig-story`, `?ref=ig-bio`), Sacred Strides
+next (`?ref=sacred-strides`). Watch the 100 emails/day Resend limit; upgrade if sign-ups spike.
+Next ideas: "where each store ships to" list (REI US-only) + country setting; "drag to Primary" line in the
+first Friday email; automated weekly top-deals post for @thegearfox; affiliate applications (AvantLink first).
