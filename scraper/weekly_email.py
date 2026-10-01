@@ -137,6 +137,8 @@ def match(items, p):
                     "fav": d["b"].lower() in favs})
     return out
 
+IG_URL = "https://www.instagram.com/thegearfox/"
+
 # ---------- English / French (the subscriber's site language is saved in their profile as "lang") ----------
 GROUP_FR = {"shoes": "Chaussures", "tops": "Hauts et manteaux", "bottoms": "Shorts et collants", "bras": "Soutiens-gorge de sport",
             "socks": "Bas", "gloves": "Gants", "headwear": "Casquettes et cache-cous", "packs": "Vestes et sacs d'hydratation",
@@ -145,7 +147,7 @@ STR = {
     "en": dict(your_size="Your size: ", best_by="Best by {}", abroad="Ships from outside Canada · converted to CAD, duties may apply",
                see_all="See all {} on sale →", watch_head="Your watchlist",
                changes=lambda n: f"{n} {'change' if n == 1 else 'changes'} this week",
-               change_sizes="Change your sizes", unsubscribe="Unsubscribe", privacy="Privacy",
+               change_sizes="Change your sizes", unsubscribe="Unsubscribe", privacy="Privacy", follow="Follow us on Instagram",
                subject=lambda n, top: f"The Gear Fox: {n} deals in your size this week, up to {top}% off",
                subject_watch=lambda n: f"The Gear Fox: your watchlist moved, plus {n} deals in your size",
                hi="Hi", intro="{}, here are this week's sales on gear in your sizes, every price drop, big or small. Best deals first.",
@@ -157,7 +159,7 @@ STR = {
                abroad="Expédié de l'extérieur du Canada · converti en $ CA, des droits peuvent s'appliquer",
                see_all="Voir les {} articles en solde →", watch_head="Vos favoris",
                changes=lambda n: f"{n} {'changement' if n == 1 else 'changements'} cette semaine",
-               change_sizes="Modifier vos tailles", unsubscribe="Se désabonner", privacy="Confidentialité",
+               change_sizes="Modifier vos tailles", unsubscribe="Se désabonner", privacy="Confidentialité", follow="Suivez-nous sur Instagram",
                subject=lambda n, top: f"The Gear Fox : {n} aubaines à votre taille cette semaine, jusqu'à {top} % de rabais",
                subject_watch=lambda n: f"The Gear Fox : vos favoris ont bougé, et {n} aubaines à votre taille",
                hi="Bonjour", intro="{}, voici les soldes de la semaine dans vos tailles, chaque baisse de prix, petite ou grande. "
@@ -277,6 +279,7 @@ def build(p, sale, watch=None):
     if p.get("token"):
         links.append(f'<a href="{E(SITE_URL)}?unsub={p["token"]}" style="color:#5C6660">{E(tr(lang, "unsubscribe"))}</a>')
     links.append(f'<a href="{E(SITE_URL)}privacy.html" style="color:#5C6660">{E(tr(lang, "privacy"))}</a>')
+    links.append(f'<a href="{IG_URL}" style="color:#5C6660">{E(tr(lang, "follow"))} @thegearfox</a>')
     footer_links = " · ".join(links) + (f"<br>The Gear Fox · {E(ADDRESS)}" if ADDRESS else "")
     subject = tr(lang, "subject_watch", len(sale)) if has_watch else tr(lang, "subject", len(sale), top)
     intro = E(tr(lang, "intro", first))
