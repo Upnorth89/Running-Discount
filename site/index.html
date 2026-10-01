@@ -925,6 +925,7 @@ function sizeLabel(s,g){const k=shoeKey(s);if(!k)return s;
 /* Open the product with the shopper's size already picked when the store gives each size its own link. */
 function sizeUrl(d,e){
   const u=d.of[e[2]]||d.of[0];if(!e||e.length<5||!u)return u;
+  if(typeof e[4]==="string"&&/^https:\/\//.test(e[4]))return e[4];   // the store's own link for this size
   try{const x=new URL(u);x.searchParams.set("variant",e[4]);return x.toString()}catch(err){return u}
 }
 /* Vests, belts, lights: when they come in letter sizes (S, M/L…) they follow your clothing size. */

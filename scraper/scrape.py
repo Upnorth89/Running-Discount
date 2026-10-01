@@ -821,7 +821,7 @@ def sl_parse_product(html):
                 if pv.get("name") == "Product Type":
                     ptype = pv.get("value") or ""
             offers = (n.get("offers") or {}).get("offers") or []
-            sizes = {}
+            sizes, links = {}, {}
             for o in offers:
                 if "InStock" not in (o.get("availability") or "") and "LimitedAvailability" not in (o.get("availability") or ""):
                     continue
@@ -829,8 +829,11 @@ def sl_parse_product(html):
                 pr = float(o.get("price") or 0)
                 if pr and (sz not in sizes or pr < sizes[sz]):
                     sizes[sz] = pr
-            return ptype, sizes
-    return "", {}
+                    u = o.get("url") or ""      # the page with this size selected, when the store gives one
+                    if "sportinglife.ca" in u and ("dwvar" in u or "size" in u.lower()):
+                        links[sz] = u
+            return ptype, sizes, links
+    return "", {}, {}
 
 SL_FOOD = r"\bgels?\b|\bchews?\b|\bbars?\b|electrolyte|drink mix|energy|hydration mix|nutrition"
 def sl_group(ptype, name):
@@ -856,14 +859,14 @@ def scrape_sportinglife():
     out, errors = [], 0
     def one(t):
         try:
-            ptype, sizes = sl_parse_product(get(t["u"]).text)
+            ptype, sizes, links = sl_parse_product(get(t["u"]).text)
         except Exception as e:
             return e
         g = sl_group(ptype, t["n"])
         if not g or not sizes:
             return None
         std = t["std"]                          # regular price shown on the tile, if on sale
-        sz = [[k, v, max(std or v, v)] for k, v in sizes.items()]
+        sz = [[k, v, max(std or v, v)] + ([links[k]] if k in links else []) for k, v in sizes.items()]
         return {"st": "sportinglife", "b": t["b"], "n": t["n"], "u": t["u"], "g": g, "sx": [],
                 "w": bool(re.search(r"\bwide\b", t["n"], re.I)), "img": t["img"],
                 "lp": max(r for _, _, r in sz), "bb": None, "sz": sz}
@@ -875,6 +878,8 @@ def scrape_sportinglife():
                 out.append(r)
     if listing and errors > len(listing) * 0.3:
         raise RuntimeError(f"sportinglife: {errors}/{len(listing)} product pages failed")
+    n_sz = sum(len(o["sz"]) for o in out)
+    print(f"  sportinglife: {sum(len(e) > 3 for o in out for e in o['sz'])} of {n_sz} sizes have their own link", file=sys.stderr)
     return out
 
 # ---------------------------------------------------------------- merge + main

@@ -76,6 +76,8 @@ SHOE_KEY = re.compile(r"^(?:([MW]):)?(\d+(?:\.5)?)(?:~([WN]))?$")
 def size_url(d, e):
     """The product page with this size already selected, when the store gives each size its own link."""
     u = d["of"][e[2]] if len(d["of"]) > e[2] else d["of"][0]
+    if len(e) > 4 and isinstance(e[4], str) and e[4].startswith("https://"):
+        return e[4]                     # the store's own link for this size (Sporting Life)
     if len(e) > 4 and e[4]:
         from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
         sp = urlsplit(u)
