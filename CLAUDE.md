@@ -41,6 +41,7 @@ supabase/watchlist.sql   watchlist table + functions
 supabase/friday-switch.sql  latest change (Friday wording + weekly_sent_at column); already applied
 supabase/morning-timer.sql  pg_cron at 11:17 UTC starts refresh.yml (morning=true) via GitHub API; key in Vault
                          as github_dispatch_token (fine-grained, Actions read/write; EXPIRES 2027-09-29: renew before)
+supabase/friday-timer.sql  pg_cron Fridays :07 9-18 UTC starts weekly-email.yml with send_to=due (same Vault key)
 supabase/clicks.sql      own visit/click counts for the monthly report (log_event, click_report); applied
 supabase/personal-emails.sql  confirmation/sign-in emails from "Bastien from The Gear Fox" <bastien@>, branded design
                          (applied). Keep Resend open/click tracking OFF: with it on, Gmail files them in Promotions
@@ -62,7 +63,8 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
 - **Weekly deals email** (`weekly-email.yml`): every hour on Friday 9:07–18:07 UTC. Each run sends to
   subscribers for whom it is now Friday 7am or later in their own time zone (profile `tz` from the browser;
   default: French = Eastern, English = Pacific) and records `weekly_sent_at` so nobody gets two.
-  Manual "Run workflow" requires a `send_to` address (or `everyone`) and sends immediately.
+  Manual "Run workflow" requires a `send_to` address (or `everyone`) and sends immediately; `due` = a normal Friday
+  run (7am+ local, once each). GitHub skipped all scheduled Friday runs on Oct 2: Supabase timer (friday-timer.sql).
   Profile `terrain` (road/trail/both, sign-up "Where do you run?"): the email keeps only that kind of shoes
   (road = daily+race, trail = trail+hike); the site ranks them first (`terrainFit`), spikes excluded.
   First Friday email (no `weekly_sent_at` yet) shows a note: Gmail → drag to Primary; others → add us to contacts.
