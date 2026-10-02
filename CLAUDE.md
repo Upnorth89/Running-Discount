@@ -59,6 +59,7 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   subscribers for whom it is now Friday 7am or later in their own time zone (profile `tz` from the browser;
   default: French = Eastern, English = Pacific) and records `weekly_sent_at` so nobody gets two.
   Manual "Run workflow" requires a `send_to` address (or `everyone`) and sends immediately.
+  First Friday email (no `weekly_sent_at` yet) shows a note: Gmail → drag to Primary; others → add us to contacts.
 - **Alerts**: at most one email per person every 3 days, only real drops (10% or $10), none on Fridays
   (the Friday email carries watchlist news).
 - **Health check**: emails a daily report (subject says "all good", "all running, N still to fix" or
@@ -162,5 +163,4 @@ next (`?ref=sacred-strides`). Watch the 100 emails/day Resend limit; upgrade if 
 Store candidates (Shopify, readable): Frontrunners Victoria (filter soccer cleats first), Aerobics First (Halifax), City Park
 Runners (Winnipeg); Boutique Courir blocks bots. Postal-code stock: not possible (stores share online stock only); maybe a
 province filter. Instagram @thegearfox live (footer + Friday email link).
-Next ideas: "where each store ships to" list (REI US-only) + country setting; "drag to Primary" line in the
-first Friday email; automated weekly top-deals post for @thegearfox; affiliate applications (AvantLink first).
+Next ideas: "where each store ships to" list (REI US-only) + country setting; automated weekly top-deals post for @thegearfox; affiliate applications (AvantLink first).
