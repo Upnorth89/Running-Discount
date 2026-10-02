@@ -6,7 +6,7 @@ on:
   workflow_dispatch:         # "Run workflow" button for a test send
     inputs:
       send_to:
-        description: "Your email for a test (only you get it). Type everyone to send to all subscribers."
+        description: "Your email for a test (only you get it). everyone = all subscribers now. due = the normal Friday send (7am local, once each)."
         required: true
         default: ""
 

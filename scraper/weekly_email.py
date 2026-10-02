@@ -14,6 +14,7 @@ Env:
                    where subscribers who signed up on the site live (confirmed and not unsubscribed)
   MAILING_ADDRESS  postal address for the footer (required by Canada's anti-spam law, CASL)
   SEND_TO          test sends: only these subscribers get it (comma-separated emails), or "everyone".
+                   "due" = a normal Friday run (people for whom it's 7am+, each once): Supabase's timer uses it.
                    A manual run from the Actions tab must set it, so a test never reaches everybody by accident.
 
 Subscribers come from Supabase plus email/profiles.json (the database wins if an address is in both).
@@ -38,7 +39,9 @@ SB_URL = os.environ.get("SUPABASE_URL", "").rstrip("/")
 SB_KEY = os.environ.get("SUPABASE_SECRET_KEY", "")
 ADDRESS = os.environ.get("MAILING_ADDRESS", "").strip()
 SEND_TO = os.environ.get("SEND_TO", "").strip().lower()
-MANUAL = os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch"
+if SEND_TO == "due":     # Supabase's Friday timer (or a manual catch-up): exactly like a scheduled run
+    SEND_TO = ""
+MANUAL = os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch" and os.environ.get("SEND_TO", "").strip().lower() != "due"
 
 GROUP_LABEL = {"shoes": "Shoes", "tops": "Tops & jackets", "bottoms": "Shorts & tights", "bras": "Sports bras",
                "socks": "Socks", "gloves": "Gloves", "headwear": "Hats & buffs", "packs": "Vests & packs",
