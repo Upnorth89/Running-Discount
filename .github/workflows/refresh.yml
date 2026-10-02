@@ -14,7 +14,7 @@ on:
     branches: [main]
 
 permissions:
-  contents: read
+  contents: write     # the build pushes the daily price history to the "history" branch (not the site)
   pages: write
   id-token: write
 
@@ -70,6 +70,31 @@ jobs:
             -H "apikey: sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2" -H "Content-Type: application/json" -d '{}' || true
       - name: Scrape stores
         run: python scraper/scrape.py site/deals.json
+      # price history ("Is this deal real?"): lives on the history branch, so a failed download can't wipe it
+      - name: Fetch price history
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          ref: history
+          path: hist
+      - name: Price history
+        continue-on-error: true
+        run: |
+          if [ -f hist/prices.jsonl ]; then
+            python scraper/history.py hist/prices.jsonl site ${{ github.event_name == 'push' && '--no-save' || '' }}
+          else
+            echo "no price history checked out: skipped"
+          fi
+      - name: Save price history
+        if: github.event_name != 'push'
+        continue-on-error: true
+        run: |
+          cd hist
+          git config user.name "The Gear Fox"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add prices.jsonl
+          git diff --cached --quiet || git commit -q -m "prices $(TZ=America/Vancouver date +%F)"
+          git push -q origin HEAD:history
       # price-drop / back-in-your-size emails, only on the morning run (not on every upload)
       - name: Watchlist alerts
         if: github.event_name != 'push'

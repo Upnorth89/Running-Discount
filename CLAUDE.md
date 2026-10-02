@@ -60,6 +60,9 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   - Supabase timer (`supabase/morning-timer.sql`) starts it on time with `morning=true`; GitHub's schedules are
     the backup. Morning runs (schedule or morning=true) send the health email; the `check` job dedupes.
   - The scrape log ends with product counts per category (and on sale) and nutrition by store.
+  - Price history (`scraper/history.py`, started Oct 2, 2026): one line per product on the `history` branch (data only,
+    not code: the one exception to "no side branches"), a point when the best price changes; adds `lo` (lowest in 60 days)
+    and `hd` (days of history) to deals.json/sale.json. For "Is this deal real?" badges before Black Friday (Nov 27).
 - **Weekly deals email** (`weekly-email.yml`): every hour on Friday 9:07–18:07 UTC. Each run sends to
   subscribers for whom it is now Friday 7am or later in their own time zone (profile `tz` from the browser;
   default: French = Eastern, English = Pacific) and records `weekly_sent_at` so nobody gets two.
