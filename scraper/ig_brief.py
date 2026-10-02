@@ -6,7 +6,7 @@ Picks this week's best running-shoe deals from the live sale.json and emails:
   - a short script to say (EN and FR) and on-screen text
   - the "Top 5" graphic for his Story (EN + FR PNGs, 1080x1350), drawn with Chromium
 
-Picks: shoes at 30-70% off, normally $130+, in 7+ sizes at that price (3+ of the common ones), ship from Canada, no spikes or boots, one per brand,
+Picks: 3 shoes (30-70% off, normally $130+, 7+ sizes at that price, 3+ of the common ones) and 2 clothing\n(a top and a bottom: $60+, S, M and L in stock at that price), ship from Canada, no spikes or boots, one per brand,
 well-known running brands first.
 
 Env:   RESEND_API_KEY, HEALTH_EMAIL (where it goes; default hello@thegearfox.com), FROM_EMAIL, SALE_URL
@@ -37,6 +37,8 @@ SKIP = re.compile(r"spike|\b[LM]D(-X)?\b|\bXC\b|cross[- ]?country|\bsprint|drago
                   r"avanti|evospeed|hiking|\bhike\b|boot", re.I)
 MIN_SIZES = 7
 COMMON = {"men's": [9, 9.5, 10, 10.5, 11], "women's": [7, 7.5, 8, 8.5, 9]}   # the sizes most runners wear
+GEAR_BRANDS = {"salomon", "garmin", "coros", "suunto", "petzl", "black diamond", "nathan", "ultimate direction", "leki",
+               "naked", "kogalla", "ledlenser", "osprey", "camelbak", "patagonia", "arc'teryx", "polar", "raidlight", "inov8"}
 POPULAR = {"hoka", "brooks", "asics", "nike", "saucony", "new balance", "on", "salomon", "adidas", "altra", "mizuno", "puma"}
 
 
@@ -51,55 +53,98 @@ def clean(n):
     g = re.match(r"^(Men's|Women's)\s+(.*)", n)
     if g:
         n = g.group(2) + " - " + g.group(1)
+    n = re.sub(r"\s+with\s+[^-]+(?= - |$)", "", n)          # "Vest with 1.5L Bladder - 6L" -> "Vest - 6L"
     return re.sub(r"\s+(Trail )?Running Shoes?(?= - |$)", lambda m: " Trail" if m.group(1) else "", n)
 
 
-def picks(items, stores, n=5):
-    out = []
-    for i in items:
-        if i["g"] != "shoes" or not i.get("img") or not i.get("ca") or SKIP.search(i["n"]):
-            continue
-        sale = [e for e in i["sz"] if e[1] < e[3]]
-        if not sale:
-            continue
-        e = min(sale, key=lambda e: e[1])
-        pct = round(100 * (1 - e[1] / e[3]))
-        if not 30 <= pct <= 70 or e[3] < 130:
-            continue
-        # only the sizes at this exact price and store, each size once: a unisex shoe is stored as both
-        # "M:8" and "W:9.5" (the same shoe), so count the men's numbers, or the women's when there are none
-        same = [x[0] for x in i["sz"] if x[2] == e[2] and abs(x[1] - e[1]) < 0.01 and not x[0].endswith("~N")]
+CLOTH_SKIP = re.compile(r"\b(boxer|brief|underwear|bra|hipkini|thong|swim|bikini|jeans|denim)\b", re.I)
+LETTERS = ["2XS", "XS", "S", "M", "L", "XL", "2XL", "3XL"]
+
+
+def sex_of(who, i):
+    return ("women" if who == "women's" or (not who and i.get("sx") == ["women"]) else
+            "men" if who == "men's" or i.get("sx") == ["men"] else "unisex")
+
+
+def candidate(i, stores):
+    """One deal (best price), with only the sizes at that price and store, or None if it doesn't qualify."""
+    g = i["g"]
+    if g not in ("shoes", "tops", "bottoms", "packs", "gear", "watches") or not i.get("img") or not i.get("ca"):
+        return None
+    if (g == "shoes" and SKIP.search(i["n"])) or (g != "shoes" and CLOTH_SKIP.search(i["n"])):
+        return None
+    sale = [e for e in i["sz"] if e[1] < e[3]]
+    if not sale:
+        return None
+    e = min(sale, key=lambda e: e[1])
+    pct = round(100 * (1 - e[1] / e[3]))
+    if not 30 <= pct <= 70 or e[3] < {"shoes": 130, "tops": 60, "bottoms": 60}.get(g, 80):
+        return None
+    same = [x[0] for x in i["sz"] if x[2] == e[2] and abs(x[1] - e[1]) < 0.01 and not x[0].endswith("~N")]
+    if g == "shoes":
+        # each size once: a unisex shoe is stored as both "M:8" and "W:9.5" (the same shoe), so count the
+        # men's numbers, or the women's when there are none
         men = [k[2:] for k in same if k.startswith("M:")]
         women = [k[2:] for k in same if k.startswith("W:")]
         plain = [k for k in same if not k[:2] in ("M:", "W:")]
         nums, who = (men, "men's") if men else (women, "women's") if women else (plain, "")
         sizes = sorted({float(k.split("~")[0]) for k in nums if re.match(r"^\d+(\.\d)?(~W)?$", k)})
-        common = COMMON["women's" if who == "women's" or (not who and i.get("sx") == ["women"]) else "men's"]
+        common = COMMON["women's" if sex_of(who, i) == "women" else "men's"]
         if len(sizes) < MIN_SIZES or sum(1 for v in common if v in sizes) < 3:
-            continue                     # featured deals must fit most runners: 7+ sizes, 3+ of the common ones
-        host = urlparse(i["of"][e[2]]).hostname.replace("www.", "")
-        out.append(dict(score=pct + len(sale) * 0.5 + (15 if i["b"].lower() in POPULAR else 0), b=i["b"], n=clean(i["n"]),
-                        pct=pct, price=e[1], reg=e[3], store=stores.get(host, host), img=i["img"], sizes=sizes, who=who,
-                        sex="women" if who == "women's" or (not who and i.get("sx") == ["women"]) else
-                            "men" if who == "men's" or i.get("sx") == ["men"] else "unisex",
-                        url=i["of"][e[2]]))
-    out.sort(key=lambda x: -x["score"])
-    chosen, brands, per_sex = [], set(), {}
-    for x in out:
-        if x["b"].lower() in brands or per_sex.get(x["sex"], 0) >= 3:      # one per brand, a mix of men's and women's
-            continue
-        chosen.append(x)
-        brands.add(x["b"].lower())
-        per_sex[x["sex"]] = per_sex.get(x["sex"], 0) + 1
-        if len(chosen) == n:
-            break
-    # the Reel uses the first 3: make sure they aren't all men's or all women's
-    top = chosen[:3]
-    if len({x["sex"] for x in top}) == 1:
-        other = next((x for x in chosen[3:] if x["sex"] != top[0]["sex"]), None)
+            return None                  # featured shoes must fit most runners: 7+ sizes, 3+ of the common ones
+    elif g in ("tops", "bottoms"):
+        who = ""
+        sizes = [k for k in LETTERS if k in same]
+        if len(sizes) < 4 or not {"S", "M", "L"} <= set(sizes):
+            return None                  # clothing: 4+ letter sizes including S, M and L
+    else:
+        who = ""                         # gear and accessories: one size fits all, or S, M and L for vests
+        sizes = [k for k in LETTERS if k in same]
+        if "OS" in same:
+            sizes = []
+        elif not {"S", "M", "L"} <= set(sizes):
+            return None
+    host = urlparse(i["of"][e[2]]).hostname.replace("www.", "")
+    known = i["b"].lower() in (POPULAR if g in ("shoes", "tops", "bottoms") else GEAR_BRANDS | POPULAR)
+    return dict(score=pct + len(sale) * 0.5 + (15 if known else 0) + (min(e[3], 300) / 20 if g not in ("shoes", "tops", "bottoms") else 0), g=g, t=i.get("t"), b=i["b"],
+                n=clean(i["n"]), pct=pct, price=e[1], reg=e[3], store=stores.get(host, host), img=i["img"], sizes=sizes,
+                who=who, sex=sex_of(who, i), url=i["of"][e[2]])
+
+
+def picks(items, stores):
+    """2 shoes + 2 clothing (a top and a bottom) + 1 piece of gear (vest, watch, light, poles…), one per brand,
+    a mix of men's and women's."""
+    cands = sorted(filter(None, (candidate(i, stores) for i in items)), key=lambda x: -x["score"])
+    brands, per_sex = set(), {}
+
+    def take(pool, k, cap=3):
+        got = []
+        for x in pool:
+            if len(got) == k:
+                break
+            if x["b"].lower() in brands or per_sex.get(x["sex"], 0) >= 3 or sum(1 for y in got if y["sex"] == x["sex"]) >= cap:
+                continue
+            got.append(x)
+            brands.add(x["b"].lower())
+            per_sex[x["sex"]] = per_sex.get(x["sex"], 0) + 1
+        return got
+
+    shoes = take([x for x in cands if x["g"] == "shoes"], 2, cap=1)     # one men's (or unisex) and one women's
+    top = take([x for x in cands if x["g"] == "tops"], 1)
+    bottom = take([x for x in cands if x["g"] == "bottoms"], 1)
+    clothes = top + bottom
+    if len(clothes) < 2:                 # no good top or bottom this week: take another of either
+        clothes += take([x for x in cands if x["g"] in ("tops", "bottoms") and x not in clothes], 2 - len(clothes))
+    gear = take([x for x in cands if x["g"] in ("packs", "gear", "watches")], 1)
+    # shoe, clothing, gear, shoe, clothing: the Reel's 3 are a shoe, a piece of clothing and an accessory
+    order = shoes[:1] + clothes[:1] + gear + shoes[1:] + clothes[1:]
+    reel = order[:3]
+    if len(reel) == 3 and len({x["sex"] for x in reel}) == 1:     # the Reel's 3 shouldn't all be men's or all women's
+        other = next((x for x in order[3:] if x["sex"] != reel[0]["sex"] and x["g"] == reel[2]["g"]), None)
         if other:
-            chosen.remove(other)
-            chosen.insert(1, other)
+            i, j = order.index(reel[2]), order.index(other)
+            order[i], order[j] = order[j], order[i]
+    chosen = order
     return chosen
 
 
@@ -109,14 +154,14 @@ def money(v, lang):
 
 def size_range(s):
     """A short list ("6, 6.5, 8, 10.5") when there are few sizes, else a range ("7–12")."""
-    f = lambda v: str(int(v)) if v == int(v) else str(v)
+    f = lambda v: v if isinstance(v, str) else str(int(v)) if v == int(v) else str(v)
     return ", ".join(f(v) for v in s) if len(s) <= 6 else f"{f(s[0])}–{f(s[-1])}"
 
 
 T = {
-    "en": dict(kicker="This week's", title="Top 5 deals", sub="Sale running shoes, found across {n} stores", at="at",
+    "en": dict(kicker="This week's", title="Top 5 deals", sub="Running gear on sale, found across {n} stores", at="at",
                sizes="sizes", who={"men's": "men's", "women's": "women's"}, cta1="Your size?", cta3="Every deal, filtered to your size. Free.", gender={}),
-    "fr": dict(kicker="Cette semaine", title="Top 5 aubaines", sub="Souliers de course en solde, dans {n} boutiques", at="chez",
+    "fr": dict(kicker="Cette semaine", title="Top 5 aubaines", sub="Équipement de course en solde, dans {n} boutiques", at="chez",
                sizes="tailles", who={"men's": "homme", "women's": "femme"}, cta1="Ta taille?", cta3="Chaque aubaine, filtrée à ta taille. Gratuit.",
                gender={"Men's": "Homme", "Women's": "Femme", "Unisex": "Unisexe"}),
 }
@@ -142,7 +187,7 @@ def graphic(chosen, lang, n_stores):
     rows = "".join(f'''<div class="row"><div class="pic"><img src="{E(x['img'])}"></div><div class="info">
 <div class="b">{E(x['b'])}</div><div class="n">{E(name(x['n'], lang))}</div>
 <div class="p"><b>{money(x['price'], lang)}</b><s>{money(x['reg'], lang)}</s><span class="pct">{pct(x['pct'])}</span></div>
-<div class="s">{t['at']} {E(x['store'])} · {sizes_label(x, lang)} {size_range(x['sizes'])}</div></div></div>''' for x in chosen)
+<div class="s">{t['at']} {E(x['store'])}{(' · ' + sizes_label(x, lang) + ' ' + size_range(x['sizes'])) if x['sizes'] else ''}</div></div></div>''' for x in chosen)
     logo = "data:image/png;base64," + base64.b64encode((ROOT / "site" / "logo.png").read_bytes()).decode()
     return f'''<!doctype html><html><head><meta charset="utf-8"><style>
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;800&display=swap');
@@ -196,15 +241,15 @@ def spoken_pct(p, lang):
 def brief(chosen, when):
     top = chosen[:3]
     ord_en, ord_fr = ["First", "Then", "And"], ["D'abord", "Ensuite", "Et enfin"]
-    script_en = " ".join(["Three running deals I'd actually buy this week."] +
+    script_en = " ".join(["Three deals I'd actually buy this week."] +
                          [f"{ord_en[k]} the {short(x)}, {spoken_pct(x['pct'], 'en')} at {x['store']}." for k, x in enumerate(top)] +
                          ["Want deals like these in your size every Friday? Link in bio."])
-    script_fr = " ".join(["Trois aubaines de course que j'achèterais cette semaine."] +
-                         [f"{ord_fr[k]}, les {short(x)}, {spoken_pct(x['pct'], 'fr')} chez {x['store']}." for k, x in enumerate(top)] +
+    script_fr = " ".join(["Trois aubaines que j'achèterais cette semaine."] +
+                         [f"{ord_fr[k]}, {short(x)}, {spoken_pct(x['pct'], 'fr')} chez {x['store']}." for k, x in enumerate(top)] +
                          ["Tu veux des aubaines comme ça dans ta taille chaque vendredi? Lien dans la bio."])
     who = lambda x: {"Men's": "men's", "Women's": "women's"}.get(x["n"].split(" - ")[-1], "unisex")
     li = "".join(f'''<li style="margin:0 0 12px"><b>{E(short(x))}</b> ({who(x)}):
-<b>{money(x['price'], 'en')}</b> instead of {money(x['reg'], 'en')}, −{x['pct']}% at {E(x['store'])}, in {x['who'] + ' ' if x['who'] else ''}sizes {size_range(x['sizes'])} (as of this morning).
+<b>{money(x['price'], 'en')}</b> instead of {money(x['reg'], 'en')}, −{x['pct']}% at {E(x['store'])}{(', in ' + (x['who'] + ' ' if x['who'] else '') + 'sizes ' + size_range(x['sizes'])) if x['sizes'] else ', one size'} (as of this morning).
 <a href="{E(x['url'])}">Check it</a></li>''' for x in top)
     rest = "".join(f"<li>{E(short(x))}: {money(x['price'], 'en')} (−{x['pct']}%) at {E(x['store'])}</li>" for x in chosen[3:])
     p = 'style="font:15px/1.5 Arial,sans-serif;color:#17201C;margin:0 0 14px"'
