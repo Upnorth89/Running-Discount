@@ -109,3 +109,13 @@ fresh pages with the Grab deals bookmark (US only). MEC also comes from saved pa
 ## Ideas not checked yet
 
 Strides Running (Calgary), The Run Company, Runner's Choice (Toronto), Running Factory, Le Coin des Coureurs.
+
+## Snow (researched Oct 2, 2026; parked until mid-November)
+
+Readable snow shops (Shopify): Comor Sports (comorsports.com, Vancouver), Oberson (oberson.com, Québec: alpine + big
+nordic range), Kunstadt Sports (kunstadt.com, Toronto: alpine, ski boots, nordic), Skiis & Biikes (skiisandbiikes.com,
+Toronto), Boardroom (boardroomshop.com, Vancouver: snowboard). evo.com readable but US. Blocked: Sports Experts, Sporting Life.
+Altitude / The Last Hunt (already read): categories /c/snowboarding (Altitude 1,894, Last Hunt 1,074 listings: goggles,
+helmets, snow jackets and pants, snowboards, boots), /c/cross-country-skiing (220 / 164), /c/backcountry-skiing (470 / 143:
+skins, avalanche gear). Plan if built: groups skis (alpine/nordic/touring), ski boots (mondo from shoe size), snowboards
+(length from height), snowboard boots, helmets & goggles, snow jackets & pants, backcountry gear.
