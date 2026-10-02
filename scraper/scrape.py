@@ -1137,8 +1137,8 @@ for _st, _base, _kind in SHOPIFY_STORES:
     STORES[_st] = make_shopify_scraper(_st, _base, _kind)
 
 # Casual footwear some running stores also sell; not what people come here for.
-CASUAL_BRANDS = {"birkenstock", "wolky", "teva", "crocs", "ugg", "blundstone", "dr. martens", "clarks"}
-CASUAL_SHOE = re.compile(r"\b(sandal|sandale|clog|sabot|slipper|pantoufle|mule|flip[- ]flop|loafer)s?\b", re.I)
+CASUAL_BRANDS = {"birkenstock", "wolky", "teva", "crocs", "ugg", "blundstone", "dr. martens", "clarks", "oofos"}
+CASUAL_SHOE = re.compile(r"\b(sandal|sandale|clog|sabot|slipper|pantoufle|mule|flip[- ]flop|loafer|slide)s?\b", re.I)
 # soccer boots (Frontrunners sells them): ground codes FG/AG/MG/SG/TF, or the model lines
 SOCCER = re.compile(r"\b(FG|AG|MG|SG|TF)\b|(?i:\b(soccer|futsal|predator|f50|copa|tiempo|mercurial)\b)")
 
@@ -1186,7 +1186,11 @@ def tidy_nutrition(offers):
     return out
 
 # Clothing that stores file next to headlamps and bottles: compression sleeves, warmers, recovery tights, caps.
-GEAR_LEG = re.compile(r"\b(calf|leg|compression|booster)\b.*\b(sleeves?|warmers?)\b|\b(leg|knee) warmers?\b|\bcalf (guards?|tubes?)\b", re.I)
+GEAR_LEG = re.compile(r"\b(calf|leg|compression|booster)\b.*\b(sleeves?|warmers?)\b|\b(leg|knee) warmers?\b|\bcalf (guards?|tubes?)\b|"
+                      r"^booster elite", re.I)
+SHOE_BRANDS = {"asics", "adidas", "hoka", "brooks", "salomon", "saucony", "new balance", "nike", "on", "on running", "altra", "mizuno",
+               "puma", "la sportiva", "merrell", "topo", "topo athletic", "norda", "nnormal", "under armour", "inov-8", "scarpa"}
+GEAR_SHOE = re.compile(r"\b(aero|ultra) glide\b|\bgrvl\b|\brunning shoes?\b|\btrail shoes?\b|souliers? de course", re.I)   # shoes a store filed as gear
 GEAR_ARM = re.compile(r"\barm\b.*\b(sleeves?|warmers?|coolers?)\b|\b(sleeves?|warmers?)\b.*\barm\b", re.I)
 GEAR_TIGHTS = re.compile(r"\b(tights?|leggings?|shorts)\b", re.I)
 GEAR_CAP = re.compile(r"\b(?:go|trl|crw|fst|alz|ss|gt)cap\b|\b(caps?|hats?|visors?|beanies?|toques?|tuques?)\b", re.I)
@@ -1196,7 +1200,10 @@ def tidy_gear(offers):
         if o["g"] != "gear":
             continue
         n = o["n"]
-        if GEAR_ARM.search(n):
+        shoe_brand = (o["b"] or "").lower() in SHOE_BRANDS
+        if (GEAR_SHOE.search(n) or shoe_brand) and o.get("sz") and all(re.match(r"^([MW]:)?\d{1,2}([.,][05])?$", str(e[0]).strip()) for e in o["sz"]):
+            o["g"] = "shoes"           # numbered sizes too: a real shoe, not "shoe bag" or laces
+        elif GEAR_ARM.search(n):
             o["g"] = "tops"            # arm sleeves / warmers: with tops, in the clothing size
         elif GEAR_LEG.search(n):
             o["g"] = "socks"           # calf sleeves / leg warmers: with socks (CEP, BV Sport sell them together)
@@ -1221,6 +1228,27 @@ TYPES = {
                 ("tight", r"tight|legging|collant|capri|7/8|3/4|leggy|base ?layer bottom"),
                 ("pant", r"pant|pantalon|jogger|trouser|sweats|cargo|jeans")],
 }
+# shoes and gear: matched on "brand name" (trail brands, sunglasses brands); first match wins, "." = everything else
+TYPES["shoes"] = [
+    ("hike", r"\bhik(e|ing)|\bboots?\b|\bbottes?\b|\bmid\b|toundra|approach|\blowa\b|\boboz\b|\bkeen\b|winter|hiver|snow"),
+    ("trail", r"^(?!.*\broad\b).*(trail|sentier|speedgoat|mafate|tecton|challenger|torrent|zinal|stinson|cascadia|caldera|catamount|"
+              r"divide|peregrine|xodus|endorphin edge|olympus|lone peak|timp|mont blanc|speedcross|\bsense\b|s/lab|ultra glide|genesis|"
+              r"xa pro|alphacross|wildcross|agility peak|long sky|hierro|more trail|supercomp trail|fuji|trabuco|venture|wildhorse|"
+              r"kiger|zegama|ultrafly|ultra fly|cloudultra|cloudvista|cloudventure|tomir|kjerag|mutant|jackal|bushido|akasha|prodigio|"
+              r"cyklon|daichi|mujin|ibuki|xt-6|grvl|experience wild|\bla sportiva\b|nnormal|scarpa|inov-?8|\bvj\b|dynafit|norda|icebug|merrell)"),
+    ("race", r"alphafly|vaporfly|adios pro|adizero pro|prime x|takumi|metaspeed|endorphin (pro|elite|speed)|rocket x|cielo x|cielo rd|"
+             r"supercomp (elite|pacer)|\bsc (elite|pacer|trainer)\b|deviate nitro|fast-r|hyperion (elite|max)|cloudboom|wave rebellion|"
+             r"carbon|metaracer|rc elite|vanish|streakfly|evo sl|adizero boston|velociti|spikes?|cloudspike|racing|racer|"
+             r"\b[LM]D(-X)?\b|\bXC\b|dragonfly|maxfly|ja fly|victory|\bmmd|zoomx|pointes?"),
+    ("daily", r"."),
+]
+TYPES["gear"] = [
+    ("sun", r"sunglass|lunettes?|glasses|eyewear|\blens(es)?\b|goggle|nose pad|sunnies|\bgoodr\b|\broka\b|sunski|tifosi|oakley|"
+            r"district vision|\bjulbo\b|\bsmith\b|pit viper|ombraz|knockaround|wildwood"),
+    ("light", r"head ?lamp|frontale|\blamp|lampe|\blights?\b|beacon|torch|flashlight|lumens?"),
+    ("pole", r"\bpoles?\b|bâtons?|\bbatons?\b|trekking|z-pole"),
+    ("bottle", r"bottle|flask|gourde|bidon|reservoir|réservoir|bladder|hydration|hydratation|\bcup\b|filter|filtre|handheld|hydrapak"),
+]
 TYPES = {g: [(k, re.compile(rx, re.I)) for k, rx in v] for g, v in TYPES.items()}
 
 def tidy_clothes(offers):
@@ -1237,7 +1265,8 @@ def tidy_clothes(offers):
     return out
 
 def garment_type(g, n):
-    """tops: tee / layer / jacket; bottoms: short / tight / pant; None when the name doesn't say (shown under "All" only)."""
+    """tops: tee / layer / jacket; bottoms: short / tight / pant; shoes: hike / trail / race / daily;
+    gear: sun / light / pole / bottle; None when the name doesn't say (shown under "All" only)."""
     for k, rx in TYPES.get(g, []):
         if rx.search(n):
             return k
@@ -1388,7 +1417,7 @@ def merge(offers):
                                    "img": o.get("img"), "lp": o["lp"], "bb": o.get("bb"), "sz": {}, "of": [], "_st": [],
                                    "_ca": [], "ca": False}
             if o["g"] in TYPES:
-                it["t"] = garment_type(o["g"], o["n"])
+                it["t"] = garment_type(o["g"], f'{o["b"]} {o["n"]}' if o["g"] in ("shoes", "gear") else o["n"])
         oi = len(it["of"])
         it["of"].append(o["u"]); it["_st"].append(o["st"]); it["_ca"].append(bool(o.get("ca")))
         it["ca"] = it["ca"] or bool(o.get("ca"))     # sold by any Canadian store = ships from Canada

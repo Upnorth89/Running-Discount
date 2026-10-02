@@ -114,8 +114,10 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
 - Item shape in deals.json: `b` brand, `n` name, `g` group, `sx` genders, `w` wide, `img`, `lp`, `of` store
   links, `ca` ships from Canada, `sz` = `[size, price, offerIndex, regular, variantId?]`.
 - Groups: shoes, tops, bottoms, bras, socks, gloves, headwear, packs, gear, watches, nutrition.
-- Clothing types (`t`, from the name, `TYPES` in scrape.py): tops tee/layer/jacket, bottoms short/tight/pant; buttons under
-  those categories on the site (~3% untyped show under "All" only). `tidy_clothes` moves bras/capris, drops bike parts.
+- Types (`t`, from the name, `TYPES` in scrape.py; buttons under each category on the site, untyped show under "All"):
+  shoes daily/race/trail/hike (brand + name: trail brands, "road" never trail), tops tee/layer/jacket, bottoms
+  short/tight/pant, gear light/pole/bottle/sun. `tidy_clothes` moves bras/capris, drops bike parts; `tidy_gear` moves
+  shoes filed as gear (shoe brand + numbered sizes) to shoes. One category chip picked = no Top deals (`NARROW`).
 - `SOCCER` drops soccer boots (FG/AG… codes); `GENDER_PREFIX_STORES` reads "M "/"W " name prefixes (Frontrunners).
 - `CAPS_STORES` (Le Coureur writes in capitals: softened), `OWN_BRAND` (rabbit/Bandit leave the brand "0").
 - Shoe size keys: `"10"`, `"M:10"`/`"W:11"` (from unisex labels), suffix `~W` wide, `~N` narrow (hidden).
