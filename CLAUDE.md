@@ -101,6 +101,8 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
 - Sporting Life, Stampeak, Sea2Sky, The Feed: custom readers. Decathlon: running clearance pages
   (server-rendered JSON, robots allow). MEC/REI: from saved pages only.
 - Known: Honey Stinger is blocked from GitHub's servers (works elsewhere); REI needs fresh saved pages.
+- **`STORES.md`** lists every store we read, ones checked and rejected (blocked, no feed) and ones waiting:
+  check it before testing a shop, update it after.
 - **Adding a store** (Bastien aims for steady growth, 1–3 a week): check readability, currency, size labels
   (share readable), categories, sale share; add to `SHOPIFY_STORES`; remerge locally
   (`python scraper/scrape.py site/deals.json --remerge` with a fresh `offers.json`) and preview.
@@ -109,6 +111,7 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
 - Groups: shoes, tops, bottoms, bras, socks, gloves, headwear, packs, gear, watches, nutrition.
 - Clothing types (`t`, from the name, `TYPES` in scrape.py): tops tee/layer/jacket, bottoms short/tight/pant; buttons under
   those categories on the site (~3% untyped show under "All" only). `tidy_clothes` moves bras/capris, drops bike parts.
+- `SOCCER` drops soccer boots (FG/AG… codes); `GENDER_PREFIX_STORES` reads "M "/"W " name prefixes (Frontrunners).
 - `CAPS_STORES` (Le Coureur writes in capitals: softened), `OWN_BRAND` (rabbit/Bandit leave the brand "0").
 - Shoe size keys: `"10"`, `"M:10"`/`"W:11"` (from unisex labels), suffix `~W` wide, `~N` narrow (hidden).
 - Accessories (packs, gear) in letter sizes follow the clothing size; odd labels are hidden on cards.

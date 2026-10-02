@@ -1032,6 +1032,8 @@ SHOPIFY_STORES = [
     # added 2026-10-01
     ("lecoureur",      "https://www.lecoureur.com",          "gear"),   # Le Coureur (Montréal running)
     ("blacktoe",       "https://www.blacktoerunning.com",    "gear"),   # BlackToe Running (Toronto)
+    # added 2026-10-02
+    ("frontrunners",   "https://www.frontrunners.ca",        "gear"),   # Frontrunners (Victoria)
     # socks
     ("feetures",       "https://www.feetures.com",           "socks"),
     ("balega",         "https://www.balega.com",             "socks"),
@@ -1136,6 +1138,8 @@ for _st, _base, _kind in SHOPIFY_STORES:
 # Casual footwear some running stores also sell; not what people come here for.
 CASUAL_BRANDS = {"birkenstock", "wolky", "teva", "crocs", "ugg", "blundstone", "dr. martens", "clarks"}
 CASUAL_SHOE = re.compile(r"\b(sandal|sandale|clog|sabot|slipper|pantoufle|mule|flip[- ]flop|loafer)s?\b", re.I)
+# soccer boots (Frontrunners sells them): ground codes FG/AG/MG/SG/TF, or the model lines
+SOCCER = re.compile(r"\b(FG|AG|MG|SG|TF)\b|(?i:\b(soccer|futsal|predator|f50|copa|tiempo|mercurial)\b)")
 
 def shoe_width_from_name(n, sx):
     """Widths many stores put in the product name: "Bondi 9 (2E)", "880v15 (D)", "Clifton 10 Wide".
@@ -1241,7 +1245,7 @@ def garment_type(g, n):
 # Kids' gear: a kids' 11 or "M" would match an adult's size. The site is for adults, so leave it out.
 KIDS = re.compile(r"\b(kids?|kid'?s|kids'|juniors?'?|jr|youth|enfants?|gar[çc]ons?|filles?|boys?|girls?|toddlers?|infants?|"
                   r"b[ée]b[ée]s?|big kids?|little kids?|grade school|pre-?school|pr[ée]scolaire|jeunesse)\b", re.I)
-KIDS_SHOE = re.compile(r"\b(GS|PS|TD)\b")                     # grade school / preschool / toddler shoe codes
+KIDS_SHOE = re.compile(r"\b(GS|PS|TD)\b|\s(J|Y|K)$")      # grade school / preschool / toddler codes; "… FG J" (junior)
 ADULT_STYLE = re.compile(r"\bboy ?shorts?\b|\bboyfriend\b", re.I)  # women's underwear and fits, not kids
 
 def drop_kids(offers):
@@ -1258,7 +1262,7 @@ def tidy_shoes(offers):
     out = []
     for o in offers:
         if o["g"] == "shoes":
-            if (o["b"] or "").lower() in CASUAL_BRANDS or CASUAL_SHOE.search(o["n"]):
+            if (o["b"] or "").lower() in CASUAL_BRANDS or CASUAL_SHOE.search(o["n"]) or SOCCER.search(o["n"]):
                 continue
             w = shoe_width_from_name(o["n"], name_gender(o["n"]) or o.get("sx"))
             if w == "narrow":
@@ -1280,7 +1284,9 @@ def tidy_brand(b):
     return b
 
 CAPS_STORES = {"lecoureur"}
-OWN_BRAND = {"rabbit": "rabbit", "bandit": "Bandit Running"}    # stores that write brands and names in capitals ("ADIDAS ADIOS PRO 4 - FEMME")
+OWN_BRAND = {"rabbit": "rabbit", "bandit": "Bandit Running"}
+GENDER_PREFIX_STORES = {"frontrunners"}   # names start with "M " / "W " / "U " ("M Adidas Boston 13")
+GENDER_PREFIX = {"M": ["men"], "W": ["women"], "U": ["men", "women"]}    # stores that write brands and names in capitals ("ADIDAS ADIOS PRO 4 - FEMME")
 
 # short words that read as words, not model codes, when an ALL-CAPS name is softened ("RUN", "MID" vs "GTX", "SP")
 SOFT = {"and", "the", "for", "with", "de", "et", "en", "in", "mid", "low", "run", "pro", "one", "max", "air", "gel", "sky",
@@ -1358,6 +1364,15 @@ def merge(offers):
     for o in offers:
         if (o["b"] or "").strip() in ("", "0") and o.get("st") in OWN_BRAND:   # brand stores that leave the brand blank or "0"
             o["b"] = OWN_BRAND[o["st"]]
+        if o.get("st") in GENDER_PREFIX_STORES:
+            m = re.match(r"^(M|W|U|Unisex)\s+(.+)", o["n"])
+            if m:
+                k = m.group(1)[0]
+                o["n"] = m.group(2)
+                o["sx"] = GENDER_PREFIX[k]
+                o["n"] += {"M": " - Men's", "W": " - Women's", "U": " - Unisex"}[k]
+            if o["g"] == "shoes" and (o["b"] or "").lower() == "frontrunners footwear":
+                o["g"] = "gear"            # the store's own accessories (toe spreaders, lights) filed under footwear
         if o.get("st") in CAPS_STORES:
             if (o["b"] or "").lower() not in BRAND_CANON and re.fullmatch(r"[A-Z][A-Z .'&-]{3,}", o["b"] or ""):
                 o["b"] = o["b"].title()
