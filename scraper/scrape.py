@@ -1034,6 +1034,7 @@ SHOPIFY_STORES = [
     ("blacktoe",       "https://www.blacktoerunning.com",    "gear"),   # BlackToe Running (Toronto)
     # added 2026-10-02
     ("frontrunners",   "https://www.frontrunners.ca",        "gear"),   # Frontrunners (Victoria)
+    ("forerunners",    "https://shop.forerunners.ca",        "gear"),   # Forerunners (Vancouver; shop on its own address)
     # socks
     ("feetures",       "https://www.feetures.com",           "socks"),
     ("balega",         "https://www.balega.com",             "socks"),

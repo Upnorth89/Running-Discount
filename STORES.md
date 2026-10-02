@@ -3,9 +3,9 @@
 Check this list before looking at a new store, so nobody tests the same shop twice.
 Update it whenever a store is added, rejected or changes. Counts are from Oct 2, 2026.
 
-## Stores we read (57)
+## Stores we read (58)
 
-### Canadian stores (20)
+### Canadian stores (21)
 | Store | Website | Products | On sale |
 |---|---|---:|---:|
 | Altitude Sports | altitude-sports.com | 2,319 | 39 |
@@ -16,6 +16,7 @@ Update it whenever a store is added, rejected or changes. Counts are from Oct 2,
 | Ciele | ca.cieleathletics.com | 134 | 0 |
 | Decathlon | decathlon.ca | 17 | 13 |
 | Fit First | fitfirst.ca | 754 | 88 |
+| Forerunners | shop.forerunners.ca | 70 | 11 |
 | Frontrunners | frontrunners.ca | 1,206 | 277 |
 | Le Coureur | lecoureur.com | 1,233 | 480 |
 | Le Coureur Nordique | lecoureurnordique.ca | 1,593 | 642 |
@@ -77,16 +78,26 @@ fresh pages with the Grab deals bookmark (US only). MEC also comes from saved pa
 
 | Store | City | Why not (date checked) |
 |---|---|---|
-| Sport Chek | national | blocks automated reading; wait for an affiliate product feed |
+| Sport Chek | national | blocks automated reading; a saved sale page (Oct 2, 2026) has no sizes, 40 of 760 items per page: wait for the affiliate feed (Canadian Tire) |
 | Running Room | national | blocks automated reading |
 | Atmosphere | national | blocks automated reading |
 | Sports Experts | QC | blocks automated reading |
 | Boutique Courir (boutiquecourir.com) | Montréal | blocks automated reading (Oct 1, 2026) |
-| Forerunners (forerunners.ca) | Vancouver | no readable product feed (Oct 1, 2026) |
 | Kintec (kintec.net) | BC | no readable product feed (Oct 1, 2026) |
 | Running Free (runningfree.com) | Ontario | no readable product feed (Oct 1, 2026) |
 | Gord's Running Store | Calgary | no readable product feed (Oct 1, 2026) |
 | Fast Trax, Mile One Running, The Trail Store | AB / BC | site didn't answer (Oct 1, 2026); try again later |
+
+## Brand stores (checked Oct 1, 2026)
+
+| Brand | Status |
+|---|---|
+| Brooks, New Balance, ASICS, Hoka, adidas, Inov-8, The North Face | block automated reading: skip (their shoes reach us through the stores) |
+| Norda, Altra, Ciele, rabbit, Janji, … | already read (Shopify) |
+| Saucony (saucony.com/CA), Salomon (salomon.com/en-ca), On (on.com/en-ca), Nike (nike.com/ca) | readable pages, need their own reader: planned, one at a time (Saucony, Salomon first) |
+| Arc'teryx, Craft, Topo, Dynafit | readable, less running-focused or US-only: low priority |
+| Karhu, VJ, Scarpa | Shopify but in euros from Europe (duties): low priority |
+| Mizuno (mizuno.ca) | domain parked |
 
 ## Readable, waiting (add when they have sales)
 
