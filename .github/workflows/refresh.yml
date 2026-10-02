@@ -4,7 +4,12 @@ on:
   schedule:
     - cron: "17 11 * * *"   # daily, 4:17am Vancouver (PDT)
     - cron: "47 14 * * *"   # backup, 7:47am Vancouver: GitHub sometimes starts schedules hours late or skips them
-  workflow_dispatch: {}       # "Run workflow" button
+  workflow_dispatch:          # "Run workflow" button; Supabase's 4:17am timer starts it with morning=true
+    inputs:                   # (supabase/morning-timer.sql: on time, unlike GitHub's schedules)
+      morning:
+        description: "Morning run (health email, skipped if today's report already went out)"
+        type: boolean
+        default: false
   push:
     branches: [main]
 
@@ -18,8 +23,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # a scheduled run stops here if today's morning refresh already happened (so the backup time doesn't
-  # send a second health email); uploads and the "Run workflow" button always go ahead
+  # a morning run (schedule or Supabase's timer) stops here if today's morning refresh already happened
+  # (so a second start doesn't send a second health email); uploads and the "Run workflow" button always go ahead
   check:
     runs-on: ubuntu-latest
     outputs:
@@ -28,7 +33,7 @@ jobs:
       - id: today
         run: |
           skip=false
-          if [ "${{ github.event_name }}" = "schedule" ]; then
+          if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ inputs.morning }}" = "true" ]; then
             last=$(curl -fsSL "https://thegearfox.com/health.json?t=$(date +%s)" | python3 -c "import json,sys; print(json.load(sys.stdin).get('reported') or '')" || true)
             today=$(TZ=America/Vancouver date +%F)
             echo "last morning report: ${last:-none}, today: $today"
@@ -85,7 +90,7 @@ jobs:
           FROM_EMAIL: "The Gear Fox <deals@thegearfox.com>"
           SUPABASE_URL: "https://krwymmkauwqqxjxbvkyq.supabase.co"
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
-          SEND_HEALTH: ${{ github.event_name == 'schedule' && '1' || '0' }}
+          SEND_HEALTH: ${{ (github.event_name == 'schedule' || inputs.morning) && '1' || '0' }}
           HEALTH_EMAIL: ${{ secrets.HEALTH_EMAIL }}
         run: python scraper/health.py /tmp/prev site
       - uses: actions/upload-pages-artifact@v3

@@ -39,6 +39,8 @@ scraper/health.py        daily health check + morning report email
 supabase/setup.sql       database: tables, sign-up/confirm/profile/Google functions, email templates
 supabase/watchlist.sql   watchlist table + functions
 supabase/friday-switch.sql  latest change (Friday wording + weekly_sent_at column); already applied
+supabase/morning-timer.sql  pg_cron at 11:17 UTC starts refresh.yml (morning=true) via GitHub API; key in Vault
+                         as github_dispatch_token (fine-grained, Actions read/write; expires: renew)
 supabase/clicks.sql      own visit/click counts for the monthly report (log_event, click_report); applied
 supabase/personal-emails.sql  confirmation/sign-in emails from "Bastien from The Gear Fox" <bastien@>, branded design
                          (applied). Keep Resend open/click tracking OFF: with it on, Gmail files them in Promotions
@@ -54,6 +56,8 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   - Backup time 14:47 UTC (7:47am Vancouver): GitHub often starts schedules late (Sep 30, 2026 ran ~5.5 h
     late) or skips them. A small `check` job skips any scheduled run once today's morning report went out
     (`reported` date in health.json), so there's never a second health email.
+  - Supabase timer (`supabase/morning-timer.sql`) starts it on time with `morning=true`; GitHub's schedules are
+    the backup. Morning runs (schedule or morning=true) send the health email; the `check` job dedupes.
   - The scrape log ends with product counts per category (and on sale) and nutrition by store.
 - **Weekly deals email** (`weekly-email.yml`): every hour on Friday 9:07–18:07 UTC. Each run sends to
   subscribers for whom it is now Friday 7am or later in their own time zone (profile `tz` from the browser;
