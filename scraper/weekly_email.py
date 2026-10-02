@@ -152,6 +152,10 @@ STR = {
                subject_watch=lambda n: f"The Gear Fox: your watchlist moved, plus {n} deals in your size",
                hi="Hi", intro="{}, here are this week's sales on gear in your sizes, every price drop, big or small. Best deals first.",
                title="Your weekly deals", open_shop="Open your shop",
+               first_gmail="<b>Your first Friday email!</b> Gmail sometimes files us under Promotions: drag this email to your "
+                           "<b>Primary</b> tab and the next ones will land there.",
+               first_other="<b>Your first Friday email!</b> Add deals@thegearfox.com to your contacts so the next ones "
+                           "don't end up in junk.",
                fine="Prices and stock change daily; the product page has the final price.<br>"
                     "You get this because you signed up for Friday deals on The Gear Fox. Outfox full price.",
                was="was", all_deals="All deals", logo="logo-email.png"),
@@ -165,6 +169,10 @@ STR = {
                hi="Bonjour", intro="{}, voici les soldes de la semaine dans vos tailles, chaque baisse de prix, petite ou grande. "
                                    "Les meilleures aubaines d'abord.",
                title="Vos aubaines de la semaine", open_shop="Voir ma boutique",
+               first_gmail="<b>Votre premier courriel du vendredi!</b> Gmail nous classe parfois dans Promotions : glissez ce "
+                           "courriel dans l'onglet <b>Principal</b> et les prochains arriveront au bon endroit.",
+               first_other="<b>Votre premier courriel du vendredi!</b> Ajoutez deals@thegearfox.com à vos contacts pour que "
+                           "les prochains n'aboutissent pas dans les indésirables.",
                fine="Les prix et les stocks changent chaque jour; le prix final est sur la page du produit.<br>"
                     "Vous recevez ce courriel parce que vous êtes abonné aux aubaines du vendredi de The Gear Fox. Flairez les aubaines.",
                was="avant", all_deals="Toutes les aubaines", logo="logo-email-fr.png"),
@@ -283,13 +291,18 @@ def build(p, sale, watch=None):
     footer_links = " · ".join(links) + (f"<br>The Gear Fox · {E(ADDRESS)}" if ADDRESS else "")
     subject = tr(lang, "subject_watch", len(sale)) if has_watch else tr(lang, "subject", len(sale), top)
     intro = E(tr(lang, "intro", first))
+    first_note = ""                       # only in someone's first Friday email (nothing recorded in weekly_sent_at yet)
+    if not p.get("_sent"):
+        gmail = re.search(r"@(gmail|googlemail)\.com$", (p.get("email") or "").lower())
+        first_note = (f'<tr><td style="padding:4px 20px 14px"><div style="background:#FFF4EC;border:1.5px solid #F26A1B;border-radius:10px;'
+                      f'padding:10px 14px;font:14px/1.45 Arial,sans-serif;color:#17201C">{tr(lang, "first_gmail" if gmail else "first_other")}</div></td></tr>')
     body = f'''<!doctype html><html lang="{lang}"><body style="margin:0;background:#EEF1EC">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#EEF1EC"><tr><td align="center" style="padding:20px 12px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#FFFFFF;border:2px solid #17201C;border-radius:14px">
 <tr><td style="padding:18px 20px 0;text-align:center"><a href="{E(shop)}"><img src="{E(SITE_URL)}{tr(lang, "logo")}" width="260" alt="The Gear Fox" style="display:inline-block;width:260px;max-width:80%;height:auto;border:0"></a></td></tr>
 <tr><td style="padding:8px 20px 6px;text-align:center;font:800 28px Arial Narrow,Arial,sans-serif;color:#17201C">{E(tr(lang, "title"))}</td></tr>
 <tr><td style="padding:0 20px 8px;text-align:center;font:15px/1.45 Arial,sans-serif;color:#5C6660">{intro}</td></tr>
-<tr><td style="padding:0 20px 20px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">{"".join(sections)}</table></td></tr>
+{first_note}<tr><td style="padding:0 20px 20px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">{"".join(sections)}</table></td></tr>
 <tr><td style="padding:14px 20px 22px;text-align:center;border-top:2px dashed #CBD2CC">
 <a href="{E(shop)}" style="display:inline-block;background:#F26A1B;color:#17201C;border:2px solid #17201C;border-radius:10px;padding:12px 20px;font:800 16px Arial,sans-serif;text-decoration:none">{E(tr(lang, "open_shop"))}</a>
 <div style="font:12px/1.4 Arial,sans-serif;color:#5C6660;margin-top:14px">{tr(lang, "fine")}<br>
