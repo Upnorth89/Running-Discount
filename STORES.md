@@ -78,7 +78,7 @@ fresh pages with the Grab deals bookmark (US only). MEC also comes from saved pa
 
 | Store | City | Why not (date checked) |
 |---|---|---|
-| Sport Chek | national | blocks automated reading; a saved sale page (Oct 2, 2026) has no sizes, 40 of 760 items per page: wait for the affiliate feed (Canadian Tire) |
+| Sport Chek | national | blocks automated reading; saved sale pages (Oct 2, 2026) have no sizes, even filtered to running clearance (74 shoes, 2 pages): wait for the affiliate feed (Canadian Tire) |
 | Running Room | national | blocks automated reading |
 | Atmosphere | national | blocks automated reading |
 | Sports Experts | QC | blocks automated reading |
