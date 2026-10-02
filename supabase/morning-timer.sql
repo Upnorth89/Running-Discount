@@ -5,7 +5,7 @@
 -- once today's report went out, so nobody gets two health emails.
 --
 -- Needs a GitHub key in Vault named github_dispatch_token (fine-grained token, only the Running-Discount repo,
--- permission Actions: Read and write). It expires: make a new one before then and replace the Vault value.
+-- permission Actions: Read and write). It expires 2027-09-29: make a new one before then and replace the Vault value.
 -- Paste into Supabase > SQL Editor once.
 
 create extension if not exists pg_cron;
