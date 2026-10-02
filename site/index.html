@@ -900,6 +900,7 @@ if(CARDS==="compact")document.body.classList.add("compact");
 const PAGE_CAT=CARDS==="compact"?4:PAGE;                  // each category starts short; "Show more" opens it
 const WORD={"ONE SIZE":"OS","O/S":"OS","X-SMALL":"XS","XSMALL":"XS","SMALL":"S","MEDIUM":"M","LARGE":"L","X-LARGE":"XL","XLARGE":"XL"};
 function norm(s){s=String(s).trim().toUpperCase();s=WORD[s]||s;return s.replace("XXXL","3XL").replace("XXL","2XL").replace("XXS","2XS")}
+let NARROW=false;   // only some categories picked (see renderAll)
 const view={fullPrice:false,sort:"match",q:"",open:{},watch:false,newAll:false,type:{}};
 const TYPES={tops:["tee","layer","jacket"],bottoms:["short","tight","pant"]};   // garment type buttons under these categories (deals.json "t")
 const NEWSTYLE_DEFAULT="row";                              // "row" (A) or "sticky" (B)
@@ -1011,7 +1012,7 @@ function section(key,title,list,cls){
       ${n>1?`<button type="button" class="seeall" data-newall>${t("seeAll",num(n))}<small>${t("asList")}</small></button>`:""}</div>
       ${n>1?`<button type="button" class="rowarrow prev" data-row="-1" aria-label="${LANG==="fr"?"Précédent":"Previous"}">‹</button><button type="button" class="rowarrow next" data-row="1" aria-label="${LANG==="fr"?"Suivant":"Next"}">›</button>`:""}</section>`;
   }
-  const lim=view.open[key]||(key.startsWith("__")?PAGE:PAGE_CAT);
+  const lim=view.open[key]||(key.startsWith("__")||NARROW?PAGE:PAGE_CAT);
   const tail=key==="__new"&&NEWSTYLE==="row"?`<button type="button" class="linkbtn" data-newrow>${t("asRow")}</button>`:"";
   const note=key==="nutrition"&&state.ships!=="all"?`<p class="grpnote">${t("usFuel")}</p>`:"";
   const types=TYPES[key]?`<div class="chips scroll types">${["",...TYPES[key]].map(v=>`<button type="button" class="chip" data-type="${key}:${v}" aria-pressed="${(view.type[key]||"")===v}">${v?t("types")[v]:t("typeAll")}</button>`).join("")}</div>`:"";
@@ -1052,7 +1053,7 @@ $("dealList").addEventListener("click",e=>{
   const ty=e.target.closest("[data-type]");
   if(ty){const [g,v]=ty.dataset.type.split(":");view.type[g]=v;view.open[g]=0;renderAll();
     const s=$("grp-"+g);if(s&&s.getBoundingClientRect().top<0)s.scrollIntoView({block:"start"});return}
-  const b=e.target.closest("[data-open]");if(!b)return;const k=b.dataset.open;view.open[k]=(view.open[k]||(k.startsWith("__")?PAGE:PAGE_CAT))+MORE;renderAll()});
+  const b=e.target.closest("[data-open]");if(!b)return;const k=b.dataset.open;view.open[k]=(view.open[k]||(k.startsWith("__")||NARROW?PAGE:PAGE_CAT))+MORE;renderAll()});
 
 /* ---------- watchlist: saved on this device, synced to the server once the email is confirmed ---------- */
 const HEART='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 6.9 4.5c2.1 0 3.6 1.2 5.1 3 1.5-1.8 3-3 5.1-3 3.5 0 5.5 3.5 4.2 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>';
@@ -1215,11 +1216,13 @@ function renderAll(){
   // Sale items only, unless "Include full price" is on; then everything in your size, sale items first
   const shown=(view.fullPrice?all:onSale).slice().sort((a,b)=>((b.pct>0)-(a.pct>0))||SORTS[view.sort](a,b));
   const parts=[];
-  if(!q.length){const ns=section("__new",t("secNew"),onSale.filter(d=>NEWSET.has(itemKey(d))).sort(SORTS[view.sort]),"new");
+  // one category picked ("Lights, poles & bottles"): open straight on it, no Top deals / new row repeating part of it
+  NARROW=p.groups.length===1;
+  if(!q.length&&!NARROW){const ns=section("__new",t("secNew"),onSale.filter(d=>NEWSET.has(itemKey(d))).sort(SORTS[view.sort]),"new");
     if(CALM&&NEWSTYLE==="row"&&!view.newAll)$("newBox").innerHTML=ns;else parts.push(ns)}
   const top=onSale.slice().sort(SORTS[view.sort]);
-  parts.push(section("__sale",t("secSale"),top,"sale"));
-  const inTop=new Set(top.slice(0,view.open.__sale||PAGE).map(itemKey));   // don't show the same deal twice
+  if(!NARROW)parts.push(section("__sale",t("secSale"),top,"sale"));
+  const inTop=new Set(NARROW?[]:top.slice(0,view.open.__sale||PAGE).map(itemKey));   // don't show the same deal twice
   ORDER.filter(g=>p.groups.includes(g)).forEach(g=>{const ty=view.type[g];   // a type picked: every match, Top deals included
     parts.push(section(g,GL(g),shown.filter(d=>d.g===g&&(ty?d.t===ty:!inTop.has(itemKey(d))))))});
   const body=parts.filter(Boolean);
