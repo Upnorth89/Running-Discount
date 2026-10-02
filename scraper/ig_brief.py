@@ -6,7 +6,7 @@ Picks this week's best running-shoe deals from the live sale.json and emails:
   - a short script to say (EN and FR) and on-screen text
   - the "Top 5" graphic for his Story (EN + FR PNGs, 1080x1350), drawn with Chromium
 
-Picks: shoes at 30-70% off, normally $130+, in 6+ sizes, ship from Canada, no spikes or boots, one per brand,
+Picks: shoes at 30-70% off, normally $130+, in 7+ sizes at that price (3+ of the common ones), ship from Canada, no spikes or boots, one per brand,
 well-known running brands first.
 
 Env:   RESEND_API_KEY, HEALTH_EMAIL (where it goes; default hello@thegearfox.com), FROM_EMAIL, SALE_URL
@@ -35,6 +35,8 @@ E = html.escape
 
 SKIP = re.compile(r"spike|\b[LM]D(-X)?\b|\bXC\b|cross[- ]?country|\bsprint|dragonfly|maxfly|ja fly|\bvictory\b|\bpointes?\b|"
                   r"avanti|evospeed|hiking|\bhike\b|boot", re.I)
+MIN_SIZES = 7
+COMMON = {"men's": [9, 9.5, 10, 10.5, 11], "women's": [7, 7.5, 8, 8.5, 9]}   # the sizes most runners wear
 POPULAR = {"hoka", "brooks", "asics", "nike", "saucony", "new balance", "on", "salomon", "adidas", "altra", "mizuno", "puma"}
 
 
@@ -72,21 +74,32 @@ def picks(items, stores, n=5):
         plain = [k for k in same if not k[:2] in ("M:", "W:")]
         nums, who = (men, "men's") if men else (women, "women's") if women else (plain, "")
         sizes = sorted({float(k.split("~")[0]) for k in nums if re.match(r"^\d+(\.\d)?(~W)?$", k)})
-        if len(sizes) < 4:
-            continue
+        common = COMMON["women's" if who == "women's" or (not who and i.get("sx") == ["women"]) else "men's"]
+        if len(sizes) < MIN_SIZES or sum(1 for v in common if v in sizes) < 3:
+            continue                     # featured deals must fit most runners: 7+ sizes, 3+ of the common ones
         host = urlparse(i["of"][e[2]]).hostname.replace("www.", "")
         out.append(dict(score=pct + len(sale) * 0.5 + (15 if i["b"].lower() in POPULAR else 0), b=i["b"], n=clean(i["n"]),
                         pct=pct, price=e[1], reg=e[3], store=stores.get(host, host), img=i["img"], sizes=sizes, who=who,
+                        sex="women" if who == "women's" or (not who and i.get("sx") == ["women"]) else
+                            "men" if who == "men's" or i.get("sx") == ["men"] else "unisex",
                         url=i["of"][e[2]]))
     out.sort(key=lambda x: -x["score"])
-    chosen, brands = [], set()
+    chosen, brands, per_sex = [], set(), {}
     for x in out:
-        if x["b"].lower() in brands:
+        if x["b"].lower() in brands or per_sex.get(x["sex"], 0) >= 3:      # one per brand, a mix of men's and women's
             continue
         chosen.append(x)
         brands.add(x["b"].lower())
+        per_sex[x["sex"]] = per_sex.get(x["sex"], 0) + 1
         if len(chosen) == n:
             break
+    # the Reel uses the first 3: make sure they aren't all men's or all women's
+    top = chosen[:3]
+    if len({x["sex"] for x in top}) == 1:
+        other = next((x for x in chosen[3:] if x["sex"] != top[0]["sex"]), None)
+        if other:
+            chosen.remove(other)
+            chosen.insert(1, other)
     return chosen
 
 
@@ -95,9 +108,9 @@ def money(v, lang):
 
 
 def size_range(s):
-    """A short list ("6, 6.5, 8, 10.5") when there are few sizes, else a range ("7–12, 9 sizes")."""
+    """A short list ("6, 6.5, 8, 10.5") when there are few sizes, else a range ("7–12")."""
     f = lambda v: str(int(v)) if v == int(v) else str(v)
-    return ", ".join(f(v) for v in s) if len(s) <= 6 else f"{f(s[0])}–{f(s[-1])} ({len(s)})"
+    return ", ".join(f(v) for v in s) if len(s) <= 6 else f"{f(s[0])}–{f(s[-1])}"
 
 
 T = {
