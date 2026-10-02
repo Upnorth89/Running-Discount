@@ -58,24 +58,33 @@ def picks(items, stores, n=5):
         if i["g"] != "shoes" or not i.get("img") or not i.get("ca") or SKIP.search(i["n"]):
             continue
         sale = [e for e in i["sz"] if e[1] < e[3]]
-        if len(sale) < 6:
+        if not sale:
             continue
         e = min(sale, key=lambda e: e[1])
         pct = round(100 * (1 - e[1] / e[3]))
         if not 30 <= pct <= 70 or e[3] < 130:
             continue
+        # only the sizes at this exact price and store, each size once: a unisex shoe is stored as both
+        # "M:8" and "W:9.5" (the same shoe), so count the men's numbers, or the women's when there are none
+        same = [x[0] for x in i["sz"] if x[2] == e[2] and abs(x[1] - e[1]) < 0.01 and not x[0].endswith("~N")]
+        men = [k[2:] for k in same if k.startswith("M:")]
+        women = [k[2:] for k in same if k.startswith("W:")]
+        plain = [k for k in same if not k[:2] in ("M:", "W:")]
+        nums, who = (men, "men's") if men else (women, "women's") if women else (plain, "")
+        sizes = sorted({float(k.split("~")[0]) for k in nums if re.match(r"^\d+(\.\d)?(~W)?$", k)})
+        if len(sizes) < 4:
+            continue
         host = urlparse(i["of"][e[2]]).hostname.replace("www.", "")
-        sizes = sorted({float(re.sub(r"^[MW]:", "", s[0]).split("~")[0]) for s in sale if re.match(r"^([MW]:)?\d", s[0])})
         out.append(dict(score=pct + len(sale) * 0.5 + (15 if i["b"].lower() in POPULAR else 0), b=i["b"], n=clean(i["n"]),
-                        pct=pct, price=e[1], reg=e[3], store=stores.get(host, host), img=i["img"], sizes=sizes,
+                        pct=pct, price=e[1], reg=e[3], store=stores.get(host, host), img=i["img"], sizes=sizes, who=who,
                         url=i["of"][e[2]]))
     out.sort(key=lambda x: -x["score"])
     chosen, brands = [], set()
     for x in out:
-        if x["b"] in brands:
+        if x["b"].lower() in brands:
             continue
         chosen.append(x)
-        brands.add(x["b"])
+        brands.add(x["b"].lower())
         if len(chosen) == n:
             break
     return chosen
@@ -86,15 +95,16 @@ def money(v, lang):
 
 
 def size_range(s):
+    """A short list ("6, 6.5, 8, 10.5") when there are few sizes, else a range ("7–12, 9 sizes")."""
     f = lambda v: str(int(v)) if v == int(v) else str(v)
-    return f"{f(s[0])}–{f(s[-1])}" if len(s) > 1 else f(s[0])
+    return ", ".join(f(v) for v in s) if len(s) <= 6 else f"{f(s[0])}–{f(s[-1])} ({len(s)})"
 
 
 T = {
     "en": dict(kicker="This week's", title="Top 5 deals", sub="Sale running shoes, found across {n} stores", at="at",
-               sizes="sizes", cta1="Your size?", cta3="Every deal, filtered to your size. Free.", gender={}),
+               sizes="sizes", who={"men's": "men's", "women's": "women's"}, cta1="Your size?", cta3="Every deal, filtered to your size. Free.", gender={}),
     "fr": dict(kicker="Cette semaine", title="Top 5 aubaines", sub="Souliers de course en solde, dans {n} boutiques", at="chez",
-               sizes="tailles", cta1="Ta taille?", cta3="Chaque aubaine, filtrée à ta taille. Gratuit.",
+               sizes="tailles", who={"men's": "homme", "women's": "femme"}, cta1="Ta taille?", cta3="Chaque aubaine, filtrée à ta taille. Gratuit.",
                gender={"Men's": "Homme", "Women's": "Femme", "Unisex": "Unisexe"}),
 }
 
@@ -105,13 +115,21 @@ def name(n, lang):
     return n
 
 
+def sizes_label(x, lang):
+    """"men's sizes" / "tailles homme"; plain "sizes" when the shoe has one gender."""
+    t, w = T[lang], x.get("who")
+    if not w:
+        return t["sizes"]
+    return f"{t['who'][w]} {t['sizes']}" if lang == "en" else f"{t['sizes']} {t['who'][w]}"
+
+
 def graphic(chosen, lang, n_stores):
     t = T[lang]
     pct = lambda p: f"−{p}&nbsp;%" if lang == "fr" else f"−{p}%"
     rows = "".join(f'''<div class="row"><div class="pic"><img src="{E(x['img'])}"></div><div class="info">
 <div class="b">{E(x['b'])}</div><div class="n">{E(name(x['n'], lang))}</div>
 <div class="p"><b>{money(x['price'], lang)}</b><s>{money(x['reg'], lang)}</s><span class="pct">{pct(x['pct'])}</span></div>
-<div class="s">{t['at']} {E(x['store'])} · {t['sizes']} {size_range(x['sizes'])}</div></div></div>''' for x in chosen)
+<div class="s">{t['at']} {E(x['store'])} · {sizes_label(x, lang)} {size_range(x['sizes'])}</div></div></div>''' for x in chosen)
     logo = "data:image/png;base64," + base64.b64encode((ROOT / "site" / "logo.png").read_bytes()).decode()
     return f'''<!doctype html><html><head><meta charset="utf-8"><style>
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;800&display=swap');
@@ -173,7 +191,7 @@ def brief(chosen, when):
                          ["Tu veux des aubaines comme ça dans ta taille chaque vendredi? Lien dans la bio."])
     who = lambda x: {"Men's": "men's", "Women's": "women's"}.get(x["n"].split(" - ")[-1], "unisex")
     li = "".join(f'''<li style="margin:0 0 12px"><b>{E(short(x))}</b> ({who(x)}):
-<b>{money(x['price'], 'en')}</b> instead of {money(x['reg'], 'en')}, −{x['pct']}% at {E(x['store'])}, sizes {size_range(x['sizes'])}.
+<b>{money(x['price'], 'en')}</b> instead of {money(x['reg'], 'en')}, −{x['pct']}% at {E(x['store'])}, in {x['who'] + ' ' if x['who'] else ''}sizes {size_range(x['sizes'])} (as of this morning).
 <a href="{E(x['url'])}">Check it</a></li>''' for x in top)
     rest = "".join(f"<li>{E(short(x))}: {money(x['price'], 'en')} (−{x['pct']}%) at {E(x['store'])}</li>" for x in chosen[3:])
     p = 'style="font:15px/1.5 Arial,sans-serif;color:#17201C;margin:0 0 14px"'
