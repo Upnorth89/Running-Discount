@@ -71,7 +71,7 @@ def candidate(i, stores):
     g = i["g"]
     if g not in ("shoes", "tops", "bottoms", "packs", "gear", "watches") or not i.get("img") or not i.get("ca"):
         return None
-    if (g == "shoes" and SKIP.search(i["n"])) or (g != "shoes" and CLOTH_SKIP.search(i["n"])):
+    if (g == "shoes" and (SKIP.search(i["n"]) or i.get("t") in ("spike", "hike"))) or (g != "shoes" and CLOTH_SKIP.search(i["n"])):
         return None
     sale = [e for e in i["sz"] if e[1] < e[3]]
     if not sale:
