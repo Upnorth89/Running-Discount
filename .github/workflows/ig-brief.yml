@@ -1,0 +1,24 @@
+name: Instagram brief
+
+on:
+  schedule:
+    - cron: "3 13 * * 3"     # Wednesday 6:03am Vancouver (PDT): 3 picks, a script and the Top 5 graphic for Bastien
+  workflow_dispatch: {}      # "Run workflow" button: send this week's kit now
+
+jobs:
+  brief:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r scraper/requirements.txt playwright
+      - run: python -m playwright install --with-deps chromium
+      - name: Build and email the kit
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          HEALTH_EMAIL: ${{ secrets.HEALTH_EMAIL }}
+          FROM_EMAIL: "The Gear Fox <deals@thegearfox.com>"
+        run: python scraper/ig_brief.py

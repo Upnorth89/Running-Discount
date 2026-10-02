@@ -71,6 +71,9 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   halved product counts, price jumps (currency mix-ups), piles of 70%+ discounts, and subscriber counts
   near the free email limits. Only the scheduled run emails.
 
+- **Instagram brief** (`ig-brief.yml`, `scraper/ig_brief.py`): Wednesdays 13:03 UTC emails Bastien (HEALTH_EMAIL) 3 Reel
+  picks + EN/FR script + caption and the Top 5 graphic PNGs (Chromium via Playwright). He posts a Reel of himself (feed)
+  and the graphic as a Story; Friday stays the subscriber email. Manual run = send now.
 - **Monthly report** (`monthly-report.yml`, `scraper/monthly_report.py`): the 1st of each month emails last
   month's visitors, sign-ups (by `?ref=` link), clicks sent to each store and paste-ready lines for affiliate
   applications ("we sent N shoppers to X"). Manual run = this month so far. Reads our own counts in Supabase
