@@ -448,7 +448,7 @@ const UMAMI_ID="d73c30be-171d-40d8-8101-278c2a536699";            // paste the W
 (function(){if(!UMAMI_ID)return;const s=document.createElement("script");s.defer=true;
   s.src="https://cloud.umami.is/script.js";s.dataset.websiteId=UMAMI_ID;s.dataset.domains="thegearfox.com,www.thegearfox.com";document.head.appendChild(s)})();
 function track(name,data){try{if(window.umami&&umami.track)umami.track(name,data)}catch(e){}}
-/* ?ref=sacred-strides etc.: which link someone came from. Kept on this device (first one wins), sent with the
+/* ?ref=ig-bio etc.: which link someone came from. Kept on this device (first one wins), sent with the
    visit and with the sign-up, and saved in the subscriber's profile. */
 const REF=(()=>{let r="";try{r=(new URLSearchParams(location.search).get("ref")||"").toLowerCase().replace(/[^a-z0-9_-]/g,"").slice(0,40)}catch(e){}
   try{const old=JSON.parse(localStorage.getItem("gf-ref")||"null");if(old)return old;if(r)localStorage.setItem("gf-ref",JSON.stringify(r))}catch(e){}

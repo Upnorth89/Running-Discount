@@ -180,8 +180,11 @@ layout, compact phone cards, sale-first loading, store names on cards, US nutrit
 as a Canadian (only what ships to Canada), clothing moved out of gear, Share card + link previews + `?ref=`
 links, Junk hint + resend, own click counts + monthly report. Email test complete (EN/FR sign-up, confirmation
 in Primary from bastien@, Friday email, alert, unsubscribe). Resend open/click tracking OFF.
-Soft launch: Instagram Reel + Story Thursday Oct 1 ~7am PT (`?ref=ig-story`, `?ref=ig-bio`), Sacred Strides
-next (`?ref=sacred-strides`). Watch the 100 emails/day Resend limit; upgrade if sign-ups spike.
+Soft launch: Instagram Reel + Story Thursday Oct 1 ~7am PT (`?ref=ig-story`, `?ref=ig-bio`). Bastien is not in a run club
+(don't suggest club outreach as if he were; the old Sacred Strides idea is dropped). Growth ideas: Reddit/Facebook answers,
+weekly Reel, a giveaway before Black Friday, Google pages per shoe. Watch the 100 emails/day Resend limit; upgrade if sign-ups spike.
+Holidays: Black Friday (Nov 27) is the goal ("Is this deal real?" badges from the price history), Boxing Day, gift guide,
+New Year; Thanksgiving/Halloween = themed posts only. Emails stay Friday-only (no extra BF emails).
 Store candidates (Shopify, readable): Frontrunners Victoria (filter soccer cleats first), Aerobics First (Halifax), City Park
 Runners (Winnipeg); Boutique Courir blocks bots. Postal-code stock: not possible (stores share online stock only); maybe a
 province filter. Instagram @thegearfox live (footer + Friday email link).
