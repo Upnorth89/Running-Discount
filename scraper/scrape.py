@@ -1235,7 +1235,8 @@ TYPES["shoes"] = [
               r"divide|peregrine|xodus|endorphin edge|olympus|lone peak|timp|mont blanc|speedcross|\bsense\b|s/lab|ultra glide|genesis|"
               r"xa pro|alphacross|wildcross|agility peak|long sky|hierro|more trail|supercomp trail|fuji|trabuco|venture|wildhorse|"
               r"kiger|zegama|ultrafly|ultra fly|cloudultra|cloudvista|cloudventure|tomir|kjerag|mutant|jackal|bushido|akasha|prodigio|"
-              r"cyklon|daichi|mujin|ibuki|xt-6|grvl|experience wild|\bla sportiva\b|nnormal|scarpa|inov-?8|\bvj\b|dynafit|norda|icebug|merrell)"),
+              r"cyklon|daichi|mujin|ibuki|xt-6|grvl|experience wild|nordlite|pro endur.*trail|seek|wildwood|tecnica|"
+              r"\bla sportiva\b|nnormal|scarpa|inov-?8|\bvj\b|dynafit|norda|icebug|merrell)"),
     ("race", r"alphafly|vaporfly|adios pro|adizero pro|prime x|takumi|metaspeed|endorphin (pro|elite|speed)|rocket x|cielo x|cielo rd|"
              r"supercomp (elite|pacer)|\bsc (elite|pacer|trainer)\b|deviate nitro|fast-r|hyperion (elite|max)|cloudboom|wave rebellion|"
              r"carbon|metaracer|rc elite|vanish|streakfly|evo sl|adizero boston|velociti|spikes?|cloudspike|racing|racer|"

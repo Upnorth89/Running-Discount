@@ -85,6 +85,14 @@ def size_url(d, e):
         u = urlunsplit(sp._replace(query=urlencode(q)))
     return u
 
+TERRAIN = {"road": {"daily", "race"}, "trail": {"trail", "hike"}}
+
+def terrain_ok(d, p):
+    """Road or trail runner (sign-up "Where do you run?"): only their kind of shoes; untyped shoes and
+    everything else stay. "both" or no answer: everything."""
+    want = TERRAIN.get(p.get("terrain"))
+    return not want or d["g"] != "shoes" or not d.get("t") or d["t"] in want
+
 def match(items, p):
     """Mirror of matchItems() on the site: items in stock in the profile's sizes, with best price."""
     favs = {b.lower() for b in p.get("brands") or []}
@@ -423,7 +431,7 @@ def main():
     for p in profiles:
         if not p.get("email"):
             continue
-        sale = [d for d in match(items, p) if d["pct"] >= 1]      # anything below full price
+        sale = [d for d in match(items, p) if d["pct"] >= 1 and terrain_ok(d, p)]      # anything below full price
         who = p["email"]
         watch = watch_news.get(p.get("token"))
         has_watch = bool(watch and (watch["drops"] or watch["backs"]))

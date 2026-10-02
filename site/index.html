@@ -372,7 +372,7 @@ label.field{display:block;font-weight:600;font-size:15px;margin:0 0 6px}
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
     </div>
-    <p class="intro">Three taps and we'll hide everything that won't fit.</p>
+    <p class="intro">A few taps and we'll hide everything that won't fit.</p>
     <p class="already hidden" id="already"><span data-i18n="alreadyQ">Already signed up?</span> <button type="button" id="toSignin" data-i18n="getLink">Get your link</button></p>
     <div id="signinBox" class="hidden">
       <div class="gwrap hidden" id="gIn"><div class="gbtn" id="gBtnIn"></div><p class="or"><span data-i18n="orLink">or get a link by email</span></p></div>
@@ -393,6 +393,13 @@ label.field{display:block;font-weight:600;font-size:15px;margin:0 0 6px}
       <button type="button" data-v="men" data-i18n="men">Men's</button>
       <button type="button" data-v="women" data-i18n="women">Women's</button>
       <button type="button" data-v="any" data-i18n="both">Both</button>
+    </div>
+
+    <h3 data-i18n="terrainH">Where do you run? <small>for shoes</small></h3>
+    <div class="seg" id="terrain" role="group" aria-label="Where do you run?" data-i18n-aria="terrainA">
+      <button type="button" data-v="road" data-i18n="terrRoad">Road</button>
+      <button type="button" data-v="trail" data-i18n="terrTrail">Trail</button>
+      <button type="button" data-v="both" data-i18n="terrBoth">Both</button>
     </div>
 
     <h3 data-i18n="shoeSizeH">Shoe size <small>US, pick one or more</small></h3>
@@ -476,6 +483,7 @@ en:{
   sort:"Sort",sortMatch:"Best match",sortDiscount:"Biggest discount",sortPrice:"Lowest price",search:"Search brand or model",
   footer:'The Gear Fox · Outfox full price · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="privacy.html">Privacy</a>',close:"Close",fit:"Fit",
   men:"Men's",women:"Women's",both:"Both",menWomen:"Men's & women's",
+  terrainH:"Where do you run? <small>for shoes</small>",terrainA:"Where do you run?",terrRoad:"Road",terrTrail:"Trail",terrBoth:"Both",
   shoeSizeH:"Shoe size <small>US, pick one or more</small>",shoeWidth:"Shoe width",regularW:"Regular width",wideW:"Wide width",
   clothSizeH:"Clothing size <small>tops, shorts, socks, gloves</small>",
   favBrands:'Favourite brands <span style="font-weight:400;color:var(--muted);margin-left:6px">optional</span>',favIntro:"These go to the top of your list.",
@@ -484,7 +492,7 @@ en:{
   gateFine:'You\'ll get one email every Friday with the best deals in your sizes, plus occasional news from The Gear Fox. We\'ll send a link to confirm first. Unsubscribe with one tap. <a href="privacy.html">Privacy</a>',
   sheetGateTitle:"Deals in your size",sheetTitle:"What fits you?",
   sheetGateIntro:"Pick what fits and add your email. We'll show every deal in your size, from stores across Canada.",
-  sheetIntro:"Three taps and we'll hide everything that won't fit.",
+  sheetIntro:"A few taps and we'll hide everything that won't fit.",
   subscribeShow:"Subscribe & show my deals",showDeals:"Show my deals",oneMoment:"One moment…",
   errFit:"Pick men's, women's or both.",errSize:"Pick at least one shoe or clothing size.",errEmail:"Add a valid email to see your deals.",
   errServer:"Couldn't reach our server. Check your connection and try again.",
@@ -565,6 +573,7 @@ fr:{
   sort:"Trier",sortMatch:"Meilleur choix",sortDiscount:"Plus gros rabais",sortPrice:"Prix le plus bas",search:"Chercher une marque ou un modèle",
   footer:'The Gear Fox · Flairez les aubaines · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="privacy.html">Confidentialité</a>',close:"Fermer",fit:"Coupe",
   men:"Homme",women:"Femme",both:"Les deux",menWomen:"Homme et femme",
+  terrainH:"Où courez-vous? <small>pour les chaussures</small>",terrainA:"Où courez-vous?",terrRoad:"Route",terrTrail:"Sentier",terrBoth:"Les deux",
   shoeSizeH:"Pointure <small>US, une ou plusieurs</small>",shoeWidth:"Largeur de chaussure",regularW:"Largeur normale",wideW:"Large",
   clothSizeH:"Taille de vêtements <small>hauts, shorts, bas, gants</small>",
   favBrands:'Marques préférées <span style="font-weight:400;color:var(--muted);margin-left:6px">facultatif</span>',favIntro:"Elles s'affichent en premier dans votre liste.",
@@ -573,7 +582,7 @@ fr:{
   gateFine:'Vous recevrez un courriel chaque vendredi avec les meilleures aubaines dans vos tailles, et à l\'occasion des nouvelles de The Gear Fox. On vous envoie d\'abord un lien de confirmation. Désabonnement en un clic. <a href="privacy.html">Confidentialité</a>',
   sheetGateTitle:"Des aubaines à votre taille",sheetTitle:"Qu'est-ce qui vous va?",
   sheetGateIntro:"Choisissez vos tailles et entrez votre courriel. On vous montre toutes les aubaines à votre taille, dans les boutiques partout au Canada.",
-  sheetIntro:"Trois clics et on cache tout ce qui ne vous va pas.",
+  sheetIntro:"Quelques clics et on cache tout ce qui ne vous va pas.",
   subscribeShow:"M'abonner et voir mes aubaines",showDeals:"Voir mes aubaines",oneMoment:"Un instant…",
   errFit:"Choisissez homme, femme ou les deux.",errSize:"Choisissez au moins une pointure ou une taille de vêtements.",errEmail:"Entrez un courriel valide pour voir vos aubaines.",
   errServer:"Impossible de joindre notre serveur. Vérifiez votre connexion et réessayez.",
@@ -676,7 +685,7 @@ const GL=g=>t("groups")[g]||I18N.en.groups[g];
 /* ---------- profile (lives in this browser; synced to the server once subscribed) ---------- */
 const LS={get(k){try{return JSON.parse(localStorage.getItem(k)||"null")}catch(e){return null}},
           set(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
-const state={name:"",email:"",gender:"",ships:"ca",groups:ORDER.slice(),shoe:[],width:[],cloth:[],brands:[]};
+const state={name:"",email:"",gender:"",terrain:"both",ships:"ca",groups:ORDER.slice(),shoe:[],width:[],cloth:[],brands:[]};
 let customBrands=[];
 
 /* The browser's time zone, so the Friday email lands at 7am wherever the person lives */
@@ -684,13 +693,13 @@ const TZ=(()=>{try{return Intl.DateTimeFormat().resolvedOptions().timeZone||""}c
 function toProfile(){
   const sizes={shoes:{sizes:state.shoe,width:state.width}};
   APPAREL_GROUPS.forEach(g=>sizes[g]={sizes:state.cloth});
-  return {lang:LANG,tz:TZ,name:state.name,email:state.email,gender:state.gender,ships:state.ships,groups:state.groups,sizes,brands:state.brands,activities:[],...(REF?{ref:REF}:{})};
+  return {lang:LANG,tz:TZ,name:state.name,email:state.email,gender:state.gender,terrain:state.terrain,ships:state.ships,groups:state.groups,sizes,brands:state.brands,activities:[],...(REF?{ref:REF}:{})};
 }
 function applyProfile(p){
   if(!p)return;
   const sz=p.sizes||{};
   const cloth=new Set();APPAREL_GROUPS.forEach(g=>((sz[g]||{}).sizes||[]).forEach(v=>{v=normSize(v);if(CLOTH.includes(v))cloth.add(v)}));
-  Object.assign(state,{name:p.name||"",email:p.email||"",gender:p.gender||"",ships:p.ships||"ca",
+  Object.assign(state,{name:p.name||"",email:p.email||"",gender:p.gender||"",terrain:["road","trail"].includes(p.terrain)?p.terrain:"both",ships:p.ships||"ca",
     groups:(p.groups&&p.groups.length)?p.groups.filter(g=>GL(g)):ORDER.slice(),
     shoe:((sz.shoes||{}).sizes||[]).map(String),width:(sz.shoes||{}).width||[],cloth:CLOTH.filter(c=>cloth.has(c)),brands:p.brands||[]});
   customBrands=state.brands.filter(b=>!BRANDS.includes(b));
@@ -709,6 +718,7 @@ function scaleHTML(opts,sel){return opts.map(o=>`<button type="button" class="ch
 function renderSheet(){
   setTimeout(renderLive,0);
   document.querySelectorAll("#fit button").forEach(b=>b.setAttribute("aria-pressed",String(state.gender===b.dataset.v)));
+  document.querySelectorAll("#terrain button").forEach(b=>b.setAttribute("aria-pressed",String(state.terrain===b.dataset.v)));
   $("shoeSizes").innerHTML=scaleHTML(SHOE,state.shoe);
   $("width").innerHTML=["Regular","Wide"].map(o=>`<button type="button" class="chip" data-v="${o}" aria-pressed="${state.width.includes(o)||(o==="Regular"&&!state.width.length)}">${o==="Wide"?t("wideW"):t("regularW")}</button>`).join("");
   $("clothSizes").innerHTML=scaleHTML(CLOTH,state.cloth);
@@ -717,6 +727,7 @@ function renderSheet(){
 }
 function toggle(a,v){const i=a.indexOf(v);i<0?a.push(v):a.splice(i,1)}
 $("fit").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;state.gender=b.dataset.v;renderSheet()});
+$("terrain").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;state.terrain=b.dataset.v;renderSheet()});
 $("shoeSizes").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;toggle(state.shoe,b.dataset.v);state.shoe.sort((a,b)=>a-b);renderSheet()});
 $("width").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;
   const w=state.width.length?state.width:["Regular"];toggle(w,b.dataset.v);state.width=w.length?w:["Regular"];renderSheet()});
@@ -876,6 +887,7 @@ $("saveSizes").addEventListener("click",async()=>{
 function sizeSummary(){
   if(!hasSizes())return t("tellFit");
   const parts=[{men:t("men"),women:t("women"),any:t("menWomen")}[state.gender]];
+  if(state.terrain!=="both")parts.push(t(state.terrain==="trail"?"terrTrail":"terrRoad"));
   if(state.shoe.length)parts.push(t("shoe")+" "+(state.shoe.length>3?state.shoe.slice(0,3).join(", ")+"…":state.shoe.join(", ")));
   if(state.cloth.length)parts.push(t("clothing")+" "+state.cloth.join(", "));
   return parts.join(" · ");
@@ -939,8 +951,11 @@ const accLetters=d=>(d.g==="packs"||d.g==="gear")&&d.sz.some(e=>LETTERS.has(e[0]
 /* Deal score: % off, plus the dollars saved and what it is, so a $200 shoe at 60% beats a $15 belt at 74%. */
 const GROUP_BONUS={shoes:15,tops:8,bottoms:8,bras:8,packs:6,watches:6};
 /* Track and cross-country spikes are big discounts but few visitors want them: rank them lower. */
-const SPIKE=/\bspikes?\b|\b[LM]D(-X)?\b|\bXC\b|cross[- ]?country|\bsprint|\bdragonfly|\bmaxfly|\bja fly|\bvictory\b|\bpointes?\b/i;
-const score=d=>d.pct+(GROUP_BONUS[d.g]||0)+Math.min(15,(d.reg-d.best)/10)-(d.g==="shoes"&&SPIKE.test(d.n)?30:0);
+const SPIKE=/spikes?\b|\bavanti\b|evospeed|\bspikeless\b|\b[LM]D(-X)?\b|\bXC\b|cross[- ]?country|\bsprint|\bdragonfly|\bmaxfly|\bja fly|\bvictory\b|\bpointes?\b/i;
+// road or trail runner (sign-up "Where do you run?"): matching shoes first, the others lower (still there)
+const TERRAIN={road:["daily","race"],trail:["trail","hike"]};
+const terrainFit=d=>d.g!=="shoes"||state.terrain==="both"||!d.t||SPIKE.test(d.n)?0:TERRAIN[state.terrain].includes(d.t)?20:-25;
+const score=d=>d.pct+(GROUP_BONUS[d.g]||0)+Math.min(15,(d.reg-d.best)/10)-(d.g==="shoes"&&SPIKE.test(d.n)?30:0)+terrainFit(d);
 /* Names come in English; show gender words in French on the French site. */
 function nm(n){return LANG!=="fr"?n:String(n).replace(/^(Men's|Women's|Unisex)\s+(.+)$/,"$2 - $1").replace(/\bMen's\b/g,"Homme").replace(/\bWomen's\b/g,"Femme").replace(/\bUnisex\b/g,"Unisexe")}
 /* Every item in stock in the profile's sizes, with its best price, the regular price of that size,

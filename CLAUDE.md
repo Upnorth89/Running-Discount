@@ -63,6 +63,8 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   subscribers for whom it is now Friday 7am or later in their own time zone (profile `tz` from the browser;
   default: French = Eastern, English = Pacific) and records `weekly_sent_at` so nobody gets two.
   Manual "Run workflow" requires a `send_to` address (or `everyone`) and sends immediately.
+  Profile `terrain` (road/trail/both, sign-up "Where do you run?"): the email keeps only that kind of shoes
+  (road = daily+race, trail = trail+hike); the site ranks them first (`terrainFit`), spikes excluded.
   First Friday email (no `weekly_sent_at` yet) shows a note: Gmail → drag to Primary; others → add us to contacts.
 - **Alerts**: at most one email per person every 3 days, only real drops (10% or $10), none on Fridays
   (the Friday email carries watchlist news).
