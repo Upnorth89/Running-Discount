@@ -119,7 +119,8 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   links, `ca` ships from Canada, `sz` = `[size, price, offerIndex, regular, variantId?]`.
 - Groups: shoes, tops, bottoms, bras, socks, gloves, headwear, packs, gear, watches, nutrition.
 - Types (`t`, from the name, `TYPES` in scrape.py; buttons under each category on the site, untyped show under "All"):
-  shoes daily/race/trail/hike (brand + name: trail brands, "road" never trail), tops tee/layer/jacket, bottoms
+  shoes daily/race/trail/hike/spike (definitions in scrape.py above TYPES["shoes"]; colour names cut off; "Trail Running"
+  beats hiking brands; race = carbon/plated or racing flats; winter studded trail shoes are trail, not spikes), tops tee/layer/jacket, bottoms
   short/tight/pant, gear light/pole/bottle/sun. `tidy_clothes` moves bras/capris, drops bike parts; `tidy_gear` moves
   shoes filed as gear (shoe brand + numbered sizes) to shoes. One category chip picked = no Top deals (`NARROW`).
 - `SOCCER` drops soccer boots (FG/AG… codes); `GENDER_PREFIX_STORES` reads "M "/"W " name prefixes (Frontrunners).

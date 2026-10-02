@@ -503,7 +503,7 @@ en:{
   inYourSize:"In your size:",isNew:"New",bestBy:d=>`Short-dated: best by ${d}`,
   atStore:n=>`at ${n}`,shareTxt:"Know a runner who hates paying full price?",shareBtn:"Share",shareCopied:"Link copied: paste it anywhere.",shareCopy:"Copy this link:",
   shareText:"Running and outdoor gear on sale in your size, from stores across Canada.",usFuel:"Includes US stores: fuel ships well, and each deal says where it ships from.",shipsFrom:c=>`ships from ${({US:"the US",UK:"the UK",FR:"France",DK:"Denmark",AU:"Australia"})[c]||"outside Canada"}, duties may apply`,showMore:n=>`Show ${n} more`,
-  allGear:"All gear",typeAll:"All",types:{daily:"Daily trainers",race:"Carbon & race",trail:"Trail",hike:"Hiking & winter",light:"Lights",pole:"Poles",bottle:"Bottles & flasks",sun:"Sunglasses",tee:"T-shirts & tanks",layer:"Long sleeves & hoodies",jacket:"Jackets & vests",short:"Shorts",tight:"Tights",pant:"Pants"},
+  allGear:"All gear",typeAll:"All",types:{daily:"Daily trainers",race:"Carbon & race",trail:"Trail",hike:"Hiking & winter",spike:"Track & XC spikes",light:"Lights",pole:"Poles",bottle:"Bottles & flasks",sun:"Sunglasses",tee:"T-shirts & tanks",layer:"Long sleeves & hoodies",jacket:"Jackets & vests",short:"Shorts",tight:"Tights",pant:"Pants"},
   shipsCA:"Ships from Canada",saleOnly:"Include full price",
   stopWatching:"Stop watching",watch:"Watch",removed:"Removed from your watchlist.",
   watching:"Watching. We'll email you if it drops or comes back in your size.",
@@ -593,7 +593,7 @@ fr:{
   inYourSize:"À votre taille :",isNew:"Nouveau",bestBy:d=>`Date courte : meilleur avant le ${d}`,
   atStore:n=>`chez ${n}`,shareTxt:"Un ami coureur déteste payer le plein prix ?",shareBtn:"Partager",shareCopied:"Lien copié : collez-le où vous voulez.",shareCopy:"Copiez ce lien :",
   shareText:"Des aubaines de course et de plein air dans votre taille, dans des boutiques partout au Canada.",usFuel:"Comprend des boutiques américaines : la nutrition voyage bien, et chaque aubaine indique d'où elle est expédiée.",shipsFrom:c=>`expédié ${({US:"des États-Unis",UK:"du Royaume-Uni",FR:"de France",DK:"du Danemark",AU:"d'Australie"})[c]||"de l'extérieur du Canada"}, des droits peuvent s'appliquer`,showMore:n=>`Voir ${n} de plus`,
-  allGear:"Tout",typeAll:"Tout",types:{daily:"Entraînement",race:"Carbone et compétition",trail:"Sentier",hike:"Randonnée et hiver",light:"Frontales",pole:"Bâtons",bottle:"Gourdes et flasques",sun:"Lunettes de soleil",tee:"T-shirts et camisoles",layer:"Manches longues et kangourous",jacket:"Manteaux et vestes",short:"Shorts",tight:"Collants",pant:"Pantalons"},
+  allGear:"Tout",typeAll:"Tout",types:{daily:"Entraînement",race:"Carbone et compétition",trail:"Sentier",hike:"Randonnée et hiver",spike:"Pointes (piste et cross)",light:"Frontales",pole:"Bâtons",bottle:"Gourdes et flasques",sun:"Lunettes de soleil",tee:"T-shirts et camisoles",layer:"Manches longues et kangourous",jacket:"Manteaux et vestes",short:"Shorts",tight:"Collants",pant:"Pantalons"},
   shipsCA:"Expédié du Canada",saleOnly:"Inclure le prix régulier",
   stopWatching:"Retirer des favoris",watch:"Ajouter aux favoris",removed:"Retiré de vos favoris.",
   watching:"Ajouté. On vous écrit si le prix baisse ou si votre taille revient en stock.",
@@ -914,7 +914,7 @@ const WORD={"ONE SIZE":"OS","O/S":"OS","X-SMALL":"XS","XSMALL":"XS","SMALL":"S",
 function norm(s){s=String(s).trim().toUpperCase();s=WORD[s]||s;return s.replace("XXXL","3XL").replace("XXL","2XL").replace("XXS","2XS")}
 let NARROW=false;   // only some categories picked (see renderAll)
 const view={fullPrice:false,sort:"match",q:"",open:{},watch:false,newAll:false,type:{}};
-const TYPES={shoes:["daily","race","trail","hike"],tops:["tee","layer","jacket"],bottoms:["short","tight","pant"],gear:["light","pole","bottle","sun"]};   // garment type buttons under these categories (deals.json "t")
+const TYPES={shoes:["daily","race","trail","hike","spike"],tops:["tee","layer","jacket"],bottoms:["short","tight","pant"],gear:["light","pole","bottle","sun"]};   // garment type buttons under these categories (deals.json "t")
 const NEWSTYLE_DEFAULT="row";                              // "row" (A) or "sticky" (B)
 const NEWSTYLE=LS0("gf-newstyle")||NEWSTYLE_DEFAULT;
 document.body.classList.add(NEWSTYLE==="row"?"newrow":"sticky");

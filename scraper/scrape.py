@@ -1138,7 +1138,7 @@ for _st, _base, _kind in SHOPIFY_STORES:
 
 # Casual footwear some running stores also sell; not what people come here for.
 CASUAL_BRANDS = {"birkenstock", "wolky", "teva", "crocs", "ugg", "blundstone", "dr. martens", "clarks", "oofos"}
-CASUAL_SHOE = re.compile(r"\b(sandal|sandale|clog|sabot|slipper|pantoufle|mule|flip[- ]flop|loafer|slide)s?\b", re.I)
+CASUAL_SHOE = re.compile(r"\b(sandal|sandale|clog|sabot|slipper|pantoufle|mule|flip[- ]flop|loafer|slide|clearwater cnx)s?\b", re.I)
 # soccer boots (Frontrunners sells them): ground codes FG/AG/MG/SG/TF, or the model lines
 SOCCER = re.compile(r"\b(FG|AG|MG|SG|TF)\b|(?i:\b(soccer|futsal|predator|f50|copa|tiempo|mercurial)\b)")
 
@@ -1229,18 +1229,32 @@ TYPES = {
                 ("pant", r"pant|pantalon|jogger|trouser|sweats|cargo|jeans")],
 }
 # shoes and gear: matched on "brand name" (trail brands, sunglasses brands); first match wins, "." = everything else
+# Shoe types, the way runners shop (checked on the live catalogue Oct 2, 2026):
+#   spike  track and cross-country spikes (Zoom Rival, XC7, EvoSPEED, Avanti, Ja Fly…)
+#   hike   built for walking, hiking, snow and cold: hikers, mids, boots, winter shoes
+#   trail  running shoes for dirt, rock and mud (lugs, rock plates), waterproof trail runners included
+#   race   road racing / tempo shoes with a carbon (or similar) plate and race foam
+#   daily  everything else: road shoes for everyday and long runs (cushioned, stability)
+# Order matters (first match wins). Colour names are cut off first ("GT-2000 — Winter Sea" is not a winter shoe).
 TYPES["shoes"] = [
-    ("hike", r"\bhik(e|ing)|\bboots?\b|\bbottes?\b|\bmid\b|toundra|approach|\blowa\b|\boboz\b|\bkeen\b|winter|hiver|snow"),
-    ("trail", r"^(?!.*\broad\b).*(trail|sentier|speedgoat|mafate|tecton|challenger|torrent|zinal|stinson|cascadia|caldera|catamount|"
-              r"divide|peregrine|xodus|endorphin edge|olympus|lone peak|timp|mont blanc|speedcross|\bsense\b|s/lab|ultra glide|genesis|"
-              r"xa pro|alphacross|wildcross|agility peak|long sky|hierro|more trail|supercomp trail|fuji|trabuco|venture|wildhorse|"
-              r"kiger|zegama|ultrafly|ultra fly|cloudultra|cloudvista|cloudventure|tomir|kjerag|mutant|jackal|bushido|akasha|prodigio|"
-              r"cyklon|daichi|mujin|ibuki|xt-6|grvl|experience wild|nordlite|pro endur.*trail|seek|wildwood|tecnica|"
-              r"\bla sportiva\b|nnormal|scarpa|inov-?8|\bvj\b|dynafit|norda|icebug|merrell)"),
-    ("race", r"alphafly|vaporfly|adios pro|adizero pro|prime x|takumi|metaspeed|endorphin (pro|elite|speed)|rocket x|cielo x|cielo rd|"
-             r"supercomp (elite|pacer)|\bsc (elite|pacer|trainer)\b|deviate nitro|fast-r|hyperion (elite|max)|cloudboom|wave rebellion|"
-             r"carbon|metaracer|rc elite|vanish|streakfly|evo sl|adizero boston|velociti|spikes?|cloudspike|racing|racer|"
-             r"\b[LM]D(-X)?\b|\bXC\b|dragonfly|maxfly|ja fly|victory|\bmmd|zoomx|pointes?"),
+    ("race", r"phantasm|s/lab pulsar|aero blaze"),      # Salomon's road racers ("S/Lab" otherwise means trail)
+    # winter trail shoes with ice studs ("Speedgoat GTX Spike", "Norda G+ Spike") and "Norvan LD" (long distance) are trail
+    ("trail", r"norvan|speedgoat.*spike|norda|\bg\+|carbide|cross spike|mtn racer|\bice\b"),
+    ("spike", r"spikes?\b(?<!cross spike)|\bpointes?\b|\bxc\d*\b|\bm?xcs\d|\bwxcs|zoom rival|\bavanti\b|sprintstar|evospeed|"
+              r"\bja fly|maxfly|dragonfly|\bvictory\b|\b[LMS]D(-X)?\b|metaspeed (ld|md|sp)|ambition|\bdistance (nitro|11)\b"),
+    ("hike", r"\bhik(e|er|ing)\b|\bboots?\b|\bbottes?\b|\bmid\b|chelsea|\bpolar\b|winter|hiver|snow ?boot|"
+             r"approach(?!.*trail running)|toundra|\bkaha\b|\bmoab\b|targhee|x ultra|genesis mid|renegade|nabucco|sawtooth|"
+             r"crosscut|\bbogs\b|cloudsoma|\btransport\b"),
+    ("trail", r"trail runn|\btrail\b|sentier|speedgoat|mafate|tecton|challenger|torrent|zinal|stinson|cascadia|caldera|catamount|"
+              r"divide|peregrine|xodus|endorphin edge|olympus|lone peak|timp|mont blanc|speedcross|\bsense\b|s/lab|ultra glide|"
+              r"genesis|xa pro|alphacross|wildcross|agility peak|long ?sky|hierro|supercomp trail|fuji|trabuco|venture|wildhorse|"
+              r"kiger|zegama|ultrafly|ultra fly|cloudultra|cloudvista|cloudventure|tomir|kjerag|mutant|jackal|bushido|akasha|"
+              r"prodigio|cyklon|daichi|mujin|ibuki|xt-6|grvl|experience wild|nordlite|seek|\btr\d|amplux|madrix|fortux|katabatic|"
+              r"\bla sportiva\b|nnormal|scarpa|inov-?8|\bvj\b|dynafit|norda|icebug|merrell|\blowa\b|\boboz\b|\bkeen\b"),
+    ("race", r"alphafly|vaporfly|adios pro|adizero pro|prime x|takumi|metaspeed|endorphin (pro|elite|speed)|rocket x|cielo x|"
+             r"cielo rd|supercomp (elite|pacer|trainer)|\bsc (elite|pacer|trainer)\b|deviate nitro|fast-r|hyperion (elite|max)|"
+             r"cloudboom|wave rebellion|carbon|metaracer|rc elite|streakfly|adizero boston|velociti elite|racing|racer|"
+             r"zoomx|supercomp rebel"),
     ("daily", r"."),
 ]
 TYPES["gear"] = [
@@ -1268,6 +1282,10 @@ def tidy_clothes(offers):
 def garment_type(g, n):
     """tops: tee / layer / jacket; bottoms: short / tight / pant; shoes: hike / trail / race / daily;
     gear: sun / light / pole / bottle; None when the name doesn't say (shown under "All" only)."""
+    if g == "shoes":
+        n = re.split(r"\s+[—·]\s+", n)[0]       # "Women's GT-2000 14 — Winter Sea/White": the colour isn't the shoe
+        if re.search(r"trail runn", n, re.I) and not re.search(r"\b(hik(e|er|ing)|mid|boots?|winter)\b", n, re.I):
+            return "trail"                       # "Lowa Amplux Trail Running Shoes": a trail runner from a hiking brand
     for k, rx in TYPES.get(g, []):
         if rx.search(n):
             return k
