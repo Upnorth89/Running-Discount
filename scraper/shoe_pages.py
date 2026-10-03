@@ -687,7 +687,7 @@ def main():
         (site / L["dir"] / "index.html").write_text(index_page(L, entries, updated))
     reg_path.write_text(json.dumps(known, ensure_ascii=False, separators=(",", ":")))
     day = (updated or datetime.now(timezone.utc).isoformat())[:10]
-    urls = ["/", "/shoes/", "/chaussures/", "/privacy.html"] + extra_urls
+    urls = ["/", "/shoes/", "/chaussures/", "/about.html", "/privacy.html"] + extra_urls
     urls += [f"/{d}/{s}/" for s in known_live for d in ("shoes", "chaussures")]
     (site / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
                                       "".join(f"<url><loc>{BASE}{u}</loc><lastmod>{day}</lastmod></url>\n" for u in urls) + "</urlset>\n")
