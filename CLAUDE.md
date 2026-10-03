@@ -111,6 +111,8 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
 
 ## Affiliate plan (Oct 1, 2026: none live yet; networks want 60–90 days of traffic)
 
+- Oct 4: AvantLink network account applied and site verified (the check script was removed after). Next: apply to brands inside AvantLink.
+
 - AvantLink covers MEC and 9 of our brands (rabbit 10%, Sunski 8%, Oiselle 6% but no coupon/deal sites,
   Swiftwick, Ciele, Janji, Nathan, Tailwind, Skratch via Shopify Collabs). The Feed and Stance: CJ (Stance
   refuses deal sites). Altitude and The Last Hunt: Rakuten/FlexOffers. Sporting Life: Partnerize.
