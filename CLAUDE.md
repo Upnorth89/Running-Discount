@@ -104,6 +104,8 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
 - **Instagram Reels (Bastien's rule, Oct 3): always with safe bands.** Screen recordings of the site sit in the middle of a
   1080x1920 frame: dark (#17201C) band 218px on top (Instagram's Reels title/camera cover it) and 400px below (name, caption,
   like/comment buttons). Recorder + example in `tools/reels/` (rec.js records a 360x434 phone; ffmpeg line in its header).
+  Open on the payoff (Oct 3): 2.5 s slow zoom on the result frame (e.g. "Dropped $41"), zooming only the site part
+  (crop 1080x1302 at y218, zoompan, pad back), then the normal flow.
   Tell him: captions go on the site part, never in the bottom band; a big hook line in the first second; cover image 1080x1920
   with the key content in the middle 4:5 (the profile grid crops to it).
 - **Monthly report** (`monthly-report.yml`, `scraper/monthly_report.py`): the 1st of each month emails last

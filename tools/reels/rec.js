@@ -2,6 +2,8 @@
 // Reels rule (Bastien, Oct 3 2026): every Reel has safe bands. Record at 360x434 (VH env, default 434), then
 //   ffmpeg -f concat -safe 0 -i NAME.txt -ss 3 -vf "scale=1080:1302:flags=lanczos,pad=1080:1920:0:218:color=0x17201C,fps=30,format=yuv420p" -c:v libx264 -crf 18 OUT.mp4
 // = the site in the middle, dark band 218px on top (Instagram's Reels title/camera) and 400px below (name, caption, buttons).
+// Payoff first: grab the result frame as pay.png, then
+//   ffmpeg -loop 1 -i pay.png -i REEL.mp4 -filter_complex "[0]crop=1080:1302:0:218,scale=2160:2604,zoompan=z='1+0.0009*on':x='iw/2-(iw/zoom/2)':y='ih*0.55-(ih*0.55/zoom)':d=75:s=1080x1302:fps=30,trim=end_frame=75,pad=1080:1920:0:218:color=0x17201C,setsar=1,format=yuv420p[a];[1]fps=30,setsar=1,format=yuv420p[b];[a][b]concat=n=2:v=1[v]" -map "[v]" -c:v libx264 -crf 18 OUT.mp4
 // Run from tools/reels: VH=434 node heart.js
 const {chromium}=require('/opt/node22/lib/node_modules/playwright');
 const fs=require('fs');
