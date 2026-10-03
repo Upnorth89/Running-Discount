@@ -45,6 +45,12 @@ scraper/shoe_pages.py    Google pages: one per popular shoe model (3+ Canadian s
                          The site links to them: "All sizes & stores →" on shoe cards (shoePage(): JS copy of base_model +
                          slugify, checked identical on all shoes), search cards for model names, "or look up a specific
                          shoe →" on the welcome screen (the second door), and the Friday email. Umami: shoe-page-link {from}.
+                         SEO (Oct 4): titles carry today's price ("X Sale Canada: from $Y (−Z%)"); each model page has
+                         "About this shoe" + "Quick answers" from today's numbers; list pages /running-shoes-sale/{,road,
+                         trail,racing,women,men}/ (FR /chaussures-course-solde/{,route,sentier,competition,femme,homme}/),
+                         brand pages /brands/<b>/ + /marques/<b>/ (brands with 3+ models), /black-friday/ + /vendredi-fou/;
+                         it also fills the homepage block between <!--SEO-TODAY--> markers (keep them EMPTY in git: the
+                         morning build writes today's top 12 + links there).
 supabase/setup.sql       database: tables, sign-up/confirm/profile/Google functions, email templates
 supabase/watchlist.sql   watchlist table + functions
 supabase/friday-switch.sql  latest change (Friday wording + weekly_sent_at column); already applied

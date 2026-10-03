@@ -74,6 +74,11 @@ input:focus-visible,button:focus-visible,summary:focus-visible,select:focus-visi
 .dw{position:relative;display:flex;min-width:0}
 .dw .deal{flex:1;padding-bottom:14px}
 .dw.hascmp .deal,body.compact .dw.hascmp .deal{padding-bottom:44px}
+.seo-today{margin:28px 0 0;padding:16px 0 0;border-top:1.5px solid var(--line);font-size:13px;color:var(--muted)}
+.seo-today h2{font:700 18px/1.2 var(--display);color:var(--ink);margin:0 0 8px}
+.seo-today ol{margin:0 0 10px;padding-left:20px;line-height:1.45;font-size:13px}
+@media(min-width:560px){.seo-today ol{columns:2;column-gap:28px}}
+.seo-today p{margin:0 0 6px;line-height:1.6}
 .cmp{position:absolute;left:15px;bottom:14px;font:600 13px/1.2 var(--body);color:var(--moss);text-decoration:underline;text-underline-offset:2px;padding:4px 0}
 .spcards{display:grid;gap:8px;margin:0 0 16px}
 .spcard{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--card);border:1.5px solid var(--hivis);border-radius:12px;padding:12px 14px;color:var(--ink);text-decoration:none;font-size:15px}
@@ -368,6 +373,7 @@ body.locked #langBtn,body.locked #curBtn,body.locked #openWatch{visibility:hidde
   <p class="tally hidden" id="tally"></p>
   <div class="sharecard hidden" id="shareCard"><span id="shareTxt"></span><button type="button" class="btn" id="shareBtn"></button></div>
   <p class="foot" id="dealsFoot"></p>
+  <!--SEO-TODAY--><!--/SEO-TODAY-->
   <p class="foot" data-i18n="footer">The Gear Fox · Outfox full price · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="shoes/">Shoe prices by model</a> · <a href="privacy.html">Privacy</a></p>
 </main>
 <div class="toast hidden" id="toast" role="status"></div>
