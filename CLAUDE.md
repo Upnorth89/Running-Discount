@@ -160,6 +160,14 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   Canada" on (site and Friday email). Cards name the store and where it ships from (`STORES` map in index.html:
   add new stores there too).
 
+## Fox Pro (decided Oct 4, 2026; table in the 6-month plan doc)
+
+Keep the hook free, charge for more, faster, deeper. Free: deals in your size, shoe price pages, watchlist (~10 items,
+full price or sale), drop/back-in-size news in the Friday email, "lowest in N days" badge. Pro: same-morning alerts
+(today's daily alerts; "free during launch" until Pro exists), unlimited watchlist, full price-history chart, family
+profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone notifications. Target-price alerts dropped
+(runners don't know a shoe's floor). Price to test ~$3–4/month or $29/year, founding $3.
+
 ## Supabase (project krwymmkauwqqxjxbvkyq)
 
 - Publishable key is in `site/index.html` (public by design). Tables: `subscribers` (email, profile,
