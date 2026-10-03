@@ -38,6 +38,8 @@ scraper/alerts.py        daily price-drop / back-in-your-size emails
 scraper/health.py        daily health check + morning report email
 scraper/shoe_pages.py    Google pages: one per popular shoe model (3+ Canadian stores), /shoes/<slug>/ and /chaussures/<slug>/,
                          list pages, sitemap.xml (robots.txt is static). Pages never disappear (shoes/pages.json registry)
+                         List page: search-as-you-type + brand shortcuts. A registered slug that now tidies into another
+                         model gets `to` in pages.json and becomes a forwarding page (noindex, canonical), out of the sitemap.
 supabase/setup.sql       database: tables, sign-up/confirm/profile/Google functions, email templates
 supabase/watchlist.sql   watchlist table + functions
 supabase/friday-switch.sql  latest change (Friday wording + weekly_sent_at column); already applied
@@ -136,6 +138,8 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   "Women's Saucony Peregrine 14", "Men's Velociti 4 Running Shoe": Frontrunners, Aerobics First, City Park Runners, Sporting Life;
   also drops "*SALE*" and " - Colour/Colour"). Any store's "Men's …"/"Women's …" shoes and clothing get the same. Shoe merge keys
   ignore "(trail/road) running shoe(s)", so stores' differently worded names merge. One spelling per brand (most common wins).
+  Merge keys for shoes also ignore the colour after " — " (Fit First lists each colour) and width words on wide items;
+  "(Men's)"/"Men’s" become " - Men's"; Québec stores' "- Large"/"(Large)" = wide. Hoka Ora Recovery = casual (dropped).
 - `CAPS_STORES` (Le Coureur writes in capitals: softened), `OWN_BRAND` (rabbit/Bandit leave the brand "0").
 - Shoe size keys: `"10"`, `"M:10"`/`"W:11"` (from unisex labels), suffix `~W` wide, `~N` narrow (hidden).
 - Accessories (packs, gear) in letter sizes follow the clothing size; odd labels are hidden on cards.

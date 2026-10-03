@@ -50,6 +50,7 @@ T = {
         "idxIntro": "Every popular running shoe we track, with today's best price in each size at Canadian stores. Updated every morning.",
         "idxDesc": "Today's best price in every size for {n} running shoe models at Canadian stores. Updated every morning by The Gear Fox.",
         "onSale": "on sale", "home": "The Gear Fox", "switch": "Français",
+        "find": "Search a model (e.g. Clifton)", "noMatch": "No model matches. Try the brand name, or a shorter word.",
         "foot": "The Gear Fox · Outfox full price · Prices change often: the store's price at checkout is the one that counts.",
         "privacy": "Privacy",
         "months": ["Jan.", "Feb.", "Mar.", "Apr.", "May", "June", "July", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."],
@@ -79,6 +80,7 @@ T = {
         "idxIntro": "Toutes les chaussures de course populaires que nous suivons, avec le meilleur prix du jour dans chaque pointure dans les boutiques canadiennes. Mis à jour chaque matin.",
         "idxDesc": "Le meilleur prix du jour dans chaque pointure pour {n} modèles de chaussures de course dans les boutiques canadiennes. Mis à jour chaque matin par The Gear Fox.",
         "onSale": "en solde", "home": "The Gear Fox", "switch": "English",
+        "find": "Chercher un modèle (ex. Clifton)", "noMatch": "Aucun modèle trouvé. Essayez le nom de la marque ou un mot plus court.",
         "foot": "The Gear Fox · Flairez les aubaines · Les prix changent souvent : le prix de la boutique au paiement est celui qui compte.",
         "privacy": "Confidentialité",
         "months": ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"],
@@ -96,8 +98,9 @@ def esc(s):
 
 def base_model(n):
     """"Triumph 23 Running Shoes [Wide] - Women's" -> "Triumph 23"."""
-    n = re.sub(r"\s*-\s*(Men's|Women's|Unisex)$", "", n)
-    n = re.sub(r"\s*[\[(](wide|extra wide|2e|4e|d|ee)[\])]\s*|\s+\b(extra wide|wide)\b", " ", n, flags=re.I)
+    n = re.sub(r"\s*(-\s*|\()(Men|Women)[’']s\)?$|\s*(-\s*|\()Unisex\)?$", "", n)
+    n = re.split(r"\s+[—·]\s+", n)[0]                                    # "Clifton 10 — White/White"
+    n = re.sub(r"\s*[\[(](x-?wide|extra wide|wide|2e|4e|d|ee|large)[\])]\s*|\s+\b(extra wide|x-?wide|wide)\b", " ", n, flags=re.I)
     n = re.sub(r"\b((trail|road) )?running shoes?\b|\bhiking shoes?\b|\bshoes?\b", "", n, flags=re.I)
     return re.sub(r"\s+", " ", n).strip(" -")
 
@@ -224,7 +227,13 @@ td.p s{color:var(--muted);font-size:13px;margin-left:4px}
 .links{display:flex;flex-wrap:wrap;gap:8px;padding:0;list-style:none;margin:0}
 .links a{display:inline-block;background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:6px 12px;text-decoration:none;color:var(--ink);font-size:15px}
 .links small{color:var(--moss);font-weight:600}
-.brand{margin:18px 0 6px;font:700 20px var(--display)}
+.brand{margin:18px 0 6px;font:700 20px var(--display);scroll-margin-top:120px}
+.find{position:sticky;top:0;z-index:5;background:var(--mist);padding:10px 0 8px;margin:0 -2px}
+.find input{width:100%;font:400 17px var(--body);color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px}
+.find input:focus{outline:3px solid var(--moss);outline-offset:1px}
+.jump{display:flex;gap:6px;overflow-x:auto;padding:2px 0 4px;scrollbar-width:none}
+.jump a{flex:none;font:600 13px var(--body);color:var(--ink);text-decoration:none;border:1.5px solid var(--line);border-radius:999px;padding:4px 10px;background:var(--card)}
+.nomatch{color:var(--muted);margin:16px 0}
 .foot{font-size:13px;color:var(--muted);margin:30px 0 10px}
 """
 
@@ -353,10 +362,21 @@ def index_page(L, entries, updated):
     by = defaultdict(list)
     for b, s, n, off in entries:
         by[b].append((n, s, off))
-    for b in sorted(by, key=str.lower):
-        out.append(f'<p class="brand">{esc(b)}</p><ul class="links">' + "".join(
-            f'<li><a href="/{L["dir"]}/{s}/">{esc(n[len(b):].strip() if n.lower().startswith(b.lower() + " ") else n)}{f" <small>−{off}%</small>" if off >= 10 else ""}</a></li>'
-            for n, s, off in sorted(by[b], key=lambda x: x[0].lower())) + "</ul>")
+    brands = sorted(by, key=str.lower)
+    # search as you type + brand shortcuts (for people; Google reads the plain links below either way)
+    out.append(f'<div class="find"><input id="find" type="search" placeholder="{esc(L["find"])}" aria-label="{esc(L["find"])}" autocomplete="off">'
+               f'<nav class="jump">' + "".join(f'<a href="#b-{slugify(b)}">{esc(b)}</a>' for b in brands) + '</nav></div>')
+    for b in brands:
+        out.append(f'<section class="bgrp"><p class="brand" id="b-{slugify(b)}">{esc(b)}</p><ul class="links">' + "".join(
+            f'<li data-n="{esc((b + " " + n).lower())}"><a href="/{L["dir"]}/{s}/">{esc(n[len(b):].strip() if n.lower().startswith(b.lower() + " ") else n)}{f" <small>−{off}%</small>" if off >= 10 else ""}</a></li>'
+            for n, s, off in sorted(by[b], key=lambda x: x[0].lower())) + "</ul></section>")
+    out.append(f'<p class="nomatch" id="nomatch" hidden>{esc(L["noMatch"])}</p>')
+    out.append("""<script>(function(){var f=document.getElementById("find"),nm=document.getElementById("nomatch");
+var norm=function(t){return t.toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").replace(/[^a-z0-9+ ]/g," ")};
+f.addEventListener("input",function(){var w=norm(f.value).split(/\\s+/).filter(Boolean),any=false;
+document.querySelectorAll(".bgrp").forEach(function(g){var n=0;g.querySelectorAll("li").forEach(function(li){var t=norm(li.dataset.n).replace(/ /g,"")+" "+norm(li.dataset.n);
+var ok=w.every(function(x){return t.indexOf(x)>=0});li.hidden=!ok;if(ok)n++});g.hidden=!n;if(n)any=true});
+nm.hidden=any||!w.length;document.querySelector(".jump").hidden=!!w.length})})();</script>""")
     out.append(page_foot(L))
     return "".join(out)
 
@@ -375,12 +395,29 @@ def main():
     for slug, its in models.items():
         if slug not in known and len(canadian_stores(its, stores)) >= MIN_STORES:
             known[slug] = {"b": its[0]["b"], "n": f'{its[0]["b"]} {base_model(its[0]["n"])}', "t": its[0].get("t") or ""}
-    names = {s: v["n"] for s, v in known.items()}
+    # an old page whose name now tidies into another model ("Neo Vista (Men's)" -> "Neo Vista") forwards to it
+    for slug, meta in known.items():
+        if meta.get("to") or slug in models:
+            continue
+        b = meta["b"]
+        to = slugify(f'{b} {base_model(meta["n"][len(b) + 1:] if meta["n"].lower().startswith(b.lower() + " ") else meta["n"])}')
+        if to != slug and to in known and not known[to].get("to"):
+            meta["to"] = to
+    moved = {s: v["to"] for s, v in known.items() if v.get("to")}
+    for slug, to in moved.items():
+        for L in T.values():
+            p = site / L["dir"] / slug / "index.html"
+            p.parent.mkdir(parents=True, exist_ok=True)
+            u = f"/{L['dir']}/{to}/"
+            p.write_text(f'<!DOCTYPE html><html><head><meta charset="UTF-8"><title>{esc(known[to]["n"])}</title><link rel="canonical" href="{BASE}{u}">'
+                         f'<meta name="robots" content="noindex"><meta http-equiv="refresh" content="0; url={u}"></head><body><a href="{u}">{esc(known[to]["n"])}</a></body></html>')
+    known_live = {s: v for s, v in known.items() if not v.get("to")}
+    names = {s: v["n"] for s, v in known_live.items()}
     by_brand = defaultdict(list)
-    for s, v in known.items():
+    for s, v in known_live.items():
         by_brand[v["b"].lower()].append(s)
     entries, n_live = [], 0
-    for slug, meta in known.items():
+    for slug, meta in known_live.items():
         its = models.get(slug) or [{"b": meta["b"], "n": meta["n"][len(meta["b"]) + 1:], "g": "shoes", "t": meta.get("t"), "sz": [], "of": []}]
         n_live += bool(models.get(slug))
         same = [s for s in by_brand[meta["b"].lower()] if s != slug]
@@ -398,10 +435,11 @@ def main():
     reg_path.write_text(json.dumps(known, ensure_ascii=False, separators=(",", ":")))
     day = (updated or datetime.now(timezone.utc).isoformat())[:10]
     urls = ["/", "/shoes/", "/chaussures/", "/privacy.html"]
-    urls += [f"/{d}/{s}/" for s in known for d in ("shoes", "chaussures")]
+    urls += [f"/{d}/{s}/" for s in known_live for d in ("shoes", "chaussures")]
     (site / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
                                       "".join(f"<url><loc>{BASE}{u}</loc><lastmod>{day}</lastmod></url>\n" for u in urls) + "</urlset>\n")
-    print(f"shoe pages: {len(known)} models ({n_live} in stock today), {2 * len(known)} pages EN/FR, sitemap {len(urls)} links")
+    print(f"shoe pages: {len(known_live)} models ({n_live} in stock today), {2 * len(known_live)} pages EN/FR, "
+          f"{len(moved)} old addresses forwarded, sitemap {len(urls)} links")
 
 
 if __name__ == "__main__":

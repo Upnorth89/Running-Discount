@@ -1143,7 +1143,7 @@ for _st, _base, _kind in SHOPIFY_STORES:
 
 # Casual footwear some running stores also sell; not what people come here for.
 CASUAL_BRANDS = {"birkenstock", "wolky", "teva", "crocs", "ugg", "blundstone", "dr. martens", "clarks", "oofos"}
-CASUAL_SHOE = re.compile(r"\b(sandal|sandale|clog|sabot|slipper|pantoufle|mule|flip[- ]flop|loafer|slide|clearwater cnx)s?\b", re.I)
+CASUAL_SHOE = re.compile(r"\b(sandal|sandale|clog|sabot|slipper|pantoufle|mule|flip[- ]flop|loafer|slide|clearwater cnx|recovery (flip|slide)|ora recovery)s?\b", re.I)
 # court and lifestyle shoes from running brands (ASICS tennis/pickleball lines, retro sneakers)
 COURT_SHOE = re.compile(r"pick[el]+ball|\btennis\b|\bpadel\b|\bcourt\b|gel[- ]?(resolution|dedicate|game|challenger|1130|nyc|kahana)|solution speed", re.I)
 # soccer boots (Frontrunners sells them): ground codes FG/AG/MG/SG/TF, or the model lines
@@ -1153,7 +1153,7 @@ def shoe_width_from_name(n, sx):
     """Widths many stores put in the product name: "Bondi 9 (2E)", "880v15 (D)", "Clifton 10 Wide".
     Returns "wide", "narrow" or "". Women's D is wide; men's D is the regular width."""
     low = n.lower()
-    if re.search(r"\(\s*(2e|4e|6e|ee|eee|x-?wide|wide|extra wide)\s*\)|\b(x-?wide|extra wide|wide)\b|\blarge\b(?=.*\b(pied|chaussure)\b)", low):
+    if re.search(r"\(\s*(2e|4e|6e|ee|eee|x-?wide|wide|extra wide)\s*\)|\b(x-?wide|extra wide|wide)\b|\blarge\b(?=.*\b(pied|chaussure)\b)|-\s*large\s*$|\(\s*large\s*\)", low):   # Québec stores: "Clifton 11 (Homme) - Large"
         return "wide"
     if re.search(r"\(\s*(2a|aa|4a|narrow|n)\s*\)|\bnarrow\b|\b[ée]troit", low):
         return "narrow"
@@ -1333,6 +1333,7 @@ def tidy_shoes(offers):
                 continue
             if w == "wide":
                 o["w"] = True
+                o["n"] = re.sub(r"\s*-\s*large\s*$|\s*\(\s*large\s*\)", "", o["n"], flags=re.I)   # the wide flag says it
         out.append(o)
     return out
 
@@ -1373,6 +1374,8 @@ def tidy_name(b, n):
     n = re.sub(r"\bHommes?\b", "Men's", n)
     n = re.sub(r"\bFemmes?\b", "Women's", n)
     n = re.sub(r"\bUnisexe\b", "Unisex", n)
+    n = re.sub(r"\b(Wom|M)en[’`´]s\b", r"\1en's", n)                                  # curly apostrophe
+    n = re.sub(r"\s*\((Men's|Women's|Unisex)\)\s*$", r" - \1", n)                  # "Neo Vista (Men's)" -> "Neo Vista - Men's"
     first = b.split(" ")[0] if b else ""
     toks = {b} | ({first} if len(first) >= 4 and first.lower() not in {"black", "blue", "north", "mountain", "outdoor"} else set())
     if b.lower() == "hoka":
@@ -1421,8 +1424,14 @@ CA_STORES = {"altitude", "lasthunt", "sea2sky", "sportinglife", "stampeak", "mec
 
 def mkey(o):
     name = re.sub(r"[^a-z0-9]+", " ", o["n"].lower()).strip()
-    if o["g"] == "shoes":      # "Triumph 23 Running Shoe - Women's" (Sporting Life) = "Triumph 23 Running Shoes - Women's" (Last Hunt)
-        name = re.sub(r"\s+", " ", re.sub(r"\b((trail|road) )?running shoes?\b|\bshoes?\b", " ", name)).strip()
+    if o["g"] == "shoes":      # "GT-2000 15 — Black/White - Men's" (Fit First lists each colour) = "GT-2000 15 - Men's"
+        g = re.search(r"\s-\s*(men's|women's|unisex)$", o["n"].lower())
+        name = re.sub(r"[^a-z0-9]+", " ", (re.split(r"\s+[—·]\s+", o["n"])[0] + (" " + g.group(1) if g and " — " in o["n"] else "")).lower()).strip()
+        # "Triumph 23 Running Shoe - Women's" (Sporting Life) = "Triumph 23 Running Shoes - Women's" (Last Hunt);
+        # width words go too ("(2E)", "Wide"): the wide flag already keeps wide and regular apart
+        name = re.sub(r"\s+", " ", re.sub(r"\b((trail|road) )?running( road| trail)? shoes?\b|\bshoes?\b", " ", name)).strip()
+        if o["w"]:
+            name = re.sub(r"\s+", " ", re.sub(r"\b(x ?wide|extra wide|wide|2e|4e|ee|d)\b", " ", name)).strip()
     # Canadian and cross-border offers stay separate, so "Canadian stores only" never hides a cheaper US price inside a card
     return (o["b"].lower().strip(), name, o["w"], o["g"], bool(o.get("ca")))
 
@@ -1460,7 +1469,11 @@ def merge(offers):
         o["sx"] = name_gender(o["n"]) or o["sx"]
         it = items.get(mkey(o))
         if not it:
-            it = items[mkey(o)] = {"b": o["b"], "n": o["n"].strip(), "g": o["g"], "sx": list(o["sx"]), "w": o["w"],
+            nm = o["n"].strip()
+            if o["g"] == "shoes" and re.search(r"\s[—·]\s", nm):          # card name without the colour of the first store's listing
+                gx = re.search(r"\s-\s*(Men's|Women's|Unisex)$", nm)
+                nm = re.split(r"\s+[—·]\s+", nm)[0] + (f" - {gx.group(1)}" if gx else "")
+            it = items[mkey(o)] = {"b": o["b"], "n": nm, "g": o["g"], "sx": list(o["sx"]), "w": o["w"],
                                    "img": o.get("img"), "lp": o["lp"], "bb": o.get("bb"), "sz": {}, "of": [], "_st": [],
                                    "_ca": [], "ca": False}
             if o["g"] in TYPES:
