@@ -77,6 +77,10 @@ input:focus-visible,button:focus-visible,summary:focus-visible,select:focus-visi
 .seo-today ol{margin:0 0 10px;padding-left:20px;line-height:1.45;font-size:13px}
 @media(min-width:560px){.seo-today ol{columns:2;column-gap:28px}}
 .seo-today p{margin:0 0 6px;line-height:1.6}
+.wline{margin:8px 0 2px;font-size:15px;color:var(--muted)}
+.wline b{color:var(--ink)}
+.wline button{font:inherit;color:var(--moss);background:none;border:0;padding:0 2px;text-decoration:underline;cursor:pointer;min-height:24px}
+#shoeSizesW{margin-top:6px}
 .cmp{position:absolute;left:15px;bottom:14px;font:600 13px/1.2 var(--body);color:var(--moss);text-decoration:underline;text-underline-offset:2px;padding:4px 0}
 .spcards{display:grid;gap:8px;margin:0 0 16px}
 .spcard{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--card);border:1.5px solid var(--hivis);border-radius:12px;padding:12px 14px;color:var(--ink);text-decoration:none;font-size:15px}
@@ -418,8 +422,9 @@ body.locked #langBtn,body.locked #curBtn,body.locked #openWatch{visibility:hidde
       <button type="button" data-v="both" data-i18n="terrBoth">Both</button>
     </div>
 
-    <h3 data-i18n="shoeSizeH">Shoe size <small>US, pick one or more</small></h3>
+    <h3 id="shoeSizeH" data-i18n="shoeSizeH">Shoe size <small>US, pick one or more</small></h3>
     <div class="scale" id="shoeSizes"></div>
+    <div id="shoeWBox" class="hidden"><p class="wline" id="wLine"></p><div class="scale hidden" id="shoeSizesW"></div></div>
     <div class="chips" id="width" style="margin-top:8px" role="group" aria-label="Shoe width" data-i18n-aria="shoeWidth"></div>
 
     <h3 data-i18n="clothSizeH">Clothing size <small>tops, shorts, socks, gloves</small></h3>
@@ -501,7 +506,8 @@ en:{
   footer:'The Gear Fox · Outfox full price · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="shoes/">Shoe prices by model</a> · <a href="privacy.html">Privacy</a>',close:"Close",fit:"Fit",
   men:"Men's",women:"Women's",both:"Both",menWomen:"Men's & women's",
   terrainH:"Where do you run? <small>for shoes</small>",terrainA:"Where do you run?",terrRoad:"Road",terrTrail:"Trail",terrBoth:"Both",
-  shoeSizeH:"Shoe size <small>US, pick one or more</small>",shoeWidth:"Shoe width",regularW:"Regular width",wideW:"Wide width",
+  shoeSizeH:"Shoe size <small>US, pick one or more</small>",shoeSizeMH:"Men's shoe size <small>US, pick one or more</small>",
+  wLine:(v,auto)=>`Women's sizes: <b>${v}</b>${auto?" (matched for you)":""}`,change:"Change",done:"Done",shoeWidth:"Shoe width",regularW:"Regular width",wideW:"Wide width",
   clothSizeH:"Clothing size <small>tops, shorts, socks, gloves</small>",
   favBrands:'Favourite brands <span style="font-weight:400;color:var(--muted);margin-left:6px">optional</span>',favIntro:"These go to the top of your list.",
   addBrand:"Add another brand",add:"Add",emailPh:"you@example.com",
@@ -591,7 +597,8 @@ fr:{
   footer:'The Gear Fox · Flairez les aubaines · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="chaussures/">Prix des chaussures par modèle</a> · <a href="privacy.html">Confidentialité</a>',close:"Fermer",fit:"Coupe",
   men:"Homme",women:"Femme",both:"Les deux",menWomen:"Homme et femme",
   terrainH:"Où courez-vous? <small>pour les chaussures</small>",terrainA:"Où courez-vous?",terrRoad:"Route",terrTrail:"Sentier",terrBoth:"Les deux",
-  shoeSizeH:"Pointure <small>US, une ou plusieurs</small>",shoeWidth:"Largeur de chaussure",regularW:"Largeur normale",wideW:"Large",
+  shoeSizeH:"Pointure <small>US, une ou plusieurs</small>",shoeSizeMH:"Pointure homme <small>US, une ou plusieurs</small>",
+  wLine:(v,auto)=>`Pointures femme : <b>${v}</b>${auto?" (équivalent ajouté pour vous)":""}`,change:"Modifier",done:"Terminé",shoeWidth:"Largeur de chaussure",regularW:"Largeur normale",wideW:"Large",
   clothSizeH:"Taille de vêtements <small>hauts, shorts, bas, gants</small>",
   favBrands:'Marques préférées <span style="font-weight:400;color:var(--muted);margin-left:6px">facultatif</span>',favIntro:"Elles s'affichent en premier dans votre liste.",
   addBrand:"Ajouter une autre marque",add:"Ajouter",emailPh:"vous@exemple.com",
@@ -702,13 +709,17 @@ const GL=g=>t("groups")[g]||I18N.en.groups[g];
 /* ---------- profile (lives in this browser; synced to the server once subscribed) ---------- */
 const LS={get(k){try{return JSON.parse(localStorage.getItem(k)||"null")}catch(e){return null}},
           set(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
-const state={name:"",email:"",gender:"",terrain:"both",ships:"ca",groups:ORDER.slice(),shoe:[],width:[],cloth:[],brands:[]};
+const state={name:"",email:"",gender:"",terrain:"both",ships:"ca",groups:ORDER.slice(),shoe:[],shoeW:[],wTouched:false,width:[],cloth:[],brands:[]};
+/* "Both": the shoe grid is men's sizes and a second, women's list follows it (men's + 1.5: men's 8.5 = women's 10) until the
+   person changes it. One runner who shops both sections; several runners = the Fox Pro family plan. */
+const toW=n=>{const v=parseFloat(n)+1.5;return v<=15?String(v):null};
+function syncW(){if(state.gender==="any"&&!state.wTouched)state.shoeW=[...new Set(state.shoe.map(toW).filter(Boolean))].sort((a,b)=>a-b)}
 let customBrands=[];
 
 /* The browser's time zone, so the Friday email lands at 7am wherever the person lives */
 const TZ=(()=>{try{return Intl.DateTimeFormat().resolvedOptions().timeZone||""}catch(e){return ""}})();
 function toProfile(){
-  const sizes={shoes:{sizes:state.shoe,width:state.width}};
+  const sizes={shoes:{sizes:state.shoe,width:state.width,...(state.gender==="any"&&state.shoeW.length?{women:state.shoeW}:{})}};
   APPAREL_GROUPS.forEach(g=>sizes[g]={sizes:state.cloth});
   return {lang:LANG,tz:TZ,name:state.name,email:state.email,gender:state.gender,terrain:state.terrain,ships:state.ships,groups:state.groups,sizes,brands:state.brands,activities:[],...(REF?{ref:REF}:{})};
 }
@@ -718,7 +729,7 @@ function applyProfile(p){
   const cloth=new Set();APPAREL_GROUPS.forEach(g=>((sz[g]||{}).sizes||[]).forEach(v=>{v=normSize(v);if(CLOTH.includes(v))cloth.add(v)}));
   Object.assign(state,{name:p.name||"",email:p.email||"",gender:p.gender||"",terrain:["road","trail"].includes(p.terrain)?p.terrain:"both",ships:p.ships||"ca",
     groups:(p.groups&&p.groups.length)?p.groups.filter(g=>GL(g)):ORDER.slice(),
-    shoe:((sz.shoes||{}).sizes||[]).map(String),width:(sz.shoes||{}).width||[],cloth:CLOTH.filter(c=>cloth.has(c)),brands:p.brands||[]});
+    shoe:((sz.shoes||{}).sizes||[]).map(String),shoeW:((sz.shoes||{}).women||[]).map(String),wTouched:!!(sz.shoes||{}).women,width:(sz.shoes||{}).width||[],cloth:CLOTH.filter(c=>cloth.has(c)),brands:p.brands||[]});
   customBrands=state.brands.filter(b=>!BRANDS.includes(b));
   if(p.lang&&!LS0("gf-lang")&&p.lang!==LANG){LANG=p.lang;applyStatic()}
 }
@@ -737,15 +748,23 @@ function renderSheet(){
   document.querySelectorAll("#fit button").forEach(b=>b.setAttribute("aria-pressed",String(state.gender===b.dataset.v)));
   document.querySelectorAll("#terrain button").forEach(b=>b.setAttribute("aria-pressed",String(state.terrain===b.dataset.v)));
   $("shoeSizes").innerHTML=scaleHTML(SHOE,state.shoe);
+  const both=state.gender==="any";$("shoeSizeH").innerHTML=t(both?"shoeSizeMH":"shoeSizeH");
+  $("shoeWBox").classList.toggle("hidden",!both||!state.shoe.length);
+  if(both){const open=!$("shoeSizesW").classList.contains("hidden");
+    $("wLine").innerHTML=t("wLine",state.shoeW.length?esc(state.shoeW.join(", ")):"—",!state.wTouched)+` · <button type="button" id="wChange">${open?t("done"):t("change")}</button>`;
+    $("shoeSizesW").innerHTML=scaleHTML(SHOE,state.shoeW)}
   $("width").innerHTML=["Regular","Wide"].map(o=>`<button type="button" class="chip" data-v="${o}" aria-pressed="${state.width.includes(o)||(o==="Regular"&&!state.width.length)}">${o==="Wide"?t("wideW"):t("regularW")}</button>`).join("");
   $("clothSizes").innerHTML=scaleHTML(CLOTH,state.cloth);
   $("brands").innerHTML=[...BRANDS,...customBrands].map(b=>`<button type="button" class="chip" data-v="${esc(b)}" aria-pressed="${state.brands.includes(b)}">${esc(b)}</button>`).join("");
   renderSubLine();
 }
 function toggle(a,v){const i=a.indexOf(v);i<0?a.push(v):a.splice(i,1)}
-$("fit").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;state.gender=b.dataset.v;renderSheet()});
+$("fit").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;state.gender=b.dataset.v;syncW();renderSheet()});
+$("shoeWBox").addEventListener("click",e=>{
+  if(e.target.id==="wChange"){$("shoeSizesW").classList.toggle("hidden");renderSheet();return}
+  const b=e.target.closest(".chip");if(!b)return;state.wTouched=true;toggle(state.shoeW,b.dataset.v);state.shoeW.sort((a,b)=>a-b);renderSheet()});
 $("terrain").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;state.terrain=b.dataset.v;renderSheet()});
-$("shoeSizes").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;toggle(state.shoe,b.dataset.v);state.shoe.sort((a,b)=>a-b);renderSheet()});
+$("shoeSizes").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;toggle(state.shoe,b.dataset.v);state.shoe.sort((a,b)=>a-b);syncW();renderSheet()});
 $("width").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;
   const w=state.width.length?state.width:["Regular"];toggle(w,b.dataset.v);state.width=w.length?w:["Regular"];renderSheet()});
 $("clothSizes").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;toggle(state.cloth,b.dataset.v);state.cloth=CLOTH.filter(c=>state.cloth.includes(c));renderSheet()});
@@ -916,7 +935,8 @@ function sizeSummary(){
   if(!hasSizes())return t("tellFit");
   const parts=[{men:t("men"),women:t("women"),any:t("menWomen")}[state.gender]];
   if(state.terrain!=="both")parts.push(t(state.terrain==="trail"?"terrTrail":"terrRoad"));
-  if(state.shoe.length)parts.push(t("shoe")+" "+(state.shoe.length>3?state.shoe.slice(0,3).join(", ")+"…":state.shoe.join(", ")));
+  const list=a=>a.length>3?a.slice(0,3).join(", ")+"…":a.join(", ");
+  if(state.shoe.length)parts.push(t("shoe")+" "+(state.gender==="any"&&state.shoeW.length?`M ${list(state.shoe)} / W ${list(state.shoeW)}`:list(state.shoe)));
   if(state.cloth.length)parts.push(t("clothing")+" "+state.cloth.join(", "));
   return parts.join(" · ");
 }
@@ -1046,12 +1066,14 @@ function matchItems(p,list){
       if(d.g==="shoes"){
         const w=sz.width||[], wantWide=w.includes("Wide"), wantReg=!w.length||w.includes("Regular");
         const G=p.gender==="men"?"M":p.gender==="women"?"W":"";
+        const wantW=p.gender==="any"&&Array.isArray(sz.women)&&sz.women.length?sz.women.map(String):null;   // "Both" with its own women's sizes
         ok=d.sz.filter(e=>{
           if(e[0]==="OS")return true;
           const k=shoeKey(e[0]);if(!k||k.w==="N")return false;
           if(k.g&&G&&k.g!==G)return false;                     // "M:10" is for men, "W:11" for women
           const wide=k.w==="W"||(!k.w&&d.w);
           if(wide?!wantWide:!wantReg)return false;
+          if(wantW){const isW=k.g==="W"||(!k.g&&d.sx.length===1&&d.sx[0]==="women");return (isW?wantW:want).includes(k.n)}
           return want.includes(k.n);
         });
       }else ok=d.sz.filter(([s])=>s==="OS"||want.includes(norm(s)));

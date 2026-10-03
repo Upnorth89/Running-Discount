@@ -356,14 +356,15 @@ def page_foot(L):
 <script>
 (function(){{var p;try{{p=JSON.parse(localStorage.getItem("rd-profile")||"null")}}catch(e){{}}
 if(!p||!p.sizes||!p.sizes.shoes||!(p.sizes.shoes.sizes||[]).length)return;
-var mine=p.sizes.shoes.sizes.map(String),wid=p.sizes.shoes.width||[],g=p.gender||"any",best=null,hit=0,box=document.getElementById("mine");if(!box)return;
+var mine=p.sizes.shoes.sizes.map(String),mineW=(p.sizes.shoes.women||[]).map(String),wid=p.sizes.shoes.width||[],g=p.gender||"any",best=null,hit=0,box=document.getElementById("mine");if(!box)return;
+var sizesFor=function(tg){{return g==="any"&&mineW.length&&tg==="women"?mineW:mine}};
 var wantW=wid.indexOf("Wide")>=0,wantR=!wid.length||wid.indexOf("Regular")>=0;
 document.querySelectorAll("table[data-g]").forEach(function(t){{var tg=t.dataset.g,w=t.dataset.w==="1";
   if((w&&!wantW)||(!w&&!wantR))return;if(tg!=="unisex"&&g!=="any"&&tg!==g)return;
   t.querySelectorAll("tr[data-s]").forEach(function(r){{var s=r.dataset.s,wide=/\(/.test(s),n=s.replace(/\s*\(.*\)$/,"");
     if(wide&&!wantW)return;var ok=false;
-    if(tg==="unisex"){{if(/^W /.test(n))ok=g!=="men"&&mine.indexOf(n.slice(2))>=0;else ok=(g!=="women"&&mine.indexOf(n)>=0)||(g==="women"&&mine.indexOf(String(parseFloat(n)+1.5))>=0)}}
-    else ok=mine.indexOf(n)>=0;
+    if(tg==="unisex"){{if(/^W /.test(n))ok=g!=="men"&&sizesFor("women").indexOf(n.slice(2))>=0;else ok=(g!=="women"&&mine.indexOf(n)>=0)||(g==="women"&&mine.indexOf(String(parseFloat(n)+1.5))>=0)}}
+    else ok=sizesFor(tg).indexOf(n)>=0;
     if(!ok)return;r.classList.add("yours");hit++;var pr=parseFloat(r.dataset.p);if(!best||pr<best.p)best={{p:pr,r:r}}}})}});
 box.hidden=false;
 if(!best){{box.textContent=box.dataset.none;return}}

@@ -199,6 +199,11 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   no email), then the email card ("N deals in your size today" + "or continue with Google" → step 2), the next 6 blurred.
   A heart opens step 2. `gf-peek` in localStorage; `peeking()`, `renderPeek()`. Umami: signup-step step "peek", signup where "peek-card". The welcome line claims
   "More than half of gear deals aren't available in your size", recomputed daily (`missShare()`).
+- Fit "Both" (Oct 4): the shoe grid becomes "Men's shoe size" and a line "Women's sizes: 10 (matched for you) · Change"
+  follows it (men's + 1.5, `syncW()`, until changed; the grid opens on Change). Profile `sizes.shoes.women` (only with
+  gender "any"); matching on the site, Friday email/alerts (`match()`) and shoe pages uses it for women's sizes ("W:" keys
+  and women-only models), the men's list for the rest. Old "Both" profiles without it work as before. One runner = free;
+  several runners = the Fox Pro family plan.
 - Phones: compact cards (photo beside the text); categories start with 4 deals and skip ones already in Top deals.
   No automatic Google pop-up (the Google button is in sign-up step 2 and Sign in).
 - Returning: calm top (sizes line + Edit, one count line with the 30-day "found this month" savings,

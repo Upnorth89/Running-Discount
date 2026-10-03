@@ -117,6 +117,8 @@ def match(items, p):
                 w = spec.get("width") or []
                 want_wide, want_reg = "Wide" in w, (not w or "Regular" in w)
                 G = {"men": "M", "women": "W"}.get(gender or "", "")
+                # "Both" with its own women's sizes (site: men's + 1.5 until changed): women's sizes use that list
+                want_w = {str(x) for x in spec.get("women") or []} if gender == "any" else set()
                 def fits(e):
                     if e[0] == "OS":
                         return True
@@ -128,6 +130,9 @@ def match(items, p):
                     wide = k.group(3) == "W" or (not k.group(3) and d["w"])
                     if (wide and not want_wide) or (not wide and not want_reg):
                         return False
+                    if want_w:
+                        is_w = k.group(1) == "W" or (not k.group(1) and d["sx"] == ["women"])
+                        return k.group(2) in (want_w if is_w else want)
                     return k.group(2) in want
                 ok = [e for e in d["sz"] if fits(e)]
             else:
