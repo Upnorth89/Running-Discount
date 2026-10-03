@@ -1035,6 +1035,9 @@ SHOPIFY_STORES = [
     # added 2026-10-02
     ("frontrunners",   "https://www.frontrunners.ca",        "gear"),   # Frontrunners (Victoria)
     ("forerunners",    "https://shop.forerunners.ca",        "gear"),   # Forerunners (Vancouver; shop on its own address)
+    # added 2026-10-03
+    ("aerobicsfirst",  "https://www.aerobicsfirst.com",      "gear"),   # Aerobics First (Halifax)
+    ("cityparkrunners", "https://www.cityparkrunners.com",   "gear"),   # City Park Runners (Winnipeg)
     # socks
     ("feetures",       "https://www.feetures.com",           "socks"),
     ("balega",         "https://www.balega.com",             "socks"),
@@ -1252,7 +1255,7 @@ TYPES["shoes"] = [
               r"prodigio|cyklon|daichi|mujin|ibuki|xt-6|grvl|experience wild|nordlite|seek|\btr\d|amplux|madrix|fortux|katabatic|"
               r"\bla sportiva\b|nnormal|scarpa|inov-?8|\bvj\b|dynafit|norda|icebug|merrell|\blowa\b|\boboz\b|\bkeen\b"),
     ("race", r"alphafly|vaporfly|adios pro|adizero pro|prime x|takumi|metaspeed|endorphin (pro|elite|speed)|rocket x|cielo x|"
-             r"cielo rd|supercomp (elite|pacer|trainer)|\bsc (elite|pacer|trainer)\b|deviate nitro|fast-r|hyperion (elite|max)|"
+             r"cielo rd|super ?comp (elite|pacer|trainer)|magic speed|\bsc (elite|pacer|trainer)\b|deviate nitro|fast-r|hyperion (elite|max)|"
              r"cloudboom|wave rebellion|carbon|metaracer|rc elite|streakfly|adizero boston|velociti elite|racing|racer|"
              r"zoomx|supercomp rebel"),
     ("daily", r"."),
@@ -1334,7 +1337,9 @@ def tidy_brand(b):
 
 CAPS_STORES = {"lecoureur"}
 OWN_BRAND = {"rabbit": "rabbit", "bandit": "Bandit Running"}
-GENDER_PREFIX_STORES = {"frontrunners"}   # names start with "M " / "W " / "U " ("M Adidas Boston 13")
+GENDER_PREFIX_STORES = {"frontrunners",    # names start with "M " / "W " / "U " ("M Adidas Boston 13")
+                        "aerobicsfirst",   # "Saucony Women's Endorphin Speed 5 - White/Black *SALE*"
+                        "cityparkrunners"} # "Women's Saucony Peregrine 14", "Mens Altra Outroad"
 GENDER_PREFIX = {"M": ["men"], "W": ["women"], "U": ["men", "women"]}    # stores that write brands and names in capitals ("ADIDAS ADIOS PRO 4 - FEMME")
 
 # short words that read as words, not model codes, when an ALL-CAPS name is softened ("RUN", "MID" vs "GTX", "SP")
@@ -1414,9 +1419,12 @@ def merge(offers):
         if (o["b"] or "").strip() in ("", "0") and o.get("st") in OWN_BRAND:   # brand stores that leave the brand blank or "0"
             o["b"] = OWN_BRAND[o["st"]]
         if o.get("st") in GENDER_PREFIX_STORES:
-            m = re.match(r"^(M|W|U|Unisex)\s+(.+)", o["n"])
+            o["n"] = re.sub(r"\s*\*[^*]{1,12}\*", "", o["n"]).strip()                 # "*SALE*"
+            o["n"] = re.sub(r"\s+-\s*[^-]*/[^-]*$", "", o["n"]) if o["g"] == "shoes" else o["n"]   # " - White/Black" colour
+            o["n"] = tidy_name(o["b"] or "", o["n"])                                  # brand first, then the gender
+            m = re.match(r"^(M|W|U|Unisex|Men'?s|Women'?s)\s+(.+)", o["n"], re.I)
             if m:
-                k = m.group(1)[0]
+                k = m.group(1)[0].upper()
                 o["n"] = m.group(2)
                 o["sx"] = GENDER_PREFIX[k]
                 o["n"] += {"M": " - Men's", "W": " - Women's", "U": " - Unisex"}[k]

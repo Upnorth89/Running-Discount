@@ -3,16 +3,18 @@
 Check this list before looking at a new store, so nobody tests the same shop twice.
 Update it whenever a store is added, rejected or changes. Counts are from Oct 2, 2026.
 
-## Stores we read (58)
+## Stores we read (60)
 
-### Canadian stores (21)
+### Canadian stores (23)
 | Store | Website | Products | On sale |
 |---|---|---:|---:|
+| Aerobics First (Halifax; added Oct 3) | aerobicsfirst.com | 1,847 | 249 |
 | Altitude Sports | altitude-sports.com | 2,319 | 39 |
 | BlackToe Running | blacktoerunning.com | 1,339 | 232 |
 | Boutique Endurance | boutiqueendurance.ca | 539 | 67 |
 | Bushtukah | bushtukah.com | 1,462 | 156 |
 | Capra Running Co. | capra.run | 409 | 33 |
+| City Park Runners (Winnipeg; added Oct 3) | cityparkrunners.com | 649 | 70 |
 | Ciele | ca.cieleathletics.com | 134 | 0 |
 | Decathlon | decathlon.ca | 17 | 13 |
 | Fit First | fitfirst.ca | 754 | 88 |
@@ -103,8 +105,7 @@ fresh pages with the Grab deals bookmark (US only). MEC also comes from saved pa
 
 | Store | City | Note (date checked) |
 |---|---|---|
-| Aerobics First (aerobicsfirst.com) | Halifax | readable, almost nothing on sale (Oct 1, 2026) |
-| City Park Runners (cityparkrunners.com) | Winnipeg | readable, about 10 items on sale (Oct 1, 2026) |
+| (none right now: Aerobics First and City Park Runners were added Oct 3) | | |
 
 ## Ideas not checked yet
 
