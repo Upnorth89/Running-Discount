@@ -478,6 +478,10 @@ const REF=(()=>{let r="";try{r=(new URLSearchParams(location.search).get("ref")|
   if(r){let n=0;const t=setInterval(()=>{if(window.umami&&umami.track){umami.track("ref-visit",{ref:r});clearInterval(t)}else if(++n>40)clearInterval(t)},250)}
   return r})();
 const storeOf=u=>{try{return new URL(u).hostname.replace(/^www\./,"")}catch(e){return "unknown"}};
+/* Affiliate links (Sovrn, Oct 3): store product page -> tracking link that redirects to that same page.
+   Cards keep the store's own address for names and click counts (data-store). */
+const AFF={"https://www.sportinglife.ca/en-CA/shoes/men/running-shoes/trail-running-shoes/mens-norvan-ld-4-trail-running-shoe/25925051-00222961.html":"https://sovrn.co/jfmu34u"};
+const affUrl=u=>AFF[String(u||"").split(/[?#]/)[0]]||u;
 /* Store names shown on cards, and where each one ships from (no country = Canada) */
 const STORES={"altitude-sports.com":["Altitude Sports"],"thelasthunt.com":["The Last Hunt"],"thefeed.com":["The Feed","US"],
   "sea2skynutrition.ca":["Sea2Sky Nutrition"],"sportinglife.ca":["Sporting Life"],"stampeak.com":["Stampeak"],"mec.ca":["MEC"],
@@ -1104,7 +1108,7 @@ function card(d,extra){
   const k=itemKey(d),on=!!watches[k];RENDERED[k]=d;
   const isNew=!extra&&NEWSET.has(k);
   const sp=shoePage(d);
-  return `<div class="dw${sp?" hascmp":""}"><a class="deal" href="${esc(d.url)}" target="_blank" rel="noopener">
+  return `<div class="dw${sp?" hascmp":""}"><a class="deal" href="${esc(affUrl(d.url))}" data-store="${esc(storeOf(d.url))}" target="_blank" rel="noopener">
     ${d.img?`<div class="pic"><img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"></div>`:""}
     <div class="top"><span class="brand">${esc(d.b)}${d.fav?" ★":""}</span>${d.pct?`<span class="pct">−${d.pct}%</span>`:""}</div>
     <div class="name">${esc(nm(d.n))}</div>
@@ -1248,7 +1252,7 @@ function renderWatch(){
       return card(st.d,b.join(""));
     }
     w.gone=true;
-    return `<div class="dw"><a class="deal gone" href="${esc(w.url||"#")}" target="_blank" rel="noopener">
+    return `<div class="dw"><a class="deal gone" href="${esc(affUrl(w.url)||"#")}" data-store="${esc(storeOf(w.url))}" target="_blank" rel="noopener">
       <div class="top"><span class="brand">${esc(w.b||"")}</span></div><div class="name">${esc(nm(w.n||""))}</div>
       <div class="gonetxt">${t("goneTxt")}</div></a>${heartBtn(k,true,{b:w.b||"",n:w.n||""})}</div>`;
   });
@@ -1294,8 +1298,8 @@ function renderStats(){
 }
 ["dealList","newBox"].forEach(id=>$(id).addEventListener("click",e=>{const a=e.target.closest("a.deal");if(!a)return;const h=a.parentNode.querySelector(".heart");
   const d=h&&RENDERED[h.dataset.key];
-  track("deal-click",{store:storeOf(a.href),brand:d?d.b:"",group:d?d.g:"",pct:d?d.pct:0,view:view.watch?"watchlist":"shop"});
-  logEvent("click",storeOf(a.href),d?d.g:null);
+  track("deal-click",{store:a.dataset.store||storeOf(a.href),brand:d?d.b:"",group:d?d.g:"",pct:d?d.pct:0,view:view.watch?"watchlist":"shop"});
+  logEvent("click",a.dataset.store||storeOf(a.href),d?d.g:null);
   if(h){recordClick(h.dataset.key);setTimeout(renderStats,0)}},true));
 
 function renderAll(){
