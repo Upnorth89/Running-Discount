@@ -33,6 +33,7 @@ STORE_NAMES = {
     "boutiqueendurance.ca": "Boutique Endurance", "fitfirst.ca": "Fit First", "capra.run": "Capra Running Co.",
     "lecoureur.com": "Le Coureur", "blacktoerunning.com": "BlackToe Running", "frontrunners.ca": "Frontrunners", "shop.forerunners.ca": "Forerunners",
     "aerobicsfirst.com": "Aerobics First", "cityparkrunners.com": "City Park Runners",
+    "therunnersshop.com": "The Runners Shop", "stridesrunning.com": "Strides Running",
     "altrarunning.com": "Altra", "runjanji.com": "Janji", "runinrabbit.com": "rabbit", "satisfyrunning.com": "Satisfy",
     "saysky.com": "SAYSKY", "soarrunning.com": "Soar", "raidlight.com": "Raidlight", "districtvision.com": "District Vision",
     "banditrunning.com": "Bandit", "tenthousand.cc": "Ten Thousand", "oiselle.com": "Oiselle", "2xu.com": "2XU",

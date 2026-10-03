@@ -1038,6 +1038,8 @@ SHOPIFY_STORES = [
     # added 2026-10-03
     ("aerobicsfirst",  "https://www.aerobicsfirst.com",      "gear"),   # Aerobics First (Halifax)
     ("cityparkrunners", "https://www.cityparkrunners.com",   "gear"),   # City Park Runners (Winnipeg)
+    ("runnersshop",    "https://www.therunnersshop.com",     "gear"),   # The Runners Shop (Toronto, since 1975)
+    ("strides",        "https://www.stridesrunning.com",     "gear"),   # Strides Running Store (Calgary, Canmore)
     # socks
     ("feetures",       "https://www.feetures.com",           "socks"),
     ("balega",         "https://www.balega.com",             "socks"),
@@ -1090,7 +1092,7 @@ def generic_group(kind):
             return g if g and g != "tops" or re.search(r"\btee\b|shirt|tank|hoodie|jacket|pullover", title, re.I) else "socks"
         if kind == "eyewear":          # sunglasses brands: everything is eyewear except hats/apparel
             return g if g in ("headwear", "tops", "bottoms") else "gear"
-        if FOOD.search(ptype) or (FOOD.search(title) and not g):
+        if FOOD.search(ptype) or (FOOD.search(title) and not g and not re.search(r"apparel|clothing|shoe|footwear|v[êe]tement", ptype, re.I)):
             return "nutrition"
         return g or group_of(ptype) or group_of(tags)
     return g
@@ -1142,6 +1144,8 @@ for _st, _base, _kind in SHOPIFY_STORES:
 # Casual footwear some running stores also sell; not what people come here for.
 CASUAL_BRANDS = {"birkenstock", "wolky", "teva", "crocs", "ugg", "blundstone", "dr. martens", "clarks", "oofos"}
 CASUAL_SHOE = re.compile(r"\b(sandal|sandale|clog|sabot|slipper|pantoufle|mule|flip[- ]flop|loafer|slide|clearwater cnx)s?\b", re.I)
+# court and lifestyle shoes from running brands (ASICS tennis/pickleball lines, retro sneakers)
+COURT_SHOE = re.compile(r"pick[el]+ball|\btennis\b|\bpadel\b|\bcourt\b|gel[- ]?(resolution|dedicate|game|challenger|1130|nyc|kahana)|solution speed", re.I)
 # soccer boots (Frontrunners sells them): ground codes FG/AG/MG/SG/TF, or the model lines
 SOCCER = re.compile(r"\b(FG|AG|MG|SG|TF)\b|(?i:\b(soccer|futsal|predator|f50|copa|tiempo|mercurial)\b)")
 
@@ -1198,8 +1202,14 @@ GEAR_ARM = re.compile(r"\barm\b.*\b(sleeves?|warmers?|coolers?)\b|\b(sleeves?|wa
 GEAR_TIGHTS = re.compile(r"\b(tights?|leggings?|shorts)\b", re.I)
 GEAR_CAP = re.compile(r"\b(?:go|trl|crw|fst|alz|ss|gt)cap\b|\b(caps?|hats?|visors?|beanies?|toques?|tuques?)\b", re.I)
 
+SHOE_SIZES = lambda o: o.get("sz") and all(re.match(r"^([MW]:)?\d{1,2}([.,][05])?$", str(e[0]).strip()) for e in o["sz"])
+
 def tidy_gear(offers):
     for o in offers:
+        # a shoe brand in numbered sizes filed by a word in its name: "Gel Kayano 33" (food), Merrell "Trail Glove 8" (gloves)
+        if o["g"] in ("nutrition", "gloves") and (o["b"] or "").lower() in SHOE_BRANDS and SHOE_SIZES(o):
+            o["g"] = "_drop" if COURT_SHOE.search(o["n"]) or CASUAL_SHOE.search(o["n"]) else "shoes"
+            continue
         if o["g"] != "gear":
             continue
         n = o["n"]
@@ -1214,7 +1224,7 @@ def tidy_gear(offers):
             o["g"] = "bottoms"
         elif GEAR_CAP.search(n):
             o["g"] = "headwear"
-    return offers
+    return [o for o in offers if o["g"] != "_drop"]
 
 # Clothing that landed in the wrong category, and the type of each top / bottom (the site's "Jackets & vests" etc. buttons)
 CLOTH_BRA = re.compile(r"\bsports? bra\b|\bbra\b|brassi[èe]re", re.I)
@@ -1316,7 +1326,7 @@ def tidy_shoes(offers):
     out = []
     for o in offers:
         if o["g"] == "shoes":
-            if (o["b"] or "").lower() in CASUAL_BRANDS or CASUAL_SHOE.search(o["n"]) or SOCCER.search(o["n"]):
+            if (o["b"] or "").lower() in CASUAL_BRANDS or CASUAL_SHOE.search(o["n"]) or SOCCER.search(o["n"]) or COURT_SHOE.search(o["n"]):
                 continue
             w = shoe_width_from_name(o["n"], name_gender(o["n"]) or o.get("sx"))
             if w == "narrow":

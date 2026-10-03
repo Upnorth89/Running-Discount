@@ -3,9 +3,9 @@
 Check this list before looking at a new store, so nobody tests the same shop twice.
 Update it whenever a store is added, rejected or changes. Counts are from Oct 2, 2026.
 
-## Stores we read (60)
+## Stores we read (62)
 
-### Canadian stores (23)
+### Canadian stores (25)
 | Store | Website | Products | On sale |
 |---|---|---:|---:|
 | Aerobics First (Halifax; added Oct 3) | aerobicsfirst.com | 1,847 | 249 |
@@ -27,7 +27,9 @@ Update it whenever a store is added, rejected or changes. Counts are from Oct 2,
 | Näak | naak.com | 62 | 5 |
 | Sea2Sky Nutrition | sea2skynutrition.ca | 251 | 14 |
 | Sporting Life | sportinglife.ca | 659 | 292 |
+| Strides Running (Calgary/Canmore; added Oct 3) | stridesrunning.com | 1,344 | 136 |
 | Stampeak | stampeak.com | 253 | 141 |
+| The Runners Shop (Toronto; added Oct 3) | therunnersshop.com | 688 | 198 |
 | The Last Hunt | thelasthunt.com | 1,281 | 1,274 |
 | Vancouver Running Co. | vanrunco.com | 644 | 117 |
 | Xact Nutrition | xactnutrition.com | 25 | 0 |
@@ -109,7 +111,10 @@ fresh pages with the Grab deals bookmark (US only). MEC also comes from saved pa
 
 ## Ideas not checked yet
 
-Strides Running (Calgary), The Run Company, Runner's Choice (Toronto), Running Factory, Le Coin des Coureurs.
+The Run Company, Le Coin des Coureurs.
+
+Checked Oct 3: Running Factory (Windsor, runningfactory.com): readable, only ~37 on sale, mostly CEP sleeves; recheck later.
+"Runner's Choice" (Toronto) not found; The Runners Shop is the Toronto store (added).
 
 ## Snow (researched Oct 2, 2026; parked until mid-November)
 
