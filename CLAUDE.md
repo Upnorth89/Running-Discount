@@ -144,6 +144,8 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   out of Nutrition and clothing out of gear (`tidy_gear`).
 - Ranking ("Best match"): favourites, then a deal score = % off + category bonus + dollars saved; track/XC spikes
   rank lower (`SPIKE` in index.html).
+  `shoesFirst()`: with a shoe size picked and Best match, the first 6 (Top deals and the peek) alternate shoe / non-shoe
+  (their road/trail kind, no spikes or hiking boots), so clothing's deeper % off doesn't push every shoe out.
 - `ca`: true when any Canadian store sells the item. For gear, a Canadian store's price wins per size even if a
   store abroad is cheaper; for nutrition the cheapest wins. Nutrition shows US stores even with "Ships from
   Canada" on (site and Friday email). Cards name the store and where it ships from (`STORES` map in index.html:
@@ -166,7 +168,7 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
 
 - First visit: welcome screen → sizes → email or Google sign-in (flow "D"). Welcome shows 3 tappable deals: one road, one trail,
   one race shoe (Canadian, 6+ sizes on sale, max 60% off, no spikes) and the real store count.
-  Peek (flow D, built Oct 3, awaiting approval): after the sizes step the sheet closes and their top 6 deals show (clickable,
+  Peek (flow D, live Oct 3): after the sizes step the sheet closes and their top 6 deals show (clickable,
   no email), then the email card ("N deals in your size today" + "or continue with Google" → step 2), the next 6 blurred.
   A heart opens step 2. `gf-peek` in localStorage; `peeking()`, `renderPeek()`. Umami: signup-step step "peek", signup where "peek-card". The welcome line claims
   "More than half of gear deals aren't available in your size", recomputed daily (`missShare()`).

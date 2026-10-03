@@ -969,6 +969,16 @@ const GROUP_BONUS={shoes:15,tops:8,bottoms:8,bras:8,packs:6,watches:6};
 const SPIKE=/spikes?\b|\bavanti\b|evospeed|\bspikeless\b|\b[LM]D(-X)?\b|\bXC\b|cross[- ]?country|\bsprint|\bdragonfly|\bmaxfly|\bja fly|\bvictory\b|\bpointes?\b/i;
 // road or trail runner (sign-up "Where do you run?"): matching shoes first, the others lower (still there)
 const TERRAIN={road:["daily","race"],trail:["trail","hike"]};
+/* Best match, first 6: someone who picked a shoe size sees shoes too, not only the deepest-discounted jackets.
+   Shoe, other, shoe, other… (their road/trail kind, no spikes or hiking boots), then everything else in order. */
+function shoesFirst(list){
+  if(!state.shoe.length||view.sort!=="match")return list;
+  const ok=d=>d.g==="shoes"&&!SPIKE.test(d.n)&&d.t!=="hike"&&terrainFit(d)>=0;
+  const shoes=list.filter(ok),rest=list.filter(d=>d.g!=="shoes");
+  if(!shoes.length)return list;
+  const head=[];for(let i=0;i<6&&(shoes.length||rest.length);i++)head.push(((i%2===0&&shoes.length)||!rest.length?shoes:rest).shift());
+  const used=new Set(head);return head.concat(list.filter(d=>!used.has(d)));
+}
 const terrainFit=d=>d.g!=="shoes"||state.terrain==="both"||!d.t||SPIKE.test(d.n)?0:TERRAIN[state.terrain].includes(d.t)?20:-25;
 const score=d=>d.pct+(GROUP_BONUS[d.g]||0)+Math.min(15,(d.reg-d.best)/10)-(d.g==="shoes"&&SPIKE.test(d.n)?30:0)+terrainFit(d);
 /* Names come in English; show gender words in French on the French site. */
@@ -1252,7 +1262,7 @@ function renderAll(){
   NARROW=p.groups.length===1;
   if(!q.length&&!NARROW){const ns=section("__new",t("secNew"),onSale.filter(d=>NEWSET.has(itemKey(d))).sort(SORTS[view.sort]),"new");
     if(CALM&&NEWSTYLE==="row"&&!view.newAll)$("newBox").innerHTML=ns;else parts.push(ns)}
-  const top=onSale.slice().sort(SORTS[view.sort]);
+  const top=shoesFirst(onSale.slice().sort(SORTS[view.sort]));
   if(!NARROW)parts.push(section("__sale",t("secSale"),top,"sale"));
   const inTop=new Set(NARROW?[]:top.slice(0,view.open.__sale||PAGE).map(itemKey));   // don't show the same deal twice
   ORDER.filter(g=>p.groups.includes(g)).forEach(g=>{const ty=view.type[g];   // a type picked: every match, Top deals included
@@ -1266,7 +1276,7 @@ function renderAll(){
 }
 
 function renderPeek(){   // sizes picked, no email yet: their top 6 deals, then the email card, then the rest blurred
-  const onSale=matchItems(toProfile()).filter(d=>d.pct>0).sort(SORTS.match||SORTS[view.sort]);
+  const onSale=shoesFirst(matchItems(toProfile()).filter(d=>d.pct>0).sort(SORTS[view.sort]));
   saleNow=onSale.length;if(CALM)setCalmLede();else $("lede").textContent=t("lede",num(onSale.length),num(onSale.length),t("storesCA"),DATA.updated?ago(DATA.updated):"");$("newBox").innerHTML="";$("watchNews").classList.add("hidden");
   const first=onSale.slice(0,6),rest=onSale.slice(6,12);
   $("dealList").innerHTML=(first.length?`<section class="grp sale" id="grp-__sale"><h2>${t("secSale")} <small>${num(onSale.length)}</small></h2><div class="grid">${first.map(d=>card(d)).join("")}</div></section>`:`<div class="empty">${t("nothing")}</div>`)+
