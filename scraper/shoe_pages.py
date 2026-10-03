@@ -49,7 +49,7 @@ T = {
         "idxH1": "Shoe prices by model",
         "idxIntro": "Every popular running shoe we track, with today's best price in each size at Canadian stores. Updated every morning.",
         "idxDesc": "Today's best price in every size for {n} running shoe models at Canadian stores. Updated every morning by The Gear Fox.",
-        "onSale": "on sale", "home": "The Gear Fox", "switch": "Français",
+        "onSale": "on sale", "home": "The Gear Fox", "switch": "Français", "tagline": "OUTFOX FULL PRICE",
         "find": "Search a model (e.g. Clifton)", "noMatch": "No model matches. Try the brand name, or a shorter word.",
         "foot": "The Gear Fox · Outfox full price · Prices change often: the store's price at checkout is the one that counts.",
         "privacy": "Privacy",
@@ -79,7 +79,7 @@ T = {
         "idxH1": "Prix par modèle",
         "idxIntro": "Toutes les chaussures de course populaires que nous suivons, avec le meilleur prix du jour dans chaque pointure dans les boutiques canadiennes. Mis à jour chaque matin.",
         "idxDesc": "Le meilleur prix du jour dans chaque pointure pour {n} modèles de chaussures de course dans les boutiques canadiennes. Mis à jour chaque matin par The Gear Fox.",
-        "onSale": "en solde", "home": "The Gear Fox", "switch": "English",
+        "onSale": "en solde", "home": "The Gear Fox", "switch": "English", "tagline": "FLAIREZ LES AUBAINES",
         "find": "Chercher un modèle (ex. Clifton)", "noMatch": "Aucun modèle trouvé. Essayez le nom de la marque ou un mot plus court.",
         "foot": "The Gear Fox · Flairez les aubaines · Les prix changent souvent : le prix de la boutique au paiement est celui qui compte.",
         "privacy": "Confidentialité",
@@ -197,7 +197,10 @@ a{color:var(--moss)}
 .top{background:var(--card);border-bottom:1.5px solid var(--line)}
 .top .in,.wrap{max-width:720px;margin:0 auto;padding:12px 16px}
 .top .in{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.top img{height:40px;width:auto;display:block}
+.top .logo{display:flex;flex-direction:column;align-items:center;text-decoration:none;color:var(--ink)}
+.top .logo img{height:40px;width:auto;display:block}
+.top .tagline{display:flex;align-items:center;gap:5px;margin-top:3px;font:600 8.5px/1 var(--body);letter-spacing:.16em;white-space:nowrap}
+.top .tagline::before,.top .tagline::after{content:"";width:10px;height:1.5px;background:var(--hivis);border-radius:1px}
 .lang{font:600 14px var(--body);border:1.5px solid var(--line);border-radius:999px;padding:6px 12px;text-decoration:none;color:var(--ink)}
 .crumbs{font-size:14px;color:var(--muted);margin:14px 0 0}
 h1{font:800 clamp(30px,7vw,44px)/1.05 var(--display);margin:6px 0 4px;letter-spacing:-.01em}
@@ -267,7 +270,9 @@ def page_head(L, title, desc, path_en, path_fr, extra=""):
 <script defer src="https://cloud.umami.is/script.js" data-website-id="{UMAMI_ID}" data-domains="thegearfox.com,www.thegearfox.com"></script>
 </head>
 <body>
-<header class="top"><div class="in"><a href="/{'' if L['lang'] == 'en-CA' else '?lang=fr'}" aria-label="The Gear Fox"><img src="/logo.svg" alt="The Gear Fox" width="185" height="80"></a>
+<header class="top"><div class="in"><a class="logo" href="/{'' if L['lang'] == 'en-CA' else '?lang=fr'}" aria-label="The Gear Fox">
+<picture><source srcset="/logo-mark-dark.svg" media="(prefers-color-scheme: dark)"><img src="/logo-mark.svg" alt="The Gear Fox" width="1534" height="664"></picture>
+<span class="tagline">{L['tagline']}</span></a>
 <a class="lang" href="{path_fr if L['lang'] == 'en-CA' else path_en}" hreflang="{L['other']}">{L['switch']}</a></div></header>
 <main class="wrap">
 """
