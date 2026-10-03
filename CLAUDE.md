@@ -17,6 +17,7 @@ That plan (a Claude Docs doc) also holds the Fox Pro free/paid table, the Press 
 - **Everything is bilingual (EN/FR).** Any new text needs both. French is Québec French ("courriel",
   "aubaines", "bas" for socks).
 - Be willing to push back; he asks for honest opinions.
+- **Bugs I find: fix, check in the preview, ship** (Oct 3: "no reason to wait for my approval"). New features still wait for his OK.
 - **Push straight to `main`.** No pull requests or side branches (the site deploys from `main`).
 - **Never ask him to paste secret keys into chat.** Secrets live only in GitHub secrets, Supabase or Vault.
 - After every change, verify it landed: the right file in the right folder, the site updated, nothing broken.
@@ -52,7 +53,7 @@ scraper/shoe_pages.py    Google pages: one per popular shoe model (3+ Canadian s
                          trail,racing,women,men}/ (FR /chaussures-course-solde/{,route,sentier,competition,femme,homme}/),
                          brand pages /brands/<b>/ + /marques/<b>/ (brands with 3+ models), /black-friday/ + /vendredi-fou/;
                          it also fills the homepage block between <!--SEO-TODAY--> markers (keep them EMPTY in git: the
-                         morning build writes today's top 12 + links there).
+                         morning build writes today's top 12 + links there; one EN and one FR copy, CSS shows the one matching html[lang]).
 supabase/setup.sql       database: tables, sign-up/confirm/profile/Google functions, email templates
 supabase/watchlist.sql   watchlist table + functions
 supabase/friday-switch.sql  latest change (Friday wording + weekly_sent_at column); already applied

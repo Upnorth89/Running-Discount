@@ -544,15 +544,18 @@ def list_page(L, path_en, path_fr, title, h1, intro, rows, brands, extra=""):
 
 def home_section(L_en, L_fr, rows, brands):
     """A plain-HTML block for the homepage (between the SEO-TODAY markers): today's best shoe deals with links, readable
-    by search engines even though the main deals are drawn by the page's script."""
-    money = L_en["money"]
-    li = "".join(f'<li><a href="/shoes/{s}/">{esc(n)}</a> · {money(sm["price"])}' + (f' (−{sm["top"]}%)' if sm["top"] >= 10 else "") + "</li>"
-                 for s, n, sm in rows)
-    nav = lambda L: " · ".join(f'<a href="{u}">{esc(t)}</a>' for u, t in
-                               [(f'/{L["hubDir"]}/', L["hubs"]["all"][1]), (f'/{L["bfDir"]}/', L["bfLink"]), (f'/{L["dir"]}/', L["homeMore"])])
-    br = " · ".join(f'<a href="/brands/{slugify(b)}/">{esc(b)}</a>' for b in brands[:12])
-    return (f'<section class="seo-today" aria-labelledby="seoH"><h2 id="seoH">{L_en["homeH"]}</h2><ol>{li}</ol>'
-            f'<p>{nav(L_en)}</p><p>{br}</p><p lang="fr">{esc(L_fr["homeH"])} : {nav(L_fr)}</p></section>')
+    by search engines even though the main deals are drawn by the page's script. One copy per language; the page shows
+    the one matching its language (html[lang], set by the site's script)."""
+    def one(L, code):
+        money = L["money"]
+        li = "".join(f'<li><a href="/{L["dir"]}/{s}/">{esc(n)}</a> · {money(sm["price"])}' + (f' (−{sm["top"]}%)' if sm["top"] >= 10 else "") + "</li>"
+                     for s, n, sm in rows)
+        nav = " · ".join(f'<a href="{u}">{esc(t)}</a>' for u, t in
+                         [(f'/{L["hubDir"]}/', L["hubs"]["all"][1]), (f'/{L["bfDir"]}/', L["bfLink"]), (f'/{L["dir"]}/', L["homeMore"])])
+        br = " · ".join(f'<a href="/{L["brandDir"]}/{slugify(b)}/">{esc(b)}</a>' for b in brands[:12])
+        return (f'<div class="seo-{code}" lang="{code}"><h2>{esc(L["homeH"])}</h2><ol>{li}</ol>'
+                f'<p>{nav}</p><p>{br}</p></div>')
+    return f'<section class="seo-today">{one(L_en, "en")}{one(L_fr, "fr")}</section>'
 
 
 def index_page(L, entries, updated):
