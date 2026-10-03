@@ -101,6 +101,11 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   and the graphic as a Story; Friday stays the subscriber email. Manual run = send now.
   Mix: 2 shoes (7+ sizes at the shown price, 3+ common ones, one men's one women's), a top and a bottom (S/M/L in stock),
   1 piece of gear ($80+, one size or S/M/L, known brands first). Unisex sizes counted once.
+- **Instagram Reels (Bastien's rule, Oct 3): always with safe bands.** Screen recordings of the site sit in the middle of a
+  1080x1920 frame: dark (#17201C) band 218px on top (Instagram's Reels title/camera cover it) and 400px below (name, caption,
+  like/comment buttons). Recorder + example in `tools/reels/` (rec.js records a 360x434 phone; ffmpeg line in its header).
+  Tell him: captions go on the site part, never in the bottom band; a big hook line in the first second; cover image 1080x1920
+  with the key content in the middle 4:5 (the profile grid crops to it).
 - **Monthly report** (`monthly-report.yml`, `scraper/monthly_report.py`): the 1st of each month emails last
   month's visitors, sign-ups (by `?ref=` link), clicks sent to each store and paste-ready lines for affiliate
   applications ("we sent N shoppers to X"). Manual run = this month so far. Reads our own counts in Supabase
