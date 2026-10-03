@@ -159,7 +159,10 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
 ## The site (site/index.html)
 
 - First visit: welcome screen → sizes → email or Google sign-in (flow "D"). Welcome shows 3 tappable deals: one road, one trail,
-  one race shoe (Canadian, 6+ sizes on sale, max 60% off, no spikes) and the real store count. The welcome line claims
+  one race shoe (Canadian, 6+ sizes on sale, max 60% off, no spikes) and the real store count.
+  Peek (flow D, built Oct 3, awaiting approval): after the sizes step the sheet closes and their top 6 deals show (clickable,
+  no email), then the email card ("N deals in your size today" + "or continue with Google" → step 2), the next 6 blurred.
+  A heart opens step 2. `gf-peek` in localStorage; `peeking()`, `renderPeek()`. Umami: signup-step step "peek", signup where "peek-card". The welcome line claims
   "More than half of gear deals aren't available in your size", recomputed daily (`missShare()`).
 - Phones: compact cards (photo beside the text); categories start with 4 deals and skip ones already in Top deals.
   No automatic Google pop-up (the Google button is in sign-up step 2 and Sign in).

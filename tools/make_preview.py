@@ -101,7 +101,7 @@ G.render=function(){["gBtnW","gBtnUp","gBtnIn"].forEach(id=>{const el=$(id);if(!
 
 /* ---------- preview panel ---------- */
 function pvMsg(t){$("pvMsg").textContent=t}
-function pvClear(){["rd-profile","gf-sub","gf-watch","gf-last","gf-base","gf-clicks"].forEach(k=>LS.set(k,null))}
+function pvClear(){["rd-profile","gf-sub","gf-watch","gf-last","gf-base","gf-clicks","gf-peek"].forEach(k=>LS.set(k,null))}
 document.querySelectorAll("#pvCards button").forEach(b=>{b.setAttribute("aria-pressed",String(b.dataset.c===CARDS));
   b.addEventListener("click",()=>{try{localStorage.setItem("gf-cards",JSON.stringify(b.dataset.c))}catch(e){}location.reload()})});
 $("pvReset").addEventListener("click",()=>{pvClear();location.reload()});

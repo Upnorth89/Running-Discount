@@ -535,7 +535,7 @@ en:{
   junkHint:"Not there after a minute? Check Junk or Promotions (Outlook and Hotmail often file us there) and mark it \"Not junk\".",
   resend:"Send it again",resendFail:"Couldn't send just now. Try again in a minute.",resent:"Sent again. Give it a minute.",resendWait:"Just sent: wait a minute, then check Junk.",
   otherEmail:"Use a different email",getDeals:"Get deals like these every Friday",
-  getDealsTxt:"One email, Friday morning, only gear on sale in your sizes.",email:"Email",signUp:"Sign up",
+  getDealsTxt:"One email, Friday morning, only gear on sale in your sizes.",peekTitle:n=>`${n} deals in your size today`,peekTxt:"Add your email to see them all, get price-drop alerts on deals you heart, and the best ones every Friday.",peekG:"or continue with Google",email:"Email",signUp:"Sign up",
   signupFine:'We\'ll email you to confirm. Unsubscribe with one tap. <a href="privacy.html">Privacy</a>',
   badEmail:"That email doesn't look right.",signupFail:m=>`Couldn't sign you up just now: ${m}`,
   emailOn:e=>`Friday email on for ${e} · <button type="button" id="stopEmail">Stop it</button>`,
@@ -625,7 +625,7 @@ fr:{
   junkHint:"Pas reçu après une minute? Vérifiez les courriels indésirables ou Promotions (Outlook et Hotmail nous y classent souvent) et indiquez « Pas un courriel indésirable ».",
   resend:"Renvoyer",resendFail:"Envoi impossible pour l'instant. Réessayez dans une minute.",resent:"Renvoyé. Laissez-lui une minute.",resendWait:"Tout juste envoyé : attendez une minute, puis vérifiez les indésirables.",
   otherEmail:"Utiliser un autre courriel",getDeals:"Recevez des aubaines comme celles-ci chaque vendredi",
-  getDealsTxt:"Un courriel le vendredi matin, seulement des articles en solde dans vos tailles.",email:"Courriel",signUp:"M'abonner",
+  getDealsTxt:"Un courriel le vendredi matin, seulement des articles en solde dans vos tailles.",peekTitle:n=>`${n} aubaines dans vos tailles aujourd'hui`,peekTxt:"Entrez votre courriel pour toutes les voir, être averti des baisses de prix sur vos coups de cœur et recevoir les meilleures chaque vendredi.",peekG:"ou continuer avec Google",email:"Courriel",signUp:"M'abonner",
   signupFine:'On vous écrit pour confirmer. Désabonnement en un clic. <a href="privacy.html">Confidentialité</a>',
   badEmail:"Ce courriel ne semble pas valide.",signupFail:m=>`Impossible de vous abonner pour l'instant : ${m}`,
   emailOn:e=>`Courriel du vendredi activé pour ${e} · <button type="button" id="stopEmail">L'arrêter</button>`,
@@ -747,6 +747,9 @@ $("toSignin").addEventListener("click",()=>{signinMode=true;openSheet();setTimeo
 $("toSignup").addEventListener("click",()=>{signinMode=false;openSheet()});
 $("toSignin2").addEventListener("click",()=>{signinMode=true;openSheet();setTimeout(()=>$("signinEmail").focus(),60)});
 function gated(){return !(sub&&(sub.key||sub.pending))}     // first visit: sizes + email before any deals
+// "peek": sizes picked, no email yet: their top 6 deals show (clickable), then the email card (flow D only)
+let PEEK=!!LS.get("gf-peek");
+const peeking=()=>gated()&&PEEK&&FLOW==="D"&&hasSizes();
 function gateErr(msg,el){const e=$("gateErr");e.textContent=msg||"";e.classList.toggle("hidden",!msg);
   document.querySelectorAll("#sheet .need").forEach(x=>x.classList.remove("need"));
   if(el){el.classList.add("need");el.scrollIntoView({behavior:"smooth",block:"center"});setTimeout(()=>el.classList.remove("need"),2500)}}
@@ -815,7 +818,7 @@ function openSheet(){lastFocus=document.activeElement;renderSheet();
   }
   if(si){title=t("signinTitle");intro=t("signinIntro");btn=t("emailLink")}
   $("sizesPart").classList.toggle("hidden",!showSizes);$("welcomePart").classList.toggle("hidden",!showWelcome);
-  $("gateBox").classList.toggle("hidden",!showGate);$("closeSheet").classList.toggle("hidden",g);
+  $("gateBox").classList.toggle("hidden",!showGate);$("closeSheet").classList.toggle("hidden",g&&!peeking());
   const showAlready=g&&!si&&FLOW==="A";
   $("already").classList.toggle("hidden",!showAlready);$("signinBox").classList.toggle("hidden",!si);$("signupParts").classList.toggle("hidden",si);
   $("sheetTitle").textContent=title;
@@ -841,9 +844,9 @@ function nextStep(){step+=1;track("signup-step",{flow:FLOW,step});openSheet();$(
 function closeSheet(){$("sheet").classList.add("hidden");document.body.classList.remove("locked");if(lastFocus&&lastFocus.focus)lastFocus.focus()}
 $("openSizes").addEventListener("click",openSheet);
 $("sizePill").addEventListener("click",openSheet);
-$("closeSheet").addEventListener("click",()=>{if(gated())return;closeSheet();renderAll()});
-$("sheet").addEventListener("click",e=>{if(e.target===$("sheet")&&!gated()){closeSheet();renderAll()}});
-document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("sheet").classList.contains("hidden")&&!gated()){closeSheet();renderAll()}});
+$("closeSheet").addEventListener("click",()=>{if(gated()&&!peeking())return;closeSheet();renderAll()});
+$("sheet").addEventListener("click",e=>{if(e.target===$("sheet")&&(!gated()||peeking())){closeSheet();renderAll()}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("sheet").classList.contains("hidden")&&(!gated()||peeking())){closeSheet();renderAll()}});
 $("saveSizes").addEventListener("click",async()=>{
   if(gated()&&signinMode){
     const email=$("signinEmail").value.trim().toLowerCase();
@@ -862,7 +865,9 @@ $("saveSizes").addEventListener("click",async()=>{
       if(!state.gender)return gateErr(t("errFit"),$("fit"));
       if(!state.shoe.length&&!state.cloth.length)return gateErr(t("errSize"),$("shoeSizes"));
       if(FLOW!=="C"&&gSession)return googleSubscribe();       // signed in with Google already: done
-      if(FLOW!=="C")return nextStep();                          // B/D: sizes done, now the email step
+      if(FLOW==="D"){PEEK=true;LS.set("gf-peek",1);LS.set("rd-profile",toProfile());track("signup-step",{flow:FLOW,step:"peek"});
+        closeSheet();view.open={};renderAll();window.scrollTo({top:0});return}   // D: their first deals now, email card below
+      if(FLOW!=="C")return nextStep();                          // B: sizes done, now the email step
     }else if(FLOW==="C"&&step===1){                              // C: account first
       if(gSession)return nextStep();
       const email=$("gateEmail").value.trim().toLowerCase();
@@ -1097,6 +1102,7 @@ function toggleWatch(k){
   if(sub&&sub.key&&sub.active){rpc("watch_add",{p_token:sub.key,p_key:k,p_meta:watches[k]}).catch(()=>{});
     toast(t("watching"))}
   else toast(sub&&sub.pending?t("watchingPending"):t("watchingSignup"));
+  if(peeking()){step=2;openSheet();$("panel").scrollTop=0}
 }
 async function syncWatches(){
   if(!(sub&&sub.key))return;
@@ -1190,7 +1196,7 @@ const tally=()=>Object.values(clicks).reduce((a,v)=>a+v.off,0);
 function recordClick(k){const d=RENDERED[k];if(!d||!d.pct||clicks[k])return;clicks[k]={off:Math.round((d.reg-d.best)*100)/100,at:Date.now()};LS.set("gf-clicks",clicks)}
 /* Calm top: "421 deals today · $150 off found so far · updated 3 h ago" */
 let saleNow=0;
-function setCalmLede(){if(!DATA||gated()||view.watch)return;
+function setCalmLede(){if(!DATA||(gated()&&!peeking())||view.watch)return;
   const off=tally();
   $("lede").innerHTML=t("ledeShort",num(saleNow),DATA.updated?ago(DATA.updated):"",off>=1?money(Math.round(off)).replace(/[.,]00/,""):"")}
 function renderStats(){
@@ -1211,8 +1217,8 @@ function renderStats(){
 function renderAll(){
   $("sizeSummary").textContent=sizeSummary();
   $("newBox").innerHTML="";
-  const sh=$("subhead");sh.classList.toggle("hidden",!CALM||!!view.watch||gated());
-  if(CALM){sh.innerHTML=`${esc(sizeSummary())} · <button type="button" class="linkbtn" id="editSz">${t("edit")}</button>`;$("editSz").addEventListener("click",openSheet);
+  const sh=$("subhead");sh.classList.toggle("hidden",!CALM||!!view.watch||(gated()&&!peeking()));
+  if(CALM){sh.innerHTML=`${esc(sizeSummary())} · <button type="button" class="linkbtn" id="editSz">${t("edit")}</button>`;$("editSz").addEventListener("click",()=>{if(peeking())step=1;openSheet()});
     const dirty=state.ships==="all"||view.fullPrice||view.sort!=="match";$("filtDot").classList.toggle("hidden",!dirty)}
   const w=!!view.watch;
   $("filtersBox").classList.toggle("hidden",w);$("backToDeals").classList.toggle("hidden",!w);
@@ -1220,6 +1226,7 @@ function renderAll(){
   saveWatches();
   renderFilters();
   if(!DATA){$("dealList").innerHTML=`<div class="empty">${t("loading")}</div>`;return}
+  if(peeking()&&!view.watch)return renderPeek();
   if(gated()){$("lede").textContent=t("gatedLede");
     const tz=matchItems({...toProfile(),gender:"",sizes:{},groups:ORDER}).filter(d=>d.pct>=20&&d.pct<=60&&d.ca!==false&&["shoes","tops","bottoms","packs"].includes(d.g)&&!SPIKE.test(d.n)&&d.t!=="hike").sort(SORTS.discount).slice(0,8);
     $("dealList").innerHTML=`<div class="empty"><button class="primary" type="button" id="unlock">${t("unlock")}</button></div>`+
@@ -1256,6 +1263,17 @@ function renderAll(){
   $("shareCard").classList.remove("hidden");$("shareTxt").textContent=t("shareTxt");$("shareBtn").textContent=t("shareBtn");
 }
 
+function renderPeek(){   // sizes picked, no email yet: their top 6 deals, then the email card, then the rest blurred
+  const onSale=matchItems(toProfile()).filter(d=>d.pct>0).sort(SORTS.match||SORTS[view.sort]);
+  saleNow=onSale.length;if(CALM)setCalmLede();else $("lede").textContent=t("lede",num(onSale.length),num(onSale.length),t("storesCA"),DATA.updated?ago(DATA.updated):"");$("newBox").innerHTML="";$("watchNews").classList.add("hidden");
+  const first=onSale.slice(0,6),rest=onSale.slice(6,12);
+  $("dealList").innerHTML=(first.length?`<section class="grp sale" id="grp-__sale"><h2>${t("secSale")} <small>${num(onSale.length)}</small></h2><div class="grid">${first.map(d=>card(d)).join("")}</div></section>`:`<div class="empty">${t("nothing")}</div>`)+
+    signupHTML()+(rest.length?`<div class="grid tease" aria-hidden="true" style="margin-top:14px">${rest.map(d=>card(d)).join("")}</div>`:"");
+  bindSignup();
+  const g=$("suGoogle");if(g)g.addEventListener("click",()=>{step=2;openSheet();$("panel").scrollTop=0});
+  $("dealsFoot").textContent=t("pricesChange");
+}
+
 /* ---------- Friday email: subscribers live in Supabase ---------- */
 const SB_URL="https://krwymmkauwqqxjxbvkyq.supabase.co",SB_KEY="sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2";
 async function rpc(fn,args,bearer){
@@ -1272,12 +1290,14 @@ function signupHTML(){
   if(sub&&sub.pending)return `<div class="signup"><h3>${t("checkInbox")}</h3><p style="margin:0">${sub.signin?t("signinCard",esc(sub.pending)):t("checkInboxTxt",esc(sub.pending))}</p>
     <p class="fine">${t("junkHint")}</p>
     <p class="fine"><button type="button" id="suResend" style="font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;cursor:pointer">${t("resend")}</button> · <button type="button" id="suRetry" style="font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;cursor:pointer">${t("otherEmail")}</button></p></div>`;
-  return `<div class="signup"><h3>${t("getDeals")}</h3>
-    <p>${t("getDealsTxt")}</p>
+  const pk=peeking();
+  return `<div class="signup${pk?" peek":""}"><h3>${pk?t("peekTitle",num(saleNow)):t("getDeals")}</h3>
+    <p>${pk?t("peekTxt"):t("getDealsTxt")}</p>
     <form id="suForm" novalidate><label for="suEmail" class="hidden">${t("email")}</label>
       <input id="suEmail" type="email" autocomplete="email" inputmode="email" placeholder="${t("emailPh")}" value="${esc(state.email)}" required>
       <button class="primary" type="submit">${t("signUp")}</button></form>
     ${signupErr?`<p class="err">${esc(signupErr)}</p>`:""}
+    ${pk?`<p class="fine"><button type="button" id="suGoogle" class="linkbtn">${t("peekG")}</button></p>`:""}
     <p class="fine">${t("signupFine")}</p></div>`;
 }
 function bindSignup(){
@@ -1287,7 +1307,7 @@ function bindSignup(){
     if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)){signupErr=t("badEmail");renderAll();$("suEmail").focus();return}
     const btn=f.querySelector("button");btn.disabled=true;btn.textContent="…";
     state.email=email;const p=toProfile();LS.set("rd-profile",p);
-    try{await rpc("subscribe",{p_email:email,p_profile:p});signupErr="";setSub({pending:email});track("signup",{method:"email",lang:LANG,where:"shop-card",ref:REF||"none"})}
+    try{await rpc("subscribe",{p_email:email,p_profile:p});signupErr="";setSub({pending:email});track("signup",{method:"email",lang:LANG,where:peeking()?"peek-card":"shop-card",ref:REF||"none"})}
     catch(err){signupErr=t("signupFail",err.message)}
     renderAll();
   });
@@ -1424,7 +1444,7 @@ function logEvent(kind,store,group){rpc("log_event",{p_kind:kind,p_store:store||
   }
   renderAll();
   syncWatches();
-  if((gated()||(!hasSizes()&&!(sub&&sub.signin)))&&$("notice").classList.contains("hidden"))openSheet();
+  if(((gated()&&!peeking())||(!hasSizes()&&!(sub&&sub.signin)))&&$("notice").classList.contains("hidden"))openSheet();
 })();
 })();
 </script>
