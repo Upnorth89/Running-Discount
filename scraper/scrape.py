@@ -657,6 +657,15 @@ def mec_group(h):
             return MEC_CAT[key] or group_of(h.get("title", "")) or "tops"
     return group_of(h.get("title", ""))
 
+def mec_running(h):
+    """Saves from MEC's all-deals page also hold ski, bike, camping and kids' gear: keep running items only
+    (items without categories, from older saves, pass)."""
+    cats = h.get("categories") or {}
+    if not cats:
+        return True
+    return any(c.startswith("Products > Running") or c.endswith("> Running packs")
+               for c in cats.get("lvl1", []) + cats.get("lvl2", []))
+
 def mec_item(h):
     if (h.get("inventoryStatus") or "IN_STOCK") == "OUT_OF_STOCK":
         return None
@@ -950,7 +959,7 @@ def scrape_mec_saved():
         used += 1
         for h in hits:
             key = h.get("parentSku") or h.get("url")
-            if key in seen:
+            if key in seen or not mec_running(h):
                 continue
             seen.add(key)
             it = mec_item(h)
