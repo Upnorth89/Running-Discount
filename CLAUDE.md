@@ -136,6 +136,10 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
 - Sovrn Commerce (Oct 3): first link live, Norvan LD 4 at Sporting Life -> https://sovrn.co/jfmu34u. `AFF` map in index.html
   (store product URL without query -> affiliate link, applied in the card href by `affUrl`; `data-store` keeps click counts on the store).
   Disclosure: About page "How we make money" + privacy page (Sovrn may set a cookie).
+  Sovrn rates seen Oct 3 (application pending; clicks before approval don't earn; $25 payout minimum): Altitude Sports 10%
+  (EPC $0.33), MEC 7.5% + CPC (EPC $0.17, AOV $139: keep MEC saves fresh; ask Sovrn for an MEC product feed), The Last Hunt
+  1% (EPC $0.04), per click: Sporting Life, The Feed, Stance, 2XU. adidas 2-10.5% but only adidas.com (not a store of ours).
+  After approval: Bastien sends Sovrn's install code -> all links to those stores earn; ranking never favours paying stores.
 
 ## Stores and data
 
