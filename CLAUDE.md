@@ -36,6 +36,8 @@ scraper/scrape.py        all store readers + merge -> site/deals.json and site/o
 scraper/weekly_email.py  the Friday email (also the size-matching rules shared with alerts)
 scraper/alerts.py        daily price-drop / back-in-your-size emails
 scraper/health.py        daily health check + morning report email
+scraper/shoe_pages.py    Google pages: one per popular shoe model (3+ Canadian stores), /shoes/<slug>/ and /chaussures/<slug>/,
+                         list pages, sitemap.xml (robots.txt is static). Pages never disappear (shoes/pages.json registry)
 supabase/setup.sql       database: tables, sign-up/confirm/profile/Google functions, email templates
 supabase/watchlist.sql   watchlist table + functions
 supabase/friday-switch.sql  latest change (Friday wording + weekly_sent_at column); already applied
@@ -63,6 +65,7 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   - Price history (`scraper/history.py`, started Oct 2, 2026): one line per product on the `history` branch (data only,
     not code: the one exception to "no side branches"), a point when the best price changes; adds `lo` (lowest in 60 days)
     and `hd` (days of history) to deals.json/sale.json. For "Is this deal real?" badges before Black Friday (Nov 27).
+    Badge rule (Bastien, Oct 3): good news only ("Lowest price we've seen in N days", 30+ days of history), never "was cheaper before".
 - **Weekly deals email** (`weekly-email.yml`): every hour on Friday 9:07–18:07 UTC. Each run sends to
   subscribers for whom it is now Friday 7am or later in their own time zone (profile `tz` from the browser;
   default: French = Eastern, English = Pacific) and records `weekly_sent_at` so nobody gets two.

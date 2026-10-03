@@ -94,6 +94,7 @@ ul{padding-left:20px}
 <script>
 (function(){
   let L;try{L=JSON.parse(localStorage.getItem("gf-lang")||"null")}catch(e){}
+  try{const q=new URLSearchParams(location.search).get("lang");if(q==="fr"||q==="en")L=q}catch(e){}
   if(!L)L=/^fr/i.test(navigator.language||"")?"fr":"en";
   function show(l){L=l;document.documentElement.lang=l;document.getElementById("en").hidden=l!=="en";document.getElementById("fr").hidden=l!=="fr";
     const b=document.getElementById("sw");b.textContent=l==="fr"?"English":"Français";b.lang=l==="fr"?"en":"fr";

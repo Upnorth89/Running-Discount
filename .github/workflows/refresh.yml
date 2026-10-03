@@ -62,6 +62,7 @@ jobs:
           curl -fsSL "$BASE/deals.json" -o site/deals.json || true
           curl -fsSL "$BASE/offers.json" -o site/offers.json || true
           curl -fsSL "$BASE/health.json" -o site/health.json || true
+          mkdir -p site/shoes && curl -fsSL "$BASE/shoes/pages.json" -o site/shoes/pages.json || true   # models that have a page (pages never disappear)
           mkdir -p /tmp/prev && cp site/deals.json site/offers.json site/health.json /tmp/prev/ 2>/dev/null || true
       - name: Keep the subscriber database awake
         continue-on-error: true
@@ -85,6 +86,9 @@ jobs:
           else
             echo "no price history checked out: skipped"
           fi
+      - name: Shoe pages for Google (one per popular model, EN/FR) + sitemap
+        continue-on-error: true
+        run: python scraper/shoe_pages.py site
       - name: Save price history
         if: github.event_name != 'push'
         continue-on-error: true

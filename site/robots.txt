@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /grab.html
+
+Sitemap: https://thegearfox.com/sitemap.xml
