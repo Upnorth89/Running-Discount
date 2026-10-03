@@ -6,6 +6,8 @@ Bastien (Vancouver, ultrarunner). Visitors pick their sizes, add an email, and g
 plus price-drop alerts on items they heart. Goal: $500–1,000/month by March 2027 from affiliate links,
 then a paid tier (Fox Pro). The 6-month plan with weekly tasks:
 https://claude.ai/code/artifact/36e1d545-7390-44fe-b080-80f03465af61
+That plan (a Claude Docs doc) also holds the Fox Pro free/paid table, the Press pitch (EN/FR + outlets) and the
+**Ideas backlog** (Now / Next / Later / Parked): add every new idea there and move rows as decisions change.
 
 ## How to work with Bastien
 
