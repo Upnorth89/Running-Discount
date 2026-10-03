@@ -1424,7 +1424,8 @@ def merge(offers):
         if (o["b"] or "").strip() in ("", "0") and o.get("st") in OWN_BRAND:   # brand stores that leave the brand blank or "0"
             o["b"] = OWN_BRAND[o["st"]]
         if o.get("st") not in GENDER_PREFIX_STORES and o["g"] in ("shoes", "tops", "bottoms", "bras", "socks"):
-            m = re.match(r"^(Men|Women)[’']?s\s+(.+)", o["n"])      # any store: "Men’s Triumph 23" -> "Triumph 23 - Men's"
+            m = re.match(r"^(Men|Women)[’']?s\s+(.+)", tidy_name(o["b"] or "", o["n"]))   # any store, after the brand:
+                                                                             # "Saucony Men’s Triumph 23" -> "Triumph 23 - Men's"
             if m and not re.search(r"\b(wom[ae]n|men)[’']?s?\b", m.group(2), re.I):
                 o["n"] = m.group(2) + (" - Men's" if m.group(1) == "Men" else " - Women's")
         if o.get("st") in GENDER_PREFIX_STORES:
