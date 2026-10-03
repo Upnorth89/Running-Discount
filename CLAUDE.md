@@ -40,6 +40,11 @@ scraper/shoe_pages.py    Google pages: one per popular shoe model (3+ Canadian s
                          list pages, sitemap.xml (robots.txt is static). Pages never disappear (shoes/pages.json registry)
                          List page: search-as-you-type + brand shortcuts. A registered slug that now tidies into another
                          model gets `to` in pages.json and becomes a forwarding page (noindex, canonical), out of the sitemap.
+                         Model pages read the visitor's saved sizes (rd-profile in localStorage): "Your size 10: $X at Store"
+                         + highlighted rows; "♡ Watch the price" per table -> /?watch=<itemKey> (works at full price too).
+                         The site links to them: "All sizes & stores →" on shoe cards (shoePage(): JS copy of base_model +
+                         slugify, checked identical on all shoes), search cards for model names, "or look up a specific
+                         shoe →" on the welcome screen (the second door), and the Friday email. Umami: shoe-page-link {from}.
 supabase/setup.sql       database: tables, sign-up/confirm/profile/Google functions, email templates
 supabase/watchlist.sql   watchlist table + functions
 supabase/friday-switch.sql  latest change (Friday wording + weekly_sent_at column); already applied

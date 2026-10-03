@@ -79,6 +79,10 @@ def on_sale(x):
 
 items = [{k: v for k, v in x.items() if k != "img"} for x in data["items"] if x.get("ca") is not False or on_sale(x)]
 blob = json.dumps({"updated": data["updated"], "stores": data.get("stores", {}), "fx": data.get("fx", {}), "items": items}, separators=(",", ":")).replace("</", "<\\/")
+# shoe price pages list (links on shoe cards and in search): embedded too, when the site folder has one
+sp_path = SITE / "shoes" / "pages.json"
+if sp_path.exists():
+    rep('fetch("shoes/pages.json").then(r=>r.ok?r.json():{})', 'Promise.resolve(' + sp_path.read_text().replace("</", "<\\/") + ')')
 rep('const loadData=f=>fetch(f,{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error(f);return r.json()});',
     'const loadData=f=>Promise.resolve(JSON.parse(document.getElementById("gfdata").textContent));')
 a = s.index("async function rpc(fn,args,bearer){")

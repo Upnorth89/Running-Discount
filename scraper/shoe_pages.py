@@ -20,7 +20,7 @@ import sys
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
-from urllib.parse import urlparse, urlencode, parse_qsl, urlunparse
+from urllib.parse import urlparse, urlencode, parse_qsl, urlunparse, quote
 
 BASE = "https://thegearfox.com"
 MIN_STORES = 3          # Canadian stores carrying the model before it gets a page
@@ -50,6 +50,8 @@ T = {
         "idxIntro": "Every popular running shoe we track, with today's best price in each size at Canadian stores. Updated every morning.",
         "idxDesc": "Today's best price in every size for {n} running shoe models at Canadian stores. Updated every morning by The Gear Fox.",
         "onSale": "on sale", "home": "The Gear Fox", "switch": "Français", "tagline": "OUTFOX FULL PRICE",
+        "yourSize": "Your size", "at": "at", "see": "See it", "watch": "Watch the price",
+        "notInSize": "Not in stock in your size right now. Watch it and we'll email you when it's back or drops.",
         "find": "Search a model (e.g. Clifton)", "noMatch": "No model matches. Try the brand name, or a shorter word.",
         "foot": "The Gear Fox · Outfox full price · Prices change often: the store's price at checkout is the one that counts.",
         "privacy": "Privacy",
@@ -80,6 +82,8 @@ T = {
         "idxIntro": "Toutes les chaussures de course populaires que nous suivons, avec le meilleur prix du jour dans chaque pointure dans les boutiques canadiennes. Mis à jour chaque matin.",
         "idxDesc": "Le meilleur prix du jour dans chaque pointure pour {n} modèles de chaussures de course dans les boutiques canadiennes. Mis à jour chaque matin par The Gear Fox.",
         "onSale": "en solde", "home": "The Gear Fox", "switch": "English", "tagline": "FLAIREZ LES AUBAINES",
+        "yourSize": "Votre pointure", "at": "chez", "see": "Voir", "watch": "Suivre le prix",
+        "notInSize": "Pas en stock dans votre pointure en ce moment. Suivez-la et on vous écrira dès qu'elle revient ou baisse.",
         "find": "Chercher un modèle (ex. Clifton)", "noMatch": "Aucun modèle trouvé. Essayez le nom de la marque ou un mot plus court.",
         "foot": "The Gear Fox · Flairez les aubaines · Les prix changent souvent : le prix de la boutique au paiement est celui qui compte.",
         "privacy": "Confidentialité",
@@ -223,6 +227,12 @@ td.p b{font:800 18px var(--display)}
 td.p s{color:var(--muted);font-size:13px;margin-left:4px}
 .off{display:inline-block;background:var(--hivis);color:var(--hivis-ink);border-radius:5px;font:700 12px var(--body);padding:1px 5px;margin-left:6px}
 .us{display:block;font-size:12px;color:var(--muted)}
+.th2{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.watch{font:600 14px var(--body);color:var(--moss);white-space:nowrap}
+tr.yours td{background:rgba(242,106,27,.14)}
+tr.yours td:first-child{font-weight:700;box-shadow:inset 4px 0 0 var(--hivis)}
+.mine{background:var(--card);border:1.5px solid var(--hivis);border-radius:12px;padding:12px 14px;margin:0 0 6px;font-size:16px}
+.mine b{font:800 20px var(--display)}
 .cta{background:var(--band);color:var(--band-ink);border-radius:14px;padding:18px;margin:26px 0}
 .cta h2{margin:0 0 6px;color:var(--band-ink)}
 .cta p{margin:0 0 12px;color:var(--band-ink);opacity:.85}
@@ -284,6 +294,21 @@ def page_foot(L):
     return f"""<p class="foot">{esc(L['foot'])} · <a href="https://www.instagram.com/thegearfox/" rel="noopener">@thegearfox</a> · <a href="{priv}">{L['privacy']}</a></p>
 </main>
 <script>
+(function(){{var p;try{{p=JSON.parse(localStorage.getItem("rd-profile")||"null")}}catch(e){{}}
+if(!p||!p.sizes||!p.sizes.shoes||!(p.sizes.shoes.sizes||[]).length)return;
+var mine=p.sizes.shoes.sizes.map(String),wid=p.sizes.shoes.width||[],g=p.gender||"any",best=null,hit=0,box=document.getElementById("mine");if(!box)return;
+var wantW=wid.indexOf("Wide")>=0,wantR=!wid.length||wid.indexOf("Regular")>=0;
+document.querySelectorAll("table[data-g]").forEach(function(t){{var tg=t.dataset.g,w=t.dataset.w==="1";
+  if((w&&!wantW)||(!w&&!wantR))return;if(tg!=="unisex"&&g!=="any"&&tg!==g)return;
+  t.querySelectorAll("tr[data-s]").forEach(function(r){{var s=r.dataset.s,wide=/\(/.test(s),n=s.replace(/\s*\(.*\)$/,"");
+    if(wide&&!wantW)return;var ok=false;
+    if(tg==="unisex"){{if(/^W /.test(n))ok=g!=="men"&&mine.indexOf(n.slice(2))>=0;else ok=(g!=="women"&&mine.indexOf(n)>=0)||(g==="women"&&mine.indexOf(String(parseFloat(n)+1.5))>=0)}}
+    else ok=mine.indexOf(n)>=0;
+    if(!ok)return;r.classList.add("yours");hit++;var pr=parseFloat(r.dataset.p);if(!best||pr<best.p)best={{p:pr,r:r}}}})}});
+box.hidden=false;
+if(!best){{box.textContent=box.dataset.none;return}}
+var c=best.r.children;best.r.id="your-size";
+box.innerHTML=box.dataset.your+" "+c[0].textContent+": <b>"+c[1].querySelector("b").textContent+"</b> "+box.dataset.at+" "+c[2].querySelector("a").textContent+' · <a href="#your-size">'+box.dataset.see+" ↓</a>";}})();
 document.addEventListener("click",function(e){{var a=e.target.closest("a[data-store]");if(!a)return;
 try{{fetch("{SB_URL}/rest/v1/rpc/log_event",{{method:"POST",keepalive:true,headers:{{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"}},
 body:JSON.stringify({{p_kind:"click",p_store:a.dataset.store,p_group:"shoes",p_ref:"shoe-page",p_lang:"{L['lang'][:2]}"}})}})}}catch(x){{}}
@@ -305,10 +330,11 @@ def model_page(slug, its, stores, L, updated, related, brand_models):
     for d in sorted(its, key=lambda d: ({"men": 0, "women": 1}.get((d.get("sx") or ["u"])[0], 2) if len(d.get("sx") or []) == 1 else 2, bool(d.get("w")))):
         rows = rows_for(d, stores, L)
         if rows:
-            groups.append((variant_label(d, L), rows))
-    merged = defaultdict(list)            # two items with the same label (e.g. GTX folded in elsewhere) share one table
-    for lab, rows in groups:
+            groups.append((variant_label(d, L), rows, d))
+    merged, first = defaultdict(list), {}  # two items with the same label (e.g. GTX folded in elsewhere) share one table
+    for lab, rows, d in groups:
         merged[lab].extend(rows)
+        first.setdefault(lab, d)
     allrows = [r for _, rows in merged.items() for r in rows]
     sale = [r for _, r in allrows if r[0] < r[1] * 0.99]
     best = min(allrows, key=lambda kv: kv[1][0])[1] if allrows else None
@@ -340,15 +366,24 @@ def model_page(slug, its, stores, L, updated, related, brand_models):
                    f'<p class="facts">{L["facts"].format(sizes=len(allrows), stores=n_stores, date=fmt_date(updated, L))}</p></div></div>')
     else:
         out.append(f'<div class="hero"><div>{f"<span class=tag>{esc(t)}</span>" if t else ""}<p>{L["none"]}</p></div></div>')
+    # "your size": the page reads the sizes saved on this phone (main site) and highlights them (script at the end)
+    out.append(f'<div class="mine" id="mine" hidden data-your="{esc(L["yourSize"])}" data-at="{esc(L["at"])}" data-see="{esc(L["see"])}" '
+               f'data-none="{esc(L["notInSize"])}"></div>')
+    lang_q = "&lang=fr" if L["lang"] == "fr-CA" else ""
     for lab, rows in merged.items():
+        d0 = first[lab]
+        sx = d0.get("sx") or []
+        tg = "men" if sx == ["men"] else "women" if sx == ["women"] else "unisex"
+        key = f'{d0["b"]}|{d0["n"]}|{d0["g"]}|{1 if d0.get("w") else 0}'.lower()          # the site's itemKey()
+        watch = f'<a class="watch" href="/?watch={quote(key)}{lang_q}" rel="nofollow">♡ {L["watch"]}</a>' if d0.get("of") else ""
         rows = sorted({k: v for k, v in rows}.items(), key=lambda kv: size_sort(kv[0]))
-        out.append(f'<h2>{esc(lab)}</h2><table><thead><tr><th>{L["size"]}</th><th>{L["price"]}</th><th>{L["store"]}</th></tr></thead><tbody>')
+        out.append(f'<div class="th2"><h2>{esc(lab)}</h2>{watch}</div><table data-g="{tg}" data-w="{1 if d0.get("w") else 0}"><thead><tr><th>{L["size"]}</th><th>{L["price"]}</th><th>{L["store"]}</th></tr></thead><tbody>')
         for size, (p, reg, h, u) in rows:
             off = round(100 * (1 - p / reg)) if reg and p < reg * 0.99 else 0
             st = stores.get(h, [h])
             us = f'<span class="us">{L["us"]}</span>' if len(st) > 1 else ""
             price = f'<b>{money(p)}</b>' + (f'<s>{money(reg)}</s><span class="off">−{off}%</span>' if off else "")
-            out.append(f'<tr><td>{esc(size)}</td><td class="p">{price}</td><td><a href="{esc(u)}" rel="nofollow noopener" target="_blank" data-store="{esc(h)}">{esc(st[0])}</a>{us}</td></tr>')
+            out.append(f'<tr data-s="{esc(size)}" data-p="{p:.2f}"><td>{esc(size)}</td><td class="p">{price}</td><td><a href="{esc(u)}" rel="nofollow noopener" target="_blank" data-store="{esc(h)}">{esc(st[0])}</a>{us}</td></tr>')
         out.append("</tbody></table>")
     home = "/?ref=shoe-page" + ("&lang=fr" if L["lang"] == "fr-CA" else "")
     out.append(f'<section class="cta"><h2>{L["cta"]}</h2><p>{L["ctaTxt"]}</p><a class="btn" href="{home}">{L["ctaBtn"]}</a></section>')

@@ -155,7 +155,7 @@ GROUP_FR = {"shoes": "Chaussures", "tops": "Hauts et manteaux", "bottoms": "Shor
             "socks": "Bas", "gloves": "Gants", "headwear": "Casquettes et cache-cous", "packs": "Vestes et sacs d'hydratation",
             "gear": "Frontales, bâtons et gourdes", "watches": "Montres", "nutrition": "Nutrition"}
 STR = {
-    "en": dict(your_size="Your size: ", best_by="Best by {}", abroad="Ships from outside Canada · converted to CAD, duties may apply",
+    "en": dict(your_size="Your size: ", best_by="Best by {}", all_sizes="All sizes & stores →", abroad="Ships from outside Canada · converted to CAD, duties may apply",
                see_all="See all {} on sale →", watch_head="Your watchlist",
                changes=lambda n: f"{n} {'change' if n == 1 else 'changes'} this week",
                change_sizes="Change your sizes", unsubscribe="Unsubscribe", privacy="Privacy", follow="Follow us on Instagram",
@@ -170,7 +170,7 @@ STR = {
                fine="Prices and stock change daily; the product page has the final price.<br>"
                     "You get this because you signed up for Friday deals on The Gear Fox. Outfox full price.",
                was="was", all_deals="All deals", logo="logo-email.png"),
-    "fr": dict(your_size="Votre taille : ", best_by="Meilleur avant le {}",
+    "fr": dict(your_size="Votre taille : ", best_by="Meilleur avant le {}", all_sizes="Toutes les pointures et boutiques →",
                abroad="Expédié de l'extérieur du Canada · converti en $ CA, des droits peuvent s'appliquer",
                see_all="Voir les {} articles en solde →", watch_head="Vos favoris",
                changes=lambda n: f"{n} {'changement' if n == 1 else 'changements'} cette semaine",
@@ -236,6 +236,19 @@ def sizes_label(d, lang="en"):
     return ""                     # odd labels ("T2", "115cm"): the store page explains them
 
 E = html.escape
+SHOE_PAGES = {}     # shoes/pages.json from the site: models with a price page (see scraper/shoe_pages.py)
+
+def shoe_page_url(d, lang):
+    """Link to the shoe's price page (every size, every store), when it has one."""
+    if d.get("g") != "shoes" or not SHOE_PAGES or SITE_URL == "/":
+        return ""
+    import shoe_pages as SP
+    slug = SP.slugify(f'{d["b"]} {SP.base_model(d["n"])}')
+    m = SHOE_PAGES.get(slug)
+    if m and m.get("to"):
+        slug, m = m["to"], SHOE_PAGES.get(m["to"])
+    return f'{SITE_URL}{"chaussures" if lang == "fr" else "shoes"}/{slug}/' if m else ""
+
 def card(d, lang="en"):
     img = (f'<img src="{E(d["img"])}" width="84" height="84" alt="" '
            f'style="display:block;width:84px;height:84px;object-fit:contain;background:#fff;border-radius:8px">') if d.get("img") else ""
@@ -244,6 +257,9 @@ def card(d, lang="en"):
     bb = f'<div style="font-size:12px;color:#B3261E;font-weight:600">{E(tr(lang, "best_by", d["bb"]))}</div>' if d.get("bb") else ""
     if d.get("ca") is False:
         bb += f'<div style="font-size:12px;color:#5C6660">{E(tr(lang, "abroad"))}</div>'
+    sp = shoe_page_url(d, lang)
+    cmp = (f'<div style="margin:4px 0 0 96px;font-family:Arial,Helvetica,sans-serif;font-size:12px">'
+           f'<a href="{E(sp)}" style="color:#B8470A;font-weight:700">{E(tr(lang, "all_sizes"))}</a></div>') if sp else ""
 
     return f'''<tr><td style="padding:10px 0;border-top:1px solid #E3E7E2">
 <a href="{E(d["url"])}" style="text-decoration:none;color:#17201C;display:block">
@@ -256,7 +272,7 @@ def card(d, lang="en"):
 <span style="font-size:13px;color:#5C6660;text-decoration:line-through;margin-left:6px">{money(d["reg"], lang)}</span>
 <span style="font-size:13px;font-weight:800;background:#F26A1B;border:1px solid #17201C;border-radius:4px;padding:1px 5px;margin-left:6px">{pct_txt(d["pct"], lang)}</span></div>
 <div style="font-size:12px;color:#5C6660;margin-top:3px">{E(sz)}</div>{bb}
-</td></tr></table></a></td></tr>'''
+</td></tr></table></a>{cmp}</td></tr>'''
 
 def shop_link(p):
     """Site link that opens this person's tailored shop on any device."""
@@ -418,6 +434,11 @@ def main():
         data = json.loads((ROOT / "site" / "deals.json").read_text())
     items = data.get("items", [])
     print(f"{len(items)} items in deals.json (updated {data.get('updated')})")
+    try:                                   # shoe price pages, for the "All sizes & stores" links
+        SHOE_PAGES.update(requests.get(SITE_URL + "shoes/pages.json", timeout=30).json() if DEALS_URL
+                          else json.loads((ROOT / "site" / "shoes" / "pages.json").read_text()))
+    except Exception as e:
+        print(f"  (no shoe pages list: {e})")
     watch_news = {}
     if SB_URL and SB_KEY and any(p.get("token") for p in profiles):
         try:

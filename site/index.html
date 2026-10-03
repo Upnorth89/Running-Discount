@@ -73,6 +73,13 @@ input:focus-visible,button:focus-visible,summary:focus-visible,select:focus-visi
 @media(max-width:480px){#openSizes{display:none}.topbar .in{gap:8px}}
 .dw{position:relative;display:flex;min-width:0}
 .dw .deal{flex:1;padding-bottom:14px}
+.dw.hascmp .deal,body.compact .dw.hascmp .deal{padding-bottom:44px}
+.cmp{position:absolute;left:15px;bottom:14px;font:600 13px/1.2 var(--body);color:var(--moss);text-decoration:underline;text-underline-offset:2px;padding:4px 0}
+.spcards{display:grid;gap:8px;margin:0 0 16px}
+.spcard{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--card);border:1.5px solid var(--hivis);border-radius:12px;padding:12px 14px;color:var(--ink);text-decoration:none;font-size:15px}
+.spcard b{font:700 18px/1.15 var(--display)}
+.spcard small{display:block;color:var(--muted);font-size:13px}
+.spcard span.go{color:var(--moss);font-weight:700;white-space:nowrap}
 .heart{position:absolute;right:8px;bottom:8px;width:44px;height:44px;border-radius:50%;border:0;background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center}
 .heart:hover{color:var(--ink)}
 .heart[aria-pressed="true"]{color:var(--hivis)}
@@ -437,6 +444,7 @@ body.locked #langBtn,body.locked #curBtn,body.locked #openWatch{visibility:hidde
       <p class="livecount hidden" id="liveCount" aria-live="polite"></p>
       <p class="gerr hidden" id="gateErr" role="alert"></p>
       <button class="primary go" id="saveSizes" type="button">Show my deals</button>
+      <p class="already wsign hidden" id="wShoes"><a id="wShoesA" href="shoes/" data-sp="welcome" data-i18n="wShoes">or look up a specific shoe →</a></p>
       <p class="already wsign hidden" id="wSignin"><span data-i18n="memberQ">Already a member?</span> <button type="button" id="toSignin2" data-i18n="signIn">Sign in</button></p>
       <p class="subline" id="subLine"></p>
     </div>
@@ -556,7 +564,7 @@ en:{
   cTitle:"Deals in your size",cIntro:"Sign up free, or sign back in. We'll ask your sizes only once.",cContinue:"Continue",
   cSizesIntro:"Last step: pick your fit and sizes.",
   wTitle:"Your size. On sale. Every day.",wIntro:half=>`<b>${half?"More than half of":"Many"} gear deals aren't available in your size.</b> Every morning we check running and outdoor stores across Canada and show you only the ones that are.`,
-  wGo:"Find my deals",wOr:"or with Google, one tap",wOnSale:"on sale today",wUpTo:p=>`up to ${p}%`,wOff:"off right now",wStores:"stores checked daily",
+  wGo:"Find my deals",wShoes:"or look up a specific shoe →",cmpLink:"All sizes & stores →",spCardTxt:"Every size, every store in Canada",spCardGo:"Prices →",wOr:"or with Google, one tap",wOnSale:"on sale today",wUpTo:p=>`up to ${p}%`,wOff:"off right now",wStores:"stores checked daily",
   liveAll:n=>`<b>${n}</b> deals on sale today`,liveYou:n=>`<b>${n}</b> deals on sale in your size right now`,
   seeN:n=>`See my ${n} deals`,
   orEmail:"or type your email",orLink:"or get a link by email",
@@ -646,7 +654,7 @@ fr:{
   cTitle:"Des aubaines à votre taille",cIntro:"Abonnez-vous gratuitement ou reconnectez-vous. On vous demande vos tailles une seule fois.",cContinue:"Continuer",
   cSizesIntro:"Dernière étape : choisissez votre coupe et vos tailles.",
   wTitle:"Des aubaines sur mesure.",wIntro:half=>`<b>${half?"Plus de la moitié des ":"Beaucoup d'"}aubaines ne sont pas offertes dans votre taille.</b> Chaque matin, on parcourt les boutiques de course et de plein air partout au Canada et on vous montre seulement celles qui le sont.`,
-  wGo:"Trouver mes aubaines",wOr:"ou avec Google, en un clic",wOnSale:"en solde aujourd'hui",wUpTo:p=>`jusqu'à ${p} %`,wOff:"de rabais en ce moment",wStores:"boutiques vérifiées chaque jour",
+  wGo:"Trouver mes aubaines",wShoes:"ou cherchez une chaussure précise →",cmpLink:"Toutes les pointures et boutiques →",spCardTxt:"Chaque pointure, chaque boutique au Canada",spCardGo:"Prix →",wOr:"ou avec Google, en un clic",wOnSale:"en solde aujourd'hui",wUpTo:p=>`jusqu'à ${p} %`,wOff:"de rabais en ce moment",wStores:"boutiques vérifiées chaque jour",
   liveAll:n=>`<b>${n}</b> aubaines en solde aujourd'hui`,liveYou:n=>`<b>${n}</b> aubaines en solde dans votre taille en ce moment`,
   seeN:n=>`Voir mes ${n} aubaines`,
   orEmail:"ou entrez votre courriel",orLink:"ou recevez un lien par courriel",
@@ -834,6 +842,7 @@ function openSheet(){lastFocus=document.activeElement;renderSheet();
   if(g)$("gateEmail").value=state.email||"";
   const gOn=G.ready&&g;$("gUp").classList.toggle("hidden",!gOn||!!gSession);$("gIn").classList.toggle("hidden",!gOn);
   $("gW").classList.add("hidden");$("wSignin").classList.toggle("hidden",!showWelcome);
+  $("wShoes").classList.toggle("hidden",!showWelcome);$("wShoesA").href=LANG==="fr"?"chaussures/":"shoes/";
   $("gSigned").classList.toggle("hidden",!gSession);if(gSession)$("gSigned").innerHTML=t("gSigned",esc(gSession.email));
   $("gateEmail").classList.toggle("hidden",!!gSession);
   document.querySelector('#gateBox [data-i18n="gateFine"]').innerHTML=gSession?t("gateFineG"):t("gateFine");
@@ -916,7 +925,41 @@ function ago(iso){if(!iso)return "";const m=Math.max(0,Math.round((Date.now()-ne
    when needed: "Include full price", the watchlist, or hearts saved on this device. */
 const loadData=f=>fetch(f,{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error(f);return r.json()});
 let FULL=false,fullLoading=null;
-function useData(d,full){DATA=d;ITEMS=d.items||[];FULL=full;byKey={};ITEMS.forEach(x=>(byKey[itemKey(x)]=byKey[itemKey(x)]||[]).push(x));renderAll()}
+/* Shoe price pages (/shoes/<slug>/, /chaussures/<slug>/): same model id as scraper/shoe_pages.py base_model() + slugify();
+   only models listed in shoes/pages.json get a link (a page that forwards points to its new address). */
+let SHOEPAGES=null;
+function loadShoePages(){if(SHOEPAGES)return;SHOEPAGES={};fetch("shoes/pages.json").then(r=>r.ok?r.json():{}).then(j=>{SHOEPAGES=j||{};if(DATA)renderAll()}).catch(()=>{})}
+function baseModel(n){
+  n=n.replace(/\s*(-\s*|\()(Men|Women)[’']s\)?$|\s*(-\s*|\()Unisex\)?$/,"");
+  n=n.split(/\s+[—·]\s+/)[0];
+  n=n.replace(/\s*[\[(](x-?wide|extra wide|wide|2e|4e|d|ee|large)[\])]\s*|\s+\b(extra wide|x-?wide|wide)\b/gi," ");
+  n=n.replace(/\b((trail|road) )?running shoes?\b|\bhiking shoes?\b|\bshoes?\b/gi,"");
+  return n.replace(/\s+/g," ").replace(/^[ -]+|[ -]+$/g,"");
+}
+function slugify(t){t=t.toLowerCase().replace(/\+/g," plus").replace(/&/g," and ").replace(/[üû]/g,"u").replace(/[öô]/g,"o").replace(/[éèêë]/g,"e").replace(/[àâä]/g,"a");
+  return t.replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"")}
+function shoePage(d){
+  if(d.g!=="shoes"||!SHOEPAGES)return null;
+  let sl=slugify(d.b+" "+baseModel(d.n)),m=SHOEPAGES[sl];
+  if(m&&m.to){sl=m.to;m=SHOEPAGES[sl]}
+  return m?{slug:sl,name:m.n}:null;
+}
+const shoeUrl=sl=>(LANG==="fr"?"chaussures/":"shoes/")+sl+"/";
+function shoeSearch(q){   // models whose name has every search word: "clif" -> Clifton 10, Clifton 11…
+  if(!SHOEPAGES||!q.length)return [];
+  const flat=x=>x.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+  return Object.entries(SHOEPAGES).filter(([sl,m])=>!m.to&&q.every(w=>(flat(m.n)+" "+flat(m.n).replace(/[^a-z0-9]/g,"")).includes(flat(w)))).slice(0,4);
+}
+// "Watch" links on the shoe pages: /?watch=<item key> adds that shoe to the watchlist here
+const WATCH_Q=(()=>{try{return (new URLSearchParams(location.search).get("watch")||"").slice(0,300)}catch(e){return ""}})();
+let watchQDone=!WATCH_Q;
+function watchFromLink(){
+  if(watchQDone||!DATA)return;
+  if(!byKey[WATCH_Q]){if(!FULL){loadFull();return}watchQDone=true;return}
+  watchQDone=true;try{history.replaceState(null,"",location.pathname)}catch(e){}
+  track("watch-from-page",{});if(!watches[WATCH_Q])toggleWatch(WATCH_Q);else toast(t("watching"));
+}
+function useData(d,full){DATA=d;ITEMS=d.items||[];FULL=full;byKey={};ITEMS.forEach(x=>(byKey[itemKey(x)]=byKey[itemKey(x)]||[]).push(x));renderAll();loadShoePages();watchFromLink()}
 function loadFull(){if(FULL||fullLoading)return;fullLoading=loadData("deals.json").then(d=>useData(d,true)).catch(()=>{fullLoading=null})}
 loadData("sale.json").then(d=>useData(d,false)).catch(()=>loadData("deals.json").then(d=>useData(d,true)))
   .then(()=>{if(!$("sheet").classList.contains("hidden"))openSheet();if(Object.keys(watches).length)loadFull()})
@@ -1033,7 +1076,8 @@ function card(d,extra){
   const sizes=(sized||lettered)&&real.length?`<div class="sizes">${t("inYourSize")} <strong>${esc(real.join(", "))}</strong></div>`:"";   // odd labels ("T2", "115cm"): the store page explains them
   const k=itemKey(d),on=!!watches[k];RENDERED[k]=d;
   const isNew=!extra&&NEWSET.has(k);
-  return `<div class="dw"><a class="deal" href="${esc(d.url)}" target="_blank" rel="noopener">
+  const sp=shoePage(d);
+  return `<div class="dw${sp?" hascmp":""}"><a class="deal" href="${esc(d.url)}" target="_blank" rel="noopener">
     ${d.img?`<div class="pic"><img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"></div>`:""}
     <div class="top"><span class="brand">${esc(d.b)}${d.fav?" ★":""}</span>${d.pct?`<span class="pct">−${d.pct}%</span>`:""}</div>
     <div class="name">${esc(nm(d.n))}</div>
@@ -1042,7 +1086,7 @@ function card(d,extra){
     ${sizes}
     ${d.bb?`<div class="warn">${t("bestBy",esc(d.bb))}</div>`:""}
     ${storeLine(d)}
-  </a>${heartBtn(k,on,d)}</div>`;
+  </a>${sp?`<a class="cmp" href="${shoeUrl(sp.slug)}" data-sp="card">${t("cmpLink")}</a>`:""}${heartBtn(k,on,d)}</div>`;
 }
 function section(key,title,list,cls){
   if(!list.length&&!(TYPES[key]&&view.type[key]))return "";   // keep the type buttons when a type has nothing
@@ -1107,7 +1151,8 @@ function toggleWatch(k){
     if(sub&&sub.key)rpc("watch_remove",{p_token:sub.key,p_key:k}).catch(()=>{});
     toast(t("removed"));return}
   const d=(byKey[k]||[])[0];if(!d)return;
-  const m=matchItems({...toProfile(),groups:ORDER},byKey[k]);const best=m.length?Math.min(...m.map(x=>x.best)):null;
+  const m=matchItems({...toProfile(),groups:ORDER},byKey[k]);let best=m.length?Math.min(...m.map(x=>x.best)):null;
+  if(best==null&&!hasSizes())best=Math.min(...byKey[k].flatMap(x=>x.sz.map(e=>e[1])));   // no sizes yet (came from a shoe page): today's lowest price, not "gone"
   const url=m.length?m.sort((a,b)=>a.best-b.best)[0].url:(d.of||[])[0];
   watches[k]={b:d.b,n:d.n,g:d.g,url,price:best,low:best,seen:best,gone:best==null,saved:new Date().toISOString()};saveWatches();
   track("watch-add",{brand:d.b,group:d.g});
@@ -1267,6 +1312,7 @@ function renderAll(){
   const inTop=new Set(NARROW?[]:top.slice(0,view.open.__sale||PAGE).map(itemKey));   // don't show the same deal twice
   ORDER.filter(g=>p.groups.includes(g)).forEach(g=>{const ty=view.type[g];   // a type picked: every match, Top deals included
     parts.push(section(g,GL(g),shown.filter(d=>d.g===g&&(ty?d.t===ty:!inTop.has(itemKey(d))))))});
+  if(q.length){const hits=shoeSearch(q);if(hits.length)parts.unshift(`<div class="spcards">${hits.map(([sl,m])=>`<a class="spcard" href="${shoeUrl(sl)}" data-sp="search"><span><b>${esc(m.n)}</b><small>${t("spCardTxt")}</small></span><span class="go">${t("spCardGo")}</span></a>`).join("")}</div>`)}
   const body=parts.filter(Boolean);
   body.splice(Math.min(1,body.length),0,signupHTML());   // the email card sits right after the first block of deals
   $("dealList").innerHTML=body.join("")||`<div class="empty">${t("nothing")}</div>`;
@@ -1378,6 +1424,7 @@ function switchLang(){
   if(!$("sheet").classList.contains("hidden"))openSheet();renderSheet();renderAll();
 }
 $("langBtn").addEventListener("click",switchLang);
+document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest("a[data-sp]");if(a)track("shoe-page-link",{from:a.dataset.sp})});
 $("curBtn").addEventListener("click",()=>{CUR=CUR==="CAD"?"USD":"CAD";LS.set("gf-cur",CUR);track("currency",{to:CUR});applyStatic();renderAll();
   toast(CUR==="USD"?(LANG==="fr"?"Prix affichés en dollars américains (taux du jour).":"Showing prices in US dollars (today's rate)."):(LANG==="fr"?"Prix affichés en dollars canadiens.":"Showing prices in Canadian dollars."))});$("langBtn2").addEventListener("click",switchLang);
 
