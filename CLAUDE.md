@@ -113,7 +113,9 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
 
 ## Affiliate plan (Oct 1, 2026: none live yet; networks want 60–90 days of traffic)
 
-- Oct 4: AvantLink network account applied and site verified (the check script was removed after). Next: apply to brands inside AvantLink.
+- Oct 4: AvantLink network application DENIED (site too new). Reapply early December with the Dec 1 click report,
+  Search Console traffic and Black Friday results, after adding an About page, contact email and affiliate disclosure.
+  Meanwhile: Sovrn Commerce, Shopify Collabs (brand programs), small shops directly.
 
 - AvantLink covers MEC and 9 of our brands (rabbit 10%, Sunski 8%, Oiselle 6% but no coupon/deal sites,
   Swiftwick, Ciele, Janji, Nathan, Tailwind, Skratch via Shopify Collabs). The Feed and Stance: CJ (Stance
