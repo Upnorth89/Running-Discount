@@ -126,7 +126,10 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   beats hiking brands; race = carbon/plated or racing flats; winter studded trail shoes are trail, not spikes), tops tee/layer/jacket, bottoms
   short/tight/pant, gear light/pole/bottle/sun. `tidy_clothes` moves bras/capris, drops bike parts; `tidy_gear` moves
   shoes filed as gear (shoe brand + numbered sizes) to shoes. One category chip picked = no Top deals (`NARROW`).
-- `SOCCER` drops soccer boots (FG/AG… codes); `GENDER_PREFIX_STORES` reads "M "/"W " name prefixes (Frontrunners).
+- `SOCCER` drops soccer boots (FG/AG… codes); `GENDER_PREFIX_STORES` move a leading gender to the end ("M Adidas Boston 13",
+  "Women's Saucony Peregrine 14", "Men's Velociti 4 Running Shoe": Frontrunners, Aerobics First, City Park Runners, Sporting Life;
+  also drops "*SALE*" and " - Colour/Colour"). Any store's "Men's …"/"Women's …" shoes and clothing get the same. Shoe merge keys
+  ignore "(trail/road) running shoe(s)", so stores' differently worded names merge. One spelling per brand (most common wins).
 - `CAPS_STORES` (Le Coureur writes in capitals: softened), `OWN_BRAND` (rabbit/Bandit leave the brand "0").
 - Shoe size keys: `"10"`, `"M:10"`/`"W:11"` (from unisex labels), suffix `~W` wide, `~N` narrow (hidden).
 - Accessories (packs, gear) in letter sizes follow the clothing size; odd labels are hidden on cards.
@@ -155,7 +158,8 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
 
 ## The site (site/index.html)
 
-- First visit: welcome screen → sizes → email or Google sign-in (flow "D"). The welcome line claims
+- First visit: welcome screen → sizes → email or Google sign-in (flow "D"). Welcome shows 3 tappable deals: one road, one trail,
+  one race shoe (Canadian, 6+ sizes on sale, max 60% off, no spikes) and the real store count. The welcome line claims
   "More than half of gear deals aren't available in your size", recomputed daily (`missShare()`).
 - Phones: compact cards (photo beside the text); categories start with 4 deals and skip ones already in Top deals.
   No automatic Google pop-up (the Google button is in sign-up step 2 and Sign in).

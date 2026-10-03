@@ -15,7 +15,7 @@ site/deals.json in the compact format the page reads:
 If one store fails, its items from the previous run are kept so the site never goes blank.
 Usage:  python scraper/scrape.py [out_path] [--remerge]
 """
-import json, re, sys, time, datetime as dt
+import collections, json, re, sys, time, datetime as dt
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from urllib.parse import quote, urlencode
@@ -1279,6 +1279,8 @@ def tidy_clothes(offers):
             o["g"] = "bras"
         elif o["g"] == "tops" and CLOTH_CAPRI.search(n):
             o["g"] = "bottoms"
+        if o["g"] in ("tops", "bottoms") and re.search(r"\blens(es)?\b|sunglass", n, re.I):
+            o["g"] = "gear"            # MEC files spare sunglass lenses under clothing ("Equinox Lens")
         out.append(o)
     return out
 
@@ -1339,7 +1341,8 @@ CAPS_STORES = {"lecoureur"}
 OWN_BRAND = {"rabbit": "rabbit", "bandit": "Bandit Running"}
 GENDER_PREFIX_STORES = {"frontrunners",    # names start with "M " / "W " / "U " ("M Adidas Boston 13")
                         "aerobicsfirst",   # "Saucony Women's Endorphin Speed 5 - White/Black *SALE*"
-                        "cityparkrunners"} # "Women's Saucony Peregrine 14", "Mens Altra Outroad"
+                        "cityparkrunners", # "Women's Saucony Peregrine 14", "Mens Altra Outroad"
+                        "sportinglife"}    # "Men's Velociti 4 Running Shoe"
 GENDER_PREFIX = {"M": ["men"], "W": ["women"], "U": ["men", "women"]}    # stores that write brands and names in capitals ("ADIDAS ADIOS PRO 4 - FEMME")
 
 # short words that read as words, not model codes, when an ALL-CAPS name is softened ("RUN", "MID" vs "GTX", "SP")
@@ -1408,6 +1411,8 @@ CA_STORES = {"altitude", "lasthunt", "sea2sky", "sportinglife", "stampeak", "mec
 
 def mkey(o):
     name = re.sub(r"[^a-z0-9]+", " ", o["n"].lower()).strip()
+    if o["g"] == "shoes":      # "Triumph 23 Running Shoe - Women's" (Sporting Life) = "Triumph 23 Running Shoes - Women's" (Last Hunt)
+        name = re.sub(r"\s+", " ", re.sub(r"\b((trail|road) )?running shoes?\b|\bshoes?\b", " ", name)).strip()
     # Canadian and cross-border offers stay separate, so "Canadian stores only" never hides a cheaper US price inside a card
     return (o["b"].lower().strip(), name, o["w"], o["g"], bool(o.get("ca")))
 
@@ -1418,11 +1423,15 @@ def merge(offers):
     for o in offers:
         if (o["b"] or "").strip() in ("", "0") and o.get("st") in OWN_BRAND:   # brand stores that leave the brand blank or "0"
             o["b"] = OWN_BRAND[o["st"]]
+        if o.get("st") not in GENDER_PREFIX_STORES and o["g"] in ("shoes", "tops", "bottoms", "bras", "socks"):
+            m = re.match(r"^(Men|Women)[’']?s\s+(.+)", o["n"])      # any store: "Men’s Triumph 23" -> "Triumph 23 - Men's"
+            if m and not re.search(r"\b(wom[ae]n|men)[’']?s?\b", m.group(2), re.I):
+                o["n"] = m.group(2) + (" - Men's" if m.group(1) == "Men" else " - Women's")
         if o.get("st") in GENDER_PREFIX_STORES:
             o["n"] = re.sub(r"\s*\*[^*]{1,12}\*", "", o["n"]).strip()                 # "*SALE*"
             o["n"] = re.sub(r"\s+-\s*[^-]*/[^-]*$", "", o["n"]) if o["g"] == "shoes" else o["n"]   # " - White/Black" colour
             o["n"] = tidy_name(o["b"] or "", o["n"])                                  # brand first, then the gender
-            m = re.match(r"^(M|W|U|Unisex|Men'?s|Women'?s)\s+(.+)", o["n"], re.I)
+            m = re.match(r"^(M|W|U|Unisex|Men[’']?s|Women[’']?s)\s+(.+)", o["n"], re.I)
             if m:
                 k = m.group(1)[0].upper()
                 o["n"] = m.group(2)
@@ -1463,8 +1472,14 @@ def merge(offers):
                 pref = it["g"] != "nutrition"
                 if cur is None or (pref and it["_ca"][oi], -price) > (pref and it["_ca"][cur[1]], -cur[0]):
                     it["sz"][k] = (price, oi, reg, vid)
+    # one spelling per brand ("adidas"/"Adidas", "SmartWool"/"Smartwool"): the most common one, all-capitals last
+    spell = collections.defaultdict(collections.Counter)
+    for it in items.values():
+        spell[it["b"].lower()][it["b"]] += 1
+    best = {k: max(c, key=lambda b: (b != b.upper() or len(b) <= 4, c[b])) for k, c in spell.items()}   # GU, LEKI stay
     out = []
     for it in items.values():
+        it["b"] = best[it["b"].lower()]
         # [size, price, offer, regular] plus the size's own variant id when the store has one
         it["sz"] = [[s, p, i, r] + ([v] if v else []) for s, (p, i, r, v) in it["sz"].items()]
         it.pop("_ca", None)
