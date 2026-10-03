@@ -31,6 +31,8 @@ That plan (a Claude Docs doc) also holds the Fox Pro free/paid table, the Press 
 ```
 site/index.html          the whole site (one file: HTML, CSS, JS, EN/FR dictionary I18N)
 site/privacy.html        bilingual privacy page
+site/about.html          bilingual About page (Oct 3): Bastien's story + photo (bastien.jpg, Run Ridge Run 25K), what it does,
+                         "How we make money" (affiliate disclosure), contact hello@thegearfox.com. Footer + privacy link to it.
 site/grab.html, grab.js  "Grab deals" bookmark for MEC/REI (Bastien saves their sale pages weekly)
 site/deals.json          generated daily (merged items); sale.json = only items on sale (the site loads it first;
                          deals.json only for "Include full price" or the watchlist); offers.json = raw per-store data;
@@ -122,7 +124,7 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
 ## Affiliate plan (Oct 1, 2026: none live yet; networks want 60–90 days of traffic)
 
 - Oct 4: AvantLink network application DENIED (site too new). Reapply early December with the Dec 1 click report,
-  Search Console traffic and Black Friday results, after adding an About page, contact email and affiliate disclosure.
+  Search Console traffic and Black Friday results, (About page, contact email and affiliate disclosure: live Oct 3).
   Meanwhile: Sovrn Commerce, Shopify Collabs (brand programs), small shops directly.
 
 - AvantLink covers MEC and 9 of our brands (rabbit 10%, Sunski 8%, Oiselle 6% but no coupon/deal sites,
