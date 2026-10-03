@@ -974,7 +974,7 @@
 {"k":"altra|fwd via 2 - men's|shoes|0","h":[["2026-10-02",199.95,200.0],["2026-10-03",235.06,235.06]]}
 {"k":"altra|fwd via 2 - women's|shoes|0","h":[["2026-10-02",150.0,200.0],["2026-10-03",235.06,235.06]]}
 {"k":"altra|fwd via 2 road running shoes - men's|shoes|0","h":[["2026-10-02",199.99,199.99],["2026-10-03",199.95,199.99]]}
-{"k":"altra|fwd via 2 road running shoes - women's|shoes|0","h":[["2026-10-02",199.99,199.99]]}
+{"k":"altra|fwd via 2 road running shoes - women's|shoes|0","h":[["2026-10-02",199.99,199.99],["2026-10-03",150.0,200.0]]}
 {"k":"altra|fwd via 2 running shoe - women's|shoes|0","h":[["2026-10-03",150.0,200.0]]}
 {"k":"altra|fwd via road running shoes - men's|shoes|0","h":[["2026-10-02",111.99,199.99]]}
 {"k":"altra|fwd via road running shoes - women's|shoes|0","h":[["2026-10-02",111.99,199.99]]}
@@ -2597,7 +2597,7 @@
 {"k":"balega|hidden comfort mini crew · charcoal|socks|0","h":[["2026-10-02",27.44,27.44],["2026-10-03",27.49,27.49]]}
 {"k":"balega|hidden comfort mini crew · white|socks|0","h":[["2026-10-02",27.44,27.44],["2026-10-03",27.49,27.49]]}
 {"k":"balega|hidden comfort no show · black|socks|0","h":[["2026-10-02",23.32,24.55],["2026-10-03",23.36,24.59]]}
-{"k":"balega|hidden comfort no show · charcoal|socks|0","h":[["2026-10-02",24.3,24.55],["2026-10-03",24.46,24.59]]}
+{"k":"balega|hidden comfort no show · charcoal|socks|0","h":[["2026-10-02",24.3,24.55],["2026-10-03",24.35,24.59]]}
 {"k":"balega|hidden comfort no show · neon blue|socks|0","h":[["2026-10-02",24.55,24.55],["2026-10-03",24.59,24.59]]}
 {"k":"balega|hidden comfort no show · white|socks|0","h":[["2026-10-02",24.55,24.55],["2026-10-03",24.59,24.59]]}
 {"k":"balega|hidden comfort no show · zesty lemon|socks|0","h":[["2026-10-02",24.55,24.55],["2026-10-03",24.59,24.59]]}
@@ -5294,9 +5294,9 @@
 {"k":"cep|core flight socks, men · light grey|socks|0","h":[["2026-10-02",79.42,79.42],["2026-10-03",79.56,79.56]]}
 {"k":"cep|core flight socks, women · black|socks|0","h":[["2026-10-02",79.42,79.42],["2026-10-03",79.56,79.56]]}
 {"k":"cep|core flight socks, women · light grey|socks|0","h":[["2026-10-02",79.42,79.42],["2026-10-03",79.56,79.56]]}
-{"k":"cep|core run calf sleeves 5.0 · black - men's|socks|0","h":[["2026-10-03",64.95,65.02]]}
+{"k":"cep|core run calf sleeves 5.0 · black - men's|socks|0","h":[["2026-10-03",63.65,65.02]]}
 {"k":"cep|core run calf sleeves 5.0 · black - women's|socks|0","h":[["2026-10-03",64.95,65.02]]}
-{"k":"cep|core run calf sleeves 5.0 · dark blue - men's|socks|0","h":[["2026-10-03",64.95,65.02]]}
+{"k":"cep|core run calf sleeves 5.0 · dark blue - men's|socks|0","h":[["2026-10-03",64.37,65.02]]}
 {"k":"cep|core run calf sleeves 5.0 · dark blue - women's|socks|0","h":[["2026-10-03",65.02,65.02]]}
 {"k":"cep|core run calf sleeves 5.0 · gray - women's|socks|0","h":[["2026-10-03",65.02,65.02]]}
 {"k":"cep|core run calf sleeves 5.0 · grey - men's|socks|0","h":[["2026-10-03",65.02,65.02]]}
@@ -5314,7 +5314,7 @@
 {"k":"cep|core run low cut socks 5.0 · neon / coral|socks|0","h":[["2026-10-02",28.88,28.88],["2026-10-03",28.93,28.93]]}
 {"k":"cep|core run low cut socks 5.0 · white|socks|0","h":[["2026-10-02",28.88,28.88],["2026-10-03",28.93,28.93]]}
 {"k":"cep|core run mid cut socks 5.0 · black / lime|socks|0","h":[["2026-10-02",31.77,31.77],["2026-10-03",31.75,31.83]]}
-{"k":"cep|core run mid cut socks 5.0 · black|socks|0","h":[["2026-10-02",31.41,31.77],["2026-10-03",31.61,31.83]]}
+{"k":"cep|core run mid cut socks 5.0 · black|socks|0","h":[["2026-10-02",31.41,31.77],["2026-10-03",31.58,31.83]]}
 {"k":"cep|core run mid cut socks 5.0 · blue / ice|socks|0","h":[["2026-10-02",31.77,31.77],["2026-10-03",31.83,31.83]]}
 {"k":"cep|core run mid cut socks 5.0 · dark blue|socks|0","h":[["2026-10-02",31.41,31.77],["2026-10-03",31.68,31.83]]}
 {"k":"cep|core run mid cut socks 5.0 · ice / blue|socks|0","h":[["2026-10-02",31.7,31.77],["2026-10-03",31.75,31.83]]}
@@ -5333,17 +5333,17 @@
 {"k":"cep|core run socks 5.0 - mid cut - women's|socks|0","h":[["2026-10-02",29.99,29.99]]}
 {"k":"cep|core run socks low cut 5.0 - men's|socks|0","h":[["2026-10-02",24.95,24.95]]}
 {"k":"cep|core run socks mid cut 5.0 - men's|socks|0","h":[["2026-10-02",29.95,29.95]]}
-{"k":"cep|core run socks tall 5.0 · black - men's|socks|0","h":[["2026-10-03",86.65,86.8]]}
+{"k":"cep|core run socks tall 5.0 · black - men's|socks|0","h":[["2026-10-03",85.35,86.8]]}
 {"k":"cep|core run socks tall 5.0 · black / lime - men's|socks|0","h":[["2026-10-03",86.65,86.8]]}
 {"k":"cep|core run socks tall 5.0 · dark blue - men's|socks|0","h":[["2026-10-03",85.35,86.8]]}
 {"k":"cep|core run socks tall 5.0 · neon coral - men's|socks|0","h":[["2026-10-03",86.72,86.8]]}
-{"k":"cep|core run socks tall 5.0 · white - men's|socks|0","h":[["2026-10-03",86.65,86.8]]}
-{"k":"cep|core run tall socks 5.0 · black - women's|socks|0","h":[["2026-10-03",86.65,86.8]]}
+{"k":"cep|core run socks tall 5.0 · white - men's|socks|0","h":[["2026-10-03",85.35,86.8]]}
+{"k":"cep|core run tall socks 5.0 · black - women's|socks|0","h":[["2026-10-03",85.35,86.8]]}
 {"k":"cep|core run tall socks 5.0 · black / lime - women's|socks|0","h":[["2026-10-03",86.72,86.8]]}
 {"k":"cep|core run tall socks 5.0 · dark blue - women's|socks|0","h":[["2026-10-03",86.8,86.8]]}
 {"k":"cep|core run tall socks 5.0 · neon coral - women's|socks|0","h":[["2026-10-03",86.8,86.8]]}
 {"k":"cep|core run tall socks 5.0 · pink - women's|socks|0","h":[["2026-10-03",86.8,86.8]]}
-{"k":"cep|core run tall socks 5.0 · white - women's|socks|0","h":[["2026-10-03",86.65,86.8]]}
+{"k":"cep|core run tall socks 5.0 · white - women's|socks|0","h":[["2026-10-03",85.35,86.8]]}
 {"k":"cep|core run ultralight 4.0 socks - low cut - men's|socks|0","h":[["2026-10-02",15.0,25.0]]}
 {"k":"cep|core run ultralight 4.0 socks - low cut - women's|socks|0","h":[["2026-10-02",15.0,25.0]]}
 {"k":"cep|core run ultralight 4.0 socks - mid cut - men's|socks|0","h":[["2026-10-02",29.99,29.99]]}
@@ -9133,9 +9133,9 @@
 {"k":"gu energy|gu hydration brew tabs -strawberry hibiscus|nutrition|0","h":[["2026-10-03",11.49,11.49]]}
 {"k":"gu energy|gu roctane energy & hydration drink mix · grape|nutrition|0","h":[["2026-10-02",6.35,77.98],["2026-10-03",6.37,78.12]]}
 {"k":"gu energy|gu roctane energy & hydration drink mix · lemon berry (with caffeine)|nutrition|0","h":[["2026-10-02",4.69,77.98],["2026-10-03",4.7,78.12]]}
-{"k":"gu energy|gu roctane energy & hydration drink mix · strawberry hibiscus|nutrition|0","h":[["2026-10-02",4.7,78.14],["2026-10-03",6.37,78.12]]}
+{"k":"gu energy|gu roctane energy & hydration drink mix · strawberry hibiscus|nutrition|0","h":[["2026-10-02",4.7,78.14],["2026-10-03",4.7,78.12]]}
 {"k":"gu energy|gu roctane energy & hydration drink mix · summit tea|nutrition|0","h":[["2026-10-02",4.69,77.98],["2026-10-03",4.7,78.12]]}
-{"k":"gu energy|gu roctane energy & hydration drink mix · tropical fruit (with caffeine)|nutrition|0","h":[["2026-10-02",4.69,77.98],["2026-10-03",6.37,78.12]]}
+{"k":"gu energy|gu roctane energy & hydration drink mix · tropical fruit (with caffeine)|nutrition|0","h":[["2026-10-02",4.69,77.98],["2026-10-03",4.7,78.12]]}
 {"k":"gu energy|gu roctane energy and hydration drink mix|nutrition|0","h":[["2026-10-02",89.0,89.0]]}
 {"k":"gu energy|gu roctane energy gel - blueberry pom|nutrition|0","h":[["2026-10-03",4.19,4.19]]}
 {"k":"gu energy|gu roctane energy gel - cherry lime|nutrition|0","h":[["2026-10-03",4.19,4.19]]}
@@ -11413,7 +11413,7 @@
 {"k":"krono|energy rice cake - 45g (single)|nutrition|0","h":[["2026-10-02",3.49,3.49]]}
 {"k":"krono|fizz electrolytes effervescentes|nutrition|0","h":[["2026-10-02",12.95,12.95]]}
 {"k":"krono|gaufrette énergétique · érable & bleuet|nutrition|0","h":[["2026-10-02",2.5,25.99]]}
-{"k":"krono|gaufrette énergétique · érable & sel de mer|nutrition|0","h":[["2026-10-02",2.5,25.99]]}
+{"k":"krono|gaufrette énergétique · érable & sel de mer|nutrition|0","h":[["2026-10-02",2.5,25.99],["2026-10-03",25.99,25.99]]}
 {"k":"krono|gel énergétique · agrumes|nutrition|0","h":[["2026-10-02",3.25,69.99]]}
 {"k":"krono|gel énergétique · caramel salé|nutrition|0","h":[["2026-10-02",3.25,69.99]]}
 {"k":"krono|gel énergétique · fruit des champs|nutrition|0","h":[["2026-10-02",3.25,69.99]]}
@@ -23576,7 +23576,7 @@
 {"k":"stance us|icon quarter|socks|0","h":[["2026-10-02",12.53,19.93],["2026-10-03",12.54,19.93]]}
 {"k":"stance us|icon slouch crew|socks|0","h":[["2026-10-02",15.38,24.2],["2026-10-03",15.39,24.2]]}
 {"k":"stance us|icon snapback hat|headwear|0","h":[["2026-10-02",15.24,42.73]]}
-{"k":"stance us|icon|socks|0","h":[["2026-10-02",8.12,19.93]]}
+{"k":"stance us|icon|socks|0","h":[["2026-10-02",8.12,19.93],["2026-10-03",12.54,19.93]]}
 {"k":"stance us|in paradise mid tab 3 pack|socks|0","h":[["2026-10-02",29.48,64.08],["2026-10-03",29.49,64.09]]}
 {"k":"stance us|in step ss|socks|0","h":[["2026-10-02",20.94,41.3]]}
 {"k":"stance us|ind ce26|socks|0","h":[["2026-10-02",13.82,28.47]]}
@@ -23983,7 +23983,7 @@
 {"k":"stance|crusade light cushion quarter 3-pack socks|socks|0","h":[["2026-10-02",74.0,74.0]]}
 {"k":"stance|curren light tab|socks|0","h":[["2026-10-02",22.77,22.77],["2026-10-03",22.78,22.78]]}
 {"k":"stance|curren mid wool snow|socks|0","h":[["2026-10-02",41.29,41.29],["2026-10-03",41.3,41.3]]}
-{"k":"stance|curren st crew|socks|0","h":[["2026-10-02",9.54,24.2]]}
+{"k":"stance|curren st crew|socks|0","h":[["2026-10-02",9.54,24.2],["2026-10-03",24.2,24.2]]}
 {"k":"stance|cursor crew|socks|0","h":[["2026-10-02",21.35,21.35]]}
 {"k":"stance|cursor mid poly snow|socks|0","h":[["2026-10-02",34.17,34.17],["2026-10-03",34.18,34.18]]}
 {"k":"stance|dainty crew|socks|0","h":[["2026-10-02",24.2,24.2]]}
