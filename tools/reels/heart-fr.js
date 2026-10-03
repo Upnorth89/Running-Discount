@@ -3,7 +3,7 @@ const rec=require('./rec.js');const fs=require('fs');
 const W=fs.readFileSync('watch-fr.json','utf8');
 rec('heart-fr',`(()=>{if(sessionStorage.getItem('fx'))return;sessionStorage.setItem('fx','1');
   localStorage.setItem('gf-sub',JSON.stringify({key:'00000000-0000-0000-0000-000000000000',email:'demo@thegearfox.com',active:true}));
-  localStorage.setItem('rd-profile',JSON.stringify({gender:'men',terrain:'both',ships:'ca',groups:['shoes','tops','bottoms','socks','packs','gear'],sizes:{shoes:{sizes:['10'],width:['Regular']},tops:{sizes:['M']},bottoms:{sizes:['M']}},brands:[],lang:'fr'}));
+  localStorage.setItem('rd-profile',JSON.stringify({gender:'men',terrain:'both',ships:'ca',groups:['shoes','tops','bottoms','socks','packs','gear'],sizes:{shoes:{sizes:['11'],width:['Regular']},tops:{sizes:['M']},bottoms:{sizes:['M']}},brands:[],lang:'fr'}));
   localStorage.setItem('gf-watch',${JSON.stringify(W)});
   localStorage.setItem('gf-lang','"fr"');})()`,async a=>{
   await a.pg.goto('https://thegearfox.com/');await a.wait(3200);

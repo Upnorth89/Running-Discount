@@ -109,6 +109,7 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   like/comment buttons). Recorder + example in `tools/reels/` (rec.js records a 360x434 phone; ffmpeg line in its header).
   Open on the payoff (Oct 3): 2.5 s slow zoom on the result frame (e.g. "Dropped $41"), zooming only the site part
   (crop 1080x1302 at y218, zoompan, pad back), then the normal flow.
+  Demo profile = Bastien's own sizes (Reels say "my size"): men's shoe 11 (clothing M).
   Tell him: captions go on the site part, never in the bottom band; a big hook line in the first second; cover image 1080x1920
   with the key content in the middle 4:5 (the profile grid crops to it).
 - **Monthly report** (`monthly-report.yml`, `scraper/monthly_report.py`): the 1st of each month emails last

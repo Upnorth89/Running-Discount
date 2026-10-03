@@ -2,7 +2,7 @@
 const rec=require('./rec.js');
 rec('shoe-page',`(()=>{if(sessionStorage.getItem('fx'))return;sessionStorage.setItem('fx','1');
   localStorage.setItem('gf-sub',JSON.stringify({key:'00000000-0000-0000-0000-000000000000',email:'demo@thegearfox.com',active:true}));
-  localStorage.setItem('rd-profile',JSON.stringify({gender:'men',terrain:'both',ships:'ca',groups:['shoes','tops','bottoms'],sizes:{shoes:{sizes:['10'],width:['Regular']},tops:{sizes:['M']},bottoms:{sizes:['M']}},brands:[],lang:'en'}));
+  localStorage.setItem('rd-profile',JSON.stringify({gender:'men',terrain:'both',ships:'ca',groups:['shoes','tops','bottoms'],sizes:{shoes:{sizes:['11'],width:['Regular']},tops:{sizes:['M']},bottoms:{sizes:['M']}},brands:[],lang:'en'}));
   localStorage.setItem('gf-lang','"en"');})()`,async a=>{
   const to=(sel,off,ms)=>a.pg.evaluate(([sel,off,ms])=>new Promise(r=>{const el=document.querySelector(sel);const t=document.scrollingElement,y0=t.scrollTop,y1=el.getBoundingClientRect().top+y0-off,t0=performance.now();
     (function st(n){const k=Math.min(1,(n-t0)/ms),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;t.scrollTop=y0+(y1-y0)*e;k<1?requestAnimationFrame(st):r()})(t0)}),[sel,off,ms]);
