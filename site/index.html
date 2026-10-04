@@ -773,6 +773,9 @@ function applyProfile(p){
   customBrands=state.brands.filter(b=>!BRANDS.includes(b));
   if(p.lang&&!LS0("gf-lang")&&p.lang!==LANG){LANG=p.lang;applyStatic()}
 }
+/* A size picked on a shoe page (no sign-up yet): pre-fill it in the sizes step; nothing is saved until they confirm */
+(()=>{if(LS0("rd-profile"))return;const x=LS0("gf-shoe-size");if(!x||!SHOE.includes(String(x.s)))return;
+  if(x.g==="men"||x.g==="women")state.gender=x.g;state.shoe=[String(x.s)]})();
 function normSize(v){v=String(v).trim().toUpperCase();return v==="2XL"?"XXL":v}
 let syncT;
 function saveProfile(){

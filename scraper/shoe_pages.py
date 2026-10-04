@@ -76,7 +76,7 @@ T = {
         "idxIntro": "Every popular running shoe we track, with today's best price in each size at Canadian stores. Updated every morning.",
         "idxDesc": "Today's best price in every size for {n} running shoe models at Canadian stores. Updated every morning by The Gear Fox.",
         "onSale": "on sale", "home": "The Gear Fox", "switch": "Français", "menu": "Menu", "mDeals": "Today's deals", "mShoes": "Shoe prices by model", "mWatch": "Your watchlist", "mSizes": "My sizes", "mAbout": "About The Gear Fox", "tagline": "OUTFOX FULL PRICE",
-        "yourSize": "Your size", "at": "at", "see": "See it", "watch": "Watch the price",
+        "yourSize": "Your size", "at": "at", "see": "See it", "watch": "Watch the price", "pick": "Your size:", "pickPh": "Pick your size", "change": "Change", "allInSize": "See every deal in your size →",
         "notInSize": "Not in stock in your size right now. Watch it and we'll email you when it's back or drops.",
         "find": "Search a model (e.g. Clifton)", "noMatch": "No model matches. Try the brand name, or a shorter word.",
         "foot": "The Gear Fox · Outfox full price · Prices change often: the store's price at checkout is the one that counts.",
@@ -134,7 +134,7 @@ T = {
         "idxIntro": "Toutes les chaussures de course populaires que nous suivons, avec le meilleur prix du jour dans chaque pointure dans les boutiques canadiennes. Mis à jour chaque matin.",
         "idxDesc": "Le meilleur prix du jour dans chaque pointure pour {n} modèles de chaussures de course dans les boutiques canadiennes. Mis à jour chaque matin par The Gear Fox.",
         "onSale": "en solde", "home": "The Gear Fox", "switch": "English", "menu": "Menu", "mDeals": "Aubaines du jour", "mShoes": "Prix des chaussures par modèle", "mWatch": "Vos favoris", "mSizes": "Mes tailles", "mAbout": "À propos de The Gear Fox", "tagline": "FLAIREZ LES AUBAINES",
-        "yourSize": "Votre pointure", "at": "chez", "see": "Voir", "watch": "Suivre le prix",
+        "yourSize": "Votre pointure", "at": "chez", "see": "Voir", "watch": "Suivre le prix", "pick": "Votre pointure :", "pickPh": "Choisissez votre pointure", "change": "Modifier", "allInSize": "Voir toutes les aubaines dans votre pointure →",
         "notInSize": "Pas en stock dans votre pointure en ce moment. Suivez-la et on vous écrira dès qu'elle revient ou baisse.",
         "find": "Chercher un modèle (ex. Clifton)", "noMatch": "Aucun modèle trouvé. Essayez le nom de la marque ou un mot plus court.",
         "foot": "The Gear Fox · Flairez les aubaines · Les prix changent souvent : le prix de la boutique au paiement est celui qui compte.",
@@ -291,6 +291,9 @@ tr.yours td{background:rgba(242,106,27,.14)}
 tr.yours td:first-child{font-weight:700;box-shadow:inset 4px 0 0 var(--hivis)}
 .mine{background:var(--card);border:1.5px solid var(--hivis);border-radius:12px;padding:12px 14px;margin:0 0 6px;font-size:16px}
 .mine b{font:800 20px var(--display)}
+.mine .pickl{font-weight:600}.mine select.pick{font:600 16px var(--body);color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;min-height:44px;max-width:100%}
+.mine .chg{font:600 15px var(--body);color:var(--moss);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}
+.mine .all{display:block;margin-top:6px;font-size:15px}.mine .all a{color:var(--moss);font-weight:600}
 .faq h3{font:700 17px/1.3 var(--body);margin:14px 0 4px}
 .faq p{margin:0 0 6px}
 .cards{display:grid;gap:8px;padding:0;margin:0;list-style:none}
@@ -377,22 +380,45 @@ def page_foot(L):
     return f"""<p class="foot">{esc(L['foot'])} · <a href="https://www.instagram.com/thegearfox/" rel="noopener">@thegearfox</a> · <a href="{priv}">{L['privacy']}</a></p>
 </main>
 <script>
-(function(){{var p;try{{p=JSON.parse(localStorage.getItem("rd-profile")||"null")}}catch(e){{}}
-if(!p||!p.sizes||!p.sizes.shoes||!(p.sizes.shoes.sizes||[]).length)return;
-var mine=p.sizes.shoes.sizes.map(String),mineW=(p.sizes.shoes.women||[]).map(String),wid=p.sizes.shoes.width||[],g=p.gender||"any",best=null,hit=0,box=document.getElementById("mine");if(!box)return;
-var sizesFor=function(tg){{return g==="any"&&mineW.length&&tg==="women"?mineW:mine}};
-var wantW=wid.indexOf("Wide")>=0,wantR=!wid.length||wid.indexOf("Regular")>=0;
-document.querySelectorAll("table[data-g]").forEach(function(t){{var tg=t.dataset.g,w=t.dataset.w==="1";
-  if((w&&!wantW)||(!w&&!wantR))return;if(tg!=="unisex"&&g!=="any"&&tg!==g)return;
-  t.querySelectorAll("tr[data-s]").forEach(function(r){{var s=r.dataset.s,wide=/\(/.test(s),n=s.replace(/\s*\(.*\)$/,"");
-    if(wide&&!wantW)return;var ok=false;
-    if(tg==="unisex"){{if(/^W /.test(n))ok=g!=="men"&&sizesFor("women").indexOf(n.slice(2))>=0;else ok=(g!=="women"&&mine.indexOf(n)>=0)||(g==="women"&&mine.indexOf(String(parseFloat(n)+1.5))>=0)}}
-    else ok=sizesFor(tg).indexOf(n)>=0;
-    if(!ok)return;r.classList.add("yours");hit++;var pr=parseFloat(r.dataset.p);if(!best||pr<best.p)best={{p:pr,r:r}}}})}});
-box.hidden=false;
-if(!best){{box.textContent=box.dataset.none;return}}
-var c=best.r.children;best.r.id="your-size";
-box.innerHTML=box.dataset.your+" "+c[0].textContent+": <b>"+c[1].querySelector("b").textContent+"</b> "+box.dataset.at+" "+c[2].querySelector("a").textContent+' · <a href="#your-size">'+box.dataset.see+" ↓</a>";}})();
+(function(){{var p,box=document.getElementById("mine");if(!box)return;
+try{{p=JSON.parse(localStorage.getItem("rd-profile")||"null")}}catch(e){{}}
+var clean=function(s){{return s.replace(/\s*\(.*\)$/,"")}};
+/* highlight the rows that fit and say where the size is cheapest; ok(table, row size) decides what fits */
+function mark(ok){{var best=null;document.querySelectorAll("tr.yours").forEach(function(r){{r.classList.remove("yours");r.removeAttribute("id")}});
+  document.querySelectorAll("table[data-g]").forEach(function(t,ti){{t.querySelectorAll("tr[data-s]").forEach(function(r){{
+    if(!ok(t,ti,r.dataset.s))return;r.classList.add("yours");var pr=parseFloat(r.dataset.p);if(!best||pr<best.p)best={{p:pr,r:r}}}})}});
+  return best}}
+function say(best,extra){{box.hidden=false;if(!best){{box.innerHTML=box.dataset.none+(extra||"");return}}
+  var c=best.r.children;best.r.id="your-size";
+  box.innerHTML=box.dataset.your+" "+c[0].textContent+": <b>"+c[1].querySelector("b").textContent+"</b> "+box.dataset.at+" "+c[2].querySelector("a").textContent+' · <a href="#your-size">'+box.dataset.see+" ↓</a>"+(extra||"")}}
+if(p&&p.sizes&&p.sizes.shoes&&(p.sizes.shoes.sizes||[]).length){{   // sizes saved on the main site
+  var mine=p.sizes.shoes.sizes.map(String),mineW=(p.sizes.shoes.women||[]).map(String),wid=p.sizes.shoes.width||[],g=p.gender||"any";
+  var sizesFor=function(tg){{return g==="any"&&mineW.length&&tg==="women"?mineW:mine}};
+  var wantW=wid.indexOf("Wide")>=0,wantR=!wid.length||wid.indexOf("Regular")>=0;
+  say(mark(function(t,ti,s){{var tg=t.dataset.g,w=t.dataset.w==="1";if((w&&!wantW)||(!w&&!wantR))return false;if(tg!=="unisex"&&g!=="any"&&tg!==g)return false;
+    var wide=/\(/.test(s),n=clean(s);if(wide&&!wantW)return false;
+    if(tg==="unisex"){{if(/^W /.test(n))return g!=="men"&&sizesFor("women").indexOf(n.slice(2))>=0;return (g!=="women"&&mine.indexOf(n)>=0)||(g==="women"&&mine.indexOf(String(parseFloat(n)+1.5))>=0)}}
+    return sizesFor(tg).indexOf(n)>=0}}));
+  return}}
+/* no sizes yet (a visitor from Google or Reddit): a size picker, remembered for this shoe page and the main site's sign-up */
+var tables=[].slice.call(document.querySelectorAll("table[data-g]"));if(!tables.length)return;
+var sel=document.createElement("select");sel.className="pick";sel.setAttribute("aria-label",box.dataset.pick);
+sel.innerHTML='<option value="">'+box.dataset.pickph+"</option>"+tables.map(function(t,ti){{var h=t.previousElementSibling&&t.previousElementSibling.querySelector("h2");
+  var seen={{}};return '<optgroup label="'+(h?h.textContent:"")+'">'+[].slice.call(t.querySelectorAll("tr[data-s]")).map(function(r){{var s=r.dataset.s;if(seen[s])return "";seen[s]=1;
+    return '<option value="'+ti+"|"+s+'">'+(h?h.textContent+" ":"")+s+"</option>"}}).join("")+"</optgroup>"}}).join("");
+var pickRow=function(){{box.hidden=false;box.innerHTML='<label class="pickl">'+box.dataset.pick+" </label>";box.appendChild(sel)}};
+var choose=function(v,save){{if(!v){{pickRow();return}}var ti=+v.split("|")[0],s=v.slice(v.indexOf("|")+1),t=tables[ti];if(!t){{pickRow();return}}
+  var best=mark(function(tt,tti,rs){{return tti===ti&&rs===s}});
+  if(save){{var n=clean(s),gg=t.dataset.g;if(/^W /.test(n)){{gg="women";n=n.slice(2)}}else if(gg==="unisex")gg="men";
+    try{{localStorage.setItem("gf-shoe-size",JSON.stringify({{g:gg,s:n,v:v}}))}}catch(e){{}}try{{window.umami&&umami.track("shoe-page-size",{{}})}}catch(e){{}}}}
+  say(best,' · <button type="button" class="chg">'+box.dataset.chg+"</button>"+'<span class="all"><a href="'+box.dataset.home+'">'+box.dataset.all+"</a></span>");
+  box.querySelector(".chg").addEventListener("click",function(){{sel.value="";pickRow();sel.focus()}})}};
+sel.addEventListener("change",function(){{choose(sel.value,true)}});
+var prev;try{{prev=JSON.parse(localStorage.getItem("gf-shoe-size")||"null")}}catch(e){{}}
+if(prev&&prev.v&&sel.querySelector('option[value="'+prev.v.replace(/"/g,"")+'"]')){{sel.value=prev.v;choose(prev.v,false)}}
+else if(prev&&prev.s){{var o=[].slice.call(sel.options).filter(function(o){{var x=o.value.slice(o.value.indexOf("|")+1);return o.value&&clean(x).replace(/^W /,"")===prev.s&&(tables[+o.value.split("|")[0]].dataset.g===prev.g||(tables[+o.value.split("|")[0]].dataset.g==="unisex"&&(prev.g==="women")===/^W /.test(x)))}})[0];
+  if(o){{sel.value=o.value;choose(o.value,false)}}else pickRow()}}
+else pickRow()}})();
 document.addEventListener("click",function(e){{var a=e.target.closest("a[data-store]");if(!a)return;
 try{{fetch("{SB_URL}/rest/v1/rpc/log_event",{{method:"POST",keepalive:true,headers:{{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"}},
 body:JSON.stringify({{p_kind:"click",p_store:a.dataset.store,p_group:"shoes",p_ref:"shoe-page",p_lang:"{L['lang'][:2]}"}})}})}}catch(x){{}}
@@ -486,7 +512,8 @@ def model_page(slug, its, stores, L, updated, related, brand_models):
         out.append(f'<div class="hero"><div>{f"<span class=tag>{esc(t)}</span>" if t else ""}<p>{L["none"]}</p></div></div>')
     # "your size": the page reads the sizes saved on this phone (main site) and highlights them (script at the end)
     out.append(f'<div class="mine" id="mine" hidden data-your="{esc(L["yourSize"])}" data-at="{esc(L["at"])}" data-see="{esc(L["see"])}" '
-               f'data-none="{esc(L["notInSize"])}"></div>')
+               f'data-none="{esc(L["notInSize"])}" data-pick="{esc(L["pick"])}" data-pickph="{esc(L["pickPh"])}" data-chg="{esc(L["change"])}" '
+               f'data-all="{esc(L["allInSize"])}" data-home="/?ref=shoe-size{"&lang=fr" if L["lang"] == "fr-CA" else ""}"></div>')
     lang_q = "&lang=fr" if L["lang"] == "fr-CA" else ""
     for lab, rows in merged.items():
         d0 = first[lab]
