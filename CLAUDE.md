@@ -17,6 +17,11 @@ That plan (a Claude Docs doc) also holds the Fox Pro free/paid table, the Press 
 - **Everything is bilingual (EN/FR).** Any new text needs both. French is Québec French ("courriel",
   "aubaines", "bas" for socks).
 - Be willing to push back; he asks for honest opinions.
+- **Request filter (Oct 4, Bastien: "make sure I'm not blowing in the wind with every demand").** Before building any
+  idea (his, a user's, a Reddit comment), sort it: (1) bug or trust problem (wrong info, broken, misleading, a wall that
+  contradicts the ladder) -> fix now; (2) helps the one goal before Black Friday (more visitors who come back and sign up)
+  AND asked by 2+ people or backed by the stats -> next 2-week batch; (3) everything else -> the Ideas backlog, no build.
+  One user asking is a signal, not a mandate. Say which bucket out loud and push back when he wants to build a bucket-3 idea now.
 - **Bugs I find: fix, check in the preview, ship** (Oct 3: "no reason to wait for my approval"). New features still wait for his OK.
 - **Push straight to `main`.** No pull requests or side branches (the site deploys from `main`).
 - **Never ask him to paste secret keys into chat.** Secrets live only in GitHub secrets, Supabase or Vault.
@@ -263,6 +268,11 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   iPhones keep a home-screen app's storage apart from Safari: on iOS `appManifest()` points the manifest at a data: URL whose
   start_url carries the member's `?k=` or their sizes `#p=` (no email); `?src=app` + existing profile = the sizes are ignored
   (only seed the first launch). App visits: analytics `visit` detail "home-screen app". Deal links open outside (target _blank).
+- No sign-up wall (Oct 4, a user said we forced sign-up): welcome -> sizes -> every deal; one card "Free with your email" (3 perks,
+  Google, "No thanks" = gf-nosignup per device) after the first block; hearts open the email step (closable). Peek/blur view removed.
+- Final sale (Oct 4): FINAL_SALE store rules in scrape.py + tagged items -> "fs" per offer; label on cards, shoe pages, Friday email;
+  About page "Returns and final sale". Recheck store policies every 3 months.
+- Home screen tip (Oct 4): ☰ "Add to your home screen" on phones (iPhone steps / Android prompt) + one-time tip for members, 2nd visit+.
 - CAD/USD switch, watchlist with alerts, Google sign-in, Umami analytics (no cookies; events welcome-view,
   signup-step, signup, signup-confirmed, signin, deal-click, watch-add, language, currency).
 
