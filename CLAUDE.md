@@ -258,6 +258,11 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   then the Français/English button and "Prices in CAD" (the header no longer shows FR/CAD; the heart stays beside ☰). Line icons
   (`.mi`), no emojis. Shoe pages have the same menu as plain links (`menu_links()` in shoe_pages.py, + Your watchlist) using
   `/?show=watch` and `/?show=sizes`, which the homepage opens once data is loaded. Umami: menu {go}.
+- Home screen app (Oct 4): manifest.webmanifest + apple-touch-icon/icon-192/512/maskable (the logo's fox head with the % tag,
+  cropped from logo-mark.svg; a designer's front-facing version may replace it; favicon.svg stays the simple fox). Standalone.
+  iPhones keep a home-screen app's storage apart from Safari: on iOS `appManifest()` points the manifest at a data: URL whose
+  start_url carries the member's `?k=` or their sizes `#p=` (no email); `?src=app` + existing profile = the sizes are ignored
+  (only seed the first launch). App visits: analytics `visit` detail "home-screen app". Deal links open outside (target _blank).
 - CAD/USD switch, watchlist with alerts, Google sign-in, Umami analytics (no cookies; events welcome-view,
   signup-step, signup, signup-confirmed, signin, deal-click, watch-add, language, currency).
 
