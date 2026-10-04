@@ -27,7 +27,7 @@ DRY = "--dry-run" in sys.argv or not os.environ.get("RESEND_API_KEY")
 STORE_NAMES = {
     "altitude-sports.com": "Altitude Sports", "thelasthunt.com": "The Last Hunt", "thefeed.com": "The Feed",
     "sea2skynutrition.ca": "Sea2Sky Nutrition", "sportinglife.ca": "Sporting Life", "stampeak.com": "Stampeak",
-    "mec.ca": "MEC", "rei.com": "REI", "decathlon.ca": "Decathlon", "vanrunco.com": "Vancouver Running Co.",
+    "mec.ca": "MEC", "svpsports.ca": "SVP Sports", "rei.com": "REI", "decathlon.ca": "Decathlon", "vanrunco.com": "Vancouver Running Co.",
     "lecoureurnordique.ca": "Le Coureur Nordique", "bushtukah.com": "Bushtukah", "nordarun.com": "Nordarun",
     "ca.cieleathletics.com": "Ciele", "xactnutrition.com": "Xact Nutrition", "naak.com": "Näak",
     "boutiqueendurance.ca": "Boutique Endurance", "fitfirst.ca": "Fit First", "capra.run": "Capra Running Co.",

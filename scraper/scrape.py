@@ -968,6 +968,32 @@ def scrape_mec_saved():
     print(f"  mec: {used} saved page(s)", file=sys.stderr)
     return out                      # no fresh pages -> no MEC items (never keep stale prices)
 
+def scrape_svp_saved():
+    """SVP Sports (Québec): Shopify behind a Cloudflare check, so read from the collection Bastien saves with the
+    Grab deals bookmark (svp-YYYY-MM-DD.json: Shopify products as the store serves them, in CAD)."""
+    prods, seen, used = [], set(), 0
+    for f in saved_pages():
+        if f.suffix != ".json":
+            continue
+        try:
+            d = json.loads(f.read_text())
+        except Exception:
+            continue
+        if d.get("store") != "svp":
+            continue
+        used += 1
+        for p in d.get("products") or []:
+            if p.get("id") in seen:
+                continue
+            seen.add(p.get("id"))
+            prods.append(p)
+    print(f"  svp: {used} saved page(s), {len(prods)} products", file=sys.stderr)
+    items = shopify_items("svp", "https://www.svpsports.ca", prods, generic_group("gear"), size_aware=True, collapse=True,
+                          size_fn=generic_size)
+    for o in items:
+        o["ca"] = True
+    return items
+
 def scrape_rei_saved():
     fx = usd_cad()
     out, seen, used = [], set(), 0
@@ -1145,6 +1171,7 @@ STORES = {
     "stampeak": scrape_stampeak,
     "mec": scrape_mec_saved,       # from pages you save (their sites block automated access)
     "rei": scrape_rei_saved,
+    "svp": scrape_svp_saved,
     "decathlon": scrape_decathlon,
 }
 for _st, _base, _kind in SHOPIFY_STORES:
@@ -1429,7 +1456,7 @@ def name_gender(n):
     return ["women"] if w and not m else ["men"] if m and not w else None
 
 # Stores that sell and ship from Canada (no border fees). Generic Shopify stores decide by their currency.
-CA_STORES = {"altitude", "lasthunt", "sea2sky", "sportinglife", "stampeak", "mec", "decathlon"}
+CA_STORES = {"altitude", "lasthunt", "sea2sky", "sportinglife", "stampeak", "mec", "decathlon", "svp"}
 
 def mkey(o):
     name = re.sub(r"[^a-z0-9]+", " ", o["n"].lower()).strip()
@@ -1558,7 +1585,7 @@ def main():
             continue
         try:
             got = fn()
-            if not got and st not in dict((x[0], 1) for x in SHOPIFY_STORES) and st not in ("mec", "rei"):
+            if not got and st not in dict((x[0], 1) for x in SHOPIFY_STORES) and st not in ("mec", "rei", "svp"):
                 raise RuntimeError("0 items")
             if not got and len(prev_offers.get(st, [])) >= 20:     # a store rarely empties overnight: keep yesterday's
                 raise RuntimeError(f"0 items today (had {len(prev_offers[st])})")

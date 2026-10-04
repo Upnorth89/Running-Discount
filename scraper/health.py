@@ -36,7 +36,7 @@ FROM = os.environ.get("FROM_EMAIL", "The Gear Fox <deals@thegearfox.com>")
 # Free Resend plan: 100 emails a day, 3,000 a month. Weekly email = 1 per subscriber per Friday.
 WEEKLY_SUBS_WARN = 500      # ~650 subscribers x 4.3 Fridays = the monthly cap
 DAILY_SIGNUPS_WARN = 60     # confirmation emails + alerts share the 100/day cap
-SAVED = {"mec", "rei"}      # stores read from pages you save by hand (their sites block automated access)
+SAVED = {"mec", "rei", "svp"}      # stores read from pages you save by hand (their sites block automated access)
 
 
 def load(p):

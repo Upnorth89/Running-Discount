@@ -1,5 +1,5 @@
 /* The Gear Fox — "Grab deals" bookmark.
-   Run it on MEC's or REI's running-deals page in your own browser. It reads the page you're on,
+   Run it on MEC's, REI's or SVP Sports' running-deals page in your own browser. It reads the page you're on,
    then opens the next pages one at a time (a relaxed ~2 s apart, like clicking "next"), and
    downloads one file to upload to saved-pages/ on GitHub. */
 (async () => {
@@ -49,8 +49,23 @@
       }
       save(`rei-${new Date().toISOString().slice(0, 10)}.json`, { store: "rei", saved: new Date().toISOString(), results: items });
       say(`REI: ${items.length} products saved. Upload the file to saved-pages/ on GitHub.`);
+    } else if (/svpsports\.ca$/.test(host)) {
+      // SVP is a Shopify store: read the collection you're on (e.g. running shoes on sale) page by page
+      const m = location.pathname.match(/^((?:\/[a-z]{2})?\/collections\/[^/]+)/);
+      if (!m) throw new Error("open a product list (a collection), like running shoes on sale");
+      let products = [];
+      for (let n = 1; n <= 12; n++) {
+        say(`SVP: page ${n}…`); if (n > 1) await sleep(2000);
+        const r = await fetch(`${location.origin}${m[1]}/products.json?limit=250&page=${n}`, { credentials: "include" });
+        const batch = (await r.json()).products || [];
+        if (!batch.length) break;
+        products = products.concat(batch);
+        if (batch.length < 250) break;
+      }
+      save(`svp-${new Date().toISOString().slice(0, 10)}.json`, { store: "svp", saved: new Date().toISOString(), url: location.href, products });
+      say(`SVP: ${products.length} products saved. Send the file to Claude (or upload it to saved-pages/ on GitHub).`);
     } else {
-      say("Open MEC's or REI's running-deals page first, then click the bookmark.");
+      say("Open the running-deals page of MEC, REI or SVP Sports first, then click the bookmark.");
     }
   } catch (e) {
     say("Couldn't read this page (" + e.message + "). Make sure it's the running-deals list, then try again.");

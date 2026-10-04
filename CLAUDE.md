@@ -156,6 +156,8 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   (tested Oct 1); every size shown is in stock, so no note on cards (Bastien's call).
 - Sporting Life, Stampeak, Sea2Sky, The Feed: custom readers. Decathlon: running clearance pages
   (server-rendered JSON, robots allow). MEC/REI: from saved pages only.
+  SVP Sports (Oct 4, Québec chain, Shopify behind Cloudflare): saved pages too: the Grab deals bookmark on any SVP collection
+  saves its products.json (svp-DATE.json, `scrape_svp_saved`); expires after 10 days like MEC/REI.
 - Known: Honey Stinger is blocked from GitHub's servers (works elsewhere); REI needs fresh saved pages.
 - **`STORES.md`** lists every store we read, ones checked and rejected (blocked, no feed) and ones waiting:
   check it before testing a shop, update it after.
