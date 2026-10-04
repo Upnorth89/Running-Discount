@@ -209,6 +209,11 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
 
 ## Fox Pro (decided Oct 4, 2026; table in the 6-month plan doc)
 
+The ladder (Oct 4): Visitor (browse everything, always open for Google/Reddit) → Member (email: anything that saves or follows
+something: sizes on all devices, watchlist ~10, drop news, Friday email) → Pro (faster/deeper). One sign-up card slot per page,
+worded per page, never blocking, "No thanks" per device; later the same slot shows the Pro upsell to members. Hearts ask for the
+email first. Release rhythm: ideas → backlog; site changes ship in batches every 2 weeks after checking the stats; bugs ship now.
+
 Keep the hook free, charge for more, faster, deeper. Free: deals in your size, shoe price pages, watchlist (~10 items,
 full price or sale), drop/back-in-size news in the Friday email, "lowest in N days" badge. Pro: same-morning alerts
 (today's daily alerts; "free during launch" until Pro exists), unlimited watchlist, full price-history chart, family
