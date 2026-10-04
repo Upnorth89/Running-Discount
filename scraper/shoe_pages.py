@@ -18,7 +18,7 @@ import json
 import re
 import sys
 from collections import defaultdict
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from urllib.parse import urlparse, urlencode, parse_qsl, urlunparse, quote
 
@@ -54,6 +54,16 @@ T = {
         "bfDir": "black-friday", "bfTitle": "Black Friday 2026 running shoe deals in Canada",
         "bfH1": "Black Friday 2026: running deals in Canada",
         "bfIntro": "Black Friday is Friday, November 27. We check 60+ Canadian running and outdoor stores every morning and show only what's in stock. Here are today's biggest running shoe deals; on Black Friday this page fills with that week's best.",
+        "bfTitlePre": "Black Friday 2026 running shoe deals in Canada: what to expect",
+        "bfH1Pre": "Black Friday 2026 in Canada: November {date}",
+        "bfIntroPre": "{days} days to go. Black Friday deals aren't out yet. During Black Friday week this page shows the real deals from 60+ Canadian running stores, checked every morning.",
+        "bfTrackH": "We're tracking real prices before Black Friday",
+        "bfTrackTxt": "Since October 2 we record the price of every running product we follow, every day: {n} products so far. So on Black Friday we'll know which deals are real and which prices went up in November just to come back down.",
+        "bfSpotH": "How to spot a real Black Friday deal",
+        "bfSpot": ["Compare with the price of the last few weeks, not the \"was\" price on the tag.",
+                   "Check your size: a big discount often only covers sizes nobody wears.",
+                   "Look at the return policy: many sale items are final sale. We label them."],
+        "bfTodayH": "Not Black Friday yet: today's best running shoe deals ({date})",
         "bfCta": "Get the Black Friday deals in your size", "bfCtaTxt": "Pick your sizes once. Our Friday email lands on Black Friday morning with the best deals in your sizes, and price-drop alerts for the shoes you watch.",
         "homeH": "Today's best running shoe deals in Canada", "homeMore": "All shoe prices by model",
         "h1sub": "On sale in Canada: every size, every store",
@@ -112,6 +122,16 @@ T = {
         "bfDir": "vendredi-fou", "bfTitle": "Vendredi fou 2026 : aubaines de chaussures de course au Canada",
         "bfH1": "Vendredi fou 2026 : aubaines course au Canada",
         "bfIntro": "Le Vendredi fou (Black Friday) tombe le vendredi 27 novembre. Nous vérifions plus de 60 boutiques canadiennes de course et de plein air chaque matin et montrons seulement ce qui est en stock. Voici les plus gros rabais du jour; le Vendredi fou, cette page affichera les meilleures aubaines de la semaine.",
+        "bfTitlePre": "Vendredi fou 2026 : aubaines de chaussures de course au Canada, à quoi s'attendre",
+        "bfH1Pre": "Vendredi fou 2026 au Canada : le {date} novembre",
+        "bfIntroPre": "Encore {days} jours. Les aubaines du Vendredi fou ne sont pas encore là. Pendant la semaine du Vendredi fou, cette page montre les vraies aubaines de plus de 60 boutiques de course canadiennes, vérifiées chaque matin.",
+        "bfTrackH": "On suit les vrais prix avant le Vendredi fou",
+        "bfTrackTxt": "Depuis le 2 octobre, on note chaque jour le prix de chaque article de course qu'on suit : {n} articles jusqu'ici. Au Vendredi fou, on saura quelles aubaines sont vraies et quels prix ont monté en novembre pour mieux redescendre.",
+        "bfSpotH": "Comment reconnaître une vraie aubaine du Vendredi fou",
+        "bfSpot": ["Comparez avec le prix des dernières semaines, pas avec le prix « avant » de l'étiquette.",
+                   "Vérifiez votre pointure : un gros rabais ne couvre souvent que des tailles que personne ne porte.",
+                   "Regardez la politique de retour : plusieurs articles en solde sont en vente finale. On les indique."],
+        "bfTodayH": "Pas encore le Vendredi fou : les meilleures aubaines du jour ({date})",
         "bfCta": "Recevez les aubaines du Vendredi fou dans votre pointure", "bfCtaTxt": "Choisissez vos tailles une fois. Notre courriel du vendredi arrive le matin du Vendredi fou avec les meilleures aubaines dans vos tailles, et des alertes de baisse de prix pour les chaussures que vous suivez.",
         "homeH": "Meilleures aubaines de chaussures de course au Canada aujourd'hui", "homeMore": "Tous les prix par modèle",
         "h1sub": "En solde au Canada : chaque pointure, chaque boutique",
@@ -620,6 +640,12 @@ def browse_nav(L, brands):
     return out
 
 
+def black_friday(year):
+    """The fourth Friday of November."""
+    d = date(year, 11, 1)
+    return d + timedelta(days=(4 - d.weekday()) % 7 + 21)
+
+
 def list_page(L, path_en, path_fr, title, h1, intro, rows, brands, extra=""):
     out = [page_head(L, title, intro, path_en, path_fr)]
     out.append(f'<h1>{esc(h1)}</h1><p class="sub">{esc(intro)}</p>{extra}')
@@ -760,7 +786,17 @@ def main():
                f'<a class="btn" href="/?ref=black-friday{"&lang=fr" if L is T["fr"] else ""}">{L["ctaBtn"]}</a></section>')
         p = site / L["bfDir"] / "index.html"
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(list_page(L, "/black-friday/", "/vendredi-fou/", L["bfTitle"], L["bfH1"], L["bfIntro"], bf_rows, brands, cta))
+        today = datetime.fromisoformat(updated.replace("Z", "+00:00")).date() if updated else datetime.now(timezone.utc).date()
+        bf = black_friday(today.year if today <= black_friday(today.year) + timedelta(days=4) else today.year + 1)
+        if bf - timedelta(days=7) <= today <= bf + timedelta(days=4):     # Black Friday week to Cyber Monday: the real deals
+            p.write_text(list_page(L, "/black-friday/", "/vendredi-fou/", L["bfTitle"], L["bfH1"], L["bfIntro"], bf_rows, brands, cta))
+        else:   # before: honest page, the price tracking + tips, and today's deals clearly labelled as today's (Bastien, Oct 4)
+            tracked = sum(1 for i in items if i.get("hd"))
+            extra = (cta + f'<h2>{esc(L["bfTrackH"])}</h2><p>{esc(L["bfTrackTxt"].format(n=f"{tracked:,}".replace(",", " " if L is T["fr"] else ",")))}</p>'
+                     + f'<h2>{esc(L["bfSpotH"])}</h2><ul>' + "".join(f"<li>{esc(x)}</li>" for x in L["bfSpot"]) + "</ul>"
+                     + f'<h2>{esc(L["bfTodayH"].format(date=fmt_date(updated, L)))}</h2>')
+            p.write_text(list_page(L, "/black-friday/", "/vendredi-fou/", L["bfTitlePre"], L["bfH1Pre"].format(date=bf.day),
+                                   L["bfIntroPre"].format(days=(bf - today).days), bf_rows[:6], brands, extra))
         extra_urls.append(f'/{L["bfDir"]}/')
     # homepage: a plain block search engines can read (the deals themselves are drawn by the page's script)
     idx = site / "index.html"
