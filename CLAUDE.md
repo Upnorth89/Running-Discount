@@ -240,11 +240,9 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
 
 ## The site (site/index.html)
 
-- First visit: welcome screen → sizes → email or Google sign-in (flow "D"). Welcome shows 3 tappable deals: one road, one trail,
+- First visit: welcome screen → sizes → all deals (flow "D"; email/Google optional via the card or a heart). Welcome shows 3 tappable deals: one road, one trail,
   one race shoe (Canadian, 6+ sizes on sale, max 60% off, no spikes) and the real store count.
-  Peek (flow D, live Oct 3): after the sizes step the sheet closes and their top 6 deals show (clickable,
-  no email), then the email card ("N deals in your size today" + "or continue with Google" → step 2), the next 6 blurred.
-  A heart opens step 2. `gf-peek` in localStorage; `peeking()`, `renderPeek()`. Umami: signup-step step "peek", signup where "peek-card". The welcome line claims
+  Since Oct 4 there's no wall: after the sizes step every deal shows (see "No sign-up wall" below). The welcome line claims
   "More than half of gear deals aren't available in your size", recomputed daily (`missShare()`).
 - Fit "Both" (Oct 4): the shoe grid becomes "Men's shoe size" and a line "Women's sizes: 10 (matched for you) · Change"
   follows it (men's + 1.5, `syncW()`, until changed; the grid opens on Change). Profile `sizes.shoes.women` (only with
@@ -267,7 +265,7 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   on orange, Oct 4; maskable = same on orange with margin; favicon.svg stays the simple fox). Standalone.
   iPhones keep a home-screen app's storage apart from Safari: on iOS `appManifest()` points the manifest at a data: URL whose
   start_url carries the member's `?k=` or their sizes `#p=` (no email); `?src=app` + existing profile = the sizes are ignored
-  (only seed the first launch). App visits: analytics `visit` detail "home-screen app". Deal links open outside (target _blank).
+  (only seed the first launch; tested on Bastien's iPhone Oct 4: works). App visits: analytics `visit` detail "home-screen app". Deal links open outside (target _blank).
 - No sign-up wall (Oct 4, a user said we forced sign-up): welcome -> sizes -> every deal; one card "Free with your email" (3 perks,
   Google, "No thanks" = gf-nosignup per device) after the first block; hearts open the email step (closable). Peek/blur view removed.
 - Final sale (Oct 4): FINAL_SALE store rules in scrape.py + tagged items -> "fs" per offer; label on cards, shoe pages, Friday email;
