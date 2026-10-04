@@ -138,9 +138,91 @@ returns jsonb language sql stable security definer set search_path = public as $
 $$;
 revoke all on function public.ana_report(timestamptz, timestamptz) from public, anon, authenticated;
 
--- housekeeping every night: raw events older than 45 days are deleted (the per-device dates and counts stay)
+-- ---------------------------------------------------------------- dashboard (thegearfox.com/stats.html)
+-- Daily totals, kept forever (a few dozen small rows a day), so trends survive the 45-day clean-up of raw events.
+create table if not exists public.ana_daily (
+  day    date not null,
+  metric text not null,
+  key    text not null default '',
+  n      real not null,
+  primary key (day, metric, key)
+);
+alter table public.ana_daily enable row level security;
+revoke all on public.ana_daily from anon, authenticated;
+
+-- the dashboard's private key: made here at random, read it in Table Editor > ana_settings (never share it in chat)
+create table if not exists public.ana_settings (name text primary key, value text not null);
+alter table public.ana_settings enable row level security;
+revoke all on public.ana_settings from anon, authenticated;
+insert into public.ana_settings values ('dashboard_key', replace(gen_random_uuid()::text, '-', '')) on conflict (name) do nothing;
+
+-- one day's numbers (Vancouver days), straight from the raw events
+create or replace function public.ana_metrics(p_day date)
+returns table (metric text, key text, n real) language sql stable security definer set search_path = public as $$
+  with e as (select * from ana_events where (at at time zone 'America/Vancouver')::date = p_day),
+  s as (select sid, min(did::text) did, min(nv) nv, min(ref) ref, min(dev) dev, min(lang) lang,
+               min(page) filter (where kind = 'visit') entry, max(num) filter (where kind = 'leave') secs,
+               bool_or(kind = 'sizes-saved') sizes, bool_or(kind = 'signup') signup, bool_or(kind = 'deal-click') clicked
+        from e group by sid)
+  select 'visitors', '', count(distinct did)::real from s
+  union all select 'new_visitors', '', count(distinct did)::real from s where nv = 1
+  union all select 'sessions', '', count(*)::real from s
+  union all select 'sizes', '', count(*) filter (where sizes)::real from s
+  union all select 'signups', '', count(*) filter (where signup)::real from s
+  union all select 'clicked_sessions', '', count(*) filter (where clicked)::real from s
+  union all select 'clicks', '', count(*)::real from e where kind = 'deal-click'
+  union all select 'hearts', '', count(*)::real from e where kind = 'watch-add'
+  union all select 'searches', '', count(*)::real from e where kind in ('search', 'search-none')
+  union all select 'median_secs', '', coalesce(percentile_cont(0.5) within group (order by secs), 0)::real from s where secs is not null
+  union all select 'ref', coalesce(ref, '(direct)'), count(*)::real from s group by ref
+  union all select 'dev', coalesce(dev, '?'), count(*)::real from s group by dev
+  union all select 'lang', coalesce(lang, '?'), count(*)::real from s group by lang
+  union all select 'entry', coalesce(entry, '?'), count(*)::real from s group by entry
+  union all select 'store', st, count(*)::real from (select split_part(detail, '|', 1) st from e where kind = 'deal-click' and detail is not null) c group by st
+$$;
+revoke all on function public.ana_metrics(date) from public, anon, authenticated;
+
+-- every night: store yesterday's numbers (re-running a day just replaces it)
+create or replace function public.ana_rollup(p_day date default ((now() at time zone 'America/Vancouver')::date - 1))
+returns void language sql security definer set search_path = public as $$
+  delete from ana_daily where day = p_day;
+  insert into ana_daily (day, metric, key, n) select p_day, metric, left(key, 120), n from ana_metrics(p_day);
+$$;
+revoke all on function public.ana_rollup(date) from public, anon, authenticated;
+
+-- what the dashboard page reads: needs the private key; only totals, never single visits
+create or replace function public.ana_dashboard(p_key text, p_days int default 30)
+returns jsonb language plpgsql stable security definer set search_path = public as $$
+declare today date := (now() at time zone 'America/Vancouver')::date; d int := least(greatest(coalesce(p_days, 30), 1), 400);
+begin
+  if p_key is null or p_key <> (select value from ana_settings where name = 'dashboard_key') then
+    raise exception 'wrong key';
+  end if;
+  return jsonb_build_object(
+    'today', today,
+    'live', (select count(distinct did) from ana_events where at > now() - interval '30 minutes'),
+    'days', (select coalesce(jsonb_agg(x order by x.day), '[]') from (            -- one row per day: the headline numbers
+              select day, jsonb_object_agg(metric, n) m from (
+                select day, metric, n from ana_daily where key = '' and day >= today - d and day < today
+                union all select today, metric, n from ana_metrics(today) where key = '') q group by day) x),
+    'prev', (select coalesce(jsonb_object_agg(metric, n), '{}') from (           -- the period before, for the % change
+              select metric, sum(n) n from ana_daily where key = '' and day >= today - 2 * d and day < today - d group by metric) x),
+    'breakdown', (select coalesce(jsonb_object_agg(metric, items), '{}') from (    -- sources, devices, languages, pages, stores
+              select metric, jsonb_agg(jsonb_build_object('k', key, 'n', n) order by n desc) items from (
+                select metric, key, sum(n) n from (
+                  select metric, key, n from ana_daily where key <> '' and day >= today - d and day < today
+                  union all select metric, key, n from ana_metrics(today) where key <> '') q
+                group by metric, key) r group by metric) x),
+    'report', ana_report(greatest(now() - make_interval(days => d), now() - interval '45 days'), now()));   -- funnel, searches, cohorts
+end $$;
+revoke all on function public.ana_dashboard(text, int) from public;
+grant execute on function public.ana_dashboard(text, int) to anon, authenticated;
+
+-- every night: yesterday's totals into ana_daily, then raw events older than 45 days are deleted
+-- (the daily totals and the per-device dates and counts stay)
 do $$ begin
   if exists (select 1 from pg_extension where extname = 'pg_cron') then
+    perform cron.schedule('ana-rollup', '13 9 * * *', 'select public.ana_rollup()');   -- 2:13am Vancouver: yesterday's totals
     perform cron.schedule('ana-cleanup', '23 9 * * *', 'delete from public.ana_events where at < now() - interval ''45 days''');
   end if;
 end $$;

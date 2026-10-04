@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Gear Fox Stats</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{color-scheme:light;--bg:#EEF1EC;--card:#fcfcfb;--ink:#17201C;--muted:#5C6660;--line:#D9DED9;--grid:#E6EAE6;
+  --s1:#eb6834;--s2:#2a78d6;--s3:#1baf7a;--up:#1f7a3a;--down:#b3261e;--bar:#eb6834}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])){color-scheme:dark;--bg:#121815;--card:#1a1f1c;--ink:#E7ECE8;
+  --muted:#9BA6A0;--line:#34403A;--grid:#2a332e;--s1:#d95926;--s2:#3987e5;--s3:#199e70;--up:#5cc27a;--down:#ff8a80;--bar:#d95926}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#121815;--card:#1a1f1c;--ink:#E7ECE8;--muted:#9BA6A0;--line:#34403A;--grid:#2a332e;
+  --s1:#d95926;--s2:#3987e5;--s3:#199e70;--up:#5cc27a;--down:#ff8a80;--bar:#d95926}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:16px}
+header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+header h1{font-size:22px;margin:0;flex:1;min-width:160px}
+.seg{display:inline-flex;border:1.5px solid var(--line);border-radius:999px;overflow:hidden;background:var(--card)}
+.seg button{font:600 14px system-ui,sans-serif;border:0;background:none;color:var(--ink);padding:8px 14px;min-height:40px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--card)}
+.live{font-size:14px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.live b{color:var(--ink);font-size:16px}.dot{width:9px;height:9px;border-radius:50%;background:var(--s3)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:14px}
+.tile{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px}
+.tile .l{font-size:13px;color:var(--muted)}.tile .v{font:800 30px/1.1 system-ui,sans-serif;margin:4px 0 2px}
+.tile .c{font-size:13px;color:var(--muted)}.tile .c.up{color:var(--up)}.tile .c.down{color:var(--down)}
+.grid2{display:grid;grid-template-columns:1fr;gap:12px}@media(min-width:900px){.grid2{grid-template-columns:1fr 1fr}}
+.card{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:12px;min-width:0}
+.card h2{font-size:16px;margin:0 0 2px}.card .sub{font-size:13px;color:var(--muted);margin:0 0 10px}
+.chart{position:relative;height:260px}.chart.small{height:180px}
+.legend{display:flex;gap:16px;font-size:13px;color:var(--muted);margin-bottom:6px}.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+.bars{display:grid;gap:6px}.brow{display:grid;grid-template-columns:minmax(90px,38%) 1fr auto;gap:10px;align-items:center;font-size:14px}
+.brow .k{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.brow .t{height:10px;border-radius:0 4px 4px 0;background:var(--bar);min-width:2px}
+.brow .n{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+table{border-collapse:collapse;width:100%;font-size:14px}th,td{padding:6px 8px;border-bottom:1px solid var(--grid);text-align:right}
+th:first-child,td:first-child{text-align:left}th{color:var(--muted);font-weight:600}
+.keybox{max-width:440px;margin:60px auto;background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:20px}
+.keybox input{width:100%;font:inherit;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);margin:10px 0}
+.keybox button{font:700 15px system-ui,sans-serif;background:var(--s1);color:#17201C;border:0;border-radius:10px;padding:10px 16px;cursor:pointer}
+.err{color:var(--down)}.muted{color:var(--muted);font-size:13px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>🦊 The Gear Fox stats</h1>
+  <span class="live" id="live" hidden><span class="dot" aria-hidden="true"></span>Right now: <b id="liveN">0</b> on the site</span>
+  <div class="seg" id="range" role="group" aria-label="Period">
+    <button type="button" data-d="7">7 days</button><button type="button" data-d="30" aria-pressed="true">30 days</button><button type="button" data-d="90">90 days</button>
+  </div>
+</header>
+
+<div class="keybox" id="keybox" hidden>
+  <h2 style="margin:0 0 6px;font-size:18px">Dashboard key</h2>
+  <p class="muted">Supabase → Table Editor → <b>ana_settings</b> → copy the value of <b>dashboard_key</b>, paste it here. It stays on this device only.</p>
+  <input id="keyIn" type="password" autocomplete="off" aria-label="Dashboard key">
+  <button type="button" id="keyGo">Open the dashboard</button>
+  <p class="err" id="keyErr" hidden>That key didn't work. Check it and try again.</p>
+</div>
+
+<main id="dash" hidden>
+  <div class="tiles" id="tiles"></div>
+  <div class="card"><h2>Visitors per day</h2><p class="sub">People (devices) who opened the site each day, and how many were new</p>
+    <div class="legend"><span><i style="background:var(--s1)"></i>Visitors</span><span><i style="background:var(--s2)"></i>New visitors</span></div>
+    <div class="chart"><canvas id="cVisitors" aria-label="Visitors per day"></canvas></div></div>
+  <div class="grid2">
+    <div class="card"><h2>Sign-ups per day</h2><p class="sub">Friday email sign-ups</p><div class="chart small"><canvas id="cSignups" aria-label="Sign-ups per day"></canvas></div></div>
+    <div class="card"><h2>Deal clicks per day</h2><p class="sub">Shoppers sent to stores</p><div class="chart small"><canvas id="cClicks" aria-label="Deal clicks per day"></canvas></div></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><h2>New visitors: where they drop off</h2><p class="sub" id="funnelSub"></p><div class="bars" id="funnel"></div></div>
+    <div class="card"><h2>Do they come back?</h2><p class="sub">Of the devices first seen each week</p><div id="cohorts"></div></div>
+  </div>
+  <div class="card"><h2>Where they came from</h2><p class="sub">Visits per link, and what those visitors did</p><div id="sources"></div></div>
+  <div class="grid2">
+    <div class="card"><h2>First page they landed on</h2><div class="bars" id="entry"></div></div>
+    <div class="card"><h2>Stores they clicked to</h2><div class="bars" id="stores"></div></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><h2>Phone or computer</h2><div class="bars" id="devs"></div><h2 style="margin-top:14px">Language</h2><div class="bars" id="langs"></div></div>
+    <div class="card"><h2>What they searched for</h2><p class="sub">Searches with no result are brands or stores to add</p><div id="searches"></div></div>
+  </div>
+  <p class="muted">Behaviour only: no names, emails or IP addresses are recorded. Updated live; day totals saved every night.</p>
+</main>
+</div>
+<script>
+(function(){
+const SB="https://krwymmkauwqqxjxbvkyq.supabase.co",PK="sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2";
+const $=id=>document.getElementById(id),E=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const STORES={"altitude-sports.com":"Altitude Sports","thelasthunt.com":"The Last Hunt","sportinglife.ca":"Sporting Life","mec.ca":"MEC","svpsports.ca":"SVP Sports","thefeed.com":"The Feed","rei.com":"REI"};
+let KEY=null,DAYS=30,charts=[];
+try{KEY=localStorage.getItem("gf-stats-key")}catch(e){}
+const pct=(a,b)=>b?Math.round(100*a/b)+"%":"–",fmt=n=>Math.round(n||0).toLocaleString("en-CA");
+async function load(){
+  if(window.DEMO_BY)return window.DEMO_BY[DAYS];
+  const r=await fetch(SB+"/rest/v1/rpc/ana_dashboard",{method:"POST",headers:{apikey:PK,"Content-Type":"application/json"},body:JSON.stringify({p_key:KEY,p_days:DAYS})});
+  if(!r.ok)throw new Error("key");return r.json()}
+function bars(el,items,label){const max=Math.max(1,...items.map(x=>x.n));
+  $(el).innerHTML=items.length?items.map(x=>`<div class="brow"><span class="k" title="${E(x.k)}">${E(label?label(x.k):x.k)}</span><span class="t" style="width:${Math.max(1,100*x.n/max)}%"></span><span class="n">${fmt(x.n)}${x.extra?" · "+x.extra:""}</span></div>`).join(""):`<p class="muted">Nothing yet.</p>`}
+function tile(label,v,prev,fmtv){const ch=prev?Math.round(100*(v-prev)/prev):null;
+  return `<div class="tile"><div class="l">${label}</div><div class="v">${fmtv?fmtv(v):fmt(v)}</div><div class="c ${ch==null?"":ch>=0?"up":"down"}">${ch==null?"no earlier data":(ch>=0?"▲ ":"▼ ")+Math.abs(ch)+"% vs previous "+DAYS+" days"}</div></div>`}
+function line(id,labels,sets,type){const c=new Chart($(id),{type:type||"line",data:{labels,datasets:sets.map(s=>({label:s.label,data:s.data,borderColor:s.color,backgroundColor:s.color,
+    borderWidth:2,pointRadius:labels.length>40?0:3,pointHoverRadius:5,tension:.25,borderRadius:4,maxBarThickness:18}))},
+  options:{maintainAspectRatio:false,interaction:{mode:"index",intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:css("--ink"),titleColor:css("--card"),bodyColor:css("--card")}},
+    scales:{x:{grid:{display:false},ticks:{color:css("--muted"),maxTicksLimit:8,autoSkip:true}},y:{beginAtZero:true,grid:{color:css("--grid")},border:{display:false},ticks:{color:css("--muted"),precision:0}}}}});
+  charts.push(c)}
+function render(d){
+  charts.forEach(c=>c.destroy());charts=[];
+  $("live").hidden=false;$("liveN").textContent=d.live||0;
+  const days=d.days||[],m=k=>days.map(x=>x.m[k]||0),sum=k=>m(k).reduce((a,b)=>a+b,0),p=d.prev||{};
+  const lab=days.map(x=>x.day===d.today?"Today":new Date(x.day+"T12:00").toLocaleDateString("en-CA",{month:"short",day:"numeric"}));
+  const secs=m("median_secs").filter(Boolean),med=secs.length?secs.sort((a,b)=>a-b)[Math.floor(secs.length/2)]:0;
+  $("tiles").innerHTML=tile("Visitors",sum("visitors"),p.visitors)+tile("New visitors",sum("new_visitors"),p.new_visitors)+
+    tile("Sign-ups",sum("signups"),p.signups)+tile("Sign-up rate (of new)",sum("new_visitors")?sum("signups")/sum("new_visitors"):0,
+      p.new_visitors?p.signups/p.new_visitors:null,v=>Math.round(100*v)+"%")+tile("Deal clicks",sum("clicks"),p.clicks)+
+    tile("Typical visit",med,null,v=>v>=60?Math.floor(v/60)+"m "+String(Math.round(v%60)).padStart(2,"0")+"s":Math.round(v)+"s");
+  line("cVisitors",lab,[{label:"Visitors",data:m("visitors"),color:css("--s1")},{label:"New visitors",data:m("new_visitors"),color:css("--s2")}]);
+  line("cSignups",lab,[{label:"Sign-ups",data:m("signups"),color:css("--s1")}],"bar");
+  line("cClicks",lab,[{label:"Deal clicks",data:m("clicks"),color:css("--s1")}],"bar");
+  const r=d.report||{},f=r.funnel_new||{},b=d.breakdown||{};
+  $("funnelSub").textContent=`${fmt(f.sessions)} first visits in this period (last 45 days at most)`;
+  bars("funnel",[["Arrived",f.sessions],["Saw the welcome",f.welcome],["Picked their sizes",f.sizes],["Saw their deals",f.peek],["Signed up",f.signup],["Clicked a deal",f.clicked]]
+    .map(([k,n])=>({k,n:n||0,extra:pct(n||0,f.sessions)})));
+  const co=r.cohorts||[];
+  $("cohorts").innerHTML=co.length?`<table><tr><th>Week of</th><th>New</th><th>Came back</th><th>After 7+ days</th><th>Signed up</th></tr>`+
+    co.map(c=>`<tr><td>${E(c.week)}</td><td>${c.devices}</td><td>${pct(c.came_back,c.devices)}</td><td>${pct(c.back_after_7d,c.devices)}</td><td>${pct(c.signed_up,c.devices)}</td></tr>`).join("")+"</table>":`<p class="muted">Nothing yet.</p>`;
+  const refs=r.by_ref||[];
+  $("sources").innerHTML=refs.length?`<table><tr><th>Link</th><th>Visits</th><th>Picked sizes</th><th>Signed up</th><th>Clicked a deal</th></tr>`+
+    refs.slice(0,15).map(x=>`<tr><td>${E(x.ref)}</td><td>${x.sessions}</td><td>${pct(x.sizes,x.sessions)}</td><td>${pct(x.signups,x.sessions)}</td><td>${pct(x.clicked,x.sessions)}</td></tr>`).join("")+"</table>":`<p class="muted">Nothing yet.</p>`;
+  bars("entry",(b.entry||[]).slice(0,10));bars("stores",(b.store||[]).slice(0,10),k=>STORES[k]||k);
+  bars("devs",b.dev||[]);bars("langs",b.lang||[],k=>({en:"English",fr:"Français"})[k]||k);
+  const top=r.top||{},se=(top.search||[]).slice(0,10),sn=(top["search-none"]||[]).slice(0,10);
+  $("searches").innerHTML=(se.length||sn.length)?`<table><tr><th>Search</th><th>Times</th><th>Result</th></tr>`+
+    se.map(x=>`<tr><td>${E(x.d)}</td><td>${x.n}</td><td>found</td></tr>`).join("")+sn.map(x=>`<tr><td><b>${E(x.d)}</b></td><td>${x.n}</td><td><b>nothing</b></td></tr>`).join("")+"</table>":`<p class="muted">Nothing yet.</p>`;
+}
+async function go(){
+  if(!KEY&&!window.DEMO_BY){$("keybox").hidden=false;$("dash").hidden=true;return}
+  try{const d=await load();$("keybox").hidden=true;$("dash").hidden=false;render(d)}
+  catch(e){$("keybox").hidden=false;$("dash").hidden=true;$("keyErr").hidden=!KEY}}
+$("keyGo").addEventListener("click",()=>{KEY=$("keyIn").value.trim();try{localStorage.setItem("gf-stats-key",KEY)}catch(e){}go()});
+$("range").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;DAYS=+b.dataset.d;
+  document.querySelectorAll("#range button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));go()});
+go();setInterval(()=>{if(!$("dash").hidden&&!window.DEMO_BY)go()},60000);
+})();
+</script>
+</body>
+</html>
