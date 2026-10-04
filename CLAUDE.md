@@ -26,6 +26,10 @@ That plan (a Claude Docs doc) also holds the Fox Pro free/paid table, the Press 
 - **Push straight to `main`.** No pull requests or side branches (the site deploys from `main`).
 - **Never ask him to paste secret keys into chat.** Secrets live only in GitHub secrets, Supabase or Vault.
 - After every change, verify it landed: the right file in the right folder, the site updated, nothing broken.
+- **Before every push to main: `python tools/check.py` must say ALL GOOD** (Oct 4: the shoe pages broke silently for 3 hours
+  after a change that wasn't run through the shoe page builder; Bastien: "this should not be happening"). It rebuilds deals,
+  shoe pages, the Friday email cards and the preview from today's live data (~20 s). The refresh workflow also refuses to
+  publish when the shoe pages are missing (yesterday's site stays up) and the health email flags it.
 - Don't touch `email/profiles.json` (old sign-up list; kept out of commits). Subscribers live in Supabase.
 - Don't circumvent bot protection. Stores that block automated access (Sport Chek, Running Room, Atmosphere,
   Sports Experts, MEC, REI…) are either skipped, read from pages Bastien saves himself, or wait for

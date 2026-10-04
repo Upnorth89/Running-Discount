@@ -122,6 +122,13 @@ jobs:
           SEND_HEALTH: ${{ (github.event_name == 'schedule' || inputs.morning) && '1' || '0' }}
           HEALTH_EMAIL: ${{ secrets.HEALTH_EMAIL }}
         run: python scraper/health.py /tmp/prev site
+      - name: Keep yesterday's site if the shoe pages didn't build
+        # the shoe pages step may fail quietly (continue-on-error); publishing without it would 404 every shoe page,
+        # list page and the sitemap (Oct 4, 2026). Stopping here keeps the last good site live; the health email says why.
+        run: |
+          n=$(ls site/shoes/*/index.html 2>/dev/null | wc -l)
+          echo "shoe pages built: $n"
+          if [ "$n" -lt 100 ] || [ ! -f site/sitemap.xml ]; then echo "::error::Shoe pages missing: not publishing"; exit 1; fi
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
