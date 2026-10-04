@@ -177,6 +177,8 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
 - Known: Honey Stinger is blocked from GitHub's servers (works elsewhere); REI needs fresh saved pages.
 - **`STORES.md`** lists every store we read, ones checked and rejected (blocked, no feed) and ones waiting:
   check it before testing a shop, update it after.
+- **Every store reader reads the full running catalogue, full price included, never only the sale section** (Bastien, Oct 4:
+  "this should always be our default"). Full-price items are what people watch for a drop, and the "Include full price" filter needs them.
 - **Adding a store** (Bastien aims for steady growth, 1–3 a week): check readability, currency, size labels
   (share readable), categories, sale share; add to `SHOPIFY_STORES`; remerge locally
   (`python scraper/scrape.py site/deals.json --remerge` with a fresh `offers.json`) and preview.
