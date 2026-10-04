@@ -7,6 +7,12 @@
 <meta name="description" content="The Gear Fox finds running and outdoor gear on sale in your size, from stores across Canada and beyond. Outfox full price.">
 <meta name="theme-color" content="#F26A1B">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="manifest" id="appManifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Gear Fox">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta property="og:title" content="The Gear Fox — Outfox full price">
 <meta property="og:description" content="Gear deals in your size, from stores across Canada and beyond.">
 <meta property="og:type" content="website">
@@ -527,7 +533,7 @@ const ANA=(()=>{const ls=k=>{try{return localStorage.getItem(k)}catch(e){return 
   document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")bye();else{away=false;t0=Date.now()}});
   addEventListener("pagehide",bye);
   addEventListener("error",e=>{try{add("error",(e.message||"")+" @"+((e.filename||"").split("/").pop())+":"+e.lineno)}catch(x){}});
-  if(fresh)add("visit",document.referrer?new URL(document.referrer).hostname:"",null,location.pathname);
+  if(fresh)add("visit",(matchMedia("(display-mode: standalone)").matches||navigator.standalone)?"home-screen app":document.referrer?new URL(document.referrer).hostname:"",null,location.pathname);
   return {add,nv:()=>nv}})();
 function ana(k,d,n){try{ANA.add(k,d,n)}catch(e){}}
 function track(name,data){try{if(window.umami&&umami.track)umami.track(name,data)}catch(e){}
@@ -778,7 +784,21 @@ const GL=g=>t("groups")[g]||I18N.en.groups[g];
 
 /* ---------- profile (lives in this browser; synced to the server once subscribed) ---------- */
 const LS={get(k){try{return JSON.parse(localStorage.getItem(k)||"null")}catch(e){return null}},
-          set(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+          set(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,JSON.stringify(v))}catch(e){}
+                   if(k==="rd-profile"||k==="gf-sub")setTimeout(appManifest,0)}};
+/* Home screen app (manifest.webmanifest). iPhones keep a home-screen app's storage apart from Safari's, so on iOS the
+   app's start link carries this person in: members their ?k= link (same as in their emails), others their sizes (#p=,
+   no email). Only on this device's own manifest; never in the address bar. Android shares storage: static manifest. */
+function appManifest(){try{
+  if(!/iPhone|iPad|iPod/.test(navigator.userAgent)&&!(navigator.maxTouchPoints>1&&/Macintosh/.test(navigator.userAgent)))return;
+  const el=document.getElementById("appManifest");if(!el)return;
+  const sb=LS.get("gf-sub"),p=LS.get("rd-profile");let start="/?src=app";
+  if(sb&&sb.key&&sb.active)start+="&k="+encodeURIComponent(sb.key);
+  else if(p){const {email,name,...rest}=p;start+="#p="+btoa(unescape(encodeURIComponent(JSON.stringify(rest)))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}
+  const o=location.origin,m={id:"/",name:"The Gear Fox",short_name:"Gear Fox",start_url:o+start,scope:o+"/",display:"standalone",
+    background_color:"#17201C",theme_color:"#17201C",icons:[{src:o+"/icon-192.png",sizes:"192x192",type:"image/png"},{src:o+"/icon-512.png",sizes:"512x512",type:"image/png"}]};
+  el.href="data:application/manifest+json,"+encodeURIComponent(JSON.stringify(m));
+}catch(e){}}
 const state={name:"",email:"",gender:"",terrain:"both",ships:"ca",groups:ORDER.slice(),shoe:[],shoeW:[],wTouched:false,width:[],cloth:[],brands:[]};
 /* "Both": the shoe grid is men's sizes and a second, women's list follows it (men's + 1.5: men's 8.5 = women's 10) until the
    person changes it. One runner who shops both sections; several runners = the Fox Pro family plan. */
@@ -1516,7 +1536,9 @@ async function linkFromEmail(){
   const q=new URLSearchParams(location.search);
   const conf=q.get("confirm"),key=q.get("k"),unsub=q.get("unsub");
   const tok=conf||key||unsub;
-  if(!tok){const p=profileFromLink();if(p){applyProfile(p);LS.set("rd-profile",toProfile());try{history.replaceState(null,"",location.pathname)}catch(e){}return true}return false}
+  if(!tok){const p=profileFromLink();
+    if(p&&/[?&]src=app/.test(location.search)&&LS.get("rd-profile")){try{history.replaceState(null,"",location.pathname)}catch(e){}return false} // home screen app: sizes it was installed with only seed the first launch
+    if(p){applyProfile(p);LS.set("rd-profile",toProfile());try{history.replaceState(null,"",location.pathname)}catch(e){}return true}return false}
   try{history.replaceState(null,"",location.pathname)}catch(e){}
   if(!/^[0-9a-f-]{36}$/i.test(tok)){notice(t("linkBroken"));return false}
   try{
@@ -1613,6 +1635,7 @@ function logEvent(kind,store,group){rpc("log_event",{p_kind:kind,p_store:store||
   applyStatic();
   G.load();
   applyProfile(LS.get("rd-profile"));
+  appManifest();
   renderAll();
   const fromEmail=await linkFromEmail();
   if(!fromEmail&&sub&&sub.key){   // another device may have changed the profile: the server copy wins

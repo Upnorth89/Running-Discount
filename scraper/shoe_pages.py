@@ -351,6 +351,12 @@ def page_head(L, title, desc, path_en, path_fr, extra=""):
 <link rel="alternate" hreflang="x-default" href="{BASE}{path_en}">
 <meta name="theme-color" content="#F26A1B">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Gear Fox">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta property="og:title" content="{esc(title)}">
 <meta property="og:description" content="{esc(desc)}">
 <meta property="og:type" content="website">
