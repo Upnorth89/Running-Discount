@@ -110,6 +110,10 @@ def check():
     items, items0 = len(deals.get("items", [])), len(deals0.get("items", []))
     if items0 >= 500 and items < items0 * 0.75:
         problems.append(("total", f"The whole site shrank to {items} products from {items0} yesterday."))
+    pages = len(list((SITE / "shoes").glob("*/index.html")))      # the Google shoe pages (shoe_pages.py may fail quietly)
+    if pages < 100:
+        problems.append(("shoepages", f"Only {pages} shoe price pages were built today (normally 350+): the shoe pages step "
+                                      "failed, so Google and visitors get 'page not found'. Claude should look at the refresh log."))
 
     # sign-ups vs the free email plan
     sb, key = os.environ.get("SUPABASE_URL", "").rstrip("/"), os.environ.get("SUPABASE_SECRET_KEY", "")

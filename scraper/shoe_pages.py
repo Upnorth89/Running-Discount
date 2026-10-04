@@ -516,7 +516,7 @@ def model_page(slug, its, stores, L, updated, related, brand_models):
     allrows = [r for _, rows in merged.items() for r in rows]
     sale = [r for _, r in allrows if r[0] < r[1] * 0.99]
     best = min(allrows, key=lambda kv: kv[1][0])[1] if allrows else None
-    top = max((round(100 * (1 - p / r)) for p, r, _, _ in sale), default=0)
+    top = max((round(100 * (1 - p / r)) for p, r, *_ in sale), default=0)
     n_stores = len({host(u) for d in its for u in d["of"]})          # every store that carries it, not just the cheapest
     sm = summary(its, stores) if any(d["sz"] for d in its) else None
     title = (L["titleSale"].format(name=name, price=money(sm["price"]), p=sm["off"]) if sm and sm["off"] >= 10
