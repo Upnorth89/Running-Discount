@@ -505,7 +505,8 @@ def shopify_items(st, base, prods, group_fn, fx=1.0, size_aware=False, size_fn=N
             out.append({"st": st, "b": p.get("vendor") or "", "n": p["title"] + (f" · {key}" if key else ""),
                         "u": f"{base}/products/{p['handle']}?variant={b['vid']}", "g": g, "sx": [], "w": False,
                         "img": img, "lp": round(b["lp"] * fx, 2), "bb": b["bb"],
-                        "sz": [[k, pr, rg, vid] for k, (pr, rg, vid) in b["sz"].items()]})
+                        "sz": [[k, pr, rg, vid] for k, (pr, rg, vid) in b["sz"].items()]}
+                       | ({"fs": 1} if any(FINAL_TAG.search(t) for t in p.get("tags") or []) or FINAL_TAG.search(p["title"]) else {}))
     return out
 
 FEED_FOOD = {"Gels", "Hydration", "Bars", "Chews", "Waffles", "Protein", "Breakfast", "Snacks", "Pack", "Drink Mix", "Recovery"}
@@ -1174,6 +1175,16 @@ STORES = {
     "svp": scrape_svp_saved,
     "decathlon": scrape_decathlon,
 }
+# Final sale (Oct 4, 2026; read from each store's return policy, recheck now and then): 1 = every item is final sale,
+# 2 = every item bought on sale is final, N > 2 = final from N% off. Items a store tags "Final sale" count too (offer "fs").
+# The site labels a deal "Final sale" when the store and price shown match; no label never means "returnable".
+FINAL_SALE = {"lasthunt": 1,
+              "2xu": 2, "strides": 2, "aerobicsfirst": 2, "blacktoe": 2, "runnersshop": 2, "vanrunco": 2, "districtvision": 2,
+              "fitfirst": 2, "endurance": 2, "cityparkrunners": 2, "capra": 2, "forerunners": 2, "tifosi": 2, "naak": 2,
+              "xact": 2, "squirrels": 2,
+              "lecoureur": 40, "janji": 40}
+FINAL_TAG = re.compile(r"final.?sale|vente.?finale", re.I)
+
 for _st, _base, _kind in SHOPIFY_STORES:
     STORES[_st] = make_shopify_scraper(_st, _base, _kind)
 
@@ -1511,11 +1522,12 @@ def merge(offers):
                 nm = re.split(r"\s+[—·]\s+", nm)[0] + (f" - {gx.group(1)}" if gx else "")
             it = items[mkey(o)] = {"b": o["b"], "n": nm, "g": o["g"], "sx": list(o["sx"]), "w": o["w"],
                                    "img": o.get("img"), "lp": o["lp"], "bb": o.get("bb"), "sz": {}, "of": [], "_st": [],
-                                   "_ca": [], "ca": False}
+                                   "_ca": [], "_fs": [], "ca": False}
             if o["g"] in TYPES:
                 it["t"] = garment_type(o["g"], f'{o["b"]} {o["n"]}' if o["g"] in ("shoes", "gear") else o["n"])
         oi = len(it["of"])
         it["of"].append(o["u"]); it["_st"].append(o["st"]); it["_ca"].append(bool(o.get("ca")))
+        it["_fs"].append(1 if o.get("fs") else FINAL_SALE.get(o["st"], 0))
         it["ca"] = it["ca"] or bool(o.get("ca"))     # sold by any Canadian store = ships from Canada
         it["lp"] = max(it["lp"], o["lp"])
         it["img"] = it["img"] or o.get("img")
@@ -1543,6 +1555,9 @@ def merge(offers):
         # [size, price, offer, regular] plus the size's own variant id when the store has one
         it["sz"] = [[s, p, i, r] + ([v] if v else []) for s, (p, i, r, v) in it["sz"].items()]
         it.pop("_ca", None)
+        fs = it.pop("_fs", [])
+        if any(fs):
+            it["fs"] = fs          # per offer, same order as "of" (FINAL_SALE codes)
         if it["sz"]:
             out.append(it)
     return out

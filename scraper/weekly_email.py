@@ -88,6 +88,15 @@ def size_url(d, e):
         u = urlunsplit(sp._replace(query=urlencode(q)))
     return u
 
+def final_sale(d, e):
+    """Same as the site's finalSale(): the store's rule (scrape.py FINAL_SALE, per offer in "fs") for the price shown."""
+    fs = d.get("fs") or []
+    c = fs[e[2]] if e[2] < len(fs) else 0
+    if not c:
+        return False
+    reg = e[3] if len(e) > 3 and e[3] else e[1]
+    return True if c == 1 else e[1] < reg * 0.99 if c == 2 else reg > 0 and 100 * (1 - e[1] / reg) >= c - 0.5
+
 TERRAIN = {"road": {"daily", "race"}, "trail": {"trail", "hike"}}
 
 def terrain_ok(d, p):
@@ -149,7 +158,7 @@ def match(items, p):
             continue
         pct = round(100 * (1 - best / reg)) if reg > best else 0
         out.append({**d, "best": best, "reg": reg, "pct": pct, "ok": ok,
-                    "url": size_url(d, pick),
+                    "url": size_url(d, pick), "fin": final_sale(d, pick),
                     "fav": d["b"].lower() in favs})
     return out
 
@@ -160,7 +169,7 @@ GROUP_FR = {"shoes": "Chaussures", "tops": "Hauts et manteaux", "bottoms": "Shor
             "socks": "Bas", "gloves": "Gants", "headwear": "Casquettes et cache-cous", "packs": "Vestes et sacs d'hydratation",
             "gear": "Frontales, bâtons et gourdes", "watches": "Montres", "nutrition": "Nutrition"}
 STR = {
-    "en": dict(your_size="Your size: ", best_by="Best by {}", all_sizes="All sizes & stores →", abroad="Ships from outside Canada · converted to CAD, duties may apply",
+    "en": dict(your_size="Your size: ", best_by="Best by {}", all_sizes="All sizes & stores →", abroad="Ships from outside Canada · converted to CAD, duties may apply", final="Final sale: no returns",
                see_all="See all {} on sale →", watch_head="Your watchlist",
                changes=lambda n: f"{n} {'change' if n == 1 else 'changes'} this week",
                change_sizes="Change your sizes", unsubscribe="Unsubscribe", privacy="Privacy", follow="Follow us on Instagram",
@@ -176,7 +185,7 @@ STR = {
                     "You get this because you signed up for Friday deals on The Gear Fox. Outfox full price.",
                was="was", all_deals="All deals", logo="logo-email.png"),
     "fr": dict(your_size="Votre taille : ", best_by="Meilleur avant le {}", all_sizes="Toutes les pointures et boutiques →",
-               abroad="Expédié de l'extérieur du Canada · converti en $ CA, des droits peuvent s'appliquer",
+               abroad="Expédié de l'extérieur du Canada · converti en $ CA, des droits peuvent s'appliquer", final="Vente finale : aucun retour",
                see_all="Voir les {} articles en solde →", watch_head="Vos favoris",
                changes=lambda n: f"{n} {'changement' if n == 1 else 'changements'} cette semaine",
                change_sizes="Modifier vos tailles", unsubscribe="Se désabonner", privacy="Confidentialité", follow="Suivez-nous sur Instagram",
@@ -262,6 +271,8 @@ def card(d, lang="en"):
     bb = f'<div style="font-size:12px;color:#B3261E;font-weight:600">{E(tr(lang, "best_by", d["bb"]))}</div>' if d.get("bb") else ""
     if d.get("ca") is False:
         bb += f'<div style="font-size:12px;color:#5C6660">{E(tr(lang, "abroad"))}</div>'
+    if d.get("fin"):
+        bb += f'<div style="font-size:12px;color:#17201C;font-weight:600">{E(tr(lang, "final"))}</div>'
     sp = shoe_page_url(d, lang)
     cmp = (f'<div style="margin:4px 0 0 96px;font-family:Arial,Helvetica,sans-serif;font-size:12px">'
            f'<a href="{E(sp)}" style="color:#B8470A;font-weight:700">{E(tr(lang, "all_sizes"))}</a></div>') if sp else ""

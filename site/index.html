@@ -246,6 +246,7 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
 .grpnote{margin:-4px 0 10px;font-size:14px;color:var(--muted)}
 .deal .store{font-size:14px;color:var(--muted)}
 .deal .store .abroad{color:var(--ink);font-weight:600}
+.deal .store .fin{color:var(--ink);font-weight:600;white-space:nowrap}
 .deal .warn{font-size:13px;font-weight:600;color:var(--err)}
 .more{margin-top:10px;width:100%}
 .empty{background:var(--card);border:1.5px dashed var(--line);border-radius:12px;padding:22px;text-align:center;color:var(--muted)}
@@ -569,7 +570,13 @@ const STORES={"altitude-sports.com":["Altitude Sports"],"thelasthunt.com":["The 
   "honeystinger.com":["Honey Stinger","US"],"guenergy.com":["GU","US"],"humagel.com":["Huma","US"]};
 function storeLine(d){
   const h=storeOf(d.url),s=STORES[h]||[h],from=s[1]||(d.ca===false&&!STORES[h]?"XX":"");
-  return `<div class="store">${t("atStore",esc(s[0]))}${from?` · <span class="abroad">${t("shipsFrom",from)}</span>`:""}</div>`;
+  return `<div class="store">${t("atStore",esc(s[0]))}${from?` · <span class="abroad">${t("shipsFrom",from)}</span>`:""}${d.fin?` · <span class="fin" title="${esc(t("finalSaleTip"))}">${t("finalSale")}</span>`:""}</div>`;
+}
+/* Final sale (scrape.py FINAL_SALE, per offer in "fs"): 1 = the store takes no returns, 2 = sale items are final,
+   N = final from N% off; or the store tagged the item. Shown only when the price shown matches the rule. */
+function finalSale(d,e){
+  const c=(d.fs||[])[e[2]]||0;if(!c)return false;if(c===1)return true;
+  const reg=e[3]||e[1];return c===2?e[1]<reg*0.99:reg>0&&100*(1-e[1]/reg)>=c-0.5;
 }
 
 /* ---------- English / French ---------- */
@@ -598,7 +605,7 @@ en:{
   tellFit:"Tell us what fits",shoe:"Shoe",clothing:"Clothing",
   minAgo:m=>`${m} min ago`,hAgo:h=>`${h} h ago`,daysAgo:d=>`${d} days ago`,
   loadFail:"Couldn't load today's gear. Reload to try again.",loading:"Loading today's gear…",
-  inYourSize:"In your size:",isNew:"New",bestBy:d=>`Short-dated: best by ${d}`,
+  finalSale:"Final sale",finalSaleTip:"This store takes no returns or exchanges on this item at this price",inYourSize:"In your size:",isNew:"New",bestBy:d=>`Short-dated: best by ${d}`,
   atStore:n=>`at ${n}`,shareTxt:"Know a runner who hates paying full price?",shareBtn:"Share",shareCopied:"Link copied: paste it anywhere.",shareCopy:"Copy this link:",
   shareText:"Running and outdoor gear on sale in your size, from stores across Canada.",usFuel:"Includes US stores: fuel ships well, and each deal says where it ships from.",shipsFrom:c=>`ships from ${({US:"the US",UK:"the UK",FR:"France",DK:"Denmark",AU:"Australia"})[c]||"outside Canada"}, duties may apply`,showMore:n=>`Show ${n} more`,
   allGear:"All gear",typeAll:"All",types:{daily:"Daily trainers",race:"Carbon & race",trail:"Trail",hike:"Hiking & winter",spike:"Track & XC spikes",light:"Lights",pole:"Poles",bottle:"Bottles & flasks",sun:"Sunglasses",tee:"T-shirts & tanks",layer:"Long sleeves & hoodies",jacket:"Jackets & vests",short:"Shorts",tight:"Tights",pant:"Pants"},
@@ -689,7 +696,7 @@ fr:{
   tellFit:"Dites-nous ce qui vous va",shoe:"Pointure",clothing:"Taille",
   minAgo:m=>`il y a ${m} min`,hAgo:h=>`il y a ${h} h`,daysAgo:d=>`il y a ${d} jours`,
   loadFail:"Impossible de charger les produits du jour. Rechargez la page.",loading:"Chargement des produits du jour…",
-  inYourSize:"À votre taille :",isNew:"Nouveau",bestBy:d=>`Date courte : meilleur avant le ${d}`,
+  finalSale:"Vente finale",finalSaleTip:"Cette boutique n'accepte ni retour ni échange sur cet article à ce prix",inYourSize:"À votre taille :",isNew:"Nouveau",bestBy:d=>`Date courte : meilleur avant le ${d}`,
   atStore:n=>`chez ${n}`,shareTxt:"Un ami coureur déteste payer le plein prix ?",shareBtn:"Partager",shareCopied:"Lien copié : collez-le où vous voulez.",shareCopy:"Copiez ce lien :",
   shareText:"Des aubaines de course et de plein air dans votre taille, dans des boutiques partout au Canada.",usFuel:"Comprend des boutiques américaines : la nutrition voyage bien, et chaque aubaine indique d'où elle est expédiée.",shipsFrom:c=>`expédié ${({US:"des États-Unis",UK:"du Royaume-Uni",FR:"de France",DK:"du Danemark",AU:"d'Australie"})[c]||"de l'extérieur du Canada"}, des droits peuvent s'appliquer`,showMore:n=>`Voir ${n} de plus`,
   allGear:"Tout",typeAll:"Tout",types:{daily:"Entraînement",race:"Carbone et compétition",trail:"Sentier",hike:"Randonnée et hiver",spike:"Pointes (piste et cross)",light:"Frontales",pole:"Bâtons",bottle:"Gourdes et flasques",sun:"Lunettes de soleil",tee:"T-shirts et camisoles",layer:"Manches longues et kangourous",jacket:"Manteaux et vestes",short:"Shorts",tight:"Collants",pant:"Pantalons"},
@@ -1177,7 +1184,7 @@ function matchItems(p,list){
     for(const e of ok)if(e[1]<pick[1]||(e[1]===pick[1]&&e[3]>pick[3]))pick=e;
     const best=pick[1], reg=Math.max(pick[3]||best,best);
     const pct=reg>best?Math.round(100*(1-best/reg)):0;
-    out.push({...d,best,reg,pct,ok,url:sizeUrl(d,pick),fav:favs.includes(d.b.toLowerCase())});
+    out.push({...d,best,reg,pct,ok,url:sizeUrl(d,pick),fin:finalSale(d,pick),fav:favs.includes(d.b.toLowerCase())});
   }
   return out;
 }

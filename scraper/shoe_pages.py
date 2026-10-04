@@ -66,7 +66,7 @@ T = {
         "low": "Lowest price we've seen in {d} days",
         "size": "Size", "price": "Price", "store": "Store", "was": "was",
         "men": "Men's", "women": "Women's", "unisex": "Unisex (men's sizes)", "wide": "wide",
-        "us": "ships from the US",
+        "us": "ships from the US", "final": "Final sale",
         "cta": "Get it in your size", "ctaTxt": "Pick your sizes once. Every Friday we email the best deals in them, and you can get a price-drop alert on this shoe.",
         "ctaBtn": "See deals in my size",
         "more": "More {brand} shoes", "all": "All shoe models",
@@ -124,7 +124,7 @@ T = {
         "low": "Le plus bas prix vu en {d} jours",
         "size": "Pointure", "price": "Prix", "store": "Boutique", "was": "avant",
         "men": "Homme", "women": "Femme", "unisex": "Unisexe (pointures homme)", "wide": "large",
-        "us": "expédié des États-Unis",
+        "us": "expédié des États-Unis", "final": "Vente finale",
         "cta": "Trouvez-la dans votre pointure", "ctaTxt": "Choisissez vos tailles une fois. Chaque vendredi, on vous envoie les meilleures aubaines dans vos tailles, et vous pouvez suivre le prix de cette chaussure.",
         "ctaBtn": "Voir les aubaines à ma taille",
         "more": "Autres chaussures {brand}", "all": "Tous les modèles",
@@ -233,8 +233,18 @@ def rows_for(d, stores, L):
         key = s + (f" ({L['wide']})" if wide and not d.get("w") else "")
         if key not in out or e[1] < out[key][0]:
             u = size_url(d, e)
-            out[key] = (e[1], e[3] if len(e) > 3 else e[1], host(u), u)
+            out[key] = (e[1], e[3] if len(e) > 3 else e[1], host(u), u, final_sale(d, e))
     return sorted(out.items(), key=lambda kv: size_sort(kv[0]))
+
+
+def final_sale(d, e):
+    """Same as the site's finalSale(): the store's rule (scrape.py FINAL_SALE, per offer in "fs") for the price shown."""
+    fs = d.get("fs") or []
+    c = fs[e[2]] if e[2] < len(fs) else 0
+    if not c:
+        return False
+    reg = e[3] if len(e) > 3 and e[3] else e[1]
+    return True if c == 1 else e[1] < reg * 0.99 if c == 2 else reg > 0 and 100 * (1 - e[1] / reg) >= c - 0.5
 
 
 def fmt_date(iso, L):
@@ -285,6 +295,7 @@ td.p b{font:800 18px var(--display)}
 td.p s{color:var(--muted);font-size:13px;margin-left:4px}
 .off{display:inline-block;background:var(--hivis);color:var(--hivis-ink);border-radius:5px;font:700 12px var(--body);padding:1px 5px;margin-left:6px}
 .us{display:block;font-size:12px;color:var(--muted)}
+.fin{display:block;font-size:12px;font-weight:600;color:var(--ink)}
 .th2{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
 .watch{font:600 14px var(--body);color:var(--moss);white-space:nowrap}
 tr.yours td{background:rgba(242,106,27,.14)}
@@ -548,12 +559,13 @@ def model_page(slug, its, stores, L, updated, related, brand_models):
         watch = f'<a class="watch" href="/?watch={quote(key)}{lang_q}" rel="nofollow">♡ {L["watch"]}</a>' if d0.get("of") else ""
         rows = sorted({k: v for k, v in rows}.items(), key=lambda kv: size_sort(kv[0]))
         out.append(f'<div class="th2"><h2>{esc(lab)}</h2>{watch}</div><table data-g="{tg}" data-w="{1 if d0.get("w") else 0}"><thead><tr><th>{L["size"]}</th><th>{L["price"]}</th><th>{L["store"]}</th></tr></thead><tbody>')
-        for size, (p, reg, h, u) in rows:
+        for size, (p, reg, h, u, fin) in rows:
             off = round(100 * (1 - p / reg)) if reg and p < reg * 0.99 else 0
             st = stores.get(h, [h])
             us = f'<span class="us">{L["us"]}</span>' if len(st) > 1 else ""
+            fin = f'<span class="fin">{L["final"]}</span>' if fin else ""
             price = f'<b>{money(p)}</b>' + (f'<s>{money(reg)}</s><span class="off">−{off}%</span>' if off else "")
-            out.append(f'<tr data-s="{esc(size)}" data-p="{p:.2f}"><td>{esc(size)}</td><td class="p">{price}</td><td><a href="{esc(u)}" rel="nofollow noopener" target="_blank" data-store="{esc(h)}">{esc(st[0])}</a>{us}</td></tr>')
+            out.append(f'<tr data-s="{esc(size)}" data-p="{p:.2f}"><td>{esc(size)}</td><td class="p">{price}</td><td><a href="{esc(u)}" rel="nofollow noopener" target="_blank" data-store="{esc(h)}">{esc(st[0])}</a>{us}{fin}</td></tr>')
         out.append("</tbody></table>")
     if sm:     # a few lines Google (and people) can read: what it is, where it's cheapest, sizes, today's answers
         about = L["about"].format(name=esc(name), type=L["typeLower"].get(sm["t"], L["typeLower"][""]), stores=sm["stores"], sizes=sm["sizes"])
