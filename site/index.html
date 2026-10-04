@@ -269,6 +269,12 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
 /* notice */
 .notice{margin:0 0 14px;background:var(--card);border:1.5px solid var(--hivis);border-left-width:6px;border-radius:12px;padding:14px 16px;font-size:16px;line-height:1.45}
 .notice .btn{margin-top:10px}
+.apptip{position:relative;margin:0 0 14px;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:14px 44px 14px 16px;font-size:16px;line-height:1.45}
+.apptip b{display:block;margin-bottom:6px}
+.apptip ol{margin:0;padding-left:26px;list-style-position:outside}.apptip li{margin:3px 0}
+.apptip .shr{display:inline-block;vertical-align:-4px;margin:0 2px}
+.apptip .x{position:absolute;top:6px;right:6px;width:36px;height:36px;border:0;background:transparent;color:var(--muted);font-size:22px;cursor:pointer}
+.apptip .ok{margin-top:10px;font:600 15px var(--body);background:transparent;border:1.5px solid var(--line);border-radius:999px;padding:7px 16px;color:var(--ink);cursor:pointer}
 
 /* sizes sheet */
 .sheet{position:fixed;inset:0;z-index:40;background:var(--scrim);display:flex;align-items:flex-end;justify-content:center}
@@ -380,6 +386,7 @@ body.locked #langBtn,body.locked #curBtn,body.locked #openWatch,body.locked #men
   <button type="button" data-go="deals"><svg class="mi" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12V4.5A1.5 1.5 0 0 1 4.5 3H12l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.4"/></svg><span data-i18n="mDeals">Today's deals</span></button>
   <a href="shoes/" id="mShoes" data-go="shoes"><svg class="mi" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 17v-6l3.5-3 3 2.5 2.5-2.5 4.5 4.5h3a2.5 2.5 0 0 1 2.5 2.5V17z"/><path d="M2.5 20.5h19"/></svg><span data-i18n="mShoes">Shoe prices by model</span></a>
   <button type="button" data-go="sizes"><svg class="mi" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19.5 8.5l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg><span data-i18n="mSizes">My sizes</span></button>
+  <button type="button" data-go="app" id="mApp" hidden><svg class="mi" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M12 8v6"/><path d="M9 11h6"/></svg><span data-i18n="mApp">Add to your home screen</span></button>
   <a href="about.html" data-go="about"><svg class="mi" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><path d="M12 7.6v.1"/></svg><span data-i18n="mAbout">About The Gear Fox</span></a>
   <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener" data-go="instagram"><svg class="mi" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8v.1"/></svg><span>Instagram</span></a>
   <div class="msw"><button class="langbtn" id="langBtn" type="button" lang="fr">Français</button>
@@ -388,6 +395,7 @@ body.locked #langBtn,body.locked #curBtn,body.locked #openWatch,body.locked #men
 
 <main class="wrap">
   <div class="notice hidden" id="notice" role="status"></div>
+  <div class="apptip" id="appTip" hidden></div>
   <button class="sizepill" id="sizePill" type="button" aria-haspopup="dialog"><span id="sizeSummary">Tell us what fits</span><span class="edit" data-i18n="edit">Edit</span></button>
   <button class="backlink hidden" id="backToDeals" type="button" data-i18n="allDeals">← All deals</button>
   <h1 id="pageTitle">On sale in your size</h1>
@@ -583,7 +591,7 @@ function finalSale(d,e){
 const PL=(n,one,many)=>n===1?one:many;
 const I18N={
 en:{
-  tagline:"OUTFOX FULL PRICE",watchlist:"Your watchlist",yourSizes:"Your sizes",menu:"Menu",mDeals:"Today's deals",mShoes:"Shoe prices by model",mSizes:"My sizes",mAbout:"About The Gear Fox",mCur:"Prices in",edit:"Edit",allDeals:"← All deals",categories:"Categories",
+  tagline:"OUTFOX FULL PRICE",watchlist:"Your watchlist",yourSizes:"Your sizes",menu:"Menu",mDeals:"Today's deals",mShoes:"Shoe prices by model",mSizes:"My sizes",mAbout:"About The Gear Fox",mApp:"Add to your home screen",appTipH:"Get The Gear Fox on your home screen",appTipIos:"Tap the Share button {s} in Safari's bar",appTipIos2:"Scroll down and tap <b style=\"display:inline\">Add to Home Screen</b>",appTipAnd:"Tap the ⋮ menu at the top of Chrome",appTipAnd2:"Tap <b style=\"display:inline\">Add to Home screen</b>",appTipWhy:"It opens like an app, with your sizes ready.",gotIt:"Got it",mCur:"Prices in",edit:"Edit",allDeals:"← All deals",categories:"Categories",
   sort:"Sort",sortMatch:"Best match",sortDiscount:"Biggest discount",sortPrice:"Lowest price",search:"Search brand or model",
   footer:'The Gear Fox · Outfox full price · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="shoes/">Shoe prices by model</a> · <a href="about.html">About</a> · <a href="privacy.html">Privacy</a>',close:"Close",fit:"Fit",
   men:"Men's",women:"Women's",both:"Both",menWomen:"Men's & women's",
@@ -674,7 +682,7 @@ en:{
     headwear:"Hats & buffs",packs:"Vests & packs",gear:"Lights, poles & bottles",watches:"Watches",nutrition:"Nutrition"}
 },
 fr:{
-  tagline:"FLAIREZ LES AUBAINES",watchlist:"Vos favoris",yourSizes:"Vos tailles",menu:"Menu",mDeals:"Aubaines du jour",mShoes:"Prix des chaussures par modèle",mSizes:"Mes tailles",mAbout:"À propos de The Gear Fox",mCur:"Prix en",edit:"Modifier",allDeals:"← Toutes les aubaines",categories:"Catégories",
+  tagline:"FLAIREZ LES AUBAINES",watchlist:"Vos favoris",yourSizes:"Vos tailles",menu:"Menu",mDeals:"Aubaines du jour",mShoes:"Prix des chaussures par modèle",mSizes:"Mes tailles",mAbout:"À propos de The Gear Fox",mApp:"Ajouter à l'écran d'accueil",appTipH:"The Gear Fox sur votre écran d'accueil",appTipIos:"Touchez le bouton Partager {s} dans la barre de Safari",appTipIos2:"Descendez et touchez <b style=\"display:inline\">Sur l'écran d'accueil</b>",appTipAnd:"Touchez le menu ⋮ en haut de Chrome",appTipAnd2:"Touchez <b style=\"display:inline\">Ajouter à l'écran d'accueil</b>",appTipWhy:"Elle s'ouvre comme une appli, avec vos tailles prêtes.",gotIt:"Compris",mCur:"Prix en",edit:"Modifier",allDeals:"← Toutes les aubaines",categories:"Catégories",
   sort:"Trier",sortMatch:"Meilleur choix",sortDiscount:"Plus gros rabais",sortPrice:"Prix le plus bas",search:"Chercher une marque ou un modèle",
   footer:'The Gear Fox · Flairez les aubaines · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="chaussures/">Prix des chaussures par modèle</a> · <a href="about.html">À propos</a> · <a href="privacy.html">Confidentialité</a>',close:"Fermer",fit:"Coupe",
   men:"Homme",women:"Femme",both:"Les deux",menWomen:"Homme et femme",
@@ -1316,7 +1324,33 @@ $("menu").addEventListener("click",e=>{const it=e.target.closest("[data-go]");if
   if(go==="deals"){menuOpen(false);if(view.watch)setWatchView(false);else window.scrollTo({top:0,behavior:"smooth"})}
   else if(go==="watch"){menuOpen(false);if(!view.watch)setWatchView(true)}
   else if(go==="sizes"){menuOpen(false);openSheet()}
+  else if(go==="app"){menuOpen(false);appTip("menu")}
   else menuOpen(false)});
+/* Home screen app: a ☰ line on phones/tablets outside the app, and a one-time tip for members from their 2nd visit
+   (never beside the sign-up card: members only). Android: Chrome's own install prompt when it offers one;
+   iPhone: Safari can't install from a page, so the tip shows the two taps. */
+const IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Macintosh/.test(navigator.userAgent));
+const IN_APP=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+const CAN_APP=!IN_APP&&(IOS||/Android/i.test(navigator.userAgent));
+let installEv=null;
+addEventListener("beforeinstallprompt",e=>{e.preventDefault();installEv=e});
+if(CAN_APP)$("mApp").hidden=false;
+function appTip(why){
+  if(installEv&&!IOS){const ev=installEv;installEv=null;ev.prompt();ana("menu","app-install:"+why);return}
+  const shr='<svg class="shr" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="Share"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M6 11H5v10h14V11h-1"/></svg>';
+  const el=$("appTip");
+  el.innerHTML=`<b>${t("appTipH")}</b><ol><li>${IOS?t("appTipIos").replace("{s}",shr):t("appTipAnd")}</li><li>${IOS?t("appTipIos2"):t("appTipAnd2")}</li></ol>
+    <div style="color:var(--muted);font-size:15px;margin-top:4px">${t("appTipWhy")}</div><button class="ok" type="button">${t("gotIt")}</button><button class="x" type="button" aria-label="${esc(t("close"))}">×</button>`;
+  el.hidden=false;el.querySelectorAll(".ok,.x").forEach(b=>b.addEventListener("click",()=>{el.hidden=true;ana("menu","app-tip-close:"+why)}));
+  try{LS.set("gf-apptip",1)}catch(e){}
+  ana("menu","app-tip:"+why);
+  if(why==="menu")window.scrollTo({top:0,behavior:"smooth"});
+}
+function maybeAppTip(){try{
+  if(!CAN_APP||LS.get("gf-apptip")||!(sub&&sub.active)||ANA.nv()<2||!$("appTip").hidden)return;
+  if(!$("sheet").classList.contains("hidden")||!$("notice").classList.contains("hidden"))return;   // never on top of another message
+  appTip("auto");
+}catch(e){}}
 /* links from the shoe pages' menu: /?show=watch opens the watchlist, /?show=sizes the sizes */
 (()=>{let v="";try{v=new URLSearchParams(location.search).get("show")||"";if(v)history.replaceState(null,"",location.pathname)}catch(e){}
   const go=()=>{if(!DATA)return setTimeout(go,300);if(document.body.classList.contains("locked"))return;
@@ -1654,6 +1688,7 @@ function logEvent(kind,store,group){rpc("log_event",{p_kind:kind,p_store:store||
   renderAll();
   syncWatches();
   if(((gated()&&!peeking())||(!hasSizes()&&!(sub&&sub.signin)))&&$("notice").classList.contains("hidden"))openSheet();
+  setTimeout(maybeAppTip,3000);
 })();
 })();
 </script>
