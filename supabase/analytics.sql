@@ -1,5 +1,6 @@
 -- The Gear Fox: our own product analytics (Oct 2026). What people DO on the site, so we can see where they
 -- drop off and what brings them back. Never who they are: no email, no name, no IP address, no cookies.
+-- We keep the device's time zone (e.g. America/Toronto) to know roughly where visitors are, never an address.
 -- Each browser gets a random number (made on the device, stored in its localStorage) so we can tell a
 -- returning visitor from a new one; it is never linked to an email or account.
 -- Raw events are kept 45 days, then deleted; the per-device table keeps only dates and counts (for retention).
@@ -17,8 +18,10 @@ create table if not exists public.ana_events (
   lang    text check (lang in ('en', 'fr')),
   ref     text check (length(ref) <= 40),
   dev     text check (dev in ('phone', 'tablet', 'computer')),
-  nv      int                                              -- this device's visit number (1 = first visit)
+  nv      int,                                             -- this device's visit number (1 = first visit)
+  tz      text check (length(tz) <= 40)                    -- the device's time zone (America/Toronto…): region, never an address
 );
+alter table public.ana_events add column if not exists tz text check (length(tz) <= 40);
 create index if not exists ana_events_at on public.ana_events (at);
 create index if not exists ana_events_kind_at on public.ana_events (kind, at);
 alter table public.ana_events enable row level security;
@@ -48,14 +51,17 @@ create or replace function public.ana_kinds() returns text[] language sql immuta
 $$;
 
 -- the site calls this with a small batch of events (anyone can add, nobody can read)
+drop function if exists public.ana_track(uuid, uuid, jsonb, text, text, text, int);
 create or replace function public.ana_track(p_did uuid, p_sid uuid, p_events jsonb, p_lang text default null,
-                                            p_ref text default null, p_dev text default null, p_nv int default null)
+                                            p_ref text default null, p_dev text default null, p_nv int default null,
+                                            p_tz text default null)
 returns void language plpgsql security definer set search_path = public as $$
 declare
   e jsonb; n int := 0; d text; today date := (now() at time zone 'America/Toronto')::date;
   ref text := nullif(left(lower(regexp_replace(coalesce(p_ref, ''), '[^a-zA-Z0-9_-]', '', 'g')), 40), '');
   lang text := case when p_lang in ('en','fr') then p_lang end;
   dev text := case when p_dev in ('phone','tablet','computer') then p_dev end;
+  tz text := case when p_tz ~ '^[A-Za-z_]+(/[A-Za-z_+-]+){0,2}$' then left(p_tz, 40) end;
 begin
   if p_did is null or p_sid is null or jsonb_typeof(p_events) <> 'array' then return; end if;
   -- a session sends at most ~400 events (stops runaway loops or abuse from filling the database)
@@ -70,17 +76,17 @@ begin
     if not (e->>'k' = any(ana_kinds())) then continue; end if;
     d := left(regexp_replace(coalesce(e->>'d', ''), '[\r\n\t]', ' ', 'g'), 120);
     if e->>'k' in ('search', 'search-none') and (d ~ '@' or d ~ '\d{7,}') then d := '(hidden)'; end if;   -- never keep an email or phone number someone typed
-    insert into ana_events (did, sid, kind, detail, num, page, lang, ref, dev, nv)
+    insert into ana_events (did, sid, kind, detail, num, page, lang, ref, dev, nv, tz)
     values (p_did, p_sid, e->>'k', nullif(d, ''),
             case when (e->>'n') ~ '^-?\d+(\.\d+)?$' then (e->>'n')::real end,
-            nullif(left(coalesce(e->>'p', ''), 80), ''), lang, ref, dev, p_nv);
+            nullif(left(coalesce(e->>'p', ''), 80), ''), lang, ref, dev, p_nv, tz);
     if e->>'k' in ('signup', 'signup-confirmed', 'signin') then
       update ana_devices set signed_up = true where did = p_did;
     end if;
   end loop;
 end $$;
-revoke all on function public.ana_track(uuid, uuid, jsonb, text, text, text, int) from public;
-grant execute on function public.ana_track(uuid, uuid, jsonb, text, text, text, int) to anon, authenticated;
+revoke all on function public.ana_track(uuid, uuid, jsonb, text, text, text, int, text) from public;
+grant execute on function public.ana_track(uuid, uuid, jsonb, text, text, text, int, text) to anon, authenticated;
 
 -- the weekly report calls this with the secret key: everything already counted and grouped
 create or replace function public.ana_report(p_from timestamptz, p_to timestamptz)
@@ -160,7 +166,7 @@ insert into public.ana_settings values ('dashboard_key', replace(gen_random_uuid
 create or replace function public.ana_metrics(p_day date)
 returns table (metric text, key text, n real) language sql stable security definer set search_path = public as $$
   with e as (select * from ana_events where (at at time zone 'America/Vancouver')::date = p_day),
-  s as (select sid, min(did::text) did, min(nv) nv, min(ref) ref, min(dev) dev, min(lang) lang,
+  s as (select sid, min(did::text) did, min(nv) nv, min(ref) ref, min(dev) dev, min(lang) lang, min(tz) tz,
                min(page) filter (where kind = 'visit') entry, max(num) filter (where kind = 'leave') secs,
                bool_or(kind = 'sizes-saved') sizes, bool_or(kind = 'signup') signup, bool_or(kind = 'deal-click') clicked
         from e group by sid)
@@ -177,6 +183,7 @@ returns table (metric text, key text, n real) language sql stable security defin
   union all select 'ref', coalesce(ref, '(direct)'), count(*)::real from s group by ref
   union all select 'dev', coalesce(dev, '?'), count(*)::real from s group by dev
   union all select 'lang', coalesce(lang, '?'), count(*)::real from s group by lang
+  union all select 'tz', coalesce(tz, '?'), count(*)::real from s group by tz
   union all select 'entry', coalesce(entry, '?'), count(*)::real from s group by entry
   union all select 'store', st, count(*)::real from (select split_part(detail, '|', 1) st from e where kind = 'deal-click' and detail is not null) c group by st
 $$;

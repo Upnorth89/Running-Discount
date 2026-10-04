@@ -82,6 +82,7 @@ th:first-child,td:first-child{text-align:left}th{color:var(--muted);font-weight:
     <div class="card"><h2>Stores they clicked to</h2><div class="bars" id="stores"></div></div>
   </div>
   <div class="grid2">
+    <div class="card"><h2>Where they are</h2><p class="sub">From each device's time zone (Québec usually shows as "Eastern"; the French share tells them apart)</p><div class="bars" id="regions"></div><p class="muted" id="canShare"></p></div>
     <div class="card"><h2>Phone or computer</h2><div class="bars" id="devs"></div><h2 style="margin-top:14px">Language</h2><div class="bars" id="langs"></div></div>
     <div class="card"><h2>What they searched for</h2><p class="sub">Searches with no result are brands or stores to add</p><div id="searches"></div></div>
   </div>
@@ -134,6 +135,20 @@ function render(d){
   $("sources").innerHTML=refs.length?`<table><tr><th>Link</th><th>Visits</th><th>Picked sizes</th><th>Signed up</th><th>Clicked a deal</th></tr>`+
     refs.slice(0,15).map(x=>`<tr><td>${E(x.ref)}</td><td>${x.sessions}</td><td>${pct(x.sizes,x.sessions)}</td><td>${pct(x.signups,x.sessions)}</td><td>${pct(x.clicked,x.sessions)}</td></tr>`).join("")+"</table>":`<p class="muted">Nothing yet.</p>`;
   bars("entry",(b.entry||[]).slice(0,10));bars("stores",(b.store||[]).slice(0,10),k=>STORES[k]||k);
+  const REG=z=>{if(!z||z==="?")return "Unknown";const c={"America/Vancouver":"British Columbia","America/Edmonton":"Alberta","America/Regina":"Saskatchewan",
+      "America/Swift_Current":"Saskatchewan","America/Winnipeg":"Manitoba","America/Toronto":"Ontario & Québec","America/Montreal":"Ontario & Québec",
+      "America/Nipigon":"Ontario & Québec","America/Thunder_Bay":"Ontario & Québec","America/Halifax":"Atlantic Canada","America/Moncton":"Atlantic Canada",
+      "America/Glace_Bay":"Atlantic Canada","America/Goose_Bay":"Atlantic Canada","America/St_Johns":"Newfoundland","America/Whitehorse":"Canada's North",
+      "America/Yellowknife":"Canada's North","America/Iqaluit":"Canada's North","America/Dawson_Creek":"British Columbia","America/Fort_Nelson":"British Columbia",
+      "America/Creston":"British Columbia","America/Cambridge_Bay":"Canada's North","America/Rankin_Inlet":"Canada's North"}[z];if(c)return c;
+    if(/^America\/(New_York|Detroit|Indiana|Kentucky)/.test(z))return "US East";if(/^America\/(Chicago|Menominee|North_Dakota)/.test(z))return "US Central";
+    if(/^America\/(Denver|Boise|Phoenix)/.test(z))return "US Mountain";if(/^America\/(Los_Angeles|Anchorage|Juneau)|^Pacific\/Honolulu/.test(z))return "US West";
+    if(/^Europe\//.test(z))return "Europe";if(/^Australia\//.test(z))return "Australia";if(/^Asia\//.test(z))return "Asia";if(/^America\//.test(z))return "Latin America";return z.split("/")[0]};
+  const CA=new Set(["British Columbia","Alberta","Saskatchewan","Manitoba","Ontario & Québec","Atlantic Canada","Newfoundland","Canada's North"]);
+  const reg={};(b.tz||[]).forEach(x=>{const r=REG(x.k);reg[r]=(reg[r]||0)+x.n});
+  const regs=Object.entries(reg).map(([k,n])=>({k,n})).sort((a,c)=>c.n-a.n),tot=regs.reduce((a,x)=>a+x.n,0),known=regs.filter(x=>x.k!=="Unknown").reduce((a,x)=>a+x.n,0);
+  regs.forEach(x=>x.extra=pct(x.n,tot));bars("regions",regs.slice(0,10));
+  $("canShare").textContent=known?`In Canada: ${pct(regs.filter(x=>CA.has(x.k)).reduce((a,x)=>a+x.n,0),known)} of visits with a known region · outside Canada: ${pct(regs.filter(x=>!CA.has(x.k)&&x.k!=="Unknown").reduce((a,x)=>a+x.n,0),known)}`:"";
   bars("devs",b.dev||[]);bars("langs",b.lang||[],k=>({en:"English",fr:"Français"})[k]||k);
   const top=r.top||{},se=(top.search||[]).slice(0,10),sn=(top["search-none"]||[]).slice(0,10);
   $("searches").innerHTML=(se.length||sn.length)?`<table><tr><th>Search</th><th>Times</th><th>Result</th></tr>`+

@@ -387,9 +387,10 @@ var ana=(function(){{var ls=function(k){{try{{return localStorage.getItem(k)}}ca
   if(!did){{did=uid();try{{localStorage.setItem("gf-did",did)}}catch(e){{}}}}
   if(!sid){{sid=uid();nv+=1;try{{sessionStorage.setItem("gf-sid",sid);localStorage.setItem("gf-nv",String(nv))}}catch(e){{}}}}
   var touch=matchMedia("(pointer:coarse)").matches,w=Math.min(screen.width||innerWidth,innerWidth),dev=touch&&w<600?"phone":touch&&w<1100?"tablet":"computer";
+  var tz=null;try{{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||null}}catch(e){{}}
   var ref=null;try{{ref=new URLSearchParams(location.search).get("ref")||JSON.parse(localStorage.getItem("gf-ref")||"null")}}catch(e){{}}
   function flush(k){{if(!Q.length)return;var ev=Q.splice(0,40);try{{fetch("{SB_URL}/rest/v1/rpc/ana_track",{{method:"POST",keepalive:!!k,headers:{{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"}},
-    body:JSON.stringify({{p_did:did,p_sid:sid,p_events:ev,p_lang:"{L['lang'][:2]}",p_ref:ref,p_dev:dev,p_nv:nv}})}}).catch(function(){{}})}}catch(e){{}}}}
+    body:JSON.stringify({{p_did:did,p_sid:sid,p_events:ev,p_lang:"{L['lang'][:2]}",p_ref:ref,p_dev:dev,p_nv:nv,p_tz:tz}})}}).catch(function(){{}})}}catch(e){{}}}}
   function add(k,d,n,p){{var e={{k:k}};if(d)e.d=String(d).slice(0,120);if(n!=null)e.n=n;if(p)e.p=p;Q.push(e);if(!T)T=setTimeout(function(){{T=null;flush(false)}},6000)}}
   var away=false,bye=function(){{if(away)return;away=true;add("leave",null,Math.round((Date.now()-t0)/1000));clearTimeout(T);T=null;flush(true)}};
   document.addEventListener("visibilitychange",function(){{if(document.visibilityState==="hidden")bye();else{{away=false;t0=Date.now()}}}});

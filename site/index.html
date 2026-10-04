@@ -513,10 +513,11 @@ const ANA=(()=>{const ls=k=>{try{return localStorage.getItem(k)}catch(e){return 
   if(!sid){sid=uid();nv+=1;try{sessionStorage.setItem("gf-sid",sid);localStorage.setItem("gf-nv",String(nv))}catch(e){}}
   const touch=matchMedia("(pointer:coarse)").matches,w=Math.min(screen.width||innerWidth,innerWidth);
   const dev=touch&&w<600?"phone":touch&&w<1100?"tablet":"computer";
+  let tz=null;try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||null}catch(e){}
   let Q=[],t0=Date.now(),maxScroll=0,timer=null;
   const flush=(beacon)=>{if(!Q.length||typeof SB_URL==="undefined")return;const ev=Q.splice(0,40);
     try{fetch(`${SB_URL}/rest/v1/rpc/ana_track`,{method:"POST",keepalive:!!beacon,headers:{apikey:SB_KEY,"Content-Type":"application/json"},
-      body:JSON.stringify({p_did:did,p_sid:sid,p_events:ev,p_lang:typeof LANG!=="undefined"?LANG:null,p_ref:typeof REF!=="undefined"?(REF||null):null,p_dev:dev,p_nv:nv})}).catch(()=>{})}catch(e){}
+      body:JSON.stringify({p_did:did,p_sid:sid,p_events:ev,p_lang:typeof LANG!=="undefined"?LANG:null,p_ref:typeof REF!=="undefined"?(REF||null):null,p_dev:dev,p_nv:nv,p_tz:tz})}).catch(()=>{})}catch(e){}
     if(Q.length)flush(beacon)};
   const add=(k,d,n,p)=>{Q.push({k,...(d!=null&&d!==""?{d:String(d).slice(0,120)}:{}),...(n!=null?{n}:{}),...(p?{p}:{})});
     if(Q.length>=15){clearTimeout(timer);timer=null;flush(false)}else if(!timer)timer=setTimeout(()=>{timer=null;flush(false)},6000)};

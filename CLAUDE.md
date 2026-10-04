@@ -73,6 +73,8 @@ supabase/analytics.sql   own product analytics (Oct 4): ana_events (raw, 45 days
                          Dashboard: site/stats.html (noindex, robots-disallowed; Chart.js) reads ana_dashboard(p_key, p_days):
                          ana_daily = nightly per-day totals (ana_rollup via pg_cron 9:13 UTC, kept forever) + today live; key
                          in ana_settings.dashboard_key (Bastien copies it from Supabase Table Editor; stored in his browser).
+                         Region = the device's time zone (ana_events.tz, p_tz), mapped to provinces/US/Europe in stats.html (Québec
+                         mostly reports America/Toronto: "Ontario & Québec"). No IP, so no country from the network.
 supabase/personal-emails.sql  confirmation/sign-in emails from "Bastien from The Gear Fox" <bastien@>, branded design
                          (applied). Keep Resend open/click tracking OFF: with it on, Gmail files them in Promotions
 tools/make_preview.py    builds the playable preview artifact from site/index.html
