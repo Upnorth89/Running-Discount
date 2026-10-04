@@ -16,6 +16,7 @@ If one store fails, its items from the previous run are kept so the site never g
 Usage:  python scraper/scrape.py [out_path] [--remerge]
 """
 import collections, json, re, sys, time, datetime as dt
+import html as html_lib
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from urllib.parse import quote, urlencode
@@ -385,6 +386,97 @@ def scrape_decathlon():
                     "w": bool(re.search(r"\bwide\b", title, re.I)), "img": img + "?format=auto&f=500x0" if img else None,
                     "lp": round(lp, 2), "bb": None, "sz": [[k, p, r] for k, (p, r) in sizes.items()], "ca": True})
     print(f"  decathlon: {len(links)} listings, {len(out)} products in stock", file=sys.stderr)
+    return out
+
+# ---------------------------------------------------------------- Foot Locker Canada (checked Oct 4, 2026)
+# Server-rendered pages; robots.txt allows category and product pages but not paging (currentPage=), so the running sale
+# list is read in slices that each fit on one page (48 cards): gender x price band, a band split again when it's full.
+# Each product page carries every size with its own price and stock. Only shoes tagged "performancerunning" are kept
+# (Foot Locker files lifestyle sneakers under Running too). Relaxed pace: one page at a time, ~1 s apart.
+FL_BASE = "https://www.footlocker.ca"
+FL_SALE = "sale:relevance:collection_id:sale-shoes:sport:Running:gender:{g}:price:\"{lo}\"-\"{hi}\""
+
+def fl_state(html):
+    m = re.search(r"window\.__REACT_QUERY_STATE__\s*=\s*", html)
+    return json.JSONDecoder().raw_decode(html[m.end():])[0] if m else None
+
+def fl_list(g, lo, hi, depth=0):
+    q = FL_SALE.format(g=g, lo=lo, hi=hi)
+    page = html_lib.unescape(get(f"{FL_BASE}/en/category/sale/shoes.html?query={quote(q, safe='')}").text)
+    time.sleep(1)
+    m = re.search(r"([0-9,]+) results", page)
+    n = int(m.group(1).replace(",", "")) if m else 0
+    skus = re.findall(r'data-productcard="\{"name":"[^"]*","pos":\d+,"sku":"(\d+)"\}', page)
+    if n > len(skus) and depth < 6:
+        a, b = (0 if lo == "-inf" else float(lo)), (400 if hi == "inf" else float(hi))
+        if b - a >= 1:                                      # full page: split the price band in two
+            mid = round((a + b) / 2, 2)
+            return fl_list(g, lo, f"{mid:g}", depth + 1) + fl_list(g, f"{mid:g}", hi, depth + 1)
+        # many shoes at one price ($99.99): the performance-running collection lists that band in another order
+        q2 = f'performancerunning:relevance:gender:{g}:price:"{lo}"-"{hi}"'
+        more = re.findall(r'data-productcard="\{"name":"[^"]*","pos":\d+,"sku":"(\d+)"\}', html_lib.unescape(
+            get(f"{FL_BASE}/en/category/collection/performance-running.html?query={quote(q2, safe='')}").text))
+        time.sleep(1)
+        skus += [x for x in more if x not in skus]
+        if n > len(skus):
+            print(f"  ! footlocker: {g} {lo}-{hi} has {n} shoes, {len(skus)} reachable", file=sys.stderr)
+    return skus
+
+def fl_product(sku):
+    d = fl_state(get(f"{FL_BASE}/en/product/~/{sku}.html").text)
+    q = [x for x in (d or {}).get("queries", []) if x.get("queryKey", [None])[0] == "product"]
+    p = q[0]["state"]["data"] if q else None
+    if not p:
+        return None
+    st, mo = p["style"], p["model"]
+    if not any("performancerunning" in k.lower() for k in st.get("keywords") or []):
+        return None                                         # lifestyle sneaker filed under Running
+    name = re.sub(r"\s+", " ", mo["name"].replace("®", "").replace("™", "")).strip()
+    brand = (mo.get("brand") or "").replace("®", "").strip()
+    if brand and name.lower().startswith(brand.lower()):
+        name = name[len(brand):].strip()
+    gs = [x.lower() for x in mo.get("genders") or []]
+    sx = ["men"] if any(x.startswith("men") for x in gs) else ["women"] if any(x.startswith("women") for x in gs) else []
+    if len(sx) != 1:
+        return None                                         # kids' or unisex sizing we can't place
+    wide = "wide" in (st.get("width") or "").lower()
+    sizes, lp = {}, 0
+    for z in p.get("sizes") or []:
+        pr = z.get("price") or {}
+        reg, price = pr.get("listPrice"), pr.get("salePrice")
+        if not reg or not price:
+            continue
+        lp = max(lp, reg)
+        if not (z.get("active") and (z.get("inventory") or {}).get("inventoryAvailable")):
+            continue
+        lab = _us(str(z.get("size") or "").lstrip("0") or "0")
+        if lab and (lab not in sizes or price < sizes[lab][0]):
+            sizes[lab] = (float(price), float(reg))
+    if not sizes:
+        return None
+    color = (st.get("color") or "").strip()
+    return {"st": "footlocker", "b": brand, "n": name + (f" — {color}" if color else ""), "u": f"{FL_BASE}/en/product/~/{sku}.html",
+            "g": "shoes", "sx": sx, "w": wide, "img": f"https://images.footlocker.com/is/image/EBFL2/{sku}?wid=500",
+            "lp": float(lp), "bb": None, "sz": [[k + ("~W" if wide else ""), a, b] for k, (a, b) in sizes.items()], "ca": True}
+
+def scrape_footlocker():
+    skus = []
+    for g in ("Men's", "Women's"):
+        for lo, hi in (("-inf", "75"), ("75", "100"), ("100", "125"), ("125", "150"), ("150", "inf")):
+            skus += [x for x in fl_list(g, lo, hi) if x not in skus]
+    out, errors = [], 0
+    for sku in skus:
+        time.sleep(1)
+        try:
+            o = fl_product(sku)
+        except Exception:
+            errors += 1
+            continue
+        if o:
+            out.append(o)
+    if skus and errors > len(skus) * 0.3:
+        raise RuntimeError(f"footlocker: {errors}/{len(skus)} product pages failed")
+    print(f"  footlocker: {len(skus)} running sale listings, {len(out)} running shoes in stock", file=sys.stderr)
     return out
 
 # ---------------------------------------------------------------- Shopify stores (The Feed in USD, Sea2Sky in CAD)
@@ -1174,6 +1266,7 @@ STORES = {
     "rei": scrape_rei_saved,
     "svp": scrape_svp_saved,
     "decathlon": scrape_decathlon,
+    "footlocker": scrape_footlocker,
 }
 # Final sale (Oct 4, 2026; read from each store's return policy, recheck now and then): 1 = every item is final sale,
 # 2 = every item bought on sale is final, N > 2 = final from N% off. Items a store tags "Final sale" count too (offer "fs").
@@ -1193,6 +1286,8 @@ CASUAL_BRANDS = {"birkenstock", "wolky", "teva", "crocs", "ugg", "blundstone", "
 CASUAL_SHOE = re.compile(r"\b(sandal|sandale|clog|sabot|slipper|pantoufle|mule|flip[- ]flop|loafer|slide|clearwater cnx|recovery (flip|slide)|ora recovery)s?\b", re.I)
 # court and lifestyle shoes from running brands (ASICS tennis/pickleball lines, retro sneakers)
 COURT_SHOE = re.compile(r"pick[el]+ball|\btennis\b|\bpadel\b|\bcourt\b|gel[- ]?(resolution|dedicate|game|challenger|1130|nyc|kahana)|solution speed", re.I)
+# lifestyle lines stores file under running (brand + model; Foot Locker, Oct 4, 2026)
+LIFESTYLE_SHOE = re.compile(r"^(new balance\s+(740|2002r?|9060|530|1906r?)|on\s+(cloud\s?6|cloudtilt|cloudzone|cloud\s?5|cloudnova))\b", re.I)
 # soccer boots (Frontrunners sells them): ground codes FG/AG/MG/SG/TF, or the model lines
 SOCCER = re.compile(r"\b(FG|AG|MG|SG|TF)\b|(?i:\b(soccer|futsal|predator|f50|copa|tiempo|mercurial)\b)")
 
@@ -1373,7 +1468,8 @@ def tidy_shoes(offers):
     out = []
     for o in offers:
         if o["g"] == "shoes":
-            if (o["b"] or "").lower() in CASUAL_BRANDS or CASUAL_SHOE.search(o["n"]) or SOCCER.search(o["n"]) or COURT_SHOE.search(o["n"]):
+            if (o["b"] or "").lower() in CASUAL_BRANDS or CASUAL_SHOE.search(o["n"]) or SOCCER.search(o["n"]) or COURT_SHOE.search(o["n"]) \
+                    or LIFESTYLE_SHOE.search(f'{o["b"]} {o["n"]}'):
                 continue
             w = shoe_width_from_name(o["n"], name_gender(o["n"]) or o.get("sx"))
             if w == "narrow":
@@ -1467,7 +1563,7 @@ def name_gender(n):
     return ["women"] if w and not m else ["men"] if m and not w else None
 
 # Stores that sell and ship from Canada (no border fees). Generic Shopify stores decide by their currency.
-CA_STORES = {"altitude", "lasthunt", "sea2sky", "sportinglife", "stampeak", "mec", "decathlon", "svp"}
+CA_STORES = {"altitude", "lasthunt", "sea2sky", "sportinglife", "stampeak", "mec", "decathlon", "svp", "footlocker"}
 
 def mkey(o):
     name = re.sub(r"[^a-z0-9]+", " ", o["n"].lower()).strip()

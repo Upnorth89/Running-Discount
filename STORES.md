@@ -3,9 +3,9 @@
 Check this list before looking at a new store, so nobody tests the same shop twice.
 Update it whenever a store is added, rejected or changes. Counts are from Oct 2, 2026.
 
-## Stores we read (62)
+## Stores we read (63)
 
-### Canadian stores (25)
+### Canadian stores (26)
 | Store | Website | Products | On sale |
 |---|---|---:|---:|
 | Aerobics First (Halifax; added Oct 3) | aerobicsfirst.com | 1,847 | 249 |
@@ -18,6 +18,7 @@ Update it whenever a store is added, rejected or changes. Counts are from Oct 2,
 | Ciele | ca.cieleathletics.com | 134 | 0 |
 | Decathlon | decathlon.ca | 17 | 13 |
 | Fit First | fitfirst.ca | 754 | 88 |
+| Foot Locker (national; added Oct 4: running sale shoes only, own reader) | footlocker.ca | 48 | 48 |
 | Forerunners | shop.forerunners.ca | 70 | 11 |
 | Frontrunners | frontrunners.ca | 1,206 | 277 |
 | Le Coureur | lecoureur.com | 1,233 | 480 |
