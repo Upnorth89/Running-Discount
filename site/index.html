@@ -796,7 +796,7 @@ function appManifest(){try{
   if(sb&&sb.key&&sb.active)start+="&k="+encodeURIComponent(sb.key);
   else if(p){const {email,name,...rest}=p;start+="#p="+btoa(unescape(encodeURIComponent(JSON.stringify(rest)))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}
   const o=location.origin,m={id:"/",name:"The Gear Fox",short_name:"Gear Fox",start_url:o+start,scope:o+"/",display:"standalone",
-    background_color:"#17201C",theme_color:"#17201C",icons:[{src:o+"/icon-192.png",sizes:"192x192",type:"image/png"},{src:o+"/icon-512.png",sizes:"512x512",type:"image/png"}]};
+    background_color:"#FFFFFF",theme_color:"#17201C",icons:[{src:o+"/icon-192.png",sizes:"192x192",type:"image/png"},{src:o+"/icon-512.png",sizes:"512x512",type:"image/png"}]};
   el.href="data:application/manifest+json,"+encodeURIComponent(JSON.stringify(m));
 }catch(e){}}
 const state={name:"",email:"",gender:"",terrain:"both",ships:"ca",groups:ORDER.slice(),shoe:[],shoeW:[],wTouched:false,width:[],cloth:[],brands:[]};
