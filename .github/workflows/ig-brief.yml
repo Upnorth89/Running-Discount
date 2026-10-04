@@ -8,17 +8,20 @@ on:
 jobs:
   brief:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install -r scraper/requirements.txt playwright
+      - run: pip install -r scraper/requirements.txt playwright imageio-ffmpeg
       - run: python -m playwright install --with-deps chromium
+      - name: Price history (for the Reel's real drops)
+        run: git fetch --depth=1 origin history && git show FETCH_HEAD:prices.jsonl > /tmp/prices.jsonl
       - name: Build and email the kit
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           HEALTH_EMAIL: ${{ secrets.HEALTH_EMAIL }}
           FROM_EMAIL: "The Gear Fox <deals@thegearfox.com>"
+          HISTORY_FILE: /tmp/prices.jsonl
         run: python scraper/ig_brief.py

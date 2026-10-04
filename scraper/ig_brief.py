@@ -5,6 +5,7 @@ Picks this week's best running-shoe deals from the live sale.json and emails:
   - 3 picks for his Reel, with the facts that make each one good
   - a short script to say (EN and FR) and on-screen text
   - the "Top 5" graphic for his Story (EN + FR PNGs, 1080x1350), drawn with Chromium
+  - a ready-made Reel video, EN + FR (scraper/ig_reel.py: this week's real price drops in his sizes)
 
 Picks: 3 shoes (30-70% off, normally $130+, 7+ sizes at that price, 3+ of the common ones) and 2 clothing\n(a top and a bottom: $60+, S, M and L in stock at that price), ship from Canada, no spikes or boots, one per brand,
 well-known running brands first.
@@ -238,7 +239,25 @@ def spoken_pct(p, lang):
     return f"{p}% off" if lang == "en" else f"{p} % de rabais"
 
 
-def brief(chosen, when):
+def reel_section(reel, p, h):
+    """This week's ready-made Reel (scraper/ig_reel.py): the two videos are attached; what to say over them."""
+    rows = "".join(f"<li>{E(x['name'])}: <b>{money(x['now'], 'en')}</b> in your size, was {money(x['then'], 'en')} a week ago "
+                   f"(down ${x['drop']:.0f}) at {E(x['store'])}. <a href=\"{E(x['url'])}\">Check it</a></li>" for x in reel["picks"])
+    out = [f'<div {h}>0. This week\'s Reel video (attached: reel-en.mp4, reel-fr.mp4)</div>',
+           f'<p {p}>Real price drops from the last 7 days, in your sizes (11 / M), recorded on the site with the safe bands. '
+           'Film yourself over it (bottom-left corner, captions on the site part, never on the bottom band).</p>',
+           f'<ul style="font:15px/1.5 Arial,sans-serif">{rows}</ul>']
+    for lang, label in (("en", "English"), ("fr", "Français")):
+        t = reel["script"][lang]
+        out.append(f'<p {p}><b>{label}</b><br>Big text, first second: <b>{E(t["hook"])}</b><br>'
+                   f'0–2.5 s (the first card): {E(t["open"])}<br>Heart blinking: {E(t["how"])}<br>'
+                   f'Watchlist: {E(t["a"])} {E(t["b"])}<br>End: {E(t["end"])}</p>'
+                   f'<p {p}>Caption:<br>{E(t["caption"]).replace(chr(10), "<br>")}</p>')
+    out.append(f'<p {p}>Post the English one first, the French one 2–3 days later.</p>')
+    return "".join(out)
+
+
+def brief(chosen, when, reel=None):
     top = chosen[:3]
     ord_en, ord_fr = ["First", "Then", "And"], ["D'abord", "Ensuite", "Et enfin"]
     script_en = " ".join(["Three deals I'd actually buy this week."] +
@@ -254,9 +273,11 @@ def brief(chosen, when):
     rest = "".join(f"<li>{E(short(x))}: {money(x['price'], 'en')} (−{x['pct']}%) at {E(x['store'])}</li>" for x in chosen[3:])
     p = 'style="font:15px/1.5 Arial,sans-serif;color:#17201C;margin:0 0 14px"'
     h = 'style="font:800 18px Arial,sans-serif;color:#B8470A;margin:22px 0 8px"'
+    reel_html = reel_section(reel, p, h) if reel else ""
     body = f'''<div style="max-width:620px;margin:0 auto;padding:18px">
 <p {p}>Hi Bastien, here's this week's Instagram kit, picked from this morning's deals ({when}).
 Post the Reel today (Wednesday) and the Top 5 graphic as a Story.</p>
+{reel_html}
 <div {h}>1. Your 3 picks for the Reel</div><ol style="font:15px/1.5 Arial,sans-serif;padding-left:20px">{li}</ol>
 <p {p}>Add one line of your own on each (fit, what you'd use it for): your opinion is what people follow.</p>
 <div {h}>2. What to say (15–25 seconds)</div>
@@ -293,7 +314,13 @@ def main():
         path = OUT / f"top5-{lang}.png"
         render_png(graphic(chosen, lang, n_stores), path)
         pngs[lang] = path
-    body, *_ = brief(chosen, when)
+    reel = None
+    try:                                         # the ready-made Reel; the rest of the kit goes out even if it fails
+        import ig_reel
+        reel = ig_reel.make(OUT, items)
+    except Exception as e:
+        print(f"reel video skipped: {e}")
+    body, *_ = brief(chosen, when, reel)
     for x in chosen:
         print(f"- {x['pct']}% {short(x)} {x['price']} at {x['store']}")
     if DRY:
@@ -302,10 +329,12 @@ def main():
         return 0
     r = requests.post("https://api.resend.com/emails", timeout=60,
                       headers={"Authorization": f"Bearer {os.environ['RESEND_API_KEY']}"},
-                      json={"from": FROM, "to": [TO], "subject": f"Instagram kit for {when}: 3 picks + Top 5 graphic",
+                      json={"from": FROM, "to": [TO], "subject": f"Instagram kit for {when}: " + ("Reel video + " if reel else "") + "3 picks + Top 5 graphic",
                             "html": body,
                             "attachments": [{"filename": f"top5-{l}.png", "content": base64.b64encode(p.read_bytes()).decode()}
-                                            for l, p in pngs.items()]})
+                                            for l, p in pngs.items()] +
+                                           [{"filename": f"reel-{l}.mp4", "content": base64.b64encode(p.read_bytes()).decode()}
+                                            for l, p in (reel["videos"].items() if reel else [])]})
     print(f"emailed {TO}: HTTP {r.status_code} {r.text[:200]}")
     return 0 if r.ok else 1
 

@@ -104,6 +104,10 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   and the graphic as a Story; Friday stays the subscriber email. Manual run = send now.
   Mix: 2 shoes (7+ sizes at the shown price, 3+ common ones, one men's one women's), a top and a bottom (S/M/L in stock),
   1 piece of gear ($80+, one size or S/M/L, known brands first). Unisex sizes counted once.
+  Ready-made Reel (Oct 4, `scraper/ig_reel.py`): the email also attaches reel-en.mp4 + reel-fr.mp4: this week's real drops
+  (price history: best a week ago vs today's price in size 11 / M, $20+ and 15%+), one shoe + one gear/clothing, recorded as a
+  watchlist on the live site (Python Playwright screencast) with safe bands + payoff first; script/hook/caption EN+FR in the email.
+  Workflow fetches the history branch to /tmp/prices.jsonl (HISTORY_FILE). If it fails, the rest of the kit still goes out.
 - **Instagram Reels (Bastien's rule, Oct 3): always with safe bands.** Screen recordings of the site sit in the middle of a
   1080x1920 frame: dark (#17201C) band 218px on top (Instagram's Reels title/camera cover it) and 400px below (name, caption,
   like/comment buttons). Recorder + example in `tools/reels/` (rec.js records a 360x434 phone; ffmpeg line in its header).
