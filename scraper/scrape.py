@@ -389,34 +389,36 @@ def scrape_decathlon():
     return out
 
 # ---------------------------------------------------------------- Foot Locker Canada (checked Oct 4, 2026)
-# Server-rendered pages; robots.txt allows category and product pages but not paging (currentPage=), so the running sale
-# list is read in slices that each fit on one page (48 cards): gender x price band, a band split again when it's full.
+# Server-rendered pages; robots.txt allows category and product pages but not paging (currentPage=), so the
+# performance-running collection (full price and sale, like every store: people watch full-price shoes for a drop) is
+# read in slices that each fit on one page (48 cards): gender x price band, a band split again while it's full.
 # Each product page carries every size with its own price and stock. Only shoes tagged "performancerunning" are kept
 # (Foot Locker files lifestyle sneakers under Running too). Relaxed pace: one page at a time, ~1 s apart.
 FL_BASE = "https://www.footlocker.ca"
-FL_SALE = "sale:relevance:collection_id:sale-shoes:sport:Running:gender:{g}:price:\"{lo}\"-\"{hi}\""
+FL_LISTS = [("/en/category/collection/performance-running.html", 'performancerunning:relevance:gender:{g}:price:"{lo}"-"{hi}"'),
+            ("/en/category/sale/shoes.html", 'sale:relevance:collection_id:sale-shoes:sport:Running:gender:{g}:price:"{lo}"-"{hi}"')]
+FL_CARD = re.compile(r'data-productcard="\{"name":"[^"]*","pos":\d+,"sku":"(\d+)"\}')
 
 def fl_state(html):
     m = re.search(r"window\.__REACT_QUERY_STATE__\s*=\s*", html)
     return json.JSONDecoder().raw_decode(html[m.end():])[0] if m else None
 
-def fl_list(g, lo, hi, depth=0):
-    q = FL_SALE.format(g=g, lo=lo, hi=hi)
-    page = html_lib.unescape(get(f"{FL_BASE}/en/category/sale/shoes.html?query={quote(q, safe='')}").text)
+def fl_page(path, q):
+    page = html_lib.unescape(get(f"{FL_BASE}{path}?query={quote(q, safe='')}").text)
     time.sleep(1)
     m = re.search(r"([0-9,]+) results", page)
-    n = int(m.group(1).replace(",", "")) if m else 0
-    skus = re.findall(r'data-productcard="\{"name":"[^"]*","pos":\d+,"sku":"(\d+)"\}', page)
-    if n > len(skus) and depth < 6:
-        a, b = (0 if lo == "-inf" else float(lo)), (400 if hi == "inf" else float(hi))
-        if b - a >= 1:                                      # full page: split the price band in two
+    return (int(m.group(1).replace(",", "")) if m else 0), FL_CARD.findall(page)
+
+def fl_list(g, lo, hi, depth=0):
+    """Every running shoe for one gender and price band: the collection first, the sale list in another order when a
+    band can't be split any further (dozens of shoes at exactly $99.99)."""
+    n, skus = fl_page(FL_LISTS[0][0], FL_LISTS[0][1].format(g=g, lo=lo, hi=hi))
+    if n > len(skus):
+        a, b = (0 if lo == "-inf" else float(lo)), (500 if hi == "inf" else float(hi))
+        if b - a >= 1 and depth < 7:                        # full page: split the price band in two
             mid = round((a + b) / 2, 2)
             return fl_list(g, lo, f"{mid:g}", depth + 1) + fl_list(g, f"{mid:g}", hi, depth + 1)
-        # many shoes at one price ($99.99): the performance-running collection lists that band in another order
-        q2 = f'performancerunning:relevance:gender:{g}:price:"{lo}"-"{hi}"'
-        more = re.findall(r'data-productcard="\{"name":"[^"]*","pos":\d+,"sku":"(\d+)"\}', html_lib.unescape(
-            get(f"{FL_BASE}/en/category/collection/performance-running.html?query={quote(q2, safe='')}").text))
-        time.sleep(1)
+        _, more = fl_page(FL_LISTS[1][0], FL_LISTS[1][1].format(g=g, lo=lo, hi=hi))
         skus += [x for x in more if x not in skus]
         if n > len(skus):
             print(f"  ! footlocker: {g} {lo}-{hi} has {n} shoes, {len(skus)} reachable", file=sys.stderr)
@@ -462,7 +464,7 @@ def fl_product(sku):
 def scrape_footlocker():
     skus = []
     for g in ("Men's", "Women's"):
-        for lo, hi in (("-inf", "75"), ("75", "100"), ("100", "125"), ("125", "150"), ("150", "inf")):
+        for lo, hi in (("-inf", "100"), ("100", "150"), ("150", "200"), ("200", "inf")):
             skus += [x for x in fl_list(g, lo, hi) if x not in skus]
     out, errors = [], 0
     for sku in skus:
@@ -476,7 +478,7 @@ def scrape_footlocker():
             out.append(o)
     if skus and errors > len(skus) * 0.3:
         raise RuntimeError(f"footlocker: {errors}/{len(skus)} product pages failed")
-    print(f"  footlocker: {len(skus)} running sale listings, {len(out)} running shoes in stock", file=sys.stderr)
+    print(f"  footlocker: {len(skus)} running listings, {len(out)} running shoes in stock", file=sys.stderr)
     return out
 
 # ---------------------------------------------------------------- Shopify stores (The Feed in USD, Sea2Sky in CAD)
