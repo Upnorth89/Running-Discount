@@ -233,6 +233,10 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   watchlist strip, swipe row of new deals), categories, search + Filters (Ships from Canada, Include full
   price, Sort). Sale items only by default.
 - EN headline "Your size. On sale. Every day."; FR « Des aubaines sur mesure. »
+- ☰ menu (Oct 4, top right; `#menu`, `menuOpen()`): Today's deals · Shoe prices by model · My sizes · About · Instagram,
+  then the Français/English button and "Prices in CAD" (the header no longer shows FR/CAD; the heart stays beside ☰). Line icons
+  (`.mi`), no emojis. Shoe pages have the same menu as plain links (`menu_links()` in shoe_pages.py, + Your watchlist) using
+  `/?show=watch` and `/?show=sizes`, which the homepage opens once data is loaded. Umami: menu {go}.
 - CAD/USD switch, watchlist with alerts, Google sign-in, Umami analytics (no cookies; events welcome-view,
   signup-step, signup, signup-confirmed, signin, deal-click, watch-add, language, currency).
 
