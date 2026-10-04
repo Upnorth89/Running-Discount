@@ -2,7 +2,7 @@
 
 The Gear Fox (thegearfox.com, tagline "Outfox full price"; French: « Flairez les aubaines ») is a free site
 that shows running and outdoor gear **on sale in your size** from 50+ stores, mostly Canadian. Owner:
-Bastien (Vancouver, ultrarunner). Visitors pick their sizes, add an email, and get a Friday deals email
+Bastien (Montréal / Vancouver, ultrarunner; "runner from Montréal and Vancouver" = coast to coast). Visitors pick their sizes, add an email, and get a Friday deals email
 plus price-drop alerts on items they heart. Goal: $500–1,000/month by March 2027 from affiliate links,
 then a paid tier (Fox Pro). The 6-month plan with weekly tasks:
 https://claude.ai/code/artifact/36e1d545-7390-44fe-b080-80f03465af61
