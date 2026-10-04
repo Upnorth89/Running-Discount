@@ -259,6 +259,8 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
 .signup{background:var(--band);color:var(--band-ink);border-radius:14px;padding:18px;margin:0 0 30px}
 .signup h3{font:800 24px/1.1 var(--display);margin:0 0 4px}
 .signup p{margin:0 0 12px;color:var(--band-muted);font-size:15px}
+.signup .perks{margin:8px 0 14px;padding-left:20px;font-size:16px;line-height:1.4}.signup .perks li{margin:5px 0}
+.signup .linkbtn{color:inherit}.signup .fine #suNo{font-size:inherit;font-weight:600}
 .signup form{display:flex;gap:8px}
 .signup input{flex:1;min-width:0}
 .signup .primary{padding:0 16px;min-height:44px;font-size:18px;border-color:var(--band-ink)}
@@ -636,7 +638,7 @@ en:{
   swipe:"Swipe →",seeAll:n=>`See all ${n}`,asList:"as a list",asRow:"Show as a row",
   offTally:(m,n)=>`<b>${m}</b> off in the ${n} ${PL(n,"deal","deals")} you've opened`,
   titleWatch:"Your watchlist",titleDeals:"On sale in your size",
-  gatedLede:"Pick your sizes and add your email to see today's deals.",unlock:"See deals in my size",
+  gatedLede:"Pick your sizes to see today's deals.",unlock:"See deals in my size",
   storesAll:"stores in Canada and abroad",storesCA:"Canadian stores",
   lede:(s,a,w,u)=>`${s} on sale and ${a} in stock from ${w}${u?` · updated ${u}`:""}.`,
   secNew:"New since your last visit",secSale:"Top deals",
@@ -645,7 +647,7 @@ en:{
   junkHint:"Not there after a minute? Check Junk or Promotions (Outlook and Hotmail often file us there) and mark it \"Not junk\".",
   resend:"Send it again",resendFail:"Couldn't send just now. Try again in a minute.",resent:"Sent again. Give it a minute.",resendWait:"Just sent: wait a minute, then check Junk.",
   otherEmail:"Use a different email",getDeals:"Get deals like these every Friday",
-  getDealsTxt:"One email, Friday morning, only gear on sale in your sizes.",peekTitle:n=>`${n} deals in your size today`,peekTxt:"Add your email to see them all, get price-drop alerts on deals you heart, and the best ones every Friday.",peekG:"or continue with Google",email:"Email",signUp:"Sign up",
+  getDealsTxt:"One email, Friday morning, only gear on sale in your sizes.",perksTitle:"Free with your email",perk1:"An alert when gear you heart drops in price",perk2:"Your best deals every Friday morning",perk3:"Your sizes and hearts on all your devices",noThanks:"No thanks",peekTitle:n=>`${n} deals in your size today`,peekTxt:"Add your email to see them all, get price-drop alerts on deals you heart, and the best ones every Friday.",peekG:"or continue with Google",email:"Email",signUp:"Sign up",
   signupFine:'We\'ll email you to confirm. Unsubscribe with one tap. <a href="privacy.html">Privacy</a>',
   badEmail:"That email doesn't look right.",signupFail:m=>`Couldn't sign you up just now: ${m}`,
   emailOn:e=>`Friday email on for ${e} · <button type="button" id="stopEmail">Stop it</button>`,
@@ -660,7 +662,7 @@ en:{
   langSwitch:"FR",langName:"Français",
   back:"← Back",next:"Next",step:(a,b)=>`Step ${a} of ${b}`,
   s1Title:"What fits you?",s1Intro:"Pick your fit and sizes. We'll hide everything that won't fit.",
-  s2Title:"Where should we send your deals?",s2Intro:"Your deals open right away. Every Friday we'll email the best ones in your sizes.",
+  s2Title:"Where should we send your deals?",s2Intro:"We'll tell you when gear you heart drops in price, and send your best deals every Friday morning.",
   cTitle:"Deals in your size",cIntro:"Sign up free, or sign back in. We'll ask your sizes only once.",cContinue:"Continue",
   cSizesIntro:"Last step: pick your fit and sizes.",
   wTitle:"Your size. On sale. Every day.",wIntro:half=>`<b>${half?"More than half of":"Many"} gear deals aren't available in your size.</b> Every morning we check running and outdoor stores across Canada and show you only the ones that are.`,
@@ -727,7 +729,7 @@ fr:{
   swipe:"Glissez →",seeAll:n=>`Voir les ${n}`,asList:"en liste",asRow:"Afficher en rangée",
   offTally:(m,n)=>`<b>${m}</b> de rabais sur ${PL(n,"l'aubaine que vous avez ouverte",`les ${n} aubaines que vous avez ouvertes`)}`,
   titleWatch:"Vos favoris",titleDeals:"En solde à votre taille",
-  gatedLede:"Choisissez vos tailles et entrez votre courriel pour voir les aubaines du jour.",unlock:"Voir les aubaines à ma taille",
+  gatedLede:"Choisissez vos tailles pour voir les aubaines du jour.",unlock:"Voir les aubaines à ma taille",
   storesAll:"des boutiques au Canada et à l'étranger",storesCA:"des boutiques canadiennes",
   lede:(s,a,w,u)=>`${s} en solde et ${a} en stock ${w}${u?` · mis à jour ${u}`:""}.`,
   secNew:"Nouveau depuis votre dernière visite",secSale:"Meilleures aubaines",
@@ -736,7 +738,7 @@ fr:{
   junkHint:"Pas reçu après une minute? Vérifiez les courriels indésirables ou Promotions (Outlook et Hotmail nous y classent souvent) et indiquez « Pas un courriel indésirable ».",
   resend:"Renvoyer",resendFail:"Envoi impossible pour l'instant. Réessayez dans une minute.",resent:"Renvoyé. Laissez-lui une minute.",resendWait:"Tout juste envoyé : attendez une minute, puis vérifiez les indésirables.",
   otherEmail:"Utiliser un autre courriel",getDeals:"Recevez des aubaines comme celles-ci chaque vendredi",
-  getDealsTxt:"Un courriel le vendredi matin, seulement des articles en solde dans vos tailles.",peekTitle:n=>`${n} aubaines dans vos tailles aujourd'hui`,peekTxt:"Entrez votre courriel pour toutes les voir, être averti des baisses de prix sur vos coups de cœur et recevoir les meilleures chaque vendredi.",peekG:"ou continuer avec Google",email:"Courriel",signUp:"M'abonner",
+  getDealsTxt:"Un courriel le vendredi matin, seulement des articles en solde dans vos tailles.",perksTitle:"Gratuit avec votre courriel",perk1:"Une alerte quand un coup de cœur baisse de prix",perk2:"Vos meilleures aubaines chaque vendredi matin",perk3:"Vos tailles et vos coups de cœur sur tous vos appareils",noThanks:"Non merci",peekTitle:n=>`${n} aubaines dans vos tailles aujourd'hui`,peekTxt:"Entrez votre courriel pour toutes les voir, être averti des baisses de prix sur vos coups de cœur et recevoir les meilleures chaque vendredi.",peekG:"ou continuer avec Google",email:"Courriel",signUp:"M'abonner",
   signupFine:'On vous écrit pour confirmer. Désabonnement en un clic. <a href="privacy.html">Confidentialité</a>',
   badEmail:"Ce courriel ne semble pas valide.",signupFail:m=>`Impossible de vous abonner pour l'instant : ${m}`,
   emailOn:e=>`Courriel du vendredi activé pour ${e} · <button type="button" id="stopEmail">L'arrêter</button>`,
@@ -751,7 +753,7 @@ fr:{
   langSwitch:"EN",langName:"English",
   back:"← Retour",next:"Suivant",step:(a,b)=>`Étape ${a} sur ${b}`,
   s1Title:"Qu'est-ce qui vous va?",s1Intro:"Choisissez votre coupe et vos tailles. On cache tout ce qui ne vous va pas.",
-  s2Title:"Où envoyer vos aubaines?",s2Intro:"Vos aubaines s'ouvrent tout de suite. Chaque vendredi, on vous envoie les meilleures dans vos tailles.",
+  s2Title:"Où envoyer vos aubaines?",s2Intro:"On vous avertit quand un coup de cœur baisse de prix, et on vous envoie vos meilleures aubaines chaque vendredi matin.",
   cTitle:"Des aubaines à votre taille",cIntro:"Abonnez-vous gratuitement ou reconnectez-vous. On vous demande vos tailles une seule fois.",cContinue:"Continuer",
   cSizesIntro:"Dernière étape : choisissez votre coupe et vos tailles.",
   wTitle:"Des aubaines sur mesure.",wIntro:half=>`<b>${half?"Plus de la moitié des ":"Beaucoup d'"}aubaines ne sont pas offertes dans votre taille.</b> Chaque matin, on parcourt les boutiques de course et de plein air partout au Canada et on vous montre seulement celles qui le sont.`,
@@ -954,7 +956,7 @@ function openSheet(){lastFocus=document.activeElement;renderSheet();
     else if(step===0){if(!openSheet.seenW){openSheet.seenW=1;track("welcome-view",{lang:LANG})}showSizes=false;showGate=false;showWelcome=true;title=t("wTitle");intro=t("wIntro",missShare()>=0.5);btn=t("wGo");renderWelcome()}
     else if(FLOW==="C"&&step===1){showSizes=false;title=t("cTitle");intro=t("cIntro");btn=t("cContinue")}
     else if(FLOW==="C"&&step===2){showGate=false;title=t("s1Title");intro=gSession?t("gSigned",esc(gSession.email))+" "+t("cSizesIntro"):t("cSizesIntro");btn=t("subscribeShow")}
-    else if(step===1){showGate=false;title=t("s1Title");intro=gSession?t("gSigned",esc(gSession.email))+" "+t("cSizesIntro"):t("s1Intro");btn=gSession?t("subscribeShow"):t("next")}
+    else if(step===1){showGate=false;title=t("s1Title");intro=gSession?t("gSigned",esc(gSession.email))+" "+t("cSizesIntro"):t("s1Intro");btn=gSession?t("subscribeShow"):FLOW==="D"?t("showDeals"):t("next")}
     else {showSizes=false;title=t("s2Title");intro=t("s2Intro");btn=t("subscribeShow")}
   }
   if(si){title=t("signinTitle");intro=t("signinIntro");btn=t("emailLink")}
@@ -967,8 +969,8 @@ function openSheet(){lastFocus=document.activeElement;renderSheet();
   document.querySelector("#sheet .intro").innerHTML=intro;
   $("saveSizes").textContent=btn;
   const multi=g&&!si&&FLOW!=="A"&&step>0;
-  $("stepNo").classList.toggle("hidden",!multi||!!gSession);if(multi)$("stepNo").textContent=t("step",step,nSteps());
-  $("stepBack").classList.toggle("hidden",!(g&&!si&&FLOW!=="A"&&step>(FLOW==="D"?0:1)));
+  $("stepNo").classList.toggle("hidden",!multi||!!gSession||FLOW==="D");   // D: sizes only, the email is optionalif(multi)$("stepNo").textContent=t("step",step,nSteps());
+  $("stepBack").classList.toggle("hidden",!(g&&!si&&FLOW!=="A"&&step>(FLOW==="D"?0:1))||(FLOW==="D"&&step===2));
   renderLive();
   if(g)$("gateEmail").value=state.email||"";
   const gOn=G.ready&&g;$("gUp").classList.toggle("hidden",!gOn||!!gSession);$("gIn").classList.toggle("hidden",!gOn);
@@ -1464,8 +1466,7 @@ function renderAll(){
   saveWatches();
   renderFilters();
   if(!DATA){$("dealList").innerHTML=`<div class="empty">${t("loading")}</div>`;return}
-  if(peeking()&&!view.watch)return renderPeek();
-  if(gated()){$("lede").textContent=t("gatedLede");
+  if(gated()&&!peeking()){$("lede").textContent=t("gatedLede");
     const tz=matchItems({...toProfile(),gender:"",sizes:{},groups:ORDER}).filter(d=>d.pct>=20&&d.pct<=60&&d.ca!==false&&["shoes","tops","bottoms","packs"].includes(d.g)&&!SPIKE.test(d.n)&&d.t!=="hike").sort(SORTS.discount).slice(0,8);
     $("dealList").innerHTML=`<div class="empty"><button class="primary" type="button" id="unlock">${t("unlock")}</button></div>`+
       (tz.length?`<div class="grid tease" aria-hidden="true" style="margin-top:14px">${tz.map(d=>card(d)).join("")}</div>`:"");
@@ -1502,16 +1503,6 @@ function renderAll(){
   $("shareCard").classList.remove("hidden");$("shareTxt").textContent=t("shareTxt");$("shareBtn").textContent=t("shareBtn");
 }
 
-function renderPeek(){   // sizes picked, no email yet: their top 6 deals, then the email card, then the rest blurred
-  const onSale=shoesFirst(matchItems(toProfile()).filter(d=>d.pct>0).sort(SORTS[view.sort]));
-  saleNow=onSale.length;if(CALM)setCalmLede();else $("lede").textContent=t("lede",num(onSale.length),num(onSale.length),t("storesCA"),DATA.updated?ago(DATA.updated):"");$("newBox").innerHTML="";$("watchNews").classList.add("hidden");
-  const first=onSale.slice(0,6),rest=onSale.slice(6,12);
-  $("dealList").innerHTML=(first.length?`<section class="grp sale" id="grp-__sale"><h2>${t("secSale")} <small>${num(onSale.length)}</small></h2><div class="grid">${first.map(d=>card(d)).join("")}</div></section>`:`<div class="empty">${t("nothing")}</div>`)+
-    signupHTML()+(rest.length?`<div class="grid tease" aria-hidden="true" style="margin-top:14px">${rest.map(d=>card(d)).join("")}</div>`:"");
-  bindSignup();
-  const g=$("suGoogle");if(g)g.addEventListener("click",()=>{step=2;openSheet();$("panel").scrollTop=0});
-  $("dealsFoot").textContent=t("pricesChange");
-}
 
 /* ---------- Friday email: subscribers live in Supabase ---------- */
 const SB_URL="https://krwymmkauwqqxjxbvkyq.supabase.co",SB_KEY="sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2";
@@ -1529,15 +1520,16 @@ function signupHTML(){
   if(sub&&sub.pending)return `<div class="signup"><h3>${t("checkInbox")}</h3><p style="margin:0">${sub.signin?t("signinCard",esc(sub.pending)):t("checkInboxTxt",esc(sub.pending))}</p>
     <p class="fine">${t("junkHint")}</p>
     <p class="fine"><button type="button" id="suResend" style="font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;cursor:pointer">${t("resend")}</button> · <button type="button" id="suRetry" style="font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;cursor:pointer">${t("otherEmail")}</button></p></div>`;
+  if(LS.get("gf-nosignup"))return "";                  // "No thanks" on this device: hearts still ask
   const pk=peeking();
-  return `<div class="signup${pk?" peek":""}"><h3>${pk?t("peekTitle",num(saleNow)):t("getDeals")}</h3>
-    <p>${pk?t("peekTxt"):t("getDealsTxt")}</p>
+  return `<div class="signup"><h3>${t("perksTitle")}</h3>
+    <ul class="perks"><li>${t("perk1")}</li><li>${t("perk2")}</li><li>${t("perk3")}</li></ul>
     <form id="suForm" novalidate><label for="suEmail" class="hidden">${t("email")}</label>
       <input id="suEmail" type="email" autocomplete="email" inputmode="email" placeholder="${t("emailPh")}" value="${esc(state.email)}" required>
       <button class="primary" type="submit">${t("signUp")}</button></form>
     ${signupErr?`<p class="err">${esc(signupErr)}</p>`:""}
     ${pk?`<p class="fine"><button type="button" id="suGoogle" class="linkbtn">${t("peekG")}</button></p>`:""}
-    <p class="fine">${t("signupFine")}</p></div>`;
+    <p class="fine">${t("signupFine")} · <button type="button" id="suNo" class="linkbtn">${t("noThanks")}</button></p></div>`;
 }
 function bindSignup(){
   const f=$("suForm");
@@ -1546,10 +1538,12 @@ function bindSignup(){
     if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)){signupErr=t("badEmail");renderAll();$("suEmail").focus();return}
     const btn=f.querySelector("button");btn.disabled=true;btn.textContent="…";
     state.email=email;const p=toProfile();LS.set("rd-profile",p);
-    try{await rpc("subscribe",{p_email:email,p_profile:p});signupErr="";setSub({pending:email});track("signup",{method:"email",lang:LANG,where:peeking()?"peek-card":"shop-card",ref:REF||"none"})}
+    try{await rpc("subscribe",{p_email:email,p_profile:p});signupErr="";setSub({pending:email});track("signup",{method:"email",lang:LANG,where:"card",ref:REF||"none"})}
     catch(err){signupErr=t("signupFail",err.message)}
     renderAll();
   });
+  const no=$("suNo");if(no)no.addEventListener("click",()=>{LS.set("gf-nosignup",1);ana("signup-step","no-thanks");renderAll()});
+  const sg=$("suGoogle");if(sg)sg.addEventListener("click",()=>{step=2;openSheet();$("panel").scrollTop=0});
   const r=$("suRetry");if(r)r.addEventListener("click",()=>{setSub(null);renderAll();openSheet();setTimeout(()=>$("gateEmail").focus(),60)});
   const rs=$("suResend");if(rs)rs.addEventListener("click",async()=>{     // same email again (the server waits 2 min between sends)
     if(resentAt&&Date.now()-resentAt<120e3){toast(t("resendWait"));return}
