@@ -227,6 +227,8 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   gender "any"); matching on the site, Friday email/alerts (`match()`) and shoe pages uses it for women's sizes ("W:" keys
   and women-only models), the men's list for the rest. Old "Both" profiles without it work as before. One runner = free;
   several runners = the Fox Pro family plan.
+- Computers (Oct 4): from 900px the page is 1180px wide, 3 deals per row (4 from 1180px); new-deals row shows ~4; About page
+  photo floats beside the text from 820px. Phones/tablets unchanged.
 - Phones: compact cards (photo beside the text); categories start with 4 deals and skip ones already in Top deals.
   No automatic Google pop-up (the Google button is in sign-up step 2 and Sign in).
 - Returning: calm top (sizes line + Edit, one count line with the 30-day "found this month" savings,

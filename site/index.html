@@ -329,6 +329,22 @@ body.locked #langBtn,body.locked #curBtn,body.locked #openWatch,body.locked #men
 .sheet .subline{font-size:14px;color:var(--muted);margin:14px 0 0;text-align:center}
 .sheet .subline button{font:inherit;color:var(--moss);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer;min-height:24px}
 @media (prefers-reduced-motion:no-preference){.chip,.seg button{transition:background .12s,border-color .12s}}
+/* Computers (Oct 4): a wider page with 3–4 deals per row; phones and tablets keep the layout above */
+@media(min-width:900px){
+  .wrap,.topbar .in{max-width:1180px}
+  .wrap{padding-left:24px;padding-right:24px}.topbar .in{padding-left:24px;padding-right:24px}
+  .grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+  .newrow .grp.new .dw{flex:0 0 calc((100% - 30px)/3.4);max-width:none}
+  .menu{right:max(24px,calc(50% - 566px))}
+  .lede,.subhead{max-width:760px}
+  .searchrow{max-width:760px}
+  .seo-today ol{columns:3}
+  h1{font-size:44px}
+}
+@media(min-width:1180px){
+  .grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .newrow .grp.new .dw{flex-basis:calc((100% - 40px)/4.4)}
+}
 </style>
 </head>
 <body>
