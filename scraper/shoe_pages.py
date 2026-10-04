@@ -262,7 +262,7 @@ a{color:var(--moss)}
 .menu summary::-webkit-details-marker{display:none}.menu[open] summary{background:var(--ink);color:var(--card);border-color:var(--ink)}
 .menu nav{position:absolute;right:max(16px,calc(50% - 344px));top:calc(100% + 6px);z-index:30;width:min(300px,calc(100vw - 32px));background:var(--card);border:1.5px solid var(--line);border-radius:18px;box-shadow:0 14px 40px rgba(0,0,0,.18);padding:8px}
 .menu nav a{display:flex;align-items:center;gap:12px;min-height:48px;padding:0 12px;border-radius:12px;font:600 16px/1.2 var(--body);color:var(--ink);text-decoration:none}
-.menu nav a:hover{background:var(--mist)}.menu nav a span{width:24px;text-align:center;font-size:18px}
+.menu nav a:hover{background:var(--mist)}.menu nav .mi{flex:0 0 auto;color:var(--muted)}
 .menu nav a.sw{border-top:1.5px solid var(--line);border-radius:0;margin-top:6px;font-size:15px;color:var(--moss)}
 .crumbs{font-size:14px;color:var(--muted);margin:14px 0 0}
 h1{font:800 clamp(30px,7vw,44px)/1.05 var(--display);margin:6px 0 4px;letter-spacing:-.01em}
@@ -317,6 +317,11 @@ tr.yours td:first-child{font-weight:700;box-shadow:inset 4px 0 0 var(--hivis)}
 """
 
 
+MENU_SVG = ('<svg class="mi" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" '
+            'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{}</svg>')
+MENU_ICONS = {'🔥': '<path d="M3 12V4.5A1.5 1.5 0 0 1 4.5 3H12l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.4"/>', '👟': '<path d="M2.5 17v-6l3.5-3 3 2.5 2.5-2.5 4.5 4.5h3a2.5 2.5 0 0 1 2.5 2.5V17z"/><path d="M2.5 20.5h19"/>', '♡': '<path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 6.9 4.5c2.1 0 3.6 1.2 5.1 3 1.5-1.8 3-3 5.1-3 3.5 0 5.5 3.5 4.2 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/>', '✏️': '<path d="M4 20h4L19.5 8.5l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>', '🦊': '<circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><path d="M12 7.6v.1"/>', '📸': '<rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8v.1"/>'}   # same line icons as the homepage menu
+
+
 def menu_links(L, other_path):
     """The site's ☰ menu, as plain links (same items as the homepage menu)."""
     fr = L["lang"] != "en-CA"
@@ -324,7 +329,7 @@ def menu_links(L, other_path):
     items = [(home, "🔥", L["mDeals"]), (f"/{L['dir']}/", "👟", L["mShoes"]),
              (home + ("&" if fr else "?") + "show=watch", "♡", L["mWatch"]), (home + ("&" if fr else "?") + "show=sizes", "✏️", L["mSizes"]),
              ("/about.html" + ("?lang=fr" if fr else ""), "🦊", L["mAbout"]), ("https://www.instagram.com/thegearfox/", "📸", "Instagram")]
-    out = "".join(f'<a href="{u}"><span aria-hidden="true">{i}</span>{esc(t)}</a>' for u, i, t in items)
+    out = "".join(f'<a href="{u}">{MENU_SVG.format(MENU_ICONS[i])}{esc(t)}</a>' for u, i, t in items)
     return out + f'<a class="sw" href="{other_path}" hreflang="{L["other"]}">{L["switch"]}</a>'
 
 
