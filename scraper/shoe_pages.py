@@ -75,7 +75,7 @@ T = {
         "idxH1": "Shoe prices by model",
         "idxIntro": "Every popular running shoe we track, with today's best price in each size at Canadian stores. Updated every morning.",
         "idxDesc": "Today's best price in every size for {n} running shoe models at Canadian stores. Updated every morning by The Gear Fox.",
-        "onSale": "on sale", "home": "The Gear Fox", "switch": "Français", "tagline": "OUTFOX FULL PRICE",
+        "onSale": "on sale", "home": "The Gear Fox", "switch": "Français", "menu": "Menu", "mDeals": "Today's deals", "mShoes": "Shoe prices by model", "mWatch": "Your watchlist", "mSizes": "My sizes", "mAbout": "About The Gear Fox", "tagline": "OUTFOX FULL PRICE",
         "yourSize": "Your size", "at": "at", "see": "See it", "watch": "Watch the price",
         "notInSize": "Not in stock in your size right now. Watch it and we'll email you when it's back or drops.",
         "find": "Search a model (e.g. Clifton)", "noMatch": "No model matches. Try the brand name, or a shorter word.",
@@ -133,7 +133,7 @@ T = {
         "idxH1": "Prix par modèle",
         "idxIntro": "Toutes les chaussures de course populaires que nous suivons, avec le meilleur prix du jour dans chaque pointure dans les boutiques canadiennes. Mis à jour chaque matin.",
         "idxDesc": "Le meilleur prix du jour dans chaque pointure pour {n} modèles de chaussures de course dans les boutiques canadiennes. Mis à jour chaque matin par The Gear Fox.",
-        "onSale": "en solde", "home": "The Gear Fox", "switch": "English", "tagline": "FLAIREZ LES AUBAINES",
+        "onSale": "en solde", "home": "The Gear Fox", "switch": "English", "menu": "Menu", "mDeals": "Aubaines du jour", "mShoes": "Prix des chaussures par modèle", "mWatch": "Vos favoris", "mSizes": "Mes tailles", "mAbout": "À propos de The Gear Fox", "tagline": "FLAIREZ LES AUBAINES",
         "yourSize": "Votre pointure", "at": "chez", "see": "Voir", "watch": "Suivre le prix",
         "notInSize": "Pas en stock dans votre pointure en ce moment. Suivez-la et on vous écrira dès qu'elle revient ou baisse.",
         "find": "Chercher un modèle (ex. Clifton)", "noMatch": "Aucun modèle trouvé. Essayez le nom de la marque ou un mot plus court.",
@@ -258,6 +258,12 @@ a{color:var(--moss)}
 .top .tagline{display:flex;align-items:center;gap:5px;margin-top:3px;font:600 8.5px/1 var(--body);letter-spacing:.16em;white-space:nowrap}
 .top .tagline::before,.top .tagline::after{content:"";width:10px;height:1.5px;background:var(--hivis);border-radius:1px}
 .lang{font:600 14px var(--body);border:1.5px solid var(--line);border-radius:999px;padding:6px 12px;text-decoration:none;color:var(--ink)}
+.top{position:relative}.menu{position:static}.menu summary{list-style:none;display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--line);cursor:pointer;color:var(--ink)}
+.menu summary::-webkit-details-marker{display:none}.menu[open] summary{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.menu nav{position:absolute;right:max(16px,calc(50% - 344px));top:calc(100% + 6px);z-index:30;width:min(300px,calc(100vw - 32px));background:var(--card);border:1.5px solid var(--line);border-radius:18px;box-shadow:0 14px 40px rgba(0,0,0,.18);padding:8px}
+.menu nav a{display:flex;align-items:center;gap:12px;min-height:48px;padding:0 12px;border-radius:12px;font:600 16px/1.2 var(--body);color:var(--ink);text-decoration:none}
+.menu nav a:hover{background:var(--mist)}.menu nav a span{width:24px;text-align:center;font-size:18px}
+.menu nav a.sw{border-top:1.5px solid var(--line);border-radius:0;margin-top:6px;font-size:15px;color:var(--moss)}
 .crumbs{font-size:14px;color:var(--muted);margin:14px 0 0}
 h1{font:800 clamp(30px,7vw,44px)/1.05 var(--display);margin:6px 0 4px;letter-spacing:-.01em}
 .sub{margin:0 0 14px;color:var(--muted);font-size:16px}
@@ -311,6 +317,17 @@ tr.yours td:first-child{font-weight:700;box-shadow:inset 4px 0 0 var(--hivis)}
 """
 
 
+def menu_links(L, other_path):
+    """The site's ☰ menu, as plain links (same items as the homepage menu)."""
+    fr = L["lang"] != "en-CA"
+    home = "/?lang=fr" if fr else "/"
+    items = [(home, "🔥", L["mDeals"]), (f"/{L['dir']}/", "👟", L["mShoes"]),
+             (home + ("&" if fr else "?") + "show=watch", "♡", L["mWatch"]), (home + ("&" if fr else "?") + "show=sizes", "✏️", L["mSizes"]),
+             ("/about.html" + ("?lang=fr" if fr else ""), "🦊", L["mAbout"]), ("https://www.instagram.com/thegearfox/", "📸", "Instagram")]
+    out = "".join(f'<a href="{u}"><span aria-hidden="true">{i}</span>{esc(t)}</a>' for u, i, t in items)
+    return out + f'<a class="sw" href="{other_path}" hreflang="{L["other"]}">{L["switch"]}</a>'
+
+
 def page_head(L, title, desc, path_en, path_fr, extra=""):
     lang_path = path_en if L["lang"] == "en-CA" else path_fr
     return f"""<!DOCTYPE html>
@@ -343,7 +360,8 @@ def page_head(L, title, desc, path_en, path_fr, extra=""):
 <header class="top"><div class="in"><a class="logo" href="/{'' if L['lang'] == 'en-CA' else '?lang=fr'}" aria-label="The Gear Fox">
 <picture><source srcset="/logo-mark-dark.svg" media="(prefers-color-scheme: dark)"><img src="/logo-mark.svg" alt="The Gear Fox" width="1534" height="664"></picture>
 <span class="tagline">{L['tagline']}</span></a>
-<a class="lang" href="{path_fr if L['lang'] == 'en-CA' else path_en}" hreflang="{L['other']}">{L['switch']}</a></div></header>
+<details class="menu"><summary aria-label="{L['menu']}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></summary>
+<nav>{menu_links(L, path_fr if L['lang'] == 'en-CA' else path_en)}</nav></details></div></header>
 <main class="wrap">
 """
 
