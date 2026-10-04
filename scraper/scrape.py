@@ -1289,7 +1289,9 @@ CASUAL_SHOE = re.compile(r"\b(sandal|sandale|clog|sabot|slipper|pantoufle|mule|f
 # court and lifestyle shoes from running brands (ASICS tennis/pickleball lines, retro sneakers)
 COURT_SHOE = re.compile(r"pick[el]+ball|\btennis\b|\bpadel\b|\bcourt\b|gel[- ]?(resolution|dedicate|game|challenger|1130|nyc|kahana)|solution speed", re.I)
 # lifestyle lines stores file under running (brand + model; Foot Locker, Oct 4, 2026)
-LIFESTYLE_SHOE = re.compile(r"^(new balance\s+(740|2002r?|9060|530|1906r?)|on\s+(cloud\s?6|cloudtilt|cloudzone|cloud\s?5|cloudnova))\b", re.I)
+LIFESTYLE_SHOE = re.compile(r"^(new balance\s+(740|2002r?|9060|530|1906r?)|on\s+(cloud\s?6|cloudtilt|cloudzone|cloud\s?5|cloudnova|roger)"
+                            r"|salomon\s+xt-?(6|pathway|whisper|4|quest)|asics\s+gel-?(kayano\s?(14|20)|k1011)"
+                            r"|nike\s+(zoom\s+)?vomero\s?5|hoka\s+speedgoat\s?2|adidas\s+(originals\b|ultraboost\s+1\.0|.*\bdna\b|adizero\s+goukana))\b", re.I)
 # soccer boots (Frontrunners sells them): ground codes FG/AG/MG/SG/TF, or the model lines
 SOCCER = re.compile(r"\b(FG|AG|MG|SG|TF)\b|(?i:\b(soccer|futsal|predator|f50|copa|tiempo|mercurial)\b)")
 
