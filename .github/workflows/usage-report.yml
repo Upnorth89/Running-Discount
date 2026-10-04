@@ -1,0 +1,31 @@
+name: Usage report
+
+on:
+  schedule:
+    - cron: "13 15 * * 1"    # Mondays 8:13am Vancouver: how people used the site last week
+  workflow_dispatch:         # "Run workflow" button: the last 7 days now
+    inputs:
+      days:
+        description: "How many days to cover (default 7)"
+        required: false
+        default: "7"
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r scraper/requirements.txt
+      - name: Build and email the report
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          HEALTH_EMAIL: ${{ secrets.HEALTH_EMAIL }}
+          FROM_EMAIL: "The Gear Fox <deals@thegearfox.com>"
+          SUPABASE_URL: "https://krwymmkauwqqxjxbvkyq.supabase.co"
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          REPORT_DAYS: ${{ inputs.days }}
+        run: python scraper/usage_report.py

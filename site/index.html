@@ -504,7 +504,36 @@ function esc(s){const d=document.createElement("div");d.textContent=s;return d.i
 const UMAMI_ID="d73c30be-171d-40d8-8101-278c2a536699";            // paste the Website ID from cloud.umami.is here; empty = no tracking
 (function(){if(!UMAMI_ID)return;const s=document.createElement("script");s.defer=true;
   s.src="https://cloud.umami.is/script.js";s.dataset.websiteId=UMAMI_ID;s.dataset.domains="thegearfox.com,www.thegearfox.com";document.head.appendChild(s)})();
-function track(name,data){try{if(window.umami&&umami.track)umami.track(name,data)}catch(e){}}
+/* Our own analytics (supabase/analytics.sql): what people do, never who they are. A random device number
+   (localStorage gf-did) tells a returning visitor from a new one; no email, no cookies. Sent in small batches. */
+const ANA=(()=>{const ls=k=>{try{return localStorage.getItem(k)}catch(e){return null}},ss=k=>{try{return sessionStorage.getItem(k)}catch(e){return null}};
+  const uid=()=>{try{return crypto.randomUUID()}catch(e){return "10000000-1000-4000-8000-100000000000".replace(/[018]/g,c=>(c^Math.random()*16>>c/4).toString(16))}};
+  let did=ls("gf-did"),sid=ss("gf-sid"),nv=+(ls("gf-nv")||0),fresh=!sid;
+  if(!did){did=uid();try{localStorage.setItem("gf-did",did)}catch(e){}}
+  if(!sid){sid=uid();nv+=1;try{sessionStorage.setItem("gf-sid",sid);localStorage.setItem("gf-nv",String(nv))}catch(e){}}
+  const touch=matchMedia("(pointer:coarse)").matches,w=Math.min(screen.width||innerWidth,innerWidth);
+  const dev=touch&&w<600?"phone":touch&&w<1100?"tablet":"computer";
+  let Q=[],t0=Date.now(),maxScroll=0,timer=null;
+  const flush=(beacon)=>{if(!Q.length||typeof SB_URL==="undefined")return;const ev=Q.splice(0,40);
+    try{fetch(`${SB_URL}/rest/v1/rpc/ana_track`,{method:"POST",keepalive:!!beacon,headers:{apikey:SB_KEY,"Content-Type":"application/json"},
+      body:JSON.stringify({p_did:did,p_sid:sid,p_events:ev,p_lang:typeof LANG!=="undefined"?LANG:null,p_ref:typeof REF!=="undefined"?(REF||null):null,p_dev:dev,p_nv:nv})}).catch(()=>{})}catch(e){}
+    if(Q.length)flush(beacon)};
+  const add=(k,d,n,p)=>{Q.push({k,...(d!=null&&d!==""?{d:String(d).slice(0,120)}:{}),...(n!=null?{n}:{}),...(p?{p}:{})});
+    if(Q.length>=15){clearTimeout(timer);timer=null;flush(false)}else if(!timer)timer=setTimeout(()=>{timer=null;flush(false)},6000)};
+  addEventListener("scroll",()=>{const h=document.documentElement.scrollHeight-innerHeight;if(h>0)maxScroll=Math.max(maxScroll,Math.round(100*scrollY/h))},{passive:true});
+  let away=false;const bye=()=>{if(away)return;away=true;add("leave",null,Math.round((Date.now()-t0)/1000));if(maxScroll)add("scroll",null,maxScroll);
+    clearTimeout(timer);timer=null;flush(true)};
+  document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")bye();else{away=false;t0=Date.now()}});
+  addEventListener("pagehide",bye);
+  addEventListener("error",e=>{try{add("error",(e.message||"")+" @"+((e.filename||"").split("/").pop())+":"+e.lineno)}catch(x){}});
+  if(fresh)add("visit",document.referrer?new URL(document.referrer).hostname:"",null,location.pathname);
+  return {add,nv:()=>nv}})();
+function ana(k,d,n){try{ANA.add(k,d,n)}catch(e){}}
+function track(name,data){try{if(window.umami&&umami.track)umami.track(name,data)}catch(e){}
+  try{const o=data||{};
+    if(name==="signup-step")ana(o.step==="peek"?"peek-view":"signup-step",o.step==="peek"?"":o.step);
+    else if(name==="deal-click"||name==="ref-visit")return;          // deal clicks are sent with their card position (below)
+    else ana(name,[o.method,o.where,o.to,o.go,o.from,o.brand,o.group].filter(x=>x!=null&&x!=="").join("|"))}catch(e){}}
 /* ?ref=ig-bio etc.: which link someone came from. Kept on this device (first one wins), sent with the
    visit and with the sign-up, and saved in the subscriber's profile. */
 const REF=(()=>{let r="";try{r=(new URLSearchParams(location.search).get("ref")||"").toLowerCase().replace(/[^a-z0-9_-]/g,"").slice(0,40)}catch(e){}
@@ -942,7 +971,7 @@ $("saveSizes").addEventListener("click",async()=>{
       if(!state.gender)return gateErr(t("errFit"),$("fit"));
       if(!state.shoe.length&&!state.cloth.length)return gateErr(t("errSize"),$("shoeSizes"));
       if(FLOW!=="C"&&gSession)return googleSubscribe();       // signed in with Google already: done
-      if(FLOW==="D"){PEEK=true;LS.set("gf-peek",1);LS.set("rd-profile",toProfile());track("signup-step",{flow:FLOW,step:"peek"});
+      if(FLOW==="D"){PEEK=true;LS.set("gf-peek",1);LS.set("rd-profile",toProfile());track("signup-step",{flow:FLOW,step:"peek"});ana("sizes-saved",[state.gender,state.shoe.join(","),state.cloth.join(","),state.terrain].join("|"));
         closeSheet();view.open={};renderAll();window.scrollTo({top:0});return}   // D: their first deals now, email card below
       if(FLOW!=="C")return nextStep();                          // B: sizes done, now the email step
     }else if(FLOW==="C"&&step===1){                              // C: account first
@@ -1181,7 +1210,7 @@ function renderFilters(){
     `<button type="button" class="chip" data-t="sale" aria-pressed="${view.fullPrice}">${t("saleOnly")}</button>`;
   $("sort").value=view.sort;
 }
-$("cats").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;const v=b.dataset.v;
+$("cats").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;const v=b.dataset.v;ana("category",v);
   const all=ORDER.every(g=>state.groups.includes(g));
   if(v==="__all")state.groups=ORDER.slice();
   else if(all)state.groups=[v];                       // from "all", tapping one narrows to it
@@ -1193,6 +1222,8 @@ $("toggles").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!
   view.open={};renderAll()});
 $("sort").addEventListener("change",e=>{view.sort=e.target.value;view.open={};renderAll()});
 let searchT;$("dSearch").addEventListener("input",e=>{clearTimeout(searchT);searchT=setTimeout(()=>{view.q=e.target.value;view.open={};renderAll()},200)});
+let anaQ="",anaQT;$("dSearch").addEventListener("input",e=>{clearTimeout(anaQT);anaQT=setTimeout(()=>{const q=e.target.value.trim().toLowerCase();
+  if(q.length<2||q===anaQ)return;anaQ=q;const n=document.querySelectorAll("#dealList .dw").length;ana(n?"search":"search-none",q,n)},1500)});
 $("newBox").addEventListener("click",e=>{
   const ar=e.target.closest("[data-row]");
   if(ar){const g=ar.parentNode.querySelector(".grid");g.scrollBy({left:(+ar.dataset.row)*g.clientWidth*0.8,behavior:"smooth"});return}
@@ -1216,7 +1247,7 @@ function heartBtn(k,on,d){return `<button type="button" class="heart" data-key="
 function saveWatches(){LS.set("gf-watch",watches);const n=Object.keys(watches).length;$("watchCount").textContent=n?String(n):""}
 let toastT;function toast(t){const e=$("toast");e.textContent=t;e.classList.remove("hidden");clearTimeout(toastT);toastT=setTimeout(()=>e.classList.add("hidden"),3200)}
 function toggleWatch(k){
-  if(watches[k]){delete watches[k];saveWatches();
+  if(watches[k]){ana("watch-remove",watches[k].g);delete watches[k];saveWatches();
     if(sub&&sub.key)rpc("watch_remove",{p_token:sub.key,p_key:k}).catch(()=>{});
     toast(t("removed"));return}
   const d=(byKey[k]||[])[0];if(!d)return;
@@ -1243,8 +1274,10 @@ async function syncWatches(){
 ["dealList","newBox"].forEach(id=>$(id).addEventListener("click",e=>{const h=e.target.closest(".heart");if(!h)return;e.preventDefault();e.stopPropagation();
   toggleWatch(h.dataset.key);const on=!!watches[h.dataset.key];
   if(view.watch)renderAll();else{document.querySelectorAll(`.heart[data-key="${CSS.escape(h.dataset.key)}"]`).forEach(x=>x.setAttribute("aria-pressed",String(on)))}}));
-function setWatchView(on){view.watch=on;if(on)loadFull();$("openWatch").setAttribute("aria-pressed",String(on));view.open={};renderAll();window.scrollTo({top:0})}
+function setWatchView(on){if(on)ana("watchlist-open",Object.keys(watches).length);view.watch=on;if(on)loadFull();$("openWatch").setAttribute("aria-pressed",String(on));view.open={};renderAll();window.scrollTo({top:0})}
 $("openWatch").addEventListener("click",()=>setWatchView(!view.watch));
+$("filtersBox").addEventListener("change",e=>{const el=e.target;if(!el||el.closest("#cats"))return;
+  ana(el.id==="sort"?"sort":"filter",(el.id||el.name||el.value||"")+(el.type==="checkbox"?":"+el.checked:el.id==="sort"?"":":"+el.value),null)});
 /* ☰ menu: the shoe pages, watchlist, sizes, About, Instagram, language and currency */
 function menuOpen(on){$("menu").hidden=!on;$("menuBtn").setAttribute("aria-expanded",String(on));
   if(on){$("mShoes").href=LANG==="fr"?"chaussures/":"shoes/";const f=$("menu").querySelector("a,button");if(f)f.focus()}}
@@ -1352,6 +1385,8 @@ function renderStats(){
 ["dealList","newBox"].forEach(id=>$(id).addEventListener("click",e=>{const a=e.target.closest("a.deal");if(!a)return;const h=a.parentNode.querySelector(".heart");
   const d=h&&RENDERED[h.dataset.key];
   track("deal-click",{store:a.dataset.store||storeOf(a.href),brand:d?d.b:"",group:d?d.g:"",pct:d?d.pct:0,view:view.watch?"watchlist":"shop"});
+  try{const g=a.closest(".grid"),w=a.closest(".dw"),sec=a.closest(".grp");
+    ana("deal-click",[a.dataset.store||storeOf(a.href),d?d.g:"",d?d.pct:"",view.watch?"watchlist":(sec&&sec.id?sec.id.replace("grp-",""):"top"),peeking()?"peek":""].join("|"),g&&w?[...g.children].indexOf(w)+1:null)}catch(e){}
   logEvent("click",a.dataset.store||storeOf(a.href),d?d.g:null);
   if(h){recordClick(h.dataset.key);setTimeout(renderStats,0)}},true));
 

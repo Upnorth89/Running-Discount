@@ -380,6 +380,23 @@ def page_foot(L):
     return f"""<p class="foot">{esc(L['foot'])} · <a href="https://www.instagram.com/thegearfox/" rel="noopener">@thegearfox</a> · <a href="{priv}">{L['privacy']}</a></p>
 </main>
 <script>
+/* our own analytics (same as the homepage, supabase/analytics.sql): what people do, never who they are */
+var ana=(function(){{var ls=function(k){{try{{return localStorage.getItem(k)}}catch(e){{return null}}}},ss=function(k){{try{{return sessionStorage.getItem(k)}}catch(e){{return null}}}};
+  var uid=function(){{try{{return crypto.randomUUID()}}catch(e){{return "10000000-1000-4000-8000-100000000000".replace(/[018]/g,function(c){{return (c^Math.random()*16>>c/4).toString(16)}})}}}};
+  var did=ls("gf-did"),sid=ss("gf-sid"),nv=+(ls("gf-nv")||0),fresh=!sid,Q=[],t0=Date.now(),T=null;
+  if(!did){{did=uid();try{{localStorage.setItem("gf-did",did)}}catch(e){{}}}}
+  if(!sid){{sid=uid();nv+=1;try{{sessionStorage.setItem("gf-sid",sid);localStorage.setItem("gf-nv",String(nv))}}catch(e){{}}}}
+  var touch=matchMedia("(pointer:coarse)").matches,w=Math.min(screen.width||innerWidth,innerWidth),dev=touch&&w<600?"phone":touch&&w<1100?"tablet":"computer";
+  var ref=null;try{{ref=new URLSearchParams(location.search).get("ref")||JSON.parse(localStorage.getItem("gf-ref")||"null")}}catch(e){{}}
+  function flush(k){{if(!Q.length)return;var ev=Q.splice(0,40);try{{fetch("{SB_URL}/rest/v1/rpc/ana_track",{{method:"POST",keepalive:!!k,headers:{{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"}},
+    body:JSON.stringify({{p_did:did,p_sid:sid,p_events:ev,p_lang:"{L['lang'][:2]}",p_ref:ref,p_dev:dev,p_nv:nv}})}}).catch(function(){{}})}}catch(e){{}}}}
+  function add(k,d,n,p){{var e={{k:k}};if(d)e.d=String(d).slice(0,120);if(n!=null)e.n=n;if(p)e.p=p;Q.push(e);if(!T)T=setTimeout(function(){{T=null;flush(false)}},6000)}}
+  var away=false,bye=function(){{if(away)return;away=true;add("leave",null,Math.round((Date.now()-t0)/1000));clearTimeout(T);T=null;flush(true)}};
+  document.addEventListener("visibilitychange",function(){{if(document.visibilityState==="hidden")bye();else{{away=false;t0=Date.now()}}}});
+  addEventListener("pagehide",bye);
+  if(fresh)add("visit",document.referrer?new URL(document.referrer).hostname:"",null,location.pathname);
+  var m=location.pathname.match(/^\/(?:shoes|chaussures)\/([^\/]+)\/$/);add("shoe-page-view",m?m[1]:location.pathname);
+  return add}})();
 (function(){{var p,box=document.getElementById("mine");if(!box)return;
 try{{p=JSON.parse(localStorage.getItem("rd-profile")||"null")}}catch(e){{}}
 var clean=function(s){{return s.replace(/\s*\(.*\)$/,"")}};
@@ -410,7 +427,7 @@ var pickRow=function(){{box.hidden=false;box.innerHTML='<label class="pickl">'+b
 var choose=function(v,save){{if(!v){{pickRow();return}}var ti=+v.split("|")[0],s=v.slice(v.indexOf("|")+1),t=tables[ti];if(!t){{pickRow();return}}
   var best=mark(function(tt,tti,rs){{return tti===ti&&rs===s}});
   if(save){{var n=clean(s),gg=t.dataset.g;if(/^W /.test(n)){{gg="women";n=n.slice(2)}}else if(gg==="unisex")gg="men";
-    try{{localStorage.setItem("gf-shoe-size",JSON.stringify({{g:gg,s:n,v:v}}))}}catch(e){{}}try{{window.umami&&umami.track("shoe-page-size",{{}})}}catch(e){{}}}}
+    try{{localStorage.setItem("gf-shoe-size",JSON.stringify({{g:gg,s:n,v:v}}))}}catch(e){{}}try{{ana("shoe-page-size",gg+"|"+n)}}catch(e){{}}try{{window.umami&&umami.track("shoe-page-size",{{}})}}catch(e){{}}}}
   say(best,' · <button type="button" class="chg">'+box.dataset.chg+"</button>"+'<span class="all"><a href="'+box.dataset.home+'">'+box.dataset.all+"</a></span>");
   box.querySelector(".chg").addEventListener("click",function(){{sel.value="";pickRow();sel.focus()}})}};
 sel.addEventListener("change",function(){{choose(sel.value,true)}});
@@ -422,7 +439,8 @@ else pickRow()}})();
 document.addEventListener("click",function(e){{var a=e.target.closest("a[data-store]");if(!a)return;
 try{{fetch("{SB_URL}/rest/v1/rpc/log_event",{{method:"POST",keepalive:true,headers:{{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"}},
 body:JSON.stringify({{p_kind:"click",p_store:a.dataset.store,p_group:"shoes",p_ref:"shoe-page",p_lang:"{L['lang'][:2]}"}})}})}}catch(x){{}}
-try{{window.umami&&umami.track("deal-click",{{store:a.dataset.store,from:"shoe-page"}})}}catch(x){{}}}});
+try{{window.umami&&umami.track("deal-click",{{store:a.dataset.store,from:"shoe-page"}})}}catch(x){{}}
+try{{var tr=a.closest("tr");ana("deal-click",a.dataset.store+"|shoes||shoe-page",tr?[].indexOf.call(tr.parentNode.children,tr)+1:null)}}catch(x){{}}}});
 </script>
 </body>
 </html>

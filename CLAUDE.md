@@ -64,6 +64,12 @@ supabase/morning-timer.sql  pg_cron at 11:17 UTC starts refresh.yml (morning=tru
                          as github_dispatch_token (fine-grained, Actions read/write; EXPIRES 2027-09-29: renew before)
 supabase/friday-timer.sql  pg_cron Fridays :07 9-18 UTC starts weekly-email.yml with send_to=due (same Vault key)
 supabase/clicks.sql      own visit/click counts for the monthly report (log_event, click_report); applied
+supabase/analytics.sql   own product analytics (Oct 4): ana_events (raw, 45 days, pg_cron cleanup) + ana_devices (random device id
+                         gf-did in localStorage: first/last day, visits, signed_up; no email/IP) + ana_track (site sends batches) +
+                         ana_report (weekly report). Site: ANA module beside track() in index.html (forwards every Umami event,
+                         plus search/search-none with result count, category, filter, sort, deal-click with card position, scroll,
+                         leave seconds, errors); shoe pages send visit/shoe-page-view/shoe-page-size/deal-click. Privacy page says so.
+                         scraper/usage_report.py + usage-report.yml: Monday 8:13am Vancouver email "How people used The Gear Fox".
 supabase/personal-emails.sql  confirmation/sign-in emails from "Bastien from The Gear Fox" <bastien@>, branded design
                          (applied). Keep Resend open/click tracking OFF: with it on, Gmail files them in Promotions
 tools/make_preview.py    builds the playable preview artifact from site/index.html
