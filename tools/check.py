@@ -6,7 +6,8 @@ folder, and stops at the first thing that crashes or comes out empty. Nothing sh
 
 Checks: every Python file compiles · every script in the site pages parses (node --check) · deals merge from today's
 offers · shoe pages, list pages, Black Friday and sitemap get built (350+ models) · the Friday email matches and draws
-cards for a sample runner · the preview builds. Added Oct 4, 2026 after the shoe pages broke silently for 3 hours.
+cards for a sample runner · the preview builds · the site test clicks through it like a visitor
+(tools/sitetest.py; set CHROMIUM=/path/to/chromium if Playwright's own browser isn't installed). Added Oct 4, 2026 after the shoe pages broke silently for 3 hours.
 """
 import json
 import py_compile
@@ -133,6 +134,19 @@ def main():
             raise RuntimeError(r.stderr.strip().splitlines()[-1])
         return r.stdout.strip().splitlines()[-1][:80]
     step("Preview builds", preview)
+
+    def sitetest():
+        out = work / "sitetest.json"
+        r = subprocess.run([sys.executable, str(ROOT / "tools" / "sitetest.py"), str(site), str(out)],
+                           capture_output=True, text=True, timeout=900)
+        if not out.exists():
+            raise RuntimeError((r.stderr or r.stdout).strip().splitlines()[-1])
+        st = json.loads(out.read_text())
+        bad = [f"{c['name']}: {c['why']}" for c in st["checks"] if not c["ok"]]
+        if bad:
+            raise RuntimeError("; ".join(bad[:3]) + (f" (+{len(bad) - 3} more)" if len(bad) > 3 else ""))
+        return f"{st['passed']} checks, clicked through like a visitor"
+    step("Site test (tools/sitetest.py)", sitetest)
 
     shutil.rmtree(work, ignore_errors=True)
     shutil.rmtree(ROOT / "scraper" / "__pycache__", ignore_errors=True)

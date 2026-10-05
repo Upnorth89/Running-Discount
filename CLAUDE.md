@@ -28,7 +28,7 @@ That plan (a Claude Docs doc) also holds the Fox Pro free/paid table, the Press 
 - After every change, verify it landed: the right file in the right folder, the site updated, nothing broken.
 - **Before every push to main: `python tools/check.py` must say ALL GOOD** (Oct 4: the shoe pages broke silently for 3 hours
   after a change that wasn't run through the shoe page builder; Bastien: "this should not be happening"). It rebuilds deals,
-  shoe pages, the Friday email cards and the preview from today's live data (~20 s). The refresh workflow also refuses to
+  shoe pages, the Friday email cards and the preview from today's live data, then runs the site test (~3 min). The refresh workflow also refuses to
   publish when the shoe pages are missing (yesterday's site stays up) and the health email flags it.
 - Don't touch `email/profiles.json` (old sign-up list; kept out of commits). Subscribers live in Supabase.
 - Don't circumvent bot protection. Stores that block automated access (Sport Chek, Running Room, Atmosphere,
@@ -105,6 +105,19 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
     not code: the one exception to "no side branches"), a point when the best price changes; adds `lo` (lowest in 60 days)
     and `hd` (days of history) to deals.json/sale.json. For "Is this deal real?" badges before Black Friday (Nov 27).
     Badge rule (Bastien, Oct 3): good news only ("Lowest price we've seen in N days", 30+ days of history), never "was cheaper before".
+- **Site test** (`tools/sitetest.py`, Oct 5; Bastien: "these little glitches are being caught by users and not our own health
+  check"): every refresh, after the shoe pages, a robot phone (Playwright) opens the freshly built site served locally (sign-up,
+  analytics and Google calls answered by a stand-in, nothing reaches Supabase/Umami) and clicks through like a visitor: welcome ->
+  men's 11/M -> deals, sign-up card + No thanks, every category chip shows only its category (+ Show more, shoe types), one search
+  per category (the brand that category shows most today: all results match and stay in the category), a shoe model search,
+  "naak" = "Näak", nonsense search -> "Nothing matches", Include full price + sort by price, heart -> email step, ☰ menu,
+  French, returning visit, Menu > My sizes -> women's 8/S + Sports bras search, a shoe page from a card, list/BF/About/privacy
+  pages, every internal link on them, script errors; then 2 deal links per store (404/410 on both = broken; 403/429 = couldn't
+  check: Decathlon, MEC, Sporting Life block robots). Results -> /tmp/sitetest.json -> health email ("Site test, <check>: why"
+  + a summary line); screenshots of failures are the "sitetest" artifact on the run. Critical checks (welcome, deals after
+  sizes, returning visit, shoe page) are retried once, then stop publishing (yesterday's site stays up). `tools/check.py` runs
+  it too (locally: CHROMIUM=/opt/pw-browsers/chromium). When adding a feature, add its check to sitetest.py.
+  First catch (Oct 5): after a heart, "My sizes"/Edit opened the email step instead of the sizes (`editSizes()`).
 - **Weekly deals email** (`weekly-email.yml`): every hour on Friday 9:07–18:07 UTC. Each run sends to
   subscribers for whom it is now Friday 7am or later in their own time zone (profile `tz` from the browser;
   default: French = Eastern, English = Pacific) and records `weekly_sent_at` so nobody gets two.

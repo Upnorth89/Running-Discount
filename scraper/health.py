@@ -12,10 +12,12 @@ What it catches
   - a store with an unusual pile of 70%+ discounts (usually bad "regular" prices)
   - the whole catalogue shrinking sharply
   - sign-ups getting close to the free email plan's limits
+  - anything the site test found (tools/sitetest.py: clicks through the site like a visitor, searches, links)
 
 Usage: python scraper/health.py YESTERDAY_DIR SITE_DIR
 Env:   RESEND_API_KEY, HEALTH_EMAIL (default hello@thegearfox.com), FROM_EMAIL,
        SUPABASE_URL, SUPABASE_SECRET_KEY (optional, for the sign-up checks),
+       SITETEST (default /tmp/sitetest.json, the site test's results),
        SEND_HEALTH=1 to email (the workflow sets it on the scheduled morning run only)
 """
 import json
@@ -115,6 +117,13 @@ def check():
         problems.append(("shoepages", f"Only {pages} shoe price pages were built today (normally 350+): the shoe pages step "
                                       "failed, so Google and visitors get 'page not found'. Claude should look at the refresh log."))
 
+    # the site test (tools/sitetest.py): a robot visitor clicked through today's site before it was published
+    st = load(Path(os.environ.get("SITETEST", "/tmp/sitetest.json")))
+    for c in st.get("checks", []):
+        if not c.get("ok"):
+            problems.append((f"site:{c['name']}", f"Site test, {c['name']}: {c.get('why', 'failed')}"
+                                                  + (" (critical: yesterday's site stays up)" if c.get("critical") else "")))
+
     # sign-ups vs the free email plan
     sb, key = os.environ.get("SUPABASE_URL", "").rstrip("/"), os.environ.get("SUPABASE_SECRET_KEY", "")
     subs = new = None
@@ -143,7 +152,18 @@ def check():
                    key=lambda x: -abs(x[1] - x[2]))
     return problems, {"items": items, "items0": items0, "sale": sale(deals.get("items", [])), "sale0": sale(deals0.get("items", [])),
                       "stores": {st: len(v) for st, v in offers.items()}, "stores_ok": fresh_stores, "stores_n": len(offers),
-                      "moves": [m for m in moves if abs(m[1] - m[2]) >= 10][:5], "subscribers": subs, "signups_24h": new}
+                      "moves": [m for m in moves if abs(m[1] - m[2]) >= 10][:5], "subscribers": subs, "signups_24h": new,
+                      "sitetest": st}
+
+
+def site_line(st):
+    if not st.get("checks"):
+        return "- Site test didn't run today (see the log)\n"
+    n, ok = len(st["checks"]), st.get("passed", 0)
+    ln = st.get("links", {})
+    links = (f"; store links: {ln['ok']} of {ln['stores']} stores open" + (f", {len(ln['unsure'])} couldn't be checked "
+             f"(they block robots: {', '.join(ln['unsure'])})" if ln.get("unsure") else "")) if "stores" in ln else ""
+    return f"- Site test (a robot visitor clicked through the site): {ok} of {n} checks passed{links}\n"
 
 
 def main():
@@ -180,6 +200,7 @@ def main():
                f"- {stats['items']:,} products{d(stats['items'], stats['items0'])}\n" + \
                f"- {stats['sale']:,} on sale{d(stats['sale'], stats['sale0'])}\n" + \
                f"- {stats['stores_ok']} of {stats['stores_n']} stores updated in the last day\n" + \
+               site_line(stats["sitetest"]) + \
                (f"- {stats['subscribers']} subscribers, {stats['signups_24h']} new sign-ups in the last 24 hours\n"
                 if stats["subscribers"] is not None else "") + \
                ("\nBiggest changes by store:\n" + "\n".join(f"- {st}: {a:,} products (was {b:,})" for st, a, b in stats["moves"]) + "\n"

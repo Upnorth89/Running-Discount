@@ -987,8 +987,10 @@ function openSheet(){lastFocus=document.activeElement;renderSheet();
 $("stepBack").addEventListener("click",()=>{step=Math.max(FLOW==="D"?0:1,step-1);openSheet();$("panel").scrollTop=0});
 function nextStep(){step+=1;track("signup-step",{flow:FLOW,step});openSheet();$("panel").scrollTop=0}
 function closeSheet(){$("sheet").classList.add("hidden");document.body.classList.remove("locked");if(lastFocus&&lastFocus.focus)lastFocus.focus()}
-$("openSizes").addEventListener("click",openSheet);
-$("sizePill").addEventListener("click",openSheet);
+// "My sizes" always opens the sizes, even after a heart left the sheet on the email step (found by the site test, Oct 5)
+function editSizes(){if(peeking())step=1;openSheet()}
+$("openSizes").addEventListener("click",editSizes);
+$("sizePill").addEventListener("click",editSizes);
 $("closeSheet").addEventListener("click",()=>{if(gated()&&!peeking())return;closeSheet();renderAll()});
 $("sheet").addEventListener("click",e=>{if(e.target===$("sheet")&&(!gated()||peeking())){closeSheet();renderAll()}});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("sheet").classList.contains("hidden")&&(!gated()||peeking())){closeSheet();renderAll()}});
@@ -1326,7 +1328,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("menu").hidden){
 $("menu").addEventListener("click",e=>{const it=e.target.closest("[data-go]");if(!it)return;const go=it.dataset.go;track("menu",{go});
   if(go==="deals"){menuOpen(false);if(view.watch)setWatchView(false);else window.scrollTo({top:0,behavior:"smooth"})}
   else if(go==="watch"){menuOpen(false);if(!view.watch)setWatchView(true)}
-  else if(go==="sizes"){menuOpen(false);openSheet()}
+  else if(go==="sizes"){menuOpen(false);editSizes()}
   else if(go==="app"){menuOpen(false);appTip("menu")}
   else menuOpen(false)});
 /* Home screen app: a ☰ line on phones/tablets outside the app, and a one-time tip for members from their 2nd visit
@@ -1357,7 +1359,7 @@ function maybeAppTip(){try{
 /* links from the shoe pages' menu: /?show=watch opens the watchlist, /?show=sizes the sizes */
 (()=>{let v="";try{v=new URLSearchParams(location.search).get("show")||"";if(v)history.replaceState(null,"",location.pathname)}catch(e){}
   const go=()=>{if(!DATA)return setTimeout(go,300);if(document.body.classList.contains("locked"))return;
-    if(v==="watch")setWatchView(true);else if(v==="sizes")openSheet()};if(v==="watch"||v==="sizes")go()})();
+    if(v==="watch")setWatchView(true);else if(v==="sizes")editSizes()};if(v==="watch"||v==="sizes")go()})();
 $("backToDeals").addEventListener("click",()=>setWatchView(false));
 $("shareBtn").addEventListener("click",async()=>{
   const url="https://thegearfox.com/?ref=share"+(LANG==="fr"?"&lang=fr":"");track("share",{lang:LANG});
@@ -1459,7 +1461,7 @@ function renderAll(){
   $("sizeSummary").textContent=sizeSummary();
   $("newBox").innerHTML="";
   const sh=$("subhead");sh.classList.toggle("hidden",!CALM||!!view.watch||(gated()&&!peeking()));
-  if(CALM){sh.innerHTML=`${esc(sizeSummary())} · <button type="button" class="linkbtn" id="editSz">${t("edit")}</button>`;$("editSz").addEventListener("click",()=>{if(peeking())step=1;openSheet()});
+  if(CALM){sh.innerHTML=`${esc(sizeSummary())} · <button type="button" class="linkbtn" id="editSz">${t("edit")}</button>`;$("editSz").addEventListener("click",editSizes);
     const dirty=state.ships==="all"||view.fullPrice||view.sort!=="match";$("filtDot").classList.toggle("hidden",!dirty)}
   const w=!!view.watch;
   $("filtersBox").classList.toggle("hidden",w);$("backToDeals").classList.toggle("hidden",!w);
