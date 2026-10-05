@@ -64,8 +64,17 @@
       }
       save(`svp-${new Date().toISOString().slice(0, 10)}.json`, { store: "svp", saved: new Date().toISOString(), url: location.href, products });
       say(`SVP: ${products.length} products saved. Send the file to Claude (or upload it to saved-pages/ on GitHub).`);
+    } else if (/hoka\.com$/.test(host)) {
+      // Hoka (test, Oct 5): saves only what this tab already shows (no extra requests at all), like "Save page as".
+      // Scroll to the bottom first so every shoe on the page has loaded.
+      const ld = [...document.querySelectorAll('script[type="application/ld+json"]')].map(x => x.textContent);
+      const data = [...document.querySelectorAll("script:not([src])")].map(x => x.textContent)
+        .filter(t => /price|pid|productId/i.test(t)).map(t => t.slice(0, 300000)).slice(0, 20);
+      const tiles = [...document.querySelectorAll("[data-pid], .product-tile, .product")].slice(0, 400).map(x => x.outerHTML.slice(0, 6000));
+      save(`hoka-${new Date().toISOString().slice(0, 10)}.json`, { store: "hoka", saved: new Date().toISOString(), url: location.href, ld, data, tiles });
+      say(`Hoka: ${tiles.length} shoes on this page saved. Send the file to Claude.`);
     } else {
-      say("Open the running-deals page of MEC, REI or SVP Sports first, then click the bookmark.");
+      say("Open the running-deals page of MEC, REI, SVP Sports or Hoka first, then click the bookmark.");
     }
   } catch (e) {
     say("Couldn't read this page (" + e.message + "). Make sure it's the running-deals list, then try again.");
