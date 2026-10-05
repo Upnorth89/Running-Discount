@@ -153,6 +153,8 @@ def site_flow(base, per, accented):
             page.wait_for_selector("#shoeSizes button", state="visible")
             page.click('#fit button[data-v="men"]')
             page.locator("#shoeSizes button", has_text=re.compile(r"^11$")).first.click()
+            if page.locator("#moreSizes").is_visible():      # first visit: the short sizes step hides clothing behind a link
+                page.click("#moreSizes")
             page.locator("#clothSizes button", has_text=re.compile(r"^M$")).first.click()
             page.click("#saveSizes")
             page.wait_for_selector("#sheet", state="hidden")
@@ -482,6 +484,43 @@ def site_flow(base, per, accented):
             live = [k for k, v in (reg.items() if isinstance(reg, dict) else []) if not (isinstance(v, dict) and v.get("to"))]
             return f"shoes/{live[0]}/" if live else "shoes/"
         check("Links inside the site")(inside_links, page)
+
+        # a second visitor: "just show me today's deals" from the welcome screen, sizes later
+        ctx2 = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, locale="en-CA")
+        stub(ctx2)
+        pg = ctx2.new_page()
+        pg.on("pageerror", lambda e: errors.append(str(e)))
+        pg.set_default_timeout(15000)
+
+        def browse():
+            pg.goto(base, wait_until="domcontentloaded")
+            pg.wait_for_selector("#wDeals .wdeal", state="visible", timeout=30000)
+            pg.click("#wBrowseB")
+            pg.wait_for_selector("#sheet", state="hidden")
+            pg.wait_for_selector("section.grp .deal", timeout=20000)
+            n = len(cards(pg))
+            assert n >= 20, f"'just show me today's deals' shows only {n} deals"
+            assert pg.locator(".browsebar").count(), "browsing without sizes doesn't offer to pick a size"
+            assert "Sizes on sale" in pg.inner_text("section.grp"), "cards don't say they show every size"
+            pg.reload(wait_until="domcontentloaded")
+            pg.wait_for_selector("section.grp .deal", timeout=20000)
+            assert pg.locator("#sheet").is_hidden(), "a browsing visitor gets the welcome screen again on reload"
+            pg.click(".browsebar [data-picksize]")
+            pg.wait_for_selector("#shoeSizes button", state="visible")
+            assert pg.locator("#moreSizes").is_visible() and pg.locator("#clothSizes").is_hidden(), "the short sizes step isn't short"
+            pg.click('#fit button[data-v="men"]')
+            pg.locator("#shoeSizes button", has_text=re.compile(r"^10$")).first.click()
+            pg.click("#saveSizes")
+            pg.wait_for_selector("#sheet", state="hidden")
+            settle(pg, 500)
+            assert not pg.locator(".browsebar").count(), "the 'pick your size' note stays after picking sizes"
+            chip_tops = pg.locator('#cats .chip[data-v="tops"]')
+            chip_tops.click()
+            settle(pg)
+            assert "Pick your clothing size" in pg.inner_text("main"), "clothing doesn't offer to pick a clothing size"
+            return f"{n} deals in every size, then men's 10"
+        check("Just show me deals, sizes later")(browse, pg)
+        ctx2.close()
 
         br.close()
     return errors

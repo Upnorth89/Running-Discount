@@ -291,6 +291,13 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   (only seed the first launch; tested on Bastien's iPhone Oct 4: works). App visits: analytics `visit` detail "home-screen app". Deal links open outside (target _blank).
 - No sign-up wall (Oct 4, a user said we forced sign-up): welcome -> sizes -> every deal; one card "Free with your email" (3 perks,
   Google, "No thanks" = gf-nosignup per device) after the first block; hearts open the email step (closable). Peek/blur view removed.
+- Browse first + short sizes (Oct 6, from the funnel: 51% of homepage first visits picked sizes; 86 of 141 who didn't stayed 5-60 s):
+  welcome footer = "Find my deals" + one quiet line "Just browse · Find a shoe" (FR "Tout voir · Chercher un modèle", one line
+  down to 320px). Just browse (`BROWSE`, gf-browse) = every deal in every size (matchItems: a group with no size picked shows all
+  sizes, `any` -> cards say "Sizes on sale"), a note on top "Showing every size. Pick your size…" (data-picksize). First sizes step
+  is short (`shortSizes()`: fit + shoe size; clothing, road/trail, brands behind "+ Clothing size…"); no clothing size = clothing in
+  every size with "Pick your clothing size" atop each clothing category. Analytics signup-step browse / more-sizes / pick-*.
+  Funnel numbers: tools/funnel.py + funnel.yml (run by hand; Claude reads the result from the run's annotations).
 - Come-back bar (Oct 5, Bastien): after a deal click, when the visitor returns to our tab (visibilitychange/focus, or 2.5 s later if
   the store opened without leaving), a dark bottom bar "Filling a cart at <store>? See their N deals in your size [Show] ×" (once per
   store per visit, 4+ deals, within 45 min; `offerStore()`). Show = one-store view (`view.store`, box "Shopping one store" + "× All
