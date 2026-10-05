@@ -332,27 +332,43 @@ def dec_group(x):
         g = "shoes" if "footwear" in lvl else "tops" if "top" in lvl else "bottoms" if "bottom" in lvl else None
     return g
 
+def dec_get(url):
+    """Decathlon answers "429 too many requests" to GitHub's servers at our old pace (Oct 5, 2026): wait as long as it asks
+    (Retry-After, else 30 s, 60 s), then try again."""
+    for i in range(3):
+        r = S.get(url, timeout=45)
+        if r.status_code != 429:
+            r.raise_for_status()
+            return r
+        wait = r.headers.get("Retry-After", "")
+        time.sleep(min(int(wait), 120) if wait.isdigit() else 30 * (i + 1))
+    raise requests.HTTPError(f"429 {url}")
+
 def scrape_decathlon():
     links = []
     for path in DEC_LISTS:
         start = 0
         while start < 2000:
-            html = get(f"{DEC_BASE}{path}?from={start}&size=40").text
+            try:
+                html = dec_get(f"{DEC_BASE}{path}?from={start}&size=40").text
+            except Exception as e:
+                print(f"  decathlon: {path} stopped at {start} ({str(e)[:60]})", file=sys.stderr)
+                break                                     # keep what the other lists gave
             new = [u for u in dict.fromkeys(re.findall(r'href="(/en/p/[^"]+)"', html)) if u not in links]
             if not new:
                 break
             links += new
             start += 40
-            time.sleep(1)
+            time.sleep(3)
     out, seen = [], set()
     for u in links:
         m = re.search(r"/p/[^/]+/(\d+)/", u)
         if not m or m.group(1) in seen:
             continue
         seen.add(m.group(1))
-        time.sleep(0.7)                                   # relaxed pace
+        time.sleep(1.5)                                   # relaxed pace (its own lane: the whole run doesn't wait on it)
         try:
-            skus = [x for x in dec_skus(get(DEC_BASE + u).text) if x.get("isAvailable")]
+            skus = [x for x in dec_skus(dec_get(DEC_BASE + u).text) if x.get("isAvailable")]
         except Exception:
             continue
         if not skus:
