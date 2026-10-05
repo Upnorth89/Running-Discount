@@ -1473,9 +1473,11 @@ function renderAll(){
     $("unlock").addEventListener("click",openSheet);$("dealsFoot").textContent="";$("stats").classList.add("hidden");$("watchNews").classList.add("hidden");return}
   if(w){$("stats").classList.add("hidden");return renderWatch()}
   const p=toProfile();
-  const q=view.q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const fold=x=>String(x).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();   // "naak" finds Näak, "zefal" Zéfal
+  const q=fold(view.q.trim()).split(/\s+/).filter(Boolean);
+  if(q.length&&!FULL)loadFull();     // a search looks at everything in your size, full price too (sale items first)
   let all=matchItems(p);
-  if(q.length)all=all.filter(d=>{const t=(d.b+" "+d.n).toLowerCase();return q.every(w=>t.includes(w))});
+  if(q.length)all=all.filter(d=>{const t=fold(d.b+" "+d.n);return q.every(w=>t.includes(w))});
   const onSale=all.filter(d=>d.pct>0);
   const where=state.ships==="all"?t("storesAll"):t("storesCA");
   saleNow=onSale.length;
@@ -1483,7 +1485,7 @@ function renderAll(){
   else $("lede").textContent=t("lede",num(onSale.length),num(all.length),where,DATA.updated?ago(DATA.updated):"");
   computeNew(onSale);renderStats();renderWatchButton();
   // Sale items only, unless "Include full price" is on; then everything in your size, sale items first
-  const shown=(view.fullPrice?all:onSale).slice().sort((a,b)=>((b.pct>0)-(a.pct>0))||SORTS[view.sort](a,b));
+  const shown=(view.fullPrice||q.length?all:onSale).slice().sort((a,b)=>((b.pct>0)-(a.pct>0))||SORTS[view.sort](a,b));
   const parts=[];
   // one category picked ("Lights, poles & bottles"): open straight on it, no Top deals / new row repeating part of it
   NARROW=p.groups.length===1;

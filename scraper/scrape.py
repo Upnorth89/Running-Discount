@@ -1487,7 +1487,7 @@ def tidy_shoes(offers):
 # ---------------------------------------------------------------- tidy names and accessory sizes (site, email and alerts all use these)
 BRAND_CANON = {"hoka one one": "Hoka", "hoka": "Hoka", "asics": "ASICS", "satisfy": "Satisfy", "oiselle": "Oiselle",
                "nnormal": "NNormal", "new balance": "New Balance", "on running": "On", "the north face": "The North Face",
-               "karitraa": "Kari Traa", "kari traa": "Kari Traa"}
+               "karitraa": "Kari Traa", "kari traa": "Kari Traa", "naak": "Näak", "näak": "Näak", "näak na": "Näak"}
 
 def tidy_brand(b):
     b = (b or "").strip()
