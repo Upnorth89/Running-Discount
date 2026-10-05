@@ -1,0 +1,25 @@
+name: Funnel numbers
+
+# Read-only totals for Claude: the first-visit funnel split by landing page (tools/funnel.py). Run by hand only.
+on:
+  workflow_dispatch:
+    inputs:
+      days:
+        description: "How many days to cover (default 14)"
+        required: false
+        default: "14"
+
+jobs:
+  funnel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r scraper/requirements.txt
+      - env:
+          SUPABASE_URL: "https://krwymmkauwqqxjxbvkyq.supabase.co"
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+        run: python tools/funnel.py ${{ inputs.days }}
