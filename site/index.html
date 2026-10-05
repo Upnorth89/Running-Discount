@@ -246,6 +246,7 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
 .grpnote{margin:-4px 0 10px;font-size:14px;color:var(--muted)}
 .deal .store{font-size:14px;color:var(--muted)}
 .deal .store .abroad{color:var(--ink);font-weight:600}
+.widen{margin:0 0 14px;color:var(--muted);font-size:15px}
 .deal .store .fin{color:var(--ink);font-weight:600;white-space:nowrap}
 .deal .warn{font-size:13px;font-weight:600;color:var(--err)}
 .more{margin-top:10px;width:100%}
@@ -615,7 +616,7 @@ en:{
   tellFit:"Tell us what fits",shoe:"Shoe",clothing:"Clothing",
   minAgo:m=>`${m} min ago`,hAgo:h=>`${h} h ago`,daysAgo:d=>`${d} days ago`,
   loadFail:"Couldn't load today's gear. Reload to try again.",loading:"Loading today's gear…",
-  finalSale:"Final sale",finalSaleTip:"This store takes no returns or exchanges on this item at this price",inYourSize:"In your size:",isNew:"New",bestBy:d=>`Short-dated: best by ${d}`,
+  searchWide:"Nothing in the categories you picked, so here are matches from every category.",finalSale:"Final sale",finalSaleTip:"This store takes no returns or exchanges on this item at this price",inYourSize:"In your size:",isNew:"New",bestBy:d=>`Short-dated: best by ${d}`,
   atStore:n=>`at ${n}`,shareTxt:"Know a runner who hates paying full price?",shareBtn:"Share",shareCopied:"Link copied: paste it anywhere.",shareCopy:"Copy this link:",
   shareText:"Running and outdoor gear on sale in your size, from stores across Canada.",usFuel:"Includes US stores: fuel ships well, and each deal says where it ships from.",shipsFrom:c=>`ships from ${({US:"the US",UK:"the UK",FR:"France",DK:"Denmark",AU:"Australia"})[c]||"outside Canada"}, duties may apply`,showMore:n=>`Show ${n} more`,
   allGear:"All gear",typeAll:"All",types:{daily:"Daily trainers",race:"Carbon & race",trail:"Trail",hike:"Hiking & winter",spike:"Track & XC spikes",light:"Lights",pole:"Poles",bottle:"Bottles & flasks",sun:"Sunglasses",tee:"T-shirts & tanks",layer:"Long sleeves & hoodies",jacket:"Jackets & vests",short:"Shorts",tight:"Tights",pant:"Pants"},
@@ -706,7 +707,7 @@ fr:{
   tellFit:"Dites-nous ce qui vous va",shoe:"Pointure",clothing:"Taille",
   minAgo:m=>`il y a ${m} min`,hAgo:h=>`il y a ${h} h`,daysAgo:d=>`il y a ${d} jours`,
   loadFail:"Impossible de charger les produits du jour. Rechargez la page.",loading:"Chargement des produits du jour…",
-  finalSale:"Vente finale",finalSaleTip:"Cette boutique n'accepte ni retour ni échange sur cet article à ce prix",inYourSize:"À votre taille :",isNew:"Nouveau",bestBy:d=>`Date courte : meilleur avant le ${d}`,
+  searchWide:"Rien dans les catégories choisies, alors voici les résultats de toutes les catégories.",finalSale:"Vente finale",finalSaleTip:"Cette boutique n'accepte ni retour ni échange sur cet article à ce prix",inYourSize:"À votre taille :",isNew:"Nouveau",bestBy:d=>`Date courte : meilleur avant le ${d}`,
   atStore:n=>`chez ${n}`,shareTxt:"Un ami coureur déteste payer le plein prix ?",shareBtn:"Partager",shareCopied:"Lien copié : collez-le où vous voulez.",shareCopy:"Copiez ce lien :",
   shareText:"Des aubaines de course et de plein air dans votre taille, dans des boutiques partout au Canada.",usFuel:"Comprend des boutiques américaines : la nutrition voyage bien, et chaque aubaine indique d'où elle est expédiée.",shipsFrom:c=>`expédié ${({US:"des États-Unis",UK:"du Royaume-Uni",FR:"de France",DK:"du Danemark",AU:"d'Australie"})[c]||"de l'extérieur du Canada"}, des droits peuvent s'appliquer`,showMore:n=>`Voir ${n} de plus`,
   allGear:"Tout",typeAll:"Tout",types:{daily:"Entraînement",race:"Carbone et compétition",trail:"Sentier",hike:"Randonnée et hiver",spike:"Pointes (piste et cross)",light:"Frontales",pole:"Bâtons",bottle:"Gourdes et flasques",sun:"Lunettes de soleil",tee:"T-shirts et camisoles",layer:"Manches longues et kangourous",jacket:"Manteaux et vestes",short:"Shorts",tight:"Collants",pant:"Pantalons"},
@@ -1476,8 +1477,10 @@ function renderAll(){
   const fold=x=>String(x).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();   // "naak" finds Näak, "zefal" Zéfal
   const q=fold(view.q.trim()).split(/\s+/).filter(Boolean);
   if(q.length&&!FULL)loadFull();     // a search looks at everything in your size, full price too (sale items first)
-  let all=matchItems(q.length?{...p,groups:ORDER}:p);   // a search looks in every category, not only the ones picked for daily deals
-  if(q.length)all=all.filter(d=>{const t=fold(d.b+" "+d.n);return q.every(w=>t.includes(w))});
+  // a search stays inside the categories picked (chips); only when nothing matches there does it look in every category
+  const hit=d=>{const t=fold(d.b+" "+d.n);return q.every(w=>t.includes(w))};
+  let all=matchItems(p),wide=false;
+  if(q.length){all=all.filter(hit);if(!all.length&&!ORDER.every(g=>p.groups.includes(g))){all=matchItems({...p,groups:ORDER}).filter(hit);wide=all.length>0}}
   const onSale=all.filter(d=>d.pct>0);
   const where=state.ships==="all"?t("storesAll"):t("storesCA");
   saleNow=onSale.length;
@@ -1494,8 +1497,9 @@ function renderAll(){
   const top=shoesFirst(onSale.slice().sort(SORTS[view.sort]));
   if(!NARROW)parts.push(section("__sale",t("secSale"),top,"sale"));
   const inTop=new Set(NARROW?[]:top.slice(0,view.open.__sale||PAGE).map(itemKey));   // don't show the same deal twice
-  ORDER.filter(g=>q.length||p.groups.includes(g)).forEach(g=>{const ty=view.type[g];   // a type picked: every match, Top deals included
+  ORDER.filter(g=>wide||p.groups.includes(g)).forEach(g=>{const ty=view.type[g];   // a type picked: every match, Top deals included
     parts.push(section(g,GL(g),shown.filter(d=>d.g===g&&(ty?d.t===ty:!inTop.has(itemKey(d))))))});
+  if(wide)parts.unshift(`<div class="widen">${t("searchWide")}</div>`);
   if(q.length){const hits=shoeSearch(q);if(hits.length)parts.unshift(`<div class="spcards">${hits.map(([sl,m])=>`<a class="spcard" href="${shoeUrl(sl)}" data-sp="search"><span><b>${esc(m.n)}</b><small>${t("spCardTxt")}</small></span><span class="go">${t("spCardGo")}</span></a>`).join("")}</div>`)}
   const body=parts.filter(Boolean);
   body.splice(Math.min(1,body.length),0,signupHTML());   // the email card sits right after the first block of deals

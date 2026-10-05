@@ -69,7 +69,7 @@ PTL = {
 RULES = [
     ("shoes",     r"\bshoes?\b|\bchaussures?\b|\bspikes\b|\bfootwear\b|\bsneakers?\b"),
     ("bras",      r"\bbras?\b"),
-    ("socks",     r"\bsocks?\b|mini crew|no[- ]show|over[- ]the[- ]calf|\bquarter\b(?![- ]?zip)"),
+    ("socks",     r"\bsocks?\b|\bchaussettes?\b|mini crew|micro crew|mid crew|crew height|no[- ]show|over[- ]the[- ]calf|\bquarter\b(?![- ]?zip)|cushion\b.*\bcrew\b"),
     ("gloves",    r"\bgloves?\b|\bmitts?\b|mittens"),
     ("watches",   r"\bwatch(es)?\b"),
     ("headwear",  r"\bhats?\b|\bcaps?\b|\b(?:go|trl|crw|fst|alz|ss|gt)cap\b|beanie|toque|tuque|headband|\bbuffs?\b|neck ?gaiter|visor"),
@@ -1425,6 +1425,8 @@ TYPES["gear"] = [
 ]
 TYPES = {g: [(k, re.compile(rx, re.I)) for k, rx in v] for g, v in TYPES.items()}
 
+CLOTH_SOCK = re.compile(r"\bsocks?\b|\bchaussettes?\b|mini crew|micro crew|mid crew|crew height|no[- ]show|over[- ]the[- ]calf|cushion\b.*\bcrew\b", re.I)
+
 def tidy_clothes(offers):
     out = []
     for o in offers:
@@ -1435,6 +1437,8 @@ def tidy_clothes(offers):
             o["g"] = "bras"
         elif o["g"] == "tops" and CLOTH_CAPRI.search(n):
             o["g"] = "bottoms"
+        if o["g"] in ("tops", "gear", "headwear") and CLOTH_SOCK.search(n):
+            o["g"] = "socks"           # "Run Zero Cushion Mid Crew Height", "Chaussettes Hike…": a crew sock, not a crew-neck top
         if o["g"] in ("tops", "bottoms") and re.search(r"\blens(es)?\b|sunglass", n, re.I):
             o["g"] = "gear"            # MEC files spare sunglass lenses under clothing ("Equinox Lens")
         out.append(o)
