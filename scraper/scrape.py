@@ -1485,6 +1485,9 @@ def tidy_shoes(offers):
     return out
 
 # ---------------------------------------------------------------- tidy names and accessory sizes (site, email and alerts all use these)
+BRAND_PREFER = {"adidas", "rabbit", "norda", "Arc'teryx", "The North Face", "Squirrel's Nut Butter", "New Balance", "Nathan", "Inov-8", "Ketone-IQ",
+                "SaltStick", "Precision Fuel & Hydration", "Tailwind Nutrition", "Xact Nutrition", "Feetures", "Body Glide",
+                "Naked", "Ciele", "SPIbelt", "Trigger Point", "Pro-Tec Athletics", "DexShell", "NiteVest", "Oboz"}
 BRAND_CANON = {"hoka one one": "Hoka", "hoka": "Hoka", "asics": "ASICS", "satisfy": "Satisfy", "oiselle": "Oiselle",
                "nnormal": "NNormal", "new balance": "New Balance", "on running": "On", "the north face": "The North Face",
                "karitraa": "Kari Traa", "kari traa": "Kari Traa", "naak": "Näak", "näak": "Näak", "näak na": "Näak"}
@@ -1631,6 +1634,24 @@ def merge(offers):
         o["n"] = tidy_name(o["b"], o["n"])
         o["sx"] = name_gender(o["n"]) or o["sx"]
         tidied.append(o)
+    # one brand, one spelling, decided before cards are keyed ("Nathan Sports" = "Nathan", "ciele athletics" = "Ciele",
+    # "SOAR Running" = "SOAR", "North Face" = "The North Face"): same letters once filler words and punctuation go;
+    # the most common spelling wins, BRAND_PREFER first (Oct 5, 2026: ~30 brands were split across cards)
+    def bkey(b):
+        t = re.sub(r"[®™!]", "", (b or "").lower())
+        t2 = re.sub(r"\b(sports?|running|innovations|inc|co|corp|company|ltd|athletics|apparel|footwear|the|optical products corp)\b", "", t)
+        t2 = re.sub(r"[^a-z0-9]+", "", t2)
+        return t2 if len(t2) >= 3 else re.sub(r"[^a-z0-9]+", "", t)
+    bcount = collections.Counter(o["b"] for o in tidied)
+    best = {}
+    for b, n in bcount.items():
+        k, cur = bkey(b), best.get(bkey(b))
+        rank = lambda x: (x in BRAND_PREFER, x != x.upper() or len(x) <= 4, bcount[x])
+        if cur is None or rank(b) > rank(cur):
+            best[k] = b
+    best.update({bkey(p): p for p in BRAND_PREFER})        # the official spelling wins even when no store uses it exactly
+    for o in tidied:
+        o["b"] = best.get(bkey(o["b"]), o["b"])
     _TRAIL_MODELS.clear()
     for o in tidied:          # models a store names with Trail/Road but without "running" ("Ghost Trail - Men's")
         if o["g"] == "shoes" and re.search(r"\b(trail|road)\b", o["n"], re.I) and not re.search(r"\brunning\b", o["n"], re.I):
