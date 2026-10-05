@@ -99,6 +99,7 @@ fresh pages with the Grab deals bookmark (US only). MEC also comes from saved pa
 | Brand | Status |
 |---|---|
 | Brooks, New Balance, ASICS, Hoka, adidas, Inov-8, The North Face | block automated reading: skip (their shoes reach us through the stores) |
+| Rechecked Oct 5, 2026 | Hoka (406 Access Denied), New Balance, Brooks, ASICS, Salomon (403), adidas.ca (connection dropped): still blocked. Nike: listings readable but robots.txt disallows product pages (*/p/), where sizes live: not usable. On: page is a script shell, robots disallows /api: not usable. Saucony (saucony.ca → saucony.com/CA, Salesforce) and Puma (ca.puma.com, robots allows /pd/ product pages; price + colour stock in the page, per-size stock loads separately): candidates, need their own reader |
 | Norda, Altra, Ciele, rabbit, Janji, … | already read (Shopify) |
 | Saucony (saucony.com/CA), Salomon (salomon.com/en-ca), On (on.com/en-ca), Nike (nike.com/ca) | readable pages, need their own reader: planned, one at a time (Saucony, Salomon first) |
 | Arc'teryx, Craft, Topo, Dynafit | readable, less running-focused or US-only: low priority |
