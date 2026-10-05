@@ -373,6 +373,12 @@ def site_flow(base, per, accented):
             other = [x for x in stores if name not in x]
             assert not other, f"{name}'s page also shows another store's deal ({other[0].strip()})"
             page.click(".storebar button")
+            settle(page, 300)
+            # the iPhone back button can bring back a reloaded page: the bar must still remember the store
+            page.evaluate("sessionStorage.removeItem('gf-offered')")
+            page.reload(wait_until="domcontentloaded")
+            page.wait_for_selector("#backBar", timeout=8000)
+            page.click("#backBar .x")
             settle(page, 600)
             assert not page.locator(".storebar").count() and len(cards(page)) >= min(n0, 20), "'× All stores' didn't bring every deal back"
             return f"{name}: {len(cs)} deals ({' '.join(bar.split()[:6])}…)"

@@ -1104,7 +1104,7 @@ function watchFromLink(){
   watchQDone=true;try{history.replaceState(null,"",location.pathname)}catch(e){}
   track("watch-from-page",{});if(!watches[WATCH_Q])toggleWatch(WATCH_Q);else toast(t("watching"));
 }
-function useData(d,full){DATA=d;ITEMS=d.items||[];FULL=full;byKey={};ITEMS.forEach(x=>(byKey[itemKey(x)]=byKey[itemKey(x)]||[]).push(x));renderAll();loadShoePages();watchFromLink()}
+function useData(d,full){DATA=d;ITEMS=d.items||[];FULL=full;byKey={};ITEMS.forEach(x=>(byKey[itemKey(x)]=byKey[itemKey(x)]||[]).push(x));renderAll();loadShoePages();watchFromLink();setTimeout(offerStore,600)}
 function loadFull(){if(FULL||fullLoading)return;fullLoading=loadData("deals.json").then(d=>useData(d,true)).catch(()=>{fullLoading=null})}
 loadData("sale.json").then(d=>useData(d,false)).catch(()=>loadData("deals.json").then(d=>useData(d,true)))
   .then(()=>{if(!$("sheet").classList.contains("hidden"))openSheet();if(Object.keys(watches).length)loadFull()})
@@ -1276,18 +1276,21 @@ function shopStore(h,from){view.store=h;view.open={};view.q="";$("dSearch").valu
   try{const u=new URL(location.href);if(h)u.searchParams.set("store",h);else u.searchParams.delete("store");history.replaceState(null,"",u)}catch(e){}
   hideBackBar();renderAll();window.scrollTo({top:Math.max(0,$("filtersBox").getBoundingClientRect().top+scrollY-70),behavior:"smooth"})}
 /* back from a store's site: offer the rest of that store's deals once per store per visit */
-let lastShop=null;const offered=new Set();
+// kept for the visit (sessionStorage): the back button can reload the page, which used to forget the store (Oct 6)
+let lastShop=(()=>{try{return JSON.parse(sessionStorage.getItem("gf-lastshop")||"null")}catch(e){return null}})();
+const offered=new Set((()=>{try{return JSON.parse(sessionStorage.getItem("gf-offered")||"[]")}catch(e){return []}})());
 function hideBackBar(){const b=$("backBar");if(b)b.remove()}
 function offerStore(){
   if(!lastShop||view.store||offered.has(lastShop.h)||Date.now()-lastShop.t>45*60e3)return;
   const h=lastShop.h,n=storeCounts()[h]||0;if(n<4||!STORES[h])return;
-  offered.add(h);hideBackBar();
+  offered.add(h);try{sessionStorage.setItem("gf-offered",JSON.stringify([...offered]))}catch(e){}hideBackBar();
   const b=document.createElement("div");b.id="backBar";b.className="backbar";b.setAttribute("role","status");
   b.innerHTML=`<span>${t("backBar",num(n),esc(STORES[h][0]))}</span><button type="button" class="go">${t("backGo")}</button><button type="button" class="x" aria-label="${t("close")}">×</button>`;
   document.body.appendChild(b);ana("store-offer",h);
   b.querySelector(".go").addEventListener("click",()=>shopStore(h,"back"));b.querySelector(".x").addEventListener("click",hideBackBar)}
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")setTimeout(offerStore,400)});
 window.addEventListener("focus",()=>setTimeout(offerStore,400));
+window.addEventListener("pageshow",()=>setTimeout(offerStore,400));
 $("cats").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;const v=b.dataset.v;ana("category",v);
   const all=ORDER.every(g=>state.groups.includes(g));
   if(v==="__all")state.groups=ORDER.slice();
@@ -1493,7 +1496,7 @@ function renderStats(){
   try{const g=a.closest(".grid"),w=a.closest(".dw"),sec=a.closest(".grp");
     ana("deal-click",[a.dataset.store||storeOf(a.href),d?d.g:"",d?d.pct:"",view.watch?"watchlist":(sec&&sec.id?sec.id.replace("grp-",""):"top"),peeking()?"peek":""].join("|"),g&&w?[...g.children].indexOf(w)+1:null)}catch(e){}
   logEvent("click",a.dataset.store||storeOf(a.href),d?d.g:null);
-  lastShop={h:storeOf(d&&d.url||a.href),t:Date.now()};setTimeout(()=>{if(document.visibilityState==="visible"&&document.hasFocus())offerStore()},2500);
+  lastShop={h:storeOf(d&&d.url||a.href),t:Date.now()};try{sessionStorage.setItem("gf-lastshop",JSON.stringify(lastShop))}catch(e){}setTimeout(()=>{if(document.visibilityState==="visible"&&document.hasFocus())offerStore()},2500);
   if(h){recordClick(h.dataset.key);setTimeout(renderStats,0)}},true));
 
 function renderAll(){
