@@ -182,13 +182,15 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
 
 ## Stores and data
 
+- Speed (Oct 5): stores are read in 4 lanes at once (`run(st,fn)` + ThreadPoolExecutor(4)); all Shopify stores share one
+  sequential lane (4 at once got 429s). The full scrape takes ~13 min instead of ~35.
 - Shopify stores: listed in `SHOPIFY_STORES` in scrape.py (~44). Read via `/products.json`, prices checked
   in CAD with Canadian cookies (cart.js tells the served currency; USD is converted).
 - Altitude Sports and The Last Hunt: commercetools readers (running category types in `CT_TYPES`).
   Each size links to `?color=…&size=…` (opens on that size). Sporting Life, MEC, Decathlon can't preselect a size
   (tested Oct 1); every size shown is in stock, so no note on cards (Bastien's call).
-- Sporting Life, Stampeak, Sea2Sky, The Feed: custom readers. Decathlon: running clearance pages
-  (server-rendered JSON, robots allow). MEC/REI: from saved pages only.
+- Sporting Life, Stampeak, Sea2Sky, The Feed: custom readers. Decathlon: the full running section (Oct 5: all running
+  subcategories in `DEC_LISTS`, full price included; server-rendered JSON, robots allow). MEC/REI: from saved pages only.
   SVP Sports (Oct 4, Québec chain, Shopify behind Cloudflare): saved pages too: the Grab deals bookmark on any SVP collection
   saves its products.json (svp-DATE.json, `scrape_svp_saved`); expires after 10 days like MEC/REI.
 - Known: Honey Stinger is blocked from GitHub's servers (works elsewhere); REI needs fresh saved pages.

@@ -270,7 +270,12 @@ def scrape_commercetools(st, base):
 
 # ---------------------------------------------------------------- Decathlon Canada (server-rendered pages; robots.txt allows them)
 DEC_BASE = "https://www.decathlon.ca"
-DEC_LISTS = ["/en/clearance/running-clearance"]
+# the whole running section (full price too, Oct 5, 2026: every reader reads full price), plus running clearance
+DEC_LISTS = ["/en/clearance/running-clearance"] + [f"/en/sports/running/{c}" for c in (
+    "running-shoes", "mens-running-shoes", "womens-running-shoes", "carbon-shoes", "mens-running-clothes", "womens-running-clothes",
+    "mens-running-jackets", "womens-running-jackets", "mens-running-shorts", "womens-running-shorts", "mens-running-tops",
+    "womens-running-top", "mens-running-socks", "womens-running-socks", "hydration-vests", "bottles-flasks", "running-accessories",
+    "running-headwear", "running-poles", "running-neck-warmers", "winter-running-gear", "run-night")]
 DEC_SOCKS = {"3.5 - 6": "S", "5 - 6": "S", "6.5 - 9": "M", "9.5 - 12": "L", "13 - 13.5": "XL", "12.5 - 14": "XL"}
 
 def dec_skus(html):
@@ -1737,35 +1742,49 @@ def main():
     prev = load(OUT)
     prev_offers = load(OUT.parent / "offers.json")   # yesterday's raw per-store listings, for fallback
     stamps, offers, failed, raw = dict(prev.get("stores", {})), [], [], {}
-    for st, fn in STORES.items():
+    def run(st, fn):
+        """One store: (listings, ok, log line). A store that fails or empties keeps yesterday's listings."""
         t = time.time()
         if REMERGE:
-            raw[st] = prev_offers.get(st, [])
-            for o in raw[st]:
-                o.setdefault("ca", st in CA_STORES)
-            offers += raw[st]
-            continue
+            return prev_offers.get(st, []), None, None
         try:
             got = fn()
             if not got and st not in dict((x[0], 1) for x in SHOPIFY_STORES) and st not in ("mec", "rei", "svp"):
                 raise RuntimeError("0 items")
             if not got and len(prev_offers.get(st, [])) >= 20:     # a store rarely empties overnight: keep yesterday's
                 raise RuntimeError(f"0 items today (had {len(prev_offers[st])})")
-            for o in got:
-                o.setdefault("ca", st in CA_STORES)
-            raw[st] = got
-            stamps[st] = now()
             n_sale = sum(1 for o in got if any(e[1] < e[2] * 0.99 for e in o["sz"]))
-            print(f"{st}: {len(got)} items ({n_sale} on sale) in {time.time()-t:.0f}s", file=sys.stderr)
+            return got, True, f"{st}: {len(got)} items ({n_sale} on sale) in {time.time()-t:.0f}s"
         except Exception as e:
-            failed.append(st)
-            raw[st] = prev_offers.get(st, [])
-            for o in raw[st]:
-                o.setdefault("ca", st in CA_STORES)
             msg = str(e)
             m = re.search(r"(Tunnel connection failed: \d+ \w+|\d{3} Client Error: \w+|HTTP \d{3}|no [^;]{0,60})", msg)
-            print(f"{st}: FAILED ({m.group(1) if m else msg[:120]}); kept {len(raw[st])} from last run", file=sys.stderr)
-        offers += raw[st]
+            kept = prev_offers.get(st, [])
+            return kept, False, f"{st}: FAILED ({m.group(1) if m else msg[:120]}); kept {len(kept)} from last run"
+    # Lanes (Oct 5, 2026: one after another took ~35 min, this ~13): the Shopify stores one at a time in one lane
+    # (Shopify counts requests from one machine across all its stores: 4 at once got "429 too many requests"),
+    # every other reader in its own lane, 4 lanes at once, each keeping its polite pace. Results are used in STORES
+    # order so the merge (first store names the card) never changes.
+    shop = [st for st in STORES if st in dict((x[0], 1) for x in SHOPIFY_STORES)]
+    lanes = [shop] + [[st] for st in STORES if st not in shop]
+    lanes.sort(key=lambda l: -len(l))
+    results = {}
+    def lane(sts):
+        for st in sts:
+            results[st] = run(st, STORES[st])
+    with ThreadPoolExecutor(1 if REMERGE else 4) as ex:
+        list(ex.map(lane, lanes))
+    for st in STORES:
+        got, ok, line = results[st]
+        for o in got:
+            o.setdefault("ca", st in CA_STORES)
+        raw[st] = got
+        if ok:
+            stamps[st] = now()
+        elif ok is False:
+            failed.append(st)
+        if line:
+            print(line, file=sys.stderr)
+        offers += got
     items = merge(offers)
     report_groups(items)
     for it in items:
