@@ -1569,23 +1569,39 @@ def name_gender(n):
 # Stores that sell and ship from Canada (no border fees). Generic Shopify stores decide by their currency.
 CA_STORES = {"altitude", "lasthunt", "sea2sky", "sportinglife", "stampeak", "mec", "decathlon", "svp", "footlocker"}
 
+_TRAIL_MODELS = set()    # shoe keys that keep "trail"/"road" because a store names the model that way ("Ghost Trail - Men's")
+
+def _shoe_name(o, keep_tr):
+    g = re.search(r"\s-\s*(men's|women's|unisex)$", o["n"].lower())
+    name = re.sub(r"[^a-z0-9]+", " ", (re.split(r"\s+[—·]\s+", o["n"])[0] + (" " + g.group(1) if g and " — " in o["n"] else "")).lower()).strip()
+    # "Triumph 23 Running Shoe - Women's" (Sporting Life) = "Triumph 23 Running Shoes - Women's" (Last Hunt) =
+    # "Speedgoat 7 GTX Trail Running [Wide]"; but "Ghost Trail Running Shoes" (Altitude) = "Ghost Trail" (a model, not
+    # Brooks' road Ghost): the trail/road word stays when another store's name for the model has it (_TRAIL_MODELS)
+    tr = r"\brunning( road| trail)?( shoes?)?\b|\bshoes?\b" if keep_tr else r"\b((trail|road) )?running( road| trail)?( shoes?)?\b|\bshoes?\b"
+    name = re.sub(r"\bgore ?tex\b", "gtx", name)                     # "Ghost 18 Gore-Tex" = "Ghost 18 GTX"
+    name = re.sub(r"\b(available in wide widths?|waterproof)\b", " ", name) if "gtx" in name or "available" in name else name
+    name = re.sub(r"\b((trail|road) )?racing( shoes?)?\b", " ", name)    # "Zoom Fly 6 Racing Shoe" = "Zoom Fly 6 Road Racing Shoes"
+    name = re.sub(tr, " ", name)
+    name = re.sub(r"\bunisex\b", " ", name)                   # "Metaspeed Ray" = "Metaspeed Ray - Unisex" (no gender either way)
+    if o["b"].lower().strip() == "adidas":
+        name = re.sub(r"^\s*adizero\s+", "", name)            # "Evo SL - Men's" (Endurance) = "Adizero EVO SL" (Altitude)
+    name = re.sub(r"\s+", " ", name).strip()
+    if o["w"]:   # width words go too ("(2E)", "Wide"): the wide flag already keeps wide and regular apart
+        name = re.sub(r"\s+", " ", re.sub(r"\b(x ?wide|extra wide|wide|2e|4e|ee|d)\b", " ", name)).strip()
+    return name
+
 def mkey(o):
     name = re.sub(r"[^a-z0-9]+", " ", o["n"].lower()).strip()
     if o["g"] == "shoes":      # "GT-2000 15 — Black/White - Men's" (Fit First lists each colour) = "GT-2000 15 - Men's"
-        g = re.search(r"\s-\s*(men's|women's|unisex)$", o["n"].lower())
-        name = re.sub(r"[^a-z0-9]+", " ", (re.split(r"\s+[—·]\s+", o["n"])[0] + (" " + g.group(1) if g and " — " in o["n"] else "")).lower()).strip()
-        # "Triumph 23 Running Shoe - Women's" (Sporting Life) = "Triumph 23 Running Shoes - Women's" (Last Hunt);
-        # width words go too ("(2E)", "Wide"): the wide flag already keeps wide and regular apart
-        name = re.sub(r"\s+", " ", re.sub(r"\b((trail|road) )?running( road| trail)? shoes?\b|\bshoes?\b", " ", name)).strip()
-        if o["w"]:
-            name = re.sub(r"\s+", " ", re.sub(r"\b(x ?wide|extra wide|wide|2e|4e|ee|d)\b", " ", name)).strip()
+        keep = _shoe_name(o, True)
+        name = keep if (o["b"].lower().strip(), keep) in _TRAIL_MODELS else _shoe_name(o, False)
     # Canadian and cross-border offers stay separate, so "Canadian stores only" never hides a cheaper US price inside a card
     return (o["b"].lower().strip(), name, o["w"], o["g"], bool(o.get("ca")))
 
 def merge(offers):
     """Same product at several stores -> one item; each size keeps the cheapest store."""
     offers = tidy_clothes(tidy_gear(tidy_nutrition(tidy_shoes(drop_kids(offers)))))
-    items = {}
+    items, tidied = {}, []
     for o in offers:
         if (o["b"] or "").strip() in ("", "0") and o.get("st") in OWN_BRAND:   # brand stores that leave the brand blank or "0"
             o["b"] = OWN_BRAND[o["st"]]
@@ -1614,6 +1630,12 @@ def merge(offers):
         o["b"] = tidy_brand(o["b"])
         o["n"] = tidy_name(o["b"], o["n"])
         o["sx"] = name_gender(o["n"]) or o["sx"]
+        tidied.append(o)
+    _TRAIL_MODELS.clear()
+    for o in tidied:          # models a store names with Trail/Road but without "running" ("Ghost Trail - Men's")
+        if o["g"] == "shoes" and re.search(r"\b(trail|road)\b", o["n"], re.I) and not re.search(r"\brunning\b", o["n"], re.I):
+            _TRAIL_MODELS.add((o["b"].lower().strip(), _shoe_name(o, True)))
+    for o in tidied:
         it = items.get(mkey(o))
         if not it:
             nm = o["n"].strip()
