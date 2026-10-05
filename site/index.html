@@ -247,6 +247,14 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
 .deal .store{font-size:14px;color:var(--muted)}
 .deal .store .abroad{color:var(--ink);font-weight:600}
 .widen{margin:0 0 14px;color:var(--muted);font-size:15px}
+.storebar{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--card);border:1.5px solid var(--hivis);border-radius:12px;padding:12px 14px;margin:0 0 16px}
+.storebar small{display:block;color:var(--muted);font-size:13px}
+.storebar b{font:700 20px/1.15 var(--display)}
+.storebar button{font:600 14px/1.2 var(--body);color:var(--ink);background:none;border:1.5px solid var(--line);border-radius:999px;padding:8px 12px;cursor:pointer;white-space:nowrap}
+.backbar{position:fixed;left:12px;right:12px;bottom:12px;z-index:30;max-width:560px;margin:0 auto;display:flex;align-items:center;gap:10px;background:#17201C;color:#fff;border-radius:14px;padding:12px 12px 12px 16px;box-shadow:0 8px 28px rgba(0,0,0,.25);font-size:15px;line-height:1.3}
+.backbar b{color:#fff}
+.backbar .go{flex:none;font:700 15px/1 var(--body);background:var(--hivis);color:#fff;border:0;border-radius:999px;padding:10px 14px;cursor:pointer}
+.backbar .x{flex:none;background:none;border:0;color:inherit;font-size:22px;line-height:1;cursor:pointer;padding:4px 6px;opacity:.7}
 .deal .store .fin{color:var(--ink);font-weight:600;white-space:nowrap}
 .deal .warn{font-size:13px;font-weight:600;color:var(--err)}
 .more{margin-top:10px;width:100%}
@@ -667,7 +675,7 @@ en:{
   cTitle:"Deals in your size",cIntro:"Sign up free, or sign back in. We'll ask your sizes only once.",cContinue:"Continue",
   cSizesIntro:"Last step: pick your fit and sizes.",
   wTitle:"Your size. On sale. Every day.",wIntro:half=>`<b>${half?"More than half of":"Many"} gear deals aren't available in your size.</b> Every morning we check running and outdoor stores across Canada and show you only the ones that are.`,
-  wGo:"Find my deals",wShoes:"or look up a specific shoe →",cmpLink:"All sizes & stores →",spCardTxt:"Every size, every store in Canada",spCardGo:"Prices →",wOr:"or with Google, one tap",wOnSale:"on sale today",wUpTo:p=>`up to ${p}%`,wOff:"off right now",wStores:"stores checked daily",
+  wGo:"Find my deals",wShoes:"or look up a specific shoe →",cmpLink:"All sizes & stores →",storeH:"Shopping one store",storeCount:n=>`${n} ${n===1?"deal":"deals"} in your size`,storeBack:"× All stores",backBar:(n,s)=>`Filling a cart at <b>${s}</b>? See their ${n} deals in your size.`,backGo:"Show",spCardTxt:"Every size, every store in Canada",spCardGo:"Prices →",wOr:"or with Google, one tap",wOnSale:"on sale today",wUpTo:p=>`up to ${p}%`,wOff:"off right now",wStores:"stores checked daily",
   liveAll:n=>`<b>${n}</b> deals on sale today`,liveYou:n=>`<b>${n}</b> deals on sale in your size right now`,
   seeN:n=>`See my ${n} deals`,
   orEmail:"or type your email",orLink:"or get a link by email",
@@ -758,7 +766,7 @@ fr:{
   cTitle:"Des aubaines à votre taille",cIntro:"Abonnez-vous gratuitement ou reconnectez-vous. On vous demande vos tailles une seule fois.",cContinue:"Continuer",
   cSizesIntro:"Dernière étape : choisissez votre coupe et vos tailles.",
   wTitle:"Des aubaines sur mesure.",wIntro:half=>`<b>${half?"Plus de la moitié des ":"Beaucoup d'"}aubaines ne sont pas offertes dans votre taille.</b> Chaque matin, on parcourt les boutiques de course et de plein air partout au Canada et on vous montre seulement celles qui le sont.`,
-  wGo:"Trouver mes aubaines",wShoes:"ou cherchez une chaussure précise →",cmpLink:"Toutes les pointures et boutiques →",spCardTxt:"Chaque pointure, chaque boutique au Canada",spCardGo:"Prix →",wOr:"ou avec Google, en un clic",wOnSale:"en solde aujourd'hui",wUpTo:p=>`jusqu'à ${p} %`,wOff:"de rabais en ce moment",wStores:"boutiques vérifiées chaque jour",
+  wGo:"Trouver mes aubaines",wShoes:"ou cherchez une chaussure précise →",storeH:"Une seule boutique",storeCount:n=>`${n} ${n===1?"aubaine":"aubaines"} à votre taille`,storeBack:"× Toutes les boutiques",backBar:(n,s)=>`Vous remplissez un panier chez <b>${s}</b> ? Voyez leurs ${n} aubaines à votre taille.`,backGo:"Voir",cmpLink:"Toutes les pointures et boutiques →",spCardTxt:"Chaque pointure, chaque boutique au Canada",spCardGo:"Prix →",wOr:"ou avec Google, en un clic",wOnSale:"en solde aujourd'hui",wUpTo:p=>`jusqu'à ${p} %`,wOff:"de rabais en ce moment",wStores:"boutiques vérifiées chaque jour",
   liveAll:n=>`<b>${n}</b> aubaines en solde aujourd'hui`,liveYou:n=>`<b>${n}</b> aubaines en solde dans votre taille en ce moment`,
   seeN:n=>`Voir mes ${n} aubaines`,
   orEmail:"ou entrez votre courriel",orLink:"ou recevez un lien par courriel",
@@ -1108,7 +1116,8 @@ const PAGE_CAT=CARDS==="compact"?4:PAGE;                  // each category start
 const WORD={"ONE SIZE":"OS","O/S":"OS","X-SMALL":"XS","XSMALL":"XS","SMALL":"S","MEDIUM":"M","LARGE":"L","X-LARGE":"XL","XLARGE":"XL"};
 function norm(s){s=String(s).trim().toUpperCase();s=WORD[s]||s;return s.replace("XXXL","3XL").replace("XXL","2XL").replace("XXS","2XS")}
 let NARROW=false;   // only some categories picked (see renderAll)
-const view={fullPrice:false,sort:"match",q:"",open:{},watch:false,newAll:false,type:{}};
+const view={fullPrice:false,sort:"match",q:"",open:{},watch:false,newAll:false,type:{},store:""};   // store: one shop only (Oct 5 preview)
+try{const st=(new URLSearchParams(location.search).get("store")||"").toLowerCase();if(STORES[st])view.store=st}catch(e){}   // ?store=altitude-sports.com
 const TYPES={shoes:["daily","race","trail","hike","spike"],tops:["tee","layer","jacket"],bottoms:["short","tight","pant"],gear:["light","pole","bottle","sun"]};   // garment type buttons under these categories (deals.json "t")
 const NEWSTYLE_DEFAULT="row";                              // "row" (A) or "sticky" (B)
 const NEWSTYLE=LS0("gf-newstyle")||NEWSTYLE_DEFAULT;
@@ -1171,7 +1180,7 @@ function matchItems(p,list){
   const caOnly=(p.ships||"ca")!=="all";
   for(const d of (list||ITEMS)){
     if(!p.groups.includes(d.g))continue;
-    if(caOnly&&d.ca===false&&d.g!=="nutrition")continue;   // fuel from US shops is shown anyway (card says where it ships from)
+    if(caOnly&&!p.store&&d.ca===false&&d.g!=="nutrition")continue;   // a store picked by name shows wherever it ships from   // fuel from US shops is shown anyway (card says where it ships from)
     if(p.gender&&p.gender!=="any"&&d.sx.length&&!d.sx.includes(p.gender))continue;
     let ok=d.sz;
     if(SIZED.has(d.g)){
@@ -1192,6 +1201,7 @@ function matchItems(p,list){
       }else ok=d.sz.filter(([s])=>s==="OS"||want.includes(norm(s)));
     }
     else if(accLetters(d)){const want=((p.sizes.tops||{}).sizes||[]).map(norm);ok=d.sz.filter(e=>e[0]==="OS"||want.includes(e[0]))}
+    if(p.store)ok=ok.filter(e=>storeOf((d.of||[])[e[2]]||d.lp||"")===p.store);   // one store: only the sizes it sells best-priced
     if(!ok.length)continue;
     let pick=ok[0];
     for(const e of ok)if(e[1]<pick[1]||(e[1]===pick[1]&&e[3]>pick[3]))pick=e;
@@ -1251,6 +1261,33 @@ function renderFilters(){
     `<button type="button" class="chip" data-t="sale" aria-pressed="${view.fullPrice}">${t("saleOnly")}</button>`;
   $("sort").value=view.sort;
 }
+/* Come-back bar (Oct 6): back from a store's site after a deal click, offer that store's other deals in your size.
+   A deal counts for a store when that store has the best price in one of your sizes (that's where the card sends you). */
+let storeCountsMemo=null;
+function storeCounts(){
+  if(!DATA)return {};
+  const key=JSON.stringify([toProfile(),view.fullPrice,ITEMS.length]);if(storeCountsMemo&&storeCountsMemo[0]===key)return storeCountsMemo[1];
+  const c={};
+  for(const d of matchItems({...toProfile(),groups:ORDER,ships:"all"})){
+    const hs=new Set(d.ok.filter(e=>view.fullPrice||(e[3]&&e[1]<e[3]*0.99)).map(e=>storeOf((d.of||[])[e[2]]||"")));
+    for(const h of hs)if(STORES[h])c[h]=(c[h]||0)+1}
+  storeCountsMemo=[key,c];return c}
+function shopStore(h,from){view.store=h;view.open={};view.q="";$("dSearch").value="";if(h)ana("store-view",h+"|"+from);
+  try{const u=new URL(location.href);if(h)u.searchParams.set("store",h);else u.searchParams.delete("store");history.replaceState(null,"",u)}catch(e){}
+  hideBackBar();renderAll();window.scrollTo({top:Math.max(0,$("filtersBox").getBoundingClientRect().top+scrollY-70),behavior:"smooth"})}
+/* back from a store's site: offer the rest of that store's deals once per store per visit */
+let lastShop=null;const offered=new Set();
+function hideBackBar(){const b=$("backBar");if(b)b.remove()}
+function offerStore(){
+  if(!lastShop||view.store||offered.has(lastShop.h)||Date.now()-lastShop.t>45*60e3)return;
+  const h=lastShop.h,n=storeCounts()[h]||0;if(n<4||!STORES[h])return;
+  offered.add(h);hideBackBar();
+  const b=document.createElement("div");b.id="backBar";b.className="backbar";b.setAttribute("role","status");
+  b.innerHTML=`<span>${t("backBar",num(n),esc(STORES[h][0]))}</span><button type="button" class="go">${t("backGo")}</button><button type="button" class="x" aria-label="${t("close")}">×</button>`;
+  document.body.appendChild(b);ana("store-offer",h);
+  b.querySelector(".go").addEventListener("click",()=>shopStore(h,"back"));b.querySelector(".x").addEventListener("click",hideBackBar)}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")setTimeout(offerStore,400)});
+window.addEventListener("focus",()=>setTimeout(offerStore,400));
 $("cats").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;const v=b.dataset.v;ana("category",v);
   const all=ORDER.every(g=>state.groups.includes(g));
   if(v==="__all")state.groups=ORDER.slice();
@@ -1271,6 +1308,7 @@ $("newBox").addEventListener("click",e=>{
   if(e.target.closest("[data-newall]")){view.newAll=true;renderAll();const s=document.querySelector("#dealList .grp.new");if(s)s.scrollIntoView({block:"start"})}});
 $("filtBtn").addEventListener("click",()=>{const f=$("filtersBox"),o=!f.classList.contains("open");f.classList.toggle("open",o);$("filtBtn").setAttribute("aria-expanded",String(o))});
 $("dealList").addEventListener("click",e=>{
+  const sb=e.target.closest("[data-shop]");if(sb){shopStore(sb.dataset.shop,"bar");return}
   const ar=e.target.closest("[data-row]");
   if(ar){const g=ar.parentNode.querySelector(".grid");g.scrollBy({left:(+ar.dataset.row)*g.clientWidth*0.8,behavior:"smooth"});return}
   if(e.target.closest("[data-newall]")){view.newAll=true;renderAll();return}
@@ -1455,6 +1493,7 @@ function renderStats(){
   try{const g=a.closest(".grid"),w=a.closest(".dw"),sec=a.closest(".grp");
     ana("deal-click",[a.dataset.store||storeOf(a.href),d?d.g:"",d?d.pct:"",view.watch?"watchlist":(sec&&sec.id?sec.id.replace("grp-",""):"top"),peeking()?"peek":""].join("|"),g&&w?[...g.children].indexOf(w)+1:null)}catch(e){}
   logEvent("click",a.dataset.store||storeOf(a.href),d?d.g:null);
+  lastShop={h:storeOf(d&&d.url||a.href),t:Date.now()};setTimeout(()=>{if(document.visibilityState==="visible"&&document.hasFocus())offerStore()},2500);
   if(h){recordClick(h.dataset.key);setTimeout(renderStats,0)}},true));
 
 function renderAll(){
@@ -1462,7 +1501,7 @@ function renderAll(){
   $("newBox").innerHTML="";
   const sh=$("subhead");sh.classList.toggle("hidden",!CALM||!!view.watch||(gated()&&!peeking()));
   if(CALM){sh.innerHTML=`${esc(sizeSummary())} · <button type="button" class="linkbtn" id="editSz">${t("edit")}</button>`;$("editSz").addEventListener("click",editSizes);
-    const dirty=state.ships==="all"||view.fullPrice||view.sort!=="match";$("filtDot").classList.toggle("hidden",!dirty)}
+    const dirty=state.ships==="all"||view.fullPrice||view.sort!=="match"||!!view.store;$("filtDot").classList.toggle("hidden",!dirty)}
   const w=!!view.watch;
   $("filtersBox").classList.toggle("hidden",w);$("backToDeals").classList.toggle("hidden",!w);
   $("pageTitle").textContent=w?t("titleWatch"):t("titleDeals");
@@ -1475,7 +1514,7 @@ function renderAll(){
       (tz.length?`<div class="grid tease" aria-hidden="true" style="margin-top:14px">${tz.map(d=>card(d)).join("")}</div>`:"");
     $("unlock").addEventListener("click",openSheet);$("dealsFoot").textContent="";$("stats").classList.add("hidden");$("watchNews").classList.add("hidden");return}
   if(w){$("stats").classList.add("hidden");return renderWatch()}
-  const p=toProfile();
+  const p={...toProfile(),store:view.store};
   const fold=x=>String(x).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();   // "naak" finds Näak, "zefal" Zéfal
   const q=fold(view.q.trim()).split(/\s+/).filter(Boolean);
   if(q.length&&!FULL)loadFull();     // a search looks at everything in your size, full price too (sale items first)
@@ -1494,7 +1533,7 @@ function renderAll(){
   const parts=[];
   // one category picked ("Lights, poles & bottles"): open straight on it, no Top deals / new row repeating part of it
   NARROW=p.groups.length===1;
-  if(!q.length&&!NARROW){const ns=section("__new",t("secNew"),onSale.filter(d=>NEWSET.has(itemKey(d))).sort(SORTS[view.sort]),"new");
+  if(!q.length&&!NARROW&&!view.store){const ns=section("__new",t("secNew"),onSale.filter(d=>NEWSET.has(itemKey(d))).sort(SORTS[view.sort]),"new");
     if(CALM&&NEWSTYLE==="row"&&!view.newAll)$("newBox").innerHTML=ns;else parts.push(ns)}
   const top=shoesFirst(onSale.slice().sort(SORTS[view.sort]));
   if(!NARROW)parts.push(section("__sale",t("secSale"),top,"sale"));
@@ -1502,6 +1541,7 @@ function renderAll(){
   ORDER.filter(g=>wide||p.groups.includes(g)).forEach(g=>{const ty=view.type[g];   // a type picked: every match, Top deals included
     parts.push(section(g,GL(g),shown.filter(d=>d.g===g&&(ty?d.t===ty:!inTop.has(itemKey(d))))))});
   if(wide)parts.unshift(`<div class="widen">${t("searchWide")}</div>`);
+  if(view.store)parts.unshift(`<div class="storebar"><div><small>${t("storeH")}</small><b>${esc((STORES[view.store]||[view.store])[0])}</b><small>${t("storeCount",num((view.fullPrice||q.length?all:onSale).length))}</small></div><button type="button" data-shop="">${t("storeBack")}</button></div>`);
   if(q.length){const hits=shoeSearch(q);if(hits.length)parts.unshift(`<div class="spcards">${hits.map(([sl,m])=>`<a class="spcard" href="${shoeUrl(sl)}" data-sp="search"><span><b>${esc(m.n)}</b><small>${t("spCardTxt")}</small></span><span class="go">${t("spCardGo")}</span></a>`).join("")}</div>`)}
   const body=parts.filter(Boolean);
   body.splice(Math.min(1,body.length),0,signupHTML());   // the email card sits right after the first block of deals

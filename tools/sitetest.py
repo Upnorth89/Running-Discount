@@ -354,6 +354,30 @@ def site_flow(base, per, accented):
             return t
         check("French version")(french, page)
 
+        def comeback():
+            # tap a deal (the store opens in another tab; here the click is kept on the page), come back: the bar offers
+            # that store's other deals; Show = only that store; "× All stores" = everything again
+            all_gear()
+            n0 = len(cards(page))
+            page.evaluate("""() => { const a = [...document.querySelectorAll('section.grp a.deal')]
+                .find(a => /altitude|lasthunt|sportinglife|thefeed|bushtukah/.test(a.dataset.store)) || document.querySelector('section.grp a.deal');
+                a.addEventListener('click', e => e.preventDefault(), {once: true}); a.click(); }""")
+            page.wait_for_selector("#backBar", timeout=6000)
+            bar = page.inner_text("#backBar")
+            page.click("#backBar .go")
+            page.wait_for_selector(".storebar")
+            name = page.inner_text(".storebar b").strip()
+            cs = cards(page)
+            assert cs, f"the come-back bar opened {name} with no deals"
+            stores = page.eval_on_selector_all("section.grp .deal .store", "e => e.map(x => x.textContent)")
+            other = [x for x in stores if name not in x]
+            assert not other, f"{name}'s page also shows another store's deal ({other[0].strip()})"
+            page.click(".storebar button")
+            settle(page, 600)
+            assert not page.locator(".storebar").count() and len(cards(page)) >= min(n0, 20), "'× All stores' didn't bring every deal back"
+            return f"{name}: {len(cs)} deals ({' '.join(bar.split()[:6])}…)"
+        check("Come-back bar after a deal click")(comeback, page)
+
         def returning():
             page.reload(wait_until="domcontentloaded")
             page.wait_for_selector("section.grp .deal", timeout=20000)

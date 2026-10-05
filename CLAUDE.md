@@ -291,6 +291,12 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   (only seed the first launch; tested on Bastien's iPhone Oct 4: works). App visits: analytics `visit` detail "home-screen app". Deal links open outside (target _blank).
 - No sign-up wall (Oct 4, a user said we forced sign-up): welcome -> sizes -> every deal; one card "Free with your email" (3 perks,
   Google, "No thanks" = gf-nosignup per device) after the first block; hearts open the email step (closable). Peek/blur view removed.
+- Come-back bar (Oct 5, Bastien): after a deal click, when the visitor returns to our tab (visibilitychange/focus, or 2.5 s later if
+  the store opened without leaving), a dark bottom bar "Filling a cart at <store>? See their N deals in your size [Show] ×" (once per
+  store per visit, 4+ deals, within 45 min; `offerStore()`). Show = one-store view (`view.store`, box "Shopping one store" + "× All
+  stores"; matchItems keeps only sizes whose best price is at that store; ships-from filter ignored). `?store=<domain>` opens it.
+  A deal counts for a store when that store has the best price in one of your sizes. Card link + Filters store list were tried in
+  the preview and left out (clutter). Analytics: store-offer, store-view {store|from}.
 - Final sale (Oct 4): FINAL_SALE store rules in scrape.py + tagged items -> "fs" per offer; label on cards, shoe pages, Friday email;
   About page "Returns and final sale". Recheck store policies every 3 months.
 - Home screen tip (Oct 4): ☰ "Add to your home screen" on phones (iPhone steps / Android prompt) + one-time tip for members, 2nd visit+.
