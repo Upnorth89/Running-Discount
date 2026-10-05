@@ -1476,7 +1476,7 @@ function renderAll(){
   const fold=x=>String(x).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();   // "naak" finds Näak, "zefal" Zéfal
   const q=fold(view.q.trim()).split(/\s+/).filter(Boolean);
   if(q.length&&!FULL)loadFull();     // a search looks at everything in your size, full price too (sale items first)
-  let all=matchItems(p);
+  let all=matchItems(q.length?{...p,groups:ORDER}:p);   // a search looks in every category, not only the ones picked for daily deals
   if(q.length)all=all.filter(d=>{const t=fold(d.b+" "+d.n);return q.every(w=>t.includes(w))});
   const onSale=all.filter(d=>d.pct>0);
   const where=state.ships==="all"?t("storesAll"):t("storesCA");
@@ -1494,7 +1494,7 @@ function renderAll(){
   const top=shoesFirst(onSale.slice().sort(SORTS[view.sort]));
   if(!NARROW)parts.push(section("__sale",t("secSale"),top,"sale"));
   const inTop=new Set(NARROW?[]:top.slice(0,view.open.__sale||PAGE).map(itemKey));   // don't show the same deal twice
-  ORDER.filter(g=>p.groups.includes(g)).forEach(g=>{const ty=view.type[g];   // a type picked: every match, Top deals included
+  ORDER.filter(g=>q.length||p.groups.includes(g)).forEach(g=>{const ty=view.type[g];   // a type picked: every match, Top deals included
     parts.push(section(g,GL(g),shown.filter(d=>d.g===g&&(ty?d.t===ty:!inTop.has(itemKey(d))))))});
   if(q.length){const hits=shoeSearch(q);if(hits.length)parts.unshift(`<div class="spcards">${hits.map(([sl,m])=>`<a class="spcard" href="${shoeUrl(sl)}" data-sp="search"><span><b>${esc(m.n)}</b><small>${t("spCardTxt")}</small></span><span class="go">${t("spCardGo")}</span></a>`).join("")}</div>`)}
   const body=parts.filter(Boolean);
