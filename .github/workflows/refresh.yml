@@ -4,6 +4,8 @@ on:
   schedule:
     - cron: "17 11 * * *"   # daily, 4:17am Vancouver (PDT)
     - cron: "47 14 * * *"   # backup, 7:47am Vancouver: GitHub sometimes starts schedules hours late or skips them
+    - cron: "17 20 * * *"   # afternoon, 1:17pm Vancouver / 4:17pm Montréal: fresh prices and stock (Oct 5, 2026) + a midday
+                            # health email ("Gear Fox midday check", compared with this morning); no watchlist alerts (morning only)
   workflow_dispatch:          # "Run workflow" button; Supabase's 4:17am timer starts it with morning=true
     inputs:                   # (supabase/morning-timer.sql: on time, unlike GitHub's schedules)
       morning:
@@ -33,7 +35,7 @@ jobs:
       - id: today
         run: |
           skip=false
-          if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ inputs.morning }}" = "true" ]; then
+          if { [ "${{ github.event_name }}" = "schedule" ] && [ "${{ github.event.schedule }}" != "17 20 * * *" ]; } || [ "${{ inputs.morning }}" = "true" ]; then
             last=$(curl -fsSL "https://thegearfox.com/health.json?t=$(date +%s)" | python3 -c "import json,sys; print(json.load(sys.stdin).get('reported') or '')" || true)
             today=$(TZ=America/Vancouver date +%F)
             echo "last morning report: ${last:-none}, today: $today"
@@ -120,7 +122,7 @@ jobs:
           git push -q origin HEAD:history
       # price-drop / back-in-your-size emails, only on the morning run (not on every upload)
       - name: Watchlist alerts
-        if: github.event_name != 'push'
+        if: github.event_name != 'push' && github.event.schedule != '17 20 * * *'
         continue-on-error: true
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
@@ -138,7 +140,8 @@ jobs:
           FROM_EMAIL: "The Gear Fox <deals@thegearfox.com>"
           SUPABASE_URL: "https://krwymmkauwqqxjxbvkyq.supabase.co"
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
-          SEND_HEALTH: ${{ (github.event_name == 'schedule' || inputs.morning) && '1' || '0' }}
+          SEND_HEALTH: ${{ (github.event_name == 'schedule' || inputs.morning) && '1' || '0' }}   # morning report + a midday one (Oct 5)
+          HEALTH_WHEN: ${{ github.event.schedule == '17 20 * * *' && 'midday' || 'morning' }}
           HEALTH_EMAIL: ${{ secrets.HEALTH_EMAIL }}
         run: python scraper/health.py /tmp/prev site
       - name: Keep yesterday's site if the shoe pages didn't build or the site test failed

@@ -175,7 +175,7 @@ def main():
     fresh = [(k, m) for k, m in problems if k not in emailed]
     monday = NOW.astimezone(timezone(timedelta(hours=-7))).weekday() == 0
     send = os.environ.get("SEND_HEALTH") == "1" and os.environ.get("RESEND_API_KEY")      # a short report every morning
-
+    mid = os.environ.get("HEALTH_WHEN") == "midday"      # the 1:17pm Vancouver refresh: a second report, compared with this morning
     lines = [f"- {m}" for _, m in problems] or ["- All good."]
     print("Health check\n" + "\n".join(lines))
     summ = os.environ.get("GITHUB_STEP_SUMMARY")
@@ -187,12 +187,12 @@ def main():
         new_part = [m for _, m in fresh]
         old_part = [m for k, m in problems if k in emailed]
         if fresh:
-            subject = f"Gear Fox daily check: {len(fresh)} new {'problem' if len(fresh) == 1 else 'problems'}"
+            subject = f"Gear Fox {'midday' if mid else 'daily'} check: {len(fresh)} new {'problem' if len(fresh) == 1 else 'problems'}"
         elif problems:
-            subject = f"Gear Fox daily check: all running, {len(problems)} still to fix"
+            subject = f"Gear Fox {'midday' if mid else 'daily'} check: all running, {len(problems)} still to fix"
         else:
-            subject = "Gear Fox daily check: all good"
-        d = lambda a, b: f" ({a - b:+,} vs yesterday)" if b else ""
+            subject = f"Gear Fox {'midday' if mid else 'daily'} check: all good"
+        d = lambda a, b: f" ({a - b:+,} vs {'this morning' if mid else 'yesterday'})" if b else ""
         text = ("All good. Every store updated and nothing looks off.\n\n" if not problems else "") + \
                ("New today:\n" + "\n".join(f"- {m}" for m in new_part) + "\n\n" if new_part else "") + \
                ("Still to fix:\n" + "\n".join(f"- {m}" for m in old_part) + "\n\n" if old_part else "") + \
@@ -212,7 +212,7 @@ def main():
         print(f"emailed {TO}: HTTP {r.status_code}")
         if r.ok:
             emailed = set(keys)
-            reported = NOW.astimezone(ZoneInfo("America/Vancouver")).date().isoformat()
+            reported = reported if mid else NOW.astimezone(ZoneInfo("America/Vancouver")).date().isoformat()
     # forget problems that are fixed, so they get reported again if they come back
     emailed &= set(keys)
     # this file is public (it's deployed with the site), so no subscriber numbers in it
