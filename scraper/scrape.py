@@ -344,11 +344,13 @@ def dec_get(url):
         time.sleep(min(int(wait), 120) if wait.isdigit() else 30 * (i + 1))
     raise requests.HTTPError(f"429 {url}")
 
+DEC_BUDGET = 18 * 60     # seconds: Decathlon never holds up the whole refresh (a 429 storm ran into GitHub's 50-min limit, Oct 5)
+
 def scrape_decathlon():
-    links = []
+    t0, links = time.time(), []
     for path in DEC_LISTS:
         start = 0
-        while start < 2000:
+        while start < 2000 and time.time() - t0 < DEC_BUDGET / 3:
             try:
                 html = dec_get(f"{DEC_BASE}{path}?from={start}&size=40").text
             except Exception as e:
@@ -361,7 +363,11 @@ def scrape_decathlon():
             start += 40
             time.sleep(3)
     out, seen = [], set()
+    stopped = ""
     for u in links:
+        if time.time() - t0 > DEC_BUDGET:
+            stopped = "out of time"
+            break
         m = re.search(r"/p/[^/]+/(\d+)/", u)
         if not m or m.group(1) in seen:
             continue
@@ -369,7 +375,10 @@ def scrape_decathlon():
         time.sleep(1.5)                                   # relaxed pace (its own lane: the whole run doesn't wait on it)
         try:
             skus = [x for x in dec_skus(dec_get(DEC_BASE + u).text) if x.get("isAvailable")]
-        except Exception:
+        except Exception as e:
+            if "429" in str(e):
+                stopped = "429 too many requests"       # still busy after waiting: stop asking for today
+                break
             continue
         if not skus:
             continue
@@ -406,7 +415,10 @@ def scrape_decathlon():
         out.append({"st": "decathlon", "b": brand, "n": title, "u": DEC_BASE + u, "g": g, "sx": sx,
                     "w": bool(re.search(r"\bwide\b", title, re.I)), "img": img + "?format=auto&f=500x0" if img else None,
                     "lp": round(lp, 2), "bb": None, "sz": [[k, p, r] for k, (p, r) in sizes.items()], "ca": True})
-    print(f"  decathlon: {len(links)} listings, {len(out)} products in stock", file=sys.stderr)
+    print(f"  decathlon: {len(links)} listings, {len(out)} products in stock"
+          + (f" (stopped early: {stopped}, {time.time() - t0:.0f}s)" if stopped else ""), file=sys.stderr)
+    if stopped and len(out) < 100:
+        raise RuntimeError(f"no full read ({stopped} after {len(out)} products)")   # keeps the last good read
     return out
 
 # ---------------------------------------------------------------- Foot Locker Canada (checked Oct 4, 2026)
