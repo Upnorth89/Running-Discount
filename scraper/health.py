@@ -73,6 +73,7 @@ def check():
     deals, deals0 = load(SITE / "deals.json"), load(PREV / "deals.json")
     offers, offers0 = load(SITE / "offers.json"), load(PREV / "offers.json")
     stamps = deals.get("stores", {})
+    why = deals.get("failed", {})          # the scraper's reason, when a store failed this run (Oct 5)
 
     for st in sorted(set(offers) | set(offers0)):
         today, before = offers.get(st, []), offers0.get(st, [])
@@ -88,6 +89,9 @@ def check():
                                            f"Save fresh pages to bring them back."))
         elif stale:
             pass
+        elif st in why and n0:
+            problems.append((f"failed:{st}", f"{st}: couldn't be read this run ({why[st]}); still showing its {n} products from the "
+                                             f"last good read."))
         elif n == 0 and n0 > 0:
             problems.append((f"zero:{st}", f"{st}: 0 products today (had {n0} yesterday)."))
         elif n == 0:

@@ -1741,7 +1741,7 @@ def main():
             return {}
     prev = load(OUT)
     prev_offers = load(OUT.parent / "offers.json")   # yesterday's raw per-store listings, for fallback
-    stamps, offers, failed, raw = dict(prev.get("stores", {})), [], [], {}
+    stamps, offers, failed, raw, why = dict(prev.get("stores", {})), [], [], {}, {}
     def run(st, fn):
         """One store: (listings, ok, log line). A store that fails or empties keeps yesterday's listings."""
         t = time.time()
@@ -1782,6 +1782,7 @@ def main():
             stamps[st] = now()
         elif ok is False:
             failed.append(st)
+            why[st] = line.split("FAILED (", 1)[-1].split("); kept")[0][:160]   # for the health email: why it failed
         if line:
             print(line, file=sys.stderr)
         offers += got
@@ -1795,7 +1796,7 @@ def main():
         usd = round(fx_to_cad("USD"), 4)            # for the site's CAD/USD switch
     except Exception:
         usd = FX_FALLBACK["USD"]
-    OUT.write_text(json.dumps({"v": 2, "updated": now(), "stores": stamps, "fx": {"USD": usd}, "items": items},
+    OUT.write_text(json.dumps({"v": 2, "updated": now(), "stores": stamps, "failed": why, "fx": {"USD": usd}, "items": items},
                               separators=(",", ":"), ensure_ascii=False))
     # the site loads sale items first: same shape, only items with at least one size on sale
     sale = [i for i in items if any(e[1] < e[3] for e in i["sz"])]   # same test as the site's % off
