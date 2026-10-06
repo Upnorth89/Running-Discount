@@ -147,6 +147,12 @@ html[data-low="ribbon"] .badge.lo30{position:absolute;top:20px;right:-44px;width
 html[data-low="ribbon"] .badge.lo30 .l1,html[data-low="ribbon"] .badge.lo30 .l2{display:none}
 html[data-low="ribbon"] .badge.lo30 .ls{display:inline;white-space:nowrap}
 html[data-low="ribbon"] .dw:has(.badge.lo30) .deal .pct{margin-right:38px}
+/* quieter options (Oct 6, Bastien: "a bit crowded?"): line = plain green text under the price; check = no badge, the % label turns green with ✓ */
+html[data-low="line"] .badge.lo30{background:none;border:0;padding:0;margin-top:2px;color:var(--lo-ink);font:700 13px/1.2 var(--body);gap:4px}
+html[data-low="line"] .badge.lo30::before{content:"✓"}
+html[data-low="check"] .badge.lo30{display:none}
+html[data-low="check"] .dw:has(.badge.lo30) .deal .pct{background:var(--lo-ink);color:var(--card);white-space:nowrap}
+html[data-low="check"] .dw:has(.badge.lo30) .deal .pct::before{content:"✓ "}
 html[data-low="tag"] .badge.lo30{background:var(--hivis);color:#17201C;border:0;border-radius:0 6px 6px 0;padding:4px 10px 4px 16px;
   clip-path:polygon(10px 0,100% 0,100% 100%,10px 100%,0 50%);font-weight:800}
 html[data-low="tag"] .badge.lo30::before{content:"▼";font-size:10px;margin-right:2px}
@@ -1344,7 +1350,7 @@ function card(d,extra){
   const sp=shoePage(d);
   return `<div class="dw${sp?" hascmp":""}"><a class="deal" href="${esc(affUrl(d.url))}" data-store="${esc(storeOf(d.url))}" target="_blank" rel="noopener">
     ${d.img?`<div class="pic"><img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"></div>`:""}
-    <div class="top"><span class="brand">${esc(d.b)}${d.fav?" ★":""}</span>${d.pct?`<span class="pct">−${d.pct}%</span>`:""}</div>
+    <div class="top"><span class="brand">${esc(d.b)}${d.fav?" ★":""}</span>${d.pct?`<span class="pct"${lowDays(d)?` title="${esc(t("lowDays",lowDays(d)))}"`:""}>−${d.pct}%</span>`:""}</div>
     <div class="name">${esc(nm(d.n))}</div>
     <div class="price"><b>${money(d.best)}</b>${curTag()}${d.pct?`<s>${money(d.reg)}</s>`:""}</div>
     ${lowDays(d)?`<span class="badge lo30" title="${esc(t("lowDaysTip"))}" aria-label="${esc(t("lowDays",lowDays(d)))}"><span class="l1">${t("lowL1")}</span> <span class="l2">${t("lowL2",lowDays(d))}</span><span class="ls">${t("lowShort",lowDays(d))}</span></span>`:""}
