@@ -147,6 +147,18 @@ html[data-low="ribbon"] .badge.lo30{position:absolute;top:20px;right:-44px;width
 html[data-low="ribbon"] .badge.lo30 .l1,html[data-low="ribbon"] .badge.lo30 .l2{display:none}
 html[data-low="ribbon"] .badge.lo30 .ls{display:inline;white-space:nowrap}
 html[data-low="ribbon"] .dw:has(.badge.lo30) .deal .pct{margin-right:38px}
+/* stamp on the photo (Oct 6, Bastien: "could the stamp be on the shoe?"): a small stamp in the photo's corner, like a sticker on
+   the box; no photo (or it failed to load) = the green line instead */
+.lostamp{display:none}
+html[data-low="photo"] .deal .pic{position:relative}
+html[data-low="photo"] .lostamp{display:flex;flex-direction:column;align-items:center;position:absolute;right:4px;bottom:5px;padding:2px 5px;
+  border:2px double var(--lo-ink);border-radius:5px;background:rgba(255,255,255,.88);color:#1C6B37;border-color:#1C6B37;transform:rotate(-9deg);
+  font:800 8.5px/1.1 var(--display);text-transform:uppercase;letter-spacing:.4px;pointer-events:none;white-space:nowrap}
+html[data-low="photo"] .lostamp span+span{font-size:11px}
+html[data-low="photo"]:not(.x) .deal:not(.compact *) .lostamp{font-size:11px;padding:3px 8px;right:10px;bottom:10px}
+html[data-low="photo"] .deal:has(.pic) .badge.lo30{display:none}
+html[data-low="photo"] .badge.lo30{background:none;border:0;padding:0;margin-top:2px;color:var(--lo-ink);font:700 13px/1.2 var(--body);gap:4px}
+html[data-low="photo"] .badge.lo30::before{content:"✓"}
 /* quieter options (Oct 6, Bastien: "a bit crowded?"): line = plain green text under the price; check = no badge, the % label turns green with ✓ */
 html[data-low="line"] .badge.lo30{background:none;border:0;padding:0;margin-top:2px;color:var(--lo-ink);font:700 13px/1.2 var(--body);gap:4px}
 html[data-low="line"] .badge.lo30::before{content:"✓"}
@@ -694,7 +706,7 @@ en:{
   tellFit:"Tell us what fits",shoe:"Shoe",clothing:"Clothing",
   minAgo:m=>`${m} min ago`,hAgo:h=>`${h} h ago`,daysAgo:d=>`${d} days ago`,
   loadFail:"Couldn't load today's gear. Reload to try again.",loading:"Loading today's gear…",
-  searchWide:"Nothing in the categories you picked, so here are matches from every category.",finalSale:"Final sale",lowDays:d=>`Lowest price in ${d} days`,lowL1:"Lowest price",lowShort:d=>`${d}-day low`,lowL2:d=>`in <b>${d}</b> days`,lowDaysTip:"The lowest price we've seen for it since we started tracking, in any store",finalSaleTip:"This store takes no returns or exchanges on this item at this price",inYourSize:"In your size:",isNew:"New",bestBy:d=>`Short-dated: best by ${d}`,
+  searchWide:"Nothing in the categories you picked, so here are matches from every category.",finalSale:"Final sale",lowDays:d=>`Lowest price in ${d} days`,lowL1:"Lowest price",lowStampDays:d=>`${d} days`,lowShort:d=>`${d}-day low`,lowL2:d=>`in <b>${d}</b> days`,lowDaysTip:"The lowest price we've seen for it since we started tracking, in any store",finalSaleTip:"This store takes no returns or exchanges on this item at this price",inYourSize:"In your size:",isNew:"New",bestBy:d=>`Short-dated: best by ${d}`,
   atStore:n=>`at ${n}`,shareTxt:"Know a runner who hates paying full price?",shareBtn:"Share",shareCopied:"Link copied: paste it anywhere.",shareCopy:"Copy this link:",
   get shareText(){return `Running and outdoor gear on sale in your size, from stores ${US()?"across the US":"across Canada"}.`},usFuel:"Includes US stores: fuel ships well, and each deal says where it ships from.",shipsFrom:c=>`ships from ${({US:"the US",CA:"Canada",UK:"the UK",FR:"France",DK:"Denmark",AU:"Australia"})[c]||(US()?"outside the US":"outside Canada")}, duties may apply`,showMore:n=>`Show ${n} more`,
   allGear:"All gear",typeAll:"All",types:{daily:"Daily trainers",race:"Carbon & race",trail:"Trail",hike:"Hiking & winter",spike:"Track & XC spikes",light:"Lights",pole:"Poles",bottle:"Bottles & flasks",sun:"Sunglasses",tee:"T-shirts & tanks",layer:"Long sleeves & hoodies",jacket:"Jackets & vests",short:"Shorts",tight:"Tights",pant:"Pants"},
@@ -788,7 +800,7 @@ fr:{
   tellFit:"Dites-nous ce qui vous va",shoe:"Pointure",clothing:"Taille",
   minAgo:m=>`il y a ${m} min`,hAgo:h=>`il y a ${h} h`,daysAgo:d=>`il y a ${d} jours`,
   loadFail:"Impossible de charger les produits du jour. Rechargez la page.",loading:"Chargement des produits du jour…",
-  searchWide:"Rien dans les catégories choisies, alors voici les résultats de toutes les catégories.",finalSale:"Vente finale",lowDays:d=>`Plus bas prix en ${d} jours`,lowL1:"Plus bas prix",lowShort:d=>`Plus bas ${d} j`,lowL2:d=>`en <b>${d}</b> jours`,lowDaysTip:"Le plus bas prix qu'on a vu pour cet article depuis qu'on le suit, toutes boutiques confondues",finalSaleTip:"Cette boutique n'accepte ni retour ni échange sur cet article à ce prix",inYourSize:"À votre taille :",isNew:"Nouveau",bestBy:d=>`Date courte : meilleur avant le ${d}`,
+  searchWide:"Rien dans les catégories choisies, alors voici les résultats de toutes les catégories.",finalSale:"Vente finale",lowDays:d=>`Plus bas prix en ${d} jours`,lowL1:"Plus bas prix",lowStampDays:d=>`${d} jours`,lowShort:d=>`Plus bas ${d} j`,lowL2:d=>`en <b>${d}</b> jours`,lowDaysTip:"Le plus bas prix qu'on a vu pour cet article depuis qu'on le suit, toutes boutiques confondues",finalSaleTip:"Cette boutique n'accepte ni retour ni échange sur cet article à ce prix",inYourSize:"À votre taille :",isNew:"Nouveau",bestBy:d=>`Date courte : meilleur avant le ${d}`,
   atStore:n=>`chez ${n}`,shareTxt:"Un ami coureur déteste payer le plein prix ?",shareBtn:"Partager",shareCopied:"Lien copié : collez-le où vous voulez.",shareCopy:"Copiez ce lien :",
   get shareText(){return `Des aubaines de course et de plein air dans votre taille, dans des boutiques ${US()?"partout aux États-Unis":"partout au Canada"}.`},usFuel:"Comprend des boutiques américaines : la nutrition voyage bien, et chaque aubaine indique d'où elle est expédiée.",shipsFrom:c=>`expédié ${({US:"des États-Unis",CA:"du Canada",UK:"du Royaume-Uni",FR:"de France",DK:"du Danemark",AU:"d'Australie"})[c]||(US()?"de l'extérieur des États-Unis":"de l'extérieur du Canada")}, des droits peuvent s'appliquer`,showMore:n=>`Voir ${n} de plus`,
   allGear:"Tout",typeAll:"Tout",types:{daily:"Entraînement",race:"Carbone et compétition",trail:"Sentier",hike:"Randonnée et hiver",spike:"Pointes (piste et cross)",light:"Frontales",pole:"Bâtons",bottle:"Gourdes et flasques",sun:"Lunettes de soleil",tee:"T-shirts et camisoles",layer:"Manches longues et kangourous",jacket:"Manteaux et vestes",short:"Shorts",tight:"Collants",pant:"Pantalons"},
@@ -1349,7 +1361,7 @@ function card(d,extra){
   const isNew=!extra&&NEWSET.has(k);
   const sp=shoePage(d);
   return `<div class="dw${sp?" hascmp":""}"><a class="deal" href="${esc(affUrl(d.url))}" data-store="${esc(storeOf(d.url))}" target="_blank" rel="noopener">
-    ${d.img?`<div class="pic"><img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"></div>`:""}
+    ${d.img?`<div class="pic"><img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.remove()">${lowDays(d)?`<span class="lostamp" aria-hidden="true"><span>${t("lowL1")}</span><span>${t("lowStampDays",lowDays(d))}</span></span>`:""}</div>`:""}
     <div class="top"><span class="brand">${esc(d.b)}${d.fav?" ★":""}</span>${d.pct?`<span class="pct"${lowDays(d)?` title="${esc(t("lowDays",lowDays(d)))}"`:""}>−${d.pct}%</span>`:""}</div>
     <div class="name">${esc(nm(d.n))}</div>
     <div class="price"><b>${money(d.best)}</b>${curTag()}${d.pct?`<s>${money(d.reg)}</s>`:""}</div>
