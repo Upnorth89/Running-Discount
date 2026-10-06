@@ -6,7 +6,12 @@ name: Night reads (RunFree stores, Decathlon)
 on:
   schedule:
     - cron: "23 8 * * *"
-  workflow_dispatch:
+  workflow_dispatch:          # Supabase starts it on time with night=true (supabase/timers.sql); the button runs it anyway
+    inputs:
+      night:
+        description: "Night run (skipped if tonight's read already happened)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -16,7 +21,25 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # GitHub's schedule can start hours late: a scheduled or Supabase-started run stops here if the last read is under 12 h old
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.c.outputs.skip }}
+    steps:
+      - id: c
+        run: |
+          skip=false
+          if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ inputs.night }}" = "true" ]; then
+            t=$(curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/history/runfree.json" | python3 -c "import json,sys; print(json.load(sys.stdin).get('updated',''))" || true)
+            echo "last read: ${t:-none}"
+            [ -n "$t" ] && python3 -c "import sys,datetime as d; t=d.datetime.fromisoformat('$t'); sys.exit(0 if d.datetime.now(d.timezone.utc)-t<d.timedelta(hours=12) else 1)" && skip=true
+          fi
+          echo "skip=$skip" >> "$GITHUB_OUTPUT"
+
   read:
+    needs: check
+    if: needs.check.outputs.skip != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 110
     steps:
@@ -46,6 +69,8 @@ jobs:
   # Decathlon (Oct 6, 2026): blocked GitHub's daytime reads ("429 too many requests"), so it's read here, one page every
   # 6 seconds; if it still says no, it stops for the night and the last good read stays
   decathlon:
+    needs: check
+    if: needs.check.outputs.skip != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 110
     steps:

@@ -12,6 +12,10 @@ on:
         description: "Morning run (health email, skipped if today's report already went out)"
         type: boolean
         default: false
+      afternoon:
+        description: "Afternoon run (midday health email, skipped if today's midday check already went out)"
+        type: boolean
+        default: false
   push:
     branches: [main]
 
@@ -35,10 +39,14 @@ jobs:
       - id: today
         run: |
           skip=false
-          if { [ "${{ github.event_name }}" = "schedule" ] && [ "${{ github.event.schedule }}" != "17 20 * * *" ]; } || [ "${{ inputs.morning }}" = "true" ]; then
-            last=$(curl -fsSL "https://thegearfox.com/health.json?t=$(date +%s)" | python3 -c "import json,sys; print(json.load(sys.stdin).get('reported') or '')" || true)
-            today=$(TZ=America/Vancouver date +%F)
-            echo "last morning report: ${last:-none}, today: $today"
+          today=$(TZ=America/Vancouver date +%F)
+          field=""
+          if { [ "${{ github.event_name }}" = "schedule" ] && [ "${{ github.event.schedule }}" != "17 20 * * *" ]; } || [ "${{ inputs.morning }}" = "true" ]; then field=reported; fi
+          # afternoon (Oct 6, 2026): Supabase starts it on time (afternoon=true); GitHub's late 20:17 schedule is the backup
+          if [ "${{ github.event.schedule }}" = "17 20 * * *" ] || [ "${{ inputs.afternoon }}" = "true" ]; then field=midday; fi
+          if [ -n "$field" ]; then
+            last=$(curl -fsSL "https://thegearfox.com/health.json?t=$(date +%s)" | python3 -c "import json,sys; print(json.load(sys.stdin).get('$field') or '')" || true)
+            echo "last $field report: ${last:-none}, today: $today"
             [ "$last" = "$today" ] && skip=true
           fi
           echo "skip=$skip" >> "$GITHUB_OUTPUT"
@@ -126,7 +134,7 @@ jobs:
           git push -q origin HEAD:history
       # price-drop / back-in-your-size emails, only on the morning run (not on every upload)
       - name: Watchlist alerts
-        if: github.event_name != 'push' && github.event.schedule != '17 20 * * *'
+        if: github.event_name != 'push' && github.event.schedule != '17 20 * * *' && !inputs.afternoon
         continue-on-error: true
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
@@ -144,8 +152,8 @@ jobs:
           FROM_EMAIL: "The Gear Fox <deals@thegearfox.com>"
           SUPABASE_URL: "https://krwymmkauwqqxjxbvkyq.supabase.co"
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
-          SEND_HEALTH: ${{ (github.event_name == 'schedule' || inputs.morning) && '1' || '0' }}   # morning report + a midday one (Oct 5)
-          HEALTH_WHEN: ${{ github.event.schedule == '17 20 * * *' && 'midday' || 'morning' }}
+          SEND_HEALTH: ${{ (github.event_name == 'schedule' || inputs.morning || inputs.afternoon) && '1' || '0' }}   # morning report + a midday one (Oct 5)
+          HEALTH_WHEN: ${{ (github.event.schedule == '17 20 * * *' || inputs.afternoon) && 'midday' || 'morning' }}
           HEALTH_EMAIL: ${{ secrets.HEALTH_EMAIL }}
         run: python scraper/health.py /tmp/prev site
       - name: Keep yesterday's site if the shoe pages didn't build or the site test failed
