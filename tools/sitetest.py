@@ -199,6 +199,10 @@ def site_flow(base, per, accented):
                 assert not other, f"tapping {NAMES[g]} also shows {sec(other)}"
                 if per.get(g, 0) >= 30:
                     assert cs, f"tapping {NAMES[g]} shows no deals (today's data has {per[g]} on sale)"
+                if g in ("tops", "bottoms"):                  # Oct 6: a men's runner saw skirts, bras and high-rise leggings
+                    wom = [c for c in cs if re.search(r"women|\bskirts?\b|\bskorts?\b|\bbras?\b|\bdress\b|hi(gh)?[- ]rise",
+                                                      c["n"], re.I)]
+                    assert not wom, f"{NAMES[g]} for a men's runner shows women's items (e.g. {wom[0]['b']} {wom[0]['n']})"
                 common = Counter(c["b"].replace(" ★", "").strip() for c in cs).most_common(1)
                 if common:
                     brands[g] = (common[0][0], cs)

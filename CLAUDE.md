@@ -224,6 +224,10 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   ignore "(trail/road) running shoe(s)", so stores' differently worded names merge. One spelling per brand (most common wins).
   Merge keys for shoes also ignore the colour after " — " (Fit First lists each colour) and width words on wide items;
   "(Men's)"/"Men’s" become " - Men's"; Québec stores' "- Large"/"(Large)" = wide. Hoka Ora Recovery = casual (dropped).
+- Clothing gender (Oct 6, a men's runner saw skirts/bras/high-rise leggings: 1 in 5 clothing items had no gender and showed to
+  everyone): name first (`name_gender`), then the Shopify store's own tags/product type (`tag_gender`, clothing only, one gender
+  only), then `clothing_gender` (bras group, WOMEN_ONLY words skirt/skort/dress/bra/high-rise/legging/capri/prenatal, WOMEN_BRANDS
+  Oiselle, MEN_BRANDS Ten Thousand; a name saying Unisex stays unisex). Site test checks men's Tops/Bottoms for women's items.
 - `CAPS_STORES` (Le Coureur writes in capitals: softened), `OWN_BRAND` (rabbit/Bandit leave the brand "0").
 - Shoe size keys: `"10"`, `"M:10"`/`"W:11"` (from unisex labels), suffix `~W` wide, `~N` narrow (hidden).
 - Accessories (packs, gear) in letter sizes follow the clothing size; odd labels are hidden on cards.

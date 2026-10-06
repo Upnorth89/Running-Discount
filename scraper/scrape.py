@@ -660,7 +660,7 @@ def shopify_items(st, base, prods, group_fn, fx=1.0, size_aware=False, size_fn=N
             b["bb"] = b["bb"] or bb
         for key, b in buckets.items():
             out.append({"st": st, "b": p.get("vendor") or "", "n": p["title"] + (f" · {key}" if key else ""),
-                        "u": f"{base}/products/{p['handle']}?variant={b['vid']}", "g": g, "sx": [], "w": False,
+                        "u": f"{base}/products/{p['handle']}?variant={b['vid']}", "g": g, "sx": tag_gender(p) if g in ("tops", "bottoms", "bras") else [], "w": False,
                         "img": img, "lp": round(b["lp"] * fx, 2), "bb": b["bb"],
                         "sz": [[k, pr, rg, vid] for k, (pr, rg, vid) in b["sz"].items()]}
                        | ({"fs": 1} if any(FINAL_TAG.search(t) for t in p.get("tags") or []) or FINAL_TAG.search(p["title"]) else {}))
@@ -1790,6 +1790,37 @@ def acc_sizes(label):
         return ["OS"]
     return [str(label).strip()]
 
+def tag_gender(p):
+    """A Shopify product's gender from the store's own tags/product type ("Gender: Womens", "mens", "Women's Apparel"),
+    used when the name says nothing. Only when exactly one gender appears (many shops tag unisex items with both)."""
+    txt = " ".join([t for t in p.get("tags") or [] if re.search(r"gender|wom[ae]n|\bmen|ladies|female|\bmale|femme|homme", t, re.I)]
+                   + [p.get("product_type") or ""]).lower()
+    if "unisex" in txt:
+        return []
+    w = bool(re.search(r"wom[ae]n|ladies|female|femme", txt))
+    m = bool(re.search(r"(?<!wo)\bmen|\bmale|\bhomme", txt))
+    return ["women"] if w and not m else ["men"] if m and not w else []
+
+# Clothing whose name or brand only fits women, when neither the name nor the store says (Oct 6: a men's runner saw
+# skirts, skorts, bras and high-rise leggings, 1 in 5 clothing items had no gender and showed to everyone).
+WOMEN_ONLY = re.compile(r"\b(skirts?|skorts?|dress|sports? bra|bra|bralette|hi(gh)?[- ]rise|capris?|leggings?|prenatal|maternity|jupes?|soutien-gorge)\b", re.I)
+WOMEN_BRANDS = {"oiselle", "girlfriend collective", "lululemon"}
+MEN_BRANDS = {"ten thousand", "tenthousand"}
+
+def clothing_gender(o):
+    if o["g"] == "bras":
+        return ["women"]
+    if o["g"] not in ("tops", "bottoms"):
+        return []
+    b = (o.get("b") or "").lower()
+    if re.search(r"\bunisex\b", o["n"], re.I):
+        return []
+    if b in WOMEN_BRANDS or WOMEN_ONLY.search(o["n"]):
+        return ["women"]
+    if b in MEN_BRANDS:
+        return ["men"]
+    return []
+
 def name_gender(n):
     """Product names ("... - Women's", "Mens Pressio Tee") beat a store's gender tag, which is
     often "unisex" for women's-cut gear."""
@@ -1869,7 +1900,7 @@ def merge(offers):
                 o["n"] = soften_caps(o["n"])
         o["b"] = tidy_brand(o["b"])
         o["n"] = tidy_name(o["b"], o["n"])
-        o["sx"] = name_gender(o["n"]) or o["sx"]
+        o["sx"] = name_gender(o["n"]) or o["sx"] or clothing_gender(o)
         tidied.append(o)
     # one brand, one spelling, decided before cards are keyed ("Nathan Sports" = "Nathan", "ciele athletics" = "Ciele",
     # "SOAR Running" = "SOAR", "North Face" = "The North Face"): same letters once filler words and punctuation go;
