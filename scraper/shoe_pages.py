@@ -469,7 +469,10 @@ var ana=(function(){{var ls=function(k){{try{{return localStorage.getItem(k)}}ca
   if(!sid){{sid=uid();nv+=1;try{{sessionStorage.setItem("gf-sid",sid);localStorage.setItem("gf-nv",String(nv))}}catch(e){{}}}}
   var touch=matchMedia("(pointer:coarse)").matches,w=Math.min(screen.width||innerWidth,innerWidth),dev=touch&&w<600?"phone":touch&&w<1100?"tablet":"computer";
   var tz=null;try{{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||null}}catch(e){{}}
-  var ref=null;try{{ref=new URLSearchParams(location.search).get("ref")||JSON.parse(localStorage.getItem("gf-ref")||"null")}}catch(e){{}}
+  var ref=null;try{{var r0=(new URLSearchParams(location.search).get("ref")||"").toLowerCase().replace(/[^a-z0-9_-]/g,"").slice(0,40),
+    old=JSON.parse(localStorage.getItem("gf-ref")||"null");ref=r0||old||null;
+    if(r0&&!old)localStorage.setItem("gf-ref",JSON.stringify(r0))}}catch(e){{}}   /* kept like on the homepage (first link wins), so a
+                                         sign-up after a Reddit -> shoe page -> homepage visit is credited to Reddit (Oct 6) */
   function flush(k){{if(!Q.length)return;var ev=Q.splice(0,40);try{{fetch("{SB_URL}/rest/v1/rpc/ana_track",{{method:"POST",keepalive:!!k,headers:{{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"}},
     body:JSON.stringify({{p_did:did,p_sid:sid,p_events:ev,p_lang:"{L['lang'][:2]}",p_ref:ref,p_dev:dev,p_nv:nv,p_tz:tz}})}}).catch(function(){{}})}}catch(e){{}}}}
   function add(k,d,n,p){{var e={{k:k}};if(d)e.d=String(d).slice(0,120);if(n!=null)e.n=n;if(p)e.p=p;Q.push(e);if(!T)T=setTimeout(function(){{T=null;flush(false)}},6000)}}

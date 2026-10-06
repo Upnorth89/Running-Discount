@@ -1438,6 +1438,7 @@ LIFESTYLE_SHOE = re.compile(r"^(new balance\s+(740|2002r?|9060|530|1906r?)|on\s+
                             r"|salomon\s+xt-?(6|pathway|whisper|4|quest)|asics\s+gel-?(kayano\s?(14|20)|k1011)"
                             r"|nike\s+(zoom\s+)?vomero\s?5|hoka\s+speedgoat\s?2|adidas\s+(originals\b|ultraboost\s+1\.0|.*\bdna\b|adizero\s+goukana))\b", re.I)
 # soccer boots (Frontrunners sells them): ground codes FG/AG/MG/SG/TF, or the model lines
+GOALIE = re.compile(r"goal ?keep|\b(copa|pred|predator) gl\b|\bvapor grip\b|\bgk (dynamic|match|vapor)", re.I)
 SOCCER = re.compile(r"\b(FG|AG|MG|SG|TF)\b|(?i:\b(soccer|futsal|predator|f50|copa|tiempo|mercurial)\b)")
 
 def shoe_width_from_name(n, sx):
@@ -1713,7 +1714,7 @@ def tidy_shoes(offers):
     return out
 
 # ---------------------------------------------------------------- tidy names and accessory sizes (site, email and alerts all use these)
-BRAND_PREFER = {"adidas", "rabbit", "norda", "Arc'teryx", "The North Face", "Squirrel's Nut Butter", "New Balance", "Nathan", "Inov-8", "Ketone-IQ",
+BRAND_PREFER = {"ASICS", "GU", "On", "Topo Athletic", "Craft", "CEP", "Injinji", "LEKI", "adidas", "rabbit", "norda", "Arc'teryx", "The North Face", "Squirrel's Nut Butter", "New Balance", "Nathan", "Inov-8", "Ketone-IQ",
                 "SaltStick", "Precision Fuel & Hydration", "Tailwind Nutrition", "Xact Nutrition", "Feetures", "Body Glide",
                 "Naked", "Ciele", "SPIbelt", "Trigger Point", "Pro-Tec Athletics", "DexShell", "NiteVest", "Oboz"}
 BRAND_CANON = {"hoka one one": "Hoka", "hoka": "Hoka", "asics": "ASICS", "satisfy": "Satisfy", "oiselle": "Oiselle",
@@ -1721,11 +1722,34 @@ BRAND_CANON = {"hoka one one": "Hoka", "hoka": "Hoka", "asics": "ASICS", "satisf
                "karitraa": "Kari Traa", "kari traa": "Kari Traa", "naak": "Näak", "näak": "Näak", "näak na": "Näak",
                "diadora": "Diadora"}
 
+# US shops often list the parent company or distributor as the vendor (Oct 6, 2026: "Asics Corp." on all 480 US ASICS items,
+# "Brooks Sports, Inc. #105856", "Ing Source, Inc" = Injinji, "Medi USA" = CEP): company words go, then this map
+BRAND_ALIAS = {"asics america": "ASICS", "asics": "ASICS", "brooks sports": "Brooks", "nike usa": "Nike", "nike team sale": "Nike",
+               "on shoes": "On", "on footwear": "On", "on-running": "On", "gu energy": "GU", "gu energy labs": "GU", "gu sports": "GU",
+               "gu nutrition": "GU", "gu energy gel": "GU", "ing source": "Injinji", "medi usa": "CEP", "medi": "CEP",
+               "cep / medi usa": "CEP", "cep/medi usa": "CEP", "medi usa (cep)": "CEP", "medi/cep": "CEP", "medi usa - cep": "CEP", "craft sportswear": "Craft", "craft sportsware usa": "Craft",
+               "craft sportsware": "Craft", "topo": "Topo Athletic", "drymax tech": "Drymax", "gofluo": "GoFluo", "handful": "Handful",
+               "superfeet worldwide": "Superfeet", "anita international": "Anita", "surefoot": "Surefoot", "ifitness": "iFitness",
+               "mizuno usa": "Mizuno", "leki usa": "LEKI", "buff usa": "Buff", "sidas usa": "Sidas", "haix usa": "HAIX",
+               "tailwind nutrition": "Tailwind", "xact nutrition": "Xact", "krono nutrition": "Krono", "podium nutrition": "Podium",
+               "neversecond nutrition": "Neversecond", "noogs nutrition": "Noogs", "spring sports nutrition": "Spring",
+               "wigwam socks": "Wigwam", "strassburg sock": "Strassburg", "saucony socks": "Saucony", "feetures socks": "Feetures",
+               "balega sports - socks": "Balega", "pillar performance": "Pillar", "trigger point performance": "Trigger Point",
+               "junk brand": "JUNK", "blacktoe running": "BlackToe", "send it gear": "Send It Gear",
+               "i-blu": "District Vision", "nakanishi optical products": "District Vision"}   # District Vision's makers
+
 def tidy_brand(b):
     b = (b or "").strip()
     if b.lower() in BRAND_CANON:
         return BRAND_CANON[b.lower()]
-    return b
+    c = re.sub(r"\s*#\d+\s*$", "", b)                                                    # "#105856"
+    c = re.sub(r",?\s*\b(inc|incorporated|corp|corporation|llc|ltd|l\.?\s?p)\b\.?", "", c, flags=re.I).strip(" ,.-")
+    k = re.sub(r"\s+", " ", c.lower().replace(",", "")).strip()
+    if k in BRAND_ALIAS:
+        return BRAND_ALIAS[k]
+    if k in BRAND_CANON:
+        return BRAND_CANON[k]
+    return c or b
 
 CAPS_STORES = {"lecoureur", "runnerssoul"}
 OWN_BRAND = {"rabbit": "rabbit", "bandit": "Bandit Running"}
@@ -1874,6 +1898,15 @@ def merge(offers):
         # Oct 6: "*FINAL SALE* Race Vest 6.0" (Mountain Running Co.), "(M) Saucony Velocity MP" (MoRunCo),
         # "=PR= Originals Tights - WRT-1001 - Women's" (PR Run & Walk's stock codes)
         n = o["n"] or ""
+        if o["g"] in ("shoes", "gear") and re.search(r"\bshoe bag\b", n, re.I):
+            o["g"] = "gear"
+        if o["g"] in ("shoes", "gear"):   # "Bondi 9 Running Shoe- Galactic Grey/Stellar Grey - Men's" (Gazelle; some filed as gear), "Arahi 9 - Men's--Black/White"
+            n = re.sub(r"\s*-{2,}\s*", " - ", n)                                          # (Tortoise & Hare): the colour goes
+            n = re.sub(r"(\S)- (?=\S)", r"\1 - ", n)
+            n = re.sub(r" -(?=[A-Za-z])", " - ", n)
+            parts = n.split(" - ")
+            n = " - ".join([parts[0]] + [x for x in parts[1:] if not ("/" in x and " x " not in x
+                                                                       and re.fullmatch(r"[A-Za-z][A-Za-z '/]*", x.strip()))])
         if re.search(r"\*\s*final\s*sale\s*\*", n, re.I):
             o["fs"] = 1
         n = re.sub(r"\s*\*\s*(?:final\s*sale|sale|clearance)\s*\*\s*", " ", n, flags=re.I).strip()
@@ -1887,6 +1920,8 @@ def merge(offers):
         o["n"] = n
         if o.get("st") == "brainsport" and o["g"] == "shoes":   # "Fresh Foam X 880v15 Smoked Violet": the colour goes
             o["n"] = re.sub(r"(\b\d{3,4}v\d+)\s+(?!(?:GTX|Gore|Wide|Trail|Boa|BOA|SL)\b)[A-Za-z][A-Za-z ]*$", r"\1", o["n"])
+    # soccer goalkeeper gloves come in numbered sizes, so tidy_gear would file them under shoes (Gazelle Sports, Oct 6)
+    offers = [o for o in offers if not GOALIE.search(o["n"] or "")]
     offers = tidy_clothes(tidy_gear(tidy_nutrition(tidy_shoes(drop_kids(tidy_us_names(offers))))))
     items, tidied = {}, []
     for o in offers:

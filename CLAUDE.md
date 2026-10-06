@@ -229,6 +229,11 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   everyone): name first (`name_gender`), then the Shopify store's own tags/product type (`tag_gender`, clothing only, one gender
   only), then `clothing_gender` (bras group, WOMEN_ONLY words skirt/skort/dress/bra/high-rise/legging/capri/prenatal, WOMEN_BRANDS
   Oiselle, MEN_BRANDS Ten Thousand; a name saying Unisex stays unisex). Site test checks men's Tops/Bottoms for women's items.
+- Brand names (Oct 6): US shops often list the parent company ("Asics Corp.", "Brooks Sports, Inc. #105856", "Ing Source" = Injinji,
+  "Medi USA" = CEP): `tidy_brand` drops company words (Inc/Corp/LLC/L.P/#123) then maps `BRAND_ALIAS`; BRAND_PREFER keeps the official
+  spelling (the rank otherwise prefers non-capitals: "Asics Corp." beat "ASICS"). Shoe names lose a " - Colour/Colour" segment
+  (Gazelle "Shoe- Black/White", Tortoise & Hare "Men's--Black/White"); `GOALIE` drops soccer goalkeeper gloves/jerseys (numbered
+  sizes made tidy_gear file them as shoes). Shoe pages remember `?ref=` in gf-ref like the homepage (first link wins).
 - `CAPS_STORES` (Le Coureur writes in capitals: softened), `OWN_BRAND` (rabbit/Bandit leave the brand "0").
 - Shoe size keys: `"10"`, `"M:10"`/`"W:11"` (from unisex labels), suffix `~W` wide, `~N` narrow (hidden).
 - Accessories (packs, gear) in letter sizes follow the clothing size; odd labels are hidden on cards.
