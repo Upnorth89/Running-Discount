@@ -569,15 +569,23 @@ def shopify_price_currency(base, cookies=None):
     return None
 
 def shopify_products(base, max_pages=40, cookies=None):
+    # A later page that fails (usually 429 "too busy") gets one more try after a pause; if it fails again the whole read
+    # fails, so the store keeps yesterday's full catalogue instead of publishing a partial one (Oct 6: Athletic Annex
+    # showed 180 of ~1,830 products, Mountain Run 222 of 924).
     prods, page = [], 1
     while page <= max_pages:
+        url = f"{base}/products.json?limit=250&page={page}"
         try:
-            batch = get(f"{base}/products.json?limit=250&page={page}", cookies=cookies).json()["products"]
+            batch = get(url, cookies=cookies).json()["products"]
         except Exception as e:
             if page == 1:
                 raise
-            print(f"  ! {base}: page {page} failed ({str(e)[:60]}), keeping the first {len(prods)} products", file=sys.stderr)
-            break
+            print(f"  ! {base}: page {page} failed ({str(e)[:60]}), trying again in 30 s", file=sys.stderr)
+            time.sleep(30)
+            try:
+                batch = get(url, cookies=cookies).json()["products"]
+            except Exception as e2:
+                raise RuntimeError(f"page {page} failed twice ({str(e2)[:60]}); keeping the last full read") from e2
         if not batch:
             break
         prods += batch
