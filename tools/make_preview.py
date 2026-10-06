@@ -47,7 +47,8 @@ rep('<header class="topbar">', '''<div class="pv"><div class="pvin">
   <div class="pvrow"><b>Preview</b>
     <span class="pvseg" id="pvFlow" role="group" aria-label="First-visit version"><button type="button" data-f="A">A</button><button type="button" data-f="B">B</button><button type="button" data-f="C">C</button><button type="button" data-f="D">D</button></span>
     <span class="pvseg" id="pvCards" role="group" aria-label="Deal cards on phones"><button type="button" data-c="compact">Cards: compact</button><button type="button" data-c="big">Cards: before</button></span>
-    <span class="pvseg" id="pvLow" role="group" aria-label="Lowest-price badge style"><button type="button" data-l="pill">Badge: pill</button><button type="button" data-l="stamp">Stamp</button><button type="button" data-l="burst">Burst</button><button type="button" data-l="tag">Tag</button></span>
+    <span class="pvseg" id="pvLow" role="group" aria-label="Lowest-price badge style"><button type="button" data-l="pill">Badge: pill</button><button type="button" data-l="stamp">Stamp</button><button type="button" data-l="burst">Burst</button><button type="button" data-l="tag">Tag</button><button type="button" data-l="ribbon">Ribbon</button></span>
+    <span class="pvseg" id="pvStamp" role="group" aria-label="Stamp and ribbon colour"><button type="button" data-s="orange">Colour: orange</button><button type="button" data-s="green">Green</button><button type="button" data-s="ink">Ink</button><button type="button" data-s="red">Red</button><button type="button" data-s="blue">Blue</button></span>
     <button type="button" class="pvb" id="pvReset">Start as a new visitor</button>
     <button type="button" class="pvb" id="pvConfirm">Pretend I confirmed my email</button>
     <button type="button" class="pvb" id="pvDay">Pretend a day has passed</button>
@@ -132,6 +133,9 @@ function pvClear(){["rd-profile","gf-sub","gf-watch","gf-last","gf-base","gf-cli
 document.querySelectorAll("#pvLow button").forEach(b=>{b.setAttribute("aria-pressed",String(b.dataset.l===(document.documentElement.dataset.low||"pill")));
   b.addEventListener("click",()=>{try{localStorage.setItem("gf-lowstyle",JSON.stringify(b.dataset.l))}catch(e){}document.documentElement.dataset.low=b.dataset.l;
     document.querySelectorAll("#pvLow button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)))})});
+document.querySelectorAll("#pvStamp button").forEach(b=>{b.setAttribute("aria-pressed",String(b.dataset.s===(document.documentElement.dataset.stamp||"orange")));
+  b.addEventListener("click",()=>{try{localStorage.setItem("gf-stamp",JSON.stringify(b.dataset.s))}catch(e){}document.documentElement.dataset.stamp=b.dataset.s;
+    document.querySelectorAll("#pvStamp button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)))})});
 document.querySelectorAll("#pvCards button").forEach(b=>{b.setAttribute("aria-pressed",String(b.dataset.c===CARDS));
   b.addEventListener("click",()=>{try{localStorage.setItem("gf-cards",JSON.stringify(b.dataset.c))}catch(e){}location.reload()})});
 $("pvReset").addEventListener("click",()=>{pvClear();location.reload()});
