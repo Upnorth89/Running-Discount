@@ -96,6 +96,7 @@ input:focus-visible,button:focus-visible,summary:focus-visible,select:focus-visi
 @media(min-width:560px){.seo-today ol{columns:2;column-gap:28px}}
 .seo-today p{margin:0 0 6px;line-height:1.6}
 html[lang=fr] .seo-today .seo-en,html:not([lang=fr]) .seo-today .seo-fr{display:none}
+html.us .seo-today .seo-en,html.us .seo-today .seo-fr,html:not(.us) .seo-today .seo-us{display:none}   /* USA side: its own copy */
 .wline{margin:8px 0 2px;font-size:15px;color:var(--muted)}
 .wline b{color:var(--ink)}
 .wline button{font:inherit;color:var(--moss);background:none;border:0;padding:0 2px;text-decoration:underline;cursor:pointer;min-height:24px}
@@ -1173,7 +1174,7 @@ function setCountry(c,from){if(c===COUNTRY||(c!=="us"&&c!=="ca"))return;COUNTRY=
   ana("country",c+"|"+(from||""));track("country",{to:c,from:from||""});
   if(LS0("rd-profile"))saveProfile();applyStatic();renderCountry();
   if(!$("sheet").classList.contains("hidden"))openSheet();renderAll();loadCountry()}
-function renderCountry(){document.querySelectorAll("[data-ctry]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.ctry===COUNTRY)));
+function renderCountry(){document.querySelectorAll("[data-ctry]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.ctry===COUNTRY)));document.documentElement.classList.toggle("us",US());
   $("mShoes").href=US()?"us/shoes/":LANG==="fr"?"chaussures/":"shoes/"}
 document.addEventListener("click",e=>{const b=e.target.closest("[data-ctry]");if(b)setCountry(b.dataset.ctry,b.closest("#menu")?"menu":"welcome")});
 renderCountry();

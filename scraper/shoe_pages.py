@@ -710,20 +710,22 @@ def list_page(L, path_en, path_fr, title, h1, intro, rows, brands, extra=""):
     return "".join(out)
 
 
-def home_section(L_en, L_fr, rows, brands):
+def home_section(L_en, L_fr, rows, brands, us=None):
     """A plain-HTML block for the homepage (between the SEO-TODAY markers): today's best shoe deals with links, readable
-    by search engines even though the main deals are drawn by the page's script. One copy per language; the page shows
-    the one matching its language (html[lang], set by the site's script)."""
-    def one(L, code):
+    by search engines even though the main deals are drawn by the page's script. One copy per language, plus one for the USA
+    side (us = (rows, brands) from deals-us.json; Oct 6, 2026); the site shows the copy matching its language and country."""
+    def one(L, code, rows, brands):
         money = L["money"]
         li = "".join(f'<li><a href="/{L["dir"]}/{s}/">{esc(n)}</a> · {money(sm["price"])}' + (f' (−{sm["top"]}%)' if sm["top"] >= 10 else "") + "</li>"
                      for s, n, sm in rows)
         nav = " · ".join(f'<a href="{u}">{esc(t)}</a>' for u, t in
                          [(f'/{L["hubDir"]}/', L["hubs"]["all"][1]), (f'/{L["bfDir"]}/', L["bfLink"]), (f'/{L["dir"]}/', L["homeMore"])])
         br = " · ".join(f'<a href="/{L["brandDir"]}/{slugify(b)}/">{esc(b)}</a>' for b in brands[:12])
-        return (f'<div class="seo-{code}" lang="{code}"><h2>{esc(L["homeH"])}</h2><ol>{li}</ol>'
+        lang = "en" if code == "us" else code
+        return (f'<div class="seo-{code}" lang="{lang}"><h2>{esc(L["homeH"])}</h2><ol>{li}</ol>'
                 f'<p>{nav}</p><p>{br}</p></div>')
-    return f'<section class="seo-today">{one(L_en, "en")}{one(L_fr, "fr")}</section>'
+    us_html = one(US, "us", *us) if us else ""
+    return f'<section class="seo-today">{one(L_en, "en", rows, brands)}{one(L_fr, "fr", rows, brands)}{us_html}</section>'
 
 
 def index_page(L, entries, updated, paths=("/shoes/", "/chaussures/")):
@@ -853,13 +855,6 @@ def main():
             p.write_text(list_page(L, "/black-friday/", "/vendredi-fou/", L["bfTitlePre"], L["bfH1Pre"].format(date=bf.day),
                                    L["bfIntroPre"].format(days=(bf - today).days), bf_rows[:6], brands, extra))
         extra_urls.append(f'/{L["bfDir"]}/')
-    # homepage: a plain block search engines can read (the deals themselves are drawn by the page's script)
-    idx = site / "index.html"
-    html_ = idx.read_text()
-    if "<!--SEO-TODAY-->" in html_ and "<!--/SEO-TODAY-->" in html_:
-        block = home_section(T["en"], T["fr"], [r for r in kinds["all"] if r[2]["sizes"] >= 6][:12], brands)
-        html_ = re.sub(r"<!--SEO-TODAY-->.*?<!--/SEO-TODAY-->", lambda m: "<!--SEO-TODAY-->" + block + "<!--/SEO-TODAY-->", html_, flags=re.S)
-        idx.write_text(html_)
     for L in T.values():
         (site / L["dir"]).mkdir(parents=True, exist_ok=True)
         (site / L["dir"] / "index.html").write_text(index_page(L, entries, updated))
@@ -867,7 +862,15 @@ def main():
     day = (updated or datetime.now(timezone.utc).isoformat())[:10]
     urls = ["/", "/shoes/", "/chaussures/", "/about.html", "/privacy.html"] + extra_urls
     urls += [f"/{d}/{s}/" for s in known_live for d in ("shoes", "chaussures")]
-    urls += build_us(site, stores, set(known_live), {slugify(b) for b in brands})
+    us_urls, us_home = build_us(site, stores, set(known_live), {slugify(b) for b in brands})
+    urls += us_urls
+    # homepage: a plain block search engines can read (the deals themselves are drawn by the page's script)
+    idx = site / "index.html"
+    html_ = idx.read_text()
+    if "<!--SEO-TODAY-->" in html_ and "<!--/SEO-TODAY-->" in html_:
+        block = home_section(T["en"], T["fr"], [r for r in kinds["all"] if r[2]["sizes"] >= 6][:12], brands, us_home)
+        html_ = re.sub(r"<!--SEO-TODAY-->.*?<!--/SEO-TODAY-->", lambda m: "<!--SEO-TODAY-->" + block + "<!--/SEO-TODAY-->", html_, flags=re.S)
+        idx.write_text(html_)
     (site / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
                                       "".join(f"<url><loc>{BASE}{u}</loc><lastmod>{day}</lastmod></url>\n" for u in urls) + "</urlset>\n")
     print(f"shoe pages: {len(known_live)} models ({n_live} in stock today), {2 * len(known_live)} pages EN/FR, "
@@ -880,7 +883,7 @@ def build_us(site, stores, ca_models, ca_brands):
     Returns the URLs for the sitemap."""
     f = site / "deals-us.json"
     if not f.exists():
-        return []
+        return [], None
     data = json.loads(f.read_text())
     items, updated = data["items"], data.get("updated")
     fx = float((data.get("fx") or {}).get("USD") or 1.37)
@@ -964,7 +967,7 @@ def build_us(site, stores, ca_models, ca_brands):
     urls.append(f"/{L['dir']}/")
     reg_path.write_text(json.dumps(known, ensure_ascii=False, separators=(",", ":")))
     print(f"USA shoe pages: {len(live)} models, {len(urls)} pages ({len(brands)} brands)")
-    return urls
+    return urls, ([r for r in kinds["all"] if r[2]["sizes"] >= 6][:12], brands)
 
 
 if __name__ == "__main__":

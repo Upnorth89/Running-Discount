@@ -546,6 +546,9 @@ def site_flow(base, per, accented):
                 bad = [x for x in lines if "ships from the US" in x]
                 assert not bad, f"US stores are labelled as shipping from abroad ({bad[0]})"
                 assert "USD" in pu.inner_text("section.grp"), "prices on the USA side aren't in US dollars"
+                if pu.locator(".seo-us").count():          # the bottom block: the US copy, not "...in Canada"
+                    assert pu.locator(".seo-us").is_visible() and not pu.locator(".seo-en").is_visible(), \
+                        "the bottom of the page still shows Canadian shoe prices on the USA side"
                 if (SITE / "us" / "shoes").exists():          # a US card's "All sizes & stores" opens the US shoe page
                     lk = pu.locator("section.grp a.cmp")
                     if lk.count():
