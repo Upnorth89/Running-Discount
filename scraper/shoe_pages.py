@@ -520,7 +520,8 @@ else if(prev&&prev.s){{var o=[].slice.call(sel.options).filter(function(o){{var 
 else pickRow()}})();
 /* wrong side (Oct 6, 2026): a visitor who picked USA on a Canadian page (or Canada on a US page) gets a bar to the same page
    on their side, when it exists (Google, old links and the menu's country link can lead to the other side) */
-(function(){{var c=null;try{{c=JSON.parse(localStorage.getItem("gf-country")||"null")}}catch(e){{}}
+(function(){{var c=null;try{{c=JSON.parse(localStorage.getItem("gf-country")||"null")||(JSON.parse(localStorage.getItem("rd-profile")||"null")||{{}}).country||null}}catch(e){{}}
+  if(!c){{try{{c=document.documentElement.lang==="fr"?"ca":/^(America\/(New_York|Detroit|Kentucky|Indiana|Chicago|Menominee|North_Dakota|Denver|Boise|Phoenix|Los_Angeles|Anchorage|Juneau|Sitka|Metlakatla|Yakutat|Nome|Adak)|Pacific\/Honolulu)/.test(Intl.DateTimeFormat().resolvedOptions().timeZone||"")?"us":"ca"}}catch(e){{}}}}   /* first visit from Reddit/Google: the device's time zone, like the homepage (Oct 6) */
   var path=location.pathname,us=/^\/us\//.test(path);if(!c||(c==="us")===us)return;
   var to=us?path.replace(/^\/us\//,"/"):"/us"+path.replace(/^\/chaussures\//,"/shoes/").replace(/^\/chaussures-course-solde\/.*$/,"/running-shoes-sale/").replace(/^\/marques\//,"/brands/").replace(/^\/vendredi-fou\//,"/black-friday/");
   var fr=document.documentElement.lang==="fr";
