@@ -345,6 +345,8 @@ def dec_get(url):
     raise requests.HTTPError(f"429 {url}")
 
 DEC_BUDGET = 18 * 60     # seconds: Decathlon never holds up the whole refresh (a 429 storm ran into GitHub's 50-min limit, Oct 5)
+DEC_PACE = 1.5           # seconds between product pages; the night job (--decathlon-night) reads much slower
+DECATHLON_FILE = os.environ.get("DECATHLON_FILE", "/tmp/decathlon.json")
 
 def scrape_decathlon():
     t0, links = time.time(), []
@@ -361,7 +363,7 @@ def scrape_decathlon():
                 break
             links += new
             start += 40
-            time.sleep(3)
+            time.sleep(max(3, DEC_PACE))
     out, seen = [], set()
     stopped = ""
     for u in links:
@@ -372,7 +374,7 @@ def scrape_decathlon():
         if not m or m.group(1) in seen:
             continue
         seen.add(m.group(1))
-        time.sleep(1.5)                                   # relaxed pace (its own lane: the whole run doesn't wait on it)
+        time.sleep(DEC_PACE)                              # relaxed pace (its own lane: the whole run doesn't wait on it)
         try:
             skus = [x for x in dec_skus(dec_get(DEC_BASE + u).text) if x.get("isAvailable")]
         except Exception as e:
@@ -1393,7 +1395,7 @@ STORES = {
     "mec": scrape_mec_saved,       # from pages you save (their sites block automated access)
     "rei": scrape_rei_saved,
     "svp": scrape_svp_saved,
-    "decathlon": scrape_decathlon,
+    "decathlon": lambda: scrape_decathlon_saved(),    # read at night, slowly (runfree.yml): Decathlon blocked GitHub's daytime reads
     "footlocker": scrape_footlocker,
 }
 # Final sale (Oct 4, 2026; read from each store's return policy, recheck now and then): 1 = every item is final sale,
@@ -2035,6 +2037,45 @@ def main():
     n_sale = sum(1 for i in items if any(e[1] < e[3] * 0.99 for e in i["sz"]))
     print(f"wrote {len(items)} items ({n_sale} on sale) from {len(offers)} store listings to {OUT}", file=sys.stderr)
     return 1 if len(failed) == len(STORES) else 0
+
+def scrape_decathlon_saved():
+    """Decathlon (Oct 6, 2026): read at night by `scrape.py --decathlon-night` (one page every 6 s; stops for the night on
+    "429 too many requests") into decathlon.json on the history branch; the refresh downloads it to DECATHLON_FILE."""
+    try:
+        d = json.loads(Path(DECATHLON_FILE).read_text())
+    except Exception:
+        raise RuntimeError("no night read of Decathlon yet")
+    t = dt.datetime.fromisoformat(d["updated"])
+    if dt.datetime.now(dt.timezone.utc) - t > dt.timedelta(hours=36):
+        raise RuntimeError(f"Decathlon night read last worked {t:%b %d}" + (f" ({d['failed']})" if d.get("failed") else ""))
+    return d["offers"]
+
+
+def decathlon_night(out):
+    """The night read: slow, polite, keeps the last good read when Decathlon still says no."""
+    global DEC_PACE, DEC_BUDGET
+    DEC_PACE, DEC_BUDGET = 6.0, 95 * 60
+    p = Path(out)
+    try:
+        prev = json.loads(p.read_text())
+    except Exception:
+        prev = {}
+    try:
+        got = scrape_decathlon()
+        if len(got) < 100:
+            raise RuntimeError(f"only {len(got)} products (Decathlon may still be saying 'too many requests')")
+        p.write_text(json.dumps({"updated": now(), "offers": got}, separators=(",", ":"), ensure_ascii=False))
+        print(f"decathlon night read: {len(got)} products", file=sys.stderr)
+    except Exception as e:
+        print(f"decathlon night read failed ({str(e)[:120]}); kept the last good read", file=sys.stderr)
+        if prev:
+            prev["failed"] = str(e)[:120]
+            p.write_text(json.dumps(prev, separators=(",", ":"), ensure_ascii=False))
+    return 0
+
+
+if __name__ == "__main__" and "--decathlon-night" in sys.argv:
+    sys.exit(decathlon_night(sys.argv[sys.argv.index("--decathlon-night") + 1]))
 
 if __name__ == "__main__":
     sys.exit(main())

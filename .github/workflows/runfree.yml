@@ -1,4 +1,4 @@
-name: RunFree night read
+name: Night reads (RunFree stores, Decathlon)
 
 # Local US running stores on RunFree (scraper/runfree.py): every product's sizes and prices, one request per second per
 # store, all stores at once. 1:23am Vancouver, well before the 4:17am refresh, which downloads runfree.json from the
@@ -40,5 +40,34 @@ jobs:
           git add runfree.json runfree-cache.json
           git diff --cached --quiet && exit 0
           git commit -q -m "runfree $(TZ=America/Vancouver date +%F)"
+          for i in 1 2 3 4; do git pull -q --rebase origin history && git push -q origin HEAD:history && exit 0; sleep $((i * 5)); done
+          exit 1
+
+  # Decathlon (Oct 6, 2026): blocked GitHub's daytime reads ("429 too many requests"), so it's read here, one page every
+  # 6 seconds; if it still says no, it stops for the night and the last good read stays
+  decathlon:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r scraper/requirements.txt
+      - uses: actions/checkout@v4
+        with:
+          ref: history
+          path: hist
+      - name: Read Decathlon slowly
+        run: python scraper/scrape.py --decathlon-night hist/decathlon.json
+      - name: Save to the history branch
+        run: |
+          cd hist
+          git config user.name "The Gear Fox"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          [ -f decathlon.json ] || exit 0
+          git add decathlon.json
+          git diff --cached --quiet && exit 0
+          git commit -q -m "decathlon $(TZ=America/Vancouver date +%F)"
           for i in 1 2 3 4; do git pull -q --rebase origin history && git push -q origin HEAD:history && exit 0; sleep $((i * 5)); done
           exit 1

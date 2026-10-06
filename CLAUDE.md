@@ -191,8 +191,10 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
 - Altitude Sports and The Last Hunt: commercetools readers (running category types in `CT_TYPES`).
   Each size links to `?color=…&size=…` (opens on that size). Sporting Life, MEC, Decathlon can't preselect a size
   (tested Oct 1); every size shown is in stock, so no note on cards (Bastien's call).
-- Sporting Life, Stampeak, Sea2Sky, The Feed: custom readers. Decathlon: the full running section (Oct 5: all running
-  subcategories in `DEC_LISTS`, full price included; server-rendered JSON, robots allow). MEC/REI: from saved pages only.
+- Sporting Life, Stampeak, Sea2Sky, The Feed: custom readers. Decathlon: the full running section (Oct 5: all running subcategories in `DEC_LISTS`, full price included; server-rendered
+  JSON, robots allow). It answered GitHub's daytime reads "429 too many requests" from Oct 5, so since Oct 6 it's read at night by
+  runfree.yml (job "decathlon": `scrape.py --decathlon-night hist/decathlon.json`, one page every 6 s, stops for the night on 429,
+  keeps the last good read) and the refresh loads /tmp/decathlon.json (`scrape_decathlon_saved`). MEC/REI: from saved pages only.
   SVP Sports (Oct 4, Québec chain, Shopify behind Cloudflare): saved pages too: the Grab deals bookmark on any SVP collection
   saves its products.json (svp-DATE.json, `scrape_svp_saved`); expires after 10 days like MEC/REI.
 - Known: Honey Stinger is blocked from GitHub's servers (works elsewhere); REI needs fresh saved pages.
