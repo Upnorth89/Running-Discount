@@ -78,13 +78,21 @@ def on_sale(x):
 
 
 items = [{k: v for k, v in x.items() if k != "img"} for x in data["items"] if x.get("ca") is not False or on_sale(x)]
-blob = json.dumps({"updated": data["updated"], "stores": data.get("stores", {}), "fx": data.get("fx", {}), "items": items}, separators=(",", ":")).replace("</", "<\\/")
+blob = json.dumps({"updated": data["updated"], "stores": data.get("stores", {}), "n_stores": data.get("n_stores"), "fx": data.get("fx", {}), "items": items}, separators=(",", ":")).replace("</", "<\\/")
 # shoe price pages list (links on shoe cards and in search): embedded too, when the site folder has one
 sp_path = SITE / "shoes" / "pages.json"
 if sp_path.exists():
     rep('fetch("shoes/pages.json").then(r=>r.ok?r.json():{})', 'Promise.resolve(' + sp_path.read_text().replace("</", "<\\/") + ')')
 rep('const loadData=f=>fetch(f,{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error(f);return r.json()});',
-    'const loadData=f=>Promise.resolve(JSON.parse(document.getElementById("gfdata").textContent));')
+    'const loadData=f=>Promise.resolve(JSON.parse(document.getElementById(/-us/.test(f)&&document.getElementById("gfdata-us")?"gfdata-us":"gfdata").textContent));')
+# the USA side (Oct 6, 2026): its items on sale, when the site folder has deals-us.json (kept small: sale items, no photos)
+us_path = SITE / "deals-us.json"
+us_blob = ""
+if us_path.exists():
+    du = json.loads(us_path.read_text())
+    us_blob = json.dumps({"updated": du["updated"], "stores": du.get("stores", {}), "n_stores": du.get("n_stores"), "fx": du.get("fx", {}),
+                          "items": [{k: v for k, v in x.items() if k != "img"} for x in du["items"] if on_sale(x)]},
+                         separators=(",", ":")).replace("</", "<\\/")
 a = s.index("async function rpc(fn,args,bearer){")
 b = s.index("\n}\n", a) + 3
 s = s[:a] + '''async function rpc(fn,args,bearer){   // preview: pretend server, nothing leaves the page
@@ -131,6 +139,8 @@ $("pvDay").addEventListener("click",()=>{
 
 /* ---------- start ---------- */''')
 s = s.rstrip() + '\n<script type="application/json" id="gfdata">' + blob + "</script>\n"
+if us_blob:
+    s += '<script type="application/json" id="gfdata-us">' + us_blob + "</script>\n"
 m = s.index("<script>\n(function(){")
 e = s.index("</script>", m) + len("</script>")
 s = s[:m] + s[e:] + s[m:e] + "\n"

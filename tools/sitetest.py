@@ -522,6 +522,58 @@ def site_flow(base, per, accented):
         check("Just show me deals, sizes later")(browse, pg)
         ctx2.close()
 
+        # an American visitor (Oct 6, 2026): a US time zone opens the USA side; the switch goes back to Canada
+        us_ready = (SITE / "sale-us.json").exists() and sum(
+            1 for d in json.loads((SITE / "sale-us.json").read_text())["items"] if d["g"] == "shoes") >= 300   # USA side has real data
+        if us_ready:
+            ctx3 = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, locale="en-US",
+                                  timezone_id="America/Chicago")
+            stub(ctx3)
+            pu = ctx3.new_page()
+            pu.on("pageerror", lambda e: errors.append(str(e)))
+            pu.set_default_timeout(15000)
+
+            def usa():
+                pu.goto(base, wait_until="domcontentloaded")
+                pu.wait_for_selector("#wDeals .wdeal", state="visible", timeout=30000)
+                assert pu.get_attribute('#welcomePart [data-ctry="us"]', "aria-pressed") == "true", "a US time zone didn't pick USA"
+                assert "across the US" in pu.inner_text("#sheet"), "the welcome text still says Canada"
+                pu.click("#wBrowseB")
+                pu.wait_for_selector("section.grp .deal", timeout=20000)
+                cs = cards(pu)
+                assert len(cs) >= 20, f"the USA side shows only {len(cs)} deals"
+                lines = pu.eval_on_selector_all("section.grp .deal .store", "e => e.map(x => x.textContent)")
+                bad = [x for x in lines if "ships from the US" in x]
+                assert not bad, f"US stores are labelled as shipping from abroad ({bad[0]})"
+                assert "USD" in pu.inner_text("section.grp"), "prices on the USA side aren't in US dollars"
+                if (SITE / "us" / "shoes").exists():          # a US card's "All sizes & stores" opens the US shoe page
+                    lk = pu.locator("section.grp a.cmp")
+                    if lk.count():
+                        href = lk.first.get_attribute("href")
+                        assert href.startswith("us/shoes/"), f"a US card links to the Canadian shoe page ({href})"
+                n_us = pu.inner_text("#lede")
+                pu.click("#menuBtn")
+                pu.click('#menu [data-ctry="ca"]')
+                pu.wait_for_function("document.querySelector('#lede') && document.querySelector('#lede').textContent !== " + json.dumps(n_us), timeout=20000)
+                pu.wait_for_selector("section.grp .deal", timeout=20000)
+                assert "CAD" in pu.inner_text("section.grp"), "switching to Canada didn't switch to Canadian dollars"
+                return f"{len(cs)} deals in USD, then Canada"
+            check("USA side (US time zone) and back to Canada")(usa, pu)
+
+            def us_pages():
+                out = []
+                for path, needs in [("us/shoes/", r"\$\s?\d|−\d+\s?%"), ("us/running-shoes-sale/", r"\$\s?\d"), ("us/black-friday/", r"Black Friday")]:
+                    r = pu.goto(base + path, wait_until="domcontentloaded")
+                    assert r and r.status == 200, f"{path} doesn't open"
+                    body = pu.inner_text("body")
+                    assert re.search(needs, body), f"{path} opens but looks empty"
+                    assert "Canada" not in pu.title(), f"{path} still says Canada in its title"
+                    out.append(path)
+                return f"{len(out)} pages"
+            if len(list((SITE / "us" / "shoes").glob("*/index.html"))) >= 20:
+                check("US shoe pages")(us_pages, pu)
+            ctx3.close()
+
         br.close()
     return errors
 

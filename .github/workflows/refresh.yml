@@ -65,6 +65,9 @@ jobs:
           curl -fsSL "$BASE/offers.json" -o site/offers.json || true
           curl -fsSL "$BASE/health.json" -o site/health.json || true
           mkdir -p site/shoes && curl -fsSL "$BASE/shoes/pages.json" -o site/shoes/pages.json || true   # models that have a page (pages never disappear)
+          mkdir -p site/us/shoes && curl -fsSL "$BASE/us/shoes/pages.json" -o site/us/shoes/pages.json || true   # same for the USA side
+          # last night's RunFree read (scraper/runfree.py, runfree.yml), kept on the history branch
+          curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/history/runfree.json" -o /tmp/runfree.json || true
           mkdir -p /tmp/prev && cp site/deals.json site/offers.json site/health.json /tmp/prev/ 2>/dev/null || true
       - name: Keep the subscriber database awake
         continue-on-error: true

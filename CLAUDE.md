@@ -235,6 +235,31 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   Canada" on (site and Friday email). Cards name the store and where it ships from (`STORES` map in index.html:
   add new stores there too).
 
+## USA side (Oct 6, 2026; Bastien: "we need a USA page" before posting on the big US subreddits)
+
+- Site: Canada | USA switch on the welcome screen and in ☰ (`COUNTRY`, gf-country; `?c=us` links; else profile.country, French = Canada,
+  else the device time zone `US_TZ`). USA = `sale-us.json`/`deals-us.json`, USD by default, "Ships from the US", other-country stores
+  labelled (Altitude Sports: "ships from Canada"). One store total on both sides (`n_stores`, "87 stores checked daily").
+  Profile `country`; the Friday email (`SIDE` in weekly_email.py: US$, US stores) and alerts (`evaluate_sides`) follow it.
+- Data: scrape.py merges twice: Canada (no `US_SHOPS`, which may not ship north) and USA (`us` offers + `SHIPS_US` Canadian stores +
+  other cross-border; there `ca` means "ships from the US"). `tidy_us_names` brings US shops' names to "Model - Men's" (pipes
+  "Hoka | Arahi 9 | Women's", " - Colour - Regular (D)", "(Extra Wide - 4E)", style codes, capitals); US-only filters: boots/sneakers
+  (`US_CASUAL`), yoga/fashion labels (`US_LIFESTYLE_BRANDS`). General stores read from their running collection (`US_COLLECTIONS`:
+  Sports Basement "running"). Shoebacca tried and dropped (PUMA/adidas/Diadora budget shoes).
+- US shops (Shopify, `US_SHOPS`): Best Running Stores winners etc., ~26 (list in scrape.py and STORES.md). Finder: tools/find_stores.py
+  + store-finder.yml (tests tools/us_candidates.txt from GitHub's network; my sandbox can't reach some hosts). Only ~1 in 4 US
+  independents is on Shopify; many sell in store only.
+- RunFree (runfreeproject.com, a shop system for running stores; 24 stores in `RF.RUNFREE_STORES`): scraper/runfree.py, nightly
+  runfree.yml 08:23 UTC: sitemap.xml lists every product; POST /api/product (details, kept 7 days in runfree-cache.json) and
+  /api/options (sizes, stock per location, cost = price, retail = regular); 1 request/second per store, all stores in parallel;
+  robots allow all but /admin. Results: runfree.json on the history branch; refresh.yml downloads it to /tmp/runfree.json
+  (`RUNFREE_FILE`) and each store comes in like a saved page (older than 36 h = failed, keeps its last offers). Names like
+  "GT-2000 15 (W-D)" (Track Shack) -> gender + width (`name_tags`); parent companies -> brands (`CORP`). Idea pending: ask RunFree
+  (hello@runfreeproject.com) for an official feed.
+- US shoe pages: shoe_pages.py `build_us()` from deals-us.json: /us/shoes/<slug>/, /us/running-shoes-sale/…, /us/brands/<b>/,
+  /us/black-friday/ (US English `US` strings, US$, `L["abroad"]` labels); hreflang en-US + en-CA twin; registry us/shoes/pages.json
+  (refresh.yml fetches it like shoes/pages.json); in the sitemap. The site links US cards/menu/footer there (`shoeDir()`).
+
 ## Fox Pro (decided Oct 4, 2026; table in the 6-month plan doc)
 
 The ladder (Oct 4): Visitor (browse everything, always open for Google/Reddit) → Member (email: anything that saves or follows

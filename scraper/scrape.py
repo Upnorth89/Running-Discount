@@ -15,7 +15,7 @@ site/deals.json in the compact format the page reads:
 If one store fails, its items from the previous run are kept so the site never goes blank.
 Usage:  python scraper/scrape.py [out_path] [--remerge]
 """
-import collections, json, re, sys, time, datetime as dt
+import collections, json, os, re, sys, time, datetime as dt
 import html as html_lib
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -569,7 +569,13 @@ def shopify_price_currency(base, cookies=None):
 def shopify_products(base, max_pages=40, cookies=None):
     prods, page = [], 1
     while page <= max_pages:
-        batch = get(f"{base}/products.json?limit=250&page={page}", cookies=cookies).json()["products"]
+        try:
+            batch = get(f"{base}/products.json?limit=250&page={page}", cookies=cookies).json()["products"]
+        except Exception as e:
+            if page == 1:
+                raise
+            print(f"  ! {base}: page {page} failed ({str(e)[:60]}), keeping the first {len(prods)} products", file=sys.stderr)
+            break
         if not batch:
             break
         prods += batch
@@ -577,6 +583,17 @@ def shopify_products(base, max_pages=40, cookies=None):
     return prods
 
 SIZE_OPT = re.compile(r"^(size|taille|pointure|shoe size)$", re.I)
+WIDTH_OPT = re.compile(r"^(width|shoe width|shoe fit|fit|largeur)$", re.I)
+
+def width_word(w, title):
+    """A width option value -> the words canon_shoe() reads. Men's D and women's B are regular; women's D is wide."""
+    w = (w or "").strip().lower()
+    women = re.search(r"\bwom[ae]n", title, re.I)
+    if re.search(r"wide|\b[246]e\b|\bee+\b|extra", w) or (women and w == "d"):
+        return " Wide"
+    if re.search(r"narrow|\b2a\b|\baa\b", w) or (not women and w == "b"):
+        return " Narrow"
+    return ""
 
 def shopify_items(st, base, prods, group_fn, fx=1.0, size_aware=False, size_fn=None, collapse=False):
     """One card per first option (pack size / colour) when a product has several options;
@@ -601,9 +618,12 @@ def shopify_items(st, base, prods, group_fn, fx=1.0, size_aware=False, size_fn=N
             o1 = v.get("option1") or ""
             vals = [v.get(f"option{i}") or "" for i in (1, 2, 3)][:len(opts)]
             si = next((i for i, n in enumerate(opts) if SIZE_OPT.match(n)), None) if size_aware else None
+            wi = next((i for i, n in enumerate(opts) if WIDTH_OPT.match(n)), None) if si is not None else None
             if si is not None:            # apparel: one card per colour, sizes as the "sizes"
-                key = " / ".join(x for i, x in enumerate(vals) if i != si and x)
+                key = " / ".join(x for i, x in enumerate(vals) if i not in (si, wi) and x)
                 label = vals[si]
+                if wi is not None and g == "shoes":   # US shops: width as its own option ("D", "2E", "Wide", "Medium")
+                    label += width_word(vals[wi], p.get("title") or "")
             else:
                 rest = " / ".join(x for x in (v.get("option2"), v.get("option3")) if x)
                 key = o1 if len(opts) > 1 else ""
@@ -1203,6 +1223,35 @@ SHOPIFY_STORES = [
     ("cityparkrunners", "https://www.cityparkrunners.com",   "gear"),   # City Park Runners (Winnipeg)
     ("runnersshop",    "https://www.therunnersshop.com",     "gear"),   # The Runners Shop (Toronto, since 1975)
     ("strides",        "https://www.stridesrunning.com",     "gear"),   # Strides Running Store (Calgary, Canmore)
+    # US running shops (Oct 6, 2026): the USA side of the site only (they may not ship to Canada); read in their US market
+    ("pacers",         "https://pacersrunning.com",          "gear"),   # Pacers Running (Washington DC area)
+    ("portlandrun",    "https://portlandrunningcompany.com", "gear"),   # Portland Running Company (Oregon)
+    ("heartbreak",     "https://heartbreakhillrunningcompany.com", "gear"),   # Heartbreak Hill Running Co. (Boston)
+    ("runnersplus",    "https://runnersplus.com",            "gear"),   # Runners Plus (Chicago area)
+    ("gazelle",        "https://gazellesports.com",          "gear"),   # Gazelle Sports (Michigan)
+    ("sportsbasement", "https://sportsbasement.com",         "gear"),   # Sports Basement (California)
+    # 2026 Best Running Stores (The Running Event) with a readable Shopify feed
+    ("tortoisehare",   "https://www.tortoiseandharesports.com", "gear"),   # Tortoise & Hare Sports (Glendale, AZ)
+    ("runflagstaff",   "https://www.runflagstaff.com",       "gear"),   # Run Flagstaff (AZ)
+    ("runninglab",     "https://www.runninglabstore.com",    "gear"),   # Running Lab (Brighton, MI)
+    ("playmakers",     "https://www.playmakers.com",         "gear"),   # Playmakers (Okemos, MI)
+    ("millcity",       "https://www.millcityrunning.com",    "gear"),   # Mill City Running (Minneapolis, MN)
+    ("runningwell",    "https://therunningwellstore.com",    "gear"),   # The Running Well Store (Kansas City, MO)
+    ("mountainrun",    "https://www.mountainrunningcompany.com", "gear"),   # Mountain Running Company (Asheville, NC)
+    ("confluence",     "https://www.confluencerunning.com",  "gear"),   # Confluence Running (Johnson City, NY)
+    ("columbusrun",    "https://www.columbusrunning.com",    "gear"),   # Columbus Running Company (OH)
+    ("scrantonrun",    "https://scrantonrunning.com",        "gear"),   # Scranton Running Company (PA)
+    ("trailheadrun",   "https://www.trailheadrunningsupply.com", "gear"),   # Trailhead Running Supply (Flower Mound, TX)
+    ("prrunwalk",      "https://www.prrunandwalk.com",       "gear"),   # =PR= Run & Walk (Northern VA)
+    ("performancerun", "https://www.performancerunning.com", "gear"),   # Performance Running Outfitters (WI)
+    # Best Running Stores past winners (Oct 6, 2026)
+    ("fitnesssports",  "https://www.fitnesssports.com",      "gear"),   # Fitness Sports (Iowa)
+    ("athleticannex",  "https://www.athleticannex.com",      "gear"),   # Athletic Annex (Indianapolis, IN)
+    ("annarborrun",    "https://www.annarborrunningcompany.com", "gear"),   # Ann Arbor Running Company (MI)
+    ("tworivers",      "https://tworiverstreads.com",        "gear"),   # Two Rivers Treads (Asheville, NC)
+    ("xtramile",       "https://www.xtramilerunning.com",    "gear"),   # Xtra Mile Running (Tennessee)
+    ("lukeslocker",    "https://www.lukeslocker.com",        "gear"),   # Luke's Locker (Texas)
+    ("sfrunco",        "https://store.sfrunco.com",          "gear"),   # San Francisco Running Company (Mill Valley, San Anselmo CA)
     # socks
     ("feetures",       "https://www.feetures.com",           "socks"),
     ("balega",         "https://www.balega.com",             "socks"),
@@ -1260,6 +1309,41 @@ def generic_group(kind):
         return g or group_of(ptype) or group_of(tags)
     return g
 
+# RunFree stores (Oct 6, 2026): read at night by scraper/runfree.py into runfree.json (kept on the history branch);
+# the refresh downloads it to RUNFREE_FILE and each store comes in like a saved page (a store not read in 36 h keeps its last offers)
+import runfree as RF
+RUNFREE = [x[0] for x in RF.RUNFREE_STORES]
+RUNFREE_FILE = os.environ.get("RUNFREE_FILE", "/tmp/runfree.json")
+_RF = {}
+
+def scrape_runfree(st):
+    if "data" not in _RF:
+        try:
+            _RF["data"] = json.loads(Path(RUNFREE_FILE).read_text())
+        except Exception as e:
+            _RF["data"] = {"stores": {}, "error": str(e)[:80]}
+    entry = _RF["data"].get("stores", {}).get(st)
+    if not entry:
+        raise RuntimeError("no RunFree night read yet" + (f" ({_RF['data'].get('error')})" if _RF["data"].get("error") else ""))
+    t = dt.datetime.fromisoformat(entry["updated"])
+    if dt.datetime.now(dt.timezone.utc) - t > dt.timedelta(hours=36):
+        raise RuntimeError(f"RunFree night job last read it {t:%b %d}")
+    fx = fx_to_cad("USD")
+    out = []
+    for o in entry["offers"]:
+        o = dict(o, ca=False, us=True, lp=round(o["lp"] * fx, 2), sz=[[k, round(p * fx, 2), round(r * fx, 2)] for k, p, r in o["sz"]])
+        out.append(o)
+    return out 
+US_SHOPS = {"pacers", "portlandrun", "heartbreak", "runnersplus", "gazelle", "sportsbasement", "tortoisehare",
+            "runflagstaff", "runninglab", "playmakers", "millcity", "runningwell", "mountainrun", "confluence", "columbusrun",
+            "scrantonrun", "trailheadrun", "prrunwalk", "performancerun", "fitnesssports", "athleticannex", "annarborrun",
+            "tworivers", "xtramile", "lukeslocker", "sfrunco"} | set(RUNFREE)
+US_COLLECTIONS = {"sportsbasement": ["running"]}   # general stores: their running section only (Sports Basement also sells
+                                                   # snowboards, swimwear, tennis: those topped the US deals, Oct 6, 2026)
+# Shoebacca was tried and dropped (Oct 6, 2026): mostly PUMA/adidas/Diadora budget and gym shoes, no Hoka/Brooks/ASICS/Nike
+SHIPS_US = {"altitude"}
+       # Canadian stores that also ship to the US (shown on the USA side too)
+
 def make_shopify_scraper(st, base, kind):
     def run():
         # quick probe so a dead / blocked / non-Shopify store costs one request, not minutes of retries
@@ -1273,20 +1357,29 @@ def make_shopify_scraper(st, base, kind):
             pass
         # always ask for the store's Canadian market: the price and stock a Canadian visitor actually gets
         # (otherwise the store guesses from GitHub's server location: Chilean pesos, or "not available here")
-        cookies = CA_COOKIES
+        cookies = None if st in US_SHOPS else CA_COOKIES    # US shops: their own (US) market
         served = shopify_price_currency(base, cookies)   # the currency the prices actually come back in
         home = home or served
         if not home:
             print(f"  ! {st}: currency unknown, assuming CAD", file=sys.stderr)
             home = "CAD"
         cur = served or home
-        prods = shopify_products(base, max_pages=24, cookies=cookies)
+        if st in US_COLLECTIONS:
+            seen, prods = set(), []
+            for h in US_COLLECTIONS[st]:
+                for p in shopify_products(f"{base}/collections/{h}", max_pages=24, cookies=cookies):
+                    if p["id"] not in seen:
+                        seen.add(p["id"])
+                        prods.append(p)
+        else:
+            prods = shopify_products(base, max_pages=24, cookies=cookies)
         fx = fx_to_cad(cur)
         print(f"  {st}: {len(prods)} products, store {home}, prices in {cur}" + (f" x{fx}" if cur != "CAD" else ""), file=sys.stderr)
         items = shopify_items(st, base, prods, generic_group(kind), fx=fx, size_aware=True, collapse=True,
                               size_fn=(lambda _l: "OS") if kind == "eyewear" else generic_size)
         for o in items:
             o["ca"] = home == "CAD"         # a store based in CAD ships from Canada; USD/EUR/GBP stores are cross-border
+            o["us"] = home == "USD"         # ships from the US (the USA side's "Ships from the US")
         return items
     return run
 
@@ -1315,6 +1408,8 @@ FINAL_TAG = re.compile(r"final.?sale|vente.?finale", re.I)
 
 for _st, _base, _kind in SHOPIFY_STORES:
     STORES[_st] = make_shopify_scraper(_st, _base, _kind)
+for _st in RUNFREE:
+    STORES[_st] = (lambda st: lambda: scrape_runfree(st))(_st)
 
 # Casual footwear some running stores also sell; not what people come here for.
 CASUAL_BRANDS = {"birkenstock", "wolky", "teva", "crocs", "ugg", "blundstone", "dr. martens", "clarks", "oofos"}
@@ -1504,6 +1599,85 @@ def drop_kids(offers):
         out.append(o)
     return out
 
+US_CASUAL_BRANDS = {"sorel", "olukai", "k-swiss", "smellwell", "dryshod", "vans", "converse", "sperry", "keen"}
+US_LIFESTYLE_BRANDS = {"beyond yoga", "fp movement", "free people", "nux", "rvca", "roark", "travismathew", "sunsets", "forum snowboards"}
+US_CASUAL = re.compile(r"\b(sneaker|leather|boot|slip-?on)s?\b", re.I)
+US_CAPS_STORES = {"runningwell", "performancerun"} | set(RUNFREE)     # US shops that write everything in capitals
+US_WIDTH = re.compile(r"\s+-\s+[^-]+?\s+-\s+(Regular|Medium|Standard|Wide|Extra Wide|X-?Wide|Narrow)\s*\(\s*[A-Z0-9]+\s*\)", re.I)
+STYLE_CODE = re.compile(r"\s+((?=[A-Z0-9]*\d)(?=[A-Z0-9]*[A-Z])[A-Z0-9]{7,}|\d{6,})(?=$|\s+-\s)")
+
+def tidy_us_names(offers):
+    """US running shops' ways of writing a shoe (Oct 6, 2026), brought to the usual "Model - Men's" so the same shoe at
+    several shops becomes one card: "Hoka | Arahi 9 | Women's" (Confluence), "Clifton 10 Running Shoe - Black/White -
+    Regular (D) - Men's" (Gazelle: one listing per colour and width), "Arahi 9 Women's Shoes" (Heartbreak Hill),
+    "Ghost 17 (Extra Wide - 4E)", "MEN'S PEGASUS 41 XWIDE", "M Ghost Max 1104951D" (a style code)."""
+    out = []
+    for o in offers:
+        if o["g"] == "shoes" and " | " not in o["n"]:   # any store: "Terrex Agravic 3 Men's", "Adistar 4 Men's shoes" -> "... - Men's"
+            o["n"] = re.sub(r"(\s+-)?\s+(Men|Women)[’']?s(\s+(running\s+)?shoes?)?$", lambda m: f" - {m.group(2).capitalize()}'s", o["n"], flags=re.I)
+        if o.get("st") not in US_SHOPS:
+            out.append(o)
+            continue
+        n = o["n"]
+        if o.get("st") in US_CAPS_STORES and n == n.upper():
+            n = soften_caps(n)
+            if re.fullmatch(r"[A-Z][A-Z .'&-]{2,}", o["b"] or ""):
+                o["b"] = o["b"].title()
+        if " | " in n:
+            parts = [x.strip() for x in n.split("|") if x.strip()]
+            gen = next((x for x in parts if re.fullmatch(r"(men|women|unisex)[’']?s?", x, re.I)), None)
+            bnames = {(o["b"] or "").lower(), tidy_brand(o["b"]).lower(), ((o["b"] or "").split() or [""])[0].lower()}   # "Hoka" for "Hoka One One"
+            rest = [x for x in parts if x is not gen and x.lower() not in bnames and "/" not in x]
+            gw = (gen or "").lower()
+            n = (rest[0] if rest else parts[0]) + (" - Women's" if gw.startswith("wom") else " - Men's" if gw.startswith("men") else "")
+        n = n.replace(" – ", " - ")
+        if (o["b"] or "").lower() in US_LIFESTYLE_BRANDS:
+            continue                              # yoga and fashion labels general stores file under running (US shops)
+        if re.sub(r"\s*-\s*(men|women)[’']?s$|\W", "", n.lower()) in ("", re.sub(r"\W", "", (o["b"] or "").lower())):
+            continue                              # a listing named only after its brand ("Hoka | Hoka | Women's")
+        if o["g"] == "shoes" and ((o["b"] or "").lower() in US_CASUAL_BRANDS or US_CASUAL.search(n)):
+            continue                              # general shoe stores: boots, sneakers, leather (US shops only)
+        if o["g"] == "shoes":
+            n = re.sub(r"\s+-\s+Size\s+[\d.]+", "", n, flags=re.I)                    # one listing per size
+            segs = n.split(" - ")
+            keep = [segs[0]]
+            for x in segs[1:]:                    # " - D -", " - X-Wide 2E -", " - WIDE 1162032 -", " - Black/White -"
+                xl = re.sub(r"[()]", "", x).strip().lower()
+                if re.fullmatch(r"(men|women)[’']?s|unisex", xl):
+                    keep.append(x)
+                elif re.fullmatch(r"(x-?wide|extra wide|wide)\s*(2e|4e|6e|ee|d|w)?(\s+\d{5,})?|(2e|4e|6e|ee)(\s+\d{5,})?", xl):
+                    o["w"] = True
+                elif re.fullmatch(r"(narrow|2a|aa|n)", xl):
+                    keep = None
+                    break
+                elif re.fullmatch(r"(regular|medium|standard)?\s*(b|d|m)?(\s+\d{5,})?", xl) and xl or "/" in x:
+                    pass
+                else:
+                    keep.append(x)
+            if keep is None:
+                continue
+            n = " - ".join(keep)
+            m = US_WIDTH.search(n)
+            if m:
+                w = m.group(1).lower()
+                n = n[:m.start()] + n[m.end():]
+                if w == "narrow":
+                    continue
+                if "wide" in w:
+                    o["w"] = True
+            m = re.search(r"\s*\((extra |x-?)?wide\b[^)]*\)|\s+(x-?wide|extra wide)$", n, re.I)
+            if m:
+                n = n[:m.start()] + n[m.end():]
+                o["w"] = True
+            n = re.sub(r"\b(Men|Women)[’']?s Shoes$", lambda x: f"- {x.group(1)}'s", n).replace("  ", " ")
+            n = STYLE_CODE.sub("", n)
+            if re.search(r"\b(x-?wide|extra wide)\b|\bwide\b", n, re.I) and not o.get("w"):
+                o["w"] = True
+                n = re.sub(r"\s*\b(x-?wide|extra wide|wide)\b", "", n, flags=re.I)
+        o["n"] = re.sub(r"\s+-\s*-\s+", " - ", n).strip()
+        out.append(o)
+    return out
+
 def tidy_shoes(offers):
     """Drop casual footwear and narrow-only shoes; mark wide ones from the product name."""
     out = []
@@ -1527,7 +1701,8 @@ BRAND_PREFER = {"adidas", "rabbit", "norda", "Arc'teryx", "The North Face", "Squ
                 "Naked", "Ciele", "SPIbelt", "Trigger Point", "Pro-Tec Athletics", "DexShell", "NiteVest", "Oboz"}
 BRAND_CANON = {"hoka one one": "Hoka", "hoka": "Hoka", "asics": "ASICS", "satisfy": "Satisfy", "oiselle": "Oiselle",
                "nnormal": "NNormal", "new balance": "New Balance", "on running": "On", "the north face": "The North Face",
-               "karitraa": "Kari Traa", "kari traa": "Kari Traa", "naak": "Näak", "näak": "Näak", "näak na": "Näak"}
+               "karitraa": "Kari Traa", "kari traa": "Kari Traa", "naak": "Näak", "näak": "Näak", "näak na": "Näak",
+               "diadora": "Diadora"}
 
 def tidy_brand(b):
     b = (b or "").strip()
@@ -1540,7 +1715,8 @@ OWN_BRAND = {"rabbit": "rabbit", "bandit": "Bandit Running"}
 GENDER_PREFIX_STORES = {"frontrunners",    # names start with "M " / "W " / "U " ("M Adidas Boston 13")
                         "aerobicsfirst",   # "Saucony Women's Endorphin Speed 5 - White/Black *SALE*"
                         "cityparkrunners", # "Women's Saucony Peregrine 14", "Mens Altra Outroad"
-                        "sportinglife"}    # "Men's Velociti 4 Running Shoe"
+                        "sportinglife",    # "Men's Velociti 4 Running Shoe"
+                        "runningwell", "performancerun", "scrantonrun"}   # US: "BROOKS WOMEN'S HYPERION MAX 4", "UNISEX SLOWCUSH - ORANGE/RED", "M Ghost Max"
 GENDER_PREFIX = {"M": ["men"], "W": ["women"], "U": ["men", "women"]}    # stores that write brands and names in capitals ("ADIDAS ADIOS PRO 4 - FEMME")
 
 # short words that read as words, not model codes, when an ALL-CAPS name is softened ("RUN", "MID" vs "GTX", "SP")
@@ -1623,6 +1799,8 @@ def _shoe_name(o, keep_tr):
     name = re.sub(r"\b((trail|road) )?racing( shoes?)?\b", " ", name)    # "Zoom Fly 6 Racing Shoe" = "Zoom Fly 6 Road Racing Shoes"
     name = re.sub(tr, " ", name)
     name = re.sub(r"\bunisex\b", " ", name)                   # "Metaspeed Ray" = "Metaspeed Ray - Unisex" (no gender either way)
+    if o["b"].lower().strip() == "nike":
+        name = re.sub(r"^\s*(nike\s+)?air zoom\s+", "", name)       # "Air Zoom Pegasus 41" = "Pegasus 41"
     if o["b"].lower().strip() == "adidas":
         name = re.sub(r"^\s*adizero\s+", "", name)            # "Evo SL - Men's" (Endurance) = "Adizero EVO SL" (Altitude)
     name = re.sub(r"\s+", " ", name).strip()
@@ -1640,7 +1818,7 @@ def mkey(o):
 
 def merge(offers):
     """Same product at several stores -> one item; each size keeps the cheapest store."""
-    offers = tidy_clothes(tidy_gear(tidy_nutrition(tidy_shoes(drop_kids(offers)))))
+    offers = tidy_clothes(tidy_gear(tidy_nutrition(tidy_shoes(drop_kids(tidy_us_names(offers))))))
     items, tidied = {}, []
     for o in offers:
         if (o["b"] or "").strip() in ("", "0") and o.get("st") in OWN_BRAND:   # brand stores that leave the brand blank or "0"
@@ -1805,6 +1983,7 @@ def main():
         got, ok, line = results[st]
         for o in got:
             o.setdefault("ca", st in CA_STORES)
+            o.setdefault("us", st in ("thefeed", "rei") or st in US_SHOPS)
         raw[st] = got
         if ok:
             stamps[st] = now()
@@ -1814,6 +1993,11 @@ def main():
         if line:
             print(line, file=sys.stderr)
         offers += got
+    # the USA side (Oct 6, 2026): stores that ship to the US, merged on their own (best US-shippable price per size);
+    # "ca" there means "ships from the US". Copied before the Canadian merge, which tidies offers in place.
+    us_offers = [dict(o, ca=bool(o.get("us")), sz=[list(e) for e in o["sz"]], sx=list(o.get("sx") or []))
+                 for o in offers if o.get("us") or o.get("st") in SHIPS_US or not o.get("ca")]
+    offers = [o for o in offers if o.get("st") not in US_SHOPS]     # US shops may not ship to Canada
     items = merge(offers)
     report_groups(items)
     for it in items:
@@ -1824,12 +2008,24 @@ def main():
         usd = round(fx_to_cad("USD"), 4)            # for the site's CAD/USD switch
     except Exception:
         usd = FX_FALLBACK["USD"]
-    OUT.write_text(json.dumps({"v": 2, "updated": now(), "stores": stamps, "failed": why, "fx": {"USD": usd}, "items": items},
+    n_ca = n_us = len({o["st"] for o in offers} | {o["st"] for o in us_offers})   # "N stores checked daily": one total, both sides
+    OUT.write_text(json.dumps({"v": 2, "updated": now(), "stores": stamps, "n_stores": n_ca, "failed": why, "fx": {"USD": usd}, "items": items},
                               separators=(",", ":"), ensure_ascii=False))
     # the site loads sale items first: same shape, only items with at least one size on sale
     sale = [i for i in items if any(e[1] < e[3] for e in i["sz"])]   # same test as the site's % off
-    (OUT.parent / "sale.json").write_text(json.dumps({"v": 2, "updated": now(), "stores": stamps, "fx": {"USD": usd}, "items": sale},
+    (OUT.parent / "sale.json").write_text(json.dumps({"v": 2, "updated": now(), "stores": stamps, "n_stores": n_ca, "fx": {"USD": usd}, "items": sale},
                                                      separators=(",", ":"), ensure_ascii=False))
+    us_items = merge(us_offers)
+    for it in us_items:
+        it.pop("_st", None)
+    us_items.sort(key=lambda i: (i["g"], i["b"].lower(), i["n"].lower()))
+    (OUT.parent / "deals-us.json").write_text(json.dumps({"v": 2, "country": "us", "updated": now(), "stores": stamps, "n_stores": n_us,
+                                                          "fx": {"USD": usd}, "items": us_items}, separators=(",", ":"), ensure_ascii=False))
+    (OUT.parent / "sale-us.json").write_text(json.dumps({"v": 2, "country": "us", "updated": now(), "stores": stamps, "n_stores": n_us,
+                                                         "fx": {"USD": usd}, "items": [i for i in us_items if any(e[1] < e[3] for e in i["sz"])]},
+                                                        separators=(",", ":"), ensure_ascii=False))
+    print(f"USA side: {len(us_items)} items ({sum(1 for i in us_items if i['g'] == 'shoes')} shoes) from {len(us_offers)} listings",
+          file=sys.stderr)
     # raw offers go in a side file so a failed store can be restored tomorrow
     (OUT.parent / "offers.json").write_text(json.dumps(raw, separators=(",", ":"), ensure_ascii=False))
     ok = [st for st in STORES if st not in failed]

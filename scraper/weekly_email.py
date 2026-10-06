@@ -169,7 +169,8 @@ GROUP_FR = {"shoes": "Chaussures", "tops": "Hauts et manteaux", "bottoms": "Shor
             "socks": "Bas", "gloves": "Gants", "headwear": "Casquettes et cache-cous", "packs": "Vestes et sacs d'hydratation",
             "gear": "Frontales, bâtons et gourdes", "watches": "Montres", "nutrition": "Nutrition"}
 STR = {
-    "en": dict(your_size="Your size: ", best_by="Best by {}", all_sizes="All sizes & stores →", abroad="Ships from outside Canada · converted to CAD, duties may apply", final="Final sale: no returns",
+    "en": dict(your_size="Your size: ", best_by="Best by {}", all_sizes="All sizes & stores →", abroad="Ships from outside Canada · converted to CAD, duties may apply",
+               abroad_us="Ships from outside the US, duties may apply", final="Final sale: no returns",
                see_all="See all {} on sale →", watch_head="Your watchlist",
                changes=lambda n: f"{n} {'change' if n == 1 else 'changes'} this week",
                change_sizes="Change your sizes", unsubscribe="Unsubscribe", privacy="Privacy", follow="Follow us on Instagram",
@@ -185,7 +186,8 @@ STR = {
                     "You get this because you signed up for Friday deals on The Gear Fox. Outfox full price.",
                was="was", all_deals="All deals", logo="logo-email.png"),
     "fr": dict(your_size="Votre taille : ", best_by="Meilleur avant le {}", all_sizes="Toutes les pointures et boutiques →",
-               abroad="Expédié de l'extérieur du Canada · converti en $ CA, des droits peuvent s'appliquer", final="Vente finale : aucun retour",
+               abroad="Expédié de l'extérieur du Canada · converti en $ CA, des droits peuvent s'appliquer",
+               abroad_us="Expédié de l'extérieur des États-Unis, des droits peuvent s'appliquer", final="Vente finale : aucun retour",
                see_all="Voir les {} articles en solde →", watch_head="Vos favoris",
                changes=lambda n: f"{n} {'changement' if n == 1 else 'changements'} cette semaine",
                change_sizes="Modifier vos tailles", unsubscribe="Se désabonner", privacy="Confidentialité", follow="Suivez-nous sur Instagram",
@@ -213,7 +215,13 @@ def tr(lang, key, *a):
     return v(*a) if callable(v) else (v.format(*a) if a else v)
 
 
+SIDE = {"us": False, "fx": 1.0}      # set per person in main(): the USA side shows US dollars and US wording (Oct 6, 2026)
+
+
 def money(v, lang="en"):
+    if SIDE["us"]:
+        v = v / SIDE["fx"]
+        return f"{v:.2f}".replace(".", ",") + " $ US" if lang == "fr" else f"US${v:.2f}"
     return f"{v:.2f}".replace(".", ",") + " $" if lang == "fr" else f"${v:.2f}"
 
 
@@ -254,7 +262,7 @@ SHOE_PAGES = {}     # shoes/pages.json from the site: models with a price page (
 
 def shoe_page_url(d, lang):
     """Link to the shoe's price page (every size, every store), when it has one."""
-    if d.get("g") != "shoes" or not SHOE_PAGES or SITE_URL == "/":
+    if d.get("g") != "shoes" or not SHOE_PAGES or SITE_URL == "/" or SIDE["us"]:     # the shoe pages list Canadian stores
         return ""
     import shoe_pages as SP
     slug = SP.slugify(f'{d["b"]} {SP.base_model(d["n"])}')
@@ -270,7 +278,7 @@ def card(d, lang="en"):
     sz = sizes_label(d, lang)
     bb = f'<div style="font-size:12px;color:#B3261E;font-weight:600">{E(tr(lang, "best_by", d["bb"]))}</div>' if d.get("bb") else ""
     if d.get("ca") is False:
-        bb += f'<div style="font-size:12px;color:#5C6660">{E(tr(lang, "abroad"))}</div>'
+        bb += f'<div style="font-size:12px;color:#5C6660">{E(tr(lang, "abroad_us" if SIDE["us"] else "abroad"))}</div>'
     if d.get("fin"):
         bb += f'<div style="font-size:12px;color:#17201C;font-weight:600">{E(tr(lang, "final"))}</div>'
     sp = shoe_page_url(d, lang)
@@ -450,6 +458,15 @@ def main():
         data = json.loads((ROOT / "site" / "deals.json").read_text())
     items = data.get("items", [])
     print(f"{len(items)} items in deals.json (updated {data.get('updated')})")
+    us_items = []                          # the USA side (Oct 6, 2026): people who shop from the US get US stores
+    if any(p.get("country") == "us" for p in profiles):
+        try:
+            us_items = (requests.get(DEALS_URL.replace("deals.json", "deals-us.json"), timeout=60).json() if DEALS_URL
+                        else json.loads((ROOT / "site" / "deals-us.json").read_text())).get("items", [])
+            print(f"{len(us_items)} items on the USA side")
+            SIDE["fx"] = float((data.get("fx") or {}).get("USD") or 1.37)
+        except Exception as e:
+            print(f"  (no USA deals: {e}; US subscribers get the Canadian list)")
     try:                                   # shoe price pages, for the "All sizes & stores" links
         SHOE_PAGES.update(requests.get(SITE_URL + "shoes/pages.json", timeout=30).json() if DEALS_URL
                           else json.loads((ROOT / "site" / "shoes" / "pages.json").read_text()))
@@ -460,10 +477,12 @@ def main():
         try:
             import alerts as A
             from datetime import datetime, timezone
-            by_key = {}
+            by_key, by_us = {}, {}
             for d in items:
                 by_key.setdefault(A.item_key(d), []).append(d)
-            watch_news = A.evaluate(A.fetch_rows(), by_key, datetime.now(timezone.utc), cooldown=False)
+            for d in us_items:
+                by_us.setdefault(A.item_key(d), []).append(d)
+            watch_news = A.evaluate_sides(A.fetch_rows(), by_key, by_us, datetime.now(timezone.utc), cooldown=False)
             print(f"watchlist news for {sum(1 for w in watch_news.values() if w['drops'] or w['backs'])} people")
         except Exception as e:                      # the deals email still goes out without it
             print(f"watchlist news skipped: {e}")
@@ -471,7 +490,9 @@ def main():
     for p in profiles:
         if not p.get("email"):
             continue
-        sale = [d for d in match(items, p) if d["pct"] >= 1 and terrain_ok(d, p)]      # anything below full price
+        SIDE["us"] = p.get("country") == "us" and bool(us_items)
+        side = us_items if SIDE["us"] else items
+        sale = [d for d in match(side, p) if d["pct"] >= 1 and terrain_ok(d, p)]      # anything below full price
         who = p["email"]
         watch = watch_news.get(p.get("token"))
         has_watch = bool(watch and (watch["drops"] or watch["backs"]))

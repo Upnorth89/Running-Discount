@@ -150,6 +150,18 @@ def is_drop(told, price):
     return told is not None and price is not None and (told - price >= 10 or price <= float(told) * 0.90)
 
 
+def is_us(sub):
+    return ((sub or {}).get("profile") or {}).get("country") == "us"
+
+
+def evaluate_sides(rows, by_ca, by_us, now, cooldown=True):
+    """Canada and USA (Oct 6, 2026): each person's watches are priced on their own side's stores."""
+    out = evaluate([w for w in rows if not is_us(w["subscribers"])], by_ca, now, cooldown)
+    if by_us:
+        out.update(evaluate([w for w in rows if is_us(w["subscribers"])], by_us, now, cooldown))
+    return out
+
+
 def evaluate(rows, by_key, now, cooldown=True):
     """Per person: what to tell them and how to update their watches.
     Returns {token: {"sub", "drops", "backs", "updates": [(id, fields)], "held": bool}}."""
@@ -187,9 +199,12 @@ def evaluate(rows, by_key, now, cooldown=True):
 def main():
     src = next((a for a in sys.argv[1:] if not a.startswith("--")), "site/deals.json")
     items = json.loads(Path(src).read_text()).get("items", [])
-    by_key = {}
+    by_key, by_us = {}, {}
     for d in items:
         by_key.setdefault(item_key(d), []).append(d)
+    us_src = Path(src).with_name("deals-us.json")         # the USA side, for people who shop from the US
+    for d in (json.loads(us_src.read_text()).get("items", []) if us_src.exists() else []):
+        by_us.setdefault(item_key(d), []).append(d)
     if not (W.SB_URL and W.SB_KEY):
         print("Supabase not configured, no alerts")
         return 0
@@ -200,7 +215,7 @@ def main():
     if not FORCE and now.astimezone(ZoneInfo(TZ)).weekday() == 4:
         print("Friday: no alerts today, the Friday email carries watchlist news")
         return 0
-    people = evaluate(rows, by_key, now)
+    people = evaluate_sides(rows, by_key, by_us, now)
     updates = []
     for p in people.values():
         updates += p["updates"]

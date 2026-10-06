@@ -79,6 +79,10 @@ input:focus-visible,button:focus-visible,summary:focus-visible,select:focus-visi
 .menu>a:hover,.menu>button:hover,.menu>a:focus-visible,.menu>button:focus-visible{background:var(--mist)}
 .menu .mi{flex:0 0 auto;color:var(--muted)}
 .menu .msw{display:flex;align-items:center;justify-content:space-between;gap:8px;border-top:1.5px solid var(--line);margin-top:6px;padding:12px 8px 4px;font-size:14px;color:var(--muted)}
+.ctry{display:flex;align-items:center;gap:6px;margin:0 0 14px;font-size:14px;color:var(--muted)}
+.ctry button{font:600 14px var(--body);color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer;min-height:36px}
+.ctry button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.menu .ctryrow .ctry{margin:0}.menu .ctryrow{border-top:1.5px solid var(--line)}.menu .ctryrow+.msw{border-top:0;margin-top:0}
 .menu .msw .pair{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
 #menuBtn[aria-expanded="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
 @media(max-width:400px){.iconbtn .lbl{display:none}.iconbtn{padding:0 10px}}
@@ -407,6 +411,7 @@ body.locked #langBtn,body.locked #curBtn,body.locked #openWatch,body.locked #men
   <button type="button" data-go="app" id="mApp" hidden><svg class="mi" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M12 8v6"/><path d="M9 11h6"/></svg><span data-i18n="mApp">Add to your home screen</span></button>
   <a href="about.html" data-go="about"><svg class="mi" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><path d="M12 7.6v.1"/></svg><span data-i18n="mAbout">About The Gear Fox</span></a>
   <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener" data-go="instagram"><svg class="mi" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8v.1"/></svg><span>Instagram</span></a>
+  <div class="msw ctryrow"><span data-i18n="ctryLabel">Shopping from</span><span class="ctry"><button type="button" data-ctry="ca">Canada</button><button type="button" data-ctry="us" data-i18n="usa">USA</button></span></div>
   <div class="msw"><button class="langbtn" id="langBtn" type="button" lang="fr">Français</button>
     <span class="pair"><span data-i18n="mCur">Prices in</span><button class="langbtn" id="curBtn" type="button" aria-label="Currency">CAD</button></span></div>
 </nav></header>
@@ -470,6 +475,7 @@ body.locked #langBtn,body.locked #curBtn,body.locked #openWatch,body.locked #men
       <p class="already"><button type="button" id="toSignup" data-i18n="newHere">New here? Find my deals instead</button></p>
     </div>
     <div id="welcomePart" class="hidden">
+      <div class="ctry" role="group" aria-label="Country" data-i18n-aria="ctryA"><span data-i18n="ctryLabel">Shopping from</span><button type="button" data-ctry="ca">Canada</button><button type="button" data-ctry="us" data-i18n="usa">USA</button></div>
       <div class="wstats" id="wStats"></div>
       <div class="wdeals" id="wDeals"></div>
       <div class="gwrap hidden" id="gW"><p class="or"><span data-i18n="wOr">or with Google, one tap</span></p><div class="gbtn" id="gBtnW"></div></div>
@@ -583,7 +589,18 @@ const affUrl=u=>AFF[String(u||"").split(/[?#]/)[0]]||u;
 /* Store names shown on cards, and where each one ships from (no country = Canada) */
 const STORES={"altitude-sports.com":["Altitude Sports"],"thelasthunt.com":["The Last Hunt"],"thefeed.com":["The Feed","US"],
   "sea2skynutrition.ca":["Sea2Sky Nutrition"],"sportinglife.ca":["Sporting Life"],"stampeak.com":["Stampeak"],"mec.ca":["MEC"],"svpsports.ca":["SVP Sports"],
-  "rei.com":["REI","US"],"decathlon.ca":["Decathlon"],"footlocker.ca":["Foot Locker"],"vanrunco.com":["Vancouver Running Co."],"lecoureurnordique.ca":["Le Coureur Nordique"],
+  "rei.com":["REI","US"],"pacersrunning.com":["Pacers Running","US"],
+  "portlandrunningcompany.com":["Portland Running Company","US"],"heartbreakhillrunningcompany.com":["Heartbreak Hill Running Co.","US"],
+  "runnersplus.com":["Runners Plus","US"],"gazellesports.com":["Gazelle Sports","US"],"sportsbasement.com":["Sports Basement","US"],
+  "tortoiseandharesports.com":["Tortoise & Hare Sports","US"],"runflagstaff.com":["Run Flagstaff","US"],"runninglabstore.com":["Running Lab","US"],
+  "playmakers.com":["Playmakers","US"],"millcityrunning.com":["Mill City Running","US"],"therunningwellstore.com":["The Running Well Store","US"],
+  "mountainrunningcompany.com":["Mountain Running Company","US"],"confluencerunning.com":["Confluence Running","US"],
+  "columbusrunning.com":["Columbus Running Company","US"],"scrantonrunning.com":["Scranton Running Company","US"],
+  "trailheadrunningsupply.com":["Trailhead Running Supply","US"],"prrunandwalk.com":["PR Run & Walk","US"],
+  "performancerunning.com":["Performance Running Outfitters","US"],"fitnesssports.com":["Fitness Sports","US"],"athleticannex.com":["Athletic Annex","US"],
+  "annarborrunningcompany.com":["Ann Arbor Running Company","US"],"tworiverstreads.com":["Two Rivers Treads","US"],
+  "xtramilerunning.com":["Xtra Mile Running","US"],"lukeslocker.com":["Luke's Locker","US"],"store.sfrunco.com":["San Francisco Running Company","US"],
+  "shop.charlotterunning.com":["Charlotte Running Company","US"],"shop.terrarunning.com":["Terra Running Company","US"],"shop.johnsrunwalkshop.com":["John's Run/Walk Shop","US"],"shop.palmettorunningcompany.com":["Palmetto Running Company","US"],"shop.rushrunning.com":["Rush Running","US"],"shop.iruntexas.net":["iRun Texas","US"],"shop.weststride.com":["West Stride","US"],"shop.millenniumrunning.com":["Millennium Running","US"],"shop.runningniche.com":["Running Niche","US"],"shop.goodtimesrunningco.com":["Good Times Running Co.","US"],"shop.bullcityrunning.com":["Bull City Running Co.","US"],"shop.redcoyoterunning.com":["Red Coyote Running and Fitness","US"],"shop.run605.com":["605 Running Company","US"],"shop.runpoint2.com":["Point 2 Running Company","US"],"shop.bigpeachrunningco.com":["Big Peach Running Co.","US"],"shop.runningzone.com":["Running Zone","US"],"shop.manhattanrunningco.com":["Manhattan Running Company","US"],"shop.charmcityrun.com":["Charm City Run","US"],"shop.pyrunco.com":["Pace Yourself Run Co.","US"],"shop.runnersroost.com":["Runner's Roost","US"],"shop.moruncocape.com":["Missouri Running Company","US"],"shop.trackshack.com":["Track Shack","US"],"shop.aardvarksportsshop.com":["Aardvark Sports Shop","US"],"shop.philadelphiarunner.com":["Philadelphia Runner","US"],"decathlon.ca":["Decathlon"],"footlocker.ca":["Foot Locker"],"vanrunco.com":["Vancouver Running Co."],"lecoureurnordique.ca":["Le Coureur Nordique"],
   "bushtukah.com":["Bushtukah"],"nordarun.com":["Nordarun"],"ca.cieleathletics.com":["Ciele"],"xactnutrition.com":["Xact Nutrition"],
   "naak.com":["Näak"],"boutiqueendurance.ca":["Boutique Endurance"],"fitfirst.ca":["Fit First"],"capra.run":["Capra Running Co."],"lecoureur.com":["Le Coureur"],"blacktoerunning.com":["BlackToe Running"],"frontrunners.ca":["Frontrunners"],"shop.forerunners.ca":["Forerunners"],"aerobicsfirst.com":["Aerobics First"],"cityparkrunners.com":["City Park Runners"],"therunnersshop.com":["The Runners Shop"],"stridesrunning.com":["Strides Running"],
   "altrarunning.com":["Altra","US"],"runjanji.com":["Janji","US"],"runinrabbit.com":["rabbit","US"],"satisfyrunning.com":["Satisfy","FR"],
@@ -596,7 +613,7 @@ const STORES={"altitude-sports.com":["Altitude Sports"],"thelasthunt.com":["The 
   "tifosioptics.com":["Tifosi","US"],"tailwindnutrition.com":["Tailwind","US"],"skratchlabs.com":["Skratch Labs","US"],"nuun.com":["Nuun","US"],
   "honeystinger.com":["Honey Stinger","US"],"guenergy.com":["GU","US"],"humagel.com":["Huma","US"]};
 function storeLine(d){
-  const h=storeOf(d.url),s=STORES[h]||[h],from=s[1]||(d.ca===false&&!STORES[h]?"XX":"");
+  const h=storeOf(d.url),s=STORES[h]||[h],home=US()?"US":"CA",org=s[1]||(STORES[h]?"CA":d.ca===false?"XX":home),from=org===home?"":org;
   return `<div class="store">${t("atStore",esc(s[0]))}${from?` · <span class="abroad">${t("shipsFrom",from)}</span>`:""}${d.fin?` · <span class="fin" title="${esc(t("finalSaleTip"))}">${t("finalSale")}</span>`:""}</div>`;
 }
 /* Final sale (scrape.py FINAL_SALE, per offer in "fs"): 1 = the store takes no returns, 2 = sale items are final,
@@ -612,7 +629,7 @@ const I18N={
 en:{
   tagline:"OUTFOX FULL PRICE",watchlist:"Your watchlist",yourSizes:"Your sizes",menu:"Menu",mDeals:"Today's deals",mShoes:"Shoe prices by model",mSizes:"My sizes",mAbout:"About The Gear Fox",mApp:"Add to your home screen",appTipH:"Get The Gear Fox on your home screen",appTipIos:"Tap the Share button {s} in Safari's bar",appTipIos2:"Scroll down and tap <b style=\"display:inline\">Add to Home Screen</b>",appTipAnd:"Tap the ⋮ menu at the top of Chrome",appTipAnd2:"Tap <b style=\"display:inline\">Add to Home screen</b>",appTipWhy:"It opens like an app, with your sizes ready.",gotIt:"Got it",mCur:"Prices in",edit:"Edit",allDeals:"← All deals",categories:"Categories",
   sort:"Sort",sortMatch:"Best match",sortDiscount:"Biggest discount",sortPrice:"Lowest price",search:"Search brand or model",
-  footer:'The Gear Fox · Outfox full price · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="shoes/">Shoe prices by model</a> · <a href="about.html">About</a> · <a href="privacy.html">Privacy</a>',close:"Close",fit:"Fit",
+  get footer(){return 'The Gear Fox · Outfox full price · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="'+(US()?"us/shoes/":"shoes/")+'">Shoe prices by model</a> · <a href="about.html">About</a> · <a href="privacy.html">Privacy</a>'},close:"Close",fit:"Fit",
   men:"Men's",women:"Women's",both:"Both",menWomen:"Men's & women's",
   terrainH:"Where do you run? <small>for shoes</small>",terrainA:"Where do you run?",terrRoad:"Road",terrTrail:"Trail",terrBoth:"Both",
   shoeSizeH:"Shoe size <small>US, pick one or more</small>",shoeSizeMH:"Men's shoe size <small>US, pick one or more</small>",
@@ -634,9 +651,9 @@ en:{
   loadFail:"Couldn't load today's gear. Reload to try again.",loading:"Loading today's gear…",
   searchWide:"Nothing in the categories you picked, so here are matches from every category.",finalSale:"Final sale",finalSaleTip:"This store takes no returns or exchanges on this item at this price",inYourSize:"In your size:",isNew:"New",bestBy:d=>`Short-dated: best by ${d}`,
   atStore:n=>`at ${n}`,shareTxt:"Know a runner who hates paying full price?",shareBtn:"Share",shareCopied:"Link copied: paste it anywhere.",shareCopy:"Copy this link:",
-  shareText:"Running and outdoor gear on sale in your size, from stores across Canada.",usFuel:"Includes US stores: fuel ships well, and each deal says where it ships from.",shipsFrom:c=>`ships from ${({US:"the US",UK:"the UK",FR:"France",DK:"Denmark",AU:"Australia"})[c]||"outside Canada"}, duties may apply`,showMore:n=>`Show ${n} more`,
+  get shareText(){return `Running and outdoor gear on sale in your size, from stores ${US()?"across the US":"across Canada"}.`},usFuel:"Includes US stores: fuel ships well, and each deal says where it ships from.",shipsFrom:c=>`ships from ${({US:"the US",CA:"Canada",UK:"the UK",FR:"France",DK:"Denmark",AU:"Australia"})[c]||(US()?"outside the US":"outside Canada")}, duties may apply`,showMore:n=>`Show ${n} more`,
   allGear:"All gear",typeAll:"All",types:{daily:"Daily trainers",race:"Carbon & race",trail:"Trail",hike:"Hiking & winter",spike:"Track & XC spikes",light:"Lights",pole:"Poles",bottle:"Bottles & flasks",sun:"Sunglasses",tee:"T-shirts & tanks",layer:"Long sleeves & hoodies",jacket:"Jackets & vests",short:"Shorts",tight:"Tights",pant:"Pants"},
-  shipsCA:"Ships from Canada",saleOnly:"Include full price",
+  get shipsCA(){return US()?"Ships from the US":"Ships from Canada"},saleOnly:"Include full price",
   stopWatching:"Stop watching",watch:"Watch",removed:"Removed from your watchlist.",
   watching:"Watching. We'll email you if it drops or comes back in your size.",
   watchingPending:"Watching. Confirm your email to get price-drop alerts.",watchingSignup:"Watching. Sign up for the Friday email to get price-drop alerts.",
@@ -656,7 +673,7 @@ en:{
   offTally:(m,n)=>`<b>${m}</b> off in the ${n} ${PL(n,"deal","deals")} you've opened`,
   titleWatch:"Your watchlist",titleDeals:"On sale in your size",
   gatedLede:"Pick your sizes to see today's deals.",unlock:"See deals in my size",
-  storesAll:"stores in Canada and abroad",storesCA:"Canadian stores",
+  get storesAll(){return US()?"stores in the US and abroad":"stores in Canada and abroad"},get storesCA(){return US()?"US stores":"Canadian stores"},
   lede:(s,a,w,u)=>`${s} on sale and ${a} in stock from ${w}${u?` · updated ${u}`:""}.`,
   secNew:"New since your last visit",secSale:"Top deals",
   nothing:"Nothing matches right now. Try clearing the search or picking more categories.",addSizes:"Add your sizes to hide gear that won't fit. ",
@@ -682,7 +699,8 @@ en:{
   s2Title:"Where should we send your deals?",s2Intro:"We'll tell you when gear you heart drops in price, and send your best deals every Friday morning.",
   cTitle:"Deals in your size",cIntro:"Sign up free, or sign back in. We'll ask your sizes only once.",cContinue:"Continue",
   cSizesIntro:"Last step: pick your fit and sizes.",
-  wTitle:"Your size. On sale. Every day.",wIntro:half=>`<b>${half?"More than half of":"Many"} gear deals aren't available in your size.</b> Every morning we check running and outdoor stores across Canada and show you only the ones that are.`,
+  wTitle:"Your size. On sale. Every day.",wIntro:half=>`<b>${half?"More than half of":"Many"} gear deals aren't available in your size.</b> Every morning we check running and outdoor stores ${US()?"across the US":"across Canada"} and show you only the ones that are.`,
+  ctryLabel:"Shopping from",ctryA:"Country",usa:"USA",where:()=>US()?"across the US":"across Canada",
   wGo:"Find my deals",wShoes:"or look up a specific shoe →",wBrowseShort:"Just browse",wShoeShort:"Find a shoe",sizesOnSale:"Sizes on sale:",
   browseNote:"Showing every size.",browsePick:"Pick your size",browseWhy:" and we'll hide what won't fit.",clothNote:"Every clothing size shown.",clothPick:"Pick your clothing size",
   moreSizes:"+ Clothing size, road or trail, favourite brands",cmpLink:"All sizes & stores →",storeH:"Shopping one store",storeCount:n=>`${n} ${n===1?"deal":"deals"} in your size`,storeBack:"× All stores",backBar:(n,s)=>`Filling a cart at <b>${s}</b>? See their ${n} deals in your size.`,backGo:"Show",spCardTxt:"Every size, every store in Canada",spCardGo:"Prices →",wOr:"or with Google, one tap",wOnSale:"on sale today",wUpTo:p=>`up to ${p}%`,wOff:"off right now",wStores:"stores checked daily",
@@ -727,9 +745,9 @@ fr:{
   loadFail:"Impossible de charger les produits du jour. Rechargez la page.",loading:"Chargement des produits du jour…",
   searchWide:"Rien dans les catégories choisies, alors voici les résultats de toutes les catégories.",finalSale:"Vente finale",finalSaleTip:"Cette boutique n'accepte ni retour ni échange sur cet article à ce prix",inYourSize:"À votre taille :",isNew:"Nouveau",bestBy:d=>`Date courte : meilleur avant le ${d}`,
   atStore:n=>`chez ${n}`,shareTxt:"Un ami coureur déteste payer le plein prix ?",shareBtn:"Partager",shareCopied:"Lien copié : collez-le où vous voulez.",shareCopy:"Copiez ce lien :",
-  shareText:"Des aubaines de course et de plein air dans votre taille, dans des boutiques partout au Canada.",usFuel:"Comprend des boutiques américaines : la nutrition voyage bien, et chaque aubaine indique d'où elle est expédiée.",shipsFrom:c=>`expédié ${({US:"des États-Unis",UK:"du Royaume-Uni",FR:"de France",DK:"du Danemark",AU:"d'Australie"})[c]||"de l'extérieur du Canada"}, des droits peuvent s'appliquer`,showMore:n=>`Voir ${n} de plus`,
+  get shareText(){return `Des aubaines de course et de plein air dans votre taille, dans des boutiques ${US()?"partout aux États-Unis":"partout au Canada"}.`},usFuel:"Comprend des boutiques américaines : la nutrition voyage bien, et chaque aubaine indique d'où elle est expédiée.",shipsFrom:c=>`expédié ${({US:"des États-Unis",CA:"du Canada",UK:"du Royaume-Uni",FR:"de France",DK:"du Danemark",AU:"d'Australie"})[c]||(US()?"de l'extérieur des États-Unis":"de l'extérieur du Canada")}, des droits peuvent s'appliquer`,showMore:n=>`Voir ${n} de plus`,
   allGear:"Tout",typeAll:"Tout",types:{daily:"Entraînement",race:"Carbone et compétition",trail:"Sentier",hike:"Randonnée et hiver",spike:"Pointes (piste et cross)",light:"Frontales",pole:"Bâtons",bottle:"Gourdes et flasques",sun:"Lunettes de soleil",tee:"T-shirts et camisoles",layer:"Manches longues et kangourous",jacket:"Manteaux et vestes",short:"Shorts",tight:"Collants",pant:"Pantalons"},
-  shipsCA:"Expédié du Canada",saleOnly:"Inclure le prix régulier",
+  get shipsCA(){return US()?"Expédié des États-Unis":"Expédié du Canada"},saleOnly:"Inclure le prix régulier",
   stopWatching:"Retirer des favoris",watch:"Ajouter aux favoris",removed:"Retiré de vos favoris.",
   watching:"Ajouté. On vous écrit si le prix baisse ou si votre taille revient en stock.",
   watchingPending:"Ajouté. Confirmez votre courriel pour recevoir les alertes de baisse de prix.",watchingSignup:"Ajouté. Abonnez-vous au courriel du vendredi pour recevoir les alertes de baisse de prix.",
@@ -749,7 +767,7 @@ fr:{
   offTally:(m,n)=>`<b>${m}</b> de rabais sur ${PL(n,"l'aubaine que vous avez ouverte",`les ${n} aubaines que vous avez ouvertes`)}`,
   titleWatch:"Vos favoris",titleDeals:"En solde à votre taille",
   gatedLede:"Choisissez vos tailles pour voir les aubaines du jour.",unlock:"Voir les aubaines à ma taille",
-  storesAll:"des boutiques au Canada et à l'étranger",storesCA:"des boutiques canadiennes",
+  get storesAll(){return US()?"des boutiques aux États-Unis et à l'étranger":"des boutiques au Canada et à l'étranger"},get storesCA(){return US()?"des boutiques américaines":"des boutiques canadiennes"},
   lede:(s,a,w,u)=>`${s} en solde et ${a} en stock ${w}${u?` · mis à jour ${u}`:""}.`,
   secNew:"Nouveau depuis votre dernière visite",secSale:"Meilleures aubaines",
   nothing:"Rien ne correspond pour l'instant. Effacez la recherche ou choisissez plus de catégories.",addSizes:"Ajoutez vos tailles pour cacher ce qui ne vous va pas. ",
@@ -775,7 +793,8 @@ fr:{
   s2Title:"Où envoyer vos aubaines?",s2Intro:"On vous avertit quand un coup de cœur baisse de prix, et on vous envoie vos meilleures aubaines chaque vendredi matin.",
   cTitle:"Des aubaines à votre taille",cIntro:"Abonnez-vous gratuitement ou reconnectez-vous. On vous demande vos tailles une seule fois.",cContinue:"Continuer",
   cSizesIntro:"Dernière étape : choisissez votre coupe et vos tailles.",
-  wTitle:"Des aubaines sur mesure.",wIntro:half=>`<b>${half?"Plus de la moitié des ":"Beaucoup d'"}aubaines ne sont pas offertes dans votre taille.</b> Chaque matin, on parcourt les boutiques de course et de plein air partout au Canada et on vous montre seulement celles qui le sont.`,
+  wTitle:"Des aubaines sur mesure.",wIntro:half=>`<b>${half?"Plus de la moitié des ":"Beaucoup d'"}aubaines ne sont pas offertes dans votre taille.</b> Chaque matin, on parcourt les boutiques de course et de plein air ${US()?"partout aux États-Unis":"partout au Canada"} et on vous montre seulement celles qui le sont.`,
+  ctryLabel:"Je magasine",ctryA:"Pays",usa:"É.-U.",where:()=>US()?"partout aux États-Unis":"partout au Canada",
   wGo:"Trouver mes aubaines",wShoes:"ou cherchez une chaussure précise →",wBrowseShort:"Tout voir",wShoeShort:"Chercher un modèle",sizesOnSale:"Tailles en solde :",
   browseNote:"Toutes les tailles sont affichées.",browsePick:"Choisissez votre taille",browseWhy:" et on cache ce qui ne vous va pas.",clothNote:"Toutes les tailles de vêtements sont affichées.",clothPick:"Choisissez votre taille de vêtements",
   moreSizes:"+ Taille de vêtements, route ou sentier, marques préférées",storeH:"Une seule boutique",storeCount:n=>`${n} ${n===1?"aubaine":"aubaines"} à votre taille`,storeBack:"× Toutes les boutiques",backBar:(n,s)=>`Vous remplissez un panier chez <b>${s}</b> ? Voyez leurs ${n} aubaines à votre taille.`,backGo:"Voir",cmpLink:"Toutes les pointures et boutiques →",spCardTxt:"Chaque pointure, chaque boutique au Canada",spCardGo:"Prix →",wOr:"ou avec Google, en un clic",wOnSale:"en solde aujourd'hui",wUpTo:p=>`jusqu'à ${p} %`,wOff:"de rabais en ce moment",wStores:"boutiques vérifiées chaque jour",
@@ -797,6 +816,14 @@ fr:{
 }};
 const LS0=k=>{try{return JSON.parse(localStorage.getItem(k)||"null")}catch(e){return null}};
 const LINK_LANG=(()=>{try{const l=new URLSearchParams(location.search).get("lang");return l==="fr"||l==="en"?l:""}catch(e){return ""}})();   // ?lang=fr on shared links
+/* Canada / USA (Oct 6, 2026): which stores and prices. ?c=us on a link > this device's choice > the saved profile >
+   French = Canada > the device's time zone (America/Chicago is the US, America/Toronto Canada) > Canada */
+const US_TZ=/^(America\/(New_York|Detroit|Kentucky|Indiana|Chicago|Menominee|North_Dakota|Denver|Boise|Phoenix|Los_Angeles|Anchorage|Juneau|Sitka|Metlakatla|Yakutat|Nome|Adak)|Pacific\/Honolulu)/;
+const LINK_C=(()=>{try{const c=(new URLSearchParams(location.search).get("c")||"").toLowerCase();return c==="us"||c==="ca"?c:""}catch(e){return ""}})();
+let COUNTRY=LINK_C||LS0("gf-country")||((LS0("rd-profile")||{}).country)||(LS0("gf-lang")==="fr"||(LS0("rd-profile")||{}).lang==="fr"?"ca":"")||
+  ((()=>{try{return US_TZ.test(Intl.DateTimeFormat().resolvedOptions().timeZone||"")}catch(e){return false}})()?"us":"ca");
+if(LINK_C)try{localStorage.setItem("gf-country",JSON.stringify(LINK_C))}catch(e){}
+const US=()=>COUNTRY==="us";
 let LANG=LS0("gf-lang")||((LS0("rd-profile")||{}).lang)||LINK_LANG||(/^fr/i.test(navigator.language||"")?"fr":"en");
 function t(k,...a){const v=(I18N[LANG]&&I18N[LANG][k]!==undefined)?I18N[LANG][k]:I18N.en[k];return typeof v==="function"?v(...a):v}
 const num=n=>Number(n).toLocaleString(LANG==="fr"?"fr-CA":"en-CA");
@@ -849,7 +876,7 @@ const TZ=(()=>{try{return Intl.DateTimeFormat().resolvedOptions().timeZone||""}c
 function toProfile(){
   const sizes={shoes:{sizes:state.shoe,width:state.width,...(state.gender==="any"&&state.shoeW.length?{women:state.shoeW}:{})}};
   APPAREL_GROUPS.forEach(g=>sizes[g]={sizes:state.cloth});
-  return {lang:LANG,tz:TZ,name:state.name,email:state.email,gender:state.gender,terrain:state.terrain,ships:state.ships,groups:state.groups,sizes,brands:state.brands,activities:[],...(REF?{ref:REF}:{})};
+  return {lang:LANG,country:COUNTRY,tz:TZ,name:state.name,email:state.email,gender:state.gender,terrain:state.terrain,ships:state.ships,groups:state.groups,sizes,brands:state.brands,activities:[],...(REF?{ref:REF}:{})};
 }
 function applyProfile(p){
   if(!p)return;
@@ -860,6 +887,7 @@ function applyProfile(p){
     shoe:((sz.shoes||{}).sizes||[]).map(String),shoeW:((sz.shoes||{}).women||[]).map(String),wTouched:!!(sz.shoes||{}).women,width:(sz.shoes||{}).width||[],cloth:CLOTH.filter(c=>cloth.has(c)),brands:p.brands||[]});
   customBrands=state.brands.filter(b=>!BRANDS.includes(b));
   if(p.lang&&!LS0("gf-lang")&&p.lang!==LANG){LANG=p.lang;applyStatic()}
+  if((p.country==="us"||p.country==="ca")&&p.country!==COUNTRY&&!LINK_C&&!LS0("gf-country")&&typeof setCountry==="function"&&DATA)setCountry(p.country,"profile");
 }
 /* A size picked on a shoe page (no sign-up yet): pre-fill it in the sizes step; nothing is saved until they confirm */
 (()=>{if(LS0("rd-profile"))return;const x=LS0("gf-shoe-size");if(!x||!SHOE.includes(String(x.s)))return;
@@ -953,7 +981,9 @@ function missShare(){if(MISS!==null||!DATA)return MISS||0;
       if(d.g==="shoes"?sale.some(e=>{const k=shoeKey(e[0]);return k&&k.n===shoe&&k.w!=="N"&&(!k.g||k.g===G)}):sale.some(e=>norm(e[0])===cl))fit++}
     if(tot)r.push(1-fit/tot)}
   MISS=r.length?r.reduce((a,b)=>a+b,0)/r.length:0;return MISS}
-const storesLabel=()=>String(Object.keys((DATA&&DATA.stores)||{}).length||"50+");
+let STORECOUNT=null;    // stores with something on this side today (Canada or USA), counted once per data load
+const storesLabel=()=>{if(DATA&&DATA.n_stores)return String(DATA.n_stores);if(!DATA||!ITEMS.length)return "50+";if(STORECOUNT&&STORECOUNT[0]===DATA)return STORECOUNT[1];
+  const h=new Set();for(const d of ITEMS)for(const u of d.of||[])h.add(storeOf(u));STORECOUNT=[DATA,String(h.size)];return STORECOUNT[1]};
 function renderWelcome(){
   if(!DATA)return;
   const sale=allSale();
@@ -1001,8 +1031,8 @@ function openSheet(){lastFocus=document.activeElement;renderSheet();
   if(g)$("gateEmail").value=state.email||"";
   const gOn=G.ready&&g;$("gUp").classList.toggle("hidden",!gOn||!!gSession);$("gIn").classList.toggle("hidden",!gOn);
   $("gW").classList.add("hidden");$("wSignin").classList.toggle("hidden",!showWelcome);
-  $("wAlt").classList.toggle("hidden",!showWelcome);
-  $("sizesPart").classList.toggle("short",shortSizes());$("wShoesA").href=LANG==="fr"?"chaussures/":"shoes/";
+  $("wAlt").classList.toggle("hidden",!showWelcome);renderCountry();
+  $("sizesPart").classList.toggle("short",shortSizes());$("wShoesA").href=shoeDir();
   $("gSigned").classList.toggle("hidden",!gSession);if(gSession)$("gSigned").innerHTML=t("gSigned",esc(gSession.email));
   $("gateEmail").classList.toggle("hidden",!!gSession);
   document.querySelector('#gateBox [data-i18n="gateFine"]').innerHTML=gSession?t("gateFineG"):t("gateFine");
@@ -1094,7 +1124,11 @@ let FULL=false,fullLoading=null;
 /* Shoe price pages (/shoes/<slug>/, /chaussures/<slug>/): same model id as scraper/shoe_pages.py base_model() + slugify();
    only models listed in shoes/pages.json get a link (a page that forwards points to its new address). */
 let SHOEPAGES=null;
-function loadShoePages(){if(SHOEPAGES)return;SHOEPAGES={};fetch("shoes/pages.json").then(r=>r.ok?r.json():{}).then(j=>{SHOEPAGES=j||{};if(DATA)renderAll()}).catch(()=>{})}
+/* Canada: shoes/ (EN) + chaussures/ (FR); USA: us/shoes/ (US stores, US dollars; English) */
+const shoeDir=()=>US()?"us/shoes/":LANG==="fr"?"chaussures/":"shoes/";
+let SHOEPAGES_FOR="";
+function loadShoePages(){const c=COUNTRY;if(SHOEPAGES&&SHOEPAGES_FOR===c)return;SHOEPAGES={};SHOEPAGES_FOR=c;
+  fetch(US()?"us/shoes/pages.json":"shoes/pages.json").then(r=>r.ok?r.json():{}).then(j=>{if(c!==COUNTRY)return;SHOEPAGES=j||{};if(DATA)renderAll()}).catch(()=>{})}
 function baseModel(n){
   n=n.replace(/\s*(-\s*|\()(Men|Women)[’']s\)?$|\s*(-\s*|\()Unisex\)?$/,"");
   n=n.split(/\s+[—·]\s+/)[0];
@@ -1110,7 +1144,7 @@ function shoePage(d){
   if(m&&m.to){sl=m.to;m=SHOEPAGES[sl]}
   return m?{slug:sl,name:m.n}:null;
 }
-const shoeUrl=sl=>(LANG==="fr"?"chaussures/":"shoes/")+sl+"/";
+const shoeUrl=sl=>shoeDir()+sl+"/";
 function shoeSearch(q){   // models whose name has every search word: "clif" -> Clifton 10, Clifton 11…
   if(!SHOEPAGES||!q.length)return [];
   const flat=x=>x.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
@@ -1126,10 +1160,23 @@ function watchFromLink(){
   track("watch-from-page",{});if(!watches[WATCH_Q])toggleWatch(WATCH_Q);else toast(t("watching"));
 }
 function useData(d,full){DATA=d;ITEMS=d.items||[];FULL=full;byKey={};ITEMS.forEach(x=>(byKey[itemKey(x)]=byKey[itemKey(x)]||[]).push(x));renderAll();loadShoePages();watchFromLink();setTimeout(offerStore,600)}
-function loadFull(){if(FULL||fullLoading)return;fullLoading=loadData("deals.json").then(d=>useData(d,true)).catch(()=>{fullLoading=null})}
-loadData("sale.json").then(d=>useData(d,false)).catch(()=>loadData("deals.json").then(d=>useData(d,true)))
+const DFILE=full=>(full?"deals":"sale")+(US()?"-us":"")+".json";
+function loadFull(){if(FULL||fullLoading)return;fullLoading=loadData(DFILE(true)).then(d=>useData(d,true)).catch(()=>{fullLoading=null})}
+function loadCountry(){return loadData(DFILE(false)).then(d=>useData(d,false)).catch(()=>loadData(DFILE(true)).then(d=>useData(d,true)))
   .then(()=>{if(!$("sheet").classList.contains("hidden"))openSheet();if(Object.keys(watches).length)loadFull()})
-  .catch(()=>{DATA={items:[]};$("dealList").innerHTML=`<div class="empty">${t("loadFail")}</div>`});
+  .catch(()=>{DATA={items:[]};$("dealList").innerHTML=`<div class="empty">${t("loadFail")}</div>`})}
+loadCountry();
+/* switch country: the other side's data, its currency (unless the visitor picked one), saved with the sizes */
+function setCountry(c,from){if(c===COUNTRY||(c!=="us"&&c!=="ca"))return;COUNTRY=c;LS.set("gf-country",c);
+  if(!LS0("gf-cur"))CUR=US()?"USD":"CAD";
+  DATA=null;FULL=false;fullLoading=null;ITEMS=[];byKey={};ALLSALE=null;MISS=null;storeCountsMemo=null;view.store="";view.open={};
+  ana("country",c+"|"+(from||""));track("country",{to:c,from:from||""});
+  if(LS0("rd-profile"))saveProfile();applyStatic();renderCountry();
+  if(!$("sheet").classList.contains("hidden"))openSheet();renderAll();loadCountry()}
+function renderCountry(){document.querySelectorAll("[data-ctry]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.ctry===COUNTRY)));
+  $("mShoes").href=US()?"us/shoes/":LANG==="fr"?"chaussures/":"shoes/"}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-ctry]");if(b)setCountry(b.dataset.ctry,b.closest("#menu")?"menu":"welcome")});
+renderCountry();
 const PAGE=8, MORE=24;
 const CARDS=LS0("gf-cards")||"compact";                    // "compact" (phones: photo beside the text) or "big"
 if(CARDS==="compact")document.body.classList.add("compact");
@@ -1150,7 +1197,7 @@ if(CALM)document.body.classList.add("calm");
 function setTb(){const tb=document.querySelector(".topbar");if(tb)document.documentElement.style.setProperty("--tb",tb.offsetHeight+"px")}
 setTb();addEventListener("resize",setTb);
 /* Prices are stored in CAD. The CAD/USD switch converts for display with the day's rate from the refresh. */
-let CUR=LS0("gf-cur")||"CAD";
+let CUR=LS0("gf-cur")||(US()?"USD":"CAD");     // prices follow the country unless the visitor picked a currency
 const usdRate=()=>(DATA&&DATA.fx&&DATA.fx.USD)||1.38;
 function money(v){
   if(CUR==="USD")v=v/usdRate();
@@ -1271,7 +1318,7 @@ function section(key,title,list,cls){
   }
   const lim=view.open[key]||(key.startsWith("__")||NARROW?PAGE:PAGE_CAT);
   const tail=key==="__new"&&NEWSTYLE==="row"?`<button type="button" class="linkbtn" data-newrow>${t("asRow")}</button>`:"";
-  const note=key==="nutrition"&&state.ships!=="all"?`<p class="grpnote">${t("usFuel")}</p>`:
+  const note=key==="nutrition"&&state.ships!=="all"&&!US()?`<p class="grpnote">${t("usFuel")}</p>`:
     APPAREL_GROUPS.includes(key)&&hasSizes()&&!state.cloth.length?`<p class="grpnote">${t("clothNote")} <button type="button" data-picksize="cloth">${t("clothPick")}</button></p>`:"";
   const types=TYPES[key]?`<div class="chips scroll types">${["",...TYPES[key]].map(v=>`<button type="button" class="chip" data-type="${key}:${v}" aria-pressed="${(view.type[key]||"")===v}">${v?t("types")[v]:t("typeAll")}</button>`).join("")}</div>`:"";
   return `<section class="grp ${cls||""}" id="grp-${key}"><h2>${title} <small>${num(list.length)}</small>${tail}</h2>${types}${note}<div class="grid">${list.slice(0,lim).map(d=>card(d)).join("")}</div>

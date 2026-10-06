@@ -1,0 +1,44 @@
+name: RunFree night read
+
+# Local US running stores on RunFree (scraper/runfree.py): every product's sizes and prices, one request per second per
+# store, all stores at once. 1:23am Vancouver, well before the 4:17am refresh, which downloads runfree.json from the
+# history branch (data only). A store that fails keeps its last good read.
+on:
+  schedule:
+    - cron: "23 8 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: runfree
+  cancel-in-progress: false
+
+jobs:
+  read:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r scraper/requirements.txt
+      - name: Last read and saved product details
+        uses: actions/checkout@v4
+        with:
+          ref: history
+          path: hist
+      - name: Read the RunFree stores
+        run: python scraper/runfree.py hist
+      - name: Save to the history branch
+        run: |
+          cd hist
+          git config user.name "The Gear Fox"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add runfree.json runfree-cache.json
+          git diff --cached --quiet && exit 0
+          git commit -q -m "runfree $(TZ=America/Vancouver date +%F)"
+          for i in 1 2 3 4; do git pull -q --rebase origin history && git push -q origin HEAD:history && exit 0; sleep $((i * 5)); done
+          exit 1

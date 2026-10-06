@@ -164,6 +164,40 @@ T = {
         "money": lambda v: f"{v:,.2f} $".replace(",", " ").replace(".", ","),
     },
 }
+# the USA side (Oct 6, 2026): same pages in US English under /us/, from deals-us.json (US stores, US dollars)
+US = dict(T["en"])
+US.update({
+    "dir": "us/shoes", "lang": "en-US", "other": "en-CA", "q": "&c=us", "home": "/?c=us", "cur": "USD",
+    "title": "{name} price: every size, every store",
+    "titleSale": "{name} Sale: from {price} (−{p}%)",
+    "about": "The {name} is a {type}. Today {stores} US stores carry it and we found {sizes} sizes in stock.",
+    "qSale": "Is the {name} on sale right now?", "qWhere": "Where is the {name} cheapest?",
+    "hubs": {"all": ("Running shoes on sale", "Running shoes on sale today", "Every popular running shoe on sale today at US running stores, sorted by the biggest discount. Checked every morning."),
+             "road": ("Road running shoes on sale", "Road running shoes on sale", "Daily trainers and road shoes on sale today at US running stores, biggest discount first."),
+             "trail": ("Trail running shoes on sale", "Trail running shoes on sale", "Trail running shoes on sale today at US running stores, biggest discount first."),
+             "racing": ("Carbon racing shoes on sale", "Racing shoes on sale", "Carbon-plated and racing shoes on sale today at US running stores, biggest discount first."),
+             "women": ("Women's running shoes on sale", "Women's running shoes on sale", "Women's running shoes on sale today at US running stores, biggest discount first."),
+             "men": ("Men's running shoes on sale", "Men's running shoes on sale", "Men's running shoes on sale today at US running stores, biggest discount first.")},
+    "hubDir": "us/running-shoes-sale", "brandDir": "us/brands", "bfDir": "us/black-friday",
+    "brandTitle": "{brand} Sale: running shoes on sale today", "brandH1": "{brand} running shoes on sale",
+    "brandIntro": "Every {brand} running shoe we track at US running stores, with today's best price. Biggest discount first; checked every morning.",
+    "bfTitle": "Black Friday 2026 running shoe deals", "bfH1": "Black Friday 2026: running shoe deals",
+    "bfIntro": "Black Friday is Friday, November 27. We check local running stores across the US every morning and show only what's in stock. Here are today's biggest running shoe deals.",
+    "bfTitlePre": "Black Friday 2026 running shoe deals: what to expect", "bfH1Pre": "Black Friday 2026: November {date}",
+    "bfIntroPre": "{days} days to go. Black Friday deals aren't out yet. During Black Friday week this page shows the real deals from local running stores across the US, checked every morning.",
+    "h1sub": "On sale at US running stores: every size, every store",
+    "desc": "{name}: today's best price in every size at {n} US running stores{off}. Checked every morning by The Gear Fox.",
+    "idxTitle": "Running shoe prices by model", "idxIntro": "Every popular running shoe we track, with today's best price in each size at US running stores. Updated every morning.",
+    "idxDesc": "Today's best price in every size for {n} running shoe models at US running stores. Updated every morning by The Gear Fox.",
+    "switch": "Canada", "homeH": "Today's best running shoe deals",
+})
+T["en"].update({"q": "", "home": "/", "cur": "CAD"})
+T["fr"].update({"q": "&lang=fr", "home": "/?lang=fr", "cur": "CAD"})
+# where a row's store ships from, said only when it's not the page's own country
+T["en"]["abroad"] = lambda st: T["en"]["us"] if len(st) > 1 else ""
+T["fr"]["abroad"] = lambda st: T["fr"]["us"] if len(st) > 1 else ""
+US["abroad"] = lambda st: "ships from Canada" if len(st) < 2 else "" if st[1] == "US" else "ships from abroad"
+
 UMAMI_ID = "d73c30be-171d-40d8-8101-278c2a536699"
 SB_URL = "https://krwymmkauwqqxjxbvkyq.supabase.co"
 
@@ -358,17 +392,27 @@ MENU_ICONS = {'🔥': '<path d="M3 12V4.5A1.5 1.5 0 0 1 4.5 3H12l9 9-9 9z"/><cir
 
 def menu_links(L, other_path):
     """The site's ☰ menu, as plain links (same items as the homepage menu)."""
-    fr = L["lang"] != "en-CA"
-    home = "/?lang=fr" if fr else "/"
+    fr = L["lang"] == "fr-CA"
+    home = L["home"]
     items = [(home, "🔥", L["mDeals"]), (f"/{L['dir']}/", "👟", L["mShoes"]),
-             (home + ("&" if fr else "?") + "show=watch", "♡", L["mWatch"]), (home + ("&" if fr else "?") + "show=sizes", "✏️", L["mSizes"]),
+             (home + ("&" if "?" in home else "?") + "show=watch", "♡", L["mWatch"]), (home + ("&" if "?" in home else "?") + "show=sizes", "✏️", L["mSizes"]),
              ("/about.html" + ("?lang=fr" if fr else ""), "🦊", L["mAbout"]), ("https://www.instagram.com/thegearfox/", "📸", "Instagram")]
     out = "".join(f'<a href="{u}">{MENU_SVG.format(MENU_ICONS[i])}{esc(t)}</a>' for u, i, t in items)
     return out + f'<a class="sw" href="{other_path}" hreflang="{L["other"]}">{L["switch"]}</a>'
 
 
+def alternates(L, path_en, path_fr):
+    """Canada: English + French. USA: its own page, plus the Canadian twin when there is one (path_fr holds it)."""
+    if L["lang"] == "en-US":
+        twin = (f'\n<link rel="alternate" hreflang="en-CA" href="{BASE}{path_fr}">\n<link rel="alternate" hreflang="x-default" href="{BASE}{path_fr}">'
+                if path_fr else "")
+        return f'<link rel="alternate" hreflang="en-US" href="{BASE}{path_en}">{twin}'
+    return (f'<link rel="alternate" hreflang="en-CA" href="{BASE}{path_en}">\n<link rel="alternate" hreflang="fr-CA" href="{BASE}{path_fr}">\n'
+            f'<link rel="alternate" hreflang="x-default" href="{BASE}{path_en}">')
+
+
 def page_head(L, title, desc, path_en, path_fr, extra=""):
-    lang_path = path_en if L["lang"] == "en-CA" else path_fr
+    lang_path = path_en if L["lang"] != "fr-CA" else path_fr
     return f"""<!DOCTYPE html>
 <html lang="{L['lang'][:2]}">
 <head>
@@ -377,9 +421,7 @@ def page_head(L, title, desc, path_en, path_fr, extra=""):
 <title>{esc(title)} | The Gear Fox</title>
 <meta name="description" content="{esc(desc)}">
 <link rel="canonical" href="{BASE}{lang_path}">
-<link rel="alternate" hreflang="en-CA" href="{BASE}{path_en}">
-<link rel="alternate" hreflang="fr-CA" href="{BASE}{path_fr}">
-<link rel="alternate" hreflang="x-default" href="{BASE}{path_en}">
+{alternates(L, path_en, path_fr)}
 <meta name="theme-color" content="#F26A1B">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/manifest.webmanifest">
@@ -402,17 +444,17 @@ def page_head(L, title, desc, path_en, path_fr, extra=""):
 <script defer src="https://cloud.umami.is/script.js" data-website-id="{UMAMI_ID}" data-domains="thegearfox.com,www.thegearfox.com"></script>
 </head>
 <body>
-<header class="top"><div class="in"><a class="logo" href="/{'' if L['lang'] == 'en-CA' else '?lang=fr'}" aria-label="The Gear Fox">
+<header class="top"><div class="in"><a class="logo" href="{L['home']}" aria-label="The Gear Fox">
 <picture><source srcset="/logo-mark-dark.svg" media="(prefers-color-scheme: dark)"><img src="/logo-mark.svg" alt="The Gear Fox" width="1534" height="664"></picture>
 <span class="tagline">{L['tagline']}</span></a>
 <details class="menu"><summary aria-label="{L['menu']}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></summary>
-<nav>{menu_links(L, path_fr if L['lang'] == 'en-CA' else path_en)}</nav></details></div></header>
+<nav>{menu_links(L, (path_fr or "/shoes/") if L['lang'] != 'fr-CA' else path_en)}</nav></details></div></header>
 <main class="wrap">
 """
 
 
 def page_foot(L):
-    priv = "/privacy.html" + ("" if L["lang"] == "en-CA" else "?lang=fr")
+    priv = "/privacy.html" + ("?lang=fr" if L["lang"] == "fr-CA" else "")
     # deal clicks count toward the monthly report (same anonymous counter as the site: store + category, nothing personal)
     return f"""<p class="foot">{esc(L['foot'])} · <a href="https://www.instagram.com/thegearfox/" rel="noopener">@thegearfox</a> · <a href="{priv}">{L['privacy']}</a></p>
 </main>
@@ -433,7 +475,7 @@ var ana=(function(){{var ls=function(k){{try{{return localStorage.getItem(k)}}ca
   document.addEventListener("visibilitychange",function(){{if(document.visibilityState==="hidden")bye();else{{away=false;t0=Date.now()}}}});
   addEventListener("pagehide",bye);
   if(fresh)add("visit",document.referrer?new URL(document.referrer).hostname:"",null,location.pathname);
-  var m=location.pathname.match(/^\/(?:shoes|chaussures)\/([^\/]+)\/$/);add("shoe-page-view",m?m[1]:location.pathname);
+  var m=location.pathname.match(/^\/(?:us\/)?(?:shoes|chaussures)\/([^\/]+)\/$/);add("shoe-page-view",m?m[1]:location.pathname);
   return add}})();
 (function(){{var p,box=document.getElementById("mine");if(!box)return;
 try{{p=JSON.parse(localStorage.getItem("rd-profile")||"null")}}catch(e){{}}
@@ -517,11 +559,11 @@ def summary(its, stores, gender=None):
             "img": next((d["img"] for d in its if d.get("img")), None), "t": its[0].get("t") or ""}
 
 
-def model_page(slug, its, stores, L, updated, related, brand_models):
+def model_page(slug, its, stores, L, updated, related, brand_models, paths=None):
     first = its[0]
     brand = first["b"]
     name = f"{brand} {base_model(first['n'])}"
-    path_en, path_fr = f"/shoes/{slug}/", f"/chaussures/{slug}/"
+    path_en, path_fr = paths or (f"/shoes/{slug}/", f"/chaussures/{slug}/")
     money = L["money"]
     # every variant (men's, women's, wide…) with its sizes
     groups = []
@@ -547,7 +589,7 @@ def model_page(slug, its, stores, L, updated, related, brand_models):
         lo_p, hi_p = min(r[0] for _, r in allrows), max(r[0] for _, r in allrows)
         ld = json.dumps({"@context": "https://schema.org", "@type": "Product", "name": name, "brand": {"@type": "Brand", "name": brand},
                          **({"image": first["img"]} if first.get("img") else {}),
-                         "offers": {"@type": "AggregateOffer", "priceCurrency": "CAD", "lowPrice": f"{lo_p:.2f}", "highPrice": f"{hi_p:.2f}",
+                         "offers": {"@type": "AggregateOffer", "priceCurrency": L["cur"], "lowPrice": f"{lo_p / L.get('fx', 1):.2f}", "highPrice": f"{hi_p / L.get('fx', 1):.2f}",
                                     "offerCount": len(allrows), "availability": "https://schema.org/InStock"}}, ensure_ascii=False)
         ld = f'<script type="application/ld+json">{ld}</script>'
     out = [page_head(L, title, desc, path_en, path_fr, ld)]
@@ -569,8 +611,8 @@ def model_page(slug, its, stores, L, updated, related, brand_models):
     # "your size": the page reads the sizes saved on this phone (main site) and highlights them (script at the end)
     out.append(f'<div class="mine" id="mine" hidden data-your="{esc(L["yourSize"])}" data-at="{esc(L["at"])}" data-see="{esc(L["see"])}" '
                f'data-none="{esc(L["notInSize"])}" data-pick="{esc(L["pick"])}" data-pickph="{esc(L["pickPh"])}" data-chg="{esc(L["change"])}" '
-               f'data-all="{esc(L["allInSize"])}" data-home="/?ref=shoe-size{"&lang=fr" if L["lang"] == "fr-CA" else ""}"></div>')
-    lang_q = "&lang=fr" if L["lang"] == "fr-CA" else ""
+               f'data-all="{esc(L["allInSize"])}" data-home="/?ref=shoe-size{L["q"]}"></div>')
+    lang_q = L["q"]
     for lab, rows in merged.items():
         d0 = first[lab]
         sx = d0.get("sx") or []
@@ -582,7 +624,8 @@ def model_page(slug, its, stores, L, updated, related, brand_models):
         for size, (p, reg, h, u, fin) in rows:
             off = round(100 * (1 - p / reg)) if reg and p < reg * 0.99 else 0
             st = stores.get(h, [h])
-            us = f'<span class="us">{L["us"]}</span>' if len(st) > 1 else ""
+            ab = L["abroad"](st)
+            us = f'<span class="us">{ab}</span>' if ab else ""
             fin = f'<span class="fin">{L["final"]}</span>' if fin else ""
             price = f'<b>{money(p)}</b>' + (f'<s>{money(reg)}</s><span class="off">−{off}%</span>' if off else "")
             out.append(f'<tr data-s="{esc(size)}" data-p="{p:.2f}"><td>{esc(size)}</td><td class="p">{price}</td><td><a href="{esc(u)}" rel="nofollow noopener" target="_blank" data-store="{esc(h)}">{esc(st[0])}</a>{us}{fin}</td></tr>')
@@ -606,7 +649,7 @@ def model_page(slug, its, stores, L, updated, related, brand_models):
                    f'<h3>{L["qSale"].format(name=esc(name))}</h3><p>{ans_sale}</p>'
                    f'<h3>{L["qSizes"]}</h3><p>{esc("; ".join(ranges))}.</p>'
                    f'<h3>{L["qWhere"].format(name=esc(name))}</h3><p>{L["aWhere"].format(store=esc(sm["store"]), price=money(sm["price"]))}</p></div>')
-    home = "/?ref=shoe-page" + ("&lang=fr" if L["lang"] == "fr-CA" else "")
+    home = "/?ref=shoe-page" + L["q"]
     out.append(f'<section class="cta"><h2>{L["cta"]}</h2><p>{L["ctaTxt"]}</p><a class="btn" href="{home}">{L["ctaBtn"]}</a></section>')
     if related:
         out.append(f'<h2>{L["more"].format(brand=esc(brand))}</h2><ul class="links">' +
@@ -671,9 +714,9 @@ def home_section(L_en, L_fr, rows, brands):
     return f'<section class="seo-today">{one(L_en, "en")}{one(L_fr, "fr")}</section>'
 
 
-def index_page(L, entries, updated):
+def index_page(L, entries, updated, paths=("/shoes/", "/chaussures/")):
     """entries: [(brand, slug, model name, best % off or 0)]"""
-    path_en, path_fr = "/shoes/", "/chaussures/"
+    path_en, path_fr = paths
     out = [page_head(L, L["idxTitle"], L["idxDesc"].format(n=len(entries)), path_en, path_fr)]
     out.append(f'<h1>{L["idxH1"]}</h1><p class="sub">{L["idxIntro"]}</p>')
     out.append(browse_nav(L, []))
@@ -812,10 +855,104 @@ def main():
     day = (updated or datetime.now(timezone.utc).isoformat())[:10]
     urls = ["/", "/shoes/", "/chaussures/", "/about.html", "/privacy.html"] + extra_urls
     urls += [f"/{d}/{s}/" for s in known_live for d in ("shoes", "chaussures")]
+    urls += build_us(site, stores, set(known_live), {slugify(b) for b in brands})
     (site / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
                                       "".join(f"<url><loc>{BASE}{u}</loc><lastmod>{day}</lastmod></url>\n" for u in urls) + "</urlset>\n")
     print(f"shoe pages: {len(known_live)} models ({n_live} in stock today), {2 * len(known_live)} pages EN/FR, "
           f"{len(moved)} old addresses forwarded, {len(extra_urls)} list pages ({len(brands)} brands), sitemap {len(urls)} links")
+
+
+def build_us(site, stores, ca_models, ca_brands):
+    """The USA side's pages (Oct 6, 2026): /us/shoes/<slug>/, list pages, brand pages, Black Friday, from deals-us.json.
+    Same rules as Canada: a page once 3+ US stores carry the model; pages never disappear (us/shoes/pages.json).
+    Returns the URLs for the sitemap."""
+    f = site / "deals-us.json"
+    if not f.exists():
+        return []
+    data = json.loads(f.read_text())
+    items, updated = data["items"], data.get("updated")
+    fx = float((data.get("fx") or {}).get("USD") or 1.37)
+    L = US
+    L["fx"] = fx
+    L["money"] = lambda v: f"${v / fx:,.2f}"
+    us_store = lambda h: stores.get(h, [""])[1:2] == ["US"]
+    models = build_models(items)
+    reg_path = site / "us" / "shoes" / "pages.json"
+    try:
+        known = json.loads(reg_path.read_text())
+    except Exception:
+        known = {}
+    for slug, its in models.items():
+        if slug not in known and len({host(u) for d in its for u in d["of"] if us_store(host(u))}) >= MIN_STORES:
+            known[slug] = {"b": its[0]["b"], "n": f'{its[0]["b"]} {base_model(its[0]["n"])}', "t": its[0].get("t") or ""}
+    live = {s: v for s, v in known.items() if not v.get("to")}
+    names = {s: v["n"] for s, v in live.items()}
+    by_brand = defaultdict(list)
+    for s_, v in live.items():
+        by_brand[v["b"].lower()].append(s_)
+    entries, urls = [], []
+    for slug, meta in live.items():
+        its = models.get(slug) or [{"b": meta["b"], "n": meta["n"][len(meta["b"]) + 1:], "g": "shoes", "t": meta.get("t"), "sz": [], "of": []}]
+        same = [x for x in by_brand[meta["b"].lower()] if x != slug]
+        related = sorted(same, key=lambda x: (known[x].get("t") != meta.get("t"), x))[:8]
+        offs = [round(100 * (1 - e[1] / e[3])) for d in its for e in d["sz"] if len(e) > 3 and e[1] < e[3] * 0.99]
+        entries.append((meta["b"], slug, meta["n"], max(offs, default=0)))
+        p = site / L["dir"] / slug / "index.html"
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(model_page(slug, its, stores, L, updated, related, names,
+                                paths=(f"/{L['dir']}/{slug}/", f"/shoes/{slug}/" if slug in ca_models else "")))
+        urls.append(f"/{L['dir']}/{slug}/")
+    summ = {sl: summary(models[sl], stores) for sl in live if models.get(sl)}
+    summ = {k: v for k, v in summ.items() if v}
+    gsumm = {g: {sl: summary(models[sl], stores, g) for sl in summ} for g in ("women", "men")}
+    on_sale = lambda d: sorted([(sl, live[sl]["n"], sm) for sl, sm in d.items() if sm and sm["top"] >= 10],
+                               key=lambda r: (-r[2]["top"], -r[2]["sizes"]))
+    kinds = {"all": on_sale(summ), "road": on_sale({k: v for k, v in summ.items() if v["t"] == "daily"}),
+             "trail": on_sale({k: v for k, v in summ.items() if v["t"] == "trail"}),
+             "racing": on_sale({k: v for k, v in summ.items() if v["t"] == "race"}),
+             "women": on_sale(gsumm["women"]), "men": on_sale(gsumm["men"])}
+    brand_models = defaultdict(list)
+    for sl in summ:
+        brand_models[live[sl]["b"]].append(sl)
+    brands = sorted([b for b, sls in brand_models.items() if len(sls) >= 3], key=lambda b: (-len(brand_models[b]), b.lower()))
+    for k, rows in kinds.items():
+        tail = f'{L["hubSlugs"][k]}/' if L["hubSlugs"][k] else ""
+        own, twin = f'/{L["hubDir"]}/{tail}', f'/{T["en"]["hubDir"]}/{tail}'
+        title, h1, intro = L["hubs"][k]
+        p = site / own.strip("/") / "index.html"
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(list_page(L, own, twin, title, h1, intro, rows[:80], brands))
+        urls.append(own)
+    for b in brands:
+        rows = sorted([(sl, live[sl]["n"], summ[sl]) for sl in brand_models[b]], key=lambda r: (-r[2]["top"], r[1].lower()))
+        own = f'/{L["brandDir"]}/{slugify(b)}/'
+        p = site / own.strip("/") / "index.html"
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(list_page(L, own, f'/brands/{slugify(b)}/' if slugify(b) in ca_brands else "", L["brandTitle"].format(brand=b),
+                               L["brandH1"].format(brand=b), L["brandIntro"].format(brand=b), rows, brands))
+        urls.append(own)
+    bf_rows = [r for r in kinds["all"] if r[2]["sizes"] >= 6][:40]
+    cta = (f'<section class="cta"><h2>{L["bfCta"]}</h2><p>{L["bfCtaTxt"]}</p>'
+           f'<a class="btn" href="/?ref=black-friday{L["q"]}">{L["ctaBtn"]}</a></section>')
+    today = datetime.fromisoformat(updated.replace("Z", "+00:00")).date() if updated else datetime.now(timezone.utc).date()
+    bf = black_friday(today.year if today <= black_friday(today.year) + timedelta(days=4) else today.year + 1)
+    own = f'/{L["bfDir"]}/'
+    p = site / own.strip("/") / "index.html"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    if bf - timedelta(days=7) <= today <= bf + timedelta(days=4):
+        p.write_text(list_page(L, own, "/black-friday/", L["bfTitle"], L["bfH1"], L["bfIntro"], bf_rows, brands, cta))
+    else:
+        extra = (cta + f'<h2>{esc(L["bfSpotH"])}</h2><ul>' + "".join(f"<li>{esc(x)}</li>" for x in L["bfSpot"]) + "</ul>"
+                 + f'<h2>{esc(L["bfTodayH"].format(date=fmt_date(updated, L)))}</h2>')
+        p.write_text(list_page(L, own, "/black-friday/", L["bfTitlePre"], L["bfH1Pre"].format(date=bf.day),
+                               L["bfIntroPre"].format(days=(bf - today).days), bf_rows[:6], brands, extra))
+    urls.append(own)
+    (site / L["dir"]).mkdir(parents=True, exist_ok=True)
+    (site / L["dir"] / "index.html").write_text(index_page(L, entries, updated, paths=(f"/{L['dir']}/", "/shoes/")))
+    urls.append(f"/{L['dir']}/")
+    reg_path.write_text(json.dumps(known, ensure_ascii=False, separators=(",", ":")))
+    print(f"USA shoe pages: {len(live)} models, {len(urls)} pages ({len(brands)} brands)")
+    return urls
 
 
 if __name__ == "__main__":

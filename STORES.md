@@ -128,3 +128,20 @@ Altitude / The Last Hunt (already read): categories /c/snowboarding (Altitude 1,
 helmets, snow jackets and pants, snowboards, boots), /c/cross-country-skiing (220 / 164), /c/backcountry-skiing (470 / 143:
 skins, avalanche gear). Plan if built: groups skis (alpine/nordic/touring), ski boots (mondo from shoe size), snowboards
 (length from height), snowboard boots, helmets & goggles, snow jackets & pants, backcountry gear.
+
+## USA side (Oct 6, 2026)
+
+US running shops read for the USA side only (they may not ship to Canada). Shopify: Pacers Running (DC/VA), Portland Running Co. (OR),
+Heartbreak Hill (MA), Runners Plus (IL), Gazelle Sports (MI), Sports Basement (CA; running collection only), Tortoise & Hare (AZ),
+Run Flagstaff (AZ), Running Lab (MI), Playmakers (MI), Mill City Running (MN), The Running Well Store (MO), Mountain Running Co. (NC),
+Confluence Running (NY), Columbus Running Co. (OH), Scranton Running Co. (PA), Trailhead Running Supply (TX), PR Run & Walk (VA),
+Performance Running Outfitters (WI), Fitness Sports (IA), Athletic Annex (IN), Ann Arbor Running Co. (MI), Two Rivers Treads (NC),
+Xtra Mile Running (TN), Luke's Locker (TX), San Francisco Running Co. (CA, store.sfrunco.com).
+RunFree (night job, scraper/runfree.py): Charlotte Running Co., Terra, John's Run/Walk, Palmetto, Rush, iRun Texas, West Stride,
+Millennium, Running Niche, Good Times, Bull City, Red Coyote, 605 Running, Point 2, Big Peach, Running Zone, Manhattan Running Co.,
+Charm City Run, Pace Yourself, Runner's Roost, Missouri Running Co., Track Shack, Aardvark, Philadelphia Runner.
+
+Checked, not used: Shoebacca (mostly PUMA/adidas/Diadora budget shoes), Potomac River Running (same shop as PR Run & Walk),
+Onion River Sports (VT, 2 shoes), Runner's Den (serves CAD; check which store it is), Running Warehouse, Road Runner Sports, Zappos,
+Dick's, REI (saved pages only), Brooks, Eastbay (blocked or not readable). Squarespace/WooCommerce sites without an online catalogue:
+skipped. Candidate list: tools/us_candidates.txt (store finder).
