@@ -1410,7 +1410,7 @@ STORES = {
     "rei": scrape_rei_saved,
     "svp": scrape_svp_saved,
     "decathlon": lambda: scrape_decathlon_saved(),    # read at night, slowly (runfree.yml): Decathlon blocked GitHub's daytime reads
-    "backcountry": lambda: scrape_backcountry_saved(),   # US: read at night from its product pages (runfree.yml)
+    # "backcountry": off (Oct 6): its bot protection answers GitHub's servers "202, empty"; reader kept for a feed
     "footlocker": scrape_footlocker,
 }
 # Final sale (Oct 4, 2026; read from each store's return policy, recheck now and then): 1 = every item is final sale,
@@ -2129,7 +2129,8 @@ def decathlon_night(out):
 # ---------------------------------------------------------------- Backcountry (US)
 # Oct 6, 2026: its robots rules block the JSON feeds (/*.json, /api/*) but allow category and product pages, which carry
 # their data in the page (__NEXT_DATA__): each size and colour with list price, sale price and stock. One page every
-# BC_PACE seconds in the night job (runfree.yml, job "backcountry") -> backcountry.json on the history branch; the refresh
+# BC_PACE seconds (OFF since Oct 6: Backcountry's bot protection answers GitHub's servers "HTTP 202, empty page", and we
+# don't get around bot protection; waits for an affiliate product feed) -> backcountry.json on the history branch; the refresh
 # loads it (BACKCOUNTRY_FILE). US side only (ships within the US). `--sale-only` reads just the products with sizes on sale.
 BC_BASE = "https://www.backcountry.com"
 BC_LISTS = ["/cat/running-shoes", "/cat/running-clothing-accessories", "/cat/running-hydration"]

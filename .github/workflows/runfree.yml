@@ -1,4 +1,4 @@
-name: Night reads (RunFree stores, Decathlon, Backcountry)
+name: Night reads (RunFree stores, Decathlon)
 
 # Local US running stores on RunFree (scraper/runfree.py): every product's sizes and prices, one request per second per
 # store, all stores at once. 1:23am Vancouver, well before the 4:17am refresh, which downloads runfree.json from the
@@ -13,12 +13,8 @@ on:
         type: boolean
         default: false
       only:
-        description: "Run only this read (all, runfree, decathlon, backcountry)"
+        description: "Run only this read (all, runfree, decathlon)"
         default: "all"
-      sale_only:
-        description: "Backcountry: only products with sizes on sale (quick first read)"
-        type: boolean
-        default: false
 
 permissions:
   contents: write
@@ -104,33 +100,3 @@ jobs:
           for i in 1 2 3 4; do git pull -q --rebase origin history && git push -q origin HEAD:history && exit 0; sleep $((i * 5)); done
           exit 1
 
-  # Backcountry (Oct 6, 2026, US side): its robots rules allow product pages, not its JSON feeds, so every product page is
-  # opened, one every 1.5 s (~2,000 pages, about an hour). A failed read keeps the last good one.
-  backcountry:
-    needs: check
-    if: needs.check.outputs.skip != 'true' && (inputs.only == '' || inputs.only == null || inputs.only == 'all' || inputs.only == 'backcountry')
-    runs-on: ubuntu-latest
-    timeout-minutes: 110
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - run: pip install -r scraper/requirements.txt
-      - uses: actions/checkout@v4
-        with:
-          ref: history
-          path: hist
-      - name: Read Backcountry
-        run: python scraper/scrape.py --backcountry-night hist/backcountry.json ${{ inputs.sale_only && '--sale-only' || '' }}
-      - name: Save to the history branch
-        run: |
-          cd hist
-          git config user.name "The Gear Fox"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          [ -f backcountry.json ] || exit 0
-          git add backcountry.json
-          git diff --cached --quiet && exit 0
-          git commit -q -m "backcountry $(TZ=America/Vancouver date +%F)"
-          for i in 1 2 3 4; do git pull -q --rebase origin history && git push -q origin HEAD:history && exit 0; sleep $((i * 5)); done
-          exit 1
