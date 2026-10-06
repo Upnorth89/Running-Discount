@@ -582,6 +582,11 @@ const REF=(()=>{let r="";try{r=(new URLSearchParams(location.search).get("ref")|
   try{const old=JSON.parse(localStorage.getItem("gf-ref")||"null");if(old)return old;if(r)localStorage.setItem("gf-ref",JSON.stringify(r))}catch(e){}
   if(r){let n=0;const t=setInterval(()=>{if(window.umami&&umami.track){umami.track("ref-visit",{ref:r});clearInterval(t)}else if(++n>40)clearInterval(t)},250)}
   return r})();
+/* Emails (Oct 6, 2026: "mailto:name@gmail.com" was accepted, then Resend refused it and the person never got their link):
+   clean common paste mistakes, then only plain addresses Resend accepts */
+const cleanMail=v=>String(v||"").trim().replace(/^mailto:/i,"").replace(/^.*<([^<>]+)>.*$/,"$1").replace(/\s+/g,"").replace(/[.,;]+$/,"").toLowerCase();
+const okMail=e=>/^[a-z0-9!#$%&'*+\/=?^_`{|}~-]+(\.[a-z0-9!#$%&'*+\/=?^_`{|}~-]+)*@([a-z0-9]([a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}$/.test(e)&&e.length<=254;
+window.gfMail={cleanMail,okMail};   // for the site test (tools/sitetest.py)
 const storeOf=u=>{try{return new URL(u).hostname.replace(/^www\./,"")}catch(e){return "unknown"}};
 /* Affiliate links (Sovrn, Oct 3): store product page -> tracking link that redirects to that same page.
    Cards keep the store's own address for names and click counts (data-store). */
@@ -1056,8 +1061,8 @@ $("sheet").addEventListener("click",e=>{if(e.target===$("sheet")&&(!gated()||pee
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("sheet").classList.contains("hidden")&&(!gated()||peeking())){closeSheet();renderAll()}});
 $("saveSizes").addEventListener("click",async()=>{
   if(gated()&&signinMode){
-    const email=$("signinEmail").value.trim().toLowerCase();
-    if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)){gateErr(t("errEmail"),$("signinEmail"));return}
+    const email=cleanMail($("signinEmail").value);
+    if(!okMail(email)){gateErr(t("errEmail"),$("signinEmail"));return}
     const btn=$("saveSizes");btn.disabled=true;btn.textContent=t("oneMoment");gateErr("");
     try{await rpc("send_link",{p_email:email,p_lang:LANG})}
     catch(e){btn.disabled=false;btn.textContent=t("emailLink");return gateErr(t("errServer"))}
@@ -1077,8 +1082,8 @@ $("saveSizes").addEventListener("click",async()=>{
       if(FLOW!=="C")return nextStep();                          // B: sizes done, now the email step
     }else if(FLOW==="C"&&step===1){                              // C: account first
       if(gSession)return nextStep();
-      const email=$("gateEmail").value.trim().toLowerCase();
-      if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)){gateErr(t("errEmail"),$("gateEmail"));return}
+      const email=cleanMail($("gateEmail").value);
+      if(!okMail(email)){gateErr(t("errEmail"),$("gateEmail"));return}
       state.email=email;return nextStep();
     }
   }
@@ -1090,8 +1095,8 @@ $("saveSizes").addEventListener("click",async()=>{
   if(gated()){
     if(!state.gender)return gateErr(t("errFit"),$("fit"));
     if(!state.shoe.length&&!state.cloth.length)return gateErr(t("errSize"),$("shoeSizes"));
-    const email=(FLOW==="C"&&state.email)?state.email:$("gateEmail").value.trim().toLowerCase();
-    if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)){gateErr(t("errEmail"),$("gateEmail"));setTimeout(()=>$("gateEmail").focus({preventScroll:true}),400);return}
+    const email=(FLOW==="C"&&state.email)?state.email:cleanMail($("gateEmail").value);
+    if(!okMail(email)){gateErr(t("errEmail"),$("gateEmail"));setTimeout(()=>$("gateEmail").focus({preventScroll:true}),400);return}
     const btn=$("saveSizes");btn.disabled=true;btn.textContent=t("oneMoment");gateErr("");
     state.email=email;const p=toProfile();LS.set("rd-profile",p);
     try{await rpc("subscribe",{p_email:email,p_profile:p});setSub({pending:email});track("signup",{method:"email",lang:LANG,where:"sheet",ref:REF||"none"})}
@@ -1661,8 +1666,8 @@ function signupHTML(){
 function bindSignup(){
   const f=$("suForm");
   if(f)f.addEventListener("submit",async e=>{
-    e.preventDefault();const email=$("suEmail").value.trim().toLowerCase();
-    if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)){signupErr=t("badEmail");renderAll();$("suEmail").focus();return}
+    e.preventDefault();const email=cleanMail($("suEmail").value);
+    if(!okMail(email)){signupErr=t("badEmail");renderAll();$("suEmail").focus();return}
     const btn=f.querySelector("button");btn.disabled=true;btn.textContent="…";
     state.email=email;const p=toProfile();LS.set("rd-profile",p);
     try{await rpc("subscribe",{p_email:email,p_profile:p});signupErr="";setSub({pending:email});track("signup",{method:"email",lang:LANG,where:"card",ref:REF||"none"})}

@@ -351,6 +351,10 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
 - Final sale (Oct 4): FINAL_SALE store rules in scrape.py + tagged items -> "fs" per offer; label on cards, shoe pages, Friday email;
   About page "Returns and final sale". Recheck store policies every 3 months.
 - Home screen tip (Oct 4): ☰ "Add to your home screen" on phones (iPhone steps / Android prompt) + one-time tip for members, 2nd visit+.
+- Emails (Oct 6): `cleanMail()` strips "mailto:", "Name <…>", spaces and trailing dots; `okMail()` only lets through plain addresses
+  Resend accepts (a "mailto:…" address got "Check your inbox" but Resend answered 422 Invalid `to`, and nothing arrived). The database
+  sends with pg_net and never sees Resend's answer: Bastien reads `net._http_response` in the SQL Editor. tools/mail_check.py +
+  mail-check.yml (run by hand, masked): Resend's latest emails + recent sign-up attempts. Site test: "Sign-up email check".
 - CAD/USD switch, watchlist with alerts, Google sign-in, Umami analytics (no cookies; events welcome-view,
   signup-step, signup, signup-confirmed, signin, deal-click, watch-add, language, currency).
 

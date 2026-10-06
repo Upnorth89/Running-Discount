@@ -176,6 +176,13 @@ def site_flow(base, per, accented):
             assert len(cards(page)) >= 20, "deals disappeared after 'No thanks'"
         check("Sign-up card + No thanks")(signup_card, page)
 
+        def email_rules():           # Oct 6: "mailto:name@gmail.com" was accepted, Resend refused it, the person got nothing
+            got = page.evaluate("""() => [['mailto:Name@Gmail.com',1],['bastien.hammond+test5@gmail.com',1],['jo@sub.domain.co.uk',1],
+                ['a:b@gmail.com',0],['a..b@gmail.com',0],['name@gmail',0],['name @gmail.com',1]]
+                .filter(([v,ok]) => gfMail.okMail(gfMail.cleanMail(v)) !== !!ok).map(([v]) => v)""")
+            assert not got, f"the sign-up form judges these emails wrong: {got}"
+        check("Sign-up email check")(email_rules, page)
+
         def chip(v):
             page.click(f'#cats .chip[data-v="{v}"]')
             settle(page)
