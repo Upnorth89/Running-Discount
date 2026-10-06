@@ -189,7 +189,7 @@ US.update({
     "desc": "{name}: today's best price in every size at {n} US running stores{off}. Checked every morning by The Gear Fox.",
     "idxTitle": "Running shoe prices by model", "idxIntro": "Every popular running shoe we track, with today's best price in each size at US running stores. Updated every morning.",
     "idxDesc": "Today's best price in every size for {n} running shoe models at US running stores. Updated every morning by The Gear Fox.",
-    "switch": "Canada", "homeH": "Today's best running shoe deals",
+    "switch": "Canadian stores", "homeH": "Today's best running shoe deals",
 })
 T["en"].update({"q": "", "home": "/", "cur": "CAD"})
 T["fr"].update({"q": "&lang=fr", "home": "/?lang=fr", "cur": "CAD"})
@@ -354,6 +354,8 @@ td.p s{color:var(--muted);font-size:13px;margin-left:4px}
 .watch{font:600 14px var(--body);color:var(--moss);white-space:nowrap}
 tr.yours td{background:rgba(242,106,27,.14)}
 tr.yours td:first-child{font-weight:700;box-shadow:inset 4px 0 0 var(--hivis)}
+.side{background:#17201C;color:#fff;border-radius:12px;padding:12px 14px;margin:0 0 14px;font-size:15px}
+.side a{color:#FFB37A;font-weight:700}
 .mine{background:var(--card);border:1.5px solid var(--hivis);border-radius:12px;padding:12px 14px;margin:0 0 6px;font-size:16px}
 .mine b{font:800 20px var(--display)}
 .mine .pickl{font-weight:600}.mine select.pick{font:600 16px var(--body);color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;min-height:44px;max-width:100%}
@@ -516,6 +518,16 @@ if(prev&&prev.v&&sel.querySelector('option[value="'+prev.v.replace(/"/g,"")+'"]'
 else if(prev&&prev.s){{var o=[].slice.call(sel.options).filter(function(o){{var x=o.value.slice(o.value.indexOf("|")+1);return o.value&&clean(x).replace(/^W /,"")===prev.s&&(tables[+o.value.split("|")[0]].dataset.g===prev.g||(tables[+o.value.split("|")[0]].dataset.g==="unisex"&&(prev.g==="women")===/^W /.test(x)))}})[0];
   if(o){{sel.value=o.value;choose(o.value,false)}}else pickRow()}}
 else pickRow()}})();
+/* wrong side (Oct 6, 2026): a visitor who picked USA on a Canadian page (or Canada on a US page) gets a bar to the same page
+   on their side, when it exists (Google, old links and the menu's country link can lead to the other side) */
+(function(){{var c=null;try{{c=JSON.parse(localStorage.getItem("gf-country")||"null")}}catch(e){{}}
+  var path=location.pathname,us=/^\/us\//.test(path);if(!c||(c==="us")===us)return;
+  var to=us?path.replace(/^\/us\//,"/"):"/us"+path.replace(/^\/chaussures\//,"/shoes/").replace(/^\/chaussures-course-solde\/.*$/,"/running-shoes-sale/").replace(/^\/marques\//,"/brands/").replace(/^\/vendredi-fou\//,"/black-friday/");
+  var fr=document.documentElement.lang==="fr";
+  var show=function(u){{var b=document.createElement("p");b.className="side";
+    b.innerHTML=(us?"These prices are from US stores. ":fr?"Ces prix viennent de boutiques canadiennes. ":"These prices are from Canadian stores. ")+'<a href="'+u+'">'+(us?"See Canadian stores →":fr?"Voir les boutiques américaines →":"See US stores →")+"</a>";
+    var m=document.querySelector("main.wrap");if(m)m.insertBefore(b,m.firstChild)}};
+  fetch(to,{{method:"HEAD"}}).then(function(r){{show(r.ok?to:(us?"/shoes/":"/us/shoes/"))}}).catch(function(){{}})}})();
 document.addEventListener("click",function(e){{var a=e.target.closest("a[data-store]");if(!a)return;
 try{{fetch("{SB_URL}/rest/v1/rpc/log_event",{{method:"POST",keepalive:true,headers:{{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"}},
 body:JSON.stringify({{p_kind:"click",p_store:a.dataset.store,p_group:"shoes",p_ref:"shoe-page",p_lang:"{L['lang'][:2]}"}})}})}}catch(x){{}}
