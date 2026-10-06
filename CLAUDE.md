@@ -170,6 +170,8 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
 - Oct 4: AvantLink network application DENIED (site too new). Reapply early December with the Dec 1 click report,
   Search Console traffic and Black Friday results, (About page, contact email and affiliate disclosure: live Oct 3).
   Meanwhile: Sovrn Commerce, Shopify Collabs (brand programs), small shops directly.
+- Oct 6: Decathlon affiliate application DECLINED (same reason expected: site too new). Reapply early December with AvantLink,
+  with Decathlon's Nov click count from the Dec 1 monthly report. Decathlon deals stay on the site (ranking never favours paying stores).
 
 - AvantLink covers MEC and 9 of our brands (rabbit 10%, Sunski 8%, Oiselle 6% but no coupon/deal sites,
   Swiftwick, Ciele, Janji, Nathan, Tailwind, Skratch via Shopify Collabs). The Feed and Stance: CJ (Stance
