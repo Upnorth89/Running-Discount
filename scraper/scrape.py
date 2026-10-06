@@ -2146,7 +2146,9 @@ def bc_data(path):
         r.raise_for_status()
         m = re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', r.text, re.S)
         if not m:
-            raise RuntimeError(f"no page data on {path}")
+            t = re.search(r"<title[^>]*>([^<]{0,80})", r.text)
+            raise RuntimeError(f"no page data on {path} (HTTP {r.status_code}, {len(r.text)} bytes, "
+                               f"title: {t.group(1).strip() if t else 'none'})")
         return json.loads(m.group(1))["props"]["pageProps"]
     raise requests.HTTPError(f"{r.status_code} {path}")
 
