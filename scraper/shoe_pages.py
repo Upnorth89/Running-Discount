@@ -617,8 +617,8 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None)
         off = round(100 * (1 - p / reg)) if reg and p < reg * 0.99 else 0
         line = L["from"].format(price=money(p), reg=money(reg), p=off) if off else L["fromFull"].format(price=money(p))
         # "Is this deal real?": good news only (Bastien's call): the best price today is the lowest in 30+ days of history
-        lows = [d for d in its if d.get("hd", 0) >= HISTORY_DAYS and d.get("lo") is not None and min(e[1] for e in d["sz"]) <= d["lo"] + 0.01]
-        badge = f'<span class="badge">{L["low"].format(d=max(d["hd"] for d in lows))}</span>' if lows and off else ""
+        lows = [d for d in its if d.get("hd", 0) >= HISTORY_DAYS and d.get("lo") is not None and min(e[1] for e in d["sz"]) <= d["lo"] + 0.01 and (d.get("hi") or 0) > min(e[1] for e in d["sz"]) * 1.02]   # a real drop
+        badge = f'<span class="badge">{L["low"].format(d=min(60, max(d["hd"] for d in lows)))}</span>' if lows and off else ""   # 60-day window
         img = f'<img src="{esc(first["img"])}" alt="{esc(name)}" loading="lazy" referrerpolicy="no-referrer">' if first.get("img") else ""
         out.append(f'<div class="hero">{img}<div>{f"<span class=tag>{esc(t)}</span>" if t else ""}<p>{line}</p>{badge}'
                    f'<p class="facts">{L["facts"].format(sizes=len(allrows), stores=n_stores, date=fmt_date(updated, L))}</p></div></div>')

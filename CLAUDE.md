@@ -110,6 +110,11 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
     not code: the one exception to "no side branches"), a point when the best price changes; adds `lo` (lowest in 60 days)
     and `hd` (days of history) to deals.json/sale.json. For "Is this deal real?" badges before Black Friday (Nov 27).
     Badge rule (Bastien, Oct 3): good news only ("Lowest price we've seen in N days", 30+ days of history), never "was cheaper before".
+    Badges (Oct 6): cards show "Lowest price in N days" / « Plus bas prix en N jours » (`lowDays()` in index.html, green `.badge.lo30`)
+    when today's price in your size <= `lo`, `hd` >= 30, and `hi` (highest in the 60-day window) is 2%+ above today: a real drop,
+    not a price that never moved (Oct 6: 76% of sale items were "at their lowest", 15% with the drop rule). N is capped at 60.
+    Shoe pages use the same rule. USA side: its own history lines ("us|" keys) in USD, so exchange rates never fake a low;
+    US badges can start ~Nov 5. Preview: FAKE_HISTORY=1 python tools/make_preview.py OUT gives ~1 deal in 6 pretend history.
 - **Site test** (`tools/sitetest.py`, Oct 5; Bastien: "these little glitches are being caught by users and not our own health
   check"): every refresh, after the shoe pages, a robot phone (Playwright) opens the freshly built site served locally (sign-up,
   analytics and Google calls answered by a stand-in, nothing reaches Supabase/Umami) and clicks through like a visitor: welcome ->
@@ -201,7 +206,7 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   runfree.yml (job "decathlon": `scrape.py --decathlon-night hist/decathlon.json`, one page every 6 s, stops for the night on 429,
   keeps the last good read) and the refresh loads /tmp/decathlon.json (`scrape_decathlon_saved`). MEC/REI: from saved pages only.
   SVP Sports (Oct 4, Québec chain, Shopify behind Cloudflare): saved pages too: the Grab deals bookmark on any SVP collection
-  saves its products.json (svp-DATE.json, `scrape_svp_saved`); expires after 10 days like MEC/REI.
+  saves its products.json (svp-DATE.json, `scrape_svp_saved`); expires after 10 days like MEC/REI. PARKED Oct 6 (mostly soccer/budget shoes): out of STORES, no reminders.
 - Known: Honey Stinger is blocked from GitHub's servers (works elsewhere); REI needs fresh saved pages.
 - **`STORES.md`** lists every store we read, ones checked and rejected (blocked, no feed) and ones waiting:
   check it before testing a shop, update it after.

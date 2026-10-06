@@ -1408,7 +1408,7 @@ STORES = {
     "stampeak": scrape_stampeak,
     "mec": scrape_mec_saved,       # from pages you save (their sites block automated access)
     "rei": scrape_rei_saved,
-    "svp": scrape_svp_saved,
+    # "svp": scrape_svp_saved,   # parked Oct 6, 2026 (Bastien: its sale page is mostly soccer and budget shoes); reader kept
     "decathlon": lambda: scrape_decathlon_saved(),    # read at night, slowly (runfree.yml): Decathlon blocked GitHub's daytime reads
     # "backcountry": off (Oct 6): its bot protection answers GitHub's servers "202, empty"; reader kept for a feed
     "footlocker": scrape_footlocker,

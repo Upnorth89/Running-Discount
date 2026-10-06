@@ -88,7 +88,7 @@ fresh pages with the Grab deals bookmark (US only). MEC also comes from saved pa
 | Atmosphere | national | blocks automated reading |
 | Sports Experts | QC | blocks automated reading |
 | Boutique Courir (boutiquecourir.com) | Montréal | blocks automated reading (Oct 1, 2026) |
-| SVP Sports (svpsports.ca) | Québec chain | Shopify behind a Cloudflare "verify your connection" check on products.json and collections (Oct 4, 2026). Its Shopify shopping-agent catalog (UCP/MCP) exists but is meant for buyer assistants and needs an agent profile; not used. Read from the Grab deals bookmark (Oct 4): Bastien saves SVP's running sale collection weekly (svp-DATE.json) |
+| SVP Sports (svpsports.ca) | Québec chain | Shopify behind a Cloudflare "verify your connection" check on products.json and collections (Oct 4, 2026). Its Shopify shopping-agent catalog (UCP/MCP) exists but is meant for buyer assistants and needs an agent profile; not used. Read from the Grab deals bookmark (Oct 4): Bastien saved SVP's running sale collection (svp-DATE.json). **Parked Oct 6, 2026**: the sale page is mostly soccer and budget shoes, not worth a weekly save; reader kept |
 | Kintec (kintec.net) | BC | no readable product feed (Oct 1, 2026) |
 | Running Free (runningfree.com) | Ontario | no readable product feed (Oct 1, 2026) |
 | Gord's Running Store | Calgary | no readable product feed (Oct 1, 2026) |
