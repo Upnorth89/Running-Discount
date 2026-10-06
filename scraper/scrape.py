@@ -1225,6 +1225,9 @@ SHOPIFY_STORES = [
     ("cityparkrunners", "https://www.cityparkrunners.com",   "gear"),   # City Park Runners (Winnipeg)
     ("runnersshop",    "https://www.therunnersshop.com",     "gear"),   # The Runners Shop (Toronto, since 1975)
     ("strides",        "https://www.stridesrunning.com",     "gear"),   # Strides Running Store (Calgary, Canmore)
+    # added 2026-10-06
+    ("brainsport",     "https://www.brainsport.ca",          "gear"),   # Brainsport (Saskatoon, SK)
+    ("sail",           "https://www.sail.ca/en-ca",          "gear"),   # SAIL plein air (QC/ON chain): its running section only
     # US running shops (Oct 6, 2026): the USA side of the site only (they may not ship to Canada); read in their US market
     ("pacers",         "https://pacersrunning.com",          "gear"),   # Pacers Running (Washington DC area)
     ("portlandrun",    "https://portlandrunningcompany.com", "gear"),   # Portland Running Company (Oregon)
@@ -1315,6 +1318,7 @@ def generic_group(kind):
 # the refresh downloads it to RUNFREE_FILE and each store comes in like a saved page (a store not read in 36 h keeps its last offers)
 import runfree as RF
 RUNFREE = [x[0] for x in RF.RUNFREE_STORES]
+RUNFREE_US = [st for st in RUNFREE if st not in RF.CANADIAN]     # Runner's Soul (Lethbridge) is on RunFree too: Canada side
 RUNFREE_FILE = os.environ.get("RUNFREE_FILE", "/tmp/runfree.json")
 _RF = {}
 
@@ -1330,17 +1334,18 @@ def scrape_runfree(st):
     t = dt.datetime.fromisoformat(entry["updated"])
     if dt.datetime.now(dt.timezone.utc) - t > dt.timedelta(hours=36):
         raise RuntimeError(f"RunFree night job last read it {t:%b %d}")
-    fx = fx_to_cad("USD")
+    ca = st in RF.CANADIAN
+    fx = 1.0 if ca else fx_to_cad("USD")
     out = []
     for o in entry["offers"]:
-        o = dict(o, ca=False, us=True, lp=round(o["lp"] * fx, 2), sz=[[k, round(p * fx, 2), round(r * fx, 2)] for k, p, r in o["sz"]])
+        o = dict(o, ca=ca, us=not ca, lp=round(o["lp"] * fx, 2), sz=[[k, round(p * fx, 2), round(r * fx, 2)] for k, p, r in o["sz"]])
         out.append(o)
     return out 
 US_SHOPS = {"pacers", "portlandrun", "heartbreak", "runnersplus", "gazelle", "sportsbasement", "tortoisehare",
             "runflagstaff", "runninglab", "playmakers", "millcity", "runningwell", "mountainrun", "confluence", "columbusrun",
             "scrantonrun", "trailheadrun", "prrunwalk", "performancerun", "fitnesssports", "athleticannex", "annarborrun",
-            "tworivers", "xtramile", "lukeslocker", "sfrunco"} | set(RUNFREE)
-US_COLLECTIONS = {"sportsbasement": ["running"]}   # general stores: their running section only (Sports Basement also sells
+            "tworivers", "xtramile", "lukeslocker", "sfrunco"} | set(RUNFREE_US)
+US_COLLECTIONS = {"sportsbasement": ["running"], "sail": ["outdoor-gear-running"]}   # (Canadian stores too: SAIL)   # general stores: their running section only (Sports Basement also sells
                                                    # snowboards, swimwear, tennis: those topped the US deals, Oct 6, 2026)
 # Shoebacca was tried and dropped (Oct 6, 2026): mostly PUMA/adidas/Diadora budget and gym shoes, no Hoka/Brooks/ASICS/Nike
 SHIPS_US = set()       # Canadian stores that ship to the US, shown on the USA side too. Empty: Altitude Sports doesn't ship
@@ -1415,7 +1420,7 @@ for _st in RUNFREE:
     STORES[_st] = (lambda st: lambda: scrape_runfree(st))(_st)
 
 # Casual footwear some running stores also sell; not what people come here for.
-CASUAL_BRANDS = {"birkenstock", "wolky", "teva", "crocs", "ugg", "blundstone", "dr. martens", "clarks", "oofos"}
+CASUAL_BRANDS = {"birkenstock", "wolky", "teva", "crocs", "ugg", "blundstone", "dr. martens", "clarks", "oofos", "billy footwear"}
 CASUAL_SHOE = re.compile(r"\b(sandal|sandale|clog|sabot|slipper|pantoufle|mule|flip[- ]flop|loafer|slide|clearwater cnx|recovery (flip|slide)|ora recovery)s?\b", re.I)
 # court and lifestyle shoes from running brands (ASICS tennis/pickleball lines, retro sneakers)
 COURT_SHOE = re.compile(r"pick[el]+ball|\btennis\b|\bpadel\b|\bcourt\b|gel[- ]?(resolution|dedicate|game|challenger|1130|nyc|kahana)|solution speed", re.I)
@@ -1605,7 +1610,7 @@ def drop_kids(offers):
 US_CASUAL_BRANDS = {"sorel", "olukai", "k-swiss", "smellwell", "dryshod", "vans", "converse", "sperry", "keen"}
 US_LIFESTYLE_BRANDS = {"beyond yoga", "fp movement", "free people", "nux", "rvca", "roark", "travismathew", "sunsets", "forum snowboards"}
 US_CASUAL = re.compile(r"\b(sneaker|leather|boot|slip-?on)s?\b", re.I)
-US_CAPS_STORES = {"runningwell", "performancerun"} | set(RUNFREE)     # US shops that write everything in capitals
+US_CAPS_STORES = {"runningwell", "performancerun"} | set(RUNFREE_US)     # US shops that write everything in capitals
 US_WIDTH = re.compile(r"\s+-\s+[^-]+?\s+-\s+(Regular|Medium|Standard|Wide|Extra Wide|X-?Wide|Narrow)\s*\(\s*[A-Z0-9]+\s*\)", re.I)
 STYLE_CODE = re.compile(r"\s+((?=[A-Z0-9]*\d)(?=[A-Z0-9]*[A-Z])[A-Z0-9]{7,}|\d{6,})(?=$|\s+-\s)")
 
@@ -1713,7 +1718,7 @@ def tidy_brand(b):
         return BRAND_CANON[b.lower()]
     return b
 
-CAPS_STORES = {"lecoureur"}
+CAPS_STORES = {"lecoureur", "runnerssoul"}
 OWN_BRAND = {"rabbit": "rabbit", "bandit": "Bandit Running"}
 GENDER_PREFIX_STORES = {"frontrunners",    # names start with "M " / "W " / "U " ("M Adidas Boston 13")
                         "aerobicsfirst",   # "Saucony Women's Endorphin Speed 5 - White/Black *SALE*"
@@ -1821,6 +1826,12 @@ def mkey(o):
 
 def merge(offers):
     """Same product at several stores -> one item; each size keeps the cheapest store."""
+    for o in offers:
+        if (o["b"] or "").strip().lower() in ("not specified", "n/a", "none", "unknown", "default"):   # Brainsport leaves some blank
+            m = re.match(r"^(?:(?:Men|Women|Kid)[’']?s\s+)?(\S+)", o["n"])
+            o["b"] = m.group(1) if m else ""
+        if o.get("st") == "brainsport" and o["g"] == "shoes":   # "Fresh Foam X 880v15 Smoked Violet": the colour goes
+            o["n"] = re.sub(r"(\b\d{3,4}v\d+)\s+(?!(?:GTX|Gore|Wide|Trail|Boa|BOA|SL)\b)[A-Za-z][A-Za-z ]*$", r"\1", o["n"])
     offers = tidy_clothes(tidy_gear(tidy_nutrition(tidy_shoes(drop_kids(tidy_us_names(offers))))))
     items, tidied = {}, []
     for o in offers:

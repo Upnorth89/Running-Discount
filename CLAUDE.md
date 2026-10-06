@@ -253,7 +253,8 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
 - US shops (Shopify, `US_SHOPS`): Best Running Stores winners etc., ~26 (list in scrape.py and STORES.md). Finder: tools/find_stores.py
   + store-finder.yml (tests tools/us_candidates.txt from GitHub's network; my sandbox can't reach some hosts). Only ~1 in 4 US
   independents is on Shopify; many sell in store only.
-- RunFree (runfreeproject.com, a shop system for running stores; 24 stores in `RF.RUNFREE_STORES`): scraper/runfree.py, nightly
+- RunFree (runfreeproject.com, a shop system for running stores; 25 stores in `RF.RUNFREE_STORES`; Runner's Soul (AB) is Canadian:
+  `RF.CANADIAN`, CAD, Canada side; the rest `RUNFREE_US`): scraper/runfree.py, nightly
   runfree.yml 08:23 UTC: sitemap.xml lists every product; POST /api/product (details, kept 7 days in runfree-cache.json) and
   /api/options (sizes, stock per location, cost = price, retail = regular); 1 request/second per store, all stores in parallel;
   robots allow all but /admin. Results: runfree.json on the history branch; refresh.yml downloads it to /tmp/runfree.json

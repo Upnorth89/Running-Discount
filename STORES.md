@@ -145,3 +145,11 @@ Checked, not used: Shoebacca (mostly PUMA/adidas/Diadora budget shoes), Potomac 
 Onion River Sports (VT, 2 shoes), Runner's Den (serves CAD; check which store it is), Running Warehouse, Road Runner Sports, Zappos,
 Dick's, REI (saved pages only), Brooks, Eastbay (blocked or not readable). Squarespace/WooCommerce sites without an online catalogue:
 skipped. Candidate list: tools/us_candidates.txt (store finder).
+
+## Added Oct 6, 2026 (Canada)
+- Brainsport (Saskatoon, SK) brainsport.ca: Shopify, ~1,500 listings (926 shoes). Colours in some New Balance names are cut off; "Not specified" brands taken from the name.
+- SAIL plein air (QC/ON chain) sail.ca/en-ca: Shopify, running collection only (outdoor-gear-running).
+- Runner's Soul (Lethbridge, AB) shop.runnersoul.com: RunFree (night job), Canada side, prices in CAD.
+- Checked, skipped: La Cordée (insolvency, Oct 2026: recheck if it restructures and keeps selling online).
+- Next to check: Gord's Running Store (Calgary, WooCommerce Store API open), Running Free (Ontario chain, own shop system).
+  More candidates: Canadian Running Magazine's list of independent running shops (runningmagazine.ca).

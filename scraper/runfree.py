@@ -47,7 +47,10 @@ RUNFREE_STORES = [
     ("trackshack", "https://shop.trackshack.com", "Track Shack", "FL"),
     ("aardvark", "https://shop.aardvarksportsshop.com", "Aardvark Sports Shop", "PA"),
     ("phillyrunner", "https://shop.philadelphiarunner.com", "Philadelphia Runner", "PA"),
+    ("runnerssoul", "https://shop.runnersoul.com", "Runner's Soul", "AB"),       # Lethbridge, Alberta: Canada side, prices in CAD
 ]
+CA_PROVINCES = {"AB", "BC", "MB", "NB", "NL", "NS", "NT", "NU", "ON", "PE", "QC", "SK", "YT"}
+CANADIAN = {st for st, _, _, prov in RUNFREE_STORES if prov in CA_PROVINCES}
 LETTER = {"XSM": "XS", "XSMALL": "XS", "X-SMALL": "XS", "SM": "S", "SML": "S", "SMALL": "S", "MED": "M", "MD": "M", "MEDIUM": "M",
           "LG": "L", "LRG": "L", "LARGE": "L", "XLG": "XL", "XLARGE": "XL", "X-LARGE": "XL", "2XL": "XXL", "XXLARGE": "XXL"}
 PACE = 1.0              # seconds between requests to one store
@@ -82,6 +85,9 @@ def brand_of(name, brand_name):
 
 def name_tags(name):
     """Track Shack style: "GT-2000 15 (W-D)", "GEL-KAYANO 33 (M-4E)", "CLOUDRUNNER 3 (M)" -> (name, genders, wide, narrow)."""
+    p = re.match(r"^(M|W)[’']S\s+(.+)$", name, re.I)          # Runner's Soul: "M'S LONE PEAK 9", "W'S CLIFTON 11"
+    if p:
+        return p.group(2) + (" - Men's" if p.group(1).upper() == "M" else " - Women's"), ["men"] if p.group(1).upper() == "M" else ["women"], False, False
     m = re.search(r"\s*\((M|W|U|MENS|WOMENS)(?:\s*-\s*([0-9A-Z]+))?\)\s*$", name, re.I)
     if not m:
         return name, None, False, False
