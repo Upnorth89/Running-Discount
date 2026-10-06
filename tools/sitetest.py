@@ -183,6 +183,17 @@ def site_flow(base, per, accented):
             assert not got, f"the sign-up form judges these emails wrong: {got}"
         check("Sign-up email check")(email_rules, page)
 
+        def low_badge_rule():        # Oct 6: "Lowest price in N days" only for a real drop, with 30+ days of history, never > 60
+            got = page.evaluate("""() => [
+                [{hd:41,lo:100,hi:130,best:100,pct:30},41], [{hd:90,lo:100,hi:130,best:100,pct:30},60],
+                [{hd:20,lo:100,hi:130,best:100,pct:30},0],  [{hd:41,lo:100,hi:101,best:100,pct:30},0],
+                [{hd:41,lo:95,hi:130,best:100,pct:30},0],   [{hd:41,lo:100,hi:130,best:100,pct:0},0],
+                [{pct:30,best:100},0]].filter(([d,want]) => gfLow(d) !== want).map(([d]) => JSON.stringify(d))""")
+            assert not got, f"the lowest-price badge rule is wrong for: {got}"
+            shown = page.locator(".badge.lo30").count()
+            return f"rule ok; {shown} badges on the page today"
+        check("Lowest-price badge rule")(low_badge_rule, page)
+
         def chip(v):
             page.click(f'#cats .chip[data-v="{v}"]')
             settle(page)

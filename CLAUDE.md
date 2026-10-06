@@ -110,8 +110,10 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
     not code: the one exception to "no side branches"), a point when the best price changes; adds `lo` (lowest in 60 days)
     and `hd` (days of history) to deals.json/sale.json. For "Is this deal real?" badges before Black Friday (Nov 27).
     Badge rule (Bastien, Oct 3): good news only ("Lowest price we've seen in N days", 30+ days of history), never "was cheaper before".
-    Badges (Oct 6): cards show "Lowest price in N days" / « Plus bas prix en N jours » (`lowDays()` in index.html, green `.badge.lo30`)
-    when today's price in your size <= `lo`, `hd` >= 30, and `hi` (highest in the 60-day window) is 2%+ above today: a real drop,
+    Badges (Oct 6; Bastien chose it from pill/stamp/burst/tag/ribbon/line/check trials, "a bit smaller"): a small tilted green stamp
+    "LOWEST PRICE / N DAYS" on the product photo (`.lostamp` inside `.pic`); no photo or it fails to load = green line "✓ Lowest price in
+    N days" / « ✓ Plus bas prix en N jours » under the price (`.badge.lo30`, kept for screen readers when the stamp shows). Rule in `lowDays()`
+    (site test "Lowest-price badge rule"): today's price in your size <= `lo`, `hd` >= 30, and `hi` (highest in the 60-day window) 2%+ above today: a real drop,
     not a price that never moved (Oct 6: 76% of sale items were "at their lowest", 15% with the drop rule). N is capped at 60.
     Shoe pages use the same rule. USA side: its own history lines ("us|" keys) in USD, so exchange rates never fake a low;
     US badges can start ~Nov 5. Preview: FAKE_HISTORY=1 python tools/make_preview.py OUT gives ~1 deal in 6 pretend history.

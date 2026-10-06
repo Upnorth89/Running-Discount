@@ -32,7 +32,7 @@
 :root{
   --ink:#17201C; --muted:#5C6660; --mist:#EEF1EC; --card:#FFFFFF; --line:#CBD2CC;
   --moss:#B8470A; --hivis:#F26A1B; --hivis-ink:#17201C; --err:#B3261E; --scrim:rgba(23,32,28,.55);
-  --band:#17201C; --band-ink:#FFFFFF; --band-muted:#C9D1CC; --snack:#17201C; --snack-ink:#FFFFFF; --lo-bg:#E2F2E6; --lo-ink:#1C6B37; --stamp:#B8470A; --rib-ink:#FFFFFF;
+  --band:#17201C; --band-ink:#FFFFFF; --band-muted:#C9D1CC; --snack:#17201C; --snack-ink:#FFFFFF; --lo-bg:#E2F2E6; --lo-ink:#1C6B37;
   --body:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --display:"Barlow Condensed","Arial Narrow",Impact,system-ui,sans-serif;
   box-sizing:border-box;
@@ -41,13 +41,13 @@
   :root:not([data-theme="light"]){
     --ink:#E7ECE8; --muted:#9BA6A0; --mist:#121815; --card:#1B2320; --line:#34403A;
     --moss:#FF9A5C; --hivis:#F26A1B; --hivis-ink:#121815; --err:#FF8A80; --scrim:rgba(0,0,0,.6);
-    --band:#26312C; --band-ink:#E7ECE8; --band-muted:#AEB8B2; --snack:#F3F5F2; --snack-ink:#17201C; --lo-bg:#173524; --lo-ink:#8FDDA5; --stamp:#FF9A5C; --rib-ink:#121815;
+    --band:#26312C; --band-ink:#E7ECE8; --band-muted:#AEB8B2; --snack:#F3F5F2; --snack-ink:#17201C; --lo-bg:#173524; --lo-ink:#8FDDA5;
   }
 }
 :root[data-theme="dark"]{
   --ink:#E7ECE8; --muted:#9BA6A0; --mist:#121815; --card:#1B2320; --line:#34403A;
   --moss:#FF9A5C; --hivis:#F26A1B; --hivis-ink:#121815; --err:#FF8A80; --scrim:rgba(0,0,0,.6);
-  --band:#26312C; --band-ink:#E7ECE8; --band-muted:#AEB8B2; --snack:#F3F5F2; --snack-ink:#17201C; --lo-bg:#173524; --lo-ink:#8FDDA5; --stamp:#FF9A5C; --rib-ink:#121815;
+  --band:#26312C; --band-ink:#E7ECE8; --band-muted:#AEB8B2; --snack:#F3F5F2; --snack-ink:#17201C; --lo-bg:#173524; --lo-ink:#8FDDA5;
 }
 *,*::before,*::after{box-sizing:inherit}
 body{margin:0;background:var(--mist);color:var(--ink);font:400 17px/1.5 var(--body);-webkit-font-smoothing:antialiased}
@@ -118,57 +118,19 @@ html.us .seo-today .seo-en,html.us .seo-today .seo-fr,html:not(.us) .seo-today .
 .badge.drop{background:var(--hivis);color:var(--hivis-ink);border:1.5px solid var(--ink)}
 .badge.low{background:var(--ink);color:var(--card)}
 .badge.back{background:transparent;color:var(--ink);border:1.5px solid var(--ink)}
-.badge.lo30{background:var(--lo-bg);color:var(--lo-ink);border:1.5px solid var(--lo-ink)}
+/* "Is this deal real?" (Oct 6, 2026, Bastien picked it from pill/stamp/burst/tag/ribbon/line/check trials): a small green stamp
+   on the product photo, like a sticker on the box; no photo (or it failed to load) = a green line under the price instead.
+   The line stays in the page for screen readers when the stamp shows. */
+.badge.lo30{background:none;border:0;padding:0;margin-top:2px;color:var(--lo-ink);font:700 13px/1.2 var(--body);gap:4px}
+.badge.lo30::before{content:"✓"}
 .badge.lo30 b{font-weight:inherit}
-.badge.lo30 .ls{display:none}
-/* badge styles under test (Oct 6, preview switch "Badge"): pill (above), stamp, burst, tag */
-html[data-low="stamp"] .deal,html[data-low="burst"] .deal{position:relative}
-html[data-low="stamp"] .badge.lo30{position:absolute;right:14px;bottom:40px;margin:0;flex-direction:column;gap:0;align-items:center;background:transparent;
-  color:var(--stamp);border:2.5px double var(--stamp);border-radius:6px;padding:3px 8px;transform:rotate(-8deg);text-transform:uppercase;letter-spacing:.6px;
-  font:800 11px/1.15 var(--display);opacity:.92;pointer-events:none}
-html[data-low="stamp"] .badge.lo30 .l2{font-size:13px}
-html[data-low="stamp"] .badge.lo30 b{font-size:17px}
-html[data-low="burst"] .badge.lo30{position:absolute;right:12px;top:58px;margin:0;width:88px;height:88px;padding:0;border:0;border-radius:0;
-  flex-direction:column;justify-content:center;gap:0;text-align:center;background:var(--hivis);color:#17201C;text-transform:uppercase;
-  font:800 10px/1.05 var(--display);letter-spacing:.3px;transform:rotate(10deg);pointer-events:none;
-  clip-path:polygon(50% 0%,61% 12%,75% 6%,79% 21%,94% 25%,88% 39%,100% 50%,88% 61%,94% 75%,79% 79%,75% 94%,61% 88%,50% 100%,39% 88%,25% 94%,21% 79%,6% 75%,12% 61%,0% 50%,12% 39%,6% 25%,21% 21%,25% 6%,39% 12%)}
-html[data-low="burst"] .badge.lo30 b{display:block;font-size:24px;line-height:1}
-html[data-low="burst"] .badge.lo30 .l1,html[data-low="burst"] .badge.lo30 .l2{max-width:62px}
-html[data-low="burst"] .deal .name,html[data-low="burst"] .deal .price{padding-right:92px}
-/* stamp colours under test (preview switch "Stamp colour") */
-html[data-stamp="green"]{--stamp:#1C6B37} html[data-stamp="ink"]{--stamp:#17201C} html[data-stamp="red"]{--stamp:#B3261E} html[data-stamp="blue"]{--stamp:#1D4E89}
-@media (prefers-color-scheme:dark){html:not([data-theme="light"])[data-stamp="green"]{--stamp:#8FDDA5} html:not([data-theme="light"])[data-stamp="ink"]{--stamp:#E7ECE8}
-  html:not([data-theme="light"])[data-stamp="red"]{--stamp:#FF8A80} html:not([data-theme="light"])[data-stamp="blue"]{--stamp:#8AB4F8}}
-/* corner ribbon: a band across the card's top-right corner; the % label moves left to make room */
-html[data-low="ribbon"] .deal{position:relative;overflow:hidden}
-html[data-low="ribbon"] .badge.lo30{position:absolute;top:20px;right:-44px;width:160px;margin:0;padding:5px 0;border:0;border-radius:0;justify-content:center;gap:4px;
-  background:var(--stamp);color:var(--rib-ink);transform:rotate(45deg);text-transform:uppercase;font:800 10px/1.1 var(--display);letter-spacing:.4px;
-  box-shadow:0 2px 6px rgba(0,0,0,.25);pointer-events:none;flex-direction:row}
-html[data-low="ribbon"] .badge.lo30 .l1,html[data-low="ribbon"] .badge.lo30 .l2{display:none}
-html[data-low="ribbon"] .badge.lo30 .ls{display:inline;white-space:nowrap}
-html[data-low="ribbon"] .dw:has(.badge.lo30) .deal .pct{margin-right:38px}
-/* stamp on the photo (Oct 6, Bastien: "could the stamp be on the shoe?"): a small stamp in the photo's corner, like a sticker on
-   the box; no photo (or it failed to load) = the green line instead */
-.lostamp{display:none}
-html[data-low="photo"] .deal .pic{position:relative}
-html[data-low="photo"] .lostamp{display:flex;flex-direction:column;align-items:center;position:absolute;right:4px;bottom:5px;padding:2px 5px;
-  border:2px double var(--lo-ink);border-radius:5px;background:rgba(255,255,255,.88);color:#1C6B37;border-color:#1C6B37;transform:rotate(-9deg);
-  font:800 8.5px/1.1 var(--display);text-transform:uppercase;letter-spacing:.4px;pointer-events:none;white-space:nowrap}
-html[data-low="photo"] .lostamp span+span{font-size:11px}
-html[data-low="photo"]:not(.x) .deal:not(.compact *) .lostamp{font-size:11px;padding:3px 8px;right:10px;bottom:10px}
-html[data-low="photo"] .deal:has(.pic) .badge.lo30{display:none}
-html[data-low="photo"] .badge.lo30{background:none;border:0;padding:0;margin-top:2px;color:var(--lo-ink);font:700 13px/1.2 var(--body);gap:4px}
-html[data-low="photo"] .badge.lo30::before{content:"✓"}
-/* quieter options (Oct 6, Bastien: "a bit crowded?"): line = plain green text under the price; check = no badge, the % label turns green with ✓ */
-html[data-low="line"] .badge.lo30{background:none;border:0;padding:0;margin-top:2px;color:var(--lo-ink);font:700 13px/1.2 var(--body);gap:4px}
-html[data-low="line"] .badge.lo30::before{content:"✓"}
-html[data-low="check"] .badge.lo30{display:none}
-html[data-low="check"] .dw:has(.badge.lo30) .deal .pct{background:var(--lo-ink);color:var(--card);white-space:nowrap}
-html[data-low="check"] .dw:has(.badge.lo30) .deal .pct::before{content:"✓ "}
-html[data-low="tag"] .badge.lo30{background:var(--hivis);color:#17201C;border:0;border-radius:0 6px 6px 0;padding:4px 10px 4px 16px;
-  clip-path:polygon(10px 0,100% 0,100% 100%,10px 100%,0 50%);font-weight:800}
-html[data-low="tag"] .badge.lo30::before{content:"▼";font-size:10px;margin-right:2px}
-html[data-low="tag"] .badge.lo30 b{font-weight:800}
+.deal:has(.pic) .badge.lo30{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;margin:0}
+.deal .pic{position:relative}
+.lostamp{display:flex;flex-direction:column;align-items:center;position:absolute;right:3px;bottom:4px;padding:1px 4px;
+  border:2px double #1C6B37;border-radius:4px;background:rgba(255,255,255,.9);color:#1C6B37;transform:rotate(-9deg);
+  font:800 7.5px/1.1 var(--display);text-transform:uppercase;letter-spacing:.4px;pointer-events:none;white-space:nowrap}
+.lostamp span+span{font-size:9.5px}
+@media (min-width:600px){.deal .lostamp{font-size:10px;padding:3px 7px;right:10px;bottom:10px}.deal .lostamp span+span{font-size:13px}}
 .badge.new{background:transparent;color:var(--moss);border:1.5px solid var(--moss);padding:2px 6px;font-size:12px}
 .watchbtn.hot .n{background:var(--hivis);color:var(--hivis-ink)}
 .watchbtn .n{background:var(--ink);color:var(--card)}
@@ -706,7 +668,7 @@ en:{
   tellFit:"Tell us what fits",shoe:"Shoe",clothing:"Clothing",
   minAgo:m=>`${m} min ago`,hAgo:h=>`${h} h ago`,daysAgo:d=>`${d} days ago`,
   loadFail:"Couldn't load today's gear. Reload to try again.",loading:"Loading today's gear…",
-  searchWide:"Nothing in the categories you picked, so here are matches from every category.",finalSale:"Final sale",lowDays:d=>`Lowest price in ${d} days`,lowL1:"Lowest price",lowStampDays:d=>`${d} days`,lowShort:d=>`${d}-day low`,lowL2:d=>`in <b>${d}</b> days`,lowDaysTip:"The lowest price we've seen for it since we started tracking, in any store",finalSaleTip:"This store takes no returns or exchanges on this item at this price",inYourSize:"In your size:",isNew:"New",bestBy:d=>`Short-dated: best by ${d}`,
+  searchWide:"Nothing in the categories you picked, so here are matches from every category.",finalSale:"Final sale",lowDays:d=>`Lowest price in ${d} days`,lowL1:"Lowest price",lowStampDays:d=>`${d} days`,lowL2:d=>`in <b>${d}</b> days`,lowDaysTip:"The lowest price we've seen for it since we started tracking, in any store",finalSaleTip:"This store takes no returns or exchanges on this item at this price",inYourSize:"In your size:",isNew:"New",bestBy:d=>`Short-dated: best by ${d}`,
   atStore:n=>`at ${n}`,shareTxt:"Know a runner who hates paying full price?",shareBtn:"Share",shareCopied:"Link copied: paste it anywhere.",shareCopy:"Copy this link:",
   get shareText(){return `Running and outdoor gear on sale in your size, from stores ${US()?"across the US":"across Canada"}.`},usFuel:"Includes US stores: fuel ships well, and each deal says where it ships from.",shipsFrom:c=>`ships from ${({US:"the US",CA:"Canada",UK:"the UK",FR:"France",DK:"Denmark",AU:"Australia"})[c]||(US()?"outside the US":"outside Canada")}, duties may apply`,showMore:n=>`Show ${n} more`,
   allGear:"All gear",typeAll:"All",types:{daily:"Daily trainers",race:"Carbon & race",trail:"Trail",hike:"Hiking & winter",spike:"Track & XC spikes",light:"Lights",pole:"Poles",bottle:"Bottles & flasks",sun:"Sunglasses",tee:"T-shirts & tanks",layer:"Long sleeves & hoodies",jacket:"Jackets & vests",short:"Shorts",tight:"Tights",pant:"Pants"},
@@ -800,7 +762,7 @@ fr:{
   tellFit:"Dites-nous ce qui vous va",shoe:"Pointure",clothing:"Taille",
   minAgo:m=>`il y a ${m} min`,hAgo:h=>`il y a ${h} h`,daysAgo:d=>`il y a ${d} jours`,
   loadFail:"Impossible de charger les produits du jour. Rechargez la page.",loading:"Chargement des produits du jour…",
-  searchWide:"Rien dans les catégories choisies, alors voici les résultats de toutes les catégories.",finalSale:"Vente finale",lowDays:d=>`Plus bas prix en ${d} jours`,lowL1:"Plus bas prix",lowStampDays:d=>`${d} jours`,lowShort:d=>`Plus bas ${d} j`,lowL2:d=>`en <b>${d}</b> jours`,lowDaysTip:"Le plus bas prix qu'on a vu pour cet article depuis qu'on le suit, toutes boutiques confondues",finalSaleTip:"Cette boutique n'accepte ni retour ni échange sur cet article à ce prix",inYourSize:"À votre taille :",isNew:"Nouveau",bestBy:d=>`Date courte : meilleur avant le ${d}`,
+  searchWide:"Rien dans les catégories choisies, alors voici les résultats de toutes les catégories.",finalSale:"Vente finale",lowDays:d=>`Plus bas prix en ${d} jours`,lowL1:"Plus bas prix",lowStampDays:d=>`${d} jours`,lowL2:d=>`en <b>${d}</b> jours`,lowDaysTip:"Le plus bas prix qu'on a vu pour cet article depuis qu'on le suit, toutes boutiques confondues",finalSaleTip:"Cette boutique n'accepte ni retour ni échange sur cet article à ce prix",inYourSize:"À votre taille :",isNew:"Nouveau",bestBy:d=>`Date courte : meilleur avant le ${d}`,
   atStore:n=>`chez ${n}`,shareTxt:"Un ami coureur déteste payer le plein prix ?",shareBtn:"Partager",shareCopied:"Lien copié : collez-le où vous voulez.",shareCopy:"Copiez ce lien :",
   get shareText(){return `Des aubaines de course et de plein air dans votre taille, dans des boutiques ${US()?"partout aux États-Unis":"partout au Canada"}.`},usFuel:"Comprend des boutiques américaines : la nutrition voyage bien, et chaque aubaine indique d'où elle est expédiée.",shipsFrom:c=>`expédié ${({US:"des États-Unis",CA:"du Canada",UK:"du Royaume-Uni",FR:"de France",DK:"du Danemark",AU:"d'Australie"})[c]||(US()?"de l'extérieur des États-Unis":"de l'extérieur du Canada")}, des droits peuvent s'appliquer`,showMore:n=>`Voir ${n} de plus`,
   allGear:"Tout",typeAll:"Tout",types:{daily:"Entraînement",race:"Carbone et compétition",trail:"Sentier",hike:"Randonnée et hiver",spike:"Pointes (piste et cross)",light:"Frontales",pole:"Bâtons",bottle:"Gourdes et flasques",sun:"Lunettes de soleil",tee:"T-shirts et camisoles",layer:"Manches longues et kangourous",jacket:"Manteaux et vestes",short:"Shorts",tight:"Collants",pant:"Pantalons"},
@@ -1235,7 +1197,6 @@ function renderCountry(){document.querySelectorAll("[data-ctry]").forEach(b=>b.s
 document.addEventListener("click",e=>{const b=e.target.closest("[data-ctry]");if(b)setCountry(b.dataset.ctry,b.closest("#menu")?"menu":"welcome")});
 renderCountry();
 const PAGE=8, MORE=24;
-document.documentElement.dataset.low=LS0("gf-lowstyle")||"pill";document.documentElement.dataset.stamp=LS0("gf-stamp")||"orange";   // badge style under test (preview switch)
 const CARDS=LS0("gf-cards")||"compact";                    // "compact" (phones: photo beside the text) or "big"
 if(CARDS==="compact")document.body.classList.add("compact");
 const PAGE_CAT=CARDS==="compact"?4:PAGE;                  // each category starts short; "Show more" opens it
@@ -1349,6 +1310,7 @@ const RENDERED={};   // key -> deal as shown, for the savings tally
    price history has seen for this item (any store), it dropped there (was 2%+ higher in the window) and there are 30+ days
    of history (60-day window). Never "was cheaper". */
 const LOW_DAYS=30,LOW_WINDOW=60;
+window.gfLow=d=>lowDays(d);   // for the site test
 const lowDays=d=>(d.hd>=LOW_DAYS&&d.lo!=null&&d.pct>0&&d.best<=d.lo+0.01&&d.hi>d.best*1.02)?Math.min(d.hd,LOW_WINDOW):0;   // hi: it really dropped
 function card(d,extra){
   const sized=SIZED.has(d.g);
@@ -1362,10 +1324,10 @@ function card(d,extra){
   const sp=shoePage(d);
   return `<div class="dw${sp?" hascmp":""}"><a class="deal" href="${esc(affUrl(d.url))}" data-store="${esc(storeOf(d.url))}" target="_blank" rel="noopener">
     ${d.img?`<div class="pic"><img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.remove()">${lowDays(d)?`<span class="lostamp" aria-hidden="true"><span>${t("lowL1")}</span><span>${t("lowStampDays",lowDays(d))}</span></span>`:""}</div>`:""}
-    <div class="top"><span class="brand">${esc(d.b)}${d.fav?" ★":""}</span>${d.pct?`<span class="pct"${lowDays(d)?` title="${esc(t("lowDays",lowDays(d)))}"`:""}>−${d.pct}%</span>`:""}</div>
+    <div class="top"><span class="brand">${esc(d.b)}${d.fav?" ★":""}</span>${d.pct?`<span class="pct">−${d.pct}%</span>`:""}</div>
     <div class="name">${esc(nm(d.n))}</div>
     <div class="price"><b>${money(d.best)}</b>${curTag()}${d.pct?`<s>${money(d.reg)}</s>`:""}</div>
-    ${lowDays(d)?`<span class="badge lo30" title="${esc(t("lowDaysTip"))}" aria-label="${esc(t("lowDays",lowDays(d)))}"><span class="l1">${t("lowL1")}</span> <span class="l2">${t("lowL2",lowDays(d))}</span><span class="ls">${t("lowShort",lowDays(d))}</span></span>`:""}
+    ${lowDays(d)?`<span class="badge lo30" title="${esc(t("lowDaysTip"))}" aria-label="${esc(t("lowDays",lowDays(d)))}"><span class="l1">${t("lowL1")}</span> <span class="l2">${t("lowL2",lowDays(d))}</span></span>`:""}
     ${extra||""}${isNew?`<span class="badge new">${t("isNew")}</span>`:""}
     ${sizes}
     ${d.bb?`<div class="warn">${t("bestBy",esc(d.bb))}</div>`:""}
