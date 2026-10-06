@@ -1,0 +1,22 @@
+name: Mail check
+
+# Read-only: why didn't a sign-up email arrive? Asks Resend about the latest emails and the database about recent
+# sign-up attempts (tools/mail_check.py). Run by hand; Claude reads the result from the run's annotations.
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          SUPABASE_URL: "https://krwymmkauwqqxjxbvkyq.supabase.co"
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+        run: python tools/mail_check.py
