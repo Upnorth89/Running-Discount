@@ -180,7 +180,7 @@ def main():
     fresh = [(k, m) for k, m in problems if k not in emailed]
     monday = NOW.astimezone(timezone(timedelta(hours=-7))).weekday() == 0
     send = os.environ.get("SEND_HEALTH") == "1" and os.environ.get("RESEND_API_KEY")      # a short report every morning
-    mid = os.environ.get("HEALTH_WHEN") == "midday"      # the 1:17pm Vancouver refresh: a second report, compared with this morning
+    mid = os.environ.get("HEALTH_WHEN") == "midday"      # the 4:17pm Vancouver refresh: a second report, compared with this morning
     lines = [f"- {m}" for _, m in problems] or ["- All good."]
     print("Health check\n" + "\n".join(lines))
     summ = os.environ.get("GITHUB_STEP_SUMMARY")
@@ -192,11 +192,11 @@ def main():
         new_part = [m for _, m in fresh]
         old_part = [m for k, m in problems if k in emailed]
         if fresh:
-            subject = f"Gear Fox {'midday' if mid else 'daily'} check: {len(fresh)} new {'problem' if len(fresh) == 1 else 'problems'}"
+            subject = f"Gear Fox {'afternoon' if mid else 'daily'} check: {len(fresh)} new {'problem' if len(fresh) == 1 else 'problems'}"
         elif problems:
-            subject = f"Gear Fox {'midday' if mid else 'daily'} check: all running, {len(problems)} still to fix"
+            subject = f"Gear Fox {'afternoon' if mid else 'daily'} check: all running, {len(problems)} still to fix"
         else:
-            subject = f"Gear Fox {'midday' if mid else 'daily'} check: all good"
+            subject = f"Gear Fox {'afternoon' if mid else 'daily'} check: all good"
         d = lambda a, b: f" ({a - b:+,} vs {'this morning' if mid else 'yesterday'})" if b else ""
         text = ("All good. Every store updated and nothing looks off.\n\n" if not problems else "") + \
                ("New today:\n" + "\n".join(f"- {m}" for m in new_part) + "\n\n" if new_part else "") + \

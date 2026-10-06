@@ -98,9 +98,10 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   - Backup time 14:47 UTC (7:47am Vancouver): GitHub often starts schedules late (Sep 30, 2026 ran ~5.5 h
     late) or skips them. A small `check` job skips any scheduled run once today's morning report went out
     (`reported` date in health.json), so there's never a second health email.
-  - Afternoon run (Oct 5, Bastien): 20:17 UTC (1:17pm Vancouver) schedule: fresh prices/stock, site test, and a "Gear Fox midday
+  - Afternoon run (Oct 5, Bastien; moved Oct 6 to 23:17 UTC = 4:17pm Vancouver, 12 h after the morning run, for after-work
+    browsing; two scans a day keeps us polite with the shops): fresh prices/stock, site test, and a "Gear Fox afternoon
     check" email (HEALTH_WHEN=midday: compared with this morning, doesn't touch `reported`); no watchlist alerts; the check job never skips it.
-  - Supabase timers (`supabase/timers.sql`, Oct 6; GitHub ran the 1:17pm schedule 5 h late): 20:17 UTC refresh.yml afternoon=true
+  - Supabase timers (`supabase/timers.sql`, Oct 6; GitHub ran the 1:17pm schedule 5 h late): 23:17 UTC refresh.yml afternoon=true
     and 08:23 UTC runfree.yml night=true. Dedupe: health.json `midday` date (afternoon) and runfree.json `updated` < 12 h (night).
   - Supabase timer (`supabase/morning-timer.sql`) starts it on time with `morning=true`; GitHub's schedules are
     the backup. Morning runs (schedule or morning=true) send the health email; the `check` job dedupes.
