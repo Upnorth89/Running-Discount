@@ -265,6 +265,11 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   (`RUNFREE_FILE`) and each store comes in like a saved page (older than 36 h = failed, keeps its last offers). Names like
   "GT-2000 15 (W-D)" (Track Shack) -> gender + width (`name_tags`); parent companies -> brands (`CORP`). Idea pending: ask RunFree
   (hello@runfreeproject.com) for an official feed.
+- Backcountry (Oct 6, US side, `US_SHOPS`): robots block its JSON feeds but allow category/product pages, whose __NEXT_DATA__
+  has every size/colour with list price, sale price and stock. runfree.yml job "backcountry" (`scrape.py --backcountry-night
+  hist/backcountry.json`, one page every 1.5 s, ~2,000 pages from /cat/running-shoes, running-clothing-accessories,
+  running-hydration; `--sale-only` = quick read of on-sale products, keeps the last full-price items); refresh loads
+  /tmp/backcountry.json (`scrape_backcountry_saved`, USD->CAD). Links open on the size (`?skid=`). Manual run: only=backcountry.
 - US shoe pages: shoe_pages.py `build_us()` from deals-us.json: /us/shoes/<slug>/, /us/running-shoes-sale/…, /us/brands/<b>/,
   /us/black-friday/ (US English `US` strings, US$, `L["abroad"]` labels); hreflang en-US + en-CA twin; registry us/shoes/pages.json
   (refresh.yml fetches it like shoes/pages.json); in the sitemap. The site links US cards/menu/footer there (`shoeDir()`).

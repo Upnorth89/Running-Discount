@@ -140,6 +140,8 @@ Xtra Mile Running (TN), Luke's Locker (TX), San Francisco Running Co. (CA, store
 RunFree (night job, scraper/runfree.py): Charlotte Running Co., Terra, John's Run/Walk, Palmetto, Rush, iRun Texas, West Stride,
 Millennium, Running Niche, Good Times, Bull City, Red Coyote, 605 Running, Point 2, Big Peach, Running Zone, Manhattan Running Co.,
 Charm City Run, Pace Yourself, Runner's Roost, Missouri Running Co., Track Shack, Aardvark, Philadelphia Runner.
+Backcountry (Oct 6; night job, product pages, running section ~2,100 products; robots block its JSON feeds, pages allowed;
+ships within the US). Sister site Steep & Cheap shares its catalogue (not added).
 
 Checked, not used: Shoebacca (mostly PUMA/adidas/Diadora budget shoes), Potomac River Running (same shop as PR Run & Walk),
 Onion River Sports (VT, 2 shoes), Runner's Den (serves CAD; check which store it is), Running Warehouse, Road Runner Sports, Zappos,

@@ -1352,7 +1352,7 @@ def scrape_runfree(st):
 US_SHOPS = {"pacers", "portlandrun", "heartbreak", "runnersplus", "gazelle", "sportsbasement", "tortoisehare",
             "runflagstaff", "runninglab", "playmakers", "millcity", "runningwell", "mountainrun", "confluence", "columbusrun",
             "scrantonrun", "trailheadrun", "prrunwalk", "performancerun", "fitnesssports", "athleticannex", "annarborrun",
-            "tworivers", "xtramile", "lukeslocker", "sfrunco"} | set(RUNFREE_US)
+            "tworivers", "xtramile", "lukeslocker", "sfrunco", "backcountry"} | set(RUNFREE_US)
 US_COLLECTIONS = {"sportsbasement": ["running"], "sail": ["outdoor-gear-running"]}   # (Canadian stores too: SAIL)   # general stores: their running section only (Sports Basement also sells
                                                    # snowboards, swimwear, tennis: those topped the US deals, Oct 6, 2026)
 # Shoebacca was tried and dropped (Oct 6, 2026): mostly PUMA/adidas/Diadora budget and gym shoes, no Hoka/Brooks/ASICS/Nike
@@ -1410,6 +1410,7 @@ STORES = {
     "rei": scrape_rei_saved,
     "svp": scrape_svp_saved,
     "decathlon": lambda: scrape_decathlon_saved(),    # read at night, slowly (runfree.yml): Decathlon blocked GitHub's daytime reads
+    "backcountry": lambda: scrape_backcountry_saved(),   # US: read at night from its product pages (runfree.yml)
     "footlocker": scrape_footlocker,
 }
 # Final sale (Oct 4, 2026; read from each store's return policy, recheck now and then): 1 = every item is final sale,
@@ -2124,6 +2125,150 @@ def decathlon_night(out):
             p.write_text(json.dumps(prev, separators=(",", ":"), ensure_ascii=False))
     return 0
 
+
+# ---------------------------------------------------------------- Backcountry (US)
+# Oct 6, 2026: its robots rules block the JSON feeds (/*.json, /api/*) but allow category and product pages, which carry
+# their data in the page (__NEXT_DATA__): each size and colour with list price, sale price and stock. One page every
+# BC_PACE seconds in the night job (runfree.yml, job "backcountry") -> backcountry.json on the history branch; the refresh
+# loads it (BACKCOUNTRY_FILE). US side only (ships within the US). `--sale-only` reads just the products with sizes on sale.
+BC_BASE = "https://www.backcountry.com"
+BC_LISTS = ["/cat/running-shoes", "/cat/running-clothing-accessories", "/cat/running-hydration"]
+BC_PACE = 1.5
+BACKCOUNTRY_FILE = os.environ.get("BACKCOUNTRY_FILE", "/tmp/backcountry.json")
+BC_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+
+def bc_data(path):
+    for i in range(3):
+        r = S.get(BC_BASE + path, timeout=45, headers={"User-Agent": BC_UA})
+        if r.status_code in (429, 500, 502, 503, 504):
+            time.sleep(30 * (i + 1))
+            continue
+        r.raise_for_status()
+        m = re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', r.text, re.S)
+        if not m:
+            raise RuntimeError(f"no page data on {path}")
+        return json.loads(m.group(1))["props"]["pageProps"]
+    raise requests.HTTPError(f"{r.status_code} {path}")
+
+def bc_list(sale_only=False):
+    """Every product in the running section: (url, on sale?). Strollers/joggers skipped."""
+    seen = {}
+    for path in BC_LISTS:
+        page, last = 1, 1
+        while page <= last and page <= 80:
+            pp = bc_data(f"{path}?page={page}" if page > 1 else path)
+            cat = pp["plpData"]["data"]["category"]
+            last = ((cat.get("pageInfo") or {}).get("lastPage") or {}).get("value") or 1
+            for k, v in pp["__APOLLO_STATE__"].items():
+                if k.startswith("Product:") and v.get("url"):
+                    sale = ((v.get("aggregates") or {}).get("variationsOnSale") or 0) > 0
+                    if not re.search(r"stroller|jogger stroller|kids'|\bkids\b|toddler", v.get("name") or "", re.I):
+                        seen[v["url"]] = seen.get(v["url"]) or sale
+            page += 1
+            time.sleep(BC_PACE)
+    return [(u, s) for u, s in seen.items() if s or not sale_only]
+
+def bc_group(title, crumbs):
+    c = " ".join(crumbs).lower()
+    if re.search(r"footwear|shoes", c) and not re.search(r"sock|gaiter|insole|lace", title, re.I):
+        return "shoes"
+    g = group_of(title)
+    if g == "packs" and "clothing" in c and "hydration" not in c:
+        g = "tops"                                       # a running vest you wear
+    return g or group_of(c)
+
+def bc_product(url):
+    p = bc_data(url)["product"]
+    title = p.get("title") or ""
+    crumbs = [b.get("name") or "" for b in p.get("breadcrumbs") or []]
+    g = bc_group(title, crumbs)
+    if not g:
+        return None
+    sx = name_gender(title) or []
+    sizes, lp = {}, 0
+    for k in p.get("skus") or []:
+        a = k.get("availability") or {}
+        if a.get("status") != "InStock" or (a.get("stockLevel") or 0) <= 0:
+            continue
+        size = k.get("size") or {}
+        scale = size.get("scale") or ""
+        if re.search(r"kid|youth|toddler|infant|little|big kid", scale, re.I):
+            continue
+        if g == "shoes" and not sx:                      # a unisex shoe sized on one scale
+            sx = ["women"] if "women" in scale.lower() else ["men"] if "men" in scale.lower() else sx
+        lab = norm_size(size.get("name") or "OS")
+        if g == "shoes":                                 # "US 10.0/UK 8.5" (Salomon) -> "10.0"
+            m = re.match(r"US\s*(\d+(?:\.\d)?)\s*/\s*UK", lab, re.I)
+            lab = m.group(1) + (" Wide" if re.search(r"wide", lab, re.I) else "") if m else lab
+        price, reg = float(k.get("salePrice") or k.get("listPrice") or 0), float(k.get("listPrice") or 0)
+        if not price:
+            continue
+        reg = max(reg, price)
+        lp = max(lp, reg)
+        if lab not in sizes or price < sizes[lab][0]:
+            sizes[lab] = (price, reg, f"{BC_BASE}{url}?skid={k['id']}")
+    if g in ("shoes", "tops", "bottoms", "bras", "socks", "gloves") and len(sizes) > 1:
+        sizes.pop("OS", None)
+    if not sizes:
+        return None
+    img = (p.get("productMainImage") or {}).get("mediumImg")
+    return {"st": "backcountry", "b": (p.get("brand") or {}).get("name") or "", "n": title, "u": BC_BASE + url, "g": g,
+            "sx": sx, "w": bool(re.search(r"\bwide\b", title, re.I)),
+            "img": "https://content.backcountry.com" + img if img else None, "lp": round(lp, 2), "bb": None,
+            "sz": [[k, pr, rg, u] for k, (pr, rg, u) in sizes.items()]}
+
+def backcountry_night(out, sale_only=False):
+    """Read Backcountry's running section slowly (prices in USD); keeps the last good read if this one fails."""
+    p, t0 = Path(out), time.time()
+    try:
+        prev = json.loads(p.read_text())
+    except Exception:
+        prev = {}
+    try:
+        links = bc_list(sale_only)
+        print(f"backcountry: {len(links)} products to open ({sum(1 for _, s in links if s)} with sizes on sale)", file=sys.stderr)
+        got, bad = [], 0
+        for i, (u, _) in enumerate(sorted(links, key=lambda x: not x[1])):     # sale items first
+            try:
+                o = bc_product(u)
+                if o:
+                    got.append(o)
+            except Exception as e:
+                bad += 1
+                if bad > 50 and bad > len(got):
+                    raise RuntimeError(f"too many pages failed ({str(e)[:60]})")
+            if i % 200 == 0:
+                print(f"  {i}/{len(links)} pages, {len(got)} products, {time.time() - t0:.0f}s", file=sys.stderr)
+            time.sleep(BC_PACE)
+        if len(got) < 100:
+            raise RuntimeError(f"only {len(got)} products")
+        if sale_only and prev.get("offers"):                # keep yesterday's full-price items until the full read
+            mine = {o["u"] for o in got}
+            got += [o for o in prev["offers"] if o["u"] not in mine and not any(e[1] < e[2] * 0.99 for e in o["sz"])]
+        p.write_text(json.dumps({"updated": now(), "offers": got}, separators=(",", ":"), ensure_ascii=False))
+        print(f"backcountry read: {len(got)} products in {time.time() - t0:.0f}s", file=sys.stderr)
+    except Exception as e:
+        print(f"backcountry read failed ({str(e)[:120]}); kept the last good read", file=sys.stderr)
+        if prev:
+            prev["failed"] = str(e)[:120]
+            p.write_text(json.dumps(prev, separators=(",", ":"), ensure_ascii=False))
+    return 0
+
+def scrape_backcountry_saved():
+    try:
+        d = json.loads(Path(BACKCOUNTRY_FILE).read_text())
+    except Exception:
+        raise RuntimeError("no night read of Backcountry yet")
+    t = dt.datetime.fromisoformat(d["updated"])
+    if dt.datetime.now(dt.timezone.utc) - t > dt.timedelta(hours=36):
+        raise RuntimeError(f"Backcountry night read last worked {t:%b %d}")
+    fx = fx_to_cad("USD")
+    return [dict(o, ca=False, us=True, lp=round(o["lp"] * fx, 2), sz=[[k, round(pr * fx, 2), round(rg * fx, 2), u] for k, pr, rg, u in o["sz"]])
+            for o in d["offers"]]
+
+
+if __name__ == "__main__" and "--backcountry-night" in sys.argv:
+    sys.exit(backcountry_night(sys.argv[sys.argv.index("--backcountry-night") + 1], "--sale-only" in sys.argv))
 
 if __name__ == "__main__" and "--decathlon-night" in sys.argv:
     sys.exit(decathlon_night(sys.argv[sys.argv.index("--decathlon-night") + 1]))
