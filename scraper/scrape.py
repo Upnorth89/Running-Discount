@@ -1343,7 +1343,8 @@ US_SHOPS = {"pacers", "portlandrun", "heartbreak", "runnersplus", "gazelle", "sp
 US_COLLECTIONS = {"sportsbasement": ["running"]}   # general stores: their running section only (Sports Basement also sells
                                                    # snowboards, swimwear, tennis: those topped the US deals, Oct 6, 2026)
 # Shoebacca was tried and dropped (Oct 6, 2026): mostly PUMA/adidas/Diadora budget and gym shoes, no Hoka/Brooks/ASICS/Nike
-SHIPS_US = {"altitude"}
+SHIPS_US = set()       # Canadian stores that ship to the US, shown on the USA side too. Empty: Altitude Sports doesn't ship
+                       # there (Bastien, Oct 6, 2026) and most Canadian shops don't; add one only after checking its shipping page
        # Canadian stores that also ship to the US (shown on the USA side too)
 
 def make_shopify_scraper(st, base, kind):

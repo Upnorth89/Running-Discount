@@ -243,9 +243,9 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
 
 - Site: Canada | USA switch on the welcome screen and in ☰ (`COUNTRY`, gf-country; `?c=us` links; else profile.country, French = Canada,
   else the device time zone `US_TZ`). USA = `sale-us.json`/`deals-us.json`, USD by default, "Ships from the US", other-country stores
-  labelled (Altitude Sports: "ships from Canada"). One store total on both sides (`n_stores`, "87 stores checked daily").
+  labelled. No Canadian store on the USA side (`SHIPS_US` empty: Altitude doesn't ship to the US; add one only after checking). One store total on both sides (`n_stores`, "87 stores checked daily").
   Profile `country`; the Friday email (`SIDE` in weekly_email.py: US$, US stores) and alerts (`evaluate_sides`) follow it.
-- Data: scrape.py merges twice: Canada (no `US_SHOPS`, which may not ship north) and USA (`us` offers + `SHIPS_US` Canadian stores +
+- Data: scrape.py merges twice: Canada (no `US_SHOPS`, which may not ship north) and USA (`us` offers + `SHIPS_US` Canadian stores (none) +
   other cross-border; there `ca` means "ships from the US"). `tidy_us_names` brings US shops' names to "Model - Men's" (pipes
   "Hoka | Arahi 9 | Women's", " - Colour - Regular (D)", "(Extra Wide - 4E)", style codes, capitals); US-only filters: boots/sneakers
   (`US_CASUAL`), yoga/fashion labels (`US_LIFESTYLE_BRANDS`). General stores read from their running collection (`US_COLLECTIONS`:
