@@ -1,0 +1,147 @@
+# US running shops to check (Oct 6, 2026): state | name | address. tools/find_stores.py tests each for a readable Shopify feed.
+# Source: The Running Event's 2026 Best Running Stores (slowtwitch.com), plus the shops already found.
+FL | 1st Place Sports | 1stplacesports.com
+SD | 605 Running Company | run605.com
+CA | A Runner's Mind | arunnersmind.com
+CA | A Snail's Pace | asnailspace.net
+PA | Aardvark Sports Shop | aardvarksportsshop.com
+PA/VA | Appalachian Running Company | apprunco.com
+GA | Big Peach Running Co. | bigpeachrunningco.com
+NC | Bull City Running Co. | bullcityrunning.com
+NC | Charlotte Running Company | charlotterunning.com
+MD | Charm City Run | charmcityrun.com
+OH | Columbus Running Company | columbusrunning.com
+NY | Confluence Running | confluencerunning.com
+CT | CT Run Co. | ctrunco.com
+FL | Dash Sports | shop.godashsports.com
+IA | Fitness Sports | fitnesssports.com
+TX | footTech | foottechlubbock.com
+TX | Get Fit | mygetfitplace.com
+TX | Good Times Running Co. | goodtimesrunningco.com
+SC | Grounded Running | groundedrunning.com
+TX | iRun Texas | iruntexas.net
+KY | John's Run/Walk Shop | johnsrunwalkshop.com
+KS | Manhattan Running Company | manhattanrunningco.com
+MA | Marathon Sports | marathonsports.com
+MN | Mill City Running | millcityrunning.com
+MO | Missouri Running Company | moruncocape.com
+NC | Mountain Running Company | mountainrunningcompany.com
+IL | Naperville Running Company | runningcompany.com
+NC | Pace Yourself Run Company | pyrunco.com
+DC/VA | Pacers Running | runpacers.com
+SC | Palmetto Running Company | palmettorunningcompany.com
+WI | Performance Running Outfitters | performancerunning.com
+MI | Playmakers | playmakers.com
+VA | Point 2 Running Company | runpoint2.com
+VA | PR Run & Walk | prrunandwalk.com
+PA | Pro Bike + Run | probikerun.com
+MI | Queen City Running Company | queencityrun.com
+OK | Red Coyote Running and Fitness | redcoyoterunning.com
+AZ | Run Flagstaff | runflagstaff.com
+UT | Runner's Corner | runnerscorner.com
+MI | Running Lab | runninglabstore.com
+MO | Running Niche | runningniche.com
+FL | Running Zone | runningzone.com
+AR | Rush Running Company | rushrunning.com
+UT | Salt Lake Running Company | slrc.com
+PA | Scranton Running Company | scrantonrunning.com
+TN | Terra Running Company | terrarunning.com
+MO | The Running Well Store | therunningwellstore.com
+AZ | Tortoise & Hare Sports | tortoiseandharesports.com
+FL | Track Shack | trackshack.com
+TX | Trailhead Running Supply | trailheadrunningsupply.com
+GA | West Stride | weststride.com
+PA | Philadelphia Runner | philadelphiarunner.com
+CO | Runner's Roost | runnersroost.com
+AK | AKtive Soles | aktivesoles.com
+# Best Running Stores past winners (therunningevent.com/past-winners) + local shops for states still missing; several guesses per shop
+MI | Ann Arbor Running Company | annarborrunningcompany.com,a2runningco.com
+IN | Athletic Annex | athleticannex.com
+OH | Bandanna Running | bandannarunning.com
+IN | Blue Mile | bluemile.com
+OH | Bob Roncker's Running Spot | roncker.com
+NY | Brooklyn Running Co. | bkrunningco.com,brooklynrunningcompany.com
+OH | Capital Run Walk | capitalrunwalk.com
+MA | Charles River Running | charlesriverrunning.com
+NC | Coastal Sole | coastalsole.com
+CO | Colorado Running Company | coloradorunningcompany.com
+WA | Complete Runner | completerunner.com
+OH | Dave's Running Shop | davesrunning.com
+IL | Dick Pond Athletics | dickpondathletics.com,dickpond.com
+MI | Elite Feet | elitefeet.com
+OR | Eugene Running Company | eugenerunningcompany.com,eugenerunning.com
+FL | Fit2Run | fit2run.com
+FL | FitNiche | fitniche.com
+OR | Footzone | footzonebend.com,footzone.com
+KS | Garry Gribble's Running Sports | garrygribbles.com
+DC | Georgetown Running Company | georgetownrunning.com
+TX | Good Times Running Co. | goodtimesrunning.com
+OH | Gubbins Running Ahead | gubbinsrunningahead.com
+NJ | Haddonfield Running Co. | haddonfieldrunning.com,haddonfieldrunningcompany.com
+MI | Hanson's Running Shop | hansonsrunningshop.com,hansons-running.com
+NM | Heart & Sole Sports | heartandsolesports.com
+IA | Howe2Run | howe2run.com
+NC | Independence Run & Hike | independencerunandhike.com
+FL | Jacksonville Running Co. | jacksonvillerunningcompany.com,jaxrunningco.com
+PA | Keystone Running Store | keystonerunningstore.com
+VA | Lucky Road | luckyroadrunning.com
+TX | Luke's Locker | lukeslocker.com
+NY | Medved Running & Walking | medvedrunning.com
+CT | New England Running Company | nerunningco.com,newenglandrunningcompany.com
+PA | North Wales Running Co. | northwalesrunning.com,northwalesrunningco.com
+NE | Peak Performance | peakperformanceomaha.com,peakperformancerunning.com
+VA | Potomac River Running | potomacriverrunning.com
+IL | RC Outfitters | rcoutfitters.com
+RI | Rhode Runner | rhoderunner.com
+CT | Ridgefield Running Company | ridgefieldrunningcompany.com,ridgefieldrunning.com
+WV | Robert's Running and Walking | robertsrunning.com
+PR | Roger Soler Running | rogersoler.com
+NH | Runner's Alley | runnersalley.com
+TX | Runner's Den | runnersden.com
+FL | Runner's Depot | runnersdepot.com
+MT | Runner's Edge | runnersedgemissoula.com,runnersedge.com
+NJ | Runners Forum | runnersforum.com
+MO | Run 816 | run816.com
+IN | RunAbout Sports | runaboutsports.com
+NC | Run For Your Life | rfyl.com,runforyourlife.com
+OR | Run Hub Northwest | runhubnw.com
+OH | Run In | runin.com,runinohio.com
+VA | Running Away Multisport | runningawaymultisport.com
+IL | Running Central | runningcentral.com
+TX | Running Etc. | runningetc.com
+NJ | Running Soles | runningsoles.com
+PA | Running Wild | runningwildpa.com,runningwild.com
+NY | Sayville Running Co. | sayvillerunning.com,sayvillerunningcompany.com
+OH | Second Sole | secondsole.com
+MD | See Jane Run | seejanerun.com
+CO | Shoes & Brews | shoesandbrews.com
+ID | Shu's Idaho Running Co. | idahorunning.com,shusidahorunning.com
+AK | Skinny Raven Sports | skinnyraven.com
+WA | Sound Runner | soundrunner.com
+CA | Sports Spectrum | sportsspectrum.com
+FL | St. Pete Running Company | stpeterunning.com,stpeterunningcompany.com
+WA | Super Jock 'n Jill | superjocknjill.com
+KY | Swag's Sports Shoes | swagssportsshoes.com,swags.com
+NJ | The Runner's Soul | therunnerssoul.com
+CA | Tri N Run | trinrun.com
+AR | True Grit Running Company | truegritrunningcompany.com,truegritrunning.com
+NC | Two Rivers Treads | tworiverstreads.com
+MI | Ultra Max | ultramaxsports.com
+OH | Up and Running | uprunning.com,upandrunningdayton.com
+LA | Varsity Sports | varsitysports.com
+MA | Whirlaway Sports Center | whirlawaysports.com
+TN | Xtra Mile Running | xtramilerunning.com
+AL | Trak Shak | trakshak.com
+HI | Runners Route | runnersroutehawaii.com
+NV | Red Rock Running Company | redrockrunning.com
+ME | Maine Running Company | mainerunningcompany.com
+VT | Onion River Sports | onionriver.com
+NE | Lincoln Running Company | lincolnrunning.com,lincolnrunningcompany.com
+MS | Fleet Feet Jackson | fleetfeetjackson.com
+DE | Delaware Running Company | delawarerunningcompany.com
+WY | The Bike Shop / Runner's Roost WY | runnersroostlaramie.com
+ND | Prairie Striders | prairiestriders.com
+SC | Run In Columbia | runincolumbia.com
+UT | Runners Corner | runnerscorner.com
+CO | Runners Roost | runnersroost.com
+GA | Big Peach Running Co. | bigpeachrunningco.com
