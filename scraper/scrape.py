@@ -1352,7 +1352,7 @@ def scrape_runfree(st):
 US_SHOPS = {"pacers", "portlandrun", "heartbreak", "runnersplus", "gazelle", "sportsbasement", "tortoisehare",
             "runflagstaff", "runninglab", "playmakers", "millcity", "runningwell", "mountainrun", "confluence", "columbusrun",
             "scrantonrun", "trailheadrun", "prrunwalk", "performancerun", "fitnesssports", "athleticannex", "annarborrun",
-            "tworivers", "xtramile", "lukeslocker", "sfrunco", "backcountry"} | set(RUNFREE_US)
+            "tworivers", "xtramile", "lukeslocker", "sfrunco", "backcountry", "rei"} | set(RUNFREE_US)   # REI ships within the US only
 US_COLLECTIONS = {"sportsbasement": ["running"], "sail": ["outdoor-gear-running"]}   # (Canadian stores too: SAIL)   # general stores: their running section only (Sports Basement also sells
                                                    # snowboards, swimwear, tennis: those topped the US deals, Oct 6, 2026)
 # Shoebacca was tried and dropped (Oct 6, 2026): mostly PUMA/adidas/Diadora budget and gym shoes, no Hoka/Brooks/ASICS/Nike

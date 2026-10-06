@@ -39,7 +39,7 @@
       say("REI: reading page 1…");
       const first = results(await fetchDoc(location.href));      // fresh copy: reflects your current sort/filter
       const m = ((first.pagination || {}).lastPage || {}).queryString?.match(/[?&]page=(\d+)/);
-      const pages = Math.min(m ? +m[1] : 1, 15);
+      const pages = Math.min(m ? +m[1] : 1, 60);           // 30 per page: 15 pages stopped at 450 of 900+ (Oct 6)
       let items = [...first.results];
       const start = +(new URL(location.href).searchParams.get("page") || 1);
       for (let n = start + 1; n <= pages; n++) {
