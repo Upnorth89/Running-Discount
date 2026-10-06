@@ -203,6 +203,8 @@ def site_flow(base, per, accented):
                     wom = [c for c in cs if re.search(r"women|\bskirts?\b|\bskorts?\b|\bbras?\b|\bdress\b|hi(gh)?[- ]rise",
                                                       c["n"], re.I)]
                     assert not wom, f"{NAMES[g]} for a men's runner shows women's items (e.g. {wom[0]['b']} {wom[0]['n']})"
+                messy = [c for c in cs if re.search(r"^\s*[®™·]|\*\s*(final\s*)?sale\s*\*|^\([MWU]\)\s", c["n"], re.I)]
+                assert not messy, f"messy product names in {NAMES[g]} (e.g. '{messy[0]['n']}')"   # Oct 6: "® T/r Trail Racing Shoe"
                 common = Counter(c["b"].replace(" ★", "").strip() for c in cs).most_common(1)
                 if common:
                     brands[g] = (common[0][0], cs)

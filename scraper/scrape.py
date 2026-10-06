@@ -1763,10 +1763,11 @@ def tidy_name(b, n):
     for tok in sorted(toks if b else set(), key=len, reverse=True):
         if not tok:
             continue
-        m = re.match(re.escape(tok) + r"\b\s*[-–:|]?\s*", n, re.I)
+        m = re.match(re.escape(tok) + r"(?![A-Za-z0-9])\s*[®™]?\s*[-–:|·]?\s*", n, re.I)   # "Naked® Vest", "=PR= Short", "Rip van Wafel · Honey"
         if m and len(n) - m.end() >= 3:
             n = n[m.end():]
             break
+    n = re.sub(r"^[®™·*,+\s]+", "", n)                     # "® Drink Tube Kit": a symbol left behind by the brand
     return n[:1].upper() + n[1:] if n else n
 
 ACC_OS = {"", "OS", "OSFA", "OSFM", "ONE SIZE", "O/S", "STANDARD", "DEFAULT TITLE", "NA", "N/A", "UNIQUE", "TAILLE UNIQUE"}
@@ -1870,6 +1871,20 @@ def merge(offers):
         if (o["b"] or "").strip().lower() in ("not specified", "n/a", "none", "unknown", "default"):   # Brainsport leaves some blank
             m = re.match(r"^(?:(?:Men|Women|Kid)[’']?s\s+)?(\S+)", o["n"])
             o["b"] = m.group(1) if m else ""
+        # Oct 6: "*FINAL SALE* Race Vest 6.0" (Mountain Running Co.), "(M) Saucony Velocity MP" (MoRunCo),
+        # "=PR= Originals Tights - WRT-1001 - Women's" (PR Run & Walk's stock codes)
+        n = o["n"] or ""
+        if re.search(r"\*\s*final\s*sale\s*\*", n, re.I):
+            o["fs"] = 1
+        n = re.sub(r"\s*\*\s*(?:final\s*sale|sale|clearance)\s*\*\s*", " ", n, flags=re.I).strip()
+        m = re.match(r"^\(([MWU])\)\s+(.+)", n)
+        if m:
+            n = m.group(2) + ("" if re.search(r"\b(wom[ae]n|men)[’']?s\b", m.group(2), re.I)
+                              else {"M": " - Men's", "W": " - Women's", "U": ""}[m.group(1)])
+        if o.get("st") == "prrunwalk":
+            n = re.sub(r"\s*=PR=\s*", " ", n).strip()
+            n = re.sub(r"\s+-\s+(?=[A-Za-z0-9-]*[\d-])[A-Z][A-Za-z0-9-]{3,}(?=\s+-\s+(?:Men|Women)'s$|$)", "", n)
+        o["n"] = n
         if o.get("st") == "brainsport" and o["g"] == "shoes":   # "Fresh Foam X 880v15 Smoked Violet": the colour goes
             o["n"] = re.sub(r"(\b\d{3,4}v\d+)\s+(?!(?:GTX|Gore|Wide|Trail|Boa|BOA|SL)\b)[A-Za-z][A-Za-z ]*$", r"\1", o["n"])
     offers = tidy_clothes(tidy_gear(tidy_nutrition(tidy_shoes(drop_kids(tidy_us_names(offers))))))
