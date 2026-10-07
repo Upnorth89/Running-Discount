@@ -72,6 +72,22 @@ def main():
     step("Python files compile", compile_all)
     step("Site scripts parse", scripts_parse)
 
+    def ana_kinds():   # Oct 8: events the database didn't list were dropped silently for days (store bar, Canadian filter)
+        sql = (ROOT / "supabase" / "analytics.sql").read_text()
+        allowed = set(re.findall(r"'([a-z-]+)'", sql[sql.index("ana_kinds()"):sql.index("$$;", sql.index("ana_kinds()"))]))
+        sent = set()
+        for f in [ROOT / "site" / "index.html", ROOT / "scraper" / "shoe_pages.py"]:
+            t = f.read_text()
+            sent |= set(re.findall(r'\bana\("([a-z-]+)"', t))
+            if f.name == "index.html":
+                sent |= set(re.findall(r'\btrack\("([a-z-]+)"', t)) - {"ref-visit"}
+        missing = sorted(sent - allowed)
+        if missing:
+            raise RuntimeError(f"the site sends events the database drops: {', '.join(missing)} (add them to ana_kinds in supabase/analytics.sql "
+                               "and have Bastien run it)")
+        return f"{len(sent)} kinds, all accepted"
+    step("Analytics events are all recorded", ana_kinds)
+
     def fetch():
         for f in ("offers.json", "deals.json"):
             urllib.request.urlretrieve(LIVE + f, site / f)
