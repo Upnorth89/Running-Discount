@@ -34,8 +34,12 @@ def now():
 
 def get(url, tries=4, cookies=None):
     for i in range(tries):
+        wait = 3 * (i + 1)
         try:
             r = S.get(url, timeout=45, cookies=cookies)
+            if r.status_code == 429:                 # "too many requests": wait as long as the shop asks (Oct 8: The Feed)
+                ra = r.headers.get("Retry-After", "")
+                wait = min(int(ra), 60) if ra.isdigit() else 10 * (i + 1)
             if r.status_code in (429, 500, 502, 503, 504):
                 raise requests.HTTPError(f"{r.status_code} {url}")
             r.raise_for_status()
@@ -43,7 +47,7 @@ def get(url, tries=4, cookies=None):
         except Exception:
             if i == tries - 1:
                 raise
-            time.sleep(3 * (i + 1))
+            time.sleep(wait)
 
 # ---------------------------------------------------------------- grouping
 # Altitude / Last Hunt tag every product with a product_type_level; map those directly.
@@ -2253,6 +2257,16 @@ def main():
             results[st] = run(st, STORES[st])
     with ThreadPoolExecutor(1 if REMERGE else 4) as ex:
         list(ex.map(lane, lanes))
+    # a store that said "too busy" (429/5xx) gets one more go at the end, after a pause, before it falls back to its
+    # last read (Oct 8: The Feed's 2,370 products kept a half-day-old read after one 429)
+    busy = [st for st in STORES if results[st][1] is False and re.search(r"\b(429|50[0234])\b", results[st][2] or "")]
+    if busy and not REMERGE:
+        print(f"trying again in 90 s: {', '.join(busy)}", file=sys.stderr)
+        time.sleep(90)
+        for st in busy:
+            again = run(st, STORES[st])
+            if again[1]:
+                results[st] = (again[0], True, again[2] + " (second try)")
     for st in STORES:
         got, ok, line = results[st]
         for o in got:
