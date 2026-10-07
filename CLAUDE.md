@@ -358,6 +358,10 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   stores"; matchItems keeps only sizes whose best price is at that store; ships-from filter ignored). `?store=<domain>` opens it.
   A deal counts for a store when that store has the best price in one of your sizes. Card link + Filters store list were tried in
   the preview and left out (clutter). Analytics: store-offer, store-view {store|from}.
+- Canadian brands (Oct 7, Bastien): Filters chip "🍁 Canadian brands" (Canada side only, `view.cdn`, `?canadian` link for posts),
+  box "Canadian companies, not always made in Canada", 🍁 after the brand on cards. List `CDN_BRANDS` in index.html, checked by hand
+  (stores' own lines only when really theirs). Not "made in Canada" (no data; most are made overseas). Analytics: canadian {on|off|from}.
+  Site test "Canadian brands filter". Add brands only when confirmed Canadian.
 - Final sale (Oct 4): FINAL_SALE store rules in scrape.py + tagged items -> "fs" per offer; label on cards, shoe pages, Friday email;
   About page "Returns and final sale". Recheck store policies every 3 months.
 - Home screen tip (Oct 4): ☰ "Add to your home screen" on phones (iPhone steps / Android prompt) + one-time tip for members, 2nd visit+.
