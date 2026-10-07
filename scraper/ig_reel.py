@@ -25,6 +25,8 @@ from pathlib import Path
 
 import requests
 
+import livecheck
+
 SALE_URL = os.environ.get("SALE_URL", "https://thegearfox.com/sale.json")
 HISTORY_URL = "https://raw.githubusercontent.com/Upnorth89/Running-Discount/history/prices.jsonl"
 SITE = "https://thegearfox.com/"
@@ -79,11 +81,13 @@ def drops(items, hist, today):
         if then < 60 or now > then - 20 or now > then * 0.85:   # a real drop: $20+ and 15%+
             continue
         out.append({"it": it, "then": then, "now": now, "drop": round(then - now, 2), "reg": e[3],
-                    "url": (it["of"][e[2]] if e[2] < len(it["of"]) else it["of"][0])})
+                    "url": (it["of"][e[2]] if e[2] < len(it["of"]) else it["of"][0]), "vid": e[4] if len(e) > 4 else None})
     return sorted(out, key=lambda d: -d["drop"])
 
 
 def pick(cands):
+    # Oct 7: only drops the store's own page still shows right now (a store can end its sale after the morning read)
+    cands = [d for d in cands[:40] if d["now"] < d["reg"] and livecheck.still_on_sale(d["url"], d["now"], d["vid"])]
     shoes = [d for d in cands if d["it"]["g"] == "shoes" and d["it"].get("t") in ("daily", "race", "trail", None)]
     other = [d for d in cands if d["it"]["g"] != "shoes"]
     chosen = shoes[:1] + other[:1]

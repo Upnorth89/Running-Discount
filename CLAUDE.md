@@ -157,6 +157,12 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   (price history: best a week ago vs today's price in size 11 / M, $20+ and 15%+), one shoe + one gear/clothing, recorded as a
   watchlist on the live site (Python Playwright screencast) with safe bands + payoff first; script/hook/caption EN+FR in the email.
   Workflow fetches the history branch to /tmp/prices.jsonl (HISTORY_FILE). If it fails, the rest of the kit still goes out.
+  Live check (Oct 7; Bushtukah ended a 25% sale after the morning read and the kit featured a full-price Arc'teryx jacket;
+  Bastien: "double checked before sending ... so I don't post fake stuff", "checked the morning of"): `scraper/livecheck.py`
+  `still_on_sale(url, price, variant)` looks at the store's own page (Shopify .js variant price/compare/stock; other stores: the
+  price on the page) just before sending; brief and Reel feature only True (blocked = left out), the email lists what was left
+  out. Timing: the Wednesday morning refresh starts ig-brief.yml after its deploy (refresh.yml `igbrief`); the 17:33 UTC
+  schedule is the backup and skips when today's kit already went out.
 - **Instagram Reels (Bastien's rule, Oct 3): always with safe bands.** Screen recordings of the site sit in the middle of a
   1080x1920 frame: dark (#17201C) band 218px on top (Instagram's Reels title/camera cover it) and 400px below (name, caption,
   like/comment buttons). Recorder + example in `tools/reels/` (rec.js records a 360x434 phone; ffmpeg line in its header).

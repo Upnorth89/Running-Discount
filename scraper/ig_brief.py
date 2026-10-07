@@ -26,6 +26,8 @@ from zoneinfo import ZoneInfo
 
 import requests
 
+import livecheck
+
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "email"
 TO = (os.environ.get("HEALTH_EMAIL") or "hello@thegearfox.com").strip()
@@ -109,7 +111,17 @@ def candidate(i, stores):
     known = i["b"].lower() in (POPULAR if g in ("shoes", "tops", "bottoms") else GEAR_BRANDS | POPULAR)
     return dict(score=pct + len(sale) * 0.5 + (15 if known else 0) + (min(e[3], 300) / 20 if g not in ("shoes", "tops", "bottoms") else 0), g=g, t=i.get("t"), b=i["b"],
                 n=clean(i["n"]), pct=pct, price=e[1], reg=e[3], store=stores.get(host, host), img=i["img"], sizes=sizes,
-                who=who, sex=sex_of(who, i), url=i["of"][e[2]])
+                who=who, sex=sex_of(who, i), url=i["of"][e[2]], vid=e[4] if len(e) > 4 else None)
+
+
+DROPPED = []                             # picks the store's own page no longer shows on sale (listed in the email)
+
+
+def live(x):
+    ok = livecheck.still_on_sale(x["url"], x["price"], x.get("vid"))
+    if not ok:
+        DROPPED.append(f"{x['b']} {x['n']} ({x['store']}: " + ("couldn't check" if ok is None else "not at that price any more") + ")")
+    return ok
 
 
 def picks(items, stores):
@@ -124,6 +136,8 @@ def picks(items, stores):
             if len(got) == k:
                 break
             if x["b"].lower() in brands or per_sex.get(x["sex"], 0) >= 3 or sum(1 for y in got if y["sex"] == x["sex"]) >= cap:
+                continue
+            if not live(x):              # Oct 7: a store ended its sale after the morning read; feature only what's on sale now
                 continue
             got.append(x)
             brands.add(x["b"].lower())
@@ -274,9 +288,12 @@ def brief(chosen, when, reel=None):
     p = 'style="font:15px/1.5 Arial,sans-serif;color:#17201C;margin:0 0 14px"'
     h = 'style="font:800 18px Arial,sans-serif;color:#B8470A;margin:22px 0 8px"'
     reel_html = reel_section(reel, p, h) if reel else ""
+    checked = datetime.now(ZoneInfo("America/Vancouver")).strftime("%-I:%M%p").lower() + " Vancouver"
     body = f'''<div style="max-width:620px;margin:0 auto;padding:18px">
 <p {p}>Hi Bastien, here's this week's Instagram kit, picked from this morning's deals ({when}).
 Post the Reel today (Wednesday) and the Top 5 graphic as a Story.</p>
+<p {p}>✓ Every price below was checked on the store's own page at {checked} (sales end without warning: post today).
+{f"Left out, no longer on sale: {E('; '.join(DROPPED[:6]))}." if DROPPED else ""}</p>
 {reel_html}
 <div {h}>1. Your 3 picks for the Reel</div><ol style="font:15px/1.5 Arial,sans-serif;padding-left:20px">{li}</ol>
 <p {p}>Add one line of your own on each (fit, what you'd use it for): your opinion is what people follow.</p>

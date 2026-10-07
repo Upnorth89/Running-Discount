@@ -2,11 +2,34 @@ name: Instagram brief
 
 on:
   schedule:
-    - cron: "3 13 * * 3"     # Wednesday 6:03am Vancouver (PDT): 3 picks, a script and the Top 5 graphic for Bastien
+    - cron: "33 17 * * 3"    # backup only: the Wednesday morning refresh starts it right after the deploy (refresh.yml igbrief)
   workflow_dispatch: {}      # "Run workflow" button: send this week's kit now
 
+permissions:
+  contents: read
+  actions: read
+
 jobs:
+  # the backup schedule stops if today's kit already went out (no second email)
+  sent:
+    runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.today.outputs.skip }}
+    steps:
+      - id: today
+        if: github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          today=$(TZ=America/Vancouver date +%F)
+          n=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ig-brief.yml/runs?status=success&per_page=10" \
+              --jq "[.workflow_runs[] | select(.created_at >= \"${today}T07:00:00Z\")] | length")
+          echo "kits sent today: $n"
+          if [ "$n" -gt 0 ]; then echo "skip=true" >> "$GITHUB_OUTPUT"; fi
+
   brief:
+    needs: sent
+    if: needs.sent.outputs.skip != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
