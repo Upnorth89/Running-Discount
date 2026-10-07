@@ -113,6 +113,16 @@ fresh pages with the Grab deals bookmark (US only). MEC also comes from saved pa
 |---|---|---|
 | (none right now: Aerobics First and City Park Runners were added Oct 3) | | |
 
+## Checked Oct 8, 2026 (overnight)
+
+| Store | City | Result |
+|---|---|---|
+| The Trail Runner Store (trailrunnerstore.com) | Toronto | Shopify, CAD, 1,140 products, ~330 on sale, 173 shoe models, trail focus. Sorting check clean (Big Agnes camping dropped). Reader ready in scrape.py (commented out): **waiting for Bastien's OK** |
+| Cowichan Valley Running (cowichanvalleyrunning.com) | Mill Bay, BC | Shopify, CAD, 660 products, few on sale (5 deals in a men's 11). Reader ready (commented out): waiting |
+| The Trail Shop (trailshop.com) | Halifax | Shopify, CAD, 3,100 products but general outdoor (Yeti, tents, Blundstone), 60 on sale: skipped |
+| Deadstock (deadstock.ca) | Calgary/Vancouver | sneaker/streetwear, ~24 running shoes: skipped (Oct 7) |
+| R&R Rackets and Runners, Escarpment Running, Maison de la Course, Mile One, The Trail Store, Fast Trax | | site didn't answer from my sandbox or no shop found: try with the store finder (GitHub) |
+
 ## Ideas not checked yet
 
 The Run Company, Le Coin des Coureurs.
