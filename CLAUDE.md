@@ -186,7 +186,10 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   Mount to Coast: Impact. Sovrn Commerce/Skimlinks as a catch-all.
 - Small Canadian shops (Coureur Nordique, Endurance, VanRunCo, Capra, Fit First): no program, email directly
   with the monthly click numbers.
-- Sovrn Commerce (Oct 3): first link live, Norvan LD 4 at Sporting Life -> https://sovrn.co/jfmu34u. `AFF` map in index.html
+- Oct 7 (Bastien: subreddits refuse sites with affiliate links): NO affiliate links live. `AFF` is empty; About + privacy say "Right now, no
+  link on this site earns us anything" (EN/FR) and "we'll say so here first". When a network approves: add links to `AFF` AND update
+  About (How we make money) + privacy (partner cookie) the same day.
+- Sovrn Commerce (Oct 3): first link was the Norvan LD 4 at Sporting Life -> https://sovrn.co/jfmu34u (removed Oct 7). `AFF` map in index.html
   (store product URL without query -> affiliate link, applied in the card href by `affUrl`; `data-store` keeps click counts on the store).
   Disclosure: About page "How we make money" + privacy page (Sovrn may set a cookie).
   Sovrn rates seen Oct 3 (application pending; clicks before approval don't earn; $25 payout minimum): Altitude Sports 10%

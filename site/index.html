@@ -603,7 +603,7 @@ window.gfMail={cleanMail,okMail};   // for the site test (tools/sitetest.py)
 const storeOf=u=>{try{return new URL(u).hostname.replace(/^www\./,"")}catch(e){return "unknown"}};
 /* Affiliate links (Sovrn, Oct 3): store product page -> tracking link that redirects to that same page.
    Cards keep the store's own address for names and click counts (data-store). */
-const AFF={"https://www.sportinglife.ca/en-CA/shoes/men/running-shoes/trail-running-shoes/mens-norvan-ld-4-trail-running-shoe/25925051-00222961.html":"https://sovrn.co/jfmu34u"};
+const AFF={};   // no affiliate links until a network approves us (Oct 7, 2026: About/privacy say "none yet"; add here + update both pages the same day)
 const affUrl=u=>AFF[String(u||"").split(/[?#]/)[0]]||u;
 /* Store names shown on cards, and where each one ships from (no country = Canada) */
 const STORES={"altitude-sports.com":["Altitude Sports"],"thelasthunt.com":["The Last Hunt"],"thefeed.com":["The Feed","US"],
