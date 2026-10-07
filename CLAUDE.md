@@ -291,8 +291,9 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   `shoesFirst()`: with a shoe size picked and Best match, the first 6 (Top deals and the peek) alternate shoe / non-shoe
   (their road/trail kind, no spikes or hiking boots), so clothing's deeper % off doesn't push every shoe out.
 - `ca`: true when any Canadian store sells the item. For gear, a Canadian store's price wins per size even if a
-  store abroad is cheaper; for nutrition the cheapest wins. Nutrition shows US stores even with "Ships from
-  Canada" on (site and Friday email). Cards name the store and where it ships from (`STORES` map in index.html:
+  store abroad is cheaper; for nutrition the cheapest wins. "Ships from Canada" hides stores abroad in every category, Nutrition
+  too (Oct 7, Bastien saw US stores with it on: fuel used to skip the filter; site + Friday email). Nutrition then shows a note +
+  "Show US stores too" (`data-usfuel`, turns the filter off). Site test "Ships from Canada means Canada". Cards name the store and where it ships from (`STORES` map in index.html:
   add new stores there too).
 
 ## USA side (Oct 6, 2026; Bastien: "we need a USA page" before posting on the big US subreddits)

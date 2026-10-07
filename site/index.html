@@ -675,7 +675,7 @@ en:{
   loadFail:"Couldn't load today's gear. Reload to try again.",loading:"Loading today's gear…",
   searchWide:"Nothing in the categories you picked, so here are matches from every category.",finalSale:"Final sale",lowDays:d=>`Lowest price in ${d} days`,lowL1:"Lowest price",lowStampDays:d=>`${d} days`,lowL2:d=>`in <b>${d}</b> days`,lowDaysTip:"The lowest price we've seen for it since we started tracking, in any store",finalSaleTip:"This store takes no returns or exchanges on this item at this price",inYourSize:"In your size:",isNew:"New",bestBy:d=>`Short-dated: best by ${d}`,
   atStore:n=>`at ${n}`,shareTxt:"Know a runner who hates paying full price?",shareBtn:"Share",shareCopied:"Link copied. Paste it anywhere.",shareCopy:"Copy this link:",
-  get shareText(){return `Running and outdoor gear on sale in your size, from stores ${US()?"across the US":"across Canada"}.`},usFuel:"Includes US stores: fuel ships well, and each deal says where it ships from.",shipsFrom:c=>`ships from ${({US:"the US",CA:"Canada",UK:"the UK",FR:"France",DK:"Denmark",AU:"Australia"})[c]||(US()?"outside the US":"outside Canada")}, duties may apply`,showMore:n=>`Show ${n} more`,
+  get shareText(){return `Running and outdoor gear on sale in your size, from stores ${US()?"across the US":"across Canada"}.`},usFuel:"Fuel from US stores (The Feed, Skratch…) is hidden while “Ships from Canada” is on.",usFuelShow:"Show US stores too",shipsFrom:c=>`ships from ${({US:"the US",CA:"Canada",UK:"the UK",FR:"France",DK:"Denmark",AU:"Australia"})[c]||(US()?"outside the US":"outside Canada")}, duties may apply`,showMore:n=>`Show ${n} more`,
   allGear:"All gear",typeAll:"All",types:{daily:"Daily trainers",race:"Carbon & race",trail:"Trail",hike:"Hiking & winter",spike:"Track & XC spikes",light:"Lights",pole:"Poles",bottle:"Bottles & flasks",sun:"Sunglasses",tee:"T-shirts & tanks",layer:"Long sleeves & hoodies",jacket:"Jackets & vests",short:"Shorts",tight:"Tights",pant:"Pants"},
   get shipsCA(){return US()?"Ships from the US":"Ships from Canada"},saleOnly:"Include full price",
   stopWatching:"Stop watching",watch:"Watch",removed:"Removed from your watchlist.",
@@ -769,7 +769,7 @@ fr:{
   loadFail:"Impossible de charger les produits du jour. Rechargez la page.",loading:"Chargement des produits du jour…",
   searchWide:"Rien dans les catégories choisies, alors voici les résultats de toutes les catégories.",finalSale:"Vente finale",lowDays:d=>`Plus bas prix en ${d} jours`,lowL1:"Plus bas prix",lowStampDays:d=>`${d} jours`,lowL2:d=>`en <b>${d}</b> jours`,lowDaysTip:"Le plus bas prix qu'on a vu pour cet article depuis qu'on le suit, toutes boutiques confondues",finalSaleTip:"Cette boutique n'accepte ni retour ni échange sur cet article à ce prix",inYourSize:"À votre taille :",isNew:"Nouveau",bestBy:d=>`Date courte : meilleur avant le ${d}`,
   atStore:n=>`chez ${n}`,shareTxt:"Un ami coureur déteste payer le plein prix ?",shareBtn:"Partager",shareCopied:"Lien copié. Collez-le où vous voulez.",shareCopy:"Copiez ce lien :",
-  get shareText(){return `Des aubaines de course et de plein air dans votre taille, dans des boutiques ${US()?"partout aux États-Unis":"partout au Canada"}.`},usFuel:"Comprend des boutiques américaines : la nutrition voyage bien, et chaque aubaine indique d'où elle est expédiée.",shipsFrom:c=>`expédié ${({US:"des États-Unis",CA:"du Canada",UK:"du Royaume-Uni",FR:"de France",DK:"du Danemark",AU:"d'Australie"})[c]||(US()?"de l'extérieur des États-Unis":"de l'extérieur du Canada")}, des droits peuvent s'appliquer`,showMore:n=>`Voir ${n} de plus`,
+  get shareText(){return `Des aubaines de course et de plein air dans votre taille, dans des boutiques ${US()?"partout aux États-Unis":"partout au Canada"}.`},usFuel:"La nutrition des boutiques américaines (The Feed, Skratch…) est masquée quand « Expédié du Canada » est activé.",usFuelShow:"Voir aussi les boutiques américaines",shipsFrom:c=>`expédié ${({US:"des États-Unis",CA:"du Canada",UK:"du Royaume-Uni",FR:"de France",DK:"du Danemark",AU:"d'Australie"})[c]||(US()?"de l'extérieur des États-Unis":"de l'extérieur du Canada")}, des droits peuvent s'appliquer`,showMore:n=>`Voir ${n} de plus`,
   allGear:"Tout",typeAll:"Tout",types:{daily:"Entraînement",race:"Carbone et compétition",trail:"Sentier",hike:"Randonnée et hiver",spike:"Pointes (piste et cross)",light:"Frontales",pole:"Bâtons",bottle:"Gourdes et flasques",sun:"Lunettes de soleil",tee:"T-shirts et camisoles",layer:"Manches longues et kangourous",jacket:"Manteaux et vestes",short:"Shorts",tight:"Collants",pant:"Pantalons"},
   get shipsCA(){return US()?"Expédié des États-Unis":"Expédié du Canada"},saleOnly:"Inclure le prix régulier",
   stopWatching:"Retirer des favoris",watch:"Ajouter aux favoris",removed:"Retiré de vos favoris.",
@@ -1291,7 +1291,7 @@ function matchItems(p,list){
   const caOnly=(p.ships||"ca")!=="all";
   for(const d of (list||ITEMS)){
     if(!p.groups.includes(d.g))continue;
-    if(caOnly&&!p.store&&d.ca===false&&d.g!=="nutrition")continue;   // a store picked by name shows wherever it ships from   // fuel from US shops is shown anyway (card says where it ships from)
+    if(caOnly&&!p.store&&d.ca===false)continue;   // a store picked by name shows wherever it ships from (Oct 7: fuel too; it used to skip the filter)
     if(p.gender&&p.gender!=="any"&&d.sx.length&&!d.sx.includes(p.gender))continue;
     let ok=d.sz,any=false;
     if(SIZED.has(d.g)){
@@ -1368,7 +1368,7 @@ function section(key,title,list,cls){
   }
   const lim=view.open[key]||(key.startsWith("__")||NARROW?PAGE:PAGE_CAT);
   const tail=key==="__new"&&NEWSTYLE==="row"?`<button type="button" class="linkbtn" data-newrow>${t("asRow")}</button>`:"";
-  const note=key==="nutrition"&&state.ships!=="all"&&!US()?`<p class="grpnote">${t("usFuel")}</p>`:
+  const note=key==="nutrition"&&state.ships!=="all"&&!US()?`<p class="grpnote">${t("usFuel")} <button type="button" data-usfuel>${t("usFuelShow")}</button></p>`:
     APPAREL_GROUPS.includes(key)&&hasSizes()&&!state.cloth.length?`<p class="grpnote">${t("clothNote")} <button type="button" data-picksize="cloth">${t("clothPick")}</button></p>`:"";
   const types=TYPES[key]?`<div class="chips scroll types">${["",...TYPES[key]].map(v=>`<button type="button" class="chip" data-type="${key}:${v}" aria-pressed="${(view.type[key]||"")===v}">${v?t("types")[v]:t("typeAll")}</button>`).join("")}</div>`:"";
   return `<section class="grp ${cls||""}" id="grp-${key}"><h2>${title} <small>${num(list.length)}</small>${tail}</h2>${types}${note}<div class="grid">${list.slice(0,lim).map(d=>card(d)).join("")}</div>
@@ -1462,6 +1462,7 @@ $("filtBtn").addEventListener("click",()=>{const f=$("filtersBox"),o=!f.classLis
 $("dealList").addEventListener("click",e=>{
   const sb=e.target.closest("[data-shop]");if(sb){shopStore(sb.dataset.shop,"bar");return}
   if(e.target.closest("[data-cdnoff]")){cdnView(false,"bar");return}
+  if(e.target.closest("[data-usfuel]")){state.ships="all";saveProfile();ana("filter","ships-all-fuel");view.open={};renderAll();return}
   const ps=e.target.closest("[data-picksize]");if(ps){ana("signup-step","pick-"+(ps.dataset.picksize||"sizes"));if(ps.dataset.picksize==="cloth")shortOff=true;editSizes();
     if(ps.dataset.picksize==="cloth")setTimeout(()=>$("clothSizes").scrollIntoView({block:"center"}),80);return}
   const ar=e.target.closest("[data-row]");

@@ -4,6 +4,7 @@
 Bastien: "these little glitches are being caught by users and not our own health check". So a robot phone opens the
 freshly built site (today's data, served from this machine), and:
   - first visit: welcome screen, sizes (men's 11, clothing M), deals appear, sign-up card + "No thanks"
+  - "Ships from Canada" on: no card from a store abroad (Nutrition too); "Show US stores too" adds them
   - every category chip shows only that category (and has deals), "Show more" and the shoe type buttons work
   - one search per category (a brand that category shows today): every result matches, and stays in the category
   - an accent-free search finds accented brands ("naak" = Näak), a nonsense search shows the "nothing matches" note
@@ -116,7 +117,7 @@ def cards(page):
     """Visible deal cards in the deal list (not the watchlist strip or new-deals row): brand, name, section id, price."""
     return page.evaluate("""() => [...document.querySelectorAll('section.grp .deal')].map(a => {
         const s = a.closest('section.grp');
-        return {b: (a.querySelector('.brand')||{}).textContent||'', n: (a.querySelector('.name')||{}).textContent||'',
+        return {b: ((a.querySelector('.brand')||{}).textContent||'').replace('🍁','').trim(), n: (a.querySelector('.name')||{}).textContent||'',
                 sec: s ? s.id : '', price: (a.querySelector('.price b')||{}).textContent||'', href: a.getAttribute('href')||''};
     })""")
 
@@ -559,6 +560,32 @@ def site_flow(base, per, accented):
             assert not pg.locator(".cdnbar").count(), "× All brands doesn't turn it off"
             return f"{len(brands)} cards, all Canadian brands"
         check("Canadian brands filter")(canadian, pg)
+
+        def ships_ca():   # Oct 7 (Bastien): "Ships from Canada" showed US stores under Nutrition (fuel skipped the filter)
+            pg.goto(base, wait_until="domcontentloaded")
+            pg.wait_for_selector("section.grp .deal", timeout=20000)
+            pg.locator('#cats .chip[data-v="nutrition"]').click()
+            settle(pg)
+            for _ in range(8):
+                more = pg.locator("#grp-nutrition .btn.more")
+                if not more.count():
+                    break
+                more.first.click()
+                settle(pg, 300)
+            n = pg.locator("#dealList .deal").count()
+            abroad = pg.eval_on_selector_all("#dealList .deal .abroad", "e => e.map(x => x.closest('.deal').innerText.split('\\n')[0])")
+            assert not abroad, f"{len(abroad)} deals from outside Canada with Ships from Canada on, e.g. {abroad[0][:80]}"
+            btn = pg.locator("[data-usfuel]")
+            assert btn.count(), "no 'Show US stores too' under Nutrition"
+            btn.first.click()
+            settle(pg)
+            m = pg.locator("#dealList .deal").count()
+            pg.evaluate("() => document.querySelector('#toggles .chip[data-t=\"ca\"]').click()")   # back to Canada only for the next checks
+            settle(pg)
+            pg.locator('#cats .chip[data-v="nutrition"]').click()                                  # and every category again
+            settle(pg)
+            return f"Nutrition: {n} deals from Canada, {m} with US stores"
+        check("Ships from Canada means Canada")(ships_ca, pg)
 
         def backbar_signup():   # Oct 8: back from a store, a visitor who isn't a member is offered the Friday email
             pg.goto(base, wait_until="domcontentloaded")

@@ -114,7 +114,7 @@ def match(items, p):
     for d in items:
         if d["g"] not in groups:
             continue
-        if ca_only and d.get("ca") is False and d["g"] != "nutrition":   # fuel from US shops is shown anyway
+        if ca_only and d.get("ca") is False:   # Oct 7: fuel from US shops too (it used to skip "Ships from Canada")
             continue
         if gender and gender != "any" and d["sx"] and gender not in d["sx"]:
             continue
