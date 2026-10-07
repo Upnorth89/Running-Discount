@@ -113,6 +113,23 @@ for e in rows:
     if e["kind"] == "signup":
         wh[(e["detail"] or "?")[:30]] += 1
 out.append("Sign-ups by where (detail): " + (", ".join(f"{k} {v}" for k, v in wh.most_common(6)) or "none recorded"))
+# load time (Oct 8): ms until the deals are on screen, first visits on the homepage; and who left the welcome within 5 s
+loads = {}
+for e in rows:
+    if e["kind"] == "load" and e["num"] is not None and e["sid"] not in loads:
+        loads[e["sid"]] = (e["num"], (e["detail"] or "").split("|"))
+hl = sorted((loads[sid][0], sid) for sid, s in S.items() if sid in loads and s["nv"] == 1 and land(s) == "homepage")
+if hl:
+    ms = [m for m, _ in hl]
+    q = lambda f: ms[min(len(ms) - 1, int(len(ms) * f))]
+    out.append(f"Load time, homepage first visits ({len(ms)}): median {q(.5) / 1000:.1f}s, 3 in 4 under {q(.75) / 1000:.1f}s, "
+               f"slowest 1 in 10 over {q(.9) / 1000:.1f}s")
+    for lo, hi, lab in ((0, 2000, "<2s"), (2000, 4000, "2-4s"), (4000, 10 ** 9, "4s+")):
+        grp = [S[sid] for m, sid in hl if lo <= m < hi]
+        if grp:
+            out.append(f"  loaded in {lab}: {len(grp)} visits, picked sizes {pct(sum(1 for s in grp if 'sizes-saved' in s['kinds']), len(grp))}")
+    con = Counter(loads[sid][1][1] if len(loads[sid][1]) > 1 else "?" for _, sid in hl)
+    out.append("  connection: " + ", ".join(f"{k} {v}" for k, v in con.most_common(5)))
 ret = [s for s in S.values() if (s["nv"] or 0) > 1]
 out.append(f"Returning visits {len(ret)}: clicked a deal {pct(sum(1 for s in ret if 'deal-click' in s['kinds']), len(ret))}")
 

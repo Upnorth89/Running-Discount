@@ -1181,7 +1181,15 @@ function watchFromLink(){
   watchQDone=true;try{history.replaceState(null,"",location.pathname)}catch(e){}
   track("watch-from-page",{});if(!watches[WATCH_Q])toggleWatch(WATCH_Q);else toast(t("watching"));
 }
-function useData(d,full){DATA=d;ITEMS=d.items||[];FULL=full;byKey={};ITEMS.forEach(x=>(byKey[itemKey(x)]=byKey[itemKey(x)]||[]).push(x));renderAll();loadShoePages();watchFromLink();setTimeout(offerStore,600)}
+function useData(d,full){DATA=d;ITEMS=d.items||[];FULL=full;byKey={};ITEMS.forEach(x=>(byKey[itemKey(x)]=byKey[itemKey(x)]||[]).push(x));renderAll();loadShoePages();watchFromLink();setTimeout(offerStore,600);logLoad(full)}
+/* Load time (Oct 8): how long until the deals are on screen, once per visit, with the connection type, so we can see whether
+   slow phones leave before anything shows (55 of 228 first visitors who didn't pick sizes left within 5 s) */
+let loadLogged=false;
+function logLoad(full){if(loadLogged)return;loadLogged=true;
+  try{const ms=Math.round(performance.now()),nav=(performance.getEntriesByType("navigation")||[])[0],
+    page=nav?Math.round(nav.domContentLoadedEventEnd):null,c=navigator.connection||{},
+    dat=(performance.getEntriesByType("resource")||[]).filter(r=>/\/(sale|deals)(-us)?\.json/.test(r.name))[0];
+    ana("load",[full?"deals":"sale",c.effectiveType||"?",page!=null?"page="+page:"",dat&&dat.transferSize?"kb="+Math.round(dat.transferSize/1024):""].filter(Boolean).join("|"),ms)}catch(e){}}
 const DFILE=full=>(full?"deals":"sale")+(US()?"-us":"")+".json";
 function loadFull(){if(FULL||fullLoading)return;fullLoading=loadData(DFILE(true)).then(d=>useData(d,true)).catch(()=>{fullLoading=null})}
 function loadCountry(){return loadData(DFILE(false)).then(d=>useData(d,false)).catch(()=>loadData(DFILE(true)).then(d=>useData(d,true)))
