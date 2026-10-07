@@ -349,15 +349,20 @@ DEC_BUDGET = 18 * 60     # seconds: Decathlon never holds up the whole refresh (
 DEC_PACE = 1.5           # seconds between product pages; the night job (--decathlon-night) reads much slower
 DECATHLON_FILE = os.environ.get("DECATHLON_FILE", "/tmp/decathlon.json")
 
-def scrape_decathlon():
+class DecBusy(Exception):
+    """Decathlon said "429 too many requests" even after waiting: stop asking for today."""
+
+def dec_links(budget):
     t0, links = time.time(), []
     for path in DEC_LISTS:
         start = 0
-        while start < 2000 and time.time() - t0 < DEC_BUDGET / 3:
+        while start < 2000 and time.time() - t0 < budget:
             try:
                 html = dec_get(f"{DEC_BASE}{path}?from={start}&size=40").text
             except Exception as e:
                 print(f"  decathlon: {path} stopped at {start} ({str(e)[:60]})", file=sys.stderr)
+                if "429" in str(e):
+                    raise DecBusy(str(e))
                 break                                     # keep what the other lists gave
             new = [u for u in dict.fromkeys(re.findall(r'href="(/en/p/[^"]+)"', html)) if u not in links]
             if not new:
@@ -365,63 +370,77 @@ def scrape_decathlon():
             links += new
             start += 40
             time.sleep(max(3, DEC_PACE))
-    out, seen = [], set()
-    stopped = ""
-    for u in links:
-        if time.time() - t0 > DEC_BUDGET:
-            stopped = "out of time"
-            break
+    seen, out = set(), []
+    for u in links:                                       # one link per product (colours share a product id)
         m = re.search(r"/p/[^/]+/(\d+)/", u)
-        if not m or m.group(1) in seen:
+        if m and m.group(1) not in seen:
+            seen.add(m.group(1))
+            out.append(u)
+    return out
+
+def dec_offer(u):
+    """One product page -> an offer (None when nothing in stock / not for us). Raises DecBusy on a lasting 429."""
+    try:
+        skus = [x for x in dec_skus(dec_get(DEC_BASE + u).text) if x.get("isAvailable")]
+    except Exception as e:
+        if "429" in str(e):
+            raise DecBusy(str(e))
+        return None
+    if not skus:
+        return None
+    x0 = skus[0]
+    title = x0.get("title") or ""
+    if re.search(r"\b(kids?|children|boys?|girls?|junior|baby)'?s?\b", title, re.I):
+        return None
+    g = dec_group(x0)
+    if not g:
+        return None
+    gs = {(y.get("name") or "").lower() for y in x0.get("genders") or []}
+    sx = (["men"] if "men" in gs else []) + (["women"] if "women" in gs else [])
+    if g == "shoes" and len(sx) != 1:
+        return None                                       # unisex US sizes are ambiguous without a gender
+    sizes, lp = {}, 0
+    for x in skus:
+        price, reg = dec_price(x)
+        if not price:
             continue
-        seen.add(m.group(1))
-        time.sleep(DEC_PACE)                              # relaxed pace (its own lane: the whole run doesn't wait on it)
-        try:
-            skus = [x for x in dec_skus(dec_get(DEC_BASE + u).text) if x.get("isAvailable")]
-        except Exception as e:
-            if "429" in str(e):
-                stopped = "429 too many requests"       # still busy after waiting: stop asking for today
+        lp = max(lp, reg)
+        lab = dec_size(x.get("sizeLabel"), g)
+        if not lab:
+            continue
+        m2 = re.match(r"^(2?XS|S|M|L|XL|2XL|3XL)\s*-\s*(S|M|L|XL|2XL|3XL|4XL)$", lab)
+        for one in ([m2.group(1), m2.group(2)] if m2 else [lab]):
+            if one not in sizes or price < sizes[one][0]:
+                sizes[one] = (price, reg)
+    if g in ("shoes", "tops", "bottoms", "bras", "socks", "gloves") and len(sizes) > 1:
+        sizes.pop("OS", None)                             # an unlabelled size must not match everyone
+    if not sizes:
+        return None
+    brand = ((x0.get("brand") or {}).get("name") or "Decathlon").title()
+    img = (x0.get("mainImage") or {}).get("url")
+    return {"st": "decathlon", "b": brand, "n": title, "u": DEC_BASE + u, "g": g, "sx": sx,
+            "w": bool(re.search(r"\bwide\b", title, re.I)), "img": img + "?format=auto&f=500x0" if img else None,
+            "lp": round(lp, 2), "bb": None, "sz": [[k, p, r] for k, (p, r) in sizes.items()], "ca": True}
+
+def scrape_decathlon():
+    t0, out, stopped = time.time(), [], ""
+    try:
+        links = dec_links(DEC_BUDGET / 3)
+        for u in links:
+            if time.time() - t0 > DEC_BUDGET:
+                stopped = "out of time"
                 break
-            continue
-        if not skus:
-            continue
-        x0 = skus[0]
-        title = x0.get("title") or ""
-        if re.search(r"\b(kids?|children|boys?|girls?|junior|baby)'?s?\b", title, re.I):
-            continue
-        g = dec_group(x0)
-        if not g:
-            continue
-        gs = {(y.get("name") or "").lower() for y in x0.get("genders") or []}
-        sx = (["men"] if "men" in gs else []) + (["women"] if "women" in gs else [])
-        if g == "shoes" and len(sx) != 1:
-            continue                                      # unisex US sizes are ambiguous without a gender
-        sizes, lp = {}, 0
-        for x in skus:
-            price, reg = dec_price(x)
-            if not price:
-                continue
-            lp = max(lp, reg)
-            lab = dec_size(x.get("sizeLabel"), g)
-            if not lab:
-                continue
-            m2 = re.match(r"^(2?XS|S|M|L|XL|2XL|3XL)\s*-\s*(S|M|L|XL|2XL|3XL|4XL)$", lab)
-            for one in ([m2.group(1), m2.group(2)] if m2 else [lab]):
-                if one not in sizes or price < sizes[one][0]:
-                    sizes[one] = (price, reg)
-        if g in ("shoes", "tops", "bottoms", "bras", "socks", "gloves") and len(sizes) > 1:
-            sizes.pop("OS", None)                         # an unlabelled size must not match everyone
-        if not sizes:
-            continue
-        brand = ((x0.get("brand") or {}).get("name") or "Decathlon").title()
-        img = (x0.get("mainImage") or {}).get("url")
-        out.append({"st": "decathlon", "b": brand, "n": title, "u": DEC_BASE + u, "g": g, "sx": sx,
-                    "w": bool(re.search(r"\bwide\b", title, re.I)), "img": img + "?format=auto&f=500x0" if img else None,
-                    "lp": round(lp, 2), "bb": None, "sz": [[k, p, r] for k, (p, r) in sizes.items()], "ca": True})
-    print(f"  decathlon: {len(links)} listings, {len(out)} products in stock"
-          + (f" (stopped early: {stopped}, {time.time() - t0:.0f}s)" if stopped else ""), file=sys.stderr)
+            time.sleep(DEC_PACE)
+            o = dec_offer(u)
+            if o:
+                out.append(o)
+    except DecBusy:
+        stopped = "429 too many requests"
+        links = []
+    print(f"  decathlon: {len(out)} products in stock" + (f" (stopped early: {stopped}, {time.time() - t0:.0f}s)" if stopped else ""),
+          file=sys.stderr)
     if stopped and len(out) < 100:
-        raise RuntimeError(f"no full read ({stopped} after {len(out)} products)")   # keeps the last good read
+        raise RuntimeError(f"no full read ({stopped} after {len(out)} products)")
     return out
 
 # ---------------------------------------------------------------- Foot Locker Canada (checked Oct 4, 2026)
@@ -1287,7 +1306,7 @@ SHOPIFY_STORES = [
     ("tailwind",       "https://www.tailwindnutrition.com",  "food"),
     ("skratch",        "https://www.skratchlabs.com",        "food"),
     ("nuun",           "https://nuun.com",                   "food"),
-    ("honeystinger",   "https://www.honeystinger.com",       "food"),
+    # ("honeystinger",   "https://www.honeystinger.com",       "food"),   # off Oct 8: blocks GitHub's servers (0 products since Oct 1); its gels reach us through other stores
     ("gu",             "https://guenergy.com",               "food"),
     ("huma",           "https://www.humagel.com",            "food"),
 ]
@@ -2305,25 +2324,55 @@ def scrape_decathlon_saved():
 
 
 def decathlon_night(out):
-    """The night read: slow, polite, keeps the last good read when Decathlon still says no."""
-    global DEC_PACE, DEC_BUDGET
-    DEC_PACE, DEC_BUDGET = 6.0, 95 * 60
+    """The night read (Oct 8, 2026): Decathlon answers "429 too many requests" to GitHub's servers after ~50 product pages even
+    at one page every 6 s, so a full read never finished and the site kept Oct 5 prices. Now: one page every 20 s, keep every
+    product read, and pick up next night where this one stopped (a cursor through the product list). The list itself is
+    refreshed once a week (or when the cursor has gone round). A product not re-read for 14 days drops off. We stop the
+    moment Decathlon says no: polite reading, nothing that gets around its limit."""
+    global DEC_PACE
+    DEC_PACE = 20.0
     p = Path(out)
     try:
         prev = json.loads(p.read_text())
     except Exception:
         prev = {}
+    t0, today = time.time(), now()
+    links, cur = prev.get("links") or [], int(prev.get("cursor") or 0)
+    offers = {o["u"]: o for o in prev.get("offers") or []}
+    seen = dict(prev.get("seen") or {})                  # product link -> last night it was read
+    for u in offers:
+        seen.setdefault(u, prev.get("updated") or today)
+    note, read, listed = "", 0, prev.get("listed")
     try:
-        got = scrape_decathlon()
-        if len(got) < 100:
-            raise RuntimeError(f"only {len(got)} products (Decathlon may still be saying 'too many requests')")
-        p.write_text(json.dumps({"updated": now(), "offers": got}, separators=(",", ":"), ensure_ascii=False))
-        print(f"decathlon night read: {len(got)} products", file=sys.stderr)
+        if not links or cur >= len(links) or not listed or \
+                dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(listed) > dt.timedelta(days=7):
+            links, cur, listed = dec_links(40 * 60), 0, today
+        while cur < len(links) and time.time() - t0 < 85 * 60:
+            u = links[cur]
+            time.sleep(DEC_PACE)
+            o = dec_offer(u)
+            full = DEC_BASE + u
+            if o:
+                offers[full] = o
+            else:
+                offers.pop(full, None)                    # sold out or not ours any more
+            seen[full] = today
+            cur += 1
+            read += 1
+    except DecBusy as e:
+        note = f"stopped for the night (429) at {cur} of {len(links)}"
     except Exception as e:
-        print(f"decathlon night read failed ({str(e)[:120]}); kept the last good read", file=sys.stderr)
-        if prev:
-            prev["failed"] = str(e)[:120]
-            p.write_text(json.dumps(prev, separators=(",", ":"), ensure_ascii=False))
+        note = f"stopped ({str(e)[:80]}) at {cur} of {len(links)}"
+    cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=14)).isoformat()   # a full round takes about a week
+    offers = {u: o for u, o in offers.items() if seen.get(u, today) >= cutoff}
+    good = read >= 20 or (not note and cur >= len(links))
+    d = {"updated": today if good else (prev.get("updated") or today), "offers": list(offers.values()), "links": links,
+         "cursor": cur, "listed": listed, "seen": {u: t for u, t in seen.items() if t >= cutoff}}
+    if note:
+        d["failed"] = note
+    p.write_text(json.dumps(d, separators=(",", ":"), ensure_ascii=False))
+    print(f"decathlon night read: {read} product pages read tonight, {len(offers)} products kept, list position {cur}/{len(links)}"
+          + (f"; {note}" if note else ""), file=sys.stderr)
     return 0
 
 

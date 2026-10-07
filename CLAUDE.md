@@ -212,7 +212,9 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
 - Sporting Life, Stampeak, Sea2Sky, The Feed: custom readers. Decathlon: the full running section (Oct 5: all running subcategories in `DEC_LISTS`, full price included; server-rendered
   JSON, robots allow). It answered GitHub's daytime reads "429 too many requests" from Oct 5, so since Oct 6 it's read at night by
   runfree.yml (job "decathlon": `scrape.py --decathlon-night hist/decathlon.json`, one page every 6 s, stops for the night on 429,
-  keeps the last good read) and the refresh loads /tmp/decathlon.json (`scrape_decathlon_saved`). MEC/REI: from saved pages only.
+  keeps the last good read) and the refresh loads /tmp/decathlon.json (`scrape_decathlon_saved`). Oct 8: even at night it says 429 after ~50
+  pages, so the night read goes slice by slice (one page / 20 s, `cursor` + `links` in decathlon.json, list refreshed weekly,
+  a product not re-read for 14 days drops); "updated" moves when 20+ pages were read. Honey Stinger off (blocks GitHub). MEC/REI: from saved pages only.
   SVP Sports (Oct 4, Québec chain, Shopify behind Cloudflare): saved pages too: the Grab deals bookmark on any SVP collection
   saves its products.json (svp-DATE.json, `scrape_svp_saved`); expires after 10 days like MEC/REI. PARKED Oct 6 (mostly soccer/budget shoes): out of STORES, no reminders.
 - Run Uphill / Ski Uphill (Oct 7; runuphill.ca = skiuphill.ca, Canmore + Squamish): half ski touring, filtered by NOT_RUNNING ski words

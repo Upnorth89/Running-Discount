@@ -48,7 +48,6 @@ Update it whenever a store is added, rejected or changes. Counts are from Oct 2,
 | Feetures (US) | feetures.com | 163 | 103 |
 | goodr (US) | goodr.com | 381 | 0 |
 | GU (US) | guenergy.com | 14 | 0 |
-| Honey Stinger (US) | honeystinger.com | 0 | 0 |
 | Huma (US) | humagel.com | 7 | 1 |
 | Janji (US) | runjanji.com | 94 | 0 |
 | Kogalla (US) | kogalla.com | 1 | 0 |
@@ -77,7 +76,7 @@ Update it whenever a store is added, rejected or changes. Counts are from Oct 2,
 | Tifosi (US) | tifosioptics.com | 152 | 18 |
 | Wigwam (US) | wigwam.com | 126 | 13 |
 
-Honey Stinger is in the list but blocked from GitHub's servers (0 products). REI only shows when Bastien saves
+Honey Stinger was taken off Oct 8: it blocks GitHub's servers (0 products since Oct 1); its gels come through other stores. REI only shows when Bastien saves
 fresh pages with the Grab deals bookmark (US only). MEC also comes from saved pages.
 
 ## Checked and not added
@@ -120,6 +119,7 @@ fresh pages with the Grab deals bookmark (US only). MEC also comes from saved pa
 | The Trail Runner Store (trailrunnerstore.com) | Toronto | Shopify, CAD, 1,140 products, ~330 on sale, 173 shoe models, trail focus. Sorting check clean (Big Agnes camping dropped). **Added Oct 8** |
 | Cowichan Valley Running (cowichanvalleyrunning.com) | Mill Bay, BC | Shopify, CAD, 660 products, few on sale (5 deals in a men's 11). **Added Oct 8** |
 | The Trail Shop (trailshop.com) | Halifax | Shopify, CAD, 3,100 products but general outdoor (Yeti, tents, Blundstone), 60 on sale: skipped |
+| Decathlon (night read) | | Oct 8: answers 429 after ~50 product pages even at night; now read a slice each night (cursor, one page / 20 s), products kept 14 days |
 | Deadstock (deadstock.ca) | Calgary/Vancouver | sneaker/streetwear, ~24 running shoes: skipped (Oct 7) |
 | R&R Rackets and Runners, Escarpment Running, Maison de la Course, Mile One, The Trail Store, Fast Trax | | site didn't answer from my sandbox or no shop found: try with the store finder (GitHub) |
 
