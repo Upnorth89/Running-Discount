@@ -24,7 +24,7 @@ since = (datetime.now(timezone.utc) - timedelta(days=DAYS)).isoformat()
 rows, step = [], 1000
 while True:
     r = requests.get(f"{SB}/rest/v1/ana_events", headers={**H, "Range": f"{len(rows)}-{len(rows) + step - 1}"}, timeout=60,
-                     params={"select": "sid,kind,detail,num,page,dev,ref,nv,at", "at": f"gte.{since}", "order": "id"})
+                     params={"select": "sid,kind,detail,num,page,dev,ref,nv,at,tz", "at": f"gte.{since}", "order": "id"})
     r.raise_for_status()
     batch = r.json()
     rows += batch
@@ -133,6 +133,34 @@ if hl:
 ret = [s for s in S.values() if (s["nv"] or 0) > 1]
 out.append(f"Returning visits {len(ret)}: clicked a deal {pct(sum(1 for s in ret if 'deal-click' in s['kinds']), len(ret))}")
 
+# when (Oct 8, Bastien: post and notify when shoppers are around): visits, deal clicks and sign-ups by the visitor's own
+# local hour and weekday (each event carries the device's time zone; Pacific when unknown)
+from zoneinfo import ZoneInfo
+def local(e):
+    try:
+        z = ZoneInfo(e.get("tz") or "America/Vancouver")
+    except Exception:
+        z = ZoneInfo("America/Vancouver")
+    return datetime.fromisoformat(e["at"].replace("Z", "+00:00")).astimezone(z)
+hv, hc, wv, wc, hs = Counter(), Counter(), Counter(), Counter(), Counter()
+for e in rows:
+    if e["kind"] in ("visit", "deal-click", "signup"):
+        t = local(e)
+        if e["kind"] == "visit":
+            hv[t.hour] += 1; wv[t.strftime("%a")] += 1
+        elif e["kind"] == "deal-click":
+            hc[t.hour] += 1; wc[t.strftime("%a")] += 1
+        else:
+            hs[t.hour] += 1
+if hv:
+    bands = [(5, 9, "5-9am"), (9, 12, "9-noon"), (12, 14, "noon-2pm"), (14, 17, "2-5pm"), (17, 20, "5-8pm"), (20, 23, "8-11pm"), (23, 29, "11pm-5am")]
+    inb = lambda c, lo, hi: sum(v for h, v in c.items() if lo <= h < hi or lo <= h + 24 < hi)
+    out.append("BY LOCAL TIME (visits / deal clicks / sign-ups): " + ", ".join(
+        f"{lab} {inb(hv, lo, hi)}/{inb(hc, lo, hi)}/{inb(hs, lo, hi)}" for lo, hi, lab in bands))
+    out.append("  busiest hours (visits): " + ", ".join(f"{h}:00 {v}" for h, v in hv.most_common(5)) +
+               " | deal clicks: " + ", ".join(f"{h}:00 {v}" for h, v in hc.most_common(5)))
+    days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    out.append("  by weekday (visits/clicks): " + ", ".join(f"{d} {wv[d]}/{wc[d]}" for d in days))
 # visits from our emails (Oct 8: links carry ?em=friday / ?em=alert)
 emv = Counter((e["detail"] or "") for e in rows if e["kind"] == "visit" and (e["detail"] or "").startswith("email-"))
 out.append("Visits from our emails: " + (", ".join(f"{k[6:]} {v}" for k, v in emv.most_common()) or "none yet"))
