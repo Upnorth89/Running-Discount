@@ -585,7 +585,8 @@ const ANA=(()=>{const ls=k=>{try{return localStorage.getItem(k)}catch(e){return 
   document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")bye();else{away=false;t0=Date.now()}});
   addEventListener("pagehide",bye);
   addEventListener("error",e=>{try{add("error",(e.message||"")+" @"+((e.filename||"").split("/").pop())+":"+e.lineno)}catch(x){}});
-  if(fresh)add("visit",(matchMedia("(display-mode: standalone)").matches||navigator.standalone)?"home-screen app":document.referrer?new URL(document.referrer).hostname:"",null,location.pathname);
+  const em=(()=>{try{return (new URLSearchParams(location.search).get("em")||"").replace(/[^a-z-]/g,"").slice(0,20)}catch(e){return ""}})();   // ?em=friday|alert: links in our emails (Oct 8)
+  if(fresh)add("visit",em?"email-"+em:(matchMedia("(display-mode: standalone)").matches||navigator.standalone)?"home-screen app":document.referrer?new URL(document.referrer).hostname:"",null,location.pathname);
   return {add,nv:()=>nv}})();
 function ana(k,d,n){try{ANA.add(k,d,n)}catch(e){}}
 function track(name,data){try{if(window.umami&&umami.track)umami.track(name,data)}catch(e){}

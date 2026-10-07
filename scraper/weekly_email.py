@@ -269,7 +269,7 @@ def shoe_page_url(d, lang):
     m = SHOE_PAGES.get(slug)
     if m and m.get("to"):
         slug, m = m["to"], SHOE_PAGES.get(m["to"])
-    return f'{SITE_URL}{"chaussures" if lang == "fr" else "shoes"}/{slug}/' if m else ""
+    return f'{SITE_URL}{"chaussures" if lang == "fr" else "shoes"}/{slug}/?em=friday' if m else ""
 
 def card(d, lang="en"):
     img = (f'<img src="{E(d["img"])}" width="84" height="84" alt="" '
@@ -309,7 +309,7 @@ def shop_link(p):
 
 def build(p, sale, watch=None):
     lang = lang_of(p)
-    shop = shop_link(p)
+    shop = shop_link(p) + "&em=friday"      # Oct 8: visits from the Friday email show as "email-friday" in our analytics
     first = (p.get("name") or "").split(" ")[0] or tr(lang, "hi")
     sale.sort(key=lambda d: (-d["fav"], -score(d), d["best"]))
     sections, shown = [], 0

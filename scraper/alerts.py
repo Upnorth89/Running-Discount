@@ -116,7 +116,7 @@ def build(sub, drops, backs):
         subject = at(lang, "subj_back", d["b"], W.nm(d["n"], lang))
     else:
         subject = at(lang, "subj_many", n)
-    shop = f"{W.SITE_URL}?k={sub['token']}"
+    shop = f"{W.SITE_URL}?k={sub['token']}&em=alert"      # visits from alerts show as "email-alert" in our analytics
     rows = "".join(alert_row("drop", a, lang) for a in drops) + "".join(alert_row("back", a, lang) for a in backs)
     footer = (f'<a href="{E(shop)}" style="color:#5C6660">{E(at(lang, "watchlist"))}</a> · '
               f'<a href="{E(W.SITE_URL)}?unsub={sub["token"]}" style="color:#5C6660">{E(W.tr(lang, "unsubscribe"))}</a> · '

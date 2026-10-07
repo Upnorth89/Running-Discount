@@ -494,7 +494,8 @@ var ana=(function(){{var ls=function(k){{try{{return localStorage.getItem(k)}}ca
   var away=false,bye=function(){{if(away)return;away=true;add("leave",null,Math.round((Date.now()-t0)/1000));clearTimeout(T);T=null;flush(true)}};
   document.addEventListener("visibilitychange",function(){{if(document.visibilityState==="hidden")bye();else{{away=false;t0=Date.now()}}}});
   addEventListener("pagehide",bye);
-  if(fresh)add("visit",document.referrer?new URL(document.referrer).hostname:"",null,location.pathname);
+  var em="";try{{em=(new URLSearchParams(location.search).get("em")||"").replace(/[^a-z-]/g,"").slice(0,20)}}catch(e){{}}   /* ?em=friday: from our emails */
+  if(fresh)add("visit",em?"email-"+em:document.referrer?new URL(document.referrer).hostname:"",null,location.pathname);
   var m=location.pathname.match(/^\/(?:us\/)?(?:shoes|chaussures)\/([^\/]+)\/$/);add("shoe-page-view",m?m[1]:location.pathname);
   return add}})();
 (function(){{var p,box=document.getElementById("mine");if(!box)return;

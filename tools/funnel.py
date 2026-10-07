@@ -133,6 +133,9 @@ if hl:
 ret = [s for s in S.values() if (s["nv"] or 0) > 1]
 out.append(f"Returning visits {len(ret)}: clicked a deal {pct(sum(1 for s in ret if 'deal-click' in s['kinds']), len(ret))}")
 
+# visits from our emails (Oct 8: links carry ?em=friday / ?em=alert)
+emv = Counter((e["detail"] or "") for e in rows if e["kind"] == "visit" and (e["detail"] or "").startswith("email-"))
+out.append("Visits from our emails: " + (", ".join(f"{k[6:]} {v}" for k, v in emv.most_common()) or "none yet"))
 # coming back (Oct 8): devices by the day they first came, how many came back on a later day, by where they first came from
 try:
     dv, step = [], 1000
