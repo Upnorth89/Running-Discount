@@ -1231,9 +1231,9 @@ SHOPIFY_STORES = [
     ("forerunners",    "https://shop.forerunners.ca",        "gear"),   # Forerunners (Vancouver; shop on its own address)
     # added 2026-10-07
     ("runuphill",      "https://runuphill.ca",               "gear"),   # Ski Uphill / Run Uphill (Canmore + Squamish; same shop as skiuphill.ca)
-    # checked Oct 8, waiting for Bastien's OK (sorting check clean; preview ready):
-    # ("trailrunner",    "https://trailrunnerstore.com",       "gear"),   # The Trail Runner Store (Toronto)
-    # ("cowichan",       "https://cowichanvalleyrunning.com",  "gear"),   # Cowichan Valley Running (Mill Bay, BC)
+    # added 2026-10-08 (sorting check clean)
+    ("trailrunner",    "https://trailrunnerstore.com",       "gear"),   # The Trail Runner Store (Toronto)
+    ("cowichan",       "https://cowichanvalleyrunning.com",  "gear"),   # Cowichan Valley Running (Mill Bay, BC)
     # added 2026-10-03
     ("aerobicsfirst",  "https://www.aerobicsfirst.com",      "gear"),   # Aerobics First (Halifax)
     ("cityparkrunners", "https://www.cityparkrunners.com",   "gear"),   # City Park Runners (Winnipeg)
