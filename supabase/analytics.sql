@@ -47,7 +47,8 @@ create or replace function public.ana_kinds() returns text[] language sql immuta
   select array['visit','leave','scroll','welcome-view','signup-step','sizes-saved','peek-view','signup','signup-confirmed',
                'signin','resend','deal-click','watch-add','watch-remove','watchlist-open','watch-from-page','search',
                'search-none','category','type','filter','sort','menu','language','currency','share','shoe-page-link',
-               'shoe-page-view','shoe-page-size','more','ref-visit','error']
+               'shoe-page-view','shoe-page-size','more','ref-visit','error',
+               'store-offer','store-view','canadian','country']   -- Oct 8: these four were sent but dropped
 $$;
 
 -- the site calls this with a small batch of events (anyone can add, nobody can read)

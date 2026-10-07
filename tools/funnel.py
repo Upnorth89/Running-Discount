@@ -111,7 +111,7 @@ out.append(f"Sessions with a deal click: {len(clk)} (first visits {sum(1 for s i
 wh = Counter()
 for e in rows:
     if e["kind"] == "signup":
-        wh[(e["detail"] or "?").split("|")[0][:20]] += 1
+        wh[(e["detail"] or "?")[:30]] += 1
 out.append("Sign-ups by where (detail): " + (", ".join(f"{k} {v}" for k, v in wh.most_common(6)) or "none recorded"))
 ret = [s for s in S.values() if (s["nv"] or 0) > 1]
 out.append(f"Returning visits {len(ret)}: clicked a deal {pct(sum(1 for s in ret if 'deal-click' in s['kinds']), len(ret))}")
