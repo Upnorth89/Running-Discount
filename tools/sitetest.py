@@ -544,6 +544,21 @@ def site_flow(base, per, accented):
             assert "Pick your clothing size" in pg.inner_text("main"), "clothing doesn't offer to pick a clothing size"
             return f"{n} deals in every size, then men's 10"
         check("Just show me deals, sizes later")(browse, pg)
+
+        def canadian():   # Oct 7: Canadian brands filter (Canada side): only maple-leaf brands, a box saying so, × turns it off
+            pg.goto(base + "?canadian", wait_until="domcontentloaded")
+            pg.wait_for_selector(".cdnbar", timeout=20000)
+            settle(pg)
+            brands = pg.eval_on_selector_all("#dealList .deal .brand", "e => e.map(x => [x.textContent, !!x.querySelector('.leaf')])")
+            assert len(brands) >= 5, f"only {len(brands)} Canadian-brand deals"
+            bad = sorted({b for b, leaf in brands if not leaf})
+            assert not bad, f"non-Canadian brands in the Canadian view: {', '.join(bad[:5])}"
+            assert "not always made in Canada" in pg.inner_text(".cdnbar"), "the box doesn't say 'not always made in Canada'"
+            pg.click("[data-cdnoff]")
+            settle(pg)
+            assert not pg.locator(".cdnbar").count(), "× All brands doesn't turn it off"
+            return f"{len(brands)} cards, all Canadian brands"
+        check("Canadian brands filter")(canadian, pg)
         ctx2.close()
 
         # an American visitor (Oct 6, 2026): a US time zone opens the USA side; the switch goes back to Canada
