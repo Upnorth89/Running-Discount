@@ -222,7 +222,23 @@ begin
                   select metric, key, n from ana_daily where key <> '' and day >= today - d and day < today
                   union all select metric, key, n from ana_metrics(today) where key <> '') q
                 group by metric, key) r group by metric) x),
-    'report', ana_report(greatest(now() - make_interval(days => d), now() - interval '45 days'), now()));   -- funnel, searches, cohorts
+    'report', ana_report(greatest(now() - make_interval(days => d), now() - interval '45 days'), now()),   -- funnel, searches, cohorts
+    -- Oct 8 (Bastien: post and notify when shoppers are around): visits, deal clicks and sign-ups by the visitor's own local
+    -- hour and weekday (each event carries the device's time zone; Vancouver when unknown or not a real zone name)
+    'hours', (select coalesce(jsonb_agg(jsonb_build_object('h', h, 'v', v, 'c', c, 's', s) order by h), '[]') from (
+              select extract(hour from at at time zone z)::int h, count(*) filter (where kind = 'visit') v,
+                     count(*) filter (where kind = 'deal-click') c, count(*) filter (where kind = 'signup') s
+              from (select e.at, e.kind, coalesce(t.name, 'America/Vancouver') z from ana_events e
+                    left join pg_timezone_names t on t.name = e.tz
+                    where e.at > greatest(now() - make_interval(days => d), now() - interval '45 days')
+                      and e.kind in ('visit', 'deal-click', 'signup')) q group by 1) x),
+    'weekdays', (select coalesce(jsonb_agg(jsonb_build_object('d', dw, 'v', v, 'c', c) order by dw), '[]') from (
+              select extract(isodow from at at time zone z)::int dw, count(*) filter (where kind = 'visit') v,
+                     count(*) filter (where kind = 'deal-click') c
+              from (select e.at, e.kind, coalesce(t.name, 'America/Vancouver') z from ana_events e
+                    left join pg_timezone_names t on t.name = e.tz
+                    where e.at > greatest(now() - make_interval(days => d), now() - interval '45 days')
+                      and e.kind in ('visit', 'deal-click')) q group by 1) x));
 end $$;
 revoke all on function public.ana_dashboard(text, int) from public;
 grant execute on function public.ana_dashboard(text, int) to anon, authenticated;

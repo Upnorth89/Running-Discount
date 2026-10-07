@@ -72,6 +72,13 @@ th:first-child,td:first-child{text-align:left}th{color:var(--muted);font-weight:
     <div class="card"><h2>Sign-ups per day</h2><p class="sub">Friday email sign-ups</p><div class="chart small"><canvas id="cSignups" aria-label="Sign-ups per day"></canvas></div></div>
     <div class="card"><h2>Deal clicks per day</h2><p class="sub">Shoppers sent to stores</p><div class="chart small"><canvas id="cClicks" aria-label="Deal clicks per day"></canvas></div></div>
   </div>
+  <div class="card" id="whenCard"><h2>When shoppers are around</h2><p class="sub">Each visitor's own local time · use it to time posts and notifications</p>
+    <p id="whenTop" style="margin:4px 0 10px;font-weight:600"></p>
+    <div class="legend"><span><i style="background:var(--s1)"></i>Visits</span><span><i style="background:var(--s2)"></i>Deal clicks</span></div>
+    <div class="chart"><canvas id="cHours" aria-label="Visits and deal clicks by hour of the day, local time"></canvas></div>
+    <h2 style="margin-top:16px;font-size:16px">By day of the week</h2>
+    <div class="chart small"><canvas id="cDays" aria-label="Visits and deal clicks by day of the week"></canvas></div>
+    <p class="muted" id="whenNote"></p></div>
   <div class="grid2">
     <div class="card"><h2>New visitors: where they drop off</h2><p class="sub" id="funnelSub"></p><div class="bars" id="funnel"></div></div>
     <div class="card"><h2>Do they come back?</h2><p class="sub">Of the devices first seen each week</p><div id="cohorts"></div></div>
@@ -124,6 +131,17 @@ function render(d){
   line("cVisitors",lab,[{label:"Visitors",data:m("visitors"),color:css("--s1")},{label:"New visitors",data:m("new_visitors"),color:css("--s2")}]);
   line("cSignups",lab,[{label:"Sign-ups",data:m("signups"),color:css("--s1")}],"bar");
   line("cClicks",lab,[{label:"Deal clicks",data:m("clicks"),color:css("--s1")}],"bar");
+  // when shoppers are around (Oct 8): hours 0-23 and weekdays in each visitor's own time zone
+  if(d.hours){$("whenCard").hidden=false;
+    const H=Array.from({length:24},(_,h)=>(d.hours.find(x=>x.h===h)||{h,v:0,c:0,s:0}));
+    const hl=h=>h===0?"12am":h<12?h+"am":h===12?"12pm":(h-12)+"pm";
+    line("cHours",H.map(x=>hl(x.h)),[{label:"Visits",data:H.map(x=>x.v),color:css("--s1")},{label:"Deal clicks",data:H.map(x=>x.c),color:css("--s2")}],"bar");
+    const top=(k)=>H.slice().sort((a,b)=>b[k]-a[k])[0],tc=top("c"),tv=top("v"),ts=top("s");
+    $("whenTop").textContent=H.some(x=>x.v)?`Most deal clicks around ${hl(tc.h)} · most visits around ${hl(tv.h)}`+(ts.s?` · most sign-ups around ${hl(ts.h)}`:""):"Nothing yet.";
+    const DN=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],W=DN.map((n,i)=>(d.weekdays||[]).find(x=>x.d===i+1)||{v:0,c:0});
+    line("cDays",DN,[{label:"Visits",data:W.map(x=>x.v),color:css("--s1")},{label:"Deal clicks",data:W.map(x=>x.c),color:css("--s2")}],"bar");
+    $("whenNote").textContent="From the raw events (the last 45 days at most). A big post on one day tilts it: give it 2–3 weeks.";
+  }else $("whenCard").hidden=true;
   const r=d.report||{},f=r.funnel_new||{},b=d.breakdown||{};
   $("funnelSub").textContent=`${fmt(f.sessions)} first visits in this period (last 45 days at most)`;
   bars("funnel",[["Arrived",f.sessions],["Saw the welcome",f.welcome],["Picked their sizes",f.sizes],["Saw their deals",f.peek],["Signed up",f.signup],["Clicked a deal",f.clicked]]
