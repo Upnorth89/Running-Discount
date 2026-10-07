@@ -133,6 +133,34 @@ if hl:
 ret = [s for s in S.values() if (s["nv"] or 0) > 1]
 out.append(f"Returning visits {len(ret)}: clicked a deal {pct(sum(1 for s in ret if 'deal-click' in s['kinds']), len(ret))}")
 
+# coming back (Oct 8): devices by the day they first came, how many came back on a later day, by where they first came from
+try:
+    dv, step = [], 1000
+    while True:
+        r = requests.get(f"{SB}/rest/v1/ana_devices", headers={**H, "Range": f"{len(dv)}-{len(dv) + step - 1}"}, timeout=60,
+                         params={"select": "first_day,last_day,days,signed_up,ref,dev", "order": "first_day"})
+        r.raise_for_status()
+        b = r.json()
+        dv += b
+        if len(b) < step:
+            break
+    today = datetime.now(timezone.utc).date()
+    old = [d for d in dv if (today - datetime.fromisoformat(d["first_day"]).date()).days >= 7]   # had a week to come back
+    back = lambda g: sum(1 for d in g if (d["days"] or 1) > 1)
+    if old:
+        out.append(f"COMING BACK (devices first seen 7+ days ago: {len(old)}): came back on another day {pct(back(old), len(old))}, "
+                   f"3+ days {pct(sum(1 for d in old if (d['days'] or 1) >= 3), len(old))}")
+        su = [d for d in old if d["signed_up"]]
+        out.append(f"  signed up {len(su)}: came back {pct(back(su), len(su))} | not signed up {len(old) - len(su)}: came back "
+                   f"{pct(back([d for d in old if not d['signed_up']]), len(old) - len(su))}")
+        refs = Counter((d["ref"] or "(direct)") for d in old)
+        out.append("  by first link: " + ", ".join(f"{k} {pct(back([d for d in old if (d['ref'] or '(direct)') == k]), n)}"
+                                                  for k, n in refs.most_common(7)))
+        out.append("  by device: " + ", ".join(f"{k} {pct(back([d for d in old if d['dev'] == k]), n)}"
+                                              for k, n in Counter(d["dev"] for d in old).most_common(3)))
+except Exception as e:
+    out.append(f"Coming back: couldn't read devices ({str(e)[:80]})")
+
 text = "\n".join(out)
 print(text)
 if os.environ.get("GITHUB_ACTIONS"):
