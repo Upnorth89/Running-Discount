@@ -212,6 +212,10 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   keeps the last good read) and the refresh loads /tmp/decathlon.json (`scrape_decathlon_saved`). MEC/REI: from saved pages only.
   SVP Sports (Oct 4, Québec chain, Shopify behind Cloudflare): saved pages too: the Grab deals bookmark on any SVP collection
   saves its products.json (svp-DATE.json, `scrape_svp_saved`); expires after 10 days like MEC/REI. PARKED Oct 6 (mostly soccer/budget shoes): out of STORES, no reminders.
+- Run Uphill / Ski Uphill (Oct 7; runuphill.ca = skiuphill.ca, Canmore + Squamish): half ski touring, filtered by NOT_RUNNING ski words
+  (skis, bindings, skins, helmets, goggles except goodr "Donkey Goggles", glide wax, airbags). Its "Size (US M)" options count as sizes (SIZE_OPT).
+  Checked and skipped Oct 7: Deadstock (sneaker/streetwear, ~24 running shoes). Amazon: no scraping; only via Associates + API (needs 3 sales
+  and affiliate links): parked.
 - Known: Honey Stinger is blocked from GitHub's servers (works elsewhere); REI needs fresh saved pages.
 - **`STORES.md`** lists every store we read, ones checked and rejected (blocked, no feed) and ones waiting:
   check it before testing a shop, update it after.
