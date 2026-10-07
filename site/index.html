@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>The Gear Fox — gear deals in your size</title>
+<title>The Gear Fox | Running deals in your size</title>
 <meta name="description" content="The Gear Fox finds running and outdoor gear on sale in your size, from stores across Canada and beyond. Outfox full price.">
 <meta name="theme-color" content="#F26A1B">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -13,7 +13,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Gear Fox">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta property="og:title" content="The Gear Fox — Outfox full price">
+<meta property="og:title" content="The Gear Fox | Outfox full price">
 <meta property="og:description" content="Gear deals in your size, from stores across Canada and beyond.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="The Gear Fox">
@@ -669,7 +669,7 @@ en:{
   minAgo:m=>`${m} min ago`,hAgo:h=>`${h} h ago`,daysAgo:d=>`${d} days ago`,
   loadFail:"Couldn't load today's gear. Reload to try again.",loading:"Loading today's gear…",
   searchWide:"Nothing in the categories you picked, so here are matches from every category.",finalSale:"Final sale",lowDays:d=>`Lowest price in ${d} days`,lowL1:"Lowest price",lowStampDays:d=>`${d} days`,lowL2:d=>`in <b>${d}</b> days`,lowDaysTip:"The lowest price we've seen for it since we started tracking, in any store",finalSaleTip:"This store takes no returns or exchanges on this item at this price",inYourSize:"In your size:",isNew:"New",bestBy:d=>`Short-dated: best by ${d}`,
-  atStore:n=>`at ${n}`,shareTxt:"Know a runner who hates paying full price?",shareBtn:"Share",shareCopied:"Link copied: paste it anywhere.",shareCopy:"Copy this link:",
+  atStore:n=>`at ${n}`,shareTxt:"Know a runner who hates paying full price?",shareBtn:"Share",shareCopied:"Link copied. Paste it anywhere.",shareCopy:"Copy this link:",
   get shareText(){return `Running and outdoor gear on sale in your size, from stores ${US()?"across the US":"across Canada"}.`},usFuel:"Includes US stores: fuel ships well, and each deal says where it ships from.",shipsFrom:c=>`ships from ${({US:"the US",CA:"Canada",UK:"the UK",FR:"France",DK:"Denmark",AU:"Australia"})[c]||(US()?"outside the US":"outside Canada")}, duties may apply`,showMore:n=>`Show ${n} more`,
   allGear:"All gear",typeAll:"All",types:{daily:"Daily trainers",race:"Carbon & race",trail:"Trail",hike:"Hiking & winter",spike:"Track & XC spikes",light:"Lights",pole:"Poles",bottle:"Bottles & flasks",sun:"Sunglasses",tee:"T-shirts & tanks",layer:"Long sleeves & hoodies",jacket:"Jackets & vests",short:"Shorts",tight:"Tights",pant:"Pants"},
   get shipsCA(){return US()?"Ships from the US":"Ships from Canada"},saleOnly:"Include full price",
@@ -684,7 +684,7 @@ en:{
   watchLedeOn:"We'll email you when any of these drop in price or come back in your size.",
   watchLedeOff:"Confirm your email to get alerts when these drop in price or come back in your size.",
   watchEmpty:"Tap the ♡ on any deal to watch it. We'll email you when it drops in price or comes back in your size.",
-  pricesChange:"Prices and stock change daily; the product page has the final price.",
+  pricesChange:"Prices and stock change every day. The store's page has the final price.",
   newSince:n=>`<b>${n}</b> new since your last visit`,show:"Show",
   filters:"Filters",ledeShort:(s,u,m)=>`${s} deals today${m?` · <b class="saved">${m} off</b> found this month`:""}${u?` · updated ${u}`:""}`,
   watchShort:(d,b)=>"<b>Watchlist:</b> "+[d?`${d} price ${PL(d,"drop","drops")}`:"",b?`${b} back in your size`:""].filter(Boolean).join(" · "),see:"See",
@@ -698,7 +698,7 @@ en:{
   nothing:"Nothing matches right now. Try clearing the search or picking more categories.",addSizes:"Add your sizes to hide gear that won't fit. ",
   checkInbox:"Check your inbox",checkInboxTxt:e=>`Tap the link we sent to ${e} to start your Friday email.`,
   junkHint:"Not there after a minute? Check Junk or Promotions (Outlook and Hotmail often file us there) and mark it \"Not junk\".",
-  resend:"Send it again",resendFail:"Couldn't send just now. Try again in a minute.",resent:"Sent again. Give it a minute.",resendWait:"Just sent: wait a minute, then check Junk.",
+  resend:"Send it again",resendFail:"Couldn't send just now. Try again in a minute.",resent:"Sent again. Give it a minute.",resendWait:"Just sent. Give it a minute, then check Junk.",
   otherEmail:"Use a different email",getDeals:"Get deals like these every Friday",
   getDealsTxt:"One email, Friday morning, only gear on sale in your sizes.",perksTitle:"Free with your email",perk1:"An alert when gear you heart drops in price",perk2:"Your best deals every Friday morning",perk3:"Your sizes and hearts on all your devices",noThanks:"No thanks",peekTitle:n=>`${n} deals in your size today`,peekTxt:"Add your email to see them all, get price-drop alerts on deals you heart, and the best ones every Friday.",peekG:"or continue with Google",email:"Email",signUp:"Sign up",
   signupFine:'We\'ll email you to confirm. Unsubscribe with one tap. <a href="privacy.html">Privacy</a>',
@@ -763,7 +763,7 @@ fr:{
   minAgo:m=>`il y a ${m} min`,hAgo:h=>`il y a ${h} h`,daysAgo:d=>`il y a ${d} jours`,
   loadFail:"Impossible de charger les produits du jour. Rechargez la page.",loading:"Chargement des produits du jour…",
   searchWide:"Rien dans les catégories choisies, alors voici les résultats de toutes les catégories.",finalSale:"Vente finale",lowDays:d=>`Plus bas prix en ${d} jours`,lowL1:"Plus bas prix",lowStampDays:d=>`${d} jours`,lowL2:d=>`en <b>${d}</b> jours`,lowDaysTip:"Le plus bas prix qu'on a vu pour cet article depuis qu'on le suit, toutes boutiques confondues",finalSaleTip:"Cette boutique n'accepte ni retour ni échange sur cet article à ce prix",inYourSize:"À votre taille :",isNew:"Nouveau",bestBy:d=>`Date courte : meilleur avant le ${d}`,
-  atStore:n=>`chez ${n}`,shareTxt:"Un ami coureur déteste payer le plein prix ?",shareBtn:"Partager",shareCopied:"Lien copié : collez-le où vous voulez.",shareCopy:"Copiez ce lien :",
+  atStore:n=>`chez ${n}`,shareTxt:"Un ami coureur déteste payer le plein prix ?",shareBtn:"Partager",shareCopied:"Lien copié. Collez-le où vous voulez.",shareCopy:"Copiez ce lien :",
   get shareText(){return `Des aubaines de course et de plein air dans votre taille, dans des boutiques ${US()?"partout aux États-Unis":"partout au Canada"}.`},usFuel:"Comprend des boutiques américaines : la nutrition voyage bien, et chaque aubaine indique d'où elle est expédiée.",shipsFrom:c=>`expédié ${({US:"des États-Unis",CA:"du Canada",UK:"du Royaume-Uni",FR:"de France",DK:"du Danemark",AU:"d'Australie"})[c]||(US()?"de l'extérieur des États-Unis":"de l'extérieur du Canada")}, des droits peuvent s'appliquer`,showMore:n=>`Voir ${n} de plus`,
   allGear:"Tout",typeAll:"Tout",types:{daily:"Entraînement",race:"Carbone et compétition",trail:"Sentier",hike:"Randonnée et hiver",spike:"Pointes (piste et cross)",light:"Frontales",pole:"Bâtons",bottle:"Gourdes et flasques",sun:"Lunettes de soleil",tee:"T-shirts et camisoles",layer:"Manches longues et kangourous",jacket:"Manteaux et vestes",short:"Shorts",tight:"Collants",pant:"Pantalons"},
   get shipsCA(){return US()?"Expédié des États-Unis":"Expédié du Canada"},saleOnly:"Inclure le prix régulier",
@@ -778,7 +778,7 @@ fr:{
   watchLedeOn:"On vous écrit quand l'un de ces articles baisse de prix ou revient dans votre taille.",
   watchLedeOff:"Confirmez votre courriel pour être avisé quand ces articles baissent de prix ou reviennent dans votre taille.",
   watchEmpty:"Touchez le ♡ sur une aubaine pour l'ajouter à vos favoris. On vous écrit quand le prix baisse ou quand votre taille revient.",
-  pricesChange:"Les prix et les stocks changent chaque jour; le prix final est sur la page du produit.",
+  pricesChange:"Les prix et les stocks changent tous les jours. Le prix final est sur la page de la boutique.",
   newSince:n=>`<b>${n}</b> ${PL(n,"nouveauté","nouveautés")} depuis votre dernière visite`,show:"Voir",
   filters:"Filtres",ledeShort:(s,u,m)=>`${s} aubaines aujourd'hui${m?` · <b class="saved">${m} de rabais</b> trouvés ce mois-ci`:""}${u?` · mis à jour ${u}`:""}`,
   watchShort:(d,b)=>"<b>Favoris :</b> "+[d?`${d} ${PL(d,"baisse de prix","baisses de prix")}`:"",b?`${b} de retour dans votre taille`:""].filter(Boolean).join(" · "),see:"Voir",
@@ -792,7 +792,7 @@ fr:{
   nothing:"Rien ne correspond pour l'instant. Effacez la recherche ou choisissez plus de catégories.",addSizes:"Ajoutez vos tailles pour cacher ce qui ne vous va pas. ",
   checkInbox:"Vérifiez vos courriels",checkInboxTxt:e=>`Cliquez sur le lien envoyé à ${e} pour activer votre courriel du vendredi.`,
   junkHint:"Pas reçu après une minute? Vérifiez les courriels indésirables ou Promotions (Outlook et Hotmail nous y classent souvent) et indiquez « Pas un courriel indésirable ».",
-  resend:"Renvoyer",resendFail:"Envoi impossible pour l'instant. Réessayez dans une minute.",resent:"Renvoyé. Laissez-lui une minute.",resendWait:"Tout juste envoyé : attendez une minute, puis vérifiez les indésirables.",
+  resend:"Renvoyer",resendFail:"Envoi impossible pour l'instant. Réessayez dans une minute.",resent:"Renvoyé. Laissez-lui une minute.",resendWait:"Tout juste envoyé. Donnez-lui une minute, puis vérifiez les indésirables.",
   otherEmail:"Utiliser un autre courriel",getDeals:"Recevez des aubaines comme celles-ci chaque vendredi",
   getDealsTxt:"Un courriel le vendredi matin, seulement des articles en solde dans vos tailles.",perksTitle:"Gratuit avec votre courriel",perk1:"Une alerte quand un coup de cœur baisse de prix",perk2:"Vos meilleures aubaines chaque vendredi matin",perk3:"Vos tailles et vos coups de cœur sur tous vos appareils",noThanks:"Non merci",peekTitle:n=>`${n} aubaines dans vos tailles aujourd'hui`,peekTxt:"Entrez votre courriel pour toutes les voir, être averti des baisses de prix sur vos coups de cœur et recevoir les meilleures chaque vendredi.",peekG:"ou continuer avec Google",email:"Courriel",signUp:"M'abonner",
   signupFine:'On vous écrit pour confirmer. Désabonnement en un clic. <a href="privacy.html">Confidentialité</a>',
