@@ -1509,6 +1509,9 @@ NOT_FOOD = re.compile(r"headlamp|\blights?\b|luminator|reflective|\btape\b|\btow
 BYOB = re.compile(r"build your own bundle|\bbundle\d{3,}", re.I)
 def tidy_food(offers):
     for o in offers:
+        for e in o.get("sz") or []:
+            if len(e) > 2 and e[1] and e[2] and e[2] > e[1] * 7:
+                e[2] = e[1]            # "93% off": a store's typo in the regular price (Feetures socks "was $312.97"), not a deal
         if BYOB.search(o["n"]) or re.fullmatch(r"(?=.*\d)[A-Z0-9-]{6,}", o["n"].strip()):   # a code, not a name ("MRCXLB4")
             o["g"] = "_drop"           # other shoppers' saved bundles ("Build Your Own Bundle · Bundle20740_2026-09-14T17:33")
             continue
@@ -1746,8 +1749,9 @@ def tidy_us_names(offers):
         out.append(o)
     return out
 
+BIKE_SHOE_BRANDS = {"leatt", "five ten", "shimano", "giro", "fizik", "northwave", "sidi", "ride concepts", "crankbrothers"}   # clip-in/MTB shoes (Oct 7)
 SHOE_CARE = re.compile(r"\blaces?\b|\blacets?\b|quicklace|cleaner|cleaning|repel|deodou?ri[sz]er|\bwipes\b|spike wrench|"
-                       r"\bspray\b|\bpackage\b.*spikes|\bshoe ?(bag|tree|horn)\b|\binsoles?\b", re.I)
+                       r"\bspray\b|\bpackage\b.*spikes|\bshoe ?(bag|tree|horn)\b|\binsoles?\b|quick-?clip", re.I)
 def tidy_shoes(offers):
     """Drop casual footwear and narrow-only shoes; mark wide ones from the product name."""
     out = []
@@ -1755,7 +1759,7 @@ def tidy_shoes(offers):
         if o["g"] == "shoes" and SHOE_CARE.search(o["n"]) and not re.search(r"running shoes?|\bshoes?$", o["n"], re.I):
             o["g"] = "gear"            # laces, cleaners, sprays, spike wrenches: shoe things, not shoes (Oct 7 audit)
         if o["g"] == "shoes":
-            if (o["b"] or "").lower() in CASUAL_BRANDS or CASUAL_SHOE.search(o["n"]) or SOCCER.search(o["n"]) or COURT_SHOE.search(o["n"]) \
+            if (o["b"] or "").lower() in CASUAL_BRANDS or (o["b"] or "").lower() in BIKE_SHOE_BRANDS or CASUAL_SHOE.search(o["n"]) or SOCCER.search(o["n"]) or COURT_SHOE.search(o["n"]) \
                     or LIFESTYLE_SHOE.search(f'{o["b"]} {o["n"]}'):
                 continue
             w = shoe_width_from_name(o["n"], name_gender(o["n"]) or o.get("sx"))
@@ -2027,6 +2031,25 @@ def merge(offers):
             o["n"] = o["n"][18:].lstrip(" -") or o["n"]   # Capra: "Precision" + "Fuel and Hydration - PF30 Gels"
         o["b"] = tidy_brand(o["b"])
         o["n"] = tidy_name(o["b"], o["n"])
+        if o["g"] in ("shoes", "tops", "bottoms", "bras", "socks"):
+            # a gender word or code in front, any store (US shops: "M Ghost 18", "MEN'S GEL-KAYANO 33", "Unisex ASICS Megablast"):
+            # it goes to the end like everywhere else, so one shoe gets one card and one price page (Oct 7 audit)
+            m = re.match(r"^(M|W|U|Unisex|All[- ]Gender|Men[’']?s|Women[’']?s|Mens|Womens)\s+(.+)", o["n"], re.I)
+            if m and not re.search(r"\b(wom[ae]n|men)[’']?s?\b|unisex", m.group(2), re.I):
+                k = m.group(1)[0].upper()
+                k = "U" if k == "A" else k
+                rest = tidy_name(o["b"], m.group(2))
+                if rest == rest.upper() and len(rest) > 4:
+                    rest = soften_caps(rest)
+                o["n"] = rest + {"M": " - Men's", "W": " - Women's", "U": " - Unisex"}[k]
+                o["sx"] = GENDER_PREFIX[k]
+        if o["g"] == "shoes":
+            # "Ghost 17 Road", "GT-2000 15 Running Road", "Alphafly 3 Road Racing": filler, not the model;
+            # "Speedgoat 7 GTX Trail Running" only when the model is a trail shoe anyway ("Pegasus Trail Running" keeps Trail)
+            o["n"] = re.sub(r"\s+(running road|road racing|road running|road)(?=(?:\s*\[[^\]]+\])?(?:\s+-\s+(?:Men's|Women's|Unisex))?$)", "", o["n"], flags=re.I)
+            m = re.match(r"^(.+?)\s+trail running((?:\s*\[[^\]]+\])?(?:\s+-\s+(?:Men's|Women's|Unisex))?)$", o["n"], re.I)
+            if m and garment_type("shoes", m.group(1)) == "trail" and not re.search(r"\btrail\b", m.group(1), re.I):
+                o["n"] = m.group(1) + (m.group(2) or "")
         o["sx"] = name_gender(o["n"]) or o["sx"] or clothing_gender(o)
         tidied.append(o)
     # one brand, one spelling, decided before cards are keyed ("Nathan Sports" = "Nathan", "ciele athletics" = "Ciele",

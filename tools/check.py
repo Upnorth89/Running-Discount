@@ -104,6 +104,23 @@ def main():
         return f"{n} shoe pages"
     step("Shoe pages, list pages, sitemap", pages)
 
+    def same_names():   # the site links cards to shoe pages with a JS copy of base_model + slugify: they must agree (Oct 7)
+        sys.path.insert(0, str(ROOT / "scraper"))
+        import shoe_pages as SP
+        names = [[d["b"], d["n"]] for f in ("deals.json", "deals-us.json") if (site / f).exists()
+                 for d in json.loads((site / f).read_text())["items"] if d["g"] == "shoes"]
+        html = (ROOT / "site" / "index.html").read_text()
+        js = re.search(r"function baseModel\(n\)\{.*?\n\}", html, re.S).group(0) + "\n" + \
+            re.search(r"function slugify\(t\)\{.*?\}\n", html, re.S).group(0)
+        (work / "n.json").write_text(json.dumps(names))
+        (work / "t.js").write_text(js + f"\nconsole.log(JSON.stringify(require({json.dumps(str(work / 'n.json'))}).map(([b,n])=>slugify(b+' '+baseModel(n)))));")
+        got = json.loads(subprocess.run(["node", str(work / "t.js")], capture_output=True, text=True).stdout)
+        diff = [n for n, g in zip(names, got) if SP.slugify(f"{n[0]} {SP.base_model(n[1])}") != g]
+        if diff:
+            raise RuntimeError(f"{len(diff)} shoes get a different page address on the site (e.g. {diff[0]})")
+        return f"{len(names)} shoes"
+    step("Shoe page links match (site vs pages)", same_names)
+
     def email():
         sys.path.insert(0, str(ROOT / "scraper"))
         import weekly_email as W

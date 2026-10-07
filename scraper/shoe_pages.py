@@ -212,6 +212,8 @@ def base_model(n):
     n = re.split(r"\s+[—·]\s+", n)[0]                                    # "Clifton 10 — White/White"
     n = re.sub(r"\s*[\[(](x-?wide|extra wide|wide|2e|4e|d|ee|large)[\])]\s*|\s+\b(extra wide|x-?wide|wide)\b", " ", n, flags=re.I)
     n = re.sub(r"\b((trail|road) )?running shoes?\b|\bhiking shoes?\b|\bshoes?\b", "", n, flags=re.I)
+    n = re.sub(r"^\s*(M|W|U|Unisex|All[- ]Gender|Men[’']?s|Women[’']?s)\s+", "", n, flags=re.I)        # "M Ghost 18" (Oct 7)
+    n = re.sub(r"\s+(running road|road racing|road running|road)\s*$", "", n.strip(" -"), flags=re.I)   # "Ghost 17 Road"
     return re.sub(r"\s+", " ", n).strip(" -")
 
 
@@ -774,22 +776,7 @@ def main():
     for slug, its in models.items():
         if slug not in known and len(canadian_stores(its, stores)) >= MIN_STORES:
             known[slug] = {"b": its[0]["b"], "n": f'{its[0]["b"]} {base_model(its[0]["n"])}', "t": its[0].get("t") or ""}
-    # an old page whose name now tidies into another model ("Neo Vista (Men's)" -> "Neo Vista") forwards to it
-    for slug, meta in known.items():
-        if meta.get("to") or slug in models:
-            continue
-        b = meta["b"]
-        to = slugify(f'{b} {base_model(meta["n"][len(b) + 1:] if meta["n"].lower().startswith(b.lower() + " ") else meta["n"])}')
-        if to != slug and to in known and not known[to].get("to"):
-            meta["to"] = to
-    moved = {s: v["to"] for s, v in known.items() if v.get("to")}
-    for slug, to in moved.items():
-        for L in T.values():
-            p = site / L["dir"] / slug / "index.html"
-            p.parent.mkdir(parents=True, exist_ok=True)
-            u = f"/{L['dir']}/{to}/"
-            p.write_text(f'<!DOCTYPE html><html><head><meta charset="UTF-8"><title>{esc(known[to]["n"])}</title><link rel="canonical" href="{BASE}{u}">'
-                         f'<meta name="robots" content="noindex"><meta http-equiv="refresh" content="0; url={u}"></head><body><a href="{u}">{esc(known[to]["n"])}</a></body></html>')
+    forward_old(known, models, site, [L["dir"] for L in T.values()])
     known_live = {s: v for s, v in known.items() if not v.get("to")}
     names = {s: v["n"] for s, v in known_live.items()}
     by_brand = defaultdict(list)
@@ -878,7 +865,41 @@ def main():
     (site / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
                                       "".join(f"<url><loc>{BASE}{u}</loc><lastmod>{day}</lastmod></url>\n" for u in urls) + "</urlset>\n")
     print(f"shoe pages: {len(known_live)} models ({n_live} in stock today), {2 * len(known_live)} pages EN/FR, "
-          f"{len(moved)} old addresses forwarded, {len(extra_urls)} list pages ({len(brands)} brands), sitemap {len(urls)} links")
+          f"{sum(1 for v in known.values() if v.get('to'))} old addresses forwarded, {len(extra_urls)} list pages ({len(brands)} brands), sitemap {len(urls)} links")
+
+
+NOT_SHOE_PAGE = re.compile(r"clean|\bkit\b|\blaces?\b|insoles?|spray|wipes|shoe horn", re.I)   # moved out of shoes (Oct 7)
+
+
+def forward_old(known, models, site, dirs):
+    """An old page whose name now tidies into another model ("Neo Vista (Men's)" -> "Neo Vista", "M Ghost 18" -> "Ghost 18")
+    forwards to it: noindex, canonical, out of the sitemap."""
+    for slug in [s_ for s_, v in known.items() if NOT_SHOE_PAGE.search(v["n"]) and s_ not in models]:
+        del known[slug]                # a cleaning kit that was filed as a shoe: no page (it never was one)
+    for slug, meta in known.items():
+        if meta.get("to") or slug in models:
+            continue
+        b = meta["b"]
+        rest = base_model(meta["n"][len(b) + 1:] if meta["n"].lower().startswith(b.lower() + " ") else meta["n"])
+        tries = [rest, re.sub(r"^" + re.escape(b) + r"\s+", "", rest, flags=re.I),        # "Unisex ASICS Megablast"
+                 re.sub(r"\s+trail running$", "", rest, flags=re.I)]                     # "Speedgoat 7 GTX Trail Running"
+        first = slugify(b).split("-")[0]
+        brands = [b] + sorted({v["b"] for v in known.values() if v["b"] != b and slugify(v["b"]).split("-")[0] == first})   # "Asics Corp." -> "ASICS"
+        for kb in brands:
+            for x in tries + [re.sub(r"^" + re.escape(kb) + r"\s+", "", rest, flags=re.I)]:
+                to = slugify(f"{kb} {x}")
+                if to != slug and to in known and not known[to].get("to"):
+                    meta["to"] = to
+                    break
+            if meta.get("to"):
+                break
+    for slug, to in {s: v["to"] for s, v in known.items() if v.get("to")}.items():
+        for d in dirs:
+            p = site / d / slug / "index.html"
+            p.parent.mkdir(parents=True, exist_ok=True)
+            u = f"/{d}/{to}/"
+            p.write_text(f'<!DOCTYPE html><html><head><meta charset="UTF-8"><title>{esc(known[to]["n"])}</title><link rel="canonical" href="{BASE}{u}">'
+                         f'<meta name="robots" content="noindex"><meta http-equiv="refresh" content="0; url={u}"></head><body><a href="{u}">{esc(known[to]["n"])}</a></body></html>')
 
 
 def build_us(site, stores, ca_models, ca_brands):
@@ -904,6 +925,7 @@ def build_us(site, stores, ca_models, ca_brands):
     for slug, its in models.items():
         if slug not in known and len({host(u) for d in its for u in d["of"] if us_store(host(u))}) >= MIN_STORES:
             known[slug] = {"b": its[0]["b"], "n": f'{its[0]["b"]} {base_model(its[0]["n"])}', "t": its[0].get("t") or ""}
+    forward_old(known, models, site, ["us/shoes"])
     live = {s: v for s, v in known.items() if not v.get("to")}
     names = {s: v["n"] for s, v in live.items()}
     by_brand = defaultdict(list)

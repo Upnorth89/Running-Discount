@@ -227,6 +227,12 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   every health check (morning + afternoon emails: "Sorting check, …"). Known-fine items go in its `OK` list. Fixes live in scrape.py:
   `tidy_food` (+ NOT_FOOD, BYOB), SHOE_CARE in `tidy_shoes`, CLOTH_TOPW/BOTW/STRONG in `tidy_clothes`, BRAND_ALIAS, DISTRIBUTORS
   (Back River = a distributor: real brand taken from the name). Oct 7 audit: ~800 suspects -> ~1.
+- Shoe names (Oct 7 audit): a gender word/code in front ("M Ghost 18", "MEN'S GEL-KAYANO 33", "Unisex ASICS Megablast") moves to the
+  end for any store; filler "Road", "Running Road", "Road Racing" goes; "X Trail Running" -> "X" only when X is a trail model.
+  base_model (shoe_pages.py) and baseModel (index.html) strip the same; `tools/check.py` step "Shoe page links match" compares
+  them on every shoe. `forward_old()` (Canada and USA) forwards old pages to the tidy name, also across old brand spellings
+  ("Asics Corp.", "Topo"); registered non-shoes (cleaning kits) lose their page. Bike shoes (BIKE_SHOE_BRANDS: Leatt…) dropped.
+  A regular price 7x+ the sale price is a store typo: ignored (no "93% off").
 - **Rule (Bastien, Oct 7): after adding a store, check every category before it goes live**: remerge with the new store, then
   `python scraper/sortcheck.py <deals.json> <store domain>` must come back clean (or each hit explained), and look at the store's
   items per category in the preview (`?store=<domain>`).
