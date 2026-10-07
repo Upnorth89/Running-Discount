@@ -386,6 +386,14 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   stores"; matchItems keeps only sizes whose best price is at that store; ships-from filter ignored). `?store=<domain>` opens it.
   A deal counts for a store when that store has the best price in one of your sizes. Card link + Filters store list were tried in
   the preview and left out (clutter). Analytics: store-offer, store-view {store|from}.
+- Sign-up spots (Oct 8, from the funnel: 3% of first visitors signed up; 209 Google visitors on shoe pages had no way to sign up):
+  shoe pages' "Email me when the X drops in my size" box (`#alertBox`, shoe_pages.py; needs a size from rd-profile or the picker;
+  posts `subscribe` itself, puts the shoe in gf-watch) and the homepage come-back bar's sign-up offer (`offerSignup()`: non-members,
+  first return per visit; the store offer waits for the next return). Hearts picked before signing up ride in the profile as
+  `watch_new` and come back with the confirm link on any device. Site tests "Sign-up bar after a deal click", "Shoe page: email me…".
+- Analytics kinds (Oct 8): the database drops any event kind not in `ana_kinds()` (store bar/Canadian/country were lost Oct 5–8);
+  `tools/check.py` "Analytics events are all recorded" fails if the site sends one it doesn't list. New kind = SQL for Bastien.
+  `load` = ms until the deals show (+ connection, data size); the funnel report shows load bands vs sizes picked.
 - Canadian brands (Oct 7, Bastien): Filters chip "🍁 Canadian brands" (Canada side only, `view.cdn`, `?canadian` link for posts),
   box "Canadian companies, not always made in Canada", 🍁 after the brand on cards. List `CDN_BRANDS` in index.html, checked by hand
   (stores' own lines only when really theirs). Not "made in Canada" (no data; most are made overseas). Analytics: canadian {on|off|from}.
