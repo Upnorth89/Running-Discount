@@ -121,6 +121,16 @@ def check():
         problems.append(("shoepages", f"Only {pages} shoe price pages were built today (normally 350+): the shoe pages step "
                                       "failed, so Google and visitors get 'page not found'. Claude should look at the refresh log."))
 
+    # sorting check (Oct 7, 2026; Bastien: wrong categories are the most common bug): items filed in the wrong place
+    try:
+        import sortcheck
+        for f, side in (("deals.json", ""), ("deals-us.json", " (USA)")):
+            if (SITE / f).exists():
+                for k, m in sortcheck.report(load(SITE / f).get("items", []), side=side):
+                    problems.append((f"sort:{k}{side}", m))
+    except Exception as e:
+        problems.append(("sortcheck", f"The sorting check couldn't run ({str(e)[:80]})."))
+
     # the site test (tools/sitetest.py): a robot visitor clicked through today's site before it was published
     st = load(Path(os.environ.get("SITETEST", "/tmp/sitetest.json")))
     for c in st.get("checks", []):

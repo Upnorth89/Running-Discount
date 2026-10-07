@@ -1213,8 +1213,7 @@ try{if(new URLSearchParams(location.search).has("canadian"))view.cdn=true}catch(
 const CDN_BRANDS=new Set(["arc'teryx","ciele","norda","naak","kombi","auclair","lole","tentree","duer","tilley","garneau","sugoi","saxx","mec",
   "atmosphere","reigning champ","knix","chlorophylle","baffin","indyeva","hooke","robin des bas","hornby organic","altitude sports",
   "le coureur nordique","capra","canmore sweatshop","strides",
-  "xact","xact nutrition","xact electrolytes","rose boreal","life sport","life sports gear","kinesys","kinesys performance sunscreen",
-  "back river sport","back river group"]);   // Oct 7: confirmed by Bastien
+  "xact","xact nutrition","xact electrolytes","rose boreal","life sport","life sports gear","kinesys","kinesys performance sunscreen"]);   // Oct 7: confirmed by Bastien (Back River left out: a distributor; its items are Feetures, Sprints, Tailwind)
 const cdnBrand=d=>!US()&&CDN_BRANDS.has(String(d.b).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase());
 const TYPES={shoes:["daily","race","trail","hike","spike"],tops:["tee","layer","jacket"],bottoms:["short","tight","pant"],gear:["light","pole","bottle","sun"]};   // garment type buttons under these categories (deals.json "t")
 const NEWSTYLE_DEFAULT="row";                              // "row" (A) or "sticky" (B)

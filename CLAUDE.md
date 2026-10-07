@@ -221,6 +221,15 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   check it before testing a shop, update it after.
 - **Every store reader reads the full running catalogue, full price included, never only the sale section** (Bastien, Oct 4:
   "this should always be our default"). Full-price items are what people watch for a drop, and the "Include full price" filter needs them.
+- **Sorting check** (`scraper/sortcheck.py`, Oct 7; Bastien: wrong categories are "the most common bug we find"): flags non-food
+  under Nutrition, laces/sprays/insoles under Shoes, clothing under gear/packs, tops/bottoms swapped, name vs gender, trail shoes
+  typed road, junk listings (saved bundles, SKU codes), one brand under two spellings, product names in the brand field. Runs in
+  every health check (morning + afternoon emails: "Sorting check, …"). Known-fine items go in its `OK` list. Fixes live in scrape.py:
+  `tidy_food` (+ NOT_FOOD, BYOB), SHOE_CARE in `tidy_shoes`, CLOTH_TOPW/BOTW/STRONG in `tidy_clothes`, BRAND_ALIAS, DISTRIBUTORS
+  (Back River = a distributor: real brand taken from the name). Oct 7 audit: ~800 suspects -> ~1.
+- **Rule (Bastien, Oct 7): after adding a store, check every category before it goes live**: remerge with the new store, then
+  `python scraper/sortcheck.py <deals.json> <store domain>` must come back clean (or each hit explained), and look at the store's
+  items per category in the preview (`?store=<domain>`).
 - **Adding a store** (Bastien aims for steady growth, 1–3 a week): check readability, currency, size labels
   (share readable), categories, sale share; add to `SHOPIFY_STORES`; remerge locally
   (`python scraper/scrape.py site/deals.json --remerge` with a fresh `offers.json`) and preview.
