@@ -1221,6 +1221,7 @@ SHOPIFY_STORES = [
     ("ciele",          "https://ca.cieleathletics.com",      "gear"),   # Ciele's Canadian store
     ("xact",           "https://xactnutrition.com",          "food"),
     ("naak",           "https://naak.com",                   "food"),
+    ("brix",           "https://brixrechargeparlanature.com", "food"),   # Brix (Québec maple fuel: gels, chews, waffles; Oct 7)
     # running & trail brands
     ("altra",          "https://altrarunning.com",           "gear"),
     ("janji",          "https://runjanji.com",               "gear"),
@@ -1340,9 +1341,13 @@ def generic_group(kind):
         title = p.get("title") or ""
         ptype = p.get("product_type") or ""
         tags = re.sub(r"[_:>/-]+", " ", " ".join(p.get("tags") or []))
-        if NOT_RUNNING.search(f"{title} {ptype}"):
+        if NOT_RUNNING.search(f"{title} {ptype}") or re.search(r"gift ?card|carte[- ]cadeau", title, re.I):
             return None
         g = group_of(title)
+        if kind == "food" and re.search(r"\b(soft ?cup|gobelet|bouteille|gourde|flasques?)\b", title, re.I):
+            return "gear"                  # Brix (Oct 7): a race cup, a bottle, a soft flask
+        if kind == "food" and re.search(r"\bcache[- ]cou\b", title, re.I):
+            return "headwear"              # neck gaiter
         if kind == "food":             # fuel brands: food, unless it's clearly merch/gear (a cap, a flask)
             return g if g and not FOOD.search(title) else "nutrition"
         if kind == "socks":            # sock brands: socks unless it's clearly a tee/hoodie/etc.
@@ -1829,7 +1834,7 @@ BRAND_CANON = {"hoka one one": "Hoka", "hoka": "Hoka", "asics": "ASICS", "satisf
 
 # US shops often list the parent company or distributor as the vendor (Oct 6, 2026: "Asics Corp." on all 480 US ASICS items,
 # "Brooks Sports, Inc. #105856", "Ing Source, Inc" = Injinji, "Medi USA" = CEP): company words go, then this map
-BRAND_ALIAS = {"asics america": "ASICS", "asics": "ASICS", "brooks sports": "Brooks", "nike usa": "Nike", "nike team sale": "Nike",
+BRAND_ALIAS = {"brix rechargé par la nature": "Brix", "brix recharge par la nature": "Brix", "asics america": "ASICS", "asics": "ASICS", "brooks sports": "Brooks", "nike usa": "Nike", "nike team sale": "Nike",
                "on shoes": "On", "on footwear": "On", "on-running": "On", "gu energy": "GU", "gu energy labs": "GU", "gu sports": "GU",
                "gu nutrition": "GU", "gu energy gel": "GU", "ing source": "Injinji", "medi usa": "CEP", "medi": "CEP",
                "cep / medi usa": "CEP", "cep/medi usa": "CEP", "medi usa (cep)": "CEP", "medi/cep": "CEP", "medi usa - cep": "CEP", "craft sportswear": "Craft", "craft sportsware usa": "Craft",

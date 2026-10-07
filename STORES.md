@@ -27,6 +27,7 @@ Update it whenever a store is added, rejected or changes. Counts are from Oct 2,
 | MEC | mec.ca | 213 | 207 |
 | Nordarun | nordarun.com | 128 | 2 |
 | Näak | naak.com | 62 | 5 |
+| Brix (Québec maple fuel) | brixrechargeparlanature.com | 11 | 2 |
 | Sea2Sky Nutrition | sea2skynutrition.ca | 251 | 14 |
 | Sporting Life | sportinglife.ca | 659 | 292 |
 | Strides Running (Calgary/Canmore; added Oct 3) | stridesrunning.com | 1,344 | 136 |
