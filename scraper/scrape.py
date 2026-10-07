@@ -592,7 +592,7 @@ def shopify_products(base, max_pages=40, cookies=None):
         page += 1
     return prods
 
-SIZE_OPT = re.compile(r"^(size|taille|pointure|shoe size)$", re.I)
+SIZE_OPT = re.compile(r"^(size|taille|pointure|shoe size)( ?\([^)]*\))?$", re.I)   # "Size (US M)" (Ski Uphill)
 WIDTH_OPT = re.compile(r"^(width|shoe width|shoe fit|fit|largeur)$", re.I)
 
 def width_word(w, title):
@@ -1228,6 +1228,8 @@ SHOPIFY_STORES = [
     # added 2026-10-02
     ("frontrunners",   "https://www.frontrunners.ca",        "gear"),   # Frontrunners (Victoria)
     ("forerunners",    "https://shop.forerunners.ca",        "gear"),   # Forerunners (Vancouver; shop on its own address)
+    # added 2026-10-07
+    ("runuphill",      "https://runuphill.ca",               "gear"),   # Ski Uphill / Run Uphill (Canmore + Squamish; same shop as skiuphill.ca)
     # added 2026-10-03
     ("aerobicsfirst",  "https://www.aerobicsfirst.com",      "gear"),   # Aerobics First (Halifax)
     ("cityparkrunners", "https://www.cityparkrunners.com",   "gear"),   # City Park Runners (Winnipeg)
@@ -1288,7 +1290,10 @@ SHOPIFY_STORES = [
 
 NOT_RUNNING = re.compile(r"gift ?card|pannier|eyeglasses|optical|reading glass|blue light|prescription|e-?gift|\bbike\b|cycling|\bbib\b|swim|golf|\bski\b|snowboard|\bdog\b|\bpet\b|"
                          r"\btent\b|sleeping bag|stickers?|poster|\bmug\b|\bbundle builder\b|warranty|shipping protection|"
-                         r"route protection|insurance|\bsample\b|donation", re.I)
+                         r"route protection|insurance|\bsample\b|donation|"
+                         # ski touring (Ski Uphill, Oct 7); trail crampons and goodr "Donkey Goggles" sunglasses stay
+                         r"\bskis\b|\bhelmets?\b|airbag|avalanche|(?<!donkey )\bgoggles?\b|\b(powder|pole) baskets?\b|climbing skins?|skinalp|"
+                         r"\bbindings?\b|splitboard|glide wax|liquid wax|aenergy harness|footwear refresh", re.I)
 FOOD = re.compile(r"\bgels?\b(?!-)|[ée]lectrolyte|boisson|\bbarres?\b|jujubes?|\bchews?\b|\bbars?\b|electrolyte|drink mix|hydration mix|energy|\bfuel\b|"
                   r"nutrition|recovery drink|protein|waffle|stroopwafel|salt tab|capsule", re.I)
 

@@ -30,7 +30,7 @@ STORE_NAMES = {
     "mec.ca": "MEC", "svpsports.ca": "SVP Sports", "rei.com": "REI", "decathlon.ca": "Decathlon", "footlocker.ca": "Foot Locker", "vanrunco.com": "Vancouver Running Co.",
     "lecoureurnordique.ca": "Le Coureur Nordique", "bushtukah.com": "Bushtukah", "nordarun.com": "Nordarun",
     "ca.cieleathletics.com": "Ciele", "xactnutrition.com": "Xact Nutrition", "naak.com": "Näak",
-    "boutiqueendurance.ca": "Boutique Endurance", "fitfirst.ca": "Fit First", "capra.run": "Capra Running Co.",
+    "boutiqueendurance.ca": "Boutique Endurance", "fitfirst.ca": "Fit First", "capra.run": "Capra Running Co.", "runuphill.ca": "Run Uphill",
     "lecoureur.com": "Le Coureur", "blacktoerunning.com": "BlackToe Running", "frontrunners.ca": "Frontrunners", "shop.forerunners.ca": "Forerunners",
     "aerobicsfirst.com": "Aerobics First", "cityparkrunners.com": "City Park Runners",
     "therunnersshop.com": "The Runners Shop", "stridesrunning.com": "Strides Running",

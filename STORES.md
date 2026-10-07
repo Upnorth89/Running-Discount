@@ -14,6 +14,7 @@ Update it whenever a store is added, rejected or changes. Counts are from Oct 2,
 | Boutique Endurance | boutiqueendurance.ca | 539 | 67 |
 | Bushtukah | bushtukah.com | 1,462 | 156 |
 | Capra Running Co. | capra.run | 409 | 33 |
+| Run Uphill / Ski Uphill (Canmore + Squamish; added Oct 7; skiuphill.ca = same shop; ski touring gear filtered out) | runuphill.ca | 935 | 208 |
 | City Park Runners (Winnipeg; added Oct 3) | cityparkrunners.com | 649 | 70 |
 | Ciele | ca.cieleathletics.com | 134 | 0 |
 | Decathlon | decathlon.ca | 17 | 13 |
