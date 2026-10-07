@@ -1512,7 +1512,7 @@ NOT_FOOD = re.compile(r"headlamp|\blights?\b|luminator|reflective|\btape\b|\btow
 CAMP_BRANDS = {"big agnes", "esbit"}
 NOT_SOCK = re.compile(r"t-?shirt|\btee\b|hood|jacket|sweat|pullover|\btank\b|shorts?\b|pants?\b|tights?\b|sleeve|jogger|"
                       r"boxer|brief|underwear|legging|\btop\b|shirt|bralette|\bbra\b", re.I)
-STRONG_FOOD = re.compile(r"\bgels?\b(?!-| pockets?| force)|\bchews?\b|drink mix|electrolyte|energy bar|protein|stroopwafel|(?<!wool )waffle|"
+STRONG_FOOD = re.compile(r"\bgels?\b(?!-| pockets?| force| heel| cups?)|\bchews?\b|drink mix|electrolyte|energy bar|protein|stroopwafel|(?<!wool )waffle|"
                          r"caffeine|hydration mix|\bfuel\b(?! belt|\W+n\W*\s*fly|\s*cell)|\bbars?\b(?=.*\b(\d+ ?g|pack|box|bar)\b)|nut butter|honey|\bmix\b|tablets|capsules", re.I)
 EYEWEAR_BRANDS = {"goodr", "sunski", "tifosi", "roka", "district vision", "julbo", "suncloud", "moana sunnies", "alpinamente", "knockaround"}
 SOCK_BRANDS = {"darn tough", "balega", "feetures", "injinji", "swiftwick", "wigwam", "drymax", "rockay"}
@@ -1833,7 +1833,7 @@ BRAND_ALIAS = {"asics america": "ASICS", "asics": "ASICS", "brooks sports": "Bro
                "spenco medical products": "Spenco", "strides running store": "Strides", "glide + seek": "Glide and Seek",
                "raide": "Raide Research", "moana": "Moana Sunnies", "buffs": "Buff", "hammer": "Hammer Nutrition",
                "kinesys performance sunscreen": "Kinesys", "altra zero drop footwear": "Altra", "adidas terrex": "adidas",
-               "puma north a": "Puma", "smith optics": "Smith", "lé bent": "Le Bent", "smith sport optics": "Smith", "diadora us": "Diadora", "maurten us": "Maurten",
+               "puma north a": "Puma", "smith optics": "Smith", "lé bent": "Le Bent", "naak nutrition": "Näak", "smith sport optics": "Smith", "diadora us": "Diadora", "maurten us": "Maurten",
                "nathan hydration": "Nathan", "zym hydration": "ZYM", "puma north america": "Puma", "spenco medical": "Spenco", "precision fuel & hydration": "Precision Fuel & Hydration"}   # District Vision's makers
 
 DISTRIBUTORS = {"back river sport", "back river group"}
