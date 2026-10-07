@@ -4,6 +4,10 @@ name: Store finder
 # run's annotations. One light look per shop, nothing blocked.
 on:
   workflow_dispatch:
+    inputs:
+      shops:
+        description: 'Only these shops, "STATE | Name | host" separated by ";" (empty = the whole candidates file)'
+        default: ""
 
 jobs:
   find:
@@ -15,4 +19,6 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -r scraper/requirements.txt
-      - run: python tools/find_stores.py tools/us_candidates.txt
+      - env:
+          SHOPS: ${{ inputs.shops }}
+        run: python tools/find_stores.py tools/us_candidates.txt

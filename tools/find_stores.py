@@ -16,6 +16,19 @@ H = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
 SHOE = re.compile(r"shoe|footwear|running shoe", re.I)
 
 
+def platform(base):
+    """Not Shopify: which shop system the homepage mentions (RunFree stores are readable at night, scraper/runfree.py)."""
+    try:
+        h = requests.get(base, headers=H, timeout=20).text.lower()
+    except Exception:
+        return ""
+    for k, label in (("runfree", "RunFree"), ("lightspeed", "Lightspeed"), ("woocommerce", "WooCommerce"), ("bigcommerce", "BigCommerce"),
+                     ("squarespace", "Squarespace"), ("wix.com", "Wix"), ("magento", "Magento"), ("cdn.shopify", "Shopify (feed closed)")):
+        if k in h:
+            return f", {label}"
+    return ""
+
+
 def look(line):
     state, name, hosts = [x.strip() for x in line.split("|")]
     bases = [b for host in hosts.split(",") for b in ([f"https://{host.strip()}"] if host.count(".") > 1
@@ -28,7 +41,7 @@ def look(line):
             res = (state, name, hosts, f"no answer ({type(e).__name__})", 0, 0, 0, "")
             continue
         if r.status_code != 200 or not r.text.lstrip().startswith("{"):
-            res = (state, name, hosts, f"not Shopify (HTTP {r.status_code})", 0, 0, 0, "")
+            res = (state, name, hosts, f"not Shopify (HTTP {r.status_code}){platform(base)}", 0, 0, 0, "")
             continue
         ps = r.json().get("products", [])
         if len(ps) == 250:
@@ -50,6 +63,8 @@ def look(line):
 
 
 lines = [l for l in open(sys.argv[1]).read().splitlines() if l.strip() and not l.startswith("#")]
+if os.environ.get("SHOPS"):        # one-off check from the workflow button: "NH | Run the Whites | runthewhites.com; ..."
+    lines = [l.strip() for l in os.environ["SHOPS"].split(";") if l.strip()]
 skip = set(sys.argv[2].split(",")) if len(sys.argv) > 2 else set()     # e.g. shops already added
 lines = [l for l in lines if l.split("|")[2].strip().split(",")[0] not in skip]
 with ThreadPoolExecutor(6) as ex:
