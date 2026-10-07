@@ -98,6 +98,21 @@ if shoe:
     out.append(f"SHOE PAGE first visits {len(shoe)}: picked a size {pct(sum(1 for s in shoe if 'shoe-page-size' in s['kinds']), len(shoe))}, "
                f"clicked a store {pct(sum(1 for s in shoe if 'deal-click' in s['kinds']), len(shoe))}, "
                f"went on to the homepage {pct(sum(1 for s in shoe if 'welcome-view' in s['kinds'] or 'sizes-saved' in s['kinds']), len(shoe))}")
+# come-back bar (Oct 5) and where sign-ups happen (Oct 8): is the store offer used, and does a sign-up follow a deal click?
+alls = list(S.values())
+off = [s for s in alls if "store-offer" in s["kinds"]]
+used = [s for s in off if "store-view" in s["kinds"]]
+off_clicks = [s for s in used if "deal-click" in s["kinds"]]
+out.append(f"Come-back store bar: offered in {len(off)} sessions, Show tapped in {pct(len(used), len(off))}, "
+           f"of those also clicked a deal {len(off_clicks)}")
+clk = [s for s in alls if "deal-click" in s["kinds"]]
+member_like = [s for s in clk if "signup" in s["kinds"]]
+out.append(f"Sessions with a deal click: {len(clk)} (first visits {sum(1 for s in clk if s['nv'] == 1)}); signed up in the same session {len(member_like)}")
+wh = Counter()
+for e in rows:
+    if e["kind"] == "signup":
+        wh[(e["detail"] or "?").split("|")[0][:20]] += 1
+out.append("Sign-ups by where (detail): " + (", ".join(f"{k} {v}" for k, v in wh.most_common(6)) or "none recorded"))
 ret = [s for s in S.values() if (s["nv"] or 0) > 1]
 out.append(f"Returning visits {len(ret)}: clicked a deal {pct(sum(1 for s in ret if 'deal-click' in s['kinds']), len(ret))}")
 
