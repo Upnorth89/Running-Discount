@@ -40,7 +40,8 @@ COMPANY = re.compile(r"\b(inc|corp|llc|ltd|usa|us|outlet|vermont|optics|nutritio
 
 
 # checked by hand and fine (brand + name start): a cap whose colour is "Leather Jacket", a bug jacket sold with mitts
-OK = re.compile(r"^(SOAR Running Artefact Cap|Ben's InvisiNet|Aetrex L\d)", re.I)
+OK = re.compile(r"^(SOAR Running Artefact Cap|Ben's InvisiNet|Aetrex L\d|Satisfy (TheRocker|Adizero)|rabbit (High Country|Dream Chaser)|"
+                r"Tracksmith Eliot|Tortoise & Hare Trofeo|City Park Runners XACT|CEP Pro Run Optaspeed|.*Mystery Nutrition)", re.I)
 
 
 def host(i):
@@ -86,6 +87,24 @@ def check(items, store=None):
             hits["type"].append(f"{ex} typed {t}")
         if re.search(r" - .* - | - (men|women)'s$", b, re.I):
             hits["brandname"].append(ex)
+    # the odd one out for its brand (Oct 8: a Ciele cap and goodr sunglasses under Nutrition because of the word "Bar"):
+    # a brand that is mostly something else, with one item filed as food or as a shoe
+    per = collections.defaultdict(collections.Counter)
+    for i in items:
+        per[i.get("b") or ""][i.get("g")] += 1
+    for i in items:
+        b, g = i.get("b") or "", i.get("g")
+        tot = sum(per[b].values())
+        if b and g in ("nutrition", "shoes") and tot >= 8 and per[b][g] / tot < 0.08 and not OK.search(f"{b} {i.get('n')}") \
+                and not (g == "shoes" and re.search(r"shoe|running|trail", i.get("n") or "", re.I)):
+            hits["odd"].append(f"{b} {i.get('n')} ({g}, {host(i)}; {b} is mostly {per[b].most_common(1)[0][0]})")
+    for i in items:   # a sock brand's crew sock under Tops ("Darn Tough Lifestyle | Crew")
+        b, g = i.get("b") or "", i.get("g")
+        tot = sum(per[b].values())
+        if b and g in ("tops", "bottoms") and tot >= 8 and per[b]["socks"] / tot >= 0.8 \
+                and not re.search(r"t-?shirt|\btee\b|hood|jacket|sweat|pullover|\btank\b|shorts?\b|pants?\b|tights?\b|sleeve|"
+                                  r"boxer|brief|underwear|legging|\btop\b|shirt|bralette|bra\b|jogger", i.get("n") or "", re.I):
+            hits["odd"].append(f"{b} {i.get('n')} ({g}, {host(i)}; {b} is mostly socks)")
     # one brand under two spellings
     c = collections.Counter(i.get("b") or "" for i in items)
     groups = collections.defaultdict(list)
@@ -98,7 +117,7 @@ def check(items, store=None):
              "shoes": "non-shoes under Shoes (laces, sprays, socks…)", "cloth": "clothing under gear/accessories",
              "tops": "bottoms under Tops", "bottoms": "tops under Bottoms", "gender": "name and gender disagree",
              "type": "trail shoes typed road/race", "brandname": "a product name in the brand field",
-             "brands": "one brand under two spellings"}
+             "brands": "one brand under two spellings", "odd": "food or shoes from a brand that sells neither"}
     return sorted(((k, LABEL[k], v) for k, v in hits.items()), key=lambda x: -len(x[2]))
 
 

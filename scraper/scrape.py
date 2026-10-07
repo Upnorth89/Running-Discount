@@ -72,11 +72,11 @@ RULES = [
     ("socks",     r"\bsocks?\b|\bchaussettes?\b|mini crew|micro crew|mid crew|crew height|no[- ]show|over[- ]the[- ]calf|\bquarter\b(?![- ]?zip)|cushion\b.*\bcrew\b"),
     ("gloves",    r"\bgloves?\b|\bmitts?\b|mittens"),
     ("watches",   r"\bwatch(es)?\b"),
-    ("headwear",  r"\bhats?\b|\bcaps?\b|\b(?:go|trl|crw|fst|alz|ss|gt)cap\b|beanie|toque|tuque|headband|\bbuffs?\b|neck ?gaiter|neckwear|neck ?warmer|visor"),
+    ("headwear",  r"\bhats?\b|\bcaps?\b|\b(?:go|trl|trk|crw|fst|alz|ss|gt)cap\b|beanie|toque|tuque|headband|\bbuffs?\b|neck ?gaiter|neckwear|neck ?warmer|visor"),
     ("packs",     r"hydration (vest|pack)|race vest|running vest|backpack|\bbelts?\b|waist ?pack|\bvest \d|"
                   r"(?:\bpinnacle\b|(?<![.\d])\d+ ?l\b)(?!.*\b(jacket|pants?|shell|parka|singlet|tee|shirt|shorts?|tank|tights?|bra)\b)"),   # not "3L Jacket", Janji "Pinnacle Tee"
     ("bottoms",   r"\bbottoms?\b|(?<!short sleeve )\bshorts\b|\bshort\b(?! sleeve)|tights?\b|\bpants?\b|leggings?|joggers?|skirts?|skorts?|boxers?|briefs?"),
-    ("tops",      r"t-?shirts?|\btees?\b|\bshirts?|\btops?\b|tanks?|singlets?|jackets?|\bcoats?\b|raincoats?|hood(ie|y)|\bvests?\b|gilets?|jersey|sweaters?|base ?layer|pullovers?|fleece|anorak|windbreaker|\bcrew\b|half zip|quarter zip|1/2 zip|1/4 zip|long sleeve|short sleeve|\bcrop\b"),
+    ("tops",      r"t-?shirts?|\btees?\b|\bshirts?|\btops?\b|tanks?|singlets?|jackets?|\bcoats?\b|raincoats?|hood(ie|y)|\bvests?\b|gilets?|jersey|sweaters?|base ?layer|pullovers?|fleece|anorak|windbreaker|\bcrew\b|half zip|quarter zip|1/2 zip|1/4 zip|long sleeve|longsleeve|short sleeve|\bcrop\b"),
     ("gear",      r"poles?\b|headlamp|bottles?|flasks?|sunglass|(?:arm|calf|leg|compression) sleeves?\b|gaiters|roller|massage|insoles?|chafe|chafing|\bbalm\b|\bglide\b"),
 ]
 def group_of(*texts):
@@ -1231,6 +1231,9 @@ SHOPIFY_STORES = [
     ("forerunners",    "https://shop.forerunners.ca",        "gear"),   # Forerunners (Vancouver; shop on its own address)
     # added 2026-10-07
     ("runuphill",      "https://runuphill.ca",               "gear"),   # Ski Uphill / Run Uphill (Canmore + Squamish; same shop as skiuphill.ca)
+    # checked Oct 8, waiting for Bastien's OK (sorting check clean; preview ready):
+    # ("trailrunner",    "https://trailrunnerstore.com",       "gear"),   # The Trail Runner Store (Toronto)
+    # ("cowichan",       "https://cowichanvalleyrunning.com",  "gear"),   # Cowichan Valley Running (Mill Bay, BC)
     # added 2026-10-03
     ("aerobicsfirst",  "https://www.aerobicsfirst.com",      "gear"),   # Aerobics First (Halifax)
     ("cityparkrunners", "https://www.cityparkrunners.com",   "gear"),   # City Park Runners (Winnipeg)
@@ -1467,7 +1470,7 @@ NUT_FOOD = re.compile(r"\b(gels?|chews?|bars?|mix|powder|tablets?|capsules?|serv
                       r"protein|electrolytes?|recovery|oat(meal)?s?|power cups|brownie|muffin|flapjack|pre-?workout|sampler|"
                       r"creatine|collagen|caffeine|\d+\s*mg|\d+\s*ct|pack of)\b|\+\s*(free\s*)?(\d+x\s*)?(race day\s*)?(bottles?|shirt|hat)", re.I)
 NUT_GEAR = re.compile(r"\b(soft ?flasks?|flasks?|bottles?|shakers?|race cup|musette|tote|grocery bag|boulder bag)\b", re.I)
-NUT_CAMP_BRANDS = {"msr", "jetboil", "primus", "snow peak", "soto", "optimus"}   # stove fuel, not runner fuel
+NUT_CAMP_BRANDS = {"msr", "jetboil", "primus", "snow peak", "soto", "optimus", "esbit"}   # stove fuel, not runner fuel
 NUT_WEAR = re.compile(r"\b(tee|t-?shirt|shirt|hoodie|crew ?neck|socks?|hat|trucker|beanie|toque|tuque|visor)\b", re.I)
 NUT_DROP = re.compile(r"\b(stove|fuel pump|cann?ister|cooler|rental|vip box|gift ?card|subscription)\b", re.I)
 # bike parts some fuel shops also sell (handlebar tape, chain lube, tubes); not running gear either
@@ -1498,14 +1501,22 @@ SHOE_BRANDS = {"asics", "adidas", "hoka", "brooks", "salomon", "saucony", "new b
 GEAR_SHOE = re.compile(r"\b(aero|ultra) glide\b|\bgrvl\b|\brunning shoes?\b|\btrail shoes?\b|souliers? de course", re.I)   # shoes a store filed as gear
 GEAR_ARM = re.compile(r"\barm\b.*\b(sleeves?|warmers?|coolers?)\b|\b(sleeves?|warmers?)\b.*\barm\b", re.I)
 GEAR_TIGHTS = re.compile(r"\b(tights?|leggings?|shorts)\b", re.I)
-GEAR_CAP = re.compile(r"\b(?:go|trl|crw|fst|alz|ss|gt)cap\b|\b(caps?|hats?|visors?|beanies?|toques?|tuques?)\b", re.I)
+GEAR_CAP = re.compile(r"\b(?:go|trl|trk|crw|fst|alz|ss|gt)cap\b|\b(caps?|hats?|visors?|beanies?|toques?|tuques?)\b", re.I)
 
 SHOE_SIZES = lambda o: o.get("sz") and all(re.match(r"^([MW]:)?\d{1,2}([.,][05])?$", str(e[0]).strip()) for e in o["sz"])
 
 # Not food (Oct 7 audit: ~200 gloves, socks, caps, lights filed as nutrition, mostly by stores' own product types:
 # Brainsport types Stance socks "Nutrition"; The Feed sells gear). Only when the name has no food word.
 NOT_FOOD = re.compile(r"headlamp|\blights?\b|luminator|reflective|\btape\b|\btowel|\bbag\b|\bspikes?\b|traction|massage|\bball\b|"
-                      r"flasques?|bidon|gourde|\bcup\b|soft ?flask|sleeves?\b|\bcover\b|sling", re.I)
+                      r"flasques?|bidon|gourde|\bcup\b|soft ?flask|sleeves?\b|\bcover\b|sling|bite valve|\btube\b|sheaths?|reservoir", re.I)
+CAMP_BRANDS = {"big agnes", "esbit"}
+NOT_SOCK = re.compile(r"t-?shirt|\btee\b|hood|jacket|sweat|pullover|\btank\b|shorts?\b|pants?\b|tights?\b|sleeve|jogger|"
+                      r"boxer|brief|underwear|legging|\btop\b|shirt|bralette|\bbra\b", re.I)
+STRONG_FOOD = re.compile(r"\bgels?\b(?!-| pockets?| force)|\bchews?\b|drink mix|electrolyte|energy bar|protein|stroopwafel|(?<!wool )waffle|"
+                         r"caffeine|hydration mix|\bfuel\b(?! belt|\W+n\W*\s*fly)|\bbars?\b(?=.*\b(\d+ ?g|pack|box|bar)\b)|nut butter|honey|\bmix\b|tablets|capsules", re.I)
+EYEWEAR_BRANDS = {"goodr", "sunski", "tifosi", "roka", "district vision", "julbo", "suncloud", "moana sunnies", "alpinamente", "knockaround"}
+SOCK_BRANDS = {"darn tough", "balega", "feetures", "injinji", "swiftwick", "wigwam", "drymax", "rockay"}
+CLOTH_SOCK_SHAPE = re.compile(r"\bcrew\b|no[- ]show|\bquarter\b|\bmicro\b|\bmini\b|\btab\b|over[- ]the[- ]calf|\botc\b|\bboot\b", re.I)
 BYOB = re.compile(r"build your own bundle|\bbundle\d{3,}", re.I)
 def tidy_food(offers):
     for o in offers:
@@ -1515,11 +1526,22 @@ def tidy_food(offers):
         if BYOB.search(o["n"]) or re.fullmatch(r"(?=.*\d)[A-Z0-9-]{6,}", o["n"].strip()):   # a code, not a name ("MRCXLB4")
             o["g"] = "_drop"           # other shoppers' saved bundles ("Build Your Own Bundle · Bundle20740_2026-09-14T17:33")
             continue
+        b = tidy_brand(o["b"]).lower()        # "Darn Tough Vermont" -> "darn tough"
+        if b in CAMP_BRANDS:
+            o["g"] = "_drop"           # tents, dry bags, stove fuel (The Trail Runner Store sells camping too)
+            continue
+        if b in EYEWEAR_BRANDS and o["g"] in ("nutrition", "tops", "bottoms") and not GEAR_CAP.search(o["n"]):
+            o["g"] = "gear"            # goodr "Race to the Open Bar", "Three Parts Tee": sunglasses with funny names
+            continue
+        if b in SOCK_BRANDS and o["g"] in ("tops", "bottoms") and CLOTH_SOCK_SHAPE.search(o["n"]) \
+                and not re.search(r"t-?shirt|\btee\b|hood|jacket|sweat|pullover|\btank\b|shorts?\b|pants?\b|tights?\b|sleeve", o["n"], re.I):
+            o["g"] = "socks"           # Darn Tough "Lifestyle | Crew": a sock, not a crew-neck
+            continue
         if o["g"] != "nutrition":
             continue
         if FOOD.search(o["n"]):
             g = group_of(o["n"])
-            if g in ("tops", "bottoms", "bras"):   # REI: Mammut "Aenergy" jacket, Vuori "Energy" tank top
+            if g in ("tops", "bottoms", "bras", "headwear"):   # REI: Mammut "Aenergy" jacket; Ciele "TRKCap … /Bar"
                 o["g"] = g
             continue
         g = group_of(o["n"]) or group_of(o["b"] or "")   # brand too: Buff, Body Glide
@@ -1553,7 +1575,7 @@ def tidy_gear(offers):
     return [o for o in offers if o["g"] != "_drop"]
 
 # Clothing that landed in the wrong category, and the type of each top / bottom (the site's "Jackets & vests" etc. buttons)
-CLOTH_BRA = re.compile(r"\bsports? bra\b|\bbra\b|brassi[èe]re", re.I)
+CLOTH_BRA = re.compile(r"\bsports? bra\b|\bbra\b|brassi[èe]re|(?-i:[A-Z]{2,}Bra\b)", re.I)   # Ciele "FSTBra"
 CLOTH_CAPRI = re.compile(r"\bcapri\b", re.I)
 CLOTH_NOT = re.compile(r"bottom bracket|eyejacket", re.I)          # bike parts, Oakley sunglasses
 TYPES = {
@@ -1751,7 +1773,8 @@ def tidy_us_names(offers):
 
 BIKE_SHOE_BRANDS = {"leatt", "five ten", "shimano", "giro", "fizik", "northwave", "sidi", "ride concepts", "crankbrothers"}   # clip-in/MTB shoes (Oct 7)
 SHOE_CARE = re.compile(r"\blaces?\b|\blacets?\b|quicklace|cleaner|cleaning|repel|deodou?ri[sz]er|\bwipes\b|spike wrench|"
-                       r"\bspray\b|\bpackage\b.*spikes|\bshoe ?(bag|tree|horn)\b|\binsoles?\b|quick-?clip", re.I)
+                       r"\bspray\b|\bpackage\b.*spikes|\bshoe ?(bag|tree|horn)\b|\binsoles?\b|quick-?clip|"
+                       r"replacement spikes|\d+ count\b|roll-?on|foot shield|installation", re.I)
 def tidy_shoes(offers):
     """Drop casual footwear and narrow-only shoes; mark wide ones from the product name."""
     out = []
@@ -2070,6 +2093,23 @@ def merge(offers):
     best.update({bkey(p): p for p in BRAND_PREFER})        # the official spelling wins even when no store uses it exactly
     for o in tidied:
         o["b"] = best.get(bkey(o["b"]), o["b"])
+    # food from a brand that doesn't sell food (Oct 8 audit: Brainsport files Ciele caps, goodr sunglasses and Craft mittens
+    # as "Nutrition"; US shops file ASICS Gel-Kayano there): the name's own category, else the brand's usual one,
+    # unless the name is plainly food ("XACT Energy Chews" under a store's name stays food)
+    per = collections.defaultdict(collections.Counter)
+    for o in tidied:
+        per[o["b"]][o["g"]] += 1
+    for o in tidied:
+        c = per[o["b"]]
+        tot = sum(c.values())
+        if o["g"] == "nutrition" and tot >= 8 and c["nutrition"] / tot < 0.08 and not STRONG_FOOD.search(o["n"]):
+            o["g"] = ("bottoms" if re.search(r"\d(\.\d)?\s*(\"|''|”)", o["n"]) else group_of(o["n"])) \
+                or next(g for g, _ in c.most_common() if g != "nutrition")      # rabbit "Fuel n' Fly 5"": shorts
+        elif o["g"] in ("tops", "bottoms") and tot >= 8 and c["socks"] / tot >= 0.8 and not NOT_SOCK.search(o["n"]):
+            o["g"] = "socks"           # a sock brand's "Franchise Crew" is a crew sock, not a crew-neck top (Stance, OS1st, Sockwell)
+        elif o["g"] == "shoes" and tot >= 8 and c["shoes"] / tot < 0.08 and not SHOE_SIZES(o):
+            # US shops file headlamps, flasks and spikes packs as footwear (Nathan, Amphipod, 2Toms): not a shoe without shoe sizes
+            o["g"] = group_of(o["n"]) or next(g for g, _ in c.most_common() if g != "shoes")
     # distributors listed as the brand (Brainsport: "Back River Sport" for Feetures socks, Sprints hats, Tailwind):
     # the real brand from the start of the name when we know it (Oct 7 audit)
     known = {bkey(b): b for b in best.values()}

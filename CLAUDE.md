@@ -227,6 +227,10 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   every health check (morning + afternoon emails: "Sorting check, …"). Known-fine items go in its `OK` list. Fixes live in scrape.py:
   `tidy_food` (+ NOT_FOOD, BYOB), SHOE_CARE in `tidy_shoes`, CLOTH_TOPW/BOTW/STRONG in `tidy_clothes`, BRAND_ALIAS, DISTRIBUTORS
   (Back River = a distributor: real brand taken from the name). Oct 7 audit: ~800 suspects -> ~1.
+  Oct 8: brand-based rules in the merge (`per` brand counts): food from a brand that's <8% food goes to the name's category or the
+  brand's usual one (STRONG_FOOD keeps real food); a "shoe" without shoe sizes from a non-shoe brand likewise; a sock brand's (80%+
+  socks) "Crew" under tops/bottoms -> socks (NOT_SOCK keeps tees/joggers/boxers). CAMP_BRANDS (Big Agnes, Esbit) dropped;
+  EYEWEAR_BRANDS (goodr…) never food/clothing. sortcheck has the same "odd one out for its brand" rule (it found these).
 - Shoe names (Oct 7 audit): a gender word/code in front ("M Ghost 18", "MEN'S GEL-KAYANO 33", "Unisex ASICS Megablast") moves to the
   end for any store; filler "Road", "Running Road", "Road Racing" goes; "X Trail Running" -> "X" only when X is a trail model.
   base_model (shoe_pages.py) and baseModel (index.html) strip the same; `tools/check.py` step "Shoe page links match" compares
