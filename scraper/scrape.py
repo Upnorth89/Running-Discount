@@ -92,7 +92,8 @@ def group_of(*texts):
 
 WORD = {"ONE SIZE": "OS", "O/S": "OS", "NA": "OS", "": "OS", "X-SMALL": "XS", "SMALL": "S", "MEDIUM": "M",
         "LARGE": "L", "X-LARGE": "XL", "XX-LARGE": "2XL", "XXL": "2XL", "XXXL": "3XL", "XXS": "2XS",
-        "EXTRA SMALL": "XS", "EXTRA LARGE": "XL", "EXTRA EXTRA LARGE": "2XL", "EXTRA EXTRA SMALL": "2XS"}
+        "EXTRA SMALL": "XS", "EXTRA LARGE": "XL", "EXTRA EXTRA LARGE": "2XL", "EXTRA EXTRA SMALL": "2XS",
+        "SM": "S", "MD": "M", "MED": "M", "LG": "L", "LRG": "L", "XLG": "XL", "XLARGE": "XL", "XSMALL": "XS", "XXLARGE": "2XL"}
 def norm_size(s):
     s = str(s or "").strip()
     return WORD.get(s.upper(), s)
@@ -1224,6 +1225,7 @@ SHOPIFY_STORES = [
     ("brix",           "https://brixrechargeparlanature.com", "food"),   # Brix (Québec maple fuel: gels, chews, waffles; Oct 7)
     ("upika",          "https://upika.ca",                   "food"),   # Upika (Québec drink mixes and bars; Oct 7)
     ("grynd",          "https://grynd.ca",                   "food"),   # Grynd (Calgary / Prince George energy waffles; Oct 7)
+    ("krono",          "https://krononutrition.com/en-ca",   "food"),   # Krono Nutrition (Québec gels, bars, drink mixes; Oct 7)
     # running & trail brands
     ("altra",          "https://altrarunning.com",           "gear"),
     ("janji",          "https://runjanji.com",               "gear"),
@@ -1838,7 +1840,7 @@ BRAND_CANON = {"hoka one one": "Hoka", "hoka": "Hoka", "asics": "ASICS", "satisf
 
 # US shops often list the parent company or distributor as the vendor (Oct 6, 2026: "Asics Corp." on all 480 US ASICS items,
 # "Brooks Sports, Inc. #105856", "Ing Source, Inc" = Injinji, "Medi USA" = CEP): company words go, then this map
-BRAND_ALIAS = {"grynd food": "Grynd", "grynd food inc": "Grynd", "fast bundle": "Upika", "upika": "Upika", "brix rechargé par la nature": "Brix", "brix recharge par la nature": "Brix", "asics america": "ASICS", "asics": "ASICS", "brooks sports": "Brooks", "nike usa": "Nike", "nike team sale": "Nike",
+BRAND_ALIAS = {"krono nutrition": "Krono", "kronobar": "Krono", "grynd food": "Grynd", "grynd food inc": "Grynd", "fast bundle": "Upika", "upika": "Upika", "brix rechargé par la nature": "Brix", "brix recharge par la nature": "Brix", "asics america": "ASICS", "asics": "ASICS", "brooks sports": "Brooks", "nike usa": "Nike", "nike team sale": "Nike",
                "on shoes": "On", "on footwear": "On", "on-running": "On", "gu energy": "GU", "gu energy labs": "GU", "gu sports": "GU",
                "gu nutrition": "GU", "gu energy gel": "GU", "ing source": "Injinji", "medi usa": "CEP", "medi": "CEP",
                "cep / medi usa": "CEP", "cep/medi usa": "CEP", "medi usa (cep)": "CEP", "medi/cep": "CEP", "medi usa - cep": "CEP", "craft sportswear": "Craft", "craft sportsware usa": "Craft",

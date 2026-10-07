@@ -50,7 +50,8 @@ SIZED = {"shoes", "tops", "bottoms", "bras", "socks", "gloves", "headwear"}
 PER_GROUP, TOTAL = 6, 36
 
 WORD = {"ONE SIZE": "OS", "O/S": "OS", "X-SMALL": "XS", "XSMALL": "XS", "SMALL": "S", "MEDIUM": "M",
-        "LARGE": "L", "X-LARGE": "XL", "XLARGE": "XL"}
+        "LARGE": "L", "X-LARGE": "XL", "XLARGE": "XL",
+        "SM": "S", "MD": "M", "MED": "M", "LG": "L", "LRG": "L", "XLG": "XL", "XXLARGE": "2XL", "XX-LARGE": "2XL"}   # same as the site
 def norm(s):
     s = str(s).strip().upper()
     s = WORD.get(s, s)
