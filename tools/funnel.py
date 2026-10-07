@@ -145,10 +145,13 @@ try:
         if len(b) < step:
             break
     today = datetime.now(timezone.utc).date()
-    old = [d for d in dv if (today - datetime.fromisoformat(d["first_day"]).date()).days >= 7]   # had a week to come back
+    age = 7 if any((today - datetime.fromisoformat(d["first_day"]).date()).days >= 14 for d in dv) else 2   # analytics began Oct 4
+    old = [d for d in dv if (today - datetime.fromisoformat(d["first_day"]).date()).days >= age]   # had time to come back
     back = lambda g: sum(1 for d in g if (d["days"] or 1) > 1)
+    if not old:
+        out.append(f"Coming back: no device is {age}+ days old yet ({len(dv)} devices)")
     if old:
-        out.append(f"COMING BACK (devices first seen 7+ days ago: {len(old)}): came back on another day {pct(back(old), len(old))}, "
+        out.append(f"COMING BACK (devices first seen {age}+ days ago: {len(old)}): came back on another day {pct(back(old), len(old))}, "
                    f"3+ days {pct(sum(1 for d in old if (d['days'] or 1) >= 3), len(old))}")
         su = [d for d in old if d["signed_up"]]
         out.append(f"  signed up {len(su)}: came back {pct(back(su), len(su))} | not signed up {len(old) - len(su)}: came back "
