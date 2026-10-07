@@ -8,6 +8,9 @@ then a paid tier (Fox Pro). The 6-month plan with weekly tasks:
 https://claude.ai/code/artifact/36e1d545-7390-44fe-b080-80f03465af61
 That plan (a Claude Docs doc) also holds the Fox Pro free/paid table, the Press pitch (EN/FR + outlets) and the
 **Ideas backlog** (Now / Next / Later / Parked): add every new idea there and move rows as decisions change.
+**Keep the plan current (Bastien, Oct 8: "always update the 6 month goal as we move forward")**: after anything ships or a
+decision is made, tick it in the weekly goals (B = Bastien, C = Claude), rewrite weeks that no longer match reality, and
+move backlog rows. When he asks "what's on the to-do list", answer from the current week there.
 
 ## How to work with Bastien
 
