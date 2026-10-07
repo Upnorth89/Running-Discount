@@ -86,7 +86,11 @@ T = {
         "idxIntro": "Every popular running shoe we track, with today's best price in each size at Canadian stores. Updated every morning.",
         "idxDesc": "Today's best price in every size for {n} running shoe models at Canadian stores. Updated every morning by The Gear Fox.",
         "onSale": "on sale", "home": "The Gear Fox", "switch": "Français", "menu": "Menu", "mDeals": "Today's deals", "mShoes": "Shoe prices by model", "mWatch": "Your watchlist", "mSizes": "My sizes", "mAbout": "About The Gear Fox", "tagline": "OUTFOX FULL PRICE",
-        "yourSize": "Your size", "at": "at", "see": "See it", "watch": "Watch the price", "pick": "Your size:", "pickPh": "Pick your size", "change": "Change", "allInSize": "See every deal in your size →",
+        "yourSize": "Your size", "at": "at", "see": "See it", "watch": "Watch the price", "alertH": "Email me when the {name} drops in my size",
+        "alertTxt": "Free. One email when the price falls in your size, plus the Friday deals. Unsubscribe in one tap.", "alertBtn": "Email me",
+        "alertPick": "Pick your size above first, so we watch the right one.", "alertBad": "That email doesn't look right.",
+        "alertOk": "Almost done: check your inbox for {email} and tap the link to confirm (look in Junk too).", "alertFail": "Couldn't sign you up right now. Try again in a minute.",
+        "alertDone": "You're watching this shoe. We'll email you when it drops in your size.", "emailPh": "you@example.com", "pick": "Your size:", "pickPh": "Pick your size", "change": "Change", "allInSize": "See every deal in your size →",
         "notInSize": "Not in stock in your size right now. Watch it and we'll email you when it's back or drops.",
         "find": "Search a model (e.g. Clifton)", "noMatch": "No model matches. Try the brand name, or a shorter word.",
         "foot": "The Gear Fox · Outfox full price · Prices change often: the store's price at checkout is the one that counts.",
@@ -154,7 +158,11 @@ T = {
         "idxIntro": "Toutes les chaussures de course populaires que nous suivons, avec le meilleur prix du jour dans chaque pointure dans les boutiques canadiennes. Mis à jour chaque matin.",
         "idxDesc": "Le meilleur prix du jour dans chaque pointure pour {n} modèles de chaussures de course dans les boutiques canadiennes. Mis à jour chaque matin par The Gear Fox.",
         "onSale": "en solde", "home": "The Gear Fox", "switch": "English", "menu": "Menu", "mDeals": "Aubaines du jour", "mShoes": "Prix des chaussures par modèle", "mWatch": "Vos favoris", "mSizes": "Mes tailles", "mAbout": "À propos de The Gear Fox", "tagline": "FLAIREZ LES AUBAINES",
-        "yourSize": "Votre pointure", "at": "chez", "see": "Voir", "watch": "Suivre le prix", "pick": "Votre pointure :", "pickPh": "Choisissez votre pointure", "change": "Modifier", "allInSize": "Voir toutes les aubaines dans votre pointure →",
+        "yourSize": "Votre pointure", "at": "chez", "see": "Voir", "watch": "Suivre le prix", "alertH": "M'avertir quand {name} baisse dans ma pointure",
+        "alertTxt": "Gratuit. Un courriel quand le prix baisse dans votre pointure, plus les aubaines du vendredi. Désabonnement en un clic.", "alertBtn": "M'avertir",
+        "alertPick": "Choisissez d'abord votre pointure plus haut, pour qu'on suive la bonne.", "alertBad": "Ce courriel ne semble pas valide.",
+        "alertOk": "Presque fini : ouvrez le courriel envoyé à {email} et touchez le lien pour confirmer (regardez aussi dans les indésirables).", "alertFail": "Inscription impossible pour le moment. Réessayez dans une minute.",
+        "alertDone": "Vous suivez cette chaussure. On vous écrit quand elle baisse dans votre pointure.", "emailPh": "vous@exemple.com", "pick": "Votre pointure :", "pickPh": "Choisissez votre pointure", "change": "Modifier", "allInSize": "Voir toutes les aubaines dans votre pointure →",
         "notInSize": "Pas en stock dans votre pointure en ce moment. Suivez-la et on vous écrira dès qu'elle revient ou baisse.",
         "find": "Chercher un modèle (ex. Clifton)", "noMatch": "Aucun modèle trouvé. Essayez le nom de la marque ou un mot plus court.",
         "foot": "The Gear Fox · Flairez les aubaines · Les prix changent souvent : le prix de la boutique au paiement est celui qui compte.",
@@ -363,6 +371,11 @@ tr.yours td:first-child{font-weight:700;box-shadow:inset 4px 0 0 var(--hivis)}
 .mine .pickl{font-weight:600}.mine select.pick{font:600 16px var(--body);color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;min-height:44px;max-width:100%}
 .mine .chg{font:600 15px var(--body);color:var(--moss);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}
 .mine .all{display:block;margin-top:6px;font-size:15px}.mine .all a{color:var(--moss);font-weight:600}
+.alert{background:var(--band);color:var(--band-ink);border-radius:14px;padding:14px 16px;margin:12px 0 4px}
+.alert h2{margin:0 0 4px;font-size:19px;color:var(--band-ink)}.alert .fine{margin:0 0 10px;font-size:14px;opacity:.85}
+.alert form{display:flex;gap:8px}.alert input{flex:1;min-width:0;font:16px var(--body);border:0;border-radius:999px;padding:11px 14px}
+.alert button{flex:none;font:700 15px/1 var(--body);background:var(--hivis);color:var(--hivis-ink);border:0;border-radius:999px;padding:11px 16px;cursor:pointer}
+.alert .msg{margin:8px 0 0;font-size:14px}.alert .msg:empty{display:none}
 .faq h3{font:700 17px/1.3 var(--body);margin:14px 0 4px}
 .faq p{margin:0 0 6px}
 .cards{display:grid;gap:8px;padding:0;margin:0;list-style:none}
@@ -523,6 +536,40 @@ if(prev&&prev.v&&sel.querySelector('option[value="'+prev.v.replace(/"/g,"")+'"]'
 else if(prev&&prev.s){{var o=[].slice.call(sel.options).filter(function(o){{var x=o.value.slice(o.value.indexOf("|")+1);return o.value&&clean(x).replace(/^W /,"")===prev.s&&(tables[+o.value.split("|")[0]].dataset.g===prev.g||(tables[+o.value.split("|")[0]].dataset.g==="unisex"&&(prev.g==="women")===/^W /.test(x)))}})[0];
   if(o){{sel.value=o.value;choose(o.value,false)}}else pickRow()}}
 else pickRow()}})();
+/* "Email me when it drops in my size" (Oct 8): sign up right on the shoe page. The shoe goes on the watchlist (this phone and,
+   through watch_new in the sign-up, any device that opens the confirm link); sizes come from the main site or the picker above */
+(function(){{var box=document.getElementById("alertBox");if(!box)return;var f=box.querySelector("form"),msg=box.querySelector(".msg");
+var get=function(k){{try{{return JSON.parse(localStorage.getItem(k)||"null")}}catch(e){{return null}}}},put=function(k,v){{try{{localStorage.setItem(k,JSON.stringify(v))}}catch(e){{}}}};
+var subd=get("gf-sub");if(subd&&(subd.active||subd.key)){{var w0=get("gf-watch")||{{}};var t0=document.querySelector("table[data-key]");
+  if(t0&&w0[t0.dataset.key]){{box.querySelector("form").remove();msg.textContent=box.dataset.done;return}}}}
+f.addEventListener("submit",function(e){{e.preventDefault();
+  var em=f.querySelector("input").value.trim().replace(/^mailto:/i,"").replace(/^.*<([^>]+)>.*$/,"$1").replace(/\s+/g,"").replace(/\.+$/,"");
+  if(!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{{2,}}$/.test(em)||/\.\./.test(em)){{msg.textContent=box.dataset.bad;return}}
+  var p=get("rd-profile"),ss=get("gf-shoe-size"),tables=[].slice.call(document.querySelectorAll("table[data-key]")),t=null,g=null,size=null;
+  if(p&&p.sizes&&p.sizes.shoes&&(p.sizes.shoes.sizes||[]).length){{g=p.gender||"any";
+    t=tables.filter(function(x){{return x.dataset.g===g}})[0]||tables.filter(function(x){{return x.dataset.g==="unisex"}})[0]||tables[0]}}
+  else if(ss&&ss.s){{g=ss.g;size=ss.s;var ti=ss.v?+ss.v.split("|")[0]:-1;t=tables[ti]||tables.filter(function(x){{return x.dataset.g===g}})[0]||tables[0]}}
+  else{{msg.textContent=box.dataset.pick;var sel=document.querySelector("#mine select");if(sel){{sel.focus();sel.scrollIntoView({{block:"center"}})}}return}}
+  var fr=document.documentElement.lang==="fr",us=/^\/us\//.test(location.pathname),tz=null;try{{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||null}}catch(x){{}}
+  var ref=get("gf-ref");
+  if(!(p&&p.sizes&&p.sizes.shoes&&(p.sizes.shoes.sizes||[]).length)){{
+    var G=["shoes","tops","bottoms","bras","socks","gloves","headwear","packs","gear","watches","nutrition"],sz={{shoes:{{sizes:[size],width:[]}}}};
+    G.slice(1).forEach(function(k){{sz[k]={{sizes:[]}}}});
+    p={{lang:fr?"fr":"en",country:us?"us":"ca",tz:tz,name:"",email:em,gender:g==="unisex"?"any":g,terrain:"both",ships:"ca",groups:G,sizes:sz,brands:[],activities:[]}};
+    if(ref)p.ref=ref}}
+  p.email=em;
+  var mine=[].slice.call(t.querySelectorAll("tr.yours")).map(function(r){{return parseFloat(r.dataset.p)}}),
+      all=[].slice.call(t.querySelectorAll("tr[data-p]")).map(function(r){{return parseFloat(r.dataset.p)}}),
+      price=(mine.length?Math.min.apply(null,mine):Math.min.apply(null,all))||null,a=t.querySelector("a[data-store]");
+  var meta={{b:t.dataset.b,n:t.dataset.n,g:"shoes",url:a?a.href:location.href,price:price,low:price,seen:price,gone:!mine.length&&!!size,saved:new Date().toISOString()}};
+  var w=get("gf-watch")||{{}};w[t.dataset.key]=meta;
+  var nw={{}};nw[t.dataset.key]=meta;var btn=f.querySelector("button");btn.disabled=true;
+  fetch("{SB_URL}/rest/v1/rpc/subscribe",{{method:"POST",headers:{{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"}},
+    body:JSON.stringify({{p_email:em,p_profile:Object.assign({{}},p,{{watch_new:nw}})}})}}).then(function(r){{if(!r.ok)throw 0;
+    put("gf-watch",w);if(!get("rd-profile"))put("rd-profile",p);if(!(subd&&(subd.active||subd.key)))put("gf-sub",{{pending:em}});
+    f.remove();msg.textContent=box.dataset.ok.replace("{{email}}",em);
+    try{{ana("signup","shoe-page")}}catch(x){{}}try{{window.umami&&umami.track("signup",{{method:"email",where:"shoe-page",lang:fr?"fr":"en",ref:ref||"none"}})}}catch(x){{}}}})
+  .catch(function(){{btn.disabled=false;msg.textContent=box.dataset.fail}})}})}})();
 /* wrong side (Oct 6, 2026): a visitor who picked USA on a Canadian page (or Canada on a US page) gets a bar to the same page
    on their side, when it exists (Google, old links and the menu's country link can lead to the other side) */
 (function(){{var c=null;try{{c=JSON.parse(localStorage.getItem("gf-country")||"null")||(JSON.parse(localStorage.getItem("rd-profile")||"null")||{{}}).country||null}}catch(e){{}}
@@ -630,6 +677,13 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None)
     out.append(f'<div class="mine" id="mine" hidden data-your="{esc(L["yourSize"])}" data-at="{esc(L["at"])}" data-see="{esc(L["see"])}" '
                f'data-none="{esc(L["notInSize"])}" data-pick="{esc(L["pick"])}" data-pickph="{esc(L["pickPh"])}" data-chg="{esc(L["change"])}" '
                f'data-all="{esc(L["allInSize"])}" data-home="/?ref=shoe-size{L["q"]}"></div>')
+    # Oct 8 (funnel: 209 first visits from Google in 14 days, 11% reached the homepage, no way to sign up here): sign up right here
+    if any(first[lab].get("of") for lab in merged):
+        out.append(f'<section class="alert" id="alertBox" data-pick="{esc(L["alertPick"])}" data-bad="{esc(L["alertBad"])}" data-ok="{esc(L["alertOk"])}" '
+                   f'data-fail="{esc(L["alertFail"])}" data-done="{esc(L["alertDone"])}">'
+                   f'<h2>{esc(L["alertH"].format(name=name))}</h2><p class="fine">{L["alertTxt"]}</p>'
+                   f'<form novalidate><input type="email" autocomplete="email" inputmode="email" placeholder="{esc(L["emailPh"])}" aria-label="Email" required>'
+                   f'<button type="submit">{L["alertBtn"]}</button></form><p class="msg" aria-live="polite"></p></section>')
     lang_q = L["q"]
     for lab, rows in merged.items():
         d0 = first[lab]
@@ -638,7 +692,7 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None)
         key = f'{d0["b"]}|{d0["n"]}|{d0["g"]}|{1 if d0.get("w") else 0}'.lower()          # the site's itemKey()
         watch = f'<a class="watch" href="/?watch={quote(key)}{lang_q}" rel="nofollow">♡ {L["watch"]}</a>' if d0.get("of") else ""
         rows = sorted({k: v for k, v in rows}.items(), key=lambda kv: size_sort(kv[0]))
-        out.append(f'<div class="th2"><h2>{esc(lab)}</h2>{watch}</div><table data-g="{tg}" data-w="{1 if d0.get("w") else 0}"><thead><tr><th>{L["size"]}</th><th>{L["price"]}</th><th>{L["store"]}</th></tr></thead><tbody>')
+        out.append(f'<div class="th2"><h2>{esc(lab)}</h2>{watch}</div><table data-g="{tg}" data-w="{1 if d0.get("w") else 0}" data-key="{esc(key)}" data-b="{esc(d0["b"])}" data-n="{esc(d0["n"])}"><thead><tr><th>{L["size"]}</th><th>{L["price"]}</th><th>{L["store"]}</th></tr></thead><tbody>')
         for size, (p, reg, h, u, fin) in rows:
             off = round(100 * (1 - p / reg)) if reg and p < reg * 0.99 else 0
             st = stores.get(h, [h])

@@ -559,6 +559,39 @@ def site_flow(base, per, accented):
             assert not pg.locator(".cdnbar").count(), "× All brands doesn't turn it off"
             return f"{len(brands)} cards, all Canadian brands"
         check("Canadian brands filter")(canadian, pg)
+
+        def backbar_signup():   # Oct 8: back from a store, a visitor who isn't a member is offered the Friday email
+            pg.goto(base, wait_until="domcontentloaded")
+            pg.wait_for_selector("section.grp .deal", timeout=20000)
+            pg.evaluate("sessionStorage.removeItem('gf-bsu');sessionStorage.setItem('gf-lastshop',JSON.stringify({h:'sportinglife.ca',t:Date.now()}))")
+            pg.reload(wait_until="domcontentloaded")
+            pg.wait_for_selector("#backBar.subar", timeout=8000)
+            pg.fill("#backBar input", "not-an-email")
+            pg.click("#backBar button.go")
+            settle(pg)
+            assert pg.inner_text("#backBar .msg").strip(), "a bad email gives no message in the come-back bar"
+            pg.fill("#backBar input", "robot@example.com")
+            pg.click("#backBar button.go")
+            settle(pg, 600)
+            assert "robot@example.com" in pg.inner_text("#backBar"), "the come-back bar doesn't confirm the sign-up"
+            pg.evaluate("localStorage.removeItem('gf-sub')")
+            return "offered, refused a bad email, signed up"
+        check("Sign-up bar after a deal click")(backbar_signup, pg)
+
+        def shoe_alert():       # Oct 8: "Email me when it drops in my size" on shoe pages (Google visitors)
+            reg = json.loads((SITE / "shoes" / "pages.json").read_text())
+            slug = next((k for k, v in reg.items() if not (isinstance(v, dict) and v.get("to"))
+                         and (SITE / "shoes" / k / "index.html").exists() and 'id="alertBox"' in (SITE / "shoes" / k / "index.html").read_text()), None)
+            assert slug, "no shoe page has the 'email me when it drops' box"
+            pg.goto(base + f"shoes/{slug}/", wait_until="domcontentloaded")
+            pg.wait_for_selector("#alertBox form", timeout=8000)
+            pg.fill("#alertBox input", "robot@example.com")
+            pg.click("#alertBox button")
+            settle(pg, 700)
+            msg = pg.inner_text("#alertBox .msg")
+            assert "robot@example.com" in msg or "size" in msg.lower(), f"the box gave no answer ({msg!r})"
+            return f"{slug}: {msg[:60]}"
+        check("Shoe page: email me when it drops")(shoe_alert, pg)
         ctx2.close()
 
         # an American visitor (Oct 6, 2026): a US time zone opens the USA side; the switch goes back to Canada

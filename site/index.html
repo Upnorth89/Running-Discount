@@ -272,6 +272,9 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
 .storebar button{font:600 14px/1.2 var(--body);color:var(--ink);background:none;border:1.5px solid var(--line);border-radius:999px;padding:8px 12px;cursor:pointer;white-space:nowrap}
 .backbar{position:fixed;left:12px;right:12px;bottom:12px;z-index:30;max-width:560px;margin:0 auto;display:flex;align-items:center;gap:10px;background:var(--snack);color:var(--snack-ink);border-radius:14px;padding:12px 12px 12px 16px;box-shadow:0 8px 28px rgba(0,0,0,.45);font-size:15px;line-height:1.3}
 .backbar b{color:inherit}
+.subar{align-items:flex-start}.subar form{flex:1;min-width:0;margin:0}.subar p{margin:0 0 8px}.subar .row{display:flex;gap:8px}
+.subar input{flex:1;min-width:0;font:16px var(--body);border:0;border-radius:999px;padding:10px 14px}.subar .msg{margin:6px 0 0;font-size:13px}
+.subar .msg:empty{display:none}.subar .x{align-self:flex-start}
 .backbar .go{flex:none;font:700 15px/1 var(--body);background:var(--hivis);color:#fff;border:0;border-radius:999px;padding:10px 14px;cursor:pointer}
 .backbar .x{flex:none;background:none;border:0;color:inherit;font-size:22px;line-height:1;cursor:pointer;padding:4px 6px;opacity:.7}
 .deal .store .fin{color:var(--ink);font-weight:600;white-space:nowrap}
@@ -723,7 +726,7 @@ en:{
   ctryLabel:"Shopping from",ctryA:"Country",usa:"USA",where:()=>US()?"across the US":"across Canada",
   wGo:"Find my deals",wShoes:"or look up a specific shoe →",wBrowseShort:"Just browse",wShoeShort:"Find a shoe",sizesOnSale:"Sizes on sale:",
   browseNote:"Showing every size.",browsePick:"Pick your size",browseWhy:" and we'll hide what won't fit.",clothNote:"Every clothing size shown.",clothPick:"Pick your clothing size",
-  moreSizes:"+ Clothing size, road or trail, favourite brands",cmpLink:"All sizes & stores →",storeH:"Shopping one store",storeCount:n=>`${n} ${n===1?"deal":"deals"} in your size`,storeBack:"× All stores",cdnChip:"🍁 Canadian brands",cdnH:"Canadian brands only",cdnB:"Brands based in Canada",cdnNote:"Canadian companies, not always made in Canada",cdnBack:"× All brands",cdnTip:"Canadian brand",backBar:(n,s)=>`Filling a cart at <b>${s}</b>? See their ${n} deals in your size.`,backGo:"Show",spCardTxt:"Every size, every store in Canada",spCardGo:"Prices →",wOr:"or with Google, one tap",wOnSale:"on sale today",wUpTo:p=>`up to ${p}%`,wOff:"off right now",wStores:"stores checked daily",
+  moreSizes:"+ Clothing size, road or trail, favourite brands",cmpLink:"All sizes & stores →",storeH:"Shopping one store",storeCount:n=>`${n} ${n===1?"deal":"deals"} in your size`,storeBack:"× All stores",bsuH:"Found something?",bsuTxt:"Get deals like this in your size every Friday, and an email when a shoe you watch drops. Free.",bsuGo:"Sign me up",cdnChip:"🍁 Canadian brands",cdnH:"Canadian brands only",cdnB:"Brands based in Canada",cdnNote:"Canadian companies, not always made in Canada",cdnBack:"× All brands",cdnTip:"Canadian brand",backBar:(n,s)=>`Filling a cart at <b>${s}</b>? See their ${n} deals in your size.`,backGo:"Show",spCardTxt:"Every size, every store in Canada",spCardGo:"Prices →",wOr:"or with Google, one tap",wOnSale:"on sale today",wUpTo:p=>`up to ${p}%`,wOff:"off right now",wStores:"stores checked daily",
   liveAll:n=>`<b>${n}</b> deals on sale today`,liveYou:n=>`<b>${n}</b> deals on sale in your size right now`,
   seeN:n=>`See my ${n} deals`,
   orEmail:"or type your email",orLink:"or get a link by email",
@@ -817,7 +820,7 @@ fr:{
   ctryLabel:"Je magasine",ctryA:"Pays",usa:"É.-U.",where:()=>US()?"partout aux États-Unis":"partout au Canada",
   wGo:"Trouver mes aubaines",wShoes:"ou cherchez une chaussure précise →",wBrowseShort:"Tout voir",wShoeShort:"Chercher un modèle",sizesOnSale:"Tailles en solde :",
   browseNote:"Toutes les tailles sont affichées.",browsePick:"Choisissez votre taille",browseWhy:" et on cache ce qui ne vous va pas.",clothNote:"Toutes les tailles de vêtements sont affichées.",clothPick:"Choisissez votre taille de vêtements",
-  moreSizes:"+ Taille de vêtements, route ou sentier, marques préférées",storeH:"Une seule boutique",storeCount:n=>`${n} ${n===1?"aubaine":"aubaines"} à votre taille`,storeBack:"× Toutes les boutiques",cdnChip:"🍁 Marques canadiennes",cdnH:"Marques canadiennes seulement",cdnB:"Marques d'ici",cdnNote:"Des entreprises canadiennes, pas toujours fabriqué au Canada",cdnBack:"× Toutes les marques",cdnTip:"Marque canadienne",backBar:(n,s)=>`Vous remplissez un panier chez <b>${s}</b> ? Voyez leurs ${n} aubaines à votre taille.`,backGo:"Voir",cmpLink:"Toutes les pointures et boutiques →",spCardTxt:"Chaque pointure, chaque boutique au Canada",spCardGo:"Prix →",wOr:"ou avec Google, en un clic",wOnSale:"en solde aujourd'hui",wUpTo:p=>`jusqu'à ${p} %`,wOff:"de rabais en ce moment",wStores:"boutiques vérifiées chaque jour",
+  moreSizes:"+ Taille de vêtements, route ou sentier, marques préférées",storeH:"Une seule boutique",storeCount:n=>`${n} ${n===1?"aubaine":"aubaines"} à votre taille`,storeBack:"× Toutes les boutiques",bsuH:"Une trouvaille?",bsuTxt:"Recevez des aubaines comme celle-ci à votre taille chaque vendredi, et un courriel quand une chaussure suivie baisse. Gratuit.",bsuGo:"Je m'inscris",cdnChip:"🍁 Marques canadiennes",cdnH:"Marques canadiennes seulement",cdnB:"Marques d'ici",cdnNote:"Des entreprises canadiennes, pas toujours fabriqué au Canada",cdnBack:"× Toutes les marques",cdnTip:"Marque canadienne",backBar:(n,s)=>`Vous remplissez un panier chez <b>${s}</b> ? Voyez leurs ${n} aubaines à votre taille.`,backGo:"Voir",cmpLink:"Toutes les pointures et boutiques →",spCardTxt:"Chaque pointure, chaque boutique au Canada",spCardGo:"Prix →",wOr:"ou avec Google, en un clic",wOnSale:"en solde aujourd'hui",wUpTo:p=>`jusqu'à ${p} %`,wOff:"de rabais en ce moment",wStores:"boutiques vérifiées chaque jour",
   liveAll:n=>`<b>${n}</b> aubaines en solde aujourd'hui`,liveYou:n=>`<b>${n}</b> aubaines en solde dans votre taille en ce moment`,
   seeN:n=>`Voir mes ${n} aubaines`,
   orEmail:"ou entrez votre courriel",orLink:"ou recevez un lien par courriel",
@@ -1113,7 +1116,7 @@ $("saveSizes").addEventListener("click",async()=>{
     if(!okMail(email)){gateErr(t("errEmail"),$("gateEmail"));setTimeout(()=>$("gateEmail").focus({preventScroll:true}),400);return}
     const btn=$("saveSizes");btn.disabled=true;btn.textContent=t("oneMoment");gateErr("");
     state.email=email;const p=toProfile();LS.set("rd-profile",p);
-    try{await rpc("subscribe",{p_email:email,p_profile:p});setSub({pending:email});track("signup",{method:"email",lang:LANG,where:"sheet",ref:REF||"none"})}
+    try{await rpc("subscribe",{p_email:email,p_profile:subProfile(p)});setSub({pending:email});track("signup",{method:"email",lang:LANG,where:"sheet",ref:REF||"none"})}
     catch(e){btn.disabled=false;btn.textContent=t("subscribeShow");return gateErr(t("errServer"))}
     btn.disabled=false;closeSheet();view.open={};renderAll();window.scrollTo({top:0});
     notice(t("hereDeals",esc(email)));
@@ -1395,8 +1398,29 @@ function shopStore(h,from){view.store=h;view.open={};view.q="";$("dSearch").valu
 let lastShop=(()=>{try{return JSON.parse(sessionStorage.getItem("gf-lastshop")||"null")}catch(e){return null}})();
 const offered=new Set((()=>{try{return JSON.parse(sessionStorage.getItem("gf-offered")||"[]")}catch(e){return []}})());
 function hideBackBar(){const b=$("backBar");if(b)b.remove()}
+/* Oct 8 (funnel: 129 first visitors clicked a deal, 16 signed up): back from a store, a visitor who isn't a member and hasn't
+   said "No thanks" gets the Friday email offer in the bar, once per visit; the store offer waits for the next return */
+function offerSignup(){
+  if((sub&&(sub.active||sub.pending||sub.key))||LS.get("gf-nosignup"))return false;
+  try{if(sessionStorage.getItem("gf-bsu"))return false;sessionStorage.setItem("gf-bsu","1")}catch(e){return false}
+  hideBackBar();lastShop=null;try{sessionStorage.removeItem("gf-lastshop")}catch(e){}   // this return's offer; the store offer waits for the next click
+  const b=document.createElement("div");b.id="backBar";b.className="backbar subar";b.setAttribute("role","dialog");b.setAttribute("aria-label",t("bsuH"));
+  b.innerHTML=`<form novalidate><p><b>${t("bsuH")}</b> ${t("bsuTxt")}</p><div class="row"><input type="email" autocomplete="email" inputmode="email" placeholder="${t("emailPh")}" aria-label="${t("email")}" value="${esc(state.email||"")}"><button type="submit" class="go">${t("bsuGo")}</button></div><p class="msg" aria-live="polite"></p></form><button type="button" class="x" aria-label="${t("close")}">×</button>`;
+  document.body.appendChild(b);ana("signup-step","backbar-view");
+  const f=b.querySelector("form"),msg=b.querySelector(".msg");
+  f.addEventListener("submit",async e=>{e.preventDefault();const email=cleanMail(f.querySelector("input").value);
+    if(!okMail(email)){msg.textContent=t("badEmail");return}
+    const btn=f.querySelector("button");btn.disabled=true;btn.textContent="…";
+    state.email=email;const p=toProfile();LS.set("rd-profile",p);
+    try{await rpc("subscribe",{p_email:email,p_profile:subProfile(p)});setSub({pending:email});track("signup",{method:"email",lang:LANG,where:"backbar",ref:REF||"none"});
+      f.innerHTML=`<p><b>${t("checkInbox")}</b> ${t("checkInboxTxt",esc(email))}</p>`;renderAll();setTimeout(hideBackBar,9000)}
+    catch(err){btn.disabled=false;btn.textContent=t("bsuGo");msg.textContent=t("signupFail",err.message)}});
+  b.querySelector(".x").addEventListener("click",()=>{ana("signup-step","backbar-close");hideBackBar()});
+  return true}
 function offerStore(){
+  if(document.querySelector("#backBar.subar"))return;     // the sign-up offer stays until it's answered or closed
   if(!lastShop||view.store||offered.has(lastShop.h)||Date.now()-lastShop.t>45*60e3)return;
+  if(offerSignup())return;
   const h=lastShop.h,n=storeCounts()[h]||0;if(n<4||!STORES[h])return;
   offered.add(h);try{sessionStorage.setItem("gf-offered",JSON.stringify([...offered]))}catch(e){}hideBackBar();
   const b=document.createElement("div");b.id="backBar";b.className="backbar";b.setAttribute("role","status");
@@ -1688,6 +1712,9 @@ async function rpc(fn,args,bearer){
 }
 let sub=LS.get("gf-sub");            // {key, email, active} once this device is linked by an email link; {pending} while waiting
 function setSub(v){sub=v;LS.set("gf-sub",v)}
+/* the hearts picked before signing up ride along with the sign-up (watch_new) and come back with the confirm link, even when
+   it's opened on another device (Oct 8: shoe pages and the come-back bar sign people up before they ever reach the homepage) */
+function subProfile(p){const w=Object.entries(watches).slice(0,10);return w.length?{...p,watch_new:Object.fromEntries(w)}:p}
 let signupErr="",resentAt=0;
 function signupHTML(){
   if(sub&&sub.active)return "";
@@ -1712,7 +1739,7 @@ function bindSignup(){
     if(!okMail(email)){signupErr=t("badEmail");renderAll();$("suEmail").focus();return}
     const btn=f.querySelector("button");btn.disabled=true;btn.textContent="…";
     state.email=email;const p=toProfile();LS.set("rd-profile",p);
-    try{await rpc("subscribe",{p_email:email,p_profile:p});signupErr="";setSub({pending:email});track("signup",{method:"email",lang:LANG,where:"card",ref:REF||"none"})}
+    try{await rpc("subscribe",{p_email:email,p_profile:subProfile(p)});signupErr="";setSub({pending:email});track("signup",{method:"email",lang:LANG,where:"card",ref:REF||"none"})}
     catch(err){signupErr=t("signupFail",err.message)}
     renderAll();
   });
@@ -1722,7 +1749,7 @@ function bindSignup(){
   const rs=$("suResend");if(rs)rs.addEventListener("click",async()=>{     // same email again (the server waits 2 min between sends)
     if(resentAt&&Date.now()-resentAt<120e3){toast(t("resendWait"));return}
     resentAt=Date.now();track("resend",{lang:LANG,signin:!!sub.signin});
-    try{if(sub.signin)await rpc("send_link",{p_email:sub.pending,p_lang:LANG});else await rpc("subscribe",{p_email:sub.pending,p_profile:toProfile()});toast(t("resent"))}
+    try{if(sub.signin)await rpc("send_link",{p_email:sub.pending,p_lang:LANG});else await rpc("subscribe",{p_email:sub.pending,p_profile:subProfile(toProfile())});toast(t("resent"))}
     catch(e){resentAt=0;toast(t("resendFail"))}});
 }
 function renderSubLine(){
@@ -1762,6 +1789,9 @@ async function linkFromEmail(){
     if(!r){notice(t("linkExpired"));return false}
     applyProfile({...r.profile,email:r.email});LS.set("rd-profile",toProfile());
     setSub({key:tok,email:r.email,active:!!r.subscribed});
+    if(conf&&r.profile&&r.profile.watch_new&&typeof r.profile.watch_new==="object"){   // hearts from before the sign-up
+      for(const [k,m] of Object.entries(r.profile.watch_new).slice(0,10))if(!watches[k]&&m&&typeof m==="object")watches[k]=m;
+      saveWatches()}
     if(conf){notice(t("youreIn"));track("signup-confirmed")}
     return true;
   }catch(e){notice(t("offline"));return false}

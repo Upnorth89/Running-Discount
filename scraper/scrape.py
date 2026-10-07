@@ -2030,9 +2030,9 @@ def merge(offers):
             parts = n.split(" - ")
             n = " - ".join([parts[0]] + [x for x in parts[1:] if not ("/" in x and " x " not in x
                                                                        and re.fullmatch(r"[A-Za-z][A-Za-z '/]*", x.strip()))])
-        if re.search(r"\*\s*final\s*sale\s*\*", n, re.I):
-            o["fs"] = 1
-        n = re.sub(r"\s*\*\s*(?:final\s*sale|sale|clearance)\s*\*\s*", " ", n, flags=re.I).strip()
+        if re.search(r"[*(\[]\s*final\s*sale\s*[*)\]]", n, re.I):
+            o["fs"] = 1                # "*FINAL SALE*", "(FINAL SALE)" (The Trail Runner Store): the card's label says it
+        n = re.sub(r"\s*[*(\[]\s*(?:final\s*sale|sale|clearance)\s*[*)\]]\s*", " ", n, flags=re.I).strip()
         m = re.match(r"^\(([MWU])\)\s+(.+)", n)
         if m:
             n = m.group(2) + ("" if re.search(r"\b(wom[ae]n|men)[’']?s\b", m.group(2), re.I)
