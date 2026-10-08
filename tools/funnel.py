@@ -42,6 +42,7 @@ for e in rows:
     s["ref"] = s["ref"] or e["ref"]
     if e["kind"] == "visit" and not s["entry"]:
         s["entry"] = e["page"] or "?"
+        s["src"] = e["detail"] or "(none)"          # the site that sent them (referrer host), "email-friday", "home-screen app"
     if e["kind"] == "leave" and e["num"] is not None:
         s["secs"] = max(s["secs"] or 0, e["num"])
     if e["kind"] == "scroll" and e["num"] is not None:
@@ -55,6 +56,8 @@ out = [f"Last {DAYS} days: {len(rows)} events, {len(S)} sessions, {len(new)} fir
 
 def land(s):
     p = s["entry"] or "?"
+    if p.startswith("/us/"):
+        p = p[3:]                                  # the USA side's pages count with their Canadian twins
     return "homepage" if p in ("/", "/index.html") else "shoe pages" if p.startswith(("/shoes", "/chaussures", "/running-shoes",
            "/chaussures-course", "/brands", "/marques", "/black-friday", "/vendredi-fou")) else "other " + p[:30]
 
@@ -194,6 +197,26 @@ try:
                                               for k, n in Counter(d["dev"] for d in old).most_common(3)))
 except Exception as e:
     out.append(f"Coming back: couldn't read devices ({str(e)[:80]})")
+
+# where first visits came from (Oct 8: the r/RunningShoeGeeks post had no ?ref= link, the subreddit doesn't allow them)
+def src(s):
+    v = (s.get("src") or "(none)").lower()
+    return "reddit" if "reddit" in v else "google" if "google" in v else "instagram" if "instagram" in v else \
+        "facebook" if "facebook" in v else v if v.startswith(("email-", "home-screen", "(none)")) else "other site"
+
+
+out.append("FIRST VISITS BY SOURCE (picked a size / clicked a store / signed up / median seconds):")
+for k, n in Counter(src(s) for s in new).most_common(8):
+    g = [s for s in new if src(s) == k]
+    sized = sum(1 for s in g if {"sizes-saved", "shoe-page-size"} & s["kinds"])
+    secs = sorted(s["secs"] for s in g if s["secs"] is not None)
+    out.append(f"  {k}: {n} -> sizes {pct(sized, n)}, store {pct(sum(1 for s in g if 'deal-click' in s['kinds']), n)}, "
+               f"signed up {pct(sum(1 for s in g if 'signup' in s['kinds']), n)}, {secs[len(secs) // 2] if secs else '?'} s")
+    if k == "reddit":
+        out.append("    landed on: " + ", ".join(f"{p} {c}" for p, c in Counter(s["entry"] for s in g).most_common(8)))
+        out.append("    devices: " + ", ".join(f"{d} {c}" for d, c in Counter(s["dev"] for s in g).most_common(3))
+                   + "; went on to the homepage " + str(sum(1 for s in g if land(s) != "homepage"
+                                                           and {"welcome-view", "sizes-saved"} & s["kinds"])))
 
 text = "\n".join(out)
 print(text)
