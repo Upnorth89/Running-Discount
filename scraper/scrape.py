@@ -1496,7 +1496,7 @@ for _st in RUNFREE:
     STORES[_st] = (lambda st: lambda: scrape_runfree(st))(_st)
 
 # Casual footwear some running stores also sell; not what people come here for.
-CASUAL_BRANDS = {"birkenstock", "wolky", "teva", "crocs", "ugg", "blundstone", "dr. martens", "clarks", "oofos", "billy footwear"}
+CASUAL_BRANDS = {"ambler", "birkenstock", "wolky", "teva", "crocs", "ugg", "blundstone", "dr. martens", "clarks", "oofos", "billy footwear"}   # Ambler (Oct 8): toques, and its only "shoe" is a wool slipper
 CASUAL_SHOE = re.compile(r"\b(sandal|sandale|clog|sabot|slipper|pantoufle|mule|flip[- ]flop|loafer|slide|clearwater cnx|recovery (flip|slide)|ora recovery)s?\b", re.I)
 # court and lifestyle shoes from running brands (ASICS tennis/pickleball lines, retro sneakers)
 COURT_SHOE = re.compile(r"pick[el]+ball|\btennis\b|\bpadel\b|\bcourt\b|gel[- ]?(resolution|dedicate|game|challenger|1130|nyc|kahana)|solution speed", re.I)
