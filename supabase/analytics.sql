@@ -238,7 +238,18 @@ begin
               from (select e.at, e.kind, coalesce(t.name, 'America/Vancouver') z from ana_events e
                     left join pg_timezone_names t on t.name = e.tz
                     where e.at > greatest(now() - make_interval(days => d), now() - interval '45 days')
-                      and e.kind in ('visit', 'deal-click')) q group by 1) x));
+                      and e.kind in ('visit', 'deal-click')) q group by 1) x),
+    -- Oct 8 (Bastien: "24h, 7 days, 30 and 60"): the last 24 hours, hour by hour (UTC hour starts; the page shows local time)
+    'h24', (select coalesce(jsonb_agg(jsonb_build_object('t', t, 'v', v, 'nv', nv, 'c', c, 's', s) order by t), '[]') from (
+              select date_trunc('hour', at) t, count(distinct did) v, count(distinct did) filter (where nv = 1) nv,
+                     count(*) filter (where kind = 'deal-click') c, count(distinct sid) filter (where kind = 'signup') s
+              from ana_events where at > now() - interval '24 hours' group by 1) x),
+    'h24_total', (select jsonb_build_object('v', count(distinct did), 'nv', count(distinct did) filter (where nv = 1),
+                         'c', count(*) filter (where kind = 'deal-click'), 's', count(distinct sid) filter (where kind = 'signup'))
+              from ana_events where at > now() - interval '24 hours'),
+    'h24_prev', (select jsonb_build_object('v', count(distinct did), 'nv', count(distinct did) filter (where nv = 1),
+                         'c', count(*) filter (where kind = 'deal-click'), 's', count(distinct sid) filter (where kind = 'signup'))
+              from ana_events where at > now() - interval '48 hours' and at <= now() - interval '24 hours'));
 end $$;
 revoke all on function public.ana_dashboard(text, int) from public;
 grant execute on function public.ana_dashboard(text, int) to anon, authenticated;
