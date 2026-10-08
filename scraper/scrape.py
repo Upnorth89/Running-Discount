@@ -1333,6 +1333,17 @@ def _catalog_size(label, width, group, gender):
     s = re.sub(r"^(\d?X{0,3}[SL]|M)(TP|TG|T)$", r"\1", s)                    # 'XSTP', '2XLTG', '2XST'
     return norm_size(s)
 
+def _catalog_img(u):
+    """Card-sized photos (Oct 9): Running Warehouse sends 1799x2400 (158 KB; "&nw=400" = 400 px, 17 KB); Brooks (Salesforce
+    "dw/image") sends 58x58 thumbnails (sw/sh=58: blurry), asked at 400 px instead."""
+    if not u:
+        return u
+    if "img.runningwarehouse.com" in u and "nw=" not in u:
+        return u + ("&" if "?" in u else "?") + "nw=400"
+    if "/dw/image/" in u:
+        return re.sub(r"([?&])sh=\d+", r"\1sh=400", re.sub(r"([?&])sw=\d+", r"\1sw=400", u))
+    return u
+
 def catalog_rows():
     """The newest catalog file in saved-pages/ that's fresh enough: [row dict], or [] (cached for the run)."""
     with _catalog_lock:
@@ -1401,6 +1412,7 @@ def scrape_catalog(retailer, st=None):
             url = r.get("Variant URL") or info.get("Product URL") or ""
             img = next((str(v) for k, v in {**info, **r}.items() if k and "image" in str(k).lower()
                         and str(v or "").startswith("https://")), None)   # that colour's photo (the size row's), else the product's
+            img = _catalog_img(img)
             p = prods[key] = {"st": st, "b": info.get("Brand") or "", "n": name, "u": url, "g": g, "fx": fx, "gender": g_,
                               "sx": {"Men": ["men"], "Women": ["women"], "Unisex": ["men", "women"]}.get(g_, []),
                               "w": False, "img": img, "bb": None, "sizes": {}}
