@@ -1271,6 +1271,7 @@ let NARROW=false;   // only some categories picked (see renderAll)
 const view={fullPrice:false,sort:"match",q:"",open:{},watch:false,newAll:false,type:{},store:"",cdn:false,anySize:false};   // store: one shop only (Oct 5 preview)
 try{const st=(new URLSearchParams(location.search).get("store")||"").toLowerCase();if(STORES[st])view.store=st}catch(e){}   // ?store=altitude-sports.com
 try{if(new URLSearchParams(location.search).has("canadian"))view.cdn=true}catch(e){}   // ?canadian = Canadian brands only (Canada side)
+try{const q=(new URLSearchParams(location.search).get("q")||"").trim().slice(0,60);if(q){view.q=q;view.anySize=true;view.anyFit=true;$("dSearch").value=q}}catch(e){}   // ?q=nordlite ultra: opens on a search, every size (Oct 9: links in posts)
 /* Canadian brands (Oct 7, Bastien): companies based in Canada, checked by hand. Not "made in Canada": most make their gear
    overseas, and the box above the deals says so. Stores' own lines only when they really are theirs (BlackToe/City Park
    Runners items are other brands). Keys: lower case, accents removed. Canada side only. */
@@ -1501,7 +1502,7 @@ $("toggles").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!
   else{view.fullPrice=!view.fullPrice;if(view.fullPrice)loadFull()}
   view.open={};renderAll()});
 $("sort").addEventListener("change",e=>{view.sort=e.target.value;view.open={};renderAll()});
-let searchT;$("dSearch").addEventListener("input",e=>{clearTimeout(searchT);searchT=setTimeout(()=>{view.q=e.target.value;view.open={};view.anySize=false;renderAll()},200)});
+let searchT;$("dSearch").addEventListener("input",e=>{clearTimeout(searchT);searchT=setTimeout(()=>{view.q=e.target.value;view.open={};view.anySize=false;view.anyFit=false;renderAll()},200)});
 let anaQ="",anaQT;$("dSearch").addEventListener("input",e=>{clearTimeout(anaQT);anaQT=setTimeout(()=>{const q=e.target.value.trim().toLowerCase();
   if(q.length<2||q===anaQ)return;anaQ=q;const n=document.querySelectorAll("#dealList .dw").length;ana(n?"search":"search-none",q,n)},1500)});
 $("newBox").addEventListener("click",e=>{
@@ -1753,7 +1754,7 @@ function renderAll(){
   // a search stays inside the categories picked (chips); only when nothing matches there does it look in every category
   const hit=d=>{const t=fold(d.b+" "+d.n);return q.every(w=>t.includes(w))};
   const cdn=view.cdn&&!US();
-  let all=matchItems(q.length&&view.anySize?{...p,sizes:{}}:p),wide=false;
+  let all=matchItems(q.length&&view.anySize?{...p,sizes:{},...(view.anyFit?{gender:"any"}:{})}:p),wide=false;   // anyFit: a ?q= link shows its deal to anyone
   if(cdn)all=all.filter(cdnBrand);
   if(q.length){all=all.filter(hit);if(!all.length&&!ORDER.every(g=>p.groups.includes(g))){all=matchItems({...p,groups:ORDER}).filter(d=>hit(d)&&(!cdn||cdnBrand(d)));wide=all.length>0}}
   const onSale=all.filter(d=>d.pct>0);
