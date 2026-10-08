@@ -2141,6 +2141,12 @@ def merge(offers):
         o["n"] = n
         if o.get("st") == "brainsport" and o["g"] == "shoes":   # "Fresh Foam X 880v15 Smoked Violet": the colour goes
             o["n"] = re.sub(r"(\b\d{3,4}v\d+)\s+(?!(?:GTX|Gore|Wide|Trail|Boa|BOA|SL)\b)[A-Za-z][A-Za-z ]*$", r"\1", o["n"])
+        if o.get("st") == "nordarun":   # norda's own store (Oct 9): "001A - M - Abyss", "000 - W - norda x Black Diamond/Kunzite"
+            m = re.match(r"^(.*?)\s+-\s+([MWU])(?:\s+-\s+.*)?$", o["n"])
+            if m:
+                o["n"] = m.group(1) + {"M": " - Men's", "W": " - Women's", "U": ""}[m.group(2)]
+                if m.group(2) in "MW":
+                    o["sx"] = ["men" if m.group(2) == "M" else "women"]
         if o.get("st") == "rackets" and o["g"] == "shoes":   # Rackets & Runners (Oct 8): "Kayano 32 Running - Men's", "1080 V14 (D) Width"
             n, wom = o["n"], bool(re.search(r"women", o["n"], re.I))
             m = re.search(r"\s*\((2E|4E|EE|D|B)\)\s*Width", n, re.I)
