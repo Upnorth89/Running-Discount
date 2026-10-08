@@ -1312,6 +1312,7 @@ def scrape_rei_saved():
 # we checked 9 random sale sizes by hand on the stores' pages: all 9 right. Only sizes marked "In stock" are used, and a
 # file older than CATALOG_MAX_DAYS (by its own "Observed" time) is ignored: sales end, and our page check can't see these stores.
 CATALOG_MAX_DAYS = 3
+CATALOG_SKIP = {"backcountry"}   # stores that block our own reads stay out even when GPT got some pages (Oct 9)
 SAVED_STORES = {"mec", "rei", "svp", "sportchek", "adidasca", "catalog"}   # from files Bastien brings: no file = no deals, never stale ones
 CATALOG_STORES = {"Sport Chek": ("sportchek", "https://www.sportchek.ca"), "Adidas": ("adidasca", "https://www.adidas.ca"),
                   "REI": ("rei", "https://www.rei.com")}
@@ -1384,20 +1385,23 @@ def scrape_catalog(retailer, st=None):
         if not now:
             continue
         name, iid = str(r.get("Item") or "").strip(), r.get("Item ID")
-        p = prods.get(iid)
+        # one offer per colour (Oct 9, Bastien: links "showing stuff that isn't in stock"): the link and photo are that colour's,
+        # so a tap lands on a colour that has the size; the merge then shows each size at its best colour/price
+        key = (iid, str(r.get("Colour") or "").strip().lower())
+        p = prods.get(key)
         if p is None:
             info = _catalog_cache.get("products", {}).get((retailer, iid)) or {}
             cat = str(info.get("Category") or "").lower()
             g = "nutrition" if re.search(SL_FOOD, name.lower()) else group_of(name)
-            if not g and "shoe" in cat:               # names without "shoe" ("Hoka Clifton 10 - Women's"): the file's category
-                g = "shoes"
+            if "shoe" in cat and g in (None, "nutrition"):   # names without "shoe" ("Hoka Clifton 10 - Women's") or read as
+                g = "shoes"                                   # food ("ASICS Gel Slowcush"): the file's own category
             if not g:
                 continue
             fx = 1.0 if r.get("Currency") == "CAD" else fx_to_cad(r.get("Currency") or "USD")
-            url = info.get("Product URL") or (r.get("Variant URL") or "").split("?")[0]
-            img = next((str(v) for k, v in {**r, **info}.items() if k and "image" in str(k).lower()
-                        and str(v or "").startswith("https://")), None)   # a photo link, when the file has one (Oct 9)
-            p = prods[iid] = {"st": st, "b": info.get("Brand") or "", "n": name, "u": url, "g": g, "fx": fx, "gender": g_,
+            url = r.get("Variant URL") or info.get("Product URL") or ""
+            img = next((str(v) for k, v in {**info, **r}.items() if k and "image" in str(k).lower()
+                        and str(v or "").startswith("https://")), None)   # that colour's photo (the size row's), else the product's
+            p = prods[key] = {"st": st, "b": info.get("Brand") or "", "n": name, "u": url, "g": g, "fx": fx, "gender": g_,
                               "sx": {"Men": ["men"], "Women": ["women"], "Unisex": ["men", "women"]}.get(g_, []),
                               "w": False, "img": img, "bb": None, "sizes": {}}
         size = _catalog_size(r.get("Size"), r.get("Width / fit"), p["g"], g_)
@@ -1406,8 +1410,8 @@ def scrape_catalog(retailer, st=None):
         if old is None or now_c < old[0]:
             p["sizes"][size] = (now_c, reg_c)
     out = []
-    for iid, p in prods.items():
-        if not p["sizes"]:
+    for p in prods.values():
+        if not p["sizes"] or not p["img"]:          # no photo = not shown (Oct 9: text-only cards looked broken)
             continue
         sz = [[s, a, b_] for s, (a, b_) in p["sizes"].items()]
         out.append({"st": p["st"], "b": p["b"], "n": p["n"], "u": p["u"], "g": p["g"], "sx": p["sx"], "w": p["w"], "img": p["img"],
@@ -1424,6 +1428,8 @@ def scrape_catalog_others():
     by = {}
     for r in rows:
         ret = r.get("Retailer")
+        if re.sub(r"\W", "", str(ret or "").lower()) in CATALOG_SKIP:
+            continue
         if ret and ret not in CATALOG_STORES and ret not in by:
             by[ret] = r
     out = []
