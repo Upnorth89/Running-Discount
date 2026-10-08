@@ -42,7 +42,31 @@ from urllib.parse import urlparse
 import requests
 from playwright.sync_api import sync_playwright
 
-SITE = Path(sys.argv[1]).resolve()
+LIVE = sys.argv[1].startswith("http")            # Oct 9: the noon check tests thegearfox.com itself (nothing is built)
+SITE = None if LIVE else Path(sys.argv[1]).resolve()
+_cache = {}
+INSECURE = os.environ.get("SITETEST_INSECURE") == "1"   # only for a machine whose network proxy re-signs HTTPS (Claude's sandbox)
+
+
+def site_get(rel):
+    """A file of the site under test: from the folder, or (live) from the web. None when it isn't there."""
+    rel = rel.lstrip("/")
+    if not LIVE:
+        f = SITE / rel
+        if f.is_dir():
+            f = f / "index.html"
+        return f.read_text(errors="ignore") if f.exists() else None
+    if rel not in _cache:
+        try:
+            r = requests.get(sys.argv[1].rstrip("/") + "/" + rel, timeout=60, headers={"Cache-Control": "no-cache"})
+            _cache[rel] = r.text if r.status_code == 200 else None
+        except Exception:
+            _cache[rel] = None
+    return _cache[rel]
+
+
+def site_json(rel):
+    return json.loads(site_get(rel) or "null")
 OUT = Path(sys.argv[2] if len(sys.argv) > 2 else "/tmp/sitetest.json")
 ORDER = ["shoes", "tops", "bottoms", "bras", "socks", "gloves", "headwear", "packs", "gear", "watches", "nutrition"]
 NAMES = {"shoes": "Shoes", "tops": "Tops & jackets", "bottoms": "Shorts & tights", "bras": "Sports bras", "socks": "Socks",
@@ -108,7 +132,7 @@ def stub(ctx):
 
 # ---------- what today's data says we should see ----------
 def expected():
-    sale = json.loads((SITE / "sale.json").read_text())["items"]
+    sale = site_json("sale.json")["items"]
     per = Counter(d["g"] for d in sale)
     plain = lambda b: re.sub("[\u0300-\u036f]", "", unicodedata.normalize("NFD", b)).lower()   # same as the site's fold()
     accented = Counter(d["b"] for d in sale if plain(d["b"]) != d["b"].lower() and plain(d["b"]).isascii())
@@ -132,7 +156,7 @@ def site_flow(base, per, accented):
     errors = []
     with sync_playwright() as p:
         br = p.chromium.launch(executable_path=os.environ.get("CHROMIUM") or None)   # CHROMIUM: a local browser, if any
-        ctx = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, locale="en-CA",
+        ctx = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA",
                              user_agent="Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 "
                                         "(KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1 GearFoxSiteTest")
         stub(ctx)
@@ -524,22 +548,19 @@ def site_flow(base, per, accented):
                         continue
                     seen.add(u.path)
             for pth in sorted(seen):
-                f = SITE / pth.lstrip("/")
-                if pth.endswith("/") or f.is_dir():
-                    f = f / "index.html"
-                if not f.exists():
+                if site_get(pth) is None:
                     bad.append(pth)
             assert not bad, f"{len(bad)} links inside the site lead to 'page not found': {', '.join(bad[:5])}"
             return f"{len(seen)} links"
 
         def page_any_model():
-            reg = json.loads((SITE / "shoes" / "pages.json").read_text())
+            reg = site_json("shoes/pages.json")
             live = [k for k, v in (reg.items() if isinstance(reg, dict) else []) if not (isinstance(v, dict) and v.get("to"))]
             return f"shoes/{live[0]}/" if live else "shoes/"
         check("Links inside the site")(inside_links, page)
 
         # a second visitor: "just show me today's deals" from the welcome screen, sizes later
-        ctx2 = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, locale="en-CA")
+        ctx2 = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
         stub(ctx2)
         pg = ctx2.new_page()
         pg.on("pageerror", lambda e: errors.append(str(e)))
@@ -634,9 +655,9 @@ def site_flow(base, per, accented):
         check("Sign-up bar after a deal click")(backbar_signup, pg)
 
         def shoe_alert():       # Oct 8: "Email me when it drops in my size" on shoe pages (Google visitors)
-            reg = json.loads((SITE / "shoes" / "pages.json").read_text())
-            slug = next((k for k, v in reg.items() if not (isinstance(v, dict) and v.get("to"))
-                         and (SITE / "shoes" / k / "index.html").exists() and 'id="alertBox"' in (SITE / "shoes" / k / "index.html").read_text()), None)
+            reg = site_json("shoes/pages.json")
+            slug = next((k for k, v in list(reg.items())[:40] if not (isinstance(v, dict) and v.get("to"))
+                         and 'id="alertBox"' in (site_get(f"shoes/{k}/") or "")), None)
             assert slug, "no shoe page has the 'email me when it drops' box"
             pg.goto(base + f"shoes/{slug}/", wait_until="domcontentloaded")
             pg.wait_for_selector("#alertBox form", timeout=8000)
@@ -650,10 +671,10 @@ def site_flow(base, per, accented):
         ctx2.close()
 
         # an American visitor (Oct 6, 2026): a US time zone opens the USA side; the switch goes back to Canada
-        us_ready = (SITE / "sale-us.json").exists() and sum(
-            1 for d in json.loads((SITE / "sale-us.json").read_text())["items"] if d["g"] == "shoes") >= 300   # USA side has real data
+        us_ready = site_get("sale-us.json") is not None and sum(
+            1 for d in site_json("sale-us.json")["items"] if d["g"] == "shoes") >= 300   # USA side has real data
         if us_ready:
-            ctx3 = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, locale="en-US",
+            ctx3 = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-US",
                                   timezone_id="America/Chicago")
             stub(ctx3)
             pu = ctx3.new_page()
@@ -676,7 +697,7 @@ def site_flow(base, per, accented):
                 if pu.locator(".seo-us").count():          # the bottom block: the US copy, not "...in Canada"
                     assert pu.locator(".seo-us").is_visible() and not pu.locator(".seo-en").is_visible(), \
                         "the bottom of the page still shows Canadian shoe prices on the USA side"
-                if (SITE / "us" / "shoes").exists():          # a US card's "All sizes & stores" opens the US shoe page
+                if site_get("us/shoes/pages.json") is not None:          # a US card's "All sizes & stores" opens the US shoe page
                     lk = pu.locator("section.grp a.cmp")
                     if lk.count():
                         href = lk.first.get_attribute("href")
@@ -700,7 +721,7 @@ def site_flow(base, per, accented):
                     assert "Canada" not in pu.title(), f"{path} still says Canada in its title"
                     out.append(path)
                 return f"{len(out)} pages"
-            if len(list((SITE / "us" / "shoes").glob("*/index.html"))) >= 20:
+            if len(site_json("us/shoes/pages.json") or {}) >= 20:
                 check("US shoe pages")(us_pages, pu)
             ctx3.close()
 
@@ -715,7 +736,7 @@ UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.3
 
 def store_links():
     """Two of today's sale items per store, opened once each (an ordinary page view, like a shopper's click)."""
-    items = json.loads((SITE / "sale.json").read_text())["items"]
+    items = site_json("sale.json")["items"]
     by = defaultdict(list)
     for d in items:
         for o in d.get("of", []):
@@ -747,8 +768,8 @@ def store_links():
 def main():
     t0 = time.time()
     per, accented = expected()
-    base = serve()
-    print(f"Site test on {base} ({SITE})")
+    base = sys.argv[1].rstrip("/") + "/" if LIVE else serve()
+    print(f"Site test on {base}" + ("" if LIVE else f" ({SITE})"))
     errors = site_flow(base, per, accented)
     real = [e for e in errors if "ResizeObserver" not in e]
     results.append({"name": "No script errors", "ok": not real, "critical": False,

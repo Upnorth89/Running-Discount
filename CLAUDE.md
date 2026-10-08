@@ -137,6 +137,10 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   sizes, returning visit, shoe page) are retried once, then stop publishing (yesterday's site stays up). `tools/check.py` runs
   it too (locally: CHROMIUM=/opt/pw-browsers/chromium). When adding a feature, add its check to sitetest.py.
   First catch (Oct 5): after a heart, "My sizes"/Edit opened the email step instead of the sizes (`editSizes()`).
+- **Noon check** (`noon-check.yml`, `scraper/noon_check.py`, Oct 9; Bastien: "2 health runs a day and a midday lite check"): 18:53 UTC
+  (11:53am Vancouver), no store re-read: tools/sitetest.py in live mode (`sitetest.py https://thegearfox.com/ OUT`; files fetched over
+  the web; failures re-run once, only twice-failed checks count) + featured_check.py on the live JSON. Emails ONLY when something is
+  wrong ("Gear Fox noon check: N things to look at"); an ended featured sale also starts refresh.yml. SITETEST_INSECURE=1 = Claude's sandbox only.
 - **Weekly deals email** (`weekly-email.yml`): every hour on Friday 9:07–18:07 UTC. Each run sends to
   subscribers for whom it is now Friday 7am or later in their own time zone (profile `tz` from the browser;
   default: French = Eastern, English = Pacific) and records `weekly_sent_at` so nobody gets two.

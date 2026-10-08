@@ -1,0 +1,31 @@
+name: Noon check
+
+# Oct 9, 2026 (Bastien: "2 health runs a day and a midday lite check"): around noon Vancouver, no store re-read.
+# The robot visitor test runs on the live site and today's featured deals are re-checked on the stores' own pages;
+# an email goes out only when something is wrong (scraper/noon_check.py). An ended sale starts a site update.
+on:
+  schedule:
+    - cron: "53 18 * * *"   # 11:53am Vancouver (PDT), 2:53pm Montréal
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write          # to start refresh.yml when a featured sale ended
+
+jobs:
+  noon:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r scraper/requirements.txt playwright && python -m playwright install --with-deps chromium > /dev/null
+      - name: Noon check
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          HEALTH_EMAIL: ${{ secrets.HEALTH_EMAIL }}
+          FROM_EMAIL: "The Gear Fox <deals@thegearfox.com>"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scraper/noon_check.py /tmp/noon
