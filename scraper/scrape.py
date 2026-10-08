@@ -76,7 +76,7 @@ RULES = [
     ("socks",     r"\bsocks?\b|\bchaussettes?\b|mini crew|micro crew|mid crew|crew height|no[- ]show|over[- ]the[- ]calf|\bquarter\b(?![- ]?zip)|cushion\b.*\bcrew\b"),
     ("gloves",    r"\bgloves?\b|\bmitts?\b|mittens"),
     ("watches",   r"\bwatch(es)?\b(?! cap)"),      # a "Watch Cap Beanie" is a hat (Territory, Oct 8)
-    ("gear",      r"\b(filter|bottle|flask) caps?\b"),          # Hydrapak's filter cap isn't a hat (Oct 8)
+    ("gear",      r"\b(filter|bottle|flask|flex) caps?\b|^(?!.*\b(vests?|belts?|packs?)\b).*\bsoft flasks?\b|\b(safety|led|reflective) vest\b"),   # caps that aren't hats, a flask "with bite top", LED vests (Oct 8)
     ("headwear",  r"\bhats?\b|\bcaps?\b|\b(?:go|trl|trk|crw|fst|alz|ss|gt)cap\b|beanie|toque|tuque|headband|\bbuffs?\b|neck ?gaiter|neckwear|neck ?warmer|visor"),
     ("packs",     r"hydration (vest|pack)|race vest|running vest|backpack|\bbelts?\b|waist ?pack|\bvest \d|"
                   r"(?:\bpinnacle\b|(?<![.\d])\d+ ?l\b)(?!.*\b(jacket|pants?|shell|parka|singlet|tee|shirt|shorts?|tank|tights?|bra)\b)"),   # not "3L Jacket", Janji "Pinnacle Tee"
@@ -1266,7 +1266,8 @@ SHOPIFY_STORES = [
     ("blacktoe",       "https://www.blacktoerunning.com",    "gear"),   # BlackToe Running (Toronto)
     # added 2026-10-02
     ("frontrunners",   "https://www.frontrunners.ca",        "gear"),   # Frontrunners (Victoria)
-    ("forerunners",    "https://shop.forerunners.ca",        "gear"),   # Forerunners (Vancouver; shop on its own address)
+    ("forerunners",    "https://shop.forerunners.ca",        "gear"),
+    ("rackets",        "https://racketsandrunners.ca",       "rackets"),   # Rackets & Runners (Vancouver, Oak St; tennis/pickleball left out; Oct 8)   # Forerunners (Vancouver; shop on its own address)
     # added 2026-10-07
     ("runuphill",      "https://runuphill.ca",               "gear"),   # Ski Uphill / Run Uphill (Canmore + Squamish; same shop as skiuphill.ca)
     # added 2026-10-08 (sorting check clean)
@@ -1335,7 +1336,7 @@ SHOPIFY_STORES = [
 
 NOT_RUNNING = re.compile(r"gift ?card|pannier|eyeglasses|optical|reading glass|blue light|prescription|e-?gift|\bbike\b|cycling|\bbib\b|swim|golf|\bski\b|snowboard|\bdog\b|\bpet\b|"
                          r"\btent\b|sleeping bag|stickers?|poster|\bmug\b|\bbundle builder\b|warranty|shipping protection|"
-                         r"route protection|insurance|\bsample\b|donation|\bknitwear\b|\bsherpa\b|\bgym bag\b|tote bag|loops & loot|"   # Balmoral's lifestyle pieces (Oct 8)
+                         r"route protection|insurance|\bsample\b|donation|\bknitwear\b|\bsherpa\b|\bgym bag\b|tote bag|loops & loot|test clothing|"   # Balmoral's lifestyle pieces (Oct 8)
                          # ski touring (Ski Uphill, Oct 7); trail crampons and goodr "Donkey Goggles" sunglasses stay
                          r"\bskis\b|\bhelmets?\b|airbag|avalanche|(?<!donkey )\bgoggles?\b|\b(powder|pole) baskets?\b|climbing skins?|skinalp|"
                          r"\bbindings?\b|splitboard|glide wax|liquid wax|aenergy harness|footwear refresh", re.I)
@@ -1353,6 +1354,10 @@ def generic_size(label):
         return m.group(1)
     return sp_size(t)
 
+RR_SKIP = re.compile(r"^(rackets|admin|run club)|court|walking|cross training|casual|kids|teamevent|sweatbands|underwear", re.I)
+RR_TENNIS = re.compile(r"\b(babolat|head|wilson|yonex|tecnifibre|pickleball|tennis|nikecourt|rafa|court|squash|badminton)\b", re.I)
+
+
 def generic_group(kind):
     def g(p):
         title = p.get("title") or ""
@@ -1360,6 +1365,11 @@ def generic_group(kind):
         tags = re.sub(r"[_:>/-]+", " ", " ".join(p.get("tags") or []))
         if NOT_RUNNING.search(f"{title} {ptype}") or re.search(r"gift ?card|carte[- ]cadeau", title, re.I):
             return None
+        if kind == "rackets":          # Rackets & Runners (Vancouver, Oct 8): half the shop is tennis and pickleball
+            if RR_SKIP.search(ptype) or RR_TENNIS.search(title):
+                return None
+            if re.match(r"footwear\b", ptype, re.I):
+                return "shoes" if re.search(r"\brunning\b", ptype, re.I) else None
         g = group_of(title)
         if kind == "food" and re.search(r"\b(soft ?cup|gobelet|bouteilles?|gourdes?|flasques?)\b", title, re.I):
             return "gear"                  # Brix (Oct 7): a race cup, a bottle, a soft flask
@@ -2068,8 +2078,31 @@ def merge(offers):
         o["n"] = n
         if o.get("st") == "brainsport" and o["g"] == "shoes":   # "Fresh Foam X 880v15 Smoked Violet": the colour goes
             o["n"] = re.sub(r"(\b\d{3,4}v\d+)\s+(?!(?:GTX|Gore|Wide|Trail|Boa|BOA|SL)\b)[A-Za-z][A-Za-z ]*$", r"\1", o["n"])
+        if o.get("st") == "rackets" and o["g"] == "shoes":   # Rackets & Runners (Oct 8): "Kayano 32 Running - Men's", "1080 V14 (D) Width"
+            n, wom = o["n"], bool(re.search(r"women", o["n"], re.I))
+            m = re.search(r"\s*\((2E|4E|EE|D|B)\)\s*Width", n, re.I)
+            if m:
+                if m.group(1).upper() in (("D", "2E", "EE", "4E") if wom else ("2E", "EE", "4E")):
+                    o["w"] = True
+                n = n[:m.start()] + n[m.end():]
+            n = re.sub(r"\s+(Running|Stability)(?=\s+-\s+|$)", "", n)
+            n = re.sub(r"\s+(Running|Stability)(?=\s+-\s+|$)", "", n)
+            n = re.sub(r"\bV(\d+)\b", r"v\1", n)
+            if re.match(r"asics", o["b"] or "", re.I):
+                n = re.sub(r"^(Kayano|Nimbus|Cumulus|Excite|Contend|Pulse|Trabuco|Venture|Sonoma|Resolution)\b", r"GEL-\1", n)
+            if re.match(r"brooks", o["b"] or "", re.I):
+                n = re.sub(r"^Adrenaline (\d+)", r"Adrenaline GTS \1", n)
+                n = re.sub(r"^(Ghost|Glycerin|Launch|Hyperion) GTX (\d+)", r"\1 \2 GTX", n)
+            if re.match(r"new balance", o["b"] or "", re.I):
+                n = re.sub(r"\b(\d{3,4}) v(\d+)\b", r"\1v\2", n)
+                n = re.sub(r"\b(Balos|More|Hierro|Kaiha|Vongo|Arishi) v1\b", r"\1", n)
+            o["n"] = n
     # soccer goalkeeper gloves come in numbered sizes, so tidy_gear would file them under shoes (Gazelle Sports, Oct 6)
     offers = [o for o in offers if not GOALIE.search(o["n"] or "")]
+    # Rackets & Runners: walking shoes and Babolat's tennis line are not running gear
+    offers = [o for o in offers if not (o.get("st") == "rackets" and (re.search(r"\bwalking\b", o["n"] or "", re.I)
+                                                                    or re.match(r"babolat", o["b"] or "", re.I)
+                                                                    or re.search(r"\btest\b", f'{o["b"]} {o["n"]}', re.I)))]
     offers = tidy_clothes(tidy_gear(tidy_nutrition(tidy_shoes(drop_kids(tidy_us_names(offers))))))
     items, tidied = {}, []
     for o in offers:

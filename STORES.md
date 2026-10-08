@@ -43,7 +43,6 @@ every check (rule in CLAUDE.md: try every allowed way first; a store that says n
 | Valhalla Pure (vpo.ca) | BC | readable, 19,750 products, mostly hiking/camping | full read Oct 8 | December hiking launch |
 | Outdoor Research | Seattle | readable, mostly hiking/climbing | first page | December hiking launch |
 | Comor, Oberson, Kunstadt, Skiis & Biikes, Boardroom | snow | readable snow shops | | January ski launch |
-| Rackets & Runners | Vancouver | readable, 474 running shoes, 267 on sale (Oct 8) | full read | **waiting for Bastien's OK** |
 | Running Factory | Windsor | readable, ~37 on sale, mostly CEP sleeves (Oct 3) | | recheck later |
 | **Checked and skipped (not a fit)** | | | | |
 | Picky Bars | Bend, OR | all bars sold out (now Laird Superfood) (Oct 8) | full read | recheck if bars return |
@@ -92,6 +91,7 @@ every check (rule in CLAUDE.md: try every allowed way first; a store that says n
 | The Runners Shop (Toronto; added Oct 3) | therunnersshop.com | 688 | 198 |
 | The Last Hunt | thelasthunt.com | 1,281 | 1,274 |
 | Vancouver Running Co. | vanrunco.com | 644 | 117 |
+| Rackets & Runners (Vancouver, Oak St; tennis/pickleball, walking and court shoes left out; added Oct 8) | racketsandrunners.ca | 294 | 72 |
 | Xact Nutrition | xactnutrition.com | 25 | 0 |
 
 ### Brands and stores abroad (37) (ship to Canada; prices converted to CAD)
