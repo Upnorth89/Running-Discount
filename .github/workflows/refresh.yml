@@ -24,9 +24,9 @@ permissions:
   pages: write
   id-token: write
 
-concurrency:
-  group: pages
-  cancel-in-progress: false
+# One build and one deploy at a time. Set per job, not for the whole workflow (Oct 9): GitHub keeps only one run waiting
+# per group, so a late schedule run that the check job then skips bumped a waiting push run out of the queue (8086c30
+# never published). A skipped build never enters the queue now.
 
 jobs:
   # a morning run (schedule or Supabase's timer) stops here if today's morning refresh already happened
@@ -55,6 +55,9 @@ jobs:
 
   build:
     needs: check
+    concurrency:
+      group: pages-build
+      cancel-in-progress: false
     if: needs.check.outputs.skip != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 50
@@ -181,6 +184,9 @@ jobs:
 
   deploy:
     needs: build
+    concurrency:
+      group: pages-deploy
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     environment:
       name: github-pages
