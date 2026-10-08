@@ -201,6 +201,28 @@ def check():
                       "sitetest": st, "featured": fc}
 
 
+def catalog_spot():
+    """5 random sale deals from the catalog file, to tap and check (Oct 9: the file can't be checked by the robot)."""
+    import random
+    offers = load(SITE / "offers.json")
+    pool = []
+    for st in ("catalog", "sportchek", "adidasca"):
+        for o in offers.get(st, []):
+            for e in o.get("sz", []):
+                if len(e) > 2 and e[1] < e[2] * 0.95:
+                    pool.append((o, e))
+                    break
+    if not pool:
+        return ""
+    host = lambda u: u.split("/")[2].replace("www.", "")
+    pick = random.Random(NOW.date().toordinal()).sample(pool, min(5, len(pool)))
+    usd = float((load(SITE / "sale.json").get("fx") or {}).get("USD") or 1.4)
+    money = lambda o, v: f"US${v / usd:.2f}" if o.get("us") else f"${v:.2f}"   # US stores: what their own page shows
+    return ("\nTap to check (5 random deals from the catalog file; tell Claude if one is wrong):\n" +
+            "".join(f"- {o['n'] if o['n'].lower().startswith(o['b'].lower()) else o['b'] + ' ' + o['n']}, size {e[0]}: {money(o, e[1])} (was {money(o, e[2])}) at {host(o['u'])}\n  {o['u']}\n"
+                    for o, e in pick))
+
+
 def featured_line(fc):
     if not fc.get("checked"):
         return ""
@@ -260,6 +282,7 @@ def main():
                 if stats["subscribers"] is not None else "") + \
                ("\nBiggest changes by store:\n" + "\n".join(f"- {st}: {a:,} products (was {b:,})" for st, a, b in stats["moves"]) + "\n"
                 if stats["moves"] else "") + \
+               ("" if mid else catalog_spot()) + \
                "\nFull log: https://github.com/upnorth89/Running-Discount/actions\n"
         r = requests.post("https://api.resend.com/emails", timeout=60,
                           headers={"Authorization": f"Bearer {os.environ['RESEND_API_KEY']}"},

@@ -431,6 +431,11 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   Known stores: Sport Chek (`sportchek`), adidas.ca (`adidasca`), REI (USA, replaces REI saved pages when present). Any other store
   in the file comes in by itself (`scrape_catalog_others`, STORES key "catalog"; offers st "cat-<site>"): CAD = Canada side only,
   USD = USA side only (we don't know it ships north), other currencies skipped; names in index.html STORES (the GPT list is there).
+  Daily upload (Oct 9, Bastien: "have gpt do this daily"): thegearfox.com/catalog.html -> private Supabase bucket "catalog" (folder =
+  dashboard_key, storage policy) -> catalog_uploaded() records it in catalog_files and starts a refresh (supabase/catalog.sql). scrape.py
+  catalog_download() uses the newest upload first (newest 3 kept), then saved-pages/*.xlsx. Keep daily files OUT of git (20 MB each).
+  One offer per colour (link + photo of a colour that has the size); no photo = not shown; under 25 products in stock = store left out
+  (CATALOG_MIN); RW photos "&nw=400", Brooks dw/image sw/sh=400. Morning email: "Tap to check" 5 random catalog deals (catalog_spot).
   First file checked by hand on 9 random sale sizes: 9 right. SAVED_STORES expire (no keeping yesterday's deals). Health email:
   "Catalog file is N days old" the day before it runs out. No photos in the file (cards show text only).
 - Shipping countries (Oct 9, Bastien spotted 2XU: 2xu.com is the Australian store): the Shopify reader reads each store's

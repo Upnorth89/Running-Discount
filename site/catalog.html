@@ -1,0 +1,61 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Upload the catalog file</title>
+<!-- Oct 9, 2026: Bastien uploads the daily GPT file (Running_Gear_Catalog.xlsx) here instead of GitHub. It goes to the private
+     Supabase bucket "catalog" in a folder named after the data page's key (gf-stats-key on this device), then catalog_uploaded()
+     records it and starts a site update (supabase/catalog.sql). scrape.py catalog_rows() reads the newest one. -->
+<style>
+:root{--ink:#17201C;--muted:#5C6660;--mist:#EEF1EC;--card:#fff;--line:#CBD2CC;--hivis:#D7F23A;--ok:#1F6B45;--no:#B3261E}
+@media (prefers-color-scheme:dark){:root{--ink:#E7ECE8;--muted:#9BA6A0;--mist:#121815;--card:#1B2320;--line:#34403A;--ok:#5CC08A;--no:#F2857C}}
+body{margin:0;background:var(--mist);color:var(--ink);font:17px/1.5 system-ui,-apple-system,sans-serif}
+.w{max-width:520px;margin:0 auto;padding:32px 16px 60px}
+h1{font:800 28px/1.15 system-ui;margin:0 0 10px}
+.m{color:var(--muted)} .ok{color:var(--ok);font-weight:700} .no{color:var(--no);font-weight:700}
+input[type=password]{width:100%;box-sizing:border-box;font:inherit;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);margin:8px 0}
+input[type=file]{font:inherit;margin:10px 0;max-width:100%}
+button{font:800 17px system-ui;background:var(--hivis);color:#17201C;border:2px solid #17201C;border-radius:10px;padding:12px 20px;cursor:pointer}
+button:disabled{opacity:.5;cursor:default}
+ol{padding-left:22px} li{margin:6px 0}
+</style></head><body><div class="w">
+<h1>Upload the catalog file</h1>
+<p class="m">The file from GPT (<b>Running_Gear_Catalog.xlsx</b>). Its deals show on the site about 20 minutes after the upload and come off by themselves 3 days after the file was made.</p>
+<div id="keybox" hidden>
+  <p class="m">First time on this device: Supabase → Table Editor → <b>ana_settings</b> → copy <b>dashboard_key</b> (the same key as the data page) and paste it here. It stays on this device only.</p>
+  <input id="keyIn" type="password" autocomplete="off" aria-label="Private key">
+</div>
+<input id="file" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" aria-label="Catalog file">
+<p><button type="button" id="go" disabled>Upload</button></p>
+<p id="msg" class="m"></p>
+</div>
+<script>
+const SB="https://krwymmkauwqqxjxbvkyq.supabase.co", PK="sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2";
+const $=id=>document.getElementById(id), say=(t,c)=>{$("msg").textContent=t;$("msg").className=c||"m"};
+let KEY=null;try{KEY=localStorage.getItem("gf-stats-key")}catch(e){}
+if(!KEY)$("keybox").hidden=false;
+$("file").addEventListener("change",()=>{$("go").disabled=!$("file").files.length;say("")});
+$("go").addEventListener("click",async()=>{
+  const f=$("file").files[0];if(!f)return;
+  if(!KEY){KEY=$("keyIn").value.trim();if(!KEY){say("Paste your private key first.","no");return}}
+  if(!/\.xlsx$/i.test(f.name)){say("That's not an .xlsx file. Pick the Running_Gear_Catalog.xlsx from GPT.","no");return}
+  if(f.size>50*1024*1024){say("That file is over 50 MB, the storage limit. Ask GPT for fewer stores per file.","no");return}
+  $("go").disabled=true;say("Uploading "+(f.size/1048576).toFixed(1)+" MB… keep this page open.");
+  const path=KEY+"/catalog-"+new Date().toISOString().replace(/[:.]/g,"-")+".xlsx";
+  try{
+    const up=await fetch(SB+"/storage/v1/object/catalog/"+path,{method:"POST",
+      headers:{apikey:PK,Authorization:"Bearer "+PK,"Content-Type":f.type||"application/octet-stream","x-upsert":"false"},body:f});
+    if(!up.ok){const j=await up.json().catch(()=>({}));
+      if(up.status===403||up.status===400&&/policy|security/i.test(j.message||"")){try{localStorage.removeItem("gf-stats-key")}catch(e){}KEY=null;$("keybox").hidden=false;
+        say("The key didn't match. Paste it again and tap Upload.","no")}
+      else say("Upload failed ("+(j.message||up.status)+"). Try again.","no");
+      $("go").disabled=false;return}
+    const r=await fetch(SB+"/rest/v1/rpc/catalog_uploaded",{method:"POST",headers:{"Content-Type":"application/json",apikey:PK,Authorization:"Bearer "+PK},
+      body:JSON.stringify({p_key:KEY,p_path:path})});
+    const j=await r.json();
+    if(j&&j.ok){try{localStorage.setItem("gf-stats-key",KEY)}catch(e){}$("keybox").hidden=true;
+      say("✓ Uploaded. The site updates in about 20 minutes, and tomorrow's morning email lists 5 of its deals to tap-check.","ok");return}
+    say("Uploaded, but couldn't start the update ("+((j&&(j.why||j.message))||r.status)+"). It will still be used at the next update.","no");
+  }catch(e){say("Couldn't reach the server ("+e.message+"). Check your connection and try again.","no")}
+  $("go").disabled=false;
+});
+</script>
+</body></html>

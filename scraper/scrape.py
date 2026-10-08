@@ -1350,11 +1350,40 @@ def catalog_rows():
     with _catalog_lock:
         return _catalog_rows()
 
+def catalog_download():
+    """The newest file uploaded at thegearfox.com/catalog.html (Supabase bucket "catalog", list in catalog_files; Oct 9),
+    saved to a temp file; older uploads are deleted from the bucket (the newest 3 stay). None when there's none."""
+    import tempfile
+    sb, key = os.environ.get("SUPABASE_URL", "").rstrip("/"), os.environ.get("SUPABASE_SECRET_KEY", "")
+    if not (sb and key):
+        return None
+    h = {"apikey": key, "Authorization": f"Bearer {key}"}
+    try:
+        rows = requests.get(f"{sb}/rest/v1/catalog_files", params={"select": "path,at", "order": "at.desc", "limit": "20"},
+                            headers=h, timeout=60).json()
+        if not rows:
+            return None
+        r = requests.get(f"{sb}/storage/v1/object/catalog/{rows[0]['path']}", headers=h, timeout=300)
+        r.raise_for_status()
+        f = Path(tempfile.mkdtemp(prefix="catalog-")) / "uploaded.xlsx"
+        f.write_bytes(r.content)
+        old = [x["path"] for x in rows[3:]]
+        if old:
+            requests.delete(f"{sb}/storage/v1/object/catalog", headers=h, json={"prefixes": old}, timeout=60)
+        print(f"  catalog upload from {rows[0]['at'][:16]} UTC ({len(r.content) // 1048576} MB)", file=sys.stderr)
+        return f
+    except Exception as e:
+        print(f"  catalog upload: couldn't download it ({str(e)[:80]})", file=sys.stderr)
+        return None
+
 def _catalog_rows():
     if "rows" in _catalog_cache:
         return _catalog_cache["rows"]
     rows = []
     files = sorted(SAVED_DIR.glob("*.xlsx"), key=lambda f: f.stat().st_mtime, reverse=True) if SAVED_DIR.is_dir() else []
+    up = catalog_download()                 # an upload from the catalog page is newer than any file in saved-pages/
+    if up:
+        files = [up] + files
     for f in files:
         try:
             import openpyxl
