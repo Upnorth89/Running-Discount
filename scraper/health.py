@@ -138,6 +138,10 @@ def check():
             problems.append((f"site:{c['name']}", f"Site test, {c['name']}: {c.get('why', 'failed')}"
                                                   + (" (critical: yesterday's site stays up)" if c.get("critical") else "")))
 
+    # featured deals checked on the store pages before publishing (scraper/featured_check.py, Oct 9)
+    fc = load(Path(os.environ.get("FEATURED", "/tmp/featured.json")))
+    # "Wrong price or size?" taps from visitors (site, Oct 9): analytics kind "error", detail "report|why|item|store|price"
+    reports = []
     # sign-ups vs the free email plan
     sb, key = os.environ.get("SUPABASE_URL", "").rstrip("/"), os.environ.get("SUPABASE_SECRET_KEY", "")
     subs = new = None
@@ -160,6 +164,19 @@ def check():
                                             f"confirmations included. Upgrade Resend if this keeps up."))
         except Exception as e:
             print(f"sign-up check skipped: {e}")
+        try:
+            hh = {"apikey": key}
+            if key.count(".") == 2:
+                hh["Authorization"] = f"Bearer {key}"
+            r = requests.get(f"{sb}/rest/v1/ana_events", headers=hh, timeout=30,
+                             params={"select": "detail,at", "kind": "eq.error", "detail": "like.report|*",
+                                     "at": f"gte.{(NOW - timedelta(hours=24)).isoformat()}", "order": "at.desc", "limit": "50"})
+            r.raise_for_status()
+            reports = [x["detail"][7:] for x in r.json()]
+            for x in reports[:10]:
+                problems.append((f"report:{x[:60]}", f"A visitor says: {x.replace('|', ' · ')}"))
+        except Exception as e:
+            print(f"visitor reports skipped: {e}")
     sale = lambda its: sum(1 for i in its if any(len(e) > 3 and e[1] < e[3] * 0.99 for e in i.get("sz", [])))
     fresh_stores = sum(1 for st in offers if (t := when(stamps.get(st, ""))) and NOW - t <= timedelta(hours=30))
     moves = sorted(((st, len(offers.get(st, [])), len(offers0.get(st, []))) for st in set(offers) | set(offers0)),
@@ -167,7 +184,16 @@ def check():
     return problems, {"items": items, "items0": items0, "sale": sale(deals.get("items", [])), "sale0": sale(deals0.get("items", [])),
                       "stores": {st: len(v) for st, v in offers.items()}, "stores_ok": fresh_stores, "stores_n": len(offers),
                       "moves": [m for m in moves if abs(m[1] - m[2]) >= 10][:5], "subscribers": subs, "signups_24h": new,
-                      "sitetest": st}
+                      "sitetest": st, "featured": fc}
+
+
+def featured_line(fc):
+    if not fc.get("checked"):
+        return ""
+    gone = fc.get("removed") or []
+    return (f"- Accuracy: {fc['ok']} of {fc['checked']} featured deals confirmed on the store's own page"
+            + (f", {fc['cant']} couldn't be checked" if fc.get("cant") else "")
+            + (f"; {len(gone)} ended and taken off before publishing ({'; '.join(gone[:3])})" if gone else "") + "\n")
 
 
 def site_line(st):
@@ -215,7 +241,7 @@ def main():
                f"- {stats['items']:,} products{d(stats['items'], stats['items0'])}\n" + \
                f"- {stats['sale']:,} on sale{d(stats['sale'], stats['sale0'])}\n" + \
                f"- {stats['stores_ok']} of {stats['stores_n']} stores updated in the last day\n" + \
-               site_line(stats["sitetest"]) + \
+               site_line(stats["sitetest"]) + featured_line(stats.get("featured") or {}) + \
                (f"- {stats['subscribers']} subscribers, {stats['signups_24h']} new sign-ups in the last 24 hours\n"
                 if stats["subscribers"] is not None else "") + \
                ("\nBiggest changes by store:\n" + "\n".join(f"- {st}: {a:,} products (was {b:,})" for st, a, b in stats["moves"]) + "\n"

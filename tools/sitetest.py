@@ -7,6 +7,7 @@ freshly built site (today's data, served from this machine), and:
   - "Ships from Canada" on: no card from a store abroad (Nutrition too); "Show US stores too" adds them
   - every category chip shows only that category (and has deals), "Show more" and the shoe type buttons work
   - one search per category (a brand that category shows today): every result matches, and stays in the category
+  - "Wrong price or size?" on a card opens three reasons and thanks the visitor
   - a typo ("saucny") offers "Did you mean saucony?" and the tap finds deals
   - an accent-free search finds accented brands ("naak" = Näak), a nonsense search shows the "nothing matches" note
   - filters (Include full price, Sort by price), a heart opens the email step, the ☰ menu, the French version
@@ -300,6 +301,17 @@ def site_flow(base, per, accented):
             settle(page)
             return f"'saucny' -> saucony: {n} deals"
         check("Search: did you mean")(search_help, page)
+
+        def report_link():   # Oct 9: "Wrong price or size?" on a card -> three reasons -> thanks
+            all_gear()
+            page.locator("#dealList .dw .rep").first.click()
+            page.wait_for_selector("#dealList .repbox [data-repwhy]", timeout=3000)
+            page.locator("#dealList .repbox [data-repwhy='price']").first.click()
+            settle(page, 300)
+            txt = page.locator("#dealList .repbox").first.inner_text()
+            assert "Thanks" in txt, f"after picking a reason the box says '{txt[:60]}'"
+            return "report sent, thanks shown"
+        check("Wrong price or size? link")(report_link, page)
 
         def accents():
             # an accented brand as written finds N deals; typed without the accent must find the same N

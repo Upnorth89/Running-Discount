@@ -24,11 +24,12 @@ S.headers.update({"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)
 CA_COOKIES = {"cart_currency": "CAD", "localization": "CA"}
 
 
-def _shopify(url, price, variant):
-    """Shopify product page: its .js twin has every variant's price, regular price and stock (in cents)."""
+def _shopify(url, price, variant, us=False, tol=0.01):
+    """Shopify product page: its .js twin has every variant's price, regular price and stock (in cents).
+    us=True: a US shop in its own market (USD), the price given in USD with a small tolerance (converted from CAD)."""
     u = urlparse(url)
     m = re.match(r"(.*/products/[^/?#]+)", u.path)
-    r = S.get(f"{u.scheme}://{u.netloc}{m.group(1)}.js", cookies=CA_COOKIES, timeout=30)
+    r = S.get(f"{u.scheme}://{u.netloc}{m.group(1)}.js", cookies=None if us else CA_COOKIES, timeout=30)
     if r.status_code in (403, 429) or r.status_code >= 500:
         return None
     if r.status_code != 200:
@@ -36,7 +37,7 @@ def _shopify(url, price, variant):
     vs = r.json().get("variants") or []
     if variant:
         vs = [v for v in vs if str(v.get("id")) == str(variant)]
-    ok = [v for v in vs if v.get("available") and v["price"] / 100 <= price + 0.01
+    ok = [v for v in vs if v.get("available") and v["price"] / 100 <= price + tol
           and (v.get("compare_at_price") or 0) > v["price"]]
     return bool(ok)
 
@@ -55,11 +56,14 @@ def _page(url, price):
     return any(re.search(r"(?<![\d.,])" + re.escape(f) + r"(?![\d])", r.text) for f in forms)
 
 
-def still_on_sale(url, price, variant=None):
+def still_on_sale(url, price, variant=None, us=False):
+    """us=True (the USA side, Oct 9): price is in USD converted back from our CAD copy, so allow 2%; only Shopify shops can
+    be checked that way (another page has to show the exact price string)."""
     try:
         if "/products/" in url:
-            return _shopify(url, price, variant if variant and str(variant).isdigit() else None)
-        return _page(url, price)
+            return _shopify(url, price, variant if variant and str(variant).isdigit() else None, us=us,
+                            tol=max(0.01, price * 0.02) if us else 0.01)
+        return None if us else _page(url, price)
     except (requests.RequestException, ValueError, KeyError, AttributeError):
         return None
 

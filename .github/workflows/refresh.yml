@@ -103,6 +103,11 @@ jobs:
           else
             echo "no price history checked out: skipped"
           fi
+      # Oct 9 (Bastien: "I want the most accurate information for our users"): the deals people see most are opened on the
+      # store's own page; an ended sale or sold-out size is taken off before anything is published (scraper/featured_check.py)
+      - name: Check featured deals on the store pages
+        continue-on-error: true
+        run: python scraper/featured_check.py site
       - name: Shoe pages for Google (one per popular model, EN/FR) + sitemap
         continue-on-error: true
         run: python scraper/shoe_pages.py site
