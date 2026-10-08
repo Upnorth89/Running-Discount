@@ -452,7 +452,10 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
 ## Preview
 
 `python tools/make_preview.py OUT.html` builds a self-contained copy with today's data, a pretend server,
-and a test panel (new visitor, pretend confirmed, pretend a day passed, layout switches). Publish it to the
+and a test panel (new visitor, pretend confirmed, pretend a day passed, layout switches).
+**Always mark what changed** (Oct 9, Bastien: "highlight a change so it sticks out"): pass one `--new "SELECTOR::What changed::How to
+see it"` per visible change (e.g. `--new '.sincebar::"Since your last visit" line::Pick sizes, then Pretend a day has passed'`).
+Matching parts get an orange dashed outline (toggle "Highlights on/off"), and the panel lists each change with "Show me". Publish it to the
 "Gear Fox Preview" artifact: https://claude.ai/artifact/WqbJ6uZF8eM2NqFAuxoL6K
 A ski/snowboard preview also exists (parked): https://claude.ai/artifact/QQeVvJDPSkD4dAomdeMpSo
 

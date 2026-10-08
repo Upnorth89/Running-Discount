@@ -4,7 +4,11 @@
 The preview is the real page with: today's deals embedded (no photos), logos inlined, a pretend
 server (nothing is saved or emailed), and a test panel to jump between situations.
 
-Usage: python tools/make_preview.py OUT.html
+Usage: python tools/make_preview.py OUT.html [--new "SELECTOR::What changed::How to see it" ...]
+
+--new (Oct 9, Bastien: "when you do previews can you highlight a change so it sticks out"): every element matching the CSS
+selector gets a bright dashed outline, and the panel lists the change with a "Show me" button (scrolls to it, or says how to
+get there). Always pass one --new per visible change.
 """
 import base64
 import json
@@ -16,6 +20,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SITE = ROOT / "site"
 out = Path(sys.argv[1])
+NEW = []                                          # (selector, what changed, how to see it)
+for k, a in enumerate(sys.argv):
+    if a == "--new" and k + 1 < len(sys.argv):
+        sel, what, how = (sys.argv[k + 1].split("::") + ["", ""])[:3]
+        NEW.append((sel.strip(), what.strip(), how.strip()))
 
 s = (SITE / "index.html").read_text()
 
@@ -69,6 +78,27 @@ rep("/* top bar */", '''/* preview panel (not part of the site) */
 .pvg{width:100%;max-width:400px;min-height:44px;border:1.5px solid #DADCE0;border-radius:999px;background:#fff;color:#1F1F1F;font:500 15px Arial,sans-serif;cursor:pointer}
 .pvg small{color:#777;font-weight:400}
 /* top bar */''')
+
+# what changed in this preview: outlined on the page + listed in the panel with "Show me"
+new_js = json.dumps([[sel, w, h] for sel, w, h in NEW])
+if NEW:
+    import html as _h
+    rows = "".join(f'<li><span class="pvnum">{n + 1}</span><span><b>{_h.escape(w)}</b>'
+                   + (f'<small>{_h.escape(h)}</small>' if h else "")
+                   + f'</span><button type="button" class="pvb pvshow" data-n="{n}">Show me</button></li>'
+                   for n, (_, w, h) in enumerate(NEW))
+    rep('<p id="pvMsg">', '<div class="pvnew"><div class="pvrow"><b class="pvnewh">What\'s new in this preview</b>'
+        '<button type="button" class="pvb" id="pvHl" aria-pressed="true">Highlights on</button></div>'
+        f'<ol>{rows}</ol></div>\n  <p id="pvMsg">')
+    sels = ",".join(f"body.pvhl {sel}" for sel, _, _ in NEW)
+    rep("/* top bar */", "/* preview: changed parts */\n" + sels + "{outline:3px dashed #FF5A1F!important;outline-offset:3px;"
+        "box-shadow:0 0 0 6px rgba(255,90,31,.18)!important;border-radius:6px}\n"
+        ".pvflash{animation:pvflash 1.6s ease 2}@keyframes pvflash{50%{box-shadow:0 0 0 14px rgba(255,90,31,.45)}}\n"
+        ".pvnew{margin-top:8px;padding:8px 10px;border:1.5px solid #FF5A1F;border-radius:10px;background:rgba(255,90,31,.10)}\n"
+        ".pvnew .pvnewh{font-size:15px;color:#FF8A5B}.pvnew ol{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:6px}\n"
+        ".pvnew li{display:flex;gap:10px;align-items:center}.pvnew li>span:nth-child(2){flex:1;display:grid;font-size:14px}\n"
+        ".pvnew small{color:var(--band-muted);font-size:12.5px}.pvnum{flex:none;width:24px;height:24px;border-radius:50%;"
+        "background:#FF5A1F;color:#17201C;font:700 13px/24px var(--body);text-align:center}\n/* top bar */")
 
 # embedded data, pretend server
 data = json.loads((SITE / "deals.json").read_text())
@@ -127,6 +157,13 @@ G.render=function(){["gBtnW","gBtnUp","gBtnIn"].forEach(id=>{const el=$(id);if(!
 
 /* ---------- preview panel ---------- */
 function pvMsg(t){$("pvMsg").textContent=t}
+const PVNEW=__PVNEW__;   // what changed in this preview (--new)
+if(PVNEW.length){document.body.classList.add("pvhl");
+  $("pvHl").addEventListener("click",e=>{const on=document.body.classList.toggle("pvhl");e.target.setAttribute("aria-pressed",String(on));e.target.textContent=on?"Highlights on":"Highlights off"});
+  document.querySelectorAll(".pvshow").forEach(b=>b.addEventListener("click",()=>{const [sel,what,how]=PVNEW[+b.dataset.n];
+    const el=[...document.querySelectorAll(sel)].find(x=>x.getClientRects().length);
+    if(!el){pvMsg(`"${what}" isn't on screen right now. ${how||""}`);return}
+    el.scrollIntoView({behavior:"smooth",block:"center"});el.classList.remove("pvflash");void el.offsetWidth;el.classList.add("pvflash");pvMsg(`${what}: outlined in orange.`)}))}
 function pvClear(){["rd-profile","gf-sub","gf-watch","gf-last","gf-base","gf-clicks","gf-peek"].forEach(k=>LS.set(k,null))}
 document.querySelectorAll("#pvCards button").forEach(b=>{b.setAttribute("aria-pressed",String(b.dataset.c===CARDS));
   b.addEventListener("click",()=>{try{localStorage.setItem("gf-cards",JSON.stringify(b.dataset.c))}catch(e){}location.reload()})});
@@ -138,7 +175,7 @@ $("pvConfirm").addEventListener("click",()=>{
   setSub({key:"00000000-0000-0000-0000-000000000000",email:state.email||"you@example.com",active:true});
   $("notice").classList.add("hidden");renderAll();pvMsg("You're now a confirmed subscriber. Hearts say you'll get alerts, and the sign-up card is gone.")});
 $("pvDay").addEventListener("click",()=>{
-  if(gated()){pvMsg("Sign up first (sizes and an email), then tap this.");return}
+  if(!hasSizes()){pvMsg("Pick your sizes first (Find my deals), then tap this.");return}
   const sale=matchItems(toProfile()).filter(d=>d.pct>0).sort((a,b)=>b.pct-a.pct);
   const keys=sale.map(itemKey);
   LS.set("gf-last",{at:Date.now()-26*3600e3,keys:keys.filter((_,i)=>i%8!==3)});LS.set("gf-base",null);
@@ -147,11 +184,12 @@ $("pvDay").addEventListener("click",()=>{
     if(i===1){w.gone=true;return}
     if(w.price!=null){const up=Math.round(w.price*1.18);w.price=up;w.seen=up;w.low=up}});
   LS.set("gf-watch",watches);
-  const d=sale[0];if(d&&!Object.keys(clicks).length){clicks[itemKey(d)]=Math.round((d.reg-d.best)*100)/100;LS.set("gf-clicks",clicks)}
+  const d=sale[0];if(d&&!Object.keys(clicks).length){clicks[itemKey(d)]={off:Math.round((d.reg-d.best)*100)/100,at:Date.now()-26*3600e3,p:Math.round(d.best*1.15)};LS.set("gf-clicks",clicks)}   // a deal "opened yesterday" at a higher price: "Since your last visit" shows a drop
   location.reload();
 });
 
 /* ---------- start ---------- */''')
+s = s.replace("__PVNEW__", new_js)
 s = s.rstrip() + '\n<script type="application/json" id="gfdata">' + blob + "</script>\n"
 if us_blob:
     s += '<script type="application/json" id="gfdata-us">' + us_blob + "</script>\n"
