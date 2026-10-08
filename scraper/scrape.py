@@ -1312,7 +1312,7 @@ def scrape_rei_saved():
 # we checked 9 random sale sizes by hand on the stores' pages: all 9 right. Only sizes marked "In stock" are used, and a
 # file older than CATALOG_MAX_DAYS (by its own "Observed" time) is ignored: sales end, and our page check can't see these stores.
 CATALOG_MAX_DAYS = 3
-CATALOG_SKIP = {"backcountry"}   # stores that block our own reads stay out even when GPT got some pages (Oct 9)
+CATALOG_SKIP = set()   # stores to leave out of the catalog file (Oct 9: Bastien collects these himself, like saved pages: all welcome)
 SAVED_STORES = {"mec", "rei", "svp", "sportchek", "adidasca", "catalog"}   # from files Bastien brings: no file = no deals, never stale ones
 CATALOG_STORES = {"Sport Chek": ("sportchek", "https://www.sportchek.ca"), "Adidas": ("adidasca", "https://www.adidas.ca"),
                   "REI": ("rei", "https://www.rei.com")}
