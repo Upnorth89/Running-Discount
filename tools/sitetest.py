@@ -7,6 +7,7 @@ freshly built site (today's data, served from this machine), and:
   - "Ships from Canada" on: no card from a store abroad (Nutrition too); "Show US stores too" adds them
   - every category chip shows only that category (and has deals), "Show more" and the shoe type buttons work
   - one search per category (a brand that category shows today): every result matches, and stays in the category
+  - a typo ("saucny") offers "Did you mean saucony?" and the tap finds deals
   - an accent-free search finds accented brands ("naak" = Näak), a nonsense search shows the "nothing matches" note
   - filters (Include full price, Sort by price), a heart opens the email step, the ☰ menu, the French version
   - shoe pages (a model page with its price table, the list pages EN/FR, Black Friday), About, privacy
@@ -284,6 +285,21 @@ def site_flow(base, per, accented):
             assert cs, f"searching the shoe on top of the list ('{q}') finds nothing"
             return f"'{q}': {len(cs)}"
         check("Search a shoe model")(model_search, page)
+
+        def search_help():   # Oct 9: a typo gets "Did you mean", a store name offers its deals
+            all_gear()
+            page.fill("#dSearch", "saucny")
+            settle(page, 1200)
+            h = page.locator(".searchhelp")
+            assert h.count() and "saucony" in h.inner_text().lower(), "the typo 'saucny' doesn't offer 'Did you mean saucony?'"
+            page.click(".searchhelp [data-sq]")
+            settle(page, 1200)
+            n = len(cards(page))
+            assert n, "tapping 'saucony' finds nothing"
+            page.fill("#dSearch", "")
+            settle(page)
+            return f"'saucny' -> saucony: {n} deals"
+        check("Search: did you mean")(search_help, page)
 
         def accents():
             # an accented brand as written finds N deals; typed without the accent must find the same N

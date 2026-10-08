@@ -265,6 +265,7 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
 .deal .store{font-size:14px;color:var(--muted)}
 .deal .store .abroad{color:var(--ink);font-weight:600}
 .widen{margin:0 0 14px;color:var(--muted);font-size:15px}
+.searchhelp{color:var(--ink);line-height:1.9}.searchhelp button{font:inherit;font-weight:700;color:var(--moss);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}
 .storebar{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--card);border:1.5px solid var(--hivis);border-radius:12px;padding:12px 14px;margin:0 0 16px}
 .storebar small{display:block;color:var(--muted);font-size:13px}
 .brand .leaf{font-size:.9em}
@@ -700,7 +701,9 @@ en:{
   get storesAll(){return US()?"stores in the US and abroad":"stores in Canada and abroad"},get storesCA(){return US()?"US stores":"Canadian stores"},
   lede:(s,a,w,u)=>`${s} on sale and ${a} in stock from ${w}${u?` · updated ${u}`:""}.`,
   secNew:"New since your last visit",secSale:"Top deals",
-  nothing:"Nothing matches right now. Try clearing the search or picking more categories.",addSizes:"Add your sizes to hide gear that won't fit. ",
+  nothing:"Nothing matches right now. Try clearing the search or picking more categories.",
+  noSize:(q,n)=>`Nothing in your size for “${q}” right now, but ${n} in other sizes.`,showAllSizes:"Show all sizes",yourSizesOnly:"Back to my sizes",
+  allSizesOn:q=>`Showing “${q}” in every size.`,didYou:"Did you mean",storeGo:s=>`See every deal at ${s}`,addSizes:"Add your sizes to hide gear that won't fit. ",
   checkInbox:"Check your inbox",checkInboxTxt:e=>`Tap the link we sent to ${e} to start your Friday email.`,
   junkHint:"Not there after a minute? Check Junk or Promotions (Outlook and Hotmail often file us there) and mark it \"Not junk\".",
   resend:"Send it again",resendFail:"Couldn't send just now. Try again in a minute.",resent:"Sent again. Give it a minute.",resendWait:"Just sent. Give it a minute, then check Junk.",
@@ -794,7 +797,9 @@ fr:{
   get storesAll(){return US()?"des boutiques aux États-Unis et à l'étranger":"des boutiques au Canada et à l'étranger"},get storesCA(){return US()?"des boutiques américaines":"des boutiques canadiennes"},
   lede:(s,a,w,u)=>`${s} en solde et ${a} en stock ${w}${u?` · mis à jour ${u}`:""}.`,
   secNew:"Nouveau depuis votre dernière visite",secSale:"Meilleures aubaines",
-  nothing:"Rien ne correspond pour l'instant. Effacez la recherche ou choisissez plus de catégories.",addSizes:"Ajoutez vos tailles pour cacher ce qui ne vous va pas. ",
+  nothing:"Rien ne correspond pour l'instant. Effacez la recherche ou choisissez plus de catégories.",
+  noSize:(q,n)=>`Rien dans votre taille pour « ${q} » en ce moment, mais ${n} dans d'autres tailles.`,showAllSizes:"Voir toutes les tailles",yourSizesOnly:"Revenir à mes tailles",
+  allSizesOn:q=>`« ${q} » dans toutes les tailles.`,didYou:"Vouliez-vous dire",storeGo:s=>`Voir toutes les aubaines chez ${s}`,addSizes:"Ajoutez vos tailles pour cacher ce qui ne vous va pas. ",
   checkInbox:"Vérifiez vos courriels",checkInboxTxt:e=>`Cliquez sur le lien envoyé à ${e} pour activer votre courriel du vendredi.`,
   junkHint:"Pas reçu après une minute? Vérifiez les courriels indésirables ou Promotions (Outlook et Hotmail nous y classent souvent) et indiquez « Pas un courriel indésirable ».",
   resend:"Renvoyer",resendFail:"Envoi impossible pour l'instant. Réessayez dans une minute.",resent:"Renvoyé. Laissez-lui une minute.",resendWait:"Tout juste envoyé. Donnez-lui une minute, puis vérifiez les indésirables.",
@@ -1173,6 +1178,34 @@ function shoePage(d){
   return m?{slug:sl,name:m.n}:null;
 }
 const shoeUrl=sl=>shoeDir()+sl+"/";
+/* Search help (Oct 9, Bastien: "how are people not finding alphafly", "should we have an autocorrect"): when a search
+   finds nothing in your sizes, say how many are in other sizes (one tap shows them); a word that matches nothing gets
+   "Did you mean …?" from the brands, model words and stores we carry; a store's name offers that store's deals. */
+let VOCAB=null;
+function vocab(fold){if(VOCAB)return VOCAB;const c=new Map();
+  for(const d of ITEMS)for(const w of fold(d.b+" "+d.n).split(/[^a-z0-9+]+/))if(w.length>=3&&!/^\d+$/.test(w))c.set(w,(c.get(w)||0)+1);
+  return VOCAB=c}
+function lev(a,b){if(Math.abs(a.length-b.length)>2)return 9;let p=Array.from({length:b.length+1},(_,i)=>i);
+  for(let i=1;i<=a.length;i++){const r=[i];for(let j=1;j<=b.length;j++)r[j]=Math.min(p[j]+1,r[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=r}return p[b.length]}
+function suggest(q,fold){const V=vocab(fold);let changed=false;
+  const out=q.map(w=>{if([...V.keys()].some(k=>k.includes(w)))return w;
+    const m=w.match(/^([a-z]{3,})(\d+)$/);if(m&&V.has(m[1])){changed=true;return m[1]+" "+m[2]}   // "norda000" -> "norda 000"
+    if(w.length<4)return w;let best=null,bd=(w.length>=7?2:1)+1,bn=0;
+    for(const [k,n] of V){const d=lev(w,k);if(d<bd||(d===bd&&n>bn)){best=k;bd=d;bn=n}}
+    if(best){changed=true;return best}return w});
+  return changed?out.join(" "):null}
+function searchHelp(q,p,n,fold){const raw=esc(view.q.trim()),bits=[];
+  if(view.anySize)bits.push(`${t("allSizesOn",raw)} <button type="button" data-anysize="0">${t("yourSizesOnly")}</button>`);
+  else if(!n&&hasSizes()){const hit=d=>{const x=fold(d.b+" "+d.n);return q.every(w=>x.includes(w))};
+    const k=matchItems({...p,sizes:{},groups:ORDER}).filter(hit).length;
+    if(k)bits.push(`${t("noSize",raw,num(k))} <button type="button" data-anysize="1">${t("showAllSizes")}</button>`)}
+  const qs=q.join(" "),st=qs.length>=4&&Object.entries(STORES).find(([h,v])=>fold(v[0]).startsWith(qs)||fold(v[0]).replace(/\s+/g,"").startsWith(qs.replace(/\s+/g,"")));
+  if(!n&&!view.anySize&&!st&&!bits.length){let sg=suggest(q,fold);
+    if(!sg&&q.length>1){const any=ws=>ITEMS.some(d=>{const x=fold(d.b+" "+d.n);return ws.every(w=>x.includes(w))});   // "alphafly 4" -> "alphafly"
+      for(let k=q.length-1;k>=1&&!sg;k--)if(any(q.slice(0,k)))sg=q.slice(0,k).join(" ")}
+    if(sg)bits.push(`${t("didYou")} <button type="button" data-sq="${esc(sg)}">${esc(sg)}</button>?`)}
+  if(st&&st[0]!==view.store)bits.push(`<button type="button" data-shop="${esc(st[0])}">${t("storeGo",esc(st[1][0]))}</button>`)
+  return bits.length?`<div class="widen searchhelp">${bits.join("<br>")}</div>`:""}
 function shoeSearch(q){   // models whose name has every search word: "clif" -> Clifton 10, Clifton 11…
   if(!SHOEPAGES||!q.length)return [];
   const flat=x=>x.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
@@ -1221,7 +1254,7 @@ const WORD={"ONE SIZE":"OS","O/S":"OS","X-SMALL":"XS","XSMALL":"XS","SMALL":"S",
   "SM":"S","MD":"M","MED":"M","LG":"L","LRG":"L","XLG":"XL","XXLARGE":"2XL","XX-LARGE":"2XL"};   // Oct 7: socks labelled SM/MD/LG never matched
 function norm(s){s=String(s).trim().toUpperCase();s=WORD[s]||s;return s.replace("XXXL","3XL").replace("XXL","2XL").replace("XXS","2XS")}
 let NARROW=false;   // only some categories picked (see renderAll)
-const view={fullPrice:false,sort:"match",q:"",open:{},watch:false,newAll:false,type:{},store:"",cdn:false};   // store: one shop only (Oct 5 preview)
+const view={fullPrice:false,sort:"match",q:"",open:{},watch:false,newAll:false,type:{},store:"",cdn:false,anySize:false};   // store: one shop only (Oct 5 preview)
 try{const st=(new URLSearchParams(location.search).get("store")||"").toLowerCase();if(STORES[st])view.store=st}catch(e){}   // ?store=altitude-sports.com
 try{if(new URLSearchParams(location.search).has("canadian"))view.cdn=true}catch(e){}   // ?canadian = Canadian brands only (Canada side)
 /* Canadian brands (Oct 7, Bastien): companies based in Canada, checked by hand. Not "made in Canada": most make their gear
@@ -1454,7 +1487,7 @@ $("toggles").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!
   else{view.fullPrice=!view.fullPrice;if(view.fullPrice)loadFull()}
   view.open={};renderAll()});
 $("sort").addEventListener("change",e=>{view.sort=e.target.value;view.open={};renderAll()});
-let searchT;$("dSearch").addEventListener("input",e=>{clearTimeout(searchT);searchT=setTimeout(()=>{view.q=e.target.value;view.open={};renderAll()},200)});
+let searchT;$("dSearch").addEventListener("input",e=>{clearTimeout(searchT);searchT=setTimeout(()=>{view.q=e.target.value;view.open={};view.anySize=false;renderAll()},200)});
 let anaQ="",anaQT;$("dSearch").addEventListener("input",e=>{clearTimeout(anaQT);anaQT=setTimeout(()=>{const q=e.target.value.trim().toLowerCase();
   if(q.length<2||q===anaQ)return;anaQ=q;const n=document.querySelectorAll("#dealList .dw").length;ana(n?"search":"search-none",q,n)},1500)});
 $("newBox").addEventListener("click",e=>{
@@ -1465,6 +1498,8 @@ $("filtBtn").addEventListener("click",()=>{const f=$("filtersBox"),o=!f.classLis
 $("dealList").addEventListener("click",e=>{
   const sb=e.target.closest("[data-shop]");if(sb){shopStore(sb.dataset.shop,"bar");return}
   if(e.target.closest("[data-cdnoff]")){cdnView(false,"bar");return}
+  const as=e.target.closest("[data-anysize]");if(as){view.anySize=as.dataset.anysize==="1";ana("search",(view.anySize?"any-size: ":"my-size: ")+view.q.trim().slice(0,60),0);view.open={};renderAll();return}
+  const sq=e.target.closest("[data-sq]");if(sq){ana("search","did-you-mean: "+view.q.trim().slice(0,40)+" -> "+sq.dataset.sq,0);$("dSearch").value=sq.dataset.sq;view.q=sq.dataset.sq;view.anySize=false;view.open={};renderAll();return}
   if(e.target.closest("[data-usfuel]")){state.ships="all";saveProfile();ana("filter","ships-all-fuel");view.open={};renderAll();return}
   const ps=e.target.closest("[data-picksize]");if(ps){ana("signup-step","pick-"+(ps.dataset.picksize||"sizes"));if(ps.dataset.picksize==="cloth")shortOff=true;editSizes();
     if(ps.dataset.picksize==="cloth")setTimeout(()=>$("clothSizes").scrollIntoView({block:"center"}),80);return}
@@ -1680,7 +1715,7 @@ function renderAll(){
   // a search stays inside the categories picked (chips); only when nothing matches there does it look in every category
   const hit=d=>{const t=fold(d.b+" "+d.n);return q.every(w=>t.includes(w))};
   const cdn=view.cdn&&!US();
-  let all=matchItems(p),wide=false;
+  let all=matchItems(q.length&&view.anySize?{...p,sizes:{}}:p),wide=false;
   if(cdn)all=all.filter(cdnBrand);
   if(q.length){all=all.filter(hit);if(!all.length&&!ORDER.every(g=>p.groups.includes(g))){all=matchItems({...p,groups:ORDER}).filter(d=>hit(d)&&(!cdn||cdnBrand(d)));wide=all.length>0}}
   const onSale=all.filter(d=>d.pct>0);
@@ -1706,6 +1741,7 @@ function renderAll(){
   if(cdn)parts.unshift(`<div class="storebar cdnbar"><div><small>${t("cdnH")}</small><b>${t("cdnB")}</b><small>${t("storeCount",num((view.fullPrice||q.length?all:onSale).length))}. ${t("cdnNote")}</small></div><button type="button" data-cdnoff>${t("cdnBack")}</button></div>`);
   if(view.store)parts.unshift(`<div class="storebar"><div><small>${t("storeH")}</small><b>${esc((STORES[view.store]||[view.store])[0])}</b><small>${t("storeCount",num((view.fullPrice||q.length?all:onSale).length))}</small></div><button type="button" data-shop="">${t("storeBack")}</button></div>`);
   if(q.length){const hits=shoeSearch(q);if(hits.length)parts.unshift(`<div class="spcards">${hits.map(([sl,m])=>`<a class="spcard" href="${shoeUrl(sl)}" data-sp="search"><span><b>${esc(m.n)}</b><small>${t("spCardTxt")}</small></span><span class="go">${t("spCardGo")}</span></a>`).join("")}</div>`)}
+  if(q.length){const hint=searchHelp(q,p,all.length,fold);if(hint)parts.unshift(hint)}
   const body=parts.filter(Boolean);
   body.splice(Math.min(1+(view.store?1:0)+(cdn?1:0)+(!hasSizes()&&!view.store?1:0),body.length),0,signupHTML());   // after the first block of deals (a note on top doesn't count)   // the email card sits right after the first block of deals
   $("dealList").innerHTML=body.join("")||`<div class="empty">${t("nothing")}</div>`;
