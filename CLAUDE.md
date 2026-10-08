@@ -46,6 +46,10 @@ site/privacy.html        bilingual privacy page
 site/about.html          bilingual About page (Oct 3): Bastien's story + photo (bastien.jpg, Run Ridge Run 25K), what it does,
                          "How we make money" (affiliate disclosure), contact hello@thegearfox.com. Footer + privacy link to it.
 site/grab.html, grab.js  "Grab deals" bookmark for MEC/REI (Bastien saves their sale pages weekly)
+                         Phone version (Oct 9): after reading, the bookmark shows "Send to The Gear Fox" -> opens site/grab-save.html,
+                         which takes the list by postMessage (only from mec.ca/rei.com/svpsports.ca) and calls Supabase grab_save()
+                         (supabase/grab.sql; same private key as stats.html, gf-stats-key) -> table grab_saves + starts a refresh.
+                         scrape.py grab_saves() reads the last 10 days like saved-pages files. After editing grab.js: python tools/make_grab.py
 site/deals.json          generated daily (merged items); sale.json = only items on sale (the site loads it first;
                          deals.json only for "Include full price" or the watchlist); offers.json = raw per-store data;
                          health.json

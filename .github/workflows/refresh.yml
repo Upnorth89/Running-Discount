@@ -90,6 +90,9 @@ jobs:
           curl -fsS -X POST "https://krwymmkauwqqxjxbvkyq.supabase.co/rest/v1/rpc/ping" \
             -H "apikey: sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2" -H "Content-Type: application/json" -d '{}' || true
       - name: Scrape stores
+        env:                       # SUPABASE_*: deals sent from the phone "Grab deals" bookmark (grab_saves, Oct 9)
+          SUPABASE_URL: "https://krwymmkauwqqxjxbvkyq.supabase.co"
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
         run: python scraper/scrape.py site/deals.json
       # price history ("Is this deal real?"): lives on the history branch, so a failed download can't wipe it
       - name: Fetch price history

@@ -8,10 +8,39 @@
   box.style.cssText = "position:fixed;z-index:2147483647;top:16px;right:16px;background:#17201C;color:#fff;font:600 15px/1.4 system-ui;padding:14px 18px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,.3);max-width:320px";
   document.body.appendChild(box);
   const say = t => { box.textContent = t; };
-  const save = (name, obj) => {
+  const download = (name, obj) => {
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([JSON.stringify(obj)], { type: "application/json" }));
     a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  };
+  // Oct 9: a phone can't upload a file to GitHub easily, so the list goes straight to thegearfox.com/grab-save.html
+  // (one tap: a new tab can only open from a tap). The file download stays as a backup for computers.
+  let keep = false;
+  const save = (name, obj) => {
+    keep = true;
+    const n = (obj.hits || obj.results || obj.products || []).length;
+    box.textContent = "";
+    const t = document.createElement("div"); t.textContent = `${n} products read.`;
+    const b = document.createElement("button"); b.textContent = "Send to The Gear Fox";
+    b.style.cssText = "display:block;margin:10px 0 8px;font:800 16px system-ui;background:#D7F23A;color:#17201C;border:0;border-radius:10px;padding:11px 16px;cursor:pointer";
+    const d = document.createElement("a"); d.textContent = "or download the file";
+    d.href = URL.createObjectURL(new Blob([JSON.stringify(obj)], { type: "application/json" })); d.download = name;
+    d.style.cssText = "color:#fff;font-size:13px;text-decoration:underline";
+    box.append(t, b, d);
+    b.onclick = () => {
+      const w = window.open("https://thegearfox.com/grab-save.html", "gfgrab");
+      if (!w) { t.textContent = "Pop-up blocked: allow pop-ups for this site, or download the file."; return; }
+      let tries = 0;
+      const iv = setInterval(() => {
+        if (++tries > 60) return clearInterval(iv);
+        try { w.postMessage({ gf: "save", payload: obj }, "https://thegearfox.com"); } catch (e) {}
+      }, 500);
+      addEventListener("message", e => {
+        if (e.origin === "https://thegearfox.com" && e.data && e.data.gf === "got") {
+          clearInterval(iv); t.textContent = "Sent ✓ The new tab says when it's saved."; b.remove();
+        }
+      });
+    };
   };
   const fetchDoc = async url => new DOMParser().parseFromString(await (await fetch(url, { credentials: "include" })).text(), "text/html");
   const host = location.hostname;
@@ -33,7 +62,6 @@
         }
       }
       save(`mec-${new Date().toISOString().slice(0, 10)}.json`, { store: "mec", saved: new Date().toISOString(), hits });
-      say(`MEC: ${hits.length} products saved. Upload the file to saved-pages/ on GitHub.`);
     } else if (/rei\.com$/.test(host)) {
       const results = doc => JSON.parse(doc.getElementById("initial-props").textContent).ProductSearch.products.searchResults;
       say("REI: reading page 1…");
@@ -48,7 +76,6 @@
         items = items.concat(results(await fetchDoc(u)).results || []);
       }
       save(`rei-${new Date().toISOString().slice(0, 10)}.json`, { store: "rei", saved: new Date().toISOString(), results: items });
-      say(`REI: ${items.length} products saved. Upload the file to saved-pages/ on GitHub.`);
     } else if (/svpsports\.ca$/.test(host)) {
       // SVP is a Shopify store: read the collection you're on (e.g. running shoes on sale) page by page
       const m = location.pathname.match(/^((?:\/[a-z]{2})?\/collections\/[^/]+)/);
@@ -63,7 +90,6 @@
         if (batch.length < 250) break;
       }
       save(`svp-${new Date().toISOString().slice(0, 10)}.json`, { store: "svp", saved: new Date().toISOString(), url: location.href, products });
-      say(`SVP: ${products.length} products saved. Upload the file to saved-pages/ or send it over.`);
     } else if (/hoka\.com$/.test(host)) {
       // Hoka (test, Oct 5): saves only what this tab already shows (no extra requests at all), like "Save page as".
       // Scroll to the bottom first so every shoe on the page has loaded.
@@ -71,7 +97,7 @@
       const data = [...document.querySelectorAll("script:not([src])")].map(x => x.textContent)
         .filter(t => /price|pid|productId/i.test(t)).map(t => t.slice(0, 300000)).slice(0, 20);
       const tiles = [...document.querySelectorAll("[data-pid], .product-tile, .product")].slice(0, 400).map(x => x.outerHTML.slice(0, 6000));
-      save(`hoka-${new Date().toISOString().slice(0, 10)}.json`, { store: "hoka", saved: new Date().toISOString(), url: location.href, ld, data, tiles });
+      download(`hoka-${new Date().toISOString().slice(0, 10)}.json`, { store: "hoka", saved: new Date().toISOString(), url: location.href, ld, data, tiles });
       say(`Hoka: ${tiles.length} shoes on this page saved. File saved.`);
     } else {
       say("Open the running-deals page of MEC, REI, SVP Sports or Hoka first, then click the bookmark.");
@@ -79,5 +105,5 @@
   } catch (e) {
     say("Couldn't read this page (" + e.message + "). Make sure it's the running-deals list, then try again.");
   }
-  setTimeout(() => box.remove(), 12000);
+  if (!keep) setTimeout(() => box.remove(), 12000);
 })();

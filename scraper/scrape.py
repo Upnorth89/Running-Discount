@@ -1171,10 +1171,35 @@ def _file_age_days(path):
         ts = path.stat().st_mtime
     return (time.time() - ts) / 86400
 
+_grabbed = []
+def grab_saves():
+    """Lists sent from the phone bookmark (Oct 9: thegearfox.com/grab-save.html -> Supabase grab_saves, last 10 days),
+    written to a temp folder as the same JSON files the bookmark downloads. Needs SUPABASE_URL + SUPABASE_SECRET_KEY."""
+    if _grabbed:
+        return _grabbed[0]
+    import tempfile
+    out, sb, key = [], os.environ.get("SUPABASE_URL", "").rstrip("/"), os.environ.get("SUPABASE_SECRET_KEY", "")
+    if sb and key:
+        try:
+            since = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=SAVED_MAX_DAYS)).strftime("%Y-%m-%dT%H:%M:%SZ")
+            r = requests.get(f"{sb}/rest/v1/grab_saves", params={"select": "id,store,at,data", "at": f"gte.{since}",
+                             "order": "at.desc"}, headers={"apikey": key, "Authorization": f"Bearer {key}"}, timeout=120)
+            r.raise_for_status()
+            d = Path(tempfile.mkdtemp(prefix="grab-"))
+            for row in r.json():
+                f = d / f"{row['store']}-grab-{row['id']}.json"
+                f.write_text(json.dumps({**row["data"], "store": row["store"], "saved": row["at"]}))
+                out.append(f)
+            print(f"  phone grabs: {len(out)} from the last {SAVED_MAX_DAYS} days", file=sys.stderr)
+        except Exception as e:
+            print(f"  phone grabs: couldn't read them ({str(e)[:80]})", file=sys.stderr)
+    _grabbed.append(out)
+    return out
+
 def saved_pages():
     files = []
-    if SAVED_DIR.is_dir():
-        for f in list(SAVED_DIR.glob("*.htm*")) + list(SAVED_DIR.glob("*.json")):
+    if SAVED_DIR.is_dir() or grab_saves():
+        for f in (list(SAVED_DIR.glob("*.htm*")) + list(SAVED_DIR.glob("*.json")) if SAVED_DIR.is_dir() else []) + grab_saves():
             age = _file_age_days(f)
             if f.suffix == ".json":         # files from the "Grab deals" bookmark carry their own date
                 try:

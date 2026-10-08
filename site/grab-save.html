@@ -1,0 +1,55 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Send deals to The Gear Fox</title>
+<!-- Oct 9, 2026: the "Grab deals" bookmark opens this page after reading MEC's / REI's running deals in Bastien's own
+     browser, and hands it the list (postMessage, only from those stores). It goes to Supabase grab_save() with the data
+     page's private key (gf-stats-key on this device), which also starts a site update. -->
+<style>
+:root{--ink:#17201C;--muted:#5C6660;--mist:#EEF1EC;--card:#fff;--line:#CBD2CC;--hivis:#D7F23A;--ok:#1F6B45;--no:#B3261E}
+@media (prefers-color-scheme:dark){:root{--ink:#E7ECE8;--muted:#9BA6A0;--mist:#121815;--card:#1B2320;--line:#34403A;--ok:#5CC08A;--no:#F2857C}}
+body{margin:0;background:var(--mist);color:var(--ink);font:17px/1.5 system-ui,-apple-system,sans-serif}
+.w{max-width:520px;margin:0 auto;padding:32px 18px 60px}
+h1{font:800 28px/1.15 system-ui;margin:0 0 10px}
+.m{color:var(--muted)} .ok{color:var(--ok);font-weight:700} .no{color:var(--no);font-weight:700}
+input{width:100%;box-sizing:border-box;font:inherit;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);margin:10px 0}
+button{font:800 16px system-ui;background:var(--hivis);color:#17201C;border:2px solid #17201C;border-radius:10px;padding:11px 18px;cursor:pointer}
+</style></head><body><div class="w">
+<h1>Send deals to The Gear Fox</h1>
+<p id="msg" class="m">Waiting for the deals from the other tab…</p>
+<div id="keybox" hidden>
+  <p class="m">First time on this phone: Supabase → Table Editor → <b>ana_settings</b> → copy the value of <b>dashboard_key</b> and paste it here (the same key as the data page). It stays on this device only.</p>
+  <input id="keyIn" type="password" autocomplete="off" aria-label="Private key">
+  <button type="button" id="keyGo">Send</button>
+</div>
+</div>
+<script>
+const SB="https://krwymmkauwqqxjxbvkyq.supabase.co", PK="sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2";
+const FROM=["https://www.mec.ca","https://www.rei.com","https://www.svpsports.ca"];
+const NAMES={mec:"MEC",rei:"REI",svp:"SVP Sports"};
+const $=id=>document.getElementById(id), say=(t,c)=>{$("msg").textContent=t;$("msg").className=c||"m"};
+let KEY=null,got=null;try{KEY=localStorage.getItem("gf-stats-key")}catch(e){}
+async function send(){
+  if(!KEY){$("keybox").hidden=false;say("Paste your private key to send "+got.n+" "+NAMES[got.store]+" products.");return}
+  $("keybox").hidden=true;say("Sending "+got.n+" "+NAMES[got.store]+" products…");
+  try{
+    const r=await fetch(SB+"/rest/v1/rpc/grab_save",{method:"POST",headers:{"Content-Type":"application/json",apikey:PK,Authorization:"Bearer "+PK},
+      body:JSON.stringify({p_key:KEY,p_store:got.store,p_data:got.payload})});
+    const j=await r.json();
+    if(j&&j.ok){say("✓ Saved "+j.n+" "+NAMES[got.store]+" products. The site updates in about 20 minutes. You can close this tab.","ok");return}
+    if(j&&j.why==="key"){try{localStorage.removeItem("gf-stats-key")}catch(e){}KEY=null;$("keybox").hidden=false;say("That key didn't match. Paste it again.","no");return}
+    say("Couldn't save ("+((j&&(j.why||j.message))||r.status)+"). Try the bookmark again, or use the file download on a computer.","no");
+  }catch(e){say("Couldn't reach the database ("+e.message+"). Check your connection and send again.","no")}
+}
+$("keyGo").addEventListener("click",()=>{KEY=$("keyIn").value.trim();if(!KEY)return;try{localStorage.setItem("gf-stats-key",KEY)}catch(e){}send()});
+addEventListener("message",e=>{
+  if(!FROM.includes(e.origin)||!e.data||e.data.gf!=="save"||got)return;
+  const p=e.data.payload||{};const n=(p.hits||p.results||p.products||[]).length;
+  if(!NAMES[p.store]||!n)return;
+  got={store:p.store,payload:p,n};
+  try{e.source.postMessage({gf:"got"},e.origin)}catch(_){}
+  send();
+});
+if(window.opener){try{window.opener.postMessage({gf:"ready"},"*")}catch(e){}}
+else say("Open MEC's or REI's running deals and tap the Grab deals bookmark: it opens this page by itself.");
+</script>
+</body></html>
