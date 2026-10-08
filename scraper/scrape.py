@@ -1370,9 +1370,11 @@ def scrape_catalog(retailer, st=None):
                 continue
             fx = 1.0 if r.get("Currency") == "CAD" else fx_to_cad(r.get("Currency") or "USD")
             url = info.get("Product URL") or (r.get("Variant URL") or "").split("?")[0]
+            img = next((str(v) for k, v in {**r, **info}.items() if k and "image" in str(k).lower()
+                        and str(v or "").startswith("https://")), None)   # a photo link, when the file has one (Oct 9)
             p = prods[iid] = {"st": st, "b": info.get("Brand") or "", "n": name, "u": url, "g": g, "fx": fx, "gender": g_,
                               "sx": {"Men": ["men"], "Women": ["women"], "Unisex": ["men", "women"]}.get(g_, []),
-                              "w": False, "img": None, "bb": None, "sizes": {}}
+                              "w": False, "img": img, "bb": None, "sizes": {}}
         size = _catalog_size(r.get("Size"), r.get("Width / fit"), p["g"], g_)
         now_c, reg_c = round(float(now) * p["fx"], 2), round(max(float(reg or now), float(now)) * p["fx"], 2)
         old = p["sizes"].get(size)
@@ -1383,7 +1385,7 @@ def scrape_catalog(retailer, st=None):
         if not p["sizes"]:
             continue
         sz = [[s, a, b_] for s, (a, b_) in p["sizes"].items()]
-        out.append({"st": p["st"], "b": p["b"], "n": p["n"], "u": p["u"], "g": p["g"], "sx": p["sx"], "w": p["w"], "img": None,
+        out.append({"st": p["st"], "b": p["b"], "n": p["n"], "u": p["u"], "g": p["g"], "sx": p["sx"], "w": p["w"], "img": p["img"],
                     "lp": max(e[2] for e in sz), "bb": None, "sz": sz})
     print(f"  {st}: {len(out)} products from the catalog file", file=sys.stderr)
     return out

@@ -1039,7 +1039,7 @@ function renderWelcome(){
   const kids=/\b(junior|juniors|kids?|youth|enfants?|jr|toddler|boys?|girls?|gar[çc]ons?|filles?)\b/i;
   const runs=d=>d.sz.filter(e=>e.length>3&&e[1]<e[3]*0.99).length;   // sizes on sale: a real size run, not one leftover pair
   for(const d of sale.filter(d=>d.pct<=60&&d.ca!==false&&!kids.test(d.n)&&known.has(d.b.toLowerCase())&&d.g==="shoes"&&
-      ["daily","trail","race"].includes(d.t)&&!SPIKE.test(d.n)&&runs(d)>=6).sort((a,b)=>b.pct-a.pct)){
+      ["daily","trail","race"].includes(d.t)&&!SPIKE.test(d.n)&&runs(d)>=6).sort((a,b)=>(!a.img-!b.img)||b.pct-a.pct)){   // with a photo first
     if(seen.has(d.b.toLowerCase())||picks.some(x=>x.t===d.t))continue;seen.add(d.b.toLowerCase());picks.push(d);if(picks.length===3)break}
   picks.sort((a,b)=>["daily","trail","race"].indexOf(a.t)-["daily","trail","race"].indexOf(b.t));
   $("wDeals").innerHTML=picks.map(d=>`<button type="button" class="wdeal">${d.img?`<img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:""}<span class="wn"><b>${esc(d.b)}</b>${esc(nm(d.n))}</span><span class="wp"><span class="pct">−${d.pct}%</span>${money(d.price)} <small class="cur">${CUR}</small><s>${money(d.reg)}</s></span></button>`).join("");
@@ -1375,7 +1375,7 @@ function matchItems(p,list){
   return out;
 }
 const SORTS={
-  match:(a,b)=>(b.fav-a.fav)||(score(b)-score(a))||(a.best-b.best),
+  match:(a,b)=>(b.fav-a.fav)||(!a.img-!b.img)||(score(b)-score(a))||(a.best-b.best),   // Oct 9: deals without a photo (catalog file) go last
   price:(a,b)=>(a.best-b.best)||(b.pct-a.pct),
   discount:(a,b)=>(b.pct-a.pct)||(a.best-b.best)
 };

@@ -121,7 +121,7 @@ def pretend_history(xs):
     return xs
 
 
-items = pretend_history([{k: v for k, v in x.items() if k != "img"} for x in data["items"] if x.get("ca") is not False or on_sale(x)])
+items = pretend_history([{**{k: v for k, v in x.items() if k != "img"}, **({"img": "x"} if x.get("img") else {})} for x in data["items"] if x.get("ca") is not False or on_sale(x)])
 blob = json.dumps({"updated": data["updated"], "stores": data.get("stores", {}), "n_stores": data.get("n_stores"), "fx": data.get("fx", {}), "items": items}, separators=(",", ":")).replace("</", "<\\/")
 # shoe price pages list (links on shoe cards and in search): embedded too, when the site folder has one
 sp_path = SITE / "shoes" / "pages.json"
@@ -135,7 +135,7 @@ us_blob = ""
 if us_path.exists():
     du = json.loads(us_path.read_text())
     us_blob = json.dumps({"updated": du["updated"], "stores": du.get("stores", {}), "n_stores": du.get("n_stores"), "fx": du.get("fx", {}),
-                          "items": pretend_history([{k: v for k, v in x.items() if k != "img"} for x in du["items"] if on_sale(x)])},
+                          "items": pretend_history([{**{k: v for k, v in x.items() if k != "img"}, **({"img": "x"} if x.get("img") else {})} for x in du["items"] if on_sale(x)])},
                          separators=(",", ":")).replace("</", "<\\/")
 a = s.index("async function rpc(fn,args,bearer){")
 b = s.index("\n}\n", a) + 3
