@@ -1312,7 +1312,8 @@ def scrape_rei_saved():
 # we checked 9 random sale sizes by hand on the stores' pages: all 9 right. Only sizes marked "In stock" are used, and a
 # file older than CATALOG_MAX_DAYS (by its own "Observed" time) is ignored: sales end, and our page check can't see these stores.
 CATALOG_MAX_DAYS = 3
-CATALOG_SKIP = set()   # stores to leave out of the catalog file (Oct 9: Bastien collects these himself, like saved pages: all welcome)
+CATALOG_MIN = 25       # a store with fewer products in stock than this is left out (Oct 9, Bastien: Backcountry's 6 "isn't enough")
+CATALOG_SKIP = set()   # stores to leave out of the catalog file by name
 SAVED_STORES = {"mec", "rei", "svp", "sportchek", "adidasca", "catalog"}   # from files Bastien brings: no file = no deals, never stale ones
 CATALOG_STORES = {"Sport Chek": ("sportchek", "https://www.sportchek.ca"), "Adidas": ("adidasca", "https://www.adidas.ca"),
                   "REI": ("rei", "https://www.rei.com")}
@@ -1455,6 +1456,9 @@ def scrape_catalog_others():
             continue
         st = "cat-" + re.sub(r"[^a-z0-9]+", "", dom.rsplit(".", 1)[0]) + ("" if cur == "CAD" else "-us")
         got = scrape_catalog(ret, st)
+        if len(got) < CATALOG_MIN:
+            print(f"  catalog: {ret} left out ({len(got)} products in stock, under {CATALOG_MIN})", file=sys.stderr)
+            continue
         for o in got:
             o["ca"], o["us"] = cur == "CAD", cur == "USD"
             o["no_us" if cur == "CAD" else "no_ca"] = True
