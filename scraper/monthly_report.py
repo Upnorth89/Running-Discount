@@ -36,7 +36,7 @@ STORE_NAMES = {
     "therunnersshop.com": "The Runners Shop", "stridesrunning.com": "Strides Running",
     "altrarunning.com": "Altra", "runjanji.com": "Janji", "runinrabbit.com": "rabbit", "satisfyrunning.com": "Satisfy",
     "saysky.com": "SAYSKY", "soarrunning.com": "Soar", "raidlight.com": "Raidlight", "districtvision.com": "District Vision",
-    "banditrunning.com": "Bandit", "tenthousand.cc": "Ten Thousand", "oiselle.com": "Oiselle", "ca.2xu.com": "2XU", "us.2xu.com": "2XU (US)",
+    "banditrunning.com": "Bandit", "tenthousand.cc": "Ten Thousand", "oiselle.com": "Oiselle", "sportchek.ca": "Sport Chek", "adidas.ca": "adidas", "ca.2xu.com": "2XU", "us.2xu.com": "2XU (US)",
     "rnnr.com": "rnnr", "smartwool.com": "Smartwool", "nathansports.com": "Nathan", "nakedsportsinnovations.com": "Naked",
     "mounttocoast.com": "Mount to Coast", "kogalla.com": "Kogalla", "squirrelsnutbutter.com": "Squirrel's Nut Butter",
     "feetures.com": "Feetures", "balega.com": "Balega", "darntough.com": "Darn Tough", "swiftwick.com": "Swiftwick",

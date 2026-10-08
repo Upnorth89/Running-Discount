@@ -38,7 +38,7 @@ FROM = os.environ.get("FROM_EMAIL", "The Gear Fox <deals@thegearfox.com>")
 # Free Resend plan: 100 emails a day, 3,000 a month. Weekly email = 1 per subscriber per Friday.
 WEEKLY_SUBS_WARN = 500      # ~650 subscribers x 4.3 Fridays = the monthly cap
 DAILY_SIGNUPS_WARN = 60     # confirmation emails + alerts share the 100/day cap
-SAVED = {"mec", "rei"}       # (SVP parked Oct 6)      # stores read from pages you save by hand (their sites block automated access)
+SAVED = {"mec", "rei", "sportchek", "adidasca"}       # (SVP parked Oct 6)      # stores read from pages you save by hand (their sites block automated access)
 
 
 def load(p):
@@ -70,6 +70,17 @@ def big_discounts(offers):
 
 def check():
     problems = []   # (key, message)
+    # the catalog file (Sport Chek, adidas.ca, REI; Oct 9): a nudge the day before it runs out (3 days)
+    cat = sorted((Path(__file__).resolve().parents[1] / "saved-pages").glob("*.xlsx"))
+    if cat:
+        import subprocess
+        ts = [subprocess.run(["git", "log", "-1", "--format=%ct", "--", str(f)], capture_output=True, text=True).stdout.strip()
+              for f in cat]
+        newest = max((float(x) for x in ts if x), default=max(f.stat().st_mtime for f in cat))
+        age = (datetime.now(timezone.utc).timestamp() - newest) / 86400
+        if 2 <= age <= 3:
+            problems.append(("catalog-due", f"Catalog file (Sport Chek, adidas.ca, REI) is {age:.0f} days old: its deals come "
+                                            f"off the site tomorrow. Upload a fresh one to saved-pages/."))
     deals, deals0 = load(SITE / "deals.json"), load(PREV / "deals.json")
     offers, offers0 = load(SITE / "offers.json"), load(PREV / "offers.json")
     stamps = deals.get("stores", {})
@@ -84,7 +95,10 @@ def check():
             since = f"since {t:%b %-d}" if t else "for a while"
             problems.append((f"stale:{st}", f"{st}: hasn't updated {since}"
                              + (". The site is still showing its older deals." if n else " and has no products on the site.")))
-        if st in SAVED and n == 0:
+        if st in ("sportchek", "adidasca") and n == 0:
+            problems.append((f"zero:{st}", f"{st}: no catalog file from the last 3 days, so its deals are hidden. "
+                                           f"Upload a fresh Running_Gear_Catalog.xlsx to saved-pages/ to bring them back."))
+        elif st in SAVED and n == 0:
             problems.append((f"zero:{st}", f"{st}: no saved pages from the last 10 days, so its deals are hidden. "
                                            f"Save fresh pages to bring them back."))
         elif stale:

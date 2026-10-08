@@ -1280,6 +1280,107 @@ def scrape_rei_saved():
     print(f"  rei: {used} saved page(s), USD->CAD {fx}", file=sys.stderr)
     return out
 
+# ---------------------------------------------------------------- Catalog file (Sport Chek, adidas.ca, REI)
+# Oct 9, 2026: these stores block automated reads, so Bastien brings a catalog file (Excel, "Running_Gear_Catalog.xlsx":
+# a "Sizes & availability" sheet, one row per size and colour: retailer, item, size, width, gender, currency, regular and
+# current price, online availability, variant URL, observed time) and uploads it to saved-pages/. Before using the first one
+# we checked 9 random sale sizes by hand on the stores' pages: all 9 right. Only sizes marked "In stock" are used, and a
+# file older than CATALOG_MAX_DAYS (by its own "Observed" time) is ignored: sales end, and our page check can't see these stores.
+CATALOG_MAX_DAYS = 3
+SAVED_STORES = {"mec", "rei", "svp", "sportchek", "adidasca"}   # from files Bastien brings: no file = no deals, never stale ones
+CATALOG_STORES = {"Sport Chek": ("sportchek", "https://www.sportchek.ca"), "Adidas": ("adidasca", "https://www.adidas.ca"),
+                  "REI": ("rei", "https://www.rei.com")}
+_catalog_cache = {}
+import threading
+_catalog_lock = threading.Lock()      # the three stores read in parallel lanes: open the file once
+
+def _catalog_size(label, width, group, gender):
+    s = re.sub(r'\s*\d+(\.\d+)?"$', "", str(label or "").strip())            # shorts inseam: 'S/P 5"'
+    if s.upper() in ("NONE", "ONE SIZE", ""):
+        return "OS"
+    if group == "shoes":
+        w = (width or "").lower()
+        wide = w in ("wide", "2e", "4e", "extra wide") or (w == "d" and gender == "Women")
+        narrow = w == "narrow" or (w == "b" and gender == "Men")
+        return s + (" Wide" if wide else " Narrow" if narrow else "")
+    s = re.sub(r"^(\S+)\s*/\s*(2?T?[PMG]|TG|2TG|2TP)$", r"\1", s)            # adidas.ca 'L/G', 'XS/TP', '2XL/2TG'
+    s = re.sub(r"^(\d?X{0,3}[SL]|M)(TP|TG|T)$", r"\1", s)                    # 'XSTP', '2XLTG', '2XST'
+    return norm_size(s)
+
+def catalog_rows():
+    """The newest catalog file in saved-pages/ that's fresh enough: [row dict], or [] (cached for the run)."""
+    with _catalog_lock:
+        return _catalog_rows()
+
+def _catalog_rows():
+    if "rows" in _catalog_cache:
+        return _catalog_cache["rows"]
+    rows = []
+    files = sorted(SAVED_DIR.glob("*.xlsx"), key=lambda f: f.stat().st_mtime, reverse=True) if SAVED_DIR.is_dir() else []
+    for f in files:
+        try:
+            import openpyxl
+            wb = openpyxl.load_workbook(f, read_only=True, data_only=True)
+            def sheet(name):
+                it = wb[name].iter_rows(values_only=True)
+                head = next(r for r in it if r and r[0] == "Retailer")
+                return [dict(zip(head, r)) for r in it if r and r[0]]
+            got, prods = sheet("Sizes & availability"), sheet("Products")
+            _catalog_cache["products"] = {(p["Retailer"], p["Item ID"]): p for p in prods}
+        except Exception as e:
+            print(f"  catalog file {f.name}: can't read it ({str(e)[:80]})", file=sys.stderr)
+            continue
+        seen = [r["Observed (UTC)"] for r in got if isinstance(r.get("Observed (UTC)"), dt.datetime)]
+        age = (dt.datetime.utcnow() - max(seen)).total_seconds() / 86400 if seen else _file_age_days(f)
+        if age > CATALOG_MAX_DAYS:
+            print(f"  catalog file {f.name} is {age:.1f} days old, skipped (bring a fresh one)", file=sys.stderr)
+            continue
+        print(f"  catalog file {f.name}: {len(got)} size rows, {age:.1f} days old", file=sys.stderr)
+        rows = got
+        break
+    _catalog_cache["rows"] = rows
+    return rows
+
+def scrape_catalog(retailer):
+    """One retailer's products from the catalog file, in the offers format (prices in CAD)."""
+    st, base = CATALOG_STORES[retailer]
+    prods = {}
+    for r in catalog_rows():
+        if r.get("Retailer") != retailer or r.get("Online availability") != "In stock":
+            continue
+        g_ = r.get("Gender") or ""
+        if g_.startswith("Kids"):
+            continue
+        now, reg = r.get("Current price"), r.get("Regular price")
+        if not now:
+            continue
+        name, iid = str(r.get("Item") or "").strip(), r.get("Item ID")
+        p = prods.get(iid)
+        if p is None:
+            g = "nutrition" if re.search(SL_FOOD, name.lower()) else group_of(name)
+            if not g:
+                continue
+            fx = 1.0 if r.get("Currency") == "CAD" else fx_to_cad(r.get("Currency") or "USD")
+            info = _catalog_cache.get("products", {}).get((retailer, iid)) or {}
+            url = info.get("Product URL") or (r.get("Variant URL") or "").split("?")[0]
+            p = prods[iid] = {"st": st, "b": info.get("Brand") or "", "n": name, "u": url, "g": g, "fx": fx, "gender": g_,
+                              "sx": {"Men": ["men"], "Women": ["women"], "Unisex": ["men", "women"]}.get(g_, []),
+                              "w": False, "img": None, "bb": None, "sizes": {}}
+        size = _catalog_size(r.get("Size"), r.get("Width / fit"), p["g"], g_)
+        now_c, reg_c = round(float(now) * p["fx"], 2), round(max(float(reg or now), float(now)) * p["fx"], 2)
+        old = p["sizes"].get(size)
+        if old is None or now_c < old[0]:
+            p["sizes"][size] = (now_c, reg_c)
+    out = []
+    for iid, p in prods.items():
+        if not p["sizes"]:
+            continue
+        sz = [[s, a, b_] for s, (a, b_) in p["sizes"].items()]
+        out.append({"st": p["st"], "b": p["b"], "n": p["n"], "u": p["u"], "g": p["g"], "sx": p["sx"], "w": p["w"], "img": None,
+                    "lp": max(e[2] for e in sz), "bb": None, "sz": sz})
+    print(f"  {st}: {len(out)} products from the catalog file", file=sys.stderr)
+    return out
+
 # ---------------------------------------------------------------- Any Shopify store (brands + shops): one line each
 # Each store is tested during the run: if it isn't Shopify, blocks us, or sells nothing running-related,
 # it is skipped and noted in the log. Currency is read from the store and converted to CAD.
@@ -1551,7 +1652,9 @@ STORES = {
     "sportinglife": scrape_sportinglife,
     "stampeak": scrape_stampeak,
     "mec": scrape_mec_saved,       # from pages you save (their sites block automated access)
-    "rei": scrape_rei_saved,
+    "rei": lambda: scrape_catalog("REI") or scrape_rei_saved(),   # the catalog file (Oct 9: every size, with stock), else saved pages
+    "sportchek": lambda: scrape_catalog("Sport Chek"),    # from the catalog file Bastien brings (blocks automated reads)
+    "adidasca": lambda: scrape_catalog("Adidas"),
     # "svp": scrape_svp_saved,   # parked Oct 6, 2026 (Bastien: its sale page is mostly soccer and budget shoes); reader kept
     "decathlon": lambda: scrape_decathlon_saved(),    # read at night, slowly (runfree.yml): Decathlon blocked GitHub's daytime reads
     # "backcountry": off (Oct 6): its bot protection answers GitHub's servers "202, empty"; reader kept for a feed
@@ -2094,7 +2197,7 @@ def name_gender(n):
     return ["women"] if w and not m else ["men"] if m and not w else None
 
 # Stores that sell and ship from Canada (no border fees). Generic Shopify stores decide by their currency.
-CA_STORES = {"altitude", "lasthunt", "sea2sky", "sportinglife", "stampeak", "mec", "decathlon", "svp", "footlocker"}
+CA_STORES = {"altitude", "lasthunt", "sea2sky", "sportinglife", "stampeak", "mec", "decathlon", "svp", "footlocker", "sportchek", "adidasca"}
 
 _TRAIL_MODELS = set()    # shoe keys that keep "trail"/"road" because a store names the model that way ("Ghost Trail - Men's")
 
@@ -2377,9 +2480,10 @@ def main():
             return prev_offers.get(st, []), None, None
         try:
             got = fn()
-            if not got and st not in dict((x[0], 1) for x in SHOPIFY_STORES) and st not in ("mec", "rei", "svp"):
+            if not got and st not in dict((x[0], 1) for x in SHOPIFY_STORES) and st not in SAVED_STORES:
                 raise RuntimeError("0 items")
-            if not got and len(prev_offers.get(st, [])) >= 20:     # a store rarely empties overnight: keep yesterday's
+            if not got and len(prev_offers.get(st, [])) >= 20 and st not in SAVED_STORES:   # a store rarely empties
+                # overnight: keep yesterday's. Not for saved pages / the catalog file: when they expire, their deals go (Oct 9)
                 raise RuntimeError(f"0 items today (had {len(prev_offers[st])})")
             n_sale = sum(1 for o in got if any(e[1] < e[2] * 0.99 for e in o["sz"]))
             return got, True, f"{st}: {len(got)} items ({n_sale} on sale) in {time.time()-t:.0f}s"
