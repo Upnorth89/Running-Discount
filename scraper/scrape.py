@@ -1225,7 +1225,8 @@ SHOPIFY_STORES = [
     ("brix",           "https://brixrechargeparlanature.com", "food"),   # Brix (Québec maple fuel: gels, chews, waffles; Oct 7)
     ("upika",          "https://upika.ca",                   "food"),   # Upika (Québec drink mixes and bars; Oct 7)
     ("grynd",          "https://grynd.ca",                   "food"),   # Grynd (Calgary / Prince George energy waffles; Oct 7)
-    ("krono",          "https://krononutrition.com/en-ca",   "food"),   # Krono Nutrition (Québec gels, bars, drink mixes; Oct 7)
+    ("krono",          "https://krononutrition.com/en-ca",   "food"),
+    ("innerself",      "https://innerselfrunning.com",       "gear"),   # Inner Self (Montréal running apparel; Oct 8)   # Krono Nutrition (Québec gels, bars, drink mixes; Oct 7)
     # running & trail brands
     ("altra",          "https://altrarunning.com",           "gear"),
     ("janji",          "https://runjanji.com",               "gear"),
@@ -1840,7 +1841,7 @@ BRAND_CANON = {"hoka one one": "Hoka", "hoka": "Hoka", "asics": "ASICS", "satisf
 
 # US shops often list the parent company or distributor as the vendor (Oct 6, 2026: "Asics Corp." on all 480 US ASICS items,
 # "Brooks Sports, Inc. #105856", "Ing Source, Inc" = Injinji, "Medi USA" = CEP): company words go, then this map
-BRAND_ALIAS = {"krono nutrition": "Krono", "kronobar": "Krono", "grynd food": "Grynd", "grynd food inc": "Grynd", "fast bundle": "Upika", "upika": "Upika", "brix rechargé par la nature": "Brix", "brix recharge par la nature": "Brix", "asics america": "ASICS", "asics": "ASICS", "brooks sports": "Brooks", "nike usa": "Nike", "nike team sale": "Nike",
+BRAND_ALIAS = {"inner self": "Inner Self", "krono nutrition": "Krono", "kronobar": "Krono", "grynd food": "Grynd", "grynd food inc": "Grynd", "fast bundle": "Upika", "upika": "Upika", "brix rechargé par la nature": "Brix", "brix recharge par la nature": "Brix", "asics america": "ASICS", "asics": "ASICS", "brooks sports": "Brooks", "nike usa": "Nike", "nike team sale": "Nike",
                "on shoes": "On", "on footwear": "On", "on-running": "On", "gu energy": "GU", "gu energy labs": "GU", "gu sports": "GU",
                "gu nutrition": "GU", "gu energy gel": "GU", "ing source": "Injinji", "medi usa": "CEP", "medi": "CEP",
                "cep / medi usa": "CEP", "cep/medi usa": "CEP", "medi usa (cep)": "CEP", "medi/cep": "CEP", "medi usa - cep": "CEP", "craft sportswear": "Craft", "craft sportsware usa": "Craft",
