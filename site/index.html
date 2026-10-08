@@ -268,6 +268,8 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
 .searchhelp{color:var(--ink);line-height:1.9}
 .dw .rep{position:absolute;left:13px;bottom:12px;background:none;border:0;padding:4px 2px;margin:0;font:inherit;font-size:12px;line-height:1.2;color:var(--muted);text-decoration:underline;text-underline-offset:2px;cursor:pointer}
 .dw.hascmp .rep{bottom:38px}
+.dw.repopen .deal,body.compact .dw.repopen .deal{padding-bottom:104px}   /* the reasons box opens below the text, never over it */
+.dw .repbox.thanks{border:0;background:none;padding:4px 2px;left:13px;bottom:12px;font-size:12px}.dw.hascmp .repbox.thanks{bottom:38px}
 .dw .repbox{position:absolute;left:8px;right:54px;bottom:8px;z-index:2;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px;color:var(--muted);padding:6px;background:var(--card);border:1px solid var(--line);border-radius:10px}
 .dw .repbox button{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:3px 10px;cursor:pointer}.searchhelp button{font:inherit;font-weight:700;color:var(--moss);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}
 .storebar{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--card);border:1.5px solid var(--hivis);border-radius:12px;padding:12px 14px;margin:0 0 16px}
@@ -634,7 +636,7 @@ const STORES={"altitude-sports.com":["Altitude Sports"],"thelasthunt.com":["The 
   "naak.com":["Näak"],"brixrechargeparlanature.com":["Brix"],"upika.ca":["Upika"],"grynd.ca":["Grynd"],"krononutrition.com":["Krono Nutrition"],"innerselfrunning.com":["Inner Self"],"balmoralrunning.com":["Balmoral"],"boutiqueendurance.ca":["Boutique Endurance"],"fitfirst.ca":["Fit First"],"capra.run":["Capra Running Co."],"runuphill.ca":["Run Uphill"],"trailrunnerstore.com":["The Trail Runner Store"],"cowichanvalleyrunning.com":["Cowichan Valley Running"],"lecoureur.com":["Le Coureur"],"blacktoerunning.com":["BlackToe Running"],"frontrunners.ca":["Frontrunners"],"shop.forerunners.ca":["Forerunners"],"aerobicsfirst.com":["Aerobics First"],"cityparkrunners.com":["City Park Runners"],"therunnersshop.com":["The Runners Shop"],"stridesrunning.com":["Strides Running"],
   "altrarunning.com":["Altra","US"],"runjanji.com":["Janji","US"],"runinrabbit.com":["rabbit","US"],"satisfyrunning.com":["Satisfy","FR"],
   "saysky.com":["SAYSKY","DK"],"soarrunning.com":["Soar","UK"],"raidlight.com":["Raidlight","FR"],"districtvision.com":["District Vision","US"],
-  "banditrunning.com":["Bandit","US"],"tenthousand.cc":["Ten Thousand","US"],"oiselle.com":["Oiselle","US"],"2xu.com":["2XU","AU"],
+  "banditrunning.com":["Bandit","US"],"tenthousand.cc":["Ten Thousand","US"],"oiselle.com":["Oiselle","US"],"ca.2xu.com":["2XU"],"feetures.ca":["Feetures"],"balega.ca":["Balega"],"stance.ca":["Stance"],"goodr.ca":["goodr"],"nuun.ca":["Nuun"],"humagel.ca":["Huma Canada"],"us.2xu.com":["2XU","US"],
   "rnnr.com":["rnnr","US"],"smartwool.com":["Smartwool","US"],"nathansports.com":["Nathan","US"],"nakedsportsinnovations.com":["Naked","US"],
   "mounttocoast.com":["Mount to Coast","US"],"kogalla.com":["Kogalla","US"],"squirrelsnutbutter.com":["Squirrel's Nut Butter","US"],
   "feetures.com":["Feetures","US"],"balega.com":["Balega","US"],"darntough.com":["Darn Tough","US"],"swiftwick.com":["Swiftwick","US"],
@@ -736,7 +738,7 @@ en:{
   browseNote:"Showing every size.",browsePick:"Pick your size",browseWhy:" and we'll hide what won't fit.",clothNote:"Every clothing size shown.",clothPick:"Pick your clothing size",
   moreSizes:"+ Clothing size, road or trail, favourite brands",cmpLink:"All sizes & stores →",
   sinceH:d=>`Since your last visit${d?" ("+d+")":""}:`,sinceNew:n=>`<b>${n}</b> new ${n==="1"?"deal":"deals"} in your size`,
-  sinceDrop:n=>`<b>${n}</b> you looked at dropped:`,emailNext:"Email me next time",
+  sinceDrop:n=>`${n===1?"a price drop on gear you opened":"price drops on gear you opened"}:`,emailNext:"Email me next time",
   report:"Wrong price or size?",reportWhy:"What's wrong?",repPrice:"Price",repSize:"Size not in stock",repEnded:"Sale ended",
   reportThanks:"Thanks! We'll check it today.",storeH:"Shopping one store",storeCount:n=>`${n} ${n===1?"deal":"deals"} in your size`,storeBack:"× All stores",bsuH:"Found something?",bsuTxt:"Get deals like this in your size every Friday, and an email when a shoe you watch drops. Free.",bsuGo:"Sign me up",cdnChip:"🍁 Canadian brands",cdnH:"Canadian brands only",cdnB:"Brands based in Canada",cdnNote:"Canadian companies, not always made in Canada",cdnBack:"× All brands",cdnTip:"Canadian brand",backBar:(n,s)=>`Filling a cart at <b>${s}</b>? See their ${n} deals in your size.`,backGo:"Show",spCardTxt:"Every size, every store in Canada",spCardGo:"Prices →",wOr:"or with Google, one tap",wOnSale:"on sale today",wUpTo:p=>`up to ${p}%`,wOff:"off right now",wStores:"stores checked daily",
   liveAll:n=>`<b>${n}</b> deals on sale today`,liveYou:n=>`<b>${n}</b> deals on sale in your size right now`,
@@ -836,7 +838,7 @@ fr:{
   browseNote:"Toutes les tailles sont affichées.",browsePick:"Choisissez votre taille",browseWhy:" et on cache ce qui ne vous va pas.",clothNote:"Toutes les tailles de vêtements sont affichées.",clothPick:"Choisissez votre taille de vêtements",
   moreSizes:"+ Taille de vêtements, route ou sentier, marques préférées",
   sinceH:d=>`Depuis votre dernière visite${d?" ("+d+")":""} :`,sinceNew:n=>`<b>${n}</b> ${n==="1"?"nouvelle aubaine":"nouvelles aubaines"} dans votre taille`,
-  sinceDrop:n=>`<b>${n}</b> ${n===1?"article regardé a baissé":"articles regardés ont baissé"} :`,emailNext:"M'avertir par courriel",
+  sinceDrop:n=>`${n===1?"une baisse de prix sur un article consulté":"des baisses de prix sur des articles consultés"} :`,emailNext:"M'avertir par courriel",
   report:"Prix ou taille erronés ?",reportWhy:"Qu'est-ce qui cloche ?",repPrice:"Le prix",repSize:"Taille épuisée",repEnded:"Solde terminé",
   reportThanks:"Merci! On vérifie aujourd'hui.",storeH:"Une seule boutique",storeCount:n=>`${n} ${n===1?"aubaine":"aubaines"} à votre taille`,storeBack:"× Toutes les boutiques",bsuH:"Une trouvaille?",bsuTxt:"Recevez des aubaines comme celle-ci à votre taille chaque vendredi, et un courriel quand une chaussure suivie baisse. Gratuit.",bsuGo:"Je m'inscris",cdnChip:"🍁 Marques canadiennes",cdnH:"Marques canadiennes seulement",cdnB:"Marques d'ici",cdnNote:"Des entreprises canadiennes, pas toujours fabriqué au Canada",cdnBack:"× Toutes les marques",cdnTip:"Marque canadienne",backBar:(n,s)=>`Vous remplissez un panier chez <b>${s}</b> ? Voyez leurs ${n} aubaines à votre taille.`,backGo:"Voir",cmpLink:"Toutes les pointures et boutiques →",spCardTxt:"Chaque pointure, chaque boutique au Canada",spCardGo:"Prix →",wOr:"ou avec Google, en un clic",wOnSale:"en solde aujourd'hui",wUpTo:p=>`jusqu'à ${p} %`,wOff:"de rabais en ce moment",wStores:"boutiques vérifiées chaque jour",
   liveAll:n=>`<b>${n}</b> aubaines en solde aujourd'hui`,liveYou:n=>`<b>${n}</b> aubaines en solde dans votre taille en ce moment`,
@@ -1512,10 +1514,10 @@ $("filtBtn").addEventListener("click",()=>{const f=$("filtersBox"),o=!f.classLis
 function repClick(e){
   const rp=e.target.closest("[data-rep]");if(rp){const box=document.createElement("div");box.className="repbox";box.dataset.k=rp.dataset.rep;
     box.innerHTML=`<span>${t("reportWhy")}</span>`+[["price","repPrice"],["size","repSize"],["ended","repEnded"]].map(([v,l])=>`<button type="button" data-repwhy="${v}">${t(l)}</button>`).join("");
-    rp.replaceWith(box);return true}
+    rp.closest(".dw").classList.add("repopen");rp.replaceWith(box);return true}
   const rw=e.target.closest("[data-repwhy]");if(rw){const box=rw.closest(".repbox"),d=RENDERED[box.dataset.k];
     ana("error",["report",rw.dataset.repwhy,d?(d.b+" "+d.n).slice(0,60):box.dataset.k.slice(0,60),d?storeOf(d.url):"",d?d.best:""].join("|"));
-    box.textContent=t("reportThanks");return true}
+    box.textContent=t("reportThanks");box.classList.add("thanks");box.closest(".dw").classList.remove("repopen");return true}
   return false}
 $("newBox").addEventListener("click",e=>{repClick(e)});
 $("dealList").addEventListener("click",e=>{

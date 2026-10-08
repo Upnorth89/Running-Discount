@@ -95,9 +95,19 @@ every check (rule in CLAUDE.md: try every allowed way first; a store that says n
 | Xact Nutrition | xactnutrition.com | 25 | 0 |
 
 ### Brands and stores abroad (37) (ship to Canada; prices converted to CAD)
+
+**Oct 9, 2026 shipping check** (each Shopify store's own shipping list, `ships_to_countries` in meta.json, now read every day:
+a store that leaves Canada out is kept off the Canada side, one that leaves the US out off the USA side). 2xu.com turned out
+to be the Australian store (AU only): Canada side now reads **ca.2xu.com**, USA side **us.2xu.com**. US-only .com stores, so
+USA side only: Darn Tough, Nathan, Balega, Feetures, Stance, goodr, Nuun, GU, Huma, Tifosi, Mount to Coast (Darn Tough,
+Balega and Nathan say so on their shipping pages). Their Canadian stores, read for the Canada side: **feetures.ca, balega.ca,
+stance.ca, goodr.ca, nuun.ca, humagel.ca** (Podium Imports, Huma's Canadian distributor: its nutrition section only; it also
+carries Tifosi, SaltStick, Wrightsock, Currex). Saysky (EU) leaves the US out: Canada side only. Still to look for: a Canadian
+way to buy Darn Tough, Nathan, GU, Tifosi (humagel.ca collection "tifosi-optics"), Mount to Coast.
+
 | Store | Website | Products | On sale |
 |---|---|---:|---:|
-| 2XU (AU) | 2xu.com | 359 | 117 |
+| 2XU (Canada; Oct 9: was 2xu.com, the Australian store, ships to AU only) | ca.2xu.com | 250+ | 71 |
 | Altra (US) | altrarunning.com | 131 | 44 |
 | Balega (US) | balega.com | 151 | 7 |
 | Bandit (US) | banditrunning.com | 530 | 0 |

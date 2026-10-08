@@ -1311,7 +1311,15 @@ SHOPIFY_STORES = [
     ("bandit",         "https://banditrunning.com",          "gear"),
     ("tenthousand",    "https://www.tenthousand.cc",         "gear"),
     ("oiselle",        "https://www.oiselle.com",            "gear"),
-    ("2xu",            "https://www.2xu.com",                "gear"),
+    ("2xu",            "https://ca.2xu.com",                 "gear"),   # Oct 9: 2xu.com is the Australian store (ships to AU only)
+    ("2xuus",          "https://us.2xu.com",                 "gear"),
+    # Canadian stores of US brands (Oct 9): their .com ships to the US only; the .com stays for the USA side
+    ("feeturesca",     "https://feetures.ca",                "socks"),
+    ("balegaca",       "https://balega.ca",                  "socks"),
+    ("stanceca",       "https://stance.ca",                  "socks"),
+    ("goodrca",        "https://goodr.ca",                   "eyewear"),
+    ("nuunca",         "https://nuun.ca",                    "food"),
+    ("humaca",         "https://humagel.ca",                 "food"),   # Podium Imports (Huma's Canadian distributor): nutrition only
     ("rnnr",           "https://rnnr.com",                   "gear"),
     ("smartwool",      "https://smartwool.com",              "gear"),
     ("nathan",         "https://www.nathansports.com",       "gear"),
@@ -1482,8 +1490,8 @@ US_SHOPS = {"pacers", "portlandrun", "heartbreak", "runnersplus", "gazelle", "sp
             "runflagstaff", "runninglab", "playmakers", "millcity", "runningwell", "mountainrun", "confluence", "columbusrun",
             "scrantonrun", "trailheadrun", "prrunwalk", "performancerun", "fitnesssports", "athleticannex", "annarborrun",
             "tworivers", "xtramile", "lukeslocker", "sfrunco", "backcountry", "rei",
-            "territory", "pathprojects", "ombraz"} | set(RUNFREE_US)   # REI ships within the US only
-US_COLLECTIONS = {"sportsbasement": ["running"], "sail": ["outdoor-gear-running"]}   # (Canadian stores too: SAIL)   # general stores: their running section only (Sports Basement also sells
+            "territory", "pathprojects", "ombraz", "2xuus"} | set(RUNFREE_US)   # REI ships within the US only
+US_COLLECTIONS = {"sportsbasement": ["running"], "sail": ["outdoor-gear-running"], "humaca": ["nutrition"]}   # (Canadian stores too: SAIL)   # general stores: their running section only (Sports Basement also sells
                                                    # snowboards, swimwear, tennis: those topped the US deals, Oct 6, 2026)
 # Shoebacca was tried and dropped (Oct 6, 2026): mostly PUMA/adidas/Diadora budget and gym shoes, no Hoka/Brooks/ASICS/Nike
 SHIPS_US = set()       # Canadian stores that ship to the US, shown on the USA side too. Empty: Altitude Sports doesn't ship
@@ -1496,9 +1504,11 @@ def make_shopify_scraper(st, base, kind):
         r = S.get(f"{base}/products.json?limit=1", timeout=20)
         if r.status_code != 200 or not r.text.lstrip().startswith("{"):
             raise RuntimeError(f"no Shopify product feed (HTTP {r.status_code})")
-        home = None                                    # the store's own currency (meta.json) = where it ships from
+        home, ships = None, []                         # the store's own currency (meta.json) = where it ships from
         try:
-            home = (get(f"{base}/meta.json", tries=2).json().get("currency") or "").upper() or None
+            meta = get(f"{base}/meta.json", tries=2).json()
+            home = (meta.get("currency") or "").upper() or None
+            ships = meta.get("ships_to_countries") or []   # Oct 9: 2xu.com (Australia only), Darn Tough, Balega, Nathan (US only)
         except Exception:
             pass
         # always ask for the store's Canadian market: the price and stock a Canadian visitor actually gets
@@ -1526,6 +1536,10 @@ def make_shopify_scraper(st, base, kind):
         for o in items:
             o["ca"] = home == "CAD"         # a store based in CAD ships from Canada; USD/EUR/GBP stores are cross-border
             o["us"] = home == "USD"         # ships from the US (the USA side's "Ships from the US")
+            if ships and "*" not in ships:  # the store's own shipping list ("*" = everywhere) leaves a country out: not shown on that side
+                o["no_ca"], o["no_us"] = "CA" not in ships, "US" not in ships
+        if ships and "*" not in ships and ("CA" not in ships or "US" not in ships):
+            print(f"  {st}: ships to {', '.join(ships[:6])}{'…' if len(ships) > 6 else ''} only" , file=sys.stderr)
         return items
     return run
 
@@ -1547,7 +1561,7 @@ STORES = {
 # 2 = every item bought on sale is final, N > 2 = final from N% off. Items a store tags "Final sale" count too (offer "fs").
 # The site labels a deal "Final sale" when the store and price shown match; no label never means "returnable".
 FINAL_SALE = {"lasthunt": 1,
-              "2xu": 2, "strides": 2, "aerobicsfirst": 2, "blacktoe": 2, "runnersshop": 2, "vanrunco": 2, "districtvision": 2,
+              "strides": 2, "aerobicsfirst": 2, "blacktoe": 2, "runnersshop": 2, "vanrunco": 2, "districtvision": 2,
               "fitfirst": 2, "endurance": 2, "cityparkrunners": 2, "capra": 2, "forerunners": 2, "tifosi": 2, "naak": 2,
               "xact": 2, "squirrels": 2,
               "lecoureur": 40, "janji": 40}
@@ -1970,6 +1984,9 @@ def tidy_brand(b):
         return BRAND_ALIAS[k]
     if k in BRAND_CANON:
         return BRAND_CANON[k]
+    r = re.sub(r"(?<=\w)\s+(canada|ca|us|usa|united states)?(\s*outlet)?$", "", c, flags=re.I)   # a brand's regional store (Oct 9):
+    if r and r != c:                                                                               # "2XU Canada Outlet", "Balega Ca"
+        return tidy_brand(r)
     return c or b
 
 CAPS_STORES = {"lecoureur", "runnerssoul"}
@@ -2411,8 +2428,8 @@ def main():
     # the USA side (Oct 6, 2026): stores that ship to the US, merged on their own (best US-shippable price per size);
     # "ca" there means "ships from the US". Copied before the Canadian merge, which tidies offers in place.
     us_offers = [dict(o, ca=bool(o.get("us")), sz=[list(e) for e in o["sz"]], sx=list(o.get("sx") or []))
-                 for o in offers if o.get("us") or o.get("st") in SHIPS_US or not o.get("ca")]
-    offers = [o for o in offers if o.get("st") not in US_SHOPS]     # US shops may not ship to Canada
+                 for o in offers if (o.get("us") or o.get("st") in SHIPS_US or not o.get("ca")) and not o.get("no_us")]
+    offers = [o for o in offers if o.get("st") not in US_SHOPS and not o.get("no_ca")]   # US shops may not ship to Canada
     items = merge(offers)
     report_groups(items)
     for it in items:

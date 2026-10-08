@@ -421,6 +421,11 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   matches nothing -> "Did you mean …?" (`suggest()`: closest brand/model word in today's data, 1 typo under 7 letters, 2 above;
   "norda000" -> "norda 000"; "alphafly 4" -> the longest part that exists); a store's name -> [See every deal at Store]. Suggest,
   never auto-replace. Analytics: kind "search" with detail "any-size:"/"my-size:"/"did-you-mean:". Site test "Search: did you mean".
+- Shipping countries (Oct 9, Bastien spotted 2XU: 2xu.com is the Australian store): the Shopify reader reads each store's
+  `ships_to_countries` (meta.json) every run; offers get `no_ca`/`no_us` and stay off that side ("*" = everywhere). Brands with
+  separate Canadian stores are read twice (`2xu` ca.2xu.com + `2xuus` us.2xu.com; feeturesca, balegaca, stanceca, goodrca,
+  nuunca, humaca). `tidy_brand` drops a regional suffix ("2XU Canada Outlet", "Balega Ca", "Stance US") after the alias lookup.
+  2XU's FINAL_SALE rule removed (CA/US stores: only clearance is final). Details in STORES.md.
 - Accuracy + retention batch (Oct 9, Bastien: "I want the most accurate information for our users. This is where the trust happens"):
   `scraper/featured_check.py` (refresh.yml, before the shoe pages): the top 60 Canadian / 30 USA sale items by score are opened on the
   store's page (`livecheck.still_on_sale`, `us=True` on the USA side: CAD copy -> USD, 2% leeway, Shopify only); a sale that ended is
