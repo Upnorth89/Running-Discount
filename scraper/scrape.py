@@ -1351,39 +1351,42 @@ def catalog_rows():
         return _catalog_rows()
 
 def catalog_download():
-    """The newest file uploaded at thegearfox.com/catalog.html (Supabase bucket "catalog", list in catalog_files; Oct 9),
-    saved to a temp file; older uploads are deleted from the bucket (the newest 3 stay). None when there's none."""
+    """The newest files uploaded at thegearfox.com/catalog.html (Supabase bucket "catalog", list in catalog_files; Oct 9),
+    up to 3, newest first, saved to temp files; older uploads are deleted from the bucket. [] when there's none."""
     import tempfile
     sb, key = os.environ.get("SUPABASE_URL", "").rstrip("/"), os.environ.get("SUPABASE_SECRET_KEY", "")
     if not (sb and key):
-        return None
+        return []
     h = {"apikey": key, "Authorization": f"Bearer {key}"}
     try:
         rows = requests.get(f"{sb}/rest/v1/catalog_files", params={"select": "path,at", "order": "at.desc", "limit": "20"},
                             headers=h, timeout=60).json()
         if not rows:
-            return None
-        r = requests.get(f"{sb}/storage/v1/object/catalog/{rows[0]['path']}", headers=h, timeout=300)
-        r.raise_for_status()
-        f = Path(tempfile.mkdtemp(prefix="catalog-")) / "uploaded.xlsx"
-        f.write_bytes(r.content)
+            return []
+        d, out = Path(tempfile.mkdtemp(prefix="catalog-")), []
+        for n, row in enumerate(rows[:3]):          # newest first; an older one is used only if the newer fail the check
+            r = requests.get(f"{sb}/storage/v1/object/catalog/{row['path']}", headers=h, timeout=300)
+            if not r.ok:
+                continue
+            f = d / f"upload-{n}-{row['at'][:16].replace(':', '')}.xlsx"
+            f.write_bytes(r.content)
+            out.append(f)
         old = [x["path"] for x in rows[3:]]
         if old:
             requests.delete(f"{sb}/storage/v1/object/catalog", headers=h, json={"prefixes": old}, timeout=60)
-        print(f"  catalog upload from {rows[0]['at'][:16]} UTC ({len(r.content) // 1048576} MB)", file=sys.stderr)
-        return f
+        print(f"  catalog uploads: {len(out)} downloaded, newest from {rows[0]['at'][:16]} UTC", file=sys.stderr)
+        return out
     except Exception as e:
         print(f"  catalog upload: couldn't download it ({str(e)[:80]})", file=sys.stderr)
-        return None
+        return []
 
 def _catalog_rows():
     if "rows" in _catalog_cache:
         return _catalog_cache["rows"]
     rows = []
     files = sorted(SAVED_DIR.glob("*.xlsx"), key=lambda f: f.stat().st_mtime, reverse=True) if SAVED_DIR.is_dir() else []
-    up = catalog_download()                 # an upload from the catalog page is newer than any file in saved-pages/
-    if up:
-        files = [up] + files
+    files = catalog_download() + files      # uploads from the catalog page are newer than any file in saved-pages/
+    report = {"checked": [], "used": None}
     for f in files:
         try:
             import openpyxl
@@ -1406,11 +1409,75 @@ def _catalog_rows():
         for r in got + prods:
             r["Retailer"] = canon.get(re.sub(r"\W", "", str(r.get("Retailer") or "").lower()), r.get("Retailer"))
         _catalog_cache["products"] = {(p["Retailer"], p["Item ID"]): p for p in prods}
-        print(f"  catalog file {f.name}: {len(got)} size rows, {age:.1f} days old", file=sys.stderr)
+        hard, warn, stores = catalog_validate(got, prods)
+        report["checked"].append({"file": f.name, "age_days": round(age, 1), "problems": hard})
+        if hard:
+            print(f"  catalog file {f.name} NOT used: " + "; ".join(hard), file=sys.stderr)
+            continue
+        print(f"  catalog file {f.name}: {len(got)} size rows, {age:.1f} days old, check passed", file=sys.stderr)
+        report.update(used=f.name, age_days=round(age, 1), warnings=warn, stores=stores)
         rows = got
         break
+    prev = {}                               # the morning email reads catalog-check.json (health.py "Catalog file check")
+    try:
+        prev = json.loads((OUT.parent / "catalog-check.json").read_text()).get("stores") or {}
+    except Exception:
+        pass
+    for s, (n, _) in (report.get("stores") or {}).items():
+        if prev.get(s) and n < prev[s][0] / 2:
+            report.setdefault("warnings", []).append(f"{s}: {n} products in stock, half of last time ({prev[s][0]})")
+    if files:
+        try:
+            (OUT.parent / "catalog-check.json").write_text(json.dumps(report))
+        except Exception:
+            pass
     _catalog_cache["rows"] = rows
     return rows
+
+CATALOG_COLS = ("Retailer", "Item", "Size", "Currency", "Regular price", "Current price", "Online availability", "Item ID")
+
+def catalog_validate(got, prods):
+    """Check a catalog file before it goes on the site (Oct 9, Bastien: "shouldn't you do a scan of the document before we
+    publish it?"). Returns (problems: the file is not used, warnings: used but listed in the email, {store: [in stock, on sale]})."""
+    hard, warn = [], []
+    cols = set(got[0]) if got else set()
+    miss = [c for c in CATALOG_COLS if c not in cols]
+    if miss:
+        return [f"missing columns: {', '.join(miss)}"], [], {}
+    ins = [r for r in got if r.get("Online availability") == "In stock"]
+    if len(ins) < 500:
+        hard.append(f"only {len(ins)} sizes in stock (under 500)")
+    if not ins:
+        return hard, warn, {}
+    pinfo = {(p.get("Retailer"), p.get("Item ID")): p for p in prods}
+    url = lambda r: str(r.get("Variant URL") or (pinfo.get((r.get("Retailer"), r.get("Item ID"))) or {}).get("Product URL") or "")
+    img = lambda r: str(r.get("Image URL") or (pinfo.get((r.get("Retailer"), r.get("Item ID"))) or {}).get("Image URL") or "")
+    share = lambda test: sum(1 for r in ins if test(r)) / len(ins)
+    def price_ok(r):
+        try:
+            now, reg = float(r.get("Current price") or 0), float(r.get("Regular price") or r.get("Current price") or 0)
+        except (TypeError, ValueError):
+            return False
+        return now > 0 and now <= reg * 1.001
+    if share(lambda r: url(r).startswith("https://")) < 0.9:
+        hard.append(f"only {share(lambda r: url(r).startswith('https://')):.0%} of in-stock sizes have a link (under 90%)")
+    if share(lambda r: img(r).startswith("https://")) < 0.8:
+        hard.append(f"only {share(lambda r: img(r).startswith('https://')):.0%} of in-stock sizes have a photo (under 80%)")
+    if share(price_ok) < 0.98:
+        hard.append(f"{1 - share(price_ok):.0%} of in-stock prices look wrong ($0, or above the regular price)")
+    stores = {}
+    host = lambda u: re.sub(r"^https?://(www\.)?", "", u).split("/")[0].lower()
+    for ret in sorted({r.get("Retailer") for r in ins}):
+        rs = [r for r in ins if r.get("Retailer") == ret]
+        sale = [r for r in rs if price_ok(r) and float(r["Current price"]) < float(r.get("Regular price") or 0) * 0.99]
+        stores[str(ret)] = [len({r.get("Item ID") for r in rs}), len({r.get("Item ID") for r in sale})]
+        deep = [r for r in sale if float(r["Current price"]) < float(r["Regular price"]) * 0.3]
+        if sale and len(deep) / len(sale) > 0.2:
+            warn.append(f"{ret}: {len(deep) / len(sale):.0%} of its sale sizes are 70%+ off (a price mix-up?)")
+        doms = collections.Counter(host(url(r)) for r in rs if url(r))
+        if doms and doms.most_common(1)[0][1] / sum(doms.values()) < 0.95:
+            warn.append(f"{ret}: links go to several websites ({', '.join(d for d, _ in doms.most_common(3))})")
+    return hard, warn, stores
 
 def scrape_catalog(retailer, st=None):
     """One retailer's products from the catalog file, in the offers format (prices in CAD)."""

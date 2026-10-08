@@ -434,6 +434,10 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   Daily upload (Oct 9, Bastien: "have gpt do this daily"): thegearfox.com/catalog.html -> private Supabase bucket "catalog" (folder =
   dashboard_key, storage policy) -> catalog_uploaded() records it in catalog_files and starts a refresh (supabase/catalog.sql). scrape.py
   catalog_download() uses the newest upload first (newest 3 kept), then saved-pages/*.xlsx. Keep daily files OUT of git (20 MB each).
+  Every file is checked before use (`catalog_validate`, Oct 9, Bastien: "scan the document before we publish"): refused when columns
+  are missing, under 500 sizes in stock, <90% with a link, <80% with a photo, or >2% of prices wrong ($0 / above regular); then the
+  next newest upload or saved-pages file is used. Warnings (still used): a store halved vs last file, 20%+ of a store's sale sizes
+  70%+ off, links to several websites. Result in site/catalog-check.json -> morning email line + problems.
   One offer per colour (link + photo of a colour that has the size); no photo = not shown; under 25 products in stock = store left out
   (CATALOG_MIN); RW photos "&nw=400", Brooks dw/image sw/sh=400. Morning email: "Tap to check" 5 random catalog deals (catalog_spot).
   First file checked by hand on 9 random sale sizes: 9 right. SAVED_STORES expire (no keeping yesterday's deals). Health email:

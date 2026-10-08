@@ -201,6 +201,25 @@ def check():
                       "sitetest": st, "featured": fc}
 
 
+def catalog_check():
+    """The catalog file's automatic check (scrape.py catalog_validate): a line for the email, and a problem when the newest
+    file was refused."""
+    c = load(SITE / "catalog-check.json")
+    if not c.get("checked"):
+        return "", []
+    probs = []
+    first = c["checked"][0]
+    if first.get("problems"):
+        probs.append(("catalog-refused", f"Catalog file not used: {'; '.join(first['problems'])}. "
+                      + (f"Still showing the previous file ({c['used']})." if c.get("used") else "No catalog deals on the site until a good file is uploaded.")))
+    for w in c.get("warnings") or []:
+        probs.append((f"catalog-warn:{w[:40]}", f"Catalog file: {w}"))
+    st = c.get("stores") or {}
+    line = (f"- Catalog file check: passed ({c.get('age_days')} days old); "
+            + ", ".join(f"{s} {n} in stock / {k} on sale" for s, (n, k) in sorted(st.items(), key=lambda x: -x[1][0])) + "\n") if c.get("used") else ""
+    return line, probs
+
+
 def catalog_spot():
     """5 random sale deals from the catalog file, to tap and check (Oct 9: the file can't be checked by the robot)."""
     import random
@@ -244,6 +263,8 @@ def site_line(st):
 
 def main():
     problems, stats = check()
+    cat_line, cat_probs = catalog_check()
+    problems += cat_probs
     prev = load(PREV / "health.json")
     emailed = set(prev.get("emailed", []))        # problems already sent, still ongoing
     reported = prev.get("reported")                # Vancouver date of the last morning report (the backup run skips if it's today)
@@ -277,7 +298,7 @@ def main():
                f"- {stats['items']:,} products{d(stats['items'], stats['items0'])}\n" + \
                f"- {stats['sale']:,} on sale{d(stats['sale'], stats['sale0'])}\n" + \
                f"- {stats['stores_ok']} of {stats['stores_n']} stores updated in the last day\n" + \
-               site_line(stats["sitetest"]) + featured_line(stats.get("featured") or {}) + \
+               site_line(stats["sitetest"]) + featured_line(stats.get("featured") or {}) + cat_line + \
                (f"- {stats['subscribers']} subscribers, {stats['signups_24h']} new sign-ups in the last 24 hours\n"
                 if stats["subscribers"] is not None else "") + \
                ("\nBiggest changes by store:\n" + "\n".join(f"- {st}: {a:,} products (was {b:,})" for st, a, b in stats["moves"]) + "\n"
