@@ -1,4 +1,4 @@
-name: Night reads (RunFree stores, Decathlon)
+name: Night reads (RunFree stores, Decathlon, The Feed)
 
 # Local US running stores on RunFree (scraper/runfree.py): every product's sizes and prices, one request per second per
 # store, all stores at once. 1:23am Vancouver, well before the 4:17am refresh, which downloads runfree.json from the
@@ -13,7 +13,7 @@ on:
         type: boolean
         default: false
       only:
-        description: "Run only this read (all, runfree, decathlon)"
+        description: "Run only this read (all, runfree, decathlon, thefeed)"
         default: "all"
 
 permissions:
@@ -66,6 +66,38 @@ jobs:
           git add runfree.json runfree-cache.json
           git diff --cached --quiet && exit 0
           git commit -q -m "runfree $(TZ=America/Vancouver date +%F)"
+          for i in 1 2 3 4; do git pull -q --rebase origin history && git push -q origin HEAD:history && exit 0; sleep $((i * 5)); done
+          exit 1
+
+  # The Feed (Oct 9, 2026): its products.json answers "429 local_rate_limited" to busy shared addresses like GitHub's, and
+  # our morning reads failed twice in two days. Read here at night, a page every 10 s, waiting as long as it asks
+  thefeed:
+    needs: check
+    if: needs.check.outputs.skip != 'true' && (inputs.only == '' || inputs.only == null || inputs.only == 'all' || inputs.only == 'thefeed')
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r scraper/requirements.txt
+      - uses: actions/checkout@v4
+        with:
+          ref: history
+          path: hist
+      - name: Read The Feed slowly
+        run: python scraper/scrape.py --thefeed-night hist/thefeed.json
+      - name: Save to the history branch
+        if: success()
+        run: |
+          cd hist
+          git config user.name "The Gear Fox"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          [ -f thefeed.json ] || exit 0
+          git add thefeed.json
+          git diff --cached --quiet && exit 0
+          git commit -q -m "thefeed $(TZ=America/Vancouver date +%F)"
           for i in 1 2 3 4; do git pull -q --rebase origin history && git push -q origin HEAD:history && exit 0; sleep $((i * 5)); done
           exit 1
 

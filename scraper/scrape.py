@@ -714,13 +714,76 @@ def feed_group(p):
         g = "gear"                   # e.g. "Crew Drop One organizer" is not a top
     return g
 
+THEFEED_FILE = os.environ.get("THEFEED_FILE", "/tmp/thefeed.json")
+
+
+def _feed_slim(p):
+    """Only what the reader uses, so the saved copy stays small."""
+    q = {k: p.get(k) for k in ("id", "title", "handle", "vendor", "product_type", "tags", "options")}
+    q["images"] = (p.get("images") or [])[:1]
+    q["variants"] = [{k: v.get(k) for k in ("id", "title", "price", "compare_at_price", "available", "option1", "option2", "option3")}
+                     for v in p.get("variants") or []]
+    return q
+
+
+def _feed_page(url, cookies=None):
+    """One page, patiently: The Feed answers "429 local_rate_limited" (a limit per internet address; GitHub's servers share
+    theirs) with Retry-After: 60. Wait what it asks (else 1, 2, 3… min), up to 15 times per page."""
+    for t in range(15):
+        try:
+            r = S.get(url, cookies=cookies, timeout=40)
+            if r.status_code == 200 and r.text.lstrip().startswith("{"):
+                return r.json()["products"]
+            wait = int(r.headers.get("Retry-After") or 0) or 60 * (t + 1)
+            print(f"  thefeed: {url[-24:]} HTTP {r.status_code}, waiting {min(wait, 300)} s", file=sys.stderr)
+        except requests.RequestException as e:
+            wait = 60 * (t + 1)
+            print(f"  thefeed: {url[-24:]} {type(e).__name__}, waiting {wait} s", file=sys.stderr)
+        time.sleep(min(wait, 300))
+    raise RuntimeError(f"The Feed kept saying no ({url})")
+
+
+def thefeed_night(out):
+    """The Feed (Oct 9, 2026; it answered our morning reads "429" twice in two days): read once a night, slowly
+    (a page every 10 s, patient waits on 429), saved to thefeed.json on the history branch; the refresh uses that copy.
+    If the night read fails, the last good copy stays."""
+    base = "https://thefeed.com"
+    prods, page = [], 1
+    while page <= 40:
+        batch = _feed_page(f"{base}/products.json?limit=250&page={page}", cookies=CA_COOKIES)
+        if not batch:
+            break
+        prods += [_feed_slim(p) for p in batch]
+        page += 1
+        time.sleep(10)
+    time.sleep(10)
+    us = {str(v["id"]): float(v["price"]) for p in _feed_page(f"{base}/products.json?limit=250&page=1") for v in p["variants"]}
+    Path(out).write_text(json.dumps({"updated": now(), "prods": prods, "us": us}, separators=(",", ":")))
+    print(f"thefeed night read: {len(prods)} products in {page - 1} pages -> {out}", file=sys.stderr)
+    return 0
+
+
 def scrape_thefeed():
     # Read The Feed as a Canadian visitor: it then lists only what it ships to Canada (about 500 products fewer)
     # with its own CAD prices. Its site is custom-built (no cart.js), so check the currency against a page of
     # US prices: CAD prices run ~1.4x the USD ones; if they don't, the Canadian view was ignored -> convert.
+    # Oct 9: the night copy (thefeed_night) first; a live read only when it's missing or older than 36 h.
     base = "https://thefeed.com"
-    prods = shopify_products(base, cookies=CA_COOKIES)
-    us = {v["id"]: float(v["price"]) for p in get(f"{base}/products.json?limit=250&page=1").json()["products"] for v in p["variants"]}
+    saved = None
+    try:
+        d = json.loads(Path(THEFEED_FILE).read_text())
+        age = (dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(d["updated"])).total_seconds() / 3600
+        if age < 36 and d.get("prods"):
+            saved = d
+            print(f"  thefeed: night copy from {d['updated']} ({age:.0f} h old)", file=sys.stderr)
+    except Exception:
+        pass
+    if saved:
+        prods = saved["prods"]
+        us = {int(k): v for k, v in saved["us"].items()}
+    else:
+        prods = shopify_products(base, cookies=CA_COOKIES)
+        us = {v["id"]: float(v["price"]) for p in get(f"{base}/products.json?limit=250&page=1").json()["products"] for v in p["variants"]}
     ratios = sorted(float(v["price"]) / us[v["id"]] for p in prods for v in p["variants"] if us.get(v["id"]))
     ratio = ratios[len(ratios) // 2] if ratios else 1.0
     fx = 1.0 if ratio > 1.2 else usd_cad()
@@ -2594,6 +2657,9 @@ def scrape_backcountry_saved():
 
 if __name__ == "__main__" and "--backcountry-night" in sys.argv:
     sys.exit(backcountry_night(sys.argv[sys.argv.index("--backcountry-night") + 1], "--sale-only" in sys.argv))
+
+if __name__ == "__main__" and "--thefeed-night" in sys.argv:
+    sys.exit(thefeed_night(sys.argv[sys.argv.index("--thefeed-night") + 1]))
 
 if __name__ == "__main__" and "--decathlon-night" in sys.argv:
     sys.exit(decathlon_night(sys.argv[sys.argv.index("--decathlon-night") + 1]))
