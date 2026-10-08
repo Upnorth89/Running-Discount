@@ -1287,7 +1287,7 @@ def scrape_rei_saved():
 # we checked 9 random sale sizes by hand on the stores' pages: all 9 right. Only sizes marked "In stock" are used, and a
 # file older than CATALOG_MAX_DAYS (by its own "Observed" time) is ignored: sales end, and our page check can't see these stores.
 CATALOG_MAX_DAYS = 3
-SAVED_STORES = {"mec", "rei", "svp", "sportchek", "adidasca"}   # from files Bastien brings: no file = no deals, never stale ones
+SAVED_STORES = {"mec", "rei", "svp", "sportchek", "adidasca", "catalog"}   # from files Bastien brings: no file = no deals, never stale ones
 CATALOG_STORES = {"Sport Chek": ("sportchek", "https://www.sportchek.ca"), "Adidas": ("adidasca", "https://www.adidas.ca"),
                   "REI": ("rei", "https://www.rei.com")}
 _catalog_cache = {}
@@ -1335,15 +1335,19 @@ def _catalog_rows():
         if age > CATALOG_MAX_DAYS:
             print(f"  catalog file {f.name} is {age:.1f} days old, skipped (bring a fresh one)", file=sys.stderr)
             continue
+        canon = {re.sub(r"\W", "", k.lower()): k for k in CATALOG_STORES}     # "SportChek", "ADIDAS" -> our names
+        for r in got + prods:
+            r["Retailer"] = canon.get(re.sub(r"\W", "", str(r.get("Retailer") or "").lower()), r.get("Retailer"))
+        _catalog_cache["products"] = {(p["Retailer"], p["Item ID"]): p for p in prods}
         print(f"  catalog file {f.name}: {len(got)} size rows, {age:.1f} days old", file=sys.stderr)
         rows = got
         break
     _catalog_cache["rows"] = rows
     return rows
 
-def scrape_catalog(retailer):
+def scrape_catalog(retailer, st=None):
     """One retailer's products from the catalog file, in the offers format (prices in CAD)."""
-    st, base = CATALOG_STORES[retailer]
+    st = st or CATALOG_STORES[retailer][0]
     prods = {}
     for r in catalog_rows():
         if r.get("Retailer") != retailer or r.get("Online availability") != "In stock":
@@ -1357,11 +1361,14 @@ def scrape_catalog(retailer):
         name, iid = str(r.get("Item") or "").strip(), r.get("Item ID")
         p = prods.get(iid)
         if p is None:
+            info = _catalog_cache.get("products", {}).get((retailer, iid)) or {}
+            cat = str(info.get("Category") or "").lower()
             g = "nutrition" if re.search(SL_FOOD, name.lower()) else group_of(name)
+            if not g and "shoe" in cat:               # names without "shoe" ("Hoka Clifton 10 - Women's"): the file's category
+                g = "shoes"
             if not g:
                 continue
             fx = 1.0 if r.get("Currency") == "CAD" else fx_to_cad(r.get("Currency") or "USD")
-            info = _catalog_cache.get("products", {}).get((retailer, iid)) or {}
             url = info.get("Product URL") or (r.get("Variant URL") or "").split("?")[0]
             p = prods[iid] = {"st": st, "b": info.get("Brand") or "", "n": name, "u": url, "g": g, "fx": fx, "gender": g_,
                               "sx": {"Men": ["men"], "Women": ["women"], "Unisex": ["men", "women"]}.get(g_, []),
@@ -1379,6 +1386,34 @@ def scrape_catalog(retailer):
         out.append({"st": p["st"], "b": p["b"], "n": p["n"], "u": p["u"], "g": p["g"], "sx": p["sx"], "w": p["w"], "img": None,
                     "lp": max(e[2] for e in sz), "bb": None, "sz": sz})
     print(f"  {st}: {len(out)} products from the catalog file", file=sys.stderr)
+    return out
+
+def scrape_catalog_others():
+    """Every other store in the catalog file (Oct 9, Bastien: "build the reader for the stores so we can have their
+    inventory"): GPT's file may hold Sports Experts, Atmosphere, Running Room, brand stores, Running Warehouse... Each one comes
+    in on its own, named after its website: prices in CAD = a Canadian store (Canada side only); in USD = a US store (USA side
+    only: we don't know it ships north). Other currencies are left out. Add a name to the site's STORES map for nicer cards."""
+    rows = catalog_rows()
+    by = {}
+    for r in rows:
+        ret = r.get("Retailer")
+        if ret and ret not in CATALOG_STORES and ret not in by:
+            by[ret] = r
+    out = []
+    for ret, r in by.items():
+        cur = (r.get("Currency") or "").upper()
+        info = next((p for (rt, _), p in _catalog_cache.get("products", {}).items() if rt == ret), {})
+        url = info.get("Product URL") or r.get("Variant URL") or ""
+        dom = re.sub(r"^https?://(www\.)?", "", url).split("/")[0].lower()
+        if cur not in ("CAD", "USD") or not dom:
+            print(f"  catalog: {ret} skipped (currency {cur or '?'}, site {dom or '?'})", file=sys.stderr)
+            continue
+        st = "cat-" + re.sub(r"[^a-z0-9]+", "", dom.rsplit(".", 1)[0]) + ("" if cur == "CAD" else "-us")
+        got = scrape_catalog(ret, st)
+        for o in got:
+            o["ca"], o["us"] = cur == "CAD", cur == "USD"
+            o["no_us" if cur == "CAD" else "no_ca"] = True
+        out += got
     return out
 
 # ---------------------------------------------------------------- Any Shopify store (brands + shops): one line each
@@ -1655,6 +1690,7 @@ STORES = {
     "rei": lambda: scrape_catalog("REI") or scrape_rei_saved(),   # the catalog file (Oct 9: every size, with stock), else saved pages
     "sportchek": lambda: scrape_catalog("Sport Chek"),    # from the catalog file Bastien brings (blocks automated reads)
     "adidasca": lambda: scrape_catalog("Adidas"),
+    "catalog": scrape_catalog_others,                     # every other store in the catalog file, each under its own name
     # "svp": scrape_svp_saved,   # parked Oct 6, 2026 (Bastien: its sale page is mostly soccer and budget shoes); reader kept
     "decathlon": lambda: scrape_decathlon_saved(),    # read at night, slowly (runfree.yml): Decathlon blocked GitHub's daytime reads
     # "backcountry": off (Oct 6): its bot protection answers GitHub's servers "202, empty"; reader kept for a feed
