@@ -75,7 +75,8 @@ RULES = [
     ("bras",      r"\bbras?\b"),
     ("socks",     r"\bsocks?\b|\bchaussettes?\b|mini crew|micro crew|mid crew|crew height|no[- ]show|over[- ]the[- ]calf|\bquarter\b(?![- ]?zip)|cushion\b.*\bcrew\b"),
     ("gloves",    r"\bgloves?\b|\bmitts?\b|mittens"),
-    ("watches",   r"\bwatch(es)?\b"),
+    ("watches",   r"\bwatch(es)?\b(?! cap)"),      # a "Watch Cap Beanie" is a hat (Territory, Oct 8)
+    ("gear",      r"\b(filter|bottle|flask) caps?\b"),          # Hydrapak's filter cap isn't a hat (Oct 8)
     ("headwear",  r"\bhats?\b|\bcaps?\b|\b(?:go|trl|trk|crw|fst|alz|ss|gt)cap\b|beanie|toque|tuque|headband|\bbuffs?\b|neck ?gaiter|neckwear|neck ?warmer|visor"),
     ("packs",     r"hydration (vest|pack)|race vest|running vest|backpack|\bbelts?\b|waist ?pack|\bvest \d|"
                   r"(?:\bpinnacle\b|(?<![.\d])\d+ ?l\b)(?!.*\b(jacket|pants?|shell|parka|singlet|tee|shirt|shorts?|tank|tights?|bra)\b)"),   # not "3L Jacket", Janji "Pinnacle Tee"
@@ -632,6 +633,9 @@ def width_word(w, title):
         return " Narrow"
     return ""
 
+SUBSCRIBE = re.compile(r"\b(picky club|subscri\w*|auto[- ]?ship)\b|\(\d+% off\)", re.I)
+
+
 def shopify_items(st, base, prods, group_fn, fx=1.0, size_aware=False, size_fn=None, collapse=False):
     """One card per first option (pack size / colour) when a product has several options;
     flavours or sizes become the card's "sizes". Every in-stock variant is included."""
@@ -648,6 +652,8 @@ def shopify_items(st, base, prods, group_fn, fx=1.0, size_aware=False, size_fn=N
         for v in p["variants"]:
             if not v.get("available"):
                 continue
+            if SUBSCRIBE.search(v.get("title") or ""):
+                continue                  # "Picky Club (20% off)": a subscription price, not a sale (Oct 8)
             price = float(v["price"])
             if price <= 0:
                 continue
@@ -1303,6 +1309,8 @@ SHOPIFY_STORES = [
     ("xtramile",       "https://www.xtramilerunning.com",    "gear"),   # Xtra Mile Running (Tennessee)
     ("lukeslocker",    "https://www.lukeslocker.com",        "gear"),   # Luke's Locker (Texas)
     ("sfrunco",        "https://store.sfrunco.com",          "gear"),   # San Francisco Running Company (Mill Valley, San Anselmo CA)
+    ("territory",      "https://territoryrun.co",            "gear"),   # Territory Run Co. (California trail apparel; Oct 8, USA side)
+    ("pathprojects",   "https://pathprojects.com",           "gear"),   # Path Projects (Colorado running shorts/liners; Oct 8, USA side)
     # socks
     ("feetures",       "https://www.feetures.com",           "socks"),
     ("balega",         "https://www.balega.com",             "socks"),
@@ -1314,6 +1322,7 @@ SHOPIFY_STORES = [
     ("goodr",          "https://goodr.com",                  "eyewear"),
     ("roka",           "https://roka.com",                   "eyewear"),
     ("sunski",         "https://sunski.com",                 "eyewear"),
+    ("ombraz",         "https://ombraz.com",                 "eyewear"),   # Ombraz armless sunglasses (California; Oct 8, USA side)
     ("tifosi",         "https://www.tifosioptics.com",       "eyewear"),
     # race fuel
     ("tailwind",       "https://www.tailwindnutrition.com",  "food"),
@@ -1326,7 +1335,7 @@ SHOPIFY_STORES = [
 
 NOT_RUNNING = re.compile(r"gift ?card|pannier|eyeglasses|optical|reading glass|blue light|prescription|e-?gift|\bbike\b|cycling|\bbib\b|swim|golf|\bski\b|snowboard|\bdog\b|\bpet\b|"
                          r"\btent\b|sleeping bag|stickers?|poster|\bmug\b|\bbundle builder\b|warranty|shipping protection|"
-                         r"route protection|insurance|\bsample\b|donation|\bknitwear\b|\bsherpa\b|\bgym bag\b|"   # Balmoral's lifestyle pieces (Oct 8)
+                         r"route protection|insurance|\bsample\b|donation|\bknitwear\b|\bsherpa\b|\bgym bag\b|tote bag|loops & loot|"   # Balmoral's lifestyle pieces (Oct 8)
                          # ski touring (Ski Uphill, Oct 7); trail crampons and goodr "Donkey Goggles" sunglasses stay
                          r"\bskis\b|\bhelmets?\b|airbag|avalanche|(?<!donkey )\bgoggles?\b|\b(powder|pole) baskets?\b|climbing skins?|skinalp|"
                          r"\bbindings?\b|splitboard|glide wax|liquid wax|aenergy harness|footwear refresh", re.I)
@@ -1399,7 +1408,8 @@ def scrape_runfree(st):
 US_SHOPS = {"pacers", "portlandrun", "heartbreak", "runnersplus", "gazelle", "sportsbasement", "tortoisehare",
             "runflagstaff", "runninglab", "playmakers", "millcity", "runningwell", "mountainrun", "confluence", "columbusrun",
             "scrantonrun", "trailheadrun", "prrunwalk", "performancerun", "fitnesssports", "athleticannex", "annarborrun",
-            "tworivers", "xtramile", "lukeslocker", "sfrunco", "backcountry", "rei"} | set(RUNFREE_US)   # REI ships within the US only
+            "tworivers", "xtramile", "lukeslocker", "sfrunco", "backcountry", "rei",
+            "territory", "pathprojects", "ombraz"} | set(RUNFREE_US)   # REI ships within the US only
 US_COLLECTIONS = {"sportsbasement": ["running"], "sail": ["outdoor-gear-running"]}   # (Canadian stores too: SAIL)   # general stores: their running section only (Sports Basement also sells
                                                    # snowboards, swimwear, tennis: those topped the US deals, Oct 6, 2026)
 # Shoebacca was tried and dropped (Oct 6, 2026): mostly PUMA/adidas/Diadora budget and gym shoes, no Hoka/Brooks/ASICS/Nike
@@ -1552,7 +1562,7 @@ NOT_SOCK = re.compile(r"t-?shirt|\btee\b|hood|jacket|sweat|pullover|\btank\b|sho
                       r"boxer|brief|underwear|legging|\btop\b|shirt|bralette|\bbra\b", re.I)
 STRONG_FOOD = re.compile(r"\bgels?\b(?!-| pockets?| force| heel| cups?)|\bchews?\b|drink mix|electrolyte|energy bar|protein|stroopwafel|(?<!wool )waffle|"
                          r"caffeine|hydration mix|\bfuel\b(?! belt|\W+n\W*\s*fly|\s*cell)|\bbars?\b(?=.*\b(\d+ ?g|pack|box|bar)\b)|nut butter|honey|\bmix\b|tablets|capsules", re.I)
-EYEWEAR_BRANDS = {"goodr", "sunski", "tifosi", "roka", "district vision", "julbo", "suncloud", "moana sunnies", "alpinamente", "knockaround"}
+EYEWEAR_BRANDS = {"ombraz", "goodr", "sunski", "tifosi", "roka", "district vision", "julbo", "suncloud", "moana sunnies", "alpinamente", "knockaround"}
 SOCK_BRANDS = {"darn tough", "balega", "feetures", "injinji", "swiftwick", "wigwam", "drymax", "rockay"}
 CLOTH_SOCK_SHAPE = re.compile(r"\bcrew\b|no[- ]show|\bquarter\b|\bmicro\b|\bmini\b|\btab\b|over[- ]the[- ]calf|\botc\b|\bboot\b", re.I)
 BYOB = re.compile(r"build your own bundle|\bbundle\d{3,}", re.I)
@@ -1874,7 +1884,7 @@ BRAND_ALIAS = {"balmoral sports": "Balmoral", "inner self": "Inner Self", "krono
                "puma north a": "Puma", "smith optics": "Smith", "lé bent": "Le Bent", "naak nutrition": "Näak", "smith sport optics": "Smith", "diadora us": "Diadora", "maurten us": "Maurten",
                "nathan hydration": "Nathan", "zym hydration": "ZYM", "puma north america": "Puma", "spenco medical": "Spenco", "precision fuel & hydration": "Precision Fuel & Hydration"}   # District Vision's makers
 
-DISTRIBUTORS = {"back river sport", "back river group"}
+DISTRIBUTORS = {"back river sport", "back river group", "territory run co", "territory run co."}   # Territory resells Tailwind, Hydrapak
 def tidy_brand(b):
     b = (b or "").strip()
     if b.lower() in BRAND_CANON:

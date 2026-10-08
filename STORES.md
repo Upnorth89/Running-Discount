@@ -3,6 +3,58 @@
 Check this list before looking at a new store, so nobody tests the same shop twice.
 Update it whenever a store is added, rejected or changes. Counts are from Oct 2, 2026.
 
+## Master list: stores and brands we can't read (yet)
+
+Every company we checked and couldn't (or chose not to) read, why, what was tried, and what would unlock it. Update it after
+every check (rule in CLAUDE.md: try every allowed way first; a store that says no stays no).
+
+| Company | Where | Why not | Tried | What would unlock it |
+|---|---|---|---|---|
+| **Blocked (the store says no)** | | | | |
+| Sport Chek, Atmosphere, Sports Experts (Canadian Tire) | Canada | "Access Denied" to automated reading; saved pages have no sizes (Oct 2) | site, saved pages | Canadian Tire affiliate feed (Impact.com), December |
+| Running Room | Canada | blocks automated reading | site | partnership or affiliate feed |
+| MEC | Canada | blocks automated reading | site; **saved pages work** (Grab deals) | MEC product feed via AvantLink/Sovrn |
+| REI | USA | blocks automated reading | **saved pages work** (US side) | affiliate feed |
+| Boutique Courir | Montréal | blocks automated reading (Oct 1) | site | ask the store |
+| SVP Sports | Québec | Cloudflare check (Oct 4) | **saved pages work**; parked Oct 6 (soccer/budget shoes) | none needed |
+| Brooks, New Balance, ASICS, Hoka, Salomon, adidas, Inov-8, The North Face | brands | 403/406 "Access denied" (rechecked Oct 5) | brand sites | their shoes reach us through the stores |
+| Nike | brand | robots.txt disallows product pages (sizes) | listings | through the stores |
+| On | brand | script-only page, robots disallows /api | site | through the stores |
+| Backcountry / Steep & Cheap | USA | bot protection: "HTTP 202, empty page" (Oct 6) | site from GitHub; reader built | affiliate product feed |
+| Seattle Running Company, Road Runner Sports | WA, CA | HTTP 403 (Oct 8, store finder) | sandbox + GitHub | affiliate feed (Road Runner has one) |
+| Running Warehouse, Zappos, Dick's, Eastbay | USA | blocked or not readable (Oct 6) | site | affiliate feeds |
+| Honey Stinger | brand | blocks GitHub's servers (works elsewhere) | site | its gels come through other stores |
+| **No online catalogue we can read** | | | | |
+| Kintec | BC | no product feed (Oct 1) | site | ask them |
+| Running Free | Ontario | own shop system, no feed (Oct 1) | site | own reader if worth it |
+| ENROUTE | Richmond, BC | Astro site, no product list (Oct 8) | products.json, homepage | own reader (sitemap + pages) if worth it |
+| The Right Shoe | Vancouver | no online shop | site | none |
+| Super Jock 'n Jill, Run Hub NW, Foot Zone (Bend), A Snail's Pace, Fleet Feet | US West | sell in store only / no readable catalogue (Oct 8) | products.json, homepage | none |
+| Squarespace/WooCommerce shops without a catalogue | USA | nothing online to read | | none |
+| **Readable, needs its own reader (not built yet)** | | | | |
+| Injinji | brand (US) | Magento shop, no products.json (Oct 8) | products.json, cart.js | sitemap + product pages (JSON-LD), robots allows |
+| Distance Runwear | Vancouver | Lightspeed; ~730 products, mostly barefoot/lifestyle (Oct 8) | **?format=json works** | build a Lightspeed reader |
+| Gord's Running Store | Calgary | WooCommerce, Store API open (Oct 6) | | build a WooCommerce reader |
+| Saucony, Puma, Salomon (salomon.com/en-ca) | brands | readable pages, need their own reader | | one at a time |
+| **No answer from my machine or GitHub** | | | | |
+| Bivo, Spring Energy, Fit Right NW | US West | no connection (Oct 8: sandbox + store finder; domains may differ) | bivo.co/.com, springenergy.co/.com | find the right address, retry |
+| Fast Trax, Mile One Running, The Trail Store | AB / BC | site didn't answer (Oct 1) | | retry with the store finder |
+| **Readable, waiting on purpose** | | | | |
+| Valhalla Pure (vpo.ca) | BC | readable, 19,750 products, mostly hiking/camping | full read Oct 8 | December hiking launch |
+| Outdoor Research | Seattle | readable, mostly hiking/climbing | first page | December hiking launch |
+| Comor, Oberson, Kunstadt, Skiis & Biikes, Boardroom | snow | readable snow shops | | January ski launch |
+| Rackets & Runners | Vancouver | readable, 474 running shoes, 267 on sale (Oct 8) | full read | **waiting for Bastien's OK** |
+| Running Factory | Windsor | readable, ~37 on sale, mostly CEP sleeves (Oct 3) | | recheck later |
+| **Checked and skipped (not a fit)** | | | | |
+| Picky Bars | Bend, OR | all bars sold out (now Laird Superfood) (Oct 8) | full read | recheck if bars return |
+| Comor Sports (for running) | Vancouver | 7,250 products, zero running | full read | ski launch |
+| The Trail Shop | Halifax | general outdoor (Yeti, tents) | full read | hiking launch maybe |
+| Deadstock | Calgary/Vancouver | sneakers/streetwear (Oct 7) | | none |
+| Shoebacca | USA | budget/gym shoes (Oct 6) | | none |
+| Onion River Sports, Potomac River Running | USA | 2 shoes / same as PR Run & Walk | | none |
+| La Cordée | Québec | insolvency (Oct 2026) | | recheck if it restructures |
+| Amazon | | no scraping; Associates API needs 3 sales | | affiliate links first |
+
 ## Stores we read (63)
 
 ### Canadian stores (26)
@@ -154,6 +206,8 @@ Run Flagstaff (AZ), Running Lab (MI), Playmakers (MI), Mill City Running (MN), T
 Confluence Running (NY), Columbus Running Co. (OH), Scranton Running Co. (PA), Trailhead Running Supply (TX), PR Run & Walk (VA),
 Performance Running Outfitters (WI), Fitness Sports (IA), Athletic Annex (IN), Ann Arbor Running Co. (MI), Two Rivers Treads (NC),
 Xtra Mile Running (TN), Luke's Locker (TX), San Francisco Running Co. (CA, store.sfrunco.com).
+Brands (Oct 8, USA side): Territory Run Co. (CA, trail apparel; resold Tailwind/Hydrapak get their own brand), Path Projects (CO, shorts/liners),
+Ombraz (CA, armless sunglasses).
 RunFree (night job, scraper/runfree.py): Charlotte Running Co., Terra, John's Run/Walk, Palmetto, Rush, iRun Texas, West Stride,
 Millennium, Running Niche, Good Times, Bull City, Red Coyote, 605 Running, Point 2, Big Peach, Running Zone, Manhattan Running Co.,
 Charm City Run, Pace Yourself, Runner's Roost, Missouri Running Co., Track Shack, Aardvark, Philadelphia Runner.

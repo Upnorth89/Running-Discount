@@ -228,7 +228,18 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   Checked and skipped Oct 7: Deadstock (sneaker/streetwear, ~24 running shoes). Amazon: no scraping; only via Associates + API (needs 3 sales
   and affiliate links): parked.
 - Known: Honey Stinger is blocked from GitHub's servers (works elsewhere); REI needs fresh saved pages.
-- **`STORES.md`** lists every store we read, ones checked and rejected (blocked, no feed) and ones waiting:
+- **Checking a store or brand: try every allowed way before calling it unreadable** (Bastien, Oct 8: "always try multiple
+  approaches. Fast, slow (Decathlon) and any work around to read their webpage"). In order: (1) Shopify `/products.json`
+  (+ `/collections/<x>/products.json`, `/en-ca`, `www.`/no-`www.`, Canadian cookies; `.js` for one product); (2) the shop system's
+  own public JSON: Lightspeed `?format=json`, WooCommerce Store API `/wp-json/wc/store/products`, BigCommerce, commercetools,
+  RunFree `/api/product`, Next.js `__NEXT_DATA__`; (3) `sitemap.xml` + product pages' JSON-LD (`"offers"` price/availability):
+  slow but allowed (Injinji, Puma); (4) slow mode: one page every 6-20 s at night, slice by slice with a cursor (Decathlon);
+  (5) from GitHub's servers (store-finder.yml), since my sandbox can't reach some hosts; (6) Bastien's saved pages (Grab deals
+  bookmark: MEC, REI); (7) an affiliate product feed. Always read robots.txt first and respect Disallow and Crawl-delay.
+  **The line we never cross:** a 403/406/"Access denied", a Cloudflare/captcha check or "HTTP 202 empty page" means the store
+  said no: no disguised browsers, rotating IPs, captcha solvers or hidden APIs behind a login. Write it in the master list
+  (STORES.md "Master list") with what was tried and what would unlock it (affiliate feed, partnership, saved pages).
+, ones checked and rejected (blocked, no feed) and ones waiting:
   check it before testing a shop, update it after.
 - **Every store reader reads the full running catalogue, full price included, never only the sale section** (Bastien, Oct 4:
   "this should always be our default"). Full-price items are what people watch for a drop, and the "Include full price" filter needs them.
