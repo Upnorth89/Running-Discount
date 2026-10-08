@@ -96,6 +96,8 @@ WORD = {"ONE SIZE": "OS", "O/S": "OS", "NA": "OS", "": "OS", "X-SMALL": "XS", "S
         "SM": "S", "MD": "M", "MED": "M", "LG": "L", "LRG": "L", "XLG": "XL", "XLARGE": "XL", "XSMALL": "XS", "XXLARGE": "2XL"}
 def norm_size(s):
     s = str(s or "").strip()
+    if re.fullmatch(r"(?i)os|x{0,3}[sl]|m|[2-4]?x[sl]", s):
+        s = s.upper()                       # Balmoral writes "xs", "m", "os" (Oct 8)
     return WORD.get(s.upper(), s)
 
 # ---------------------------------------------------------------- shoe sizes
@@ -1226,7 +1228,8 @@ SHOPIFY_STORES = [
     ("upika",          "https://upika.ca",                   "food"),   # Upika (Québec drink mixes and bars; Oct 7)
     ("grynd",          "https://grynd.ca",                   "food"),   # Grynd (Calgary / Prince George energy waffles; Oct 7)
     ("krono",          "https://krononutrition.com/en-ca",   "food"),
-    ("innerself",      "https://innerselfrunning.com",       "gear"),   # Inner Self (Montréal running apparel; Oct 8)   # Krono Nutrition (Québec gels, bars, drink mixes; Oct 7)
+    ("innerself",      "https://innerselfrunning.com",       "gear"),   # Inner Self (Montréal running apparel; Oct 8)
+    ("balmoral",       "https://balmoralrunning.com",        "gear"),   # Balmoral (Montréal, made-in-Canada running apparel; Oct 8)   # Krono Nutrition (Québec gels, bars, drink mixes; Oct 7)
     # running & trail brands
     ("altra",          "https://altrarunning.com",           "gear"),
     ("janji",          "https://runjanji.com",               "gear"),
@@ -1323,7 +1326,7 @@ SHOPIFY_STORES = [
 
 NOT_RUNNING = re.compile(r"gift ?card|pannier|eyeglasses|optical|reading glass|blue light|prescription|e-?gift|\bbike\b|cycling|\bbib\b|swim|golf|\bski\b|snowboard|\bdog\b|\bpet\b|"
                          r"\btent\b|sleeping bag|stickers?|poster|\bmug\b|\bbundle builder\b|warranty|shipping protection|"
-                         r"route protection|insurance|\bsample\b|donation|"
+                         r"route protection|insurance|\bsample\b|donation|\bknitwear\b|\bsherpa\b|\bgym bag\b|"   # Balmoral's lifestyle pieces (Oct 8)
                          # ski touring (Ski Uphill, Oct 7); trail crampons and goodr "Donkey Goggles" sunglasses stay
                          r"\bskis\b|\bhelmets?\b|airbag|avalanche|(?<!donkey )\bgoggles?\b|\b(powder|pole) baskets?\b|climbing skins?|skinalp|"
                          r"\bbindings?\b|splitboard|glide wax|liquid wax|aenergy harness|footwear refresh", re.I)
@@ -1841,7 +1844,7 @@ BRAND_CANON = {"hoka one one": "Hoka", "hoka": "Hoka", "asics": "ASICS", "satisf
 
 # US shops often list the parent company or distributor as the vendor (Oct 6, 2026: "Asics Corp." on all 480 US ASICS items,
 # "Brooks Sports, Inc. #105856", "Ing Source, Inc" = Injinji, "Medi USA" = CEP): company words go, then this map
-BRAND_ALIAS = {"inner self": "Inner Self", "krono nutrition": "Krono", "kronobar": "Krono", "grynd food": "Grynd", "grynd food inc": "Grynd", "fast bundle": "Upika", "upika": "Upika", "brix rechargé par la nature": "Brix", "brix recharge par la nature": "Brix", "asics america": "ASICS", "asics": "ASICS", "brooks sports": "Brooks", "nike usa": "Nike", "nike team sale": "Nike",
+BRAND_ALIAS = {"balmoral sports": "Balmoral", "inner self": "Inner Self", "krono nutrition": "Krono", "kronobar": "Krono", "grynd food": "Grynd", "grynd food inc": "Grynd", "fast bundle": "Upika", "upika": "Upika", "brix rechargé par la nature": "Brix", "brix recharge par la nature": "Brix", "asics america": "ASICS", "asics": "ASICS", "brooks sports": "Brooks", "nike usa": "Nike", "nike team sale": "Nike",
                "on shoes": "On", "on footwear": "On", "on-running": "On", "gu energy": "GU", "gu energy labs": "GU", "gu sports": "GU",
                "gu nutrition": "GU", "gu energy gel": "GU", "ing source": "Injinji", "medi usa": "CEP", "medi": "CEP",
                "cep / medi usa": "CEP", "cep/medi usa": "CEP", "medi usa (cep)": "CEP", "medi/cep": "CEP", "medi usa - cep": "CEP", "craft sportswear": "Craft", "craft sportsware usa": "Craft",

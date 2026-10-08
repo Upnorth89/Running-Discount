@@ -32,6 +32,7 @@ Update it whenever a store is added, rejected or changes. Counts are from Oct 2,
 | Grynd (Calgary/Prince George energy waffles) | grynd.ca | 16 | 1 |
 | Krono Nutrition (Québec gels, bars, drink mixes, Kronobar) | krononutrition.com | 97 | 0 |
 | Inner Self (Montréal running apparel) | innerselfrunning.com | 41 | 0 |
+| Balmoral (Montréal, made-in-Canada running apparel; knitwear/sherpa/gym bag filtered) | balmoralrunning.com | 35 | 0 |
 | Sea2Sky Nutrition | sea2skynutrition.ca | 251 | 14 |
 | Sporting Life | sportinglife.ca | 659 | 292 |
 | Strides Running (Calgary/Canmore; added Oct 3) | stridesrunning.com | 1,344 | 136 |
