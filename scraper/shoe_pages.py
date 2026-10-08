@@ -222,6 +222,10 @@ def base_model(n):
     n = re.sub(r"\b((trail|road) )?running shoes?\b|\bhiking shoes?\b|\bshoes?\b", "", n, flags=re.I)
     n = re.sub(r"^\s*(M|W|U|Unisex|All[- ]Gender|Men[’']?s|Women[’']?s)\s+", "", n, flags=re.I)        # "M Ghost 18" (Oct 7)
     n = re.sub(r"\s+(running road|road racing|road running|road)\s*$", "", n.strip(" -"), flags=re.I)   # "Ghost 17 Road"
+    # Oct 8 (Search Console skipped near-copies): Nike's long names and athlete editions share one page
+    n = re.sub(r"\b(ZoomX|Air Zoom|Zoom)\s+(?=(Vaporfly|Alphafly|Pegasus|Streakfly|Invincible)\b)", "", n, flags=re.I)
+    n = re.sub(r"\b(Vaporfly|Alphafly)\s+Next\s*%?\s*", r"\1 ", n, flags=re.I)
+    n = re.sub(r"\s+(Keely Hodgkinson|H\.?\s?Koumori)\b.*$", "", n, flags=re.I)
     return re.sub(r"\s+", " ", n).strip(" -")
 
 

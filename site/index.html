@@ -1160,6 +1160,8 @@ function baseModel(n){
   n=n.replace(/\b((trail|road) )?running shoes?\b|\bhiking shoes?\b|\bshoes?\b/gi,"");
   n=n.replace(/^\s*(M|W|U|Unisex|All[- ]Gender|Men[’']?s|Women[’']?s)\s+/i,"");
   n=n.replace(/^[ -]+|[ -]+$/g,"").replace(/\s+(running road|road racing|road running|road)\s*$/i,"");
+  n=n.replace(/\b(ZoomX|Air Zoom|Zoom)\s+(?=(Vaporfly|Alphafly|Pegasus|Streakfly|Invincible)\b)/gi,"")   // Oct 8: one page per Nike shoe
+    .replace(/\b(Vaporfly|Alphafly)\s+Next\s*%?\s*/gi,"$1 ").replace(/\s+(Keely Hodgkinson|H\.?\s?Koumori)\b.*$/i,"");
   return n.replace(/\s+/g," ").replace(/^[ -]+|[ -]+$/g,"");
 }
 function slugify(t){t=t.toLowerCase().replace(/\+/g," plus").replace(/&/g," and ").replace(/[üû]/g,"u").replace(/[öô]/g,"o").replace(/[éèêë]/g,"e").replace(/[àâä]/g,"a");
