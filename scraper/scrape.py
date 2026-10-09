@@ -222,11 +222,11 @@ def _rf_get(path):
                       timeout=60)
             if r.status_code == 200:
                 return r.text
-            print(f"  runningfree: {path} HTTP {r.status_code}", file=sys.stderr)
+            print(f"::warning::runningfree: {path} HTTP {r.status_code}", file=sys.stderr)
             if r.status_code in (403, 429):
                 raise RuntimeError(f"Running Free said no (HTTP {r.status_code})")
         except requests.RequestException as e:
-            print(f"  runningfree: {path} {type(e).__name__}", file=sys.stderr)
+            print(f"::warning::runningfree: {path} {type(e).__name__}", file=sys.stderr)
         time.sleep(RF_DELAY * (t + 2))
     return None
 
@@ -268,7 +268,7 @@ def _rf_pages(path):
 
 def runningfree_night(out, hours=4.5):
     """Read Running Free slowly (a page every 30 s): every product of the men's and women's sections, then every size page."""
-    start, prods, brands = time.time(), {}, set()
+    start, prods, brands, failed = time.time(), {}, set(), []
     for gender, root in RF_ROOTS.items():
         sizes = []
         for i, h in enumerate(_rf_pages(root)):
@@ -289,11 +289,19 @@ def runningfree_night(out, hours=4.5):
                 label = m.group(1) + (".5" if m.group(2) else "") + ("" if m.group(3) == "Regular" else " " + m.group(3).replace("XX", "X"))
             else:
                 label = RF_CLOTH[slug.rsplit("-", 1)[0]]
-            for h in _rf_pages(f"{root}/{slug}"):
-                for pid, c in _rf_cards(h).items():
-                    p = prods.setdefault(pid, c | {"roots": [gender], "sizes": []})
-                    p["price"] = min(p["price"], c["price"])
-                    p["sizes"].append([gender, label, bool(m)])
+            try:
+                for h in _rf_pages(f"{root}/{slug}"):
+                    for pid, c in _rf_cards(h).items():
+                        p = prods.setdefault(pid, c | {"roots": [gender], "sizes": []})
+                        p["price"] = min(p["price"], c["price"])
+                        p["sizes"].append([gender, label, bool(m)])
+            except RuntimeError as e:
+                if "said no" in str(e):
+                    raise
+                failed.append(f"{gender} {slug}")       # one size page that won't load: that size is left out tonight
+                print(f"::warning::Running Free: {e}", file=sys.stderr)
+                if len(failed) > 10:
+                    raise RuntimeError(f"Running Free: {len(failed)} size pages didn't load ({', '.join(failed[:5])}...)")
     Path(out).write_text(json.dumps({"updated": now(), "brands": sorted(brands), "prods": prods}, separators=(",", ":")))
     print(f"runningfree night read: {len(prods)} products, {sum(len(p['sizes']) for p in prods.values())} sizes in stock "
           f"in {(time.time() - start) / 60:.0f} min -> {out}", file=sys.stderr)
@@ -3184,7 +3192,11 @@ if __name__ == "__main__" and "--backcountry-night" in sys.argv:
     sys.exit(backcountry_night(sys.argv[sys.argv.index("--backcountry-night") + 1], "--sale-only" in sys.argv))
 
 if __name__ == "__main__" and "--runningfree-night" in sys.argv:
-    sys.exit(runningfree_night(sys.argv[sys.argv.index("--runningfree-night") + 1]))
+    try:
+        sys.exit(runningfree_night(sys.argv[sys.argv.index("--runningfree-night") + 1]))
+    except Exception as e:
+        print(f"::error::Running Free night read stopped: {type(e).__name__}: {str(e)[:300]}", file=sys.stderr)   # shows on the run page
+        sys.exit(1)
 if __name__ == "__main__" and "--thefeed-night" in sys.argv:
     sys.exit(thefeed_night(sys.argv[sys.argv.index("--thefeed-night") + 1]))
 
