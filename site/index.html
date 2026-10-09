@@ -986,7 +986,7 @@ function gated(){return !(sub&&(sub.key||sub.pending))}     // first visit: size
 // "peek": sizes picked, no email yet: their top 6 deals show (clickable), then the email card (flow D only)
 let PEEK=!!LS.get("gf-peek");
 /* "Just show me deals" (Oct 6): browse every size before picking any; a note on top offers the sizes step */
-let BROWSE=!!LS.get("gf-browse");
+let BROWSE=!!LS.get("gf-browse")||(()=>{try{return !!new URLSearchParams(location.search).get("q")}catch(e){return false}})();   // a ?q= link (posts) opens straight on the item, no welcome screen (Oct 9)
 const peeking=()=>gated()&&FLOW==="D"&&((PEEK&&hasSizes())||BROWSE);
 function gateErr(msg,el){const e=$("gateErr");e.textContent=msg||"";e.classList.toggle("hidden",!msg);
   document.querySelectorAll("#sheet .need").forEach(x=>x.classList.remove("need"));
