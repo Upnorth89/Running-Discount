@@ -77,7 +77,7 @@ RULES = [
     ("gloves",    r"\bgloves?\b|\bmitts?\b|mittens"),
     ("watches",   r"\bwatch(es)?\b(?! cap)"),      # a "Watch Cap Beanie" is a hat (Territory, Oct 8)
     ("gear",      r"\b(filter|bottle|flask|flex) caps?\b|^(?!.*\b(vests?|belts?|packs?)\b).*\bsoft flasks?\b|\b(safety|led|reflective) vest\b"),   # caps that aren't hats, a flask "with bite top", LED vests (Oct 8)
-    ("headwear",  r"\bhats?\b|\bcaps?\b|\b(?:go|trl|trk|crw|fst|alz|ss|gt)cap\b|beanie|toque|tuque|headband|\bbuffs?\b|neck ?gaiter|neckwear|neck ?warmer|visor"),
+    ("headwear",  r"\bhats?\b|\bcaps?\b(?![- ]sleeve)|\b(?:go|trl|trk|crw|fst|alz|ss|gt)cap\b|beanie|toque|tuque|headband|\bbuffs?\b|neck ?gaiter|neckwear|neck ?warmer|visor"),
     ("packs",     r"hydration (vest|pack)|race vest|running vest|backpack|\bbelts?\b|waist ?pack|\bvest \d|"
                   r"(?:\bpinnacle\b|(?<![.\d])\d+ ?l\b)(?!.*\b(jacket|pants?|shell|parka|singlet|tee|shirt|shorts?|tank|tights?|bra)\b)"),   # not "3L Jacket", Janji "Pinnacle Tee"
     ("bottoms",   r"\bbottoms?\b|(?<!short sleeve )\bshorts\b|\bshort\b(?! sleeve)|tights?\b|\bpants?\b|leggings?|joggers?|skirts?|skorts?|boxers?|briefs?"),
