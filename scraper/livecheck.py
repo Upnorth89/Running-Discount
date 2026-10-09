@@ -53,14 +53,22 @@ def _page(url, price):
     forms = {whole, whole.replace(".", ",")}
     if whole.endswith("0") and not whole.endswith(".00"):
         forms.add(whole[:-1])                               # 63.90 written "63.9" in the page's data
-    return any(re.search(r"(?<![\d.,])" + re.escape(f) + r"(?![\d])", r.text) for f in forms)
+    # Oct 8: Running Free writes "<sup>$</sup>49<sup>.99</sup>" and whole dollars as "$20": read the page's text without
+    # its tags too, and accept "$20" for 20.00 (always with the $ sign, so "20" in a size or a date doesn't count)
+    text = re.sub(r"<[^>]+>", "", r.text)
+    found = any(re.search(r"(?<![\d.,])" + re.escape(f) + r"(?![\d])", s) for f in forms for s in (r.text, text))
+    if not found and whole.endswith(".00"):
+        found = bool(re.search(r"\$\s?" + re.escape(whole[:-3]) + r"(?![\d.,])", text))
+    return found
 
 
 def still_on_sale(url, price, variant=None, us=False):
     """us=True (the USA side, Oct 8): price is in USD converted back from our CAD copy, so allow 2%; only Shopify shops can
     be checked that way (another page has to show the exact price string)."""
     try:
-        if "/products/" in url:
+        # Shopify paths end at the product's handle (/products/<handle>); Running Free's "/products/All-Womens-66508/
+        # Clothing-113/..." isn't Shopify and its .js twin 404s (Oct 8: 5 false "sale ended" in the noon check)
+        if re.search(r"/products/[^/?#]+/?$", urlparse(url).path):
             return _shopify(url, price, variant if variant and str(variant).isdigit() else None, us=us,
                             tol=max(0.01, price * 0.02) if us else 0.01)
         return None if us else _page(url, price)
