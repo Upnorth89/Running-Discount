@@ -24,7 +24,7 @@ permissions:
   pages: write
   id-token: write
 
-# One build and one deploy at a time. Set per job, not for the whole workflow (Oct 9): GitHub keeps only one run waiting
+# One build and one deploy at a time. Set per job, not for the whole workflow (Oct 8): GitHub keeps only one run waiting
 # per group, so a late schedule run that the check job then skips bumped a waiting push run out of the queue (8086c30
 # never published). A skipped build never enters the queue now.
 
@@ -90,7 +90,7 @@ jobs:
           curl -fsS -X POST "https://krwymmkauwqqxjxbvkyq.supabase.co/rest/v1/rpc/ping" \
             -H "apikey: sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2" -H "Content-Type: application/json" -d '{}' || true
       - name: Scrape stores
-        env:                       # SUPABASE_*: deals sent from the phone "Grab deals" bookmark (grab_saves, Oct 9)
+        env:                       # SUPABASE_*: deals sent from the phone "Grab deals" bookmark (grab_saves, Oct 8)
           SUPABASE_URL: "https://krwymmkauwqqxjxbvkyq.supabase.co"
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
         run: python scraper/scrape.py site/deals.json
@@ -109,7 +109,7 @@ jobs:
           else
             echo "no price history checked out: skipped"
           fi
-      # Oct 9 (Bastien: "I want the most accurate information for our users"): the deals people see most are opened on the
+      # Oct 8 (Bastien: "I want the most accurate information for our users"): the deals people see most are opened on the
       # store's own page; an ended sale or sold-out size is taken off before anything is published (scraper/featured_check.py)
       - name: Check featured deals on the store pages
         continue-on-error: true

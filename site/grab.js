@@ -13,7 +13,7 @@
     a.href = URL.createObjectURL(new Blob([JSON.stringify(obj)], { type: "application/json" }));
     a.download = name; document.body.appendChild(a); a.click(); a.remove();
   };
-  // Oct 9: a phone can't upload a file to GitHub easily, so the list goes straight to thegearfox.com/grab-save.html
+  // Oct 8: a phone can't upload a file to GitHub easily, so the list goes straight to thegearfox.com/grab-save.html
   // (one tap: a new tab can only open from a tap). The file download stays as a backup for computers.
   let keep = false;
   const save = (name, obj) => {

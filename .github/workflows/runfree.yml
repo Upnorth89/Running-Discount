@@ -69,7 +69,7 @@ jobs:
           for i in 1 2 3 4; do git pull -q --rebase origin history && git push -q origin HEAD:history && exit 0; sleep $((i * 5)); done
           exit 1
 
-  # The Feed (Oct 9, 2026): its products.json answers "429 local_rate_limited" to busy shared addresses like GitHub's, and
+  # The Feed (Oct 8, 2026): its products.json answers "429 local_rate_limited" to busy shared addresses like GitHub's, and
   # our morning reads failed twice in two days. Read here at night, a page every 10 s, waiting as long as it asks
   thefeed:
     needs: check

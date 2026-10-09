@@ -744,7 +744,7 @@ def _feed_page(url, cookies=None):
 
 
 def thefeed_night(out):
-    """The Feed (Oct 9, 2026; it answered our morning reads "429" twice in two days): read once a night, slowly
+    """The Feed (Oct 8, 2026; it answered our morning reads "429" twice in two days): read once a night, slowly
     (a page every 10 s, patient waits on 429), saved to thefeed.json on the history branch; the refresh uses that copy.
     If the night read fails, the last good copy stays."""
     base = "https://thefeed.com"
@@ -767,7 +767,7 @@ def scrape_thefeed():
     # Read The Feed as a Canadian visitor: it then lists only what it ships to Canada (about 500 products fewer)
     # with its own CAD prices. Its site is custom-built (no cart.js), so check the currency against a page of
     # US prices: CAD prices run ~1.4x the USD ones; if they don't, the Canadian view was ignored -> convert.
-    # Oct 9: the night copy (thefeed_night) first; a live read only when it's missing or older than 36 h.
+    # Oct 8: the night copy (thefeed_night) first; a live read only when it's missing or older than 36 h.
     base = "https://thefeed.com"
     saved = None
     try:
@@ -1173,7 +1173,7 @@ def _file_age_days(path):
 
 _grabbed = []
 def grab_saves():
-    """Lists sent from the phone bookmark (Oct 9: thegearfox.com/grab-save.html -> Supabase grab_saves, last 10 days),
+    """Lists sent from the phone bookmark (Oct 8: thegearfox.com/grab-save.html -> Supabase grab_saves, last 10 days),
     written to a temp folder as the same JSON files the bookmark downloads. Needs SUPABASE_URL + SUPABASE_SECRET_KEY."""
     if _grabbed:
         return _grabbed[0]
@@ -1306,13 +1306,13 @@ def scrape_rei_saved():
     return out
 
 # ---------------------------------------------------------------- Catalog file (Sport Chek, adidas.ca, REI)
-# Oct 9, 2026: these stores block automated reads, so Bastien brings a catalog file (Excel, "Running_Gear_Catalog.xlsx":
+# Oct 8, 2026: these stores block automated reads, so Bastien brings a catalog file (Excel, "Running_Gear_Catalog.xlsx":
 # a "Sizes & availability" sheet, one row per size and colour: retailer, item, size, width, gender, currency, regular and
 # current price, online availability, variant URL, observed time) and uploads it to saved-pages/. Before using the first one
 # we checked 9 random sale sizes by hand on the stores' pages: all 9 right. Only sizes marked "In stock" are used, and a
 # file older than CATALOG_MAX_DAYS (by its own "Observed" time) is ignored: sales end, and our page check can't see these stores.
 CATALOG_MAX_DAYS = 3
-CATALOG_MIN = 25       # a store with fewer products in stock than this is left out (Oct 9, Bastien: Backcountry's 6 "isn't enough")
+CATALOG_MIN = 25       # a store with fewer products in stock than this is left out (Oct 8, Bastien: Backcountry's 6 "isn't enough")
 CATALOG_SKIP = set()   # stores to leave out of the catalog file by name
 SAVED_STORES = {"mec", "rei", "svp", "sportchek", "adidasca", "catalog"}   # from files Bastien brings: no file = no deals, never stale ones
 CATALOG_STORES = {"Sport Chek": ("sportchek", "https://www.sportchek.ca"), "Adidas": ("adidasca", "https://www.adidas.ca"),
@@ -1335,7 +1335,7 @@ def _catalog_size(label, width, group, gender):
     return norm_size(s)
 
 def _catalog_img(u):
-    """Card-sized photos (Oct 9): Running Warehouse sends 1799x2400 (158 KB; "&nw=400" = 400 px, 17 KB); Brooks (Salesforce
+    """Card-sized photos (Oct 8): Running Warehouse sends 1799x2400 (158 KB; "&nw=400" = 400 px, 17 KB); Brooks (Salesforce
     "dw/image") sends 58x58 thumbnails (sw/sh=58: blurry), asked at 400 px instead."""
     if not u:
         return u
@@ -1351,7 +1351,7 @@ def catalog_rows():
         return _catalog_rows()
 
 def catalog_download():
-    """The newest files uploaded at thegearfox.com/catalog.html (Supabase bucket "catalog", list in catalog_files; Oct 9),
+    """The newest files uploaded at thegearfox.com/catalog.html (Supabase bucket "catalog", list in catalog_files; Oct 8),
     up to 3, newest first, saved to temp files; older uploads are deleted from the bucket. [] when there's none."""
     import tempfile
     sb, key = os.environ.get("SUPABASE_URL", "").rstrip("/"), os.environ.get("SUPABASE_SECRET_KEY", "")
@@ -1437,7 +1437,7 @@ def _catalog_rows():
 CATALOG_COLS = ("Retailer", "Item", "Size", "Currency", "Regular price", "Current price", "Online availability", "Item ID")
 
 def catalog_validate(got, prods):
-    """Check a catalog file before it goes on the site (Oct 9, Bastien: "shouldn't you do a scan of the document before we
+    """Check a catalog file before it goes on the site (Oct 8, Bastien: "shouldn't you do a scan of the document before we
     publish it?"). Returns (problems: the file is not used, warnings: used but listed in the email, {store: [in stock, on sale]})."""
     hard, warn = [], []
     cols = set(got[0]) if got else set()
@@ -1493,7 +1493,7 @@ def scrape_catalog(retailer, st=None):
         if not now:
             continue
         name, iid = str(r.get("Item") or "").strip(), r.get("Item ID")
-        # one offer per colour (Oct 9, Bastien: links "showing stuff that isn't in stock"): the link and photo are that colour's,
+        # one offer per colour (Oct 8, Bastien: links "showing stuff that isn't in stock"): the link and photo are that colour's,
         # so a tap lands on a colour that has the size; the merge then shows each size at its best colour/price
         key = (iid, str(r.get("Colour") or "").strip().lower())
         p = prods.get(key)
@@ -1520,7 +1520,7 @@ def scrape_catalog(retailer, st=None):
             p["sizes"][size] = (now_c, reg_c)
     out = []
     for p in prods.values():
-        if not p["sizes"] or not p["img"]:          # no photo = not shown (Oct 9: text-only cards looked broken)
+        if not p["sizes"] or not p["img"]:          # no photo = not shown (Oct 8: text-only cards looked broken)
             continue
         sz = [[s, a, b_] for s, (a, b_) in p["sizes"].items()]
         out.append({"st": p["st"], "b": p["b"], "n": p["n"], "u": p["u"], "g": p["g"], "sx": p["sx"], "w": p["w"], "img": p["img"],
@@ -1529,7 +1529,7 @@ def scrape_catalog(retailer, st=None):
     return out
 
 def scrape_catalog_others():
-    """Every other store in the catalog file (Oct 9, Bastien: "build the reader for the stores so we can have their
+    """Every other store in the catalog file (Oct 8, Bastien: "build the reader for the stores so we can have their
     inventory"): GPT's file may hold Sports Experts, Atmosphere, Running Room, brand stores, Running Warehouse... Each one comes
     in on its own, named after its website: prices in CAD = a Canadian store (Canada side only); in USD = a US store (USA side
     only: we don't know it ships north). Other currencies are left out. Add a name to the site's STORES map for nicer cards."""
@@ -1592,9 +1592,9 @@ SHOPIFY_STORES = [
     ("bandit",         "https://banditrunning.com",          "gear"),
     ("tenthousand",    "https://www.tenthousand.cc",         "gear"),
     ("oiselle",        "https://www.oiselle.com",            "gear"),
-    ("2xu",            "https://ca.2xu.com",                 "gear"),   # Oct 9: 2xu.com is the Australian store (ships to AU only)
+    ("2xu",            "https://ca.2xu.com",                 "gear"),   # Oct 8: 2xu.com is the Australian store (ships to AU only)
     ("2xuus",          "https://us.2xu.com",                 "gear"),
-    # Canadian stores of US brands (Oct 9): their .com ships to the US only; the .com stays for the USA side
+    # Canadian stores of US brands (Oct 8): their .com ships to the US only; the .com stays for the USA side
     ("feeturesca",     "https://feetures.ca",                "socks"),
     ("balegaca",       "https://balega.ca",                  "socks"),
     ("stanceca",       "https://stance.ca",                  "socks"),
@@ -1789,7 +1789,7 @@ def make_shopify_scraper(st, base, kind):
         try:
             meta = get(f"{base}/meta.json", tries=2).json()
             home = (meta.get("currency") or "").upper() or None
-            ships = meta.get("ships_to_countries") or []   # Oct 9: 2xu.com (Australia only), Darn Tough, Balega, Nathan (US only)
+            ships = meta.get("ships_to_countries") or []   # Oct 8: 2xu.com (Australia only), Darn Tough, Balega, Nathan (US only)
         except Exception:
             pass
         # always ask for the store's Canadian market: the price and stock a Canadian visitor actually gets
@@ -1832,7 +1832,7 @@ STORES = {
     "sportinglife": scrape_sportinglife,
     "stampeak": scrape_stampeak,
     "mec": scrape_mec_saved,       # from pages you save (their sites block automated access)
-    "rei": lambda: scrape_catalog("REI") or scrape_rei_saved(),   # the catalog file (Oct 9: every size, with stock), else saved pages
+    "rei": lambda: scrape_catalog("REI") or scrape_rei_saved(),   # the catalog file (Oct 8: every size, with stock), else saved pages
     "sportchek": lambda: scrape_catalog("Sport Chek"),    # from the catalog file Bastien brings (blocks automated reads)
     "adidasca": lambda: scrape_catalog("Adidas"),
     "catalog": scrape_catalog_others,                     # every other store in the catalog file, each under its own name
@@ -2268,7 +2268,7 @@ def tidy_brand(b):
         return BRAND_ALIAS[k]
     if k in BRAND_CANON:
         return BRAND_CANON[k]
-    r = re.sub(r"(?<=\w)\s+(canada|ca|us|usa|united states)?(\s*outlet)?$", "", c, flags=re.I)   # a brand's regional store (Oct 9):
+    r = re.sub(r"(?<=\w)\s+(canada|ca|us|usa|united states)?(\s*outlet)?$", "", c, flags=re.I)   # a brand's regional store (Oct 8):
     if r and r != c:                                                                               # "2XU Canada Outlet", "Balega Ca"
         return tidy_brand(r)
     return c or b
@@ -2442,7 +2442,7 @@ def merge(offers):
         o["n"] = n
         if o.get("st") == "brainsport" and o["g"] == "shoes":   # "Fresh Foam X 880v15 Smoked Violet": the colour goes
             o["n"] = re.sub(r"(\b\d{3,4}v\d+)\s+(?!(?:GTX|Gore|Wide|Trail|Boa|BOA|SL)\b)[A-Za-z][A-Za-z ]*$", r"\1", o["n"])
-        if o.get("st") == "nordarun":   # norda's own store (Oct 9): "001A - M - Abyss", "000 - W - norda x Black Diamond/Kunzite"
+        if o.get("st") == "nordarun":   # norda's own store (Oct 8): "001A - M - Abyss", "000 - W - norda x Black Diamond/Kunzite"
             m = re.match(r"^(.*?)\s+-\s+([MWU])(?:\s+-\s+.*)?$", o["n"])
             if m:
                 o["n"] = m.group(1) + {"M": " - Men's", "W": " - Women's", "U": ""}[m.group(2)]
@@ -2664,7 +2664,7 @@ def main():
             if not got and st not in dict((x[0], 1) for x in SHOPIFY_STORES) and st not in SAVED_STORES:
                 raise RuntimeError("0 items")
             if not got and len(prev_offers.get(st, [])) >= 20 and st not in SAVED_STORES:   # a store rarely empties
-                # overnight: keep yesterday's. Not for saved pages / the catalog file: when they expire, their deals go (Oct 9)
+                # overnight: keep yesterday's. Not for saved pages / the catalog file: when they expire, their deals go (Oct 8)
                 raise RuntimeError(f"0 items today (had {len(prev_offers[st])})")
             n_sale = sum(1 for o in got if any(e[1] < e[2] * 0.99 for e in o["sz"]))
             return got, True, f"{st}: {len(got)} items ({n_sale} on sale) in {time.time()-t:.0f}s"

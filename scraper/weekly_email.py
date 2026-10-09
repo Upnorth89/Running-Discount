@@ -312,7 +312,7 @@ def build(p, sale, watch=None):
     lang = lang_of(p)
     shop = shop_link(p) + "&em=friday"      # Oct 8: visits from the Friday email show as "email-friday" in our analytics
     first = (p.get("name") or "").split(" ")[0] or tr(lang, "hi")
-    sale.sort(key=lambda d: (-d["fav"], not d.get("img"), -score(d), d["best"]))   # photo-less deals last (Oct 9)
+    sale.sort(key=lambda d: (-d["fav"], not d.get("img"), -score(d), d["best"]))   # photo-less deals last (Oct 8)
     sections, shown = [], 0
     order = [g for g in GROUP_LABEL if g in set(p.get("groups") or [])]
     for g in order:

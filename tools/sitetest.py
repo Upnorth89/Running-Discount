@@ -42,7 +42,7 @@ from urllib.parse import urlparse
 import requests
 from playwright.sync_api import sync_playwright
 
-LIVE = sys.argv[1].startswith("http")            # Oct 9: the noon check tests thegearfox.com itself (nothing is built)
+LIVE = sys.argv[1].startswith("http")            # Oct 8: the noon check tests thegearfox.com itself (nothing is built)
 SITE = None if LIVE else Path(sys.argv[1]).resolve()
 _cache = {}
 INSECURE = os.environ.get("SITETEST_INSECURE") == "1"   # only for a machine whose network proxy re-signs HTTPS (Claude's sandbox)
@@ -311,7 +311,7 @@ def site_flow(base, per, accented):
             return f"'{q}': {len(cs)}"
         check("Search a shoe model")(model_search, page)
 
-        def search_help():   # Oct 9: a typo gets "Did you mean", a store name offers its deals
+        def search_help():   # Oct 8: a typo gets "Did you mean", a store name offers its deals
             all_gear()
             page.fill("#dSearch", "saucny")
             settle(page, 1200)
@@ -326,7 +326,7 @@ def site_flow(base, per, accented):
             return f"'saucny' -> saucony: {n} deals"
         check("Search: did you mean")(search_help, page)
 
-        def report_link():   # Oct 9: "Wrong price or size?" on a card -> three reasons -> thanks
+        def report_link():   # Oct 8: "Wrong price or size?" on a card -> three reasons -> thanks
             all_gear()
             page.locator("#dealList .dw .rep").first.click()
             page.wait_for_selector("#dealList .repbox [data-repwhy]", timeout=3000)

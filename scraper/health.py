@@ -70,7 +70,7 @@ def big_discounts(offers):
 
 def check():
     problems = []   # (key, message)
-    # the catalog file (Sport Chek, adidas.ca, REI; Oct 9): a nudge the day before it runs out (3 days)
+    # the catalog file (Sport Chek, adidas.ca, REI; Oct 8): a nudge the day before it runs out (3 days)
     cat = sorted((Path(__file__).resolve().parents[1] / "saved-pages").glob("*.xlsx"))
     if cat:
         import subprocess
@@ -152,9 +152,9 @@ def check():
             problems.append((f"site:{c['name']}", f"Site test, {c['name']}: {c.get('why', 'failed')}"
                                                   + (" (critical: yesterday's site stays up)" if c.get("critical") else "")))
 
-    # featured deals checked on the store pages before publishing (scraper/featured_check.py, Oct 9)
+    # featured deals checked on the store pages before publishing (scraper/featured_check.py, Oct 8)
     fc = load(Path(os.environ.get("FEATURED", "/tmp/featured.json")))
-    # "Wrong price or size?" taps from visitors (site, Oct 9): analytics kind "error", detail "report|why|item|store|price"
+    # "Wrong price or size?" taps from visitors (site, Oct 8): analytics kind "error", detail "report|why|item|store|price"
     reports = []
     # sign-ups vs the free email plan
     sb, key = os.environ.get("SUPABASE_URL", "").rstrip("/"), os.environ.get("SUPABASE_SECRET_KEY", "")
@@ -221,7 +221,7 @@ def catalog_check():
 
 
 def catalog_spot():
-    """5 random sale deals from the catalog file, to tap and check (Oct 9: the file can't be checked by the robot)."""
+    """5 random sale deals from the catalog file, to tap and check (Oct 8: the file can't be checked by the robot)."""
     import random
     offers = load(SITE / "offers.json")
     pool = []

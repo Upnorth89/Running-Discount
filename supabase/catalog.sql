@@ -1,4 +1,4 @@
--- The Gear Fox: upload the daily GPT catalog file from thegearfox.com/catalog.html (Oct 9, 2026; Bastien: "have gpt do this
+-- The Gear Fox: upload the daily GPT catalog file from thegearfox.com/catalog.html (Oct 8, 2026; Bastien: "have gpt do this
 -- daily"). The file (Running_Gear_Catalog.xlsx, ~20 MB) goes to a private storage bucket instead of GitHub, so the code history
 -- doesn't grow by 20 MB a day. Only someone with the data page's private key (ana_settings.dashboard_key) can upload: files must
 -- go in a folder named after that key. Nobody can read or list the bucket from the site; the morning update reads it with the

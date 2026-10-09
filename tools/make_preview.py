@@ -6,7 +6,7 @@ server (nothing is saved or emailed), and a test panel to jump between situation
 
 Usage: python tools/make_preview.py OUT.html [--new "SELECTOR::What changed::How to see it" ...]
 
---new (Oct 9, Bastien: "when you do previews can you highlight a change so it sticks out"): every element matching the CSS
+--new (Oct 8, Bastien: "when you do previews can you highlight a change so it sticks out"): every element matching the CSS
 selector gets a bright dashed outline, and the panel lists the change with a "Show me" button (scrolls to it, or says how to
 get there). Always pass one --new per visible change.
 """

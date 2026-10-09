@@ -46,7 +46,7 @@ site/privacy.html        bilingual privacy page
 site/about.html          bilingual About page (Oct 3): Bastien's story + photo (bastien.jpg, Run Ridge Run 25K), what it does,
                          "How we make money" (affiliate disclosure), contact hello@thegearfox.com. Footer + privacy link to it.
 site/grab.html, grab.js  "Grab deals" bookmark for MEC/REI (Bastien saves their sale pages weekly)
-                         Phone version (Oct 9): after reading, the bookmark shows "Send to The Gear Fox" -> opens site/grab-save.html,
+                         Phone version (Oct 8): after reading, the bookmark shows "Send to The Gear Fox" -> opens site/grab-save.html,
                          which takes the list by postMessage (only from mec.ca/rei.com/svpsports.ca) and calls Supabase grab_save()
                          (supabase/grab.sql; same private key as stats.html, gf-stats-key) -> table grab_saves + starts a refresh.
                          scrape.py grab_saves() reads the last 10 days like saved-pages files. After editing grab.js: python tools/make_grab.py
@@ -137,7 +137,7 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   sizes, returning visit, shoe page) are retried once, then stop publishing (yesterday's site stays up). `tools/check.py` runs
   it too (locally: CHROMIUM=/opt/pw-browsers/chromium). When adding a feature, add its check to sitetest.py.
   First catch (Oct 5): after a heart, "My sizes"/Edit opened the email step instead of the sizes (`editSizes()`).
-- **Noon check** (`noon-check.yml`, `scraper/noon_check.py`, Oct 9; Bastien: "2 health runs a day and a midday lite check"): 18:53 UTC
+- **Noon check** (`noon-check.yml`, `scraper/noon_check.py`, Oct 8; Bastien: "2 health runs a day and a midday lite check"): 18:53 UTC
   (11:53am Vancouver), no store re-read: tools/sitetest.py in live mode (`sitetest.py https://thegearfox.com/ OUT`; files fetched over
   the web; failures re-run once, only twice-failed checks count) + featured_check.py on the live JSON. Emails ONLY when something is
   wrong ("Gear Fox noon check: N things to look at"); an ended featured sale also starts refresh.yml. SITETEST_INSECURE=1 = Claude's sandbox only.
@@ -229,7 +229,7 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   keeps the last good read) and the refresh loads /tmp/decathlon.json (`scrape_decathlon_saved`). Oct 8: even at night it says 429 after ~50
   pages, so the night read goes slice by slice (one page / 20 s, `cursor` + `links` in decathlon.json, list refreshed weekly,
   a product not re-read for 14 days drops); "updated" moves when 20+ pages were read. Honey Stinger off (blocks GitHub). MEC/REI: from saved pages only.
-  The Feed (Oct 9; its products.json answers "429 local_rate_limited", a per-address limit that GitHub's shared addresses hit;
+  The Feed (Oct 8; its products.json answers "429 local_rate_limited", a per-address limit that GitHub's shared addresses hit;
   morning reads failed twice in 2 days): read at night by runfree.yml job "thefeed" (`scrape.py --thefeed-night hist/thefeed.json`:
   a page every 10 s, waits Retry-After up to 15 times per page, slim copy of each product); the refresh downloads it to
   /tmp/thefeed.json (`THEFEED_FILE`) and uses it when under 36 h old, else reads live. Long term: The Feed's CJ affiliate product feed.
@@ -424,21 +424,21 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
 - Analytics kinds (Oct 8): the database drops any event kind not in `ana_kinds()` (store bar/Canadian/country were lost Oct 5–8);
   `tools/check.py` "Analytics events are all recorded" fails if the site sends one it doesn't list. New kind = SQL for Bastien.
   `load` = ms until the deals show (+ connection, data size); the funnel report shows load bands vs sizes picked.
-- Search help (Oct 9, Bastien: people searched "alphafly" and got nothing): `searchHelp()` in index.html. No deals in your sizes ->
+- Search help (Oct 8, Bastien: people searched "alphafly" and got nothing): `searchHelp()` in index.html. No deals in your sizes ->
   "Nothing in your size for X right now, but N in other sizes" + [Show all sizes] (`view.anySize`, reset on new text); a word that
   matches nothing -> "Did you mean …?" (`suggest()`: closest brand/model word in today's data, 1 typo under 7 letters, 2 above;
   "norda000" -> "norda 000"; "alphafly 4" -> the longest part that exists); a store's name -> [See every deal at Store]. Suggest,
   never auto-replace. Analytics: kind "search" with detail "any-size:"/"my-size:"/"did-you-mean:". Site test "Search: did you mean".
-- Catalog file (Oct 9; stores that block us: Bastien has GPT make Running_Gear_Catalog.xlsx and uploads it to saved-pages/ every
+- Catalog file (Oct 8; stores that block us: Bastien has GPT make Running_Gear_Catalog.xlsx and uploads it to saved-pages/ every
   2-3 days): `catalog_rows()` reads the newest .xlsx ("Products" + "Sizes & availability" sheets), ignored 3 days after its own
   "Observed (UTC)" time (CATALOG_MAX_DAYS). Only "In stock" sizes, no kids, adidas size words ("L/G", "XSTP", 'S/P 5"') tidied.
   Known stores: Sport Chek (`sportchek`), adidas.ca (`adidasca`), REI (USA, replaces REI saved pages when present). Any other store
   in the file comes in by itself (`scrape_catalog_others`, STORES key "catalog"; offers st "cat-<site>"): CAD = Canada side only,
   USD = USA side only (we don't know it ships north), other currencies skipped; names in index.html STORES (the GPT list is there).
-  Daily upload (Oct 9, Bastien: "have gpt do this daily"): thegearfox.com/catalog.html -> private Supabase bucket "catalog" (folder =
+  Daily upload (Oct 8, Bastien: "have gpt do this daily"): thegearfox.com/catalog.html -> private Supabase bucket "catalog" (folder =
   dashboard_key, storage policy) -> catalog_uploaded() records it in catalog_files and starts a refresh (supabase/catalog.sql). scrape.py
   catalog_download() uses the newest upload first (newest 3 kept), then saved-pages/*.xlsx. Keep daily files OUT of git (20 MB each).
-  Every file is checked before use (`catalog_validate`, Oct 9, Bastien: "scan the document before we publish"): refused when columns
+  Every file is checked before use (`catalog_validate`, Oct 8, Bastien: "scan the document before we publish"): refused when columns
   are missing, under 500 sizes in stock, <90% with a link, <80% with a photo, or >2% of prices wrong ($0 / above regular); then the
   next newest upload or saved-pages file is used. Warnings (still used): a store halved vs last file, 20%+ of a store's sale sizes
   70%+ off, links to several websites. Result in site/catalog-check.json -> morning email line + problems.
@@ -446,12 +446,12 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   (CATALOG_MIN); RW photos "&nw=400", Brooks dw/image sw/sh=400. Morning email: "Tap to check" 5 random catalog deals (catalog_spot).
   First file checked by hand on 9 random sale sizes: 9 right. SAVED_STORES expire (no keeping yesterday's deals). Health email:
   "Catalog file is N days old" the day before it runs out. No photos in the file (cards show text only).
-- Shipping countries (Oct 9, Bastien spotted 2XU: 2xu.com is the Australian store): the Shopify reader reads each store's
+- Shipping countries (Oct 8, Bastien spotted 2XU: 2xu.com is the Australian store): the Shopify reader reads each store's
   `ships_to_countries` (meta.json) every run; offers get `no_ca`/`no_us` and stay off that side ("*" = everywhere). Brands with
   separate Canadian stores are read twice (`2xu` ca.2xu.com + `2xuus` us.2xu.com; feeturesca, balegaca, stanceca, goodrca,
   nuunca, humaca). `tidy_brand` drops a regional suffix ("2XU Canada Outlet", "Balega Ca", "Stance US") after the alias lookup.
   2XU's FINAL_SALE rule removed (CA/US stores: only clearance is final). Details in STORES.md.
-- Accuracy + retention batch (Oct 9, Bastien: "I want the most accurate information for our users. This is where the trust happens"):
+- Accuracy + retention batch (Oct 8, Bastien: "I want the most accurate information for our users. This is where the trust happens"):
   `scraper/featured_check.py` (refresh.yml, before the shoe pages): the top 60 Canadian / 30 USA sale items by score are opened on the
   store's page (`livecheck.still_on_sale`, `us=True` on the USA side: CAD copy -> USD, 2% leeway, Shopify only); a sale that ended is
   taken out of sale/deals(-us).json before publishing; /tmp/featured.json -> health email "Accuracy: X of Y featured deals confirmed".
@@ -478,7 +478,7 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
 
 `python tools/make_preview.py OUT.html` builds a self-contained copy with today's data, a pretend server,
 and a test panel (new visitor, pretend confirmed, pretend a day passed, layout switches).
-**Always mark what changed** (Oct 9, Bastien: "highlight a change so it sticks out"): pass one `--new "SELECTOR::What changed::How to
+**Always mark what changed** (Oct 8, Bastien: "highlight a change so it sticks out"): pass one `--new "SELECTOR::What changed::How to
 see it"` per visible change (e.g. `--new '.sincebar::"Since your last visit" line::Pick sizes, then Pretend a day has passed'`).
 Matching parts get an orange dashed outline (toggle "Highlights on/off"), and the panel lists each change with "Show me". Publish it to the
 "Gear Fox Preview" artifact: https://claude.ai/artifact/WqbJ6uZF8eM2NqFAuxoL6K

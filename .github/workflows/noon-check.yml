@@ -1,6 +1,6 @@
 name: Noon check
 
-# Oct 9, 2026 (Bastien: "2 health runs a day and a midday lite check"): around noon Vancouver, no store re-read.
+# Oct 8, 2026 (Bastien: "2 health runs a day and a midday lite check"): around noon Vancouver, no store re-read.
 # The robot visitor test runs on the live site and today's featured deals are re-checked on the stores' own pages;
 # an email goes out only when something is wrong (scraper/noon_check.py). An ended sale starts a site update.
 on:

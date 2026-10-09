@@ -1,4 +1,4 @@
--- The Gear Fox: "Grab deals" from your phone (Oct 9, 2026; Bastien: "make me a grab deal for my phone").
+-- The Gear Fox: "Grab deals" from your phone (Oct 8, 2026; Bastien: "make me a grab deal for my phone").
 -- The bookmark reads MEC's / REI's running deals in your own browser, then "Send to The Gear Fox" opens
 -- thegearfox.com/grab-save.html, which hands the list to grab_save() here. It's kept 10 days (the scraper reads the
 -- newest per store, like a file in saved-pages/) and a site update starts right away (about 20 minutes).

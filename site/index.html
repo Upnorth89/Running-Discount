@@ -986,7 +986,7 @@ function gated(){return !(sub&&(sub.key||sub.pending))}     // first visit: size
 // "peek": sizes picked, no email yet: their top 6 deals show (clickable), then the email card (flow D only)
 let PEEK=!!LS.get("gf-peek");
 /* "Just show me deals" (Oct 6): browse every size before picking any; a note on top offers the sizes step */
-let BROWSE=!!LS.get("gf-browse")||(()=>{try{return !!new URLSearchParams(location.search).get("q")}catch(e){return false}})();   // a ?q= link (posts) opens straight on the item, no welcome screen (Oct 9)
+let BROWSE=!!LS.get("gf-browse")||(()=>{try{return !!new URLSearchParams(location.search).get("q")}catch(e){return false}})();   // a ?q= link (posts) opens straight on the item, no welcome screen (Oct 8)
 const peeking=()=>gated()&&FLOW==="D"&&((PEEK&&hasSizes())||BROWSE);
 function gateErr(msg,el){const e=$("gateErr");e.textContent=msg||"";e.classList.toggle("hidden",!msg);
   document.querySelectorAll("#sheet .need").forEach(x=>x.classList.remove("need"));
@@ -1192,7 +1192,7 @@ function shoePage(d){
   return m?{slug:sl,name:m.n}:null;
 }
 const shoeUrl=sl=>shoeDir()+sl+"/";
-/* Search help (Oct 9, Bastien: "how are people not finding alphafly", "should we have an autocorrect"): when a search
+/* Search help (Oct 8, Bastien: "how are people not finding alphafly", "should we have an autocorrect"): when a search
    finds nothing in your sizes, say how many are in other sizes (one tap shows them); a word that matches nothing gets
    "Did you mean …?" from the brands, model words and stores we carry; a store's name offers that store's deals. */
 let VOCAB=null;
@@ -1271,7 +1271,7 @@ let NARROW=false;   // only some categories picked (see renderAll)
 const view={fullPrice:false,sort:"match",q:"",open:{},watch:false,newAll:false,type:{},store:"",cdn:false,anySize:false};   // store: one shop only (Oct 5 preview)
 try{const st=(new URLSearchParams(location.search).get("store")||"").toLowerCase();if(STORES[st])view.store=st}catch(e){}   // ?store=altitude-sports.com
 try{if(new URLSearchParams(location.search).has("canadian"))view.cdn=true}catch(e){}   // ?canadian = Canadian brands only (Canada side)
-try{const q=(new URLSearchParams(location.search).get("q")||"").trim().slice(0,60);if(q){view.q=q;view.anySize=true;view.anyFit=true;$("dSearch").value=q}}catch(e){}   // ?q=nordlite ultra: opens on a search, every size (Oct 9: links in posts)
+try{const q=(new URLSearchParams(location.search).get("q")||"").trim().slice(0,60);if(q){view.q=q;view.anySize=true;view.anyFit=true;$("dSearch").value=q}}catch(e){}   // ?q=nordlite ultra: opens on a search, every size (Oct 8: links in posts)
 /* Canadian brands (Oct 7, Bastien): companies based in Canada, checked by hand. Not "made in Canada": most make their gear
    overseas, and the box above the deals says so. Stores' own lines only when they really are theirs (BlackToe/City Park
    Runners items are other brands). Keys: lower case, accents removed. Canada side only. */
@@ -1376,7 +1376,7 @@ function matchItems(p,list){
   return out;
 }
 const SORTS={
-  match:(a,b)=>(b.fav-a.fav)||(!a.img-!b.img)||(score(b)-score(a))||(a.best-b.best),   // Oct 9: deals without a photo (catalog file) go last
+  match:(a,b)=>(b.fav-a.fav)||(!a.img-!b.img)||(score(b)-score(a))||(a.best-b.best),   // Oct 8: deals without a photo (catalog file) go last
   price:(a,b)=>(a.best-b.best)||(b.pct-a.pct),
   discount:(a,b)=>(b.pct-a.pct)||(a.best-b.best)
 };
@@ -1510,7 +1510,7 @@ $("newBox").addEventListener("click",e=>{
   if(ar){const g=ar.parentNode.querySelector(".grid");g.scrollBy({left:(+ar.dataset.row)*g.clientWidth*0.8,behavior:"smooth"});return}
   if(e.target.closest("[data-newall]")){view.newAll=true;renderAll();const s=document.querySelector("#dealList .grp.new");if(s)s.scrollIntoView({block:"start"})}});
 $("filtBtn").addEventListener("click",()=>{const f=$("filtersBox"),o=!f.classList.contains("open");f.classList.toggle("open",o);$("filtBtn").setAttribute("aria-expanded",String(o))});
-/* "Wrong price or size?" (Oct 9): one tap opens three reasons; the answer goes to the morning health email (analytics "error",
+/* "Wrong price or size?" (Oct 8): one tap opens three reasons; the answer goes to the morning health email (analytics "error",
    detail "report|why|item|store|price"), so a wrong deal gets checked the same day */
 function repClick(e){
   const rp=e.target.closest("[data-rep]");if(rp){const box=document.createElement("div");box.className="repbox";box.dataset.k=rp.dataset.rep;
@@ -1645,7 +1645,7 @@ function renderWatchButton(){
   if(ch.length&&!view.watch){
     const drops=ch.filter(x=>!x.back).length,backs=ch.filter(x=>x.back).length;
     const txt=[drops?t("dropsTxt",drops):"",backs?t("backsTxt",backs):""].filter(Boolean).join(t("and"));
-    const ask=!(sub&&(sub.active||sub.pending))?`<button type="button" class="btn" id="emailNext">${t("emailNext")}</button>`:"";   // Oct 9: ask for the email when a heart drops
+    const ask=!(sub&&(sub.active||sub.pending))?`<button type="button" class="btn" id="emailNext">${t("emailNext")}</button>`:"";   // Oct 8: ask for the email when a heart drops
     box.innerHTML=CALM?`<span>${t("watchShort",drops,backs)}</span><button type="button" class="btn" id="seeWatch">${t("see")}</button>${ask}`
       :`<span><b>${t("goodNews")}</b> ${txt}.</span><button type="button" class="btn" id="seeWatch">${t("seeThem")}</button>${ask}`;
     if(ask)$("emailNext").addEventListener("click",()=>{ana("signup-step","drop-ask");step=2;openSheet();$("panel").scrollTop=0});
@@ -1696,7 +1696,7 @@ let clicks=(()=>{const c=LS.get("gf-clicks")||{},cut=Date.now()-TALLY_DAYS*864e5
 LS.set("gf-clicks",clicks);
 const tally=()=>Object.values(clicks).reduce((a,v)=>a+v.off,0);
 function recordClick(k){const d=RENDERED[k];if(!d||!d.pct||clicks[k])return;clicks[k]={off:Math.round((d.reg-d.best)*100)/100,at:Date.now(),p:d.best};LS.set("gf-clicks",clicks)}
-/* Since your last visit (Oct 9, Bastien: retention): on a return (6 h+), one line on top: new deals in your size, and deals you
+/* Since your last visit (Oct 8, Bastien: retention): on a return (6 h+), one line on top: new deals in your size, and deals you
    opened that are cheaper now ("Clifton 10 −$20"). Built from what this device already keeps (gf-base, gf-clicks). */
 function sinceBar(all){const base=LS.get("gf-base");if(!base||!base.at)return "";
   const byK={};all.forEach(d=>byK[itemKey(d)]=d);
@@ -1770,7 +1770,7 @@ function renderAll(){
   NARROW=p.groups.length===1;
   if(!q.length&&!NARROW&&!view.store){const ns=section("__new",t("secNew"),onSale.filter(d=>NEWSET.has(itemKey(d))).sort(SORTS[view.sort]),"new");
     if(CALM&&NEWSTYLE==="row"&&!view.newAll)$("newBox").innerHTML=ns;else parts.push(ns)}
-  // Oct 9: until someone picks that size, Top deals skip items left only in rare sizes (an XS-only hoodie at #2)
+  // Oct 8: until someone picks that size, Top deals skip items left only in rare sizes (an XS-only hoodie at #2)
   const commonFit=d=>!d.any||(APPAREL_GROUPS.includes(d.g)?d.ok.some(e=>["S","M","L","XL"].includes(norm(e[0])))
     :d.g==="shoes"?d.ok.some(e=>{const k=shoeKey(e[0]);return k&&+k.n>=7&&+k.n<=12}):true);
   const top=shoesFirst(onSale.filter(commonFit).sort(SORTS[view.sort]));

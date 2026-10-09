@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Noon check (Oct 9, 2026; Bastien: "2 health runs a day and a midday lite check").
+"""Noon check (Oct 8, 2026; Bastien: "2 health runs a day and a midday lite check").
 
 No store is re-read. Around noon Vancouver it:
   1. runs the robot visitor test (tools/sitetest.py) on the LIVE site, twice when something fails (a network blip on one try

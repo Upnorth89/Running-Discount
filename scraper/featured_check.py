@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Featured deals, checked on the store's own page before the site goes live (Oct 9, 2026; Bastien: "I want the most
+"""Featured deals, checked on the store's own page before the site goes live (Oct 8, 2026; Bastien: "I want the most
 accurate information for our users. This is where the trust happens").
 
 The deals most people see (the welcome screen's shoes, Top deals, the first rows of each category, the Friday email's

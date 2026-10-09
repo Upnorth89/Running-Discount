@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuild the "Grab deals" bookmark in site/grab.html from site/grab.js (Oct 9, 2026: phone version).
+"""Rebuild the "Grab deals" bookmark in site/grab.html from site/grab.js (Oct 8, 2026: phone version).
 
 The drag-to-bar button (computers) and the "Copy the bookmark" box (phones) both carry grab.js as a javascript: link.
 Run after any change to grab.js:   python tools/make_grab.py

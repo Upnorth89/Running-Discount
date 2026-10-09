@@ -57,7 +57,7 @@ def _page(url, price):
 
 
 def still_on_sale(url, price, variant=None, us=False):
-    """us=True (the USA side, Oct 9): price is in USD converted back from our CAD copy, so allow 2%; only Shopify shops can
+    """us=True (the USA side, Oct 8): price is in USD converted back from our CAD copy, so allow 2%; only Shopify shops can
     be checked that way (another page has to show the exact price string)."""
     try:
         if "/products/" in url:
