@@ -1684,6 +1684,16 @@ def catalog_validate(got, prods):
             warn.append(f"{ret}: links go to several websites ({', '.join(d for d, _ in doms.most_common(3))})")
     return hard, warn, stores
 
+def catalog_gender(name, col):
+    """The product name wins over the file's Gender column (Oct 9: 46 Sport Chek rows like "Nike Women's Run Pacer Gloves"
+    were marked Men)."""
+    w, m = re.search(r"\bwom[ae]n[’']?s?\b", name, re.I), re.search(r"(?<!wo)\bmen[’']?s?\b", name, re.I)
+    if w and not m:
+        return ["women"]
+    if m and not w:
+        return ["men"]
+    return {"Men": ["men"], "Women": ["women"], "Unisex": ["men", "women"]}.get(col, [])
+
 def scrape_catalog(retailer, st=None):
     """One retailer's products from the catalog file, in the offers format (prices in CAD)."""
     st = st or CATALOG_STORES[retailer][0]
@@ -1716,7 +1726,7 @@ def scrape_catalog(retailer, st=None):
                         and str(v or "").startswith("https://")), None)   # that colour's photo (the size row's), else the product's
             img = _catalog_img(img)
             p = prods[key] = {"st": st, "b": info.get("Brand") or "", "n": name, "u": url, "g": g, "fx": fx, "gender": g_,
-                              "sx": {"Men": ["men"], "Women": ["women"], "Unisex": ["men", "women"]}.get(g_, []),
+                              "sx": catalog_gender(name, g_),
                               "w": False, "img": img, "bb": None, "sizes": {}}
         size = _catalog_size(r.get("Size"), r.get("Width / fit"), p["g"], g_)
         now_c, reg_c = round(float(now) * p["fx"], 2), round(max(float(reg or now), float(now)) * p["fx"], 2)
