@@ -515,6 +515,14 @@ def site_flow(base, per, accented):
             rows = page.locator("table tr").count()
             assert rows >= 2, f"the shoe page {href} has no price table"
             assert re.search(r"\$\s?\d", page.inner_text("body")), f"the shoe page {href} shows no price"
+            # Oct 8: the 4:17pm update printed tomorrow's (UTC) date, "checked Oct. 9" on Oct 8: never later than today in Vancouver
+            m = re.search(r"checked ([A-Z][a-z]+)\.? (\d+)", page.inner_text("body"))
+            if m:
+                from zoneinfo import ZoneInfo
+                today = datetime.now(ZoneInfo("America/Vancouver")).date()
+                mon = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"].index(m.group(1)[:3]) + 1
+                shown = today.replace(month=mon, day=int(m.group(2))) if (mon, int(m.group(2))) <= (12, 31) else today
+                assert not (shown > today and (shown - today).days < 300), f"the shoe page says 'checked {m.group(1)} {m.group(2)}', later than today in Vancouver ({today:%b %-d})"
             return f"{href}: {rows - 1} rows"
         check("Shoe page from a card", critical=True)(shoe_page, page)
 
