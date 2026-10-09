@@ -20,6 +20,7 @@ import sys
 from collections import defaultdict
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 from urllib.parse import urlparse, urlencode, parse_qsl, urlunparse, quote
 
 BASE = "https://thegearfox.com"
@@ -315,8 +316,11 @@ def final_sale(d, e):
     return True if c == 1 else e[1] < reg * 0.99 if c == 2 else reg > 0 and 100 * (1 - e[1] / reg) >= c - 0.5
 
 
+HOME_TZ = ZoneInfo("America/Vancouver")   # Oct 8: the 4:17pm update is already "tomorrow" in UTC ("checked Oct 9" on Oct 8)
+
+
 def fmt_date(iso, L):
-    dt = datetime.fromisoformat(iso.replace("Z", "+00:00")) if iso else datetime.now(timezone.utc)
+    dt = (datetime.fromisoformat(iso.replace("Z", "+00:00")) if iso else datetime.now(timezone.utc)).astimezone(HOME_TZ)
     return L["date"](dt.day, L["months"][dt.month - 1])
 
 
@@ -893,7 +897,7 @@ def main():
                f'<a class="btn" href="/?ref=black-friday{"&lang=fr" if L is T["fr"] else ""}">{L["ctaBtn"]}</a></section>')
         p = site / L["bfDir"] / "index.html"
         p.parent.mkdir(parents=True, exist_ok=True)
-        today = datetime.fromisoformat(updated.replace("Z", "+00:00")).date() if updated else datetime.now(timezone.utc).date()
+        today = (datetime.fromisoformat(updated.replace("Z", "+00:00")) if updated else datetime.now(timezone.utc)).astimezone(HOME_TZ).date()
         bf = black_friday(today.year if today <= black_friday(today.year) + timedelta(days=4) else today.year + 1)
         if bf - timedelta(days=7) <= today <= bf + timedelta(days=4):     # Black Friday week to Cyber Monday: the real deals
             p.write_text(list_page(L, "/black-friday/", "/vendredi-fou/", L["bfTitle"], L["bfH1"], L["bfIntro"], bf_rows, brands, cta))
