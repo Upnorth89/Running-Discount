@@ -148,6 +148,7 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   run (7am+ local, once each). GitHub skipped all scheduled Friday runs on Oct 2: Supabase timer (friday-timer.sql).
   Profile `terrain` (road/trail/both, sign-up "Where do you run?"): the email keeps only that kind of shoes
   (road = daily+race, trail = trail+hike); the site ranks them first (`terrainFit`), spikes excluded.
+  No nutrition deals in the Friday email (Oct 9, Bastien); hearted nutrition still gets watchlist news.
   First Friday email (no `weekly_sent_at` yet) shows a note: Gmail → drag to Primary; others → add us to contacts.
 - **Alerts**: at most one email per person every 3 days, only real drops (10% or $10), none on Fridays
   (the Friday email carries watchlist news).
