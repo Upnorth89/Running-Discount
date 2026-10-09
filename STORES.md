@@ -312,7 +312,7 @@ Stores with under 25 products in stock are left out. Numbers from the Oct 8b fil
 | Store | Side | Products | On sale |
 |---|---|---|---|
 | Running Warehouse (runningwarehouse.com) | USA | 5,955 | 1,655 |
-| Running Free (runningfree.com) | Canada (Ontario) | 2,505 | 1,090 |
+| Running Free (runningfree.com) | Canada (Ontario) | 2,505 | 1,090 | (Oct 9: own night reader built; the file's rows are skipped while it's fresh) |
 | Zappos (zappos.com) | USA | 1,261 | 616 |
 | Brooks (brooksrunning.com) | Canada | 196 | 8 |
 | New Balance (newbalance.ca) | Canada | 199 | 0 |

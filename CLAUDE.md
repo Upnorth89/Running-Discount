@@ -236,6 +236,17 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   /tmp/thefeed.json (`THEFEED_FILE`) and uses it when under 36 h old, else reads live. Long term: The Feed's CJ affiliate product feed.
   SVP Sports (Oct 4, Québec chain, Shopify behind Cloudflare): saved pages too: the Grab deals bookmark on any SVP collection
   saves its products.json (svp-DATE.json, `scrape_svp_saved`); expires after 10 days like MEC/REI. PARKED Oct 6 (mostly soccer/budget shoes): out of STORES, no reminders.
+- Running Free (Oct 9; Ontario chain, own shop system, no feed): `runningfree_night` in scrape.py, runfree.yml job "runningfree"
+  (~2 h, one page every 30 s = its robots.txt Crawl-delay). Listing pages (96 a page) of the men's/women's sections give name,
+  "Mens Black" gender+colour, photo, regular + sale price; size filter pages ("10-Regular-66612", "Medium-45397") list only what's
+  in stock in that size (checked against product pages). Saved to runningfree.json on the history branch; the refresh downloads it
+  (`RUNNINGFREE_FILE`, fresh = under 36 h). While fresh, the catalog file's Running Free rows are skipped. Short brands `RF_SHORT`
+  (NB, SW, TNF, PI). Waist sizes (Size-28…) and shoe-drop filters (4mm…) are not read.
+- Shoe sizes (Oct 9, Bastien: "we aren't pulling shoes that have European sizing?"): 2,476 shoe listings had no readable size.
+  Fixed: Shopify option "US Size" (The Trail Runner Store, ~1,100), width first "D / 9.0" (Frontrunners; `canon_shoe(label, women)`),
+  US+EU labels ("10.0 (43)", "EU 43 (US 10)", "42.5 (9.5US)"), "9 M / 10.5 W". EU-only sizes ("42", "38.5 EU": La Sportiva,
+  Vibram) take the US size from today's labels that carry both for the same brand and gender (`eu_size`, `eu_only`, table in
+  merge); when stores disagree (La Sportiva women's 39-41.5) the size stays unread. No guessing.
 - Run Uphill / Ski Uphill (Oct 7; runuphill.ca = skiuphill.ca, Canmore + Squamish): half ski touring, filtered by NOT_RUNNING ski words
   (skis, bindings, skins, helmets, goggles except goodr "Donkey Goggles", glide wax, airbags). Its "Size (US M)" options count as sizes (SIZE_OPT).
   Checked and skipped Oct 7: Deadstock (sneaker/streetwear, ~24 running shoes). Amazon: no scraping; only via Associates + API (needs 3 sales

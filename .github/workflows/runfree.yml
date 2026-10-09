@@ -13,7 +13,7 @@ on:
         type: boolean
         default: false
       only:
-        description: "Run only this read (all, runfree, decathlon, thefeed)"
+        description: "Run only this read (all, runfree, decathlon, thefeed, runningfree)"
         default: "all"
 
 permissions:
@@ -98,6 +98,38 @@ jobs:
           git add thefeed.json
           git diff --cached --quiet && exit 0
           git commit -q -m "thefeed $(TZ=America/Vancouver date +%F)"
+          for i in 1 2 3 4; do git pull -q --rebase origin history && git push -q origin HEAD:history && exit 0; sleep $((i * 5)); done
+          exit 1
+
+  # Running Free (Oct 9, 2026; Ontario chain, own shop system, no feed): its listing and size pages, one every 30 s as its
+  # robots.txt asks (about 2 hours). If it doesn't finish, the last good copy stays.
+  runningfree:
+    needs: check
+    if: needs.check.outputs.skip != 'true' && (inputs.only == '' || inputs.only == null || inputs.only == 'all' || inputs.only == 'runningfree')
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r scraper/requirements.txt
+      - uses: actions/checkout@v4
+        with:
+          ref: history
+          path: hist
+      - name: Read Running Free slowly
+        run: python scraper/scrape.py --runningfree-night hist/runningfree.json
+      - name: Save to the history branch
+        if: success()
+        run: |
+          cd hist
+          git config user.name "The Gear Fox"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          [ -f runningfree.json ] || exit 0
+          git add runningfree.json
+          git diff --cached --quiet && exit 0
+          git commit -q -m "runningfree $(TZ=America/Vancouver date +%F)"
           for i in 1 2 3 4; do git pull -q --rebase origin history && git push -q origin HEAD:history && exit 0; sleep $((i * 5)); done
           exit 1
 

@@ -116,10 +116,31 @@ def _us(n):
         return None
     return str(int(v)) if v == int(v) else str(v)
 
-def canon_shoe(label):
+def canon_shoe(label, women=False):
     t = str(label or "").strip().replace("½", ".5")
     if not t or t.upper() in ("OS", "ONE SIZE"):
         return ["OS"]
+    # Oct 9: US and EU in one label: keep the US part. "10.0 (43)", "7.5+ (39.0 EU)", "12.5 (EU 46)" (Le Coureur Nordique,
+    # Confluence); "EU 43 (US 10)", "EU 42/US 9", "EU 38 (US M5.5 / W6.5)" (Cowichan, NNormal); "US 7M / 9W / EU 40"
+    m = re.match(r"(?i)^\s*eu\s*\d\d(?:[.,]\d)?(?:\s*[12]/3)?\s*[(/]\s*(us\b.*?)\)?\s*$", t)
+    if m:
+        t = m.group(1)
+    m = re.match(r"(?i)^\s*\d\d(?:[.,]\d)?(?:\s*[12]/3)?\s*\(\s*(?:us\s*)?(\d+(?:\.\d)?\+?)\s*us\s*\)\s*$", t)
+    if m:
+        t = m.group(1)            # "42.5 (9.5US)", "39 (7.5+US)" (The Trail Runner Store, La Sportiva)
+    t = re.sub(r"(?i)\s*\(\s*(?:eu\s*)?\d\d(?:[.,]\d)?(?:\s*[12]/3)?(?:\s*eu)?\s*\)", "", t)
+    t = re.sub(r"(?i)\s*/\s*(?:eu|uk)\s*\d+(?:[.,]\d)?(?:\s*[12]/3)?\s*$", "", t).strip()
+    # width first: "D / 9.0", "4E / 9.5", "B / 7.0" (Frontrunners); men's D and women's B are regular, women's D wide
+    m = re.match(r"(?i)^(2a|aa|b|d|2e|ee|4e|6e)\s*/\s*(\d+(?:\.\d)?)$", t)
+    if m:
+        w = m.group(1).lower()
+        wide = w in ("2e", "ee", "4e", "6e") or (women and w == "d")
+        narrow = w in ("2a", "aa") or (not women and w == "b")
+        t = m.group(2) + (" Wide" if wide else " Narrow" if narrow else "")
+    # "9 M / 10.5 W", "4.5 M / 6W" (Lems), "US 7M / 9W"
+    m = re.match(r"(?i)^(?:us\s*)?(\d+(?:\.\d)?)\s*m\s*/\s*(\d+(?:\.\d)?)\s*w$", t)
+    if m:
+        return [k for k in ("M:" + (_us(m.group(1)) or ""), "W:" + (_us(m.group(2)) or "")) if len(k) > 2]
     low = t.lower()
     if re.search(r"\d\s*k\b|\bkids?\b|\byouth\b|\btoddler\b|\binfant\b|\d+\s+\d/\d", low):
         return []                                           # kids' sizes, EU/UK fractions
@@ -151,6 +172,181 @@ def canon_shoe(label):
         v = _us(m.group(1))
         return [v + width] if v else []
     return []
+
+EU_NUM = r"(3[5-9]|4[0-9]|50)(?:[.,](0|5))?(?:\s*([12])/3)?"
+
+def _eu_key(m):
+    return m.group(1) + (".5" if m.group(2) == "5" else "") + (f" {m.group(3)}/3" if m.group(3) else "")
+
+def eu_size(label):
+    """The EU size inside a label that also has the US size ("EU 43 (US 10)", "10.0 (43)", "US 7M / 9W / EU 40"), else None."""
+    t = str(label or "")
+    m = (re.search(r"(?i)\beu\s*" + EU_NUM + r"\b", t) or re.search(r"(?i)\b" + EU_NUM + r"\s*eu\b", t)
+         or re.search(r"\(\s*" + EU_NUM + r"\s*\)", t) or re.match(r"(?i)^\s*" + EU_NUM + r"\s*\([^)]*us\s*\)", t))
+    return _eu_key(m) if m else None
+
+def eu_only(label):
+    """A label that is only an EU size ("42", "42.5", "38.5 EU", "EU 44", "42 2/3", "43 Wide") -> (EU key, width suffix)."""
+    t = str(label or "").strip()
+    width = "~W" if re.search(r"(?i)\bwide\b", t) else "~N" if re.search(r"(?i)\bnarrow\b", t) else ""
+    t = re.sub(r"(?i)\b(regular|medium|standard|wide|narrow)\b", "", t).strip(" /-")
+    m = re.fullmatch(r"(?i)(?:eu\s*)?" + EU_NUM + r"(?:\s*eu)?", t)
+    return (_eu_key(m), width) if m else None
+
+# ---------------------------------------------------------------- Running Free (Ontario chain, own shop system)
+# Oct 9, 2026 (Bastien: "Try making our own reader for running free"). No product feed, but its listing pages show each product's
+# name, photo, regular and sale price, and its size filter pages ("10 Regular", "Medium") list only what's in stock in that size
+# (checked: a crop left in Small only shows under Small, not Medium). robots.txt allows all but asks for 30 s between pages,
+# so it's read at night (runfree.yml job "runningfree", ~2 h), saved to runningfree.json on the history branch; the refresh
+# downloads it to RUNNINGFREE_FILE. While that copy is fresh, the catalog file's Running Free rows are left out.
+RF_BASE = "https://www.runningfree.com"
+RF_ROOTS = {"men": "All-Mens-66507", "women": "All-Womens-66508"}
+RF_DELAY = 30                      # robots.txt Crawl-delay
+RUNNINGFREE_FILE = os.environ.get("RUNNINGFREE_FILE", "/tmp/runningfree.json")
+RF_CLOTH = {"XXSmall": "2XS", "XSmall": "XS", "Small": "S", "Medium": "M", "Large": "L", "XLarge": "XL", "XXLarge": "2XL",
+            "XXXLarge": "3XL"}
+RF_SHORT = {"NB": "New Balance", "SW": "Smartwool", "TNF": "The North Face", "PI": "Pearl Izumi", "UA": "Under Armour"}
+RF_SHOE = re.compile(r"^(\d+)(-5)?-(Regular|Narrow|Wide|XWide|XXWide)-\d+$")
+_rf_last = [0.0]
+
+
+def _rf_get(path):
+    """One page, never sooner than 30 s after the last one."""
+    wait = _rf_last[0] + RF_DELAY - time.time()
+    if wait > 0:
+        time.sleep(wait)
+    for t in range(3):
+        _rf_last[0] = time.time()
+        try:
+            r = S.get(f"{RF_BASE}/products/{path}", headers={"User-Agent": "Mozilla/5.0 (compatible; TheGearFox/1.0; +https://thegearfox.com/about.html)"},
+                      timeout=60)
+            if r.status_code == 200:
+                return r.text
+            print(f"  runningfree: {path} HTTP {r.status_code}", file=sys.stderr)
+            if r.status_code in (403, 429):
+                raise RuntimeError(f"Running Free said no (HTTP {r.status_code})")
+        except requests.RequestException as e:
+            print(f"  runningfree: {path} {type(e).__name__}", file=sys.stderr)
+        time.sleep(RF_DELAY * (t + 2))
+    return None
+
+
+def _rf_cards(h):
+    """Listing page -> {product id: card}."""
+    out = {}
+    for blk in h.split('<div class="prodPreview')[1:]:
+        m = re.search(r'href="(/products/[^"?]*?-p(\d+)/)', blk)
+        nm = re.search(r'class="ellipsis prodName">\s*<a[^>]*>(.*?)<br\s*/?>\s*<span>(.*?)</span>', blk, re.S)
+        if not (m and nm):
+            continue
+        reg = re.search(r'class="prodPrice"[^>]*>\s*\$\s*([\d,]+\.\d\d)', blk)
+        sale = re.search(r'class="prodPriceSale".*?\$\s*([\d,]+\.\d\d)', blk, re.S)
+        img = re.search(r'<img[^>]+src="([^"]+)"', blk)
+        if not reg:
+            continue
+        lp = float(reg.group(1).replace(",", ""))
+        out[m.group(2)] = {"path": m.group(1), "name": html_lib.unescape(re.sub(r"<[^>]+>", "", nm.group(1))).strip(),
+                           "aux": html_lib.unescape(re.sub(r"<[^>]+>", "", nm.group(2))).strip(), "lp": lp,
+                           "price": float(sale.group(1).replace(",", "")) if sale else lp,
+                           "img": (RF_BASE + img.group(1)) if img and img.group(1).startswith("/") else (img.group(1) if img else None)}
+    return out
+
+
+def _rf_pages(path):
+    """Every page of one listing (96 a page)."""
+    h = _rf_get(f"{path}/?pp=96")
+    if h is None:
+        raise RuntimeError(f"Running Free: {path} didn't load")
+    yield h
+    m = re.search(r"\(page 1 of (\d+)\)", h)
+    for n in range(2, min(int(m.group(1)) if m else 1, 60) + 1):
+        h = _rf_get(f"{path}/{n}/?pp=96")
+        if h is None:
+            raise RuntimeError(f"Running Free: {path} page {n} didn't load")
+        yield h
+
+
+def runningfree_night(out, hours=4.5):
+    """Read Running Free slowly (a page every 30 s): every product of the men's and women's sections, then every size page."""
+    start, prods, brands = time.time(), {}, set()
+    for gender, root in RF_ROOTS.items():
+        sizes = []
+        for i, h in enumerate(_rf_pages(root)):
+            if i == 0:
+                slugs = set(re.findall(rf'href="/products/{root}/([A-Za-z0-9-]+-\d+)/"', h))
+                sizes = sorted(x for x in slugs if RF_SHOE.match(x) or x.rsplit("-", 1)[0] in RF_CLOTH)
+                brands |= {x.rsplit("-", 1)[0].replace("-", " ") for x in slugs if x not in sizes}
+            for pid, c in _rf_cards(h).items():
+                prods.setdefault(pid, c | {"roots": [], "sizes": []})
+                if gender not in prods[pid]["roots"]:
+                    prods[pid]["roots"].append(gender)
+        print(f"  runningfree: {gender}: {len(prods)} products so far, {len(sizes)} sizes", file=sys.stderr)
+        for slug in sizes:
+            if time.time() - start > hours * 3600:
+                raise RuntimeError("Running Free: out of time for tonight (the last good copy stays)")
+            m = RF_SHOE.match(slug)
+            if m:
+                label = m.group(1) + (".5" if m.group(2) else "") + ("" if m.group(3) == "Regular" else " " + m.group(3).replace("XX", "X"))
+            else:
+                label = RF_CLOTH[slug.rsplit("-", 1)[0]]
+            for h in _rf_pages(f"{root}/{slug}"):
+                for pid, c in _rf_cards(h).items():
+                    p = prods.setdefault(pid, c | {"roots": [gender], "sizes": []})
+                    p["price"] = min(p["price"], c["price"])
+                    p["sizes"].append([gender, label, bool(m)])
+    Path(out).write_text(json.dumps({"updated": now(), "brands": sorted(brands), "prods": prods}, separators=(",", ":")))
+    print(f"runningfree night read: {len(prods)} products, {sum(len(p['sizes']) for p in prods.values())} sizes in stock "
+          f"in {(time.time() - start) / 60:.0f} min -> {out}", file=sys.stderr)
+    return 0
+
+
+def _rf_fresh():
+    try:
+        d = json.loads(Path(RUNNINGFREE_FILE).read_text())
+        return (dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(d["updated"])).total_seconds() < 36 * 3600 and d
+    except Exception:
+        return None
+
+
+def scrape_runningfree():
+    d = _rf_fresh()
+    if not d:
+        raise RuntimeError("no Running Free night copy from the last 36 h")
+    brands = sorted(d["brands"], key=len, reverse=True)
+    out = []
+    for pid, p in d["prods"].items():
+        name, aux = p["name"], p["aux"]
+        if re.search(r"\b(kids?|youth|junior|boys?|girls?|toddler|infant)\b", f"{name} {aux}", re.I):
+            continue
+        first, rest = (name.split(" ", 1) + [""])[:2]
+        if first in RF_SHORT:           # "NB 880 v15", "SW Merino Sport", "TNF", "PI"
+            b, model = RF_SHORT[first], rest
+        else:
+            b = next((x for x in brands if name.lower().startswith(x.lower() + " ")), "")
+            b, model = (b, name[len(b):].strip()) if b else (first, rest)   # a brand not in the filter list: its first word
+        sx = ["men"] if re.match(r"(?i)men[’']?s?\b", aux) else ["women"] if re.match(r"(?i)(wom[ae]n[’']?s?|wmns)\b", aux) else []
+        shoe = [x for x in p["sizes"] if x[2]]
+        cloth = [x for x in p["sizes"] if not x[2]]
+        g = generic_group("gear")({"title": f"{b} {model}", "product_type": ""})
+        if shoe and not cloth:
+            g = "shoes" if g in (None, "shoes", "gear") else g
+        if g is None or (g == "shoes" and not shoe):
+            continue
+        if g == "shoes":
+            sz = [(lab if sx else ("M " if gen == "men" else "W ") + lab) for gen, lab, _ in shoe]
+        elif cloth:
+            sz = [lab for _, lab, _ in cloth]
+        elif g in ("gear", "packs", "nutrition", "headwear", "watches") and not (b.lower() in SHOE_BRANDS and g == "nutrition"):
+            sz = ["OS"]                 # one size: in no size page ("Gel Cumulus" with no size left is a shoe, not a gel)
+        else:
+            continue
+        nm = model + {"men": " - Men's", "women": " - Women's"}.get(sx[0] if sx else "", "")
+        out.append({"st": "runningfree", "b": b, "n": nm, "u": RF_BASE + p["path"], "g": g, "sx": sx, "w": False,
+                    "img": p.get("img"), "lp": p["lp"], "bb": None, "ca": True, "no_us": True,
+                    "sz": [[s, p["price"], p["lp"], None] for s in dict.fromkeys(sz)]})
+    print(f"  runningfree: night copy from {d['updated']}: {len(out)} products", file=sys.stderr)
+    return out
+
 
 # ---------------------------------------------------------------- Altitude / Last Hunt (same Next.js + commercetools platform)
 
@@ -620,7 +816,8 @@ def shopify_products(base, max_pages=40, cookies=None):
         page += 1
     return prods
 
-SIZE_OPT = re.compile(r"^(size|taille|pointure|shoe size)( ?\([^)]*\))?$", re.I)   # "Size (US M)" (Ski Uphill)
+SIZE_OPT = re.compile(r"^((us|eu|uk|men'?s|women'?s|mens|womens|shoe)\s+)?(size|taille|pointure)(\s+(us|eu|uk))?( ?\([^)]*\))?$", re.I)
+# "Size (US M)" (Ski Uphill); "US Size" (The Trail Runner Store: 1,300 shoes had no readable size until Oct 9)
 WIDTH_OPT = re.compile(r"^(width|shoe width|shoe fit|fit|largeur)$", re.I)
 
 def width_word(w, title):
@@ -1539,6 +1736,8 @@ def scrape_catalog_others():
         ret = r.get("Retailer")
         if re.sub(r"\W", "", str(ret or "").lower()) in CATALOG_SKIP:
             continue
+        if re.sub(r"\W", "", str(ret or "").lower()) == "runningfree" and _rf_fresh():
+            continue                    # our own night read is fresher than the file (Oct 9)
         if ret and ret not in CATALOG_STORES and ret not in by:
             by[ret] = r
     out = []
@@ -1840,6 +2039,7 @@ STORES = {
     "decathlon": lambda: scrape_decathlon_saved(),    # read at night, slowly (runfree.yml): Decathlon blocked GitHub's daytime reads
     # "backcountry": off (Oct 6): its bot protection answers GitHub's servers "202, empty"; reader kept for a feed
     "footlocker": scrape_footlocker,
+    "runningfree": scrape_runningfree,   # read at night, a page every 30 s (its robots.txt); Oct 9
 }
 # Final sale (Oct 4, 2026; read from each store's return policy, recheck now and then): 1 = every item is final sale,
 # 2 = every item bought on sale is final, N > 2 = final from N% off. Items a store tags "Final sale" count too (offer "fs").
@@ -2577,6 +2777,16 @@ def merge(offers):
     for o in tidied:          # models a store names with Trail/Road but without "running" ("Ghost Trail - Men's")
         if o["g"] == "shoes" and re.search(r"\b(trail|road)\b", o["n"], re.I) and not re.search(r"\brunning\b", o["n"], re.I):
             _TRAIL_MODELS.add((o["b"].lower().strip(), _shoe_name(o, True)))
+    # Oct 9: shoes listed in EU sizes only ("42", "38.5 EU": La Sportiva, Vibram, Vivobarefoot) used to be dropped. Today's
+    # labels that carry both EU and US for the same brand and gender ("EU 43 (US 10)", "10.0 (43)") give that brand's chart;
+    # an EU-only size takes it when every store agrees on one US size, otherwise it stays unread (no guessing).
+    eu_us = collections.defaultdict(lambda: collections.defaultdict(set))
+    for o in tidied:
+        if o["g"] == "shoes" and o["sx"] in (["men"], ["women"]):
+            for e in o["sz"]:
+                eu, keys = eu_size(e[0]), canon_shoe(e[0], o["sx"] == ["women"])
+                if eu and keys:
+                    eu_us[(o["b"].lower(), o["sx"][0])][eu].add(tuple(k.split("~")[0] for k in keys))
     for o in tidied:
         it = items.get(mkey(o))
         if not it:
@@ -2600,7 +2810,14 @@ def merge(offers):
         for e in o["sz"]:
             size, price, reg = e[0], e[1], e[2]
             vid = e[3] if len(e) > 3 else None
-            keys = canon_shoe(size) if o["g"] == "shoes" else acc_sizes(size) if o["g"] in ("packs", "gear") else [size]
+            if o["g"] == "shoes":
+                keys = canon_shoe(size, o["sx"] == ["women"])
+                eu = None if keys else eu_only(size)
+                if eu and o["sx"] in (["men"], ["women"]):
+                    us = eu_us[(o["b"].lower(), o["sx"][0])].get(eu[0], set())
+                    keys = [k + eu[1] for k in next(iter(us))] if len(us) == 1 else []
+            else:
+                keys = acc_sizes(size) if o["g"] in ("packs", "gear") else [size]
             for k in keys:
                 cur = it["sz"].get(k)
                 # gear: a Canadian store's price wins over a cheaper one from abroad (no duties, easy returns);
@@ -2966,6 +3183,8 @@ def scrape_backcountry_saved():
 if __name__ == "__main__" and "--backcountry-night" in sys.argv:
     sys.exit(backcountry_night(sys.argv[sys.argv.index("--backcountry-night") + 1], "--sale-only" in sys.argv))
 
+if __name__ == "__main__" and "--runningfree-night" in sys.argv:
+    sys.exit(runningfree_night(sys.argv[sys.argv.index("--runningfree-night") + 1]))
 if __name__ == "__main__" and "--thefeed-night" in sys.argv:
     sys.exit(thefeed_night(sys.argv[sys.argv.index("--thefeed-night") + 1]))
 
