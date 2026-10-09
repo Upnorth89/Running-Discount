@@ -11,22 +11,21 @@ every check (rule in CLAUDE.md: try every allowed way first; a store that says n
 | Company | Where | Why not | Tried | What would unlock it |
 |---|---|---|---|---|
 | **Blocked (the store says no)** | | | | |
-| Sport Chek, Atmosphere, Sports Experts (Canadian Tire) | Canada | "Access Denied" to automated reading; saved pages have no sizes (Oct 2) | site, saved pages | Canadian Tire affiliate feed (Impact.com), December |
+| Sport Chek, Atmosphere, Sports Experts (Canadian Tire) | Canada | "Access Denied" to automated reading; saved pages have no sizes (Oct 2) | site, saved pages; **Sport Chek works from the GPT catalog file** (Oct 8; not in the Oct 8b file) | Canadian Tire affiliate feed (Impact.com), December |
 | Running Room | Canada | blocks automated reading | site | partnership or affiliate feed |
 | MEC | Canada | blocks automated reading | site; **saved pages work** (Grab deals) | MEC product feed via AvantLink/Sovrn |
 | REI | USA | blocks automated reading | **saved pages work** (US side) | affiliate feed |
 | Boutique Courir | Montréal | blocks automated reading (Oct 1) | site | ask the store |
 | SVP Sports | Québec | Cloudflare check (Oct 4) | **saved pages work**; parked Oct 6 (soccer/budget shoes) | none needed |
-| Brooks, New Balance, ASICS, Hoka, Salomon, adidas, Inov-8, The North Face | brands | 403/406 "Access denied" (rechecked Oct 5) | brand sites | their shoes reach us through the stores |
+| Brooks, New Balance, ASICS, Hoka, Salomon, adidas, Inov-8, The North Face | brands | 403/406 "Access denied" (rechecked Oct 5) | brand sites; **Brooks, New Balance, ASICS, adidas.ca come from the GPT catalog file** (Oct 8) | their shoes reach us through the stores |
 | Nike | brand | robots.txt disallows product pages (sizes) | listings | through the stores |
 | On | brand | script-only page, robots disallows /api | site | through the stores |
-| Backcountry / Steep & Cheap | USA | bot protection: "HTTP 202, empty page" (Oct 6) | site from GitHub; reader built | affiliate product feed |
+| Backcountry / Steep & Cheap | USA | bot protection: "HTTP 202, empty page" (Oct 6) | site from GitHub; reader built; GPT file had only 6 products (Oct 8: left out, under 25) | affiliate product feed |
 | Seattle Running Company, Road Runner Sports | WA, CA | HTTP 403 (Oct 8, store finder) | sandbox + GitHub | affiliate feed (Road Runner has one) |
-| Running Warehouse, Zappos, Dick's, Eastbay | USA | blocked or not readable (Oct 6) | site | affiliate feeds |
+| Dick's, Eastbay | USA | blocked or not readable (Oct 6) | site | affiliate feeds |
 | Honey Stinger | brand | blocks GitHub's servers (works elsewhere) | site | its gels come through other stores |
 | **No online catalogue we can read** | | | | |
 | Kintec | BC | no product feed (Oct 1) | site | ask them |
-| Running Free | Ontario | own shop system, no feed (Oct 1) | site | own reader if worth it |
 | ENROUTE | Richmond, BC | Astro site, no product list (Oct 8) | products.json, homepage | own reader (sitemap + pages) if worth it |
 | The Right Shoe | Vancouver | no online shop | site | none |
 | Super Jock 'n Jill, Run Hub NW, Foot Zone (Bend), A Snail's Pace, Fleet Feet | US West | sell in store only / no readable catalogue (Oct 8) | products.json, homepage | none |
@@ -147,18 +146,34 @@ way to buy Darn Tough, Nathan, GU, Tifosi (humagel.ca collection "tifosi-optics"
 Honey Stinger was taken off Oct 8: it blocks GitHub's servers (0 products since Oct 1); its gels come through other stores. REI only shows when Bastien saves
 fresh pages with the Grab deals bookmark (US only). MEC also comes from saved pages.
 
+## From the GPT catalog file (Oct 8, 2026)
+
+Stores that block automated reading, collected by Bastien with GPT (Running_Gear_Catalog.xlsx, uploaded at
+thegearfox.com/catalog.html; rules in CLAUDE.md "Catalog file"). Each file is checked before use and expires 3 days after it was made.
+Stores with under 25 products in stock are left out. Numbers from the Oct 8b file (products in stock / on sale):
+
+| Store | Side | Products | On sale |
+|---|---|---|---|
+| Running Warehouse (runningwarehouse.com) | USA | 5,955 | 1,655 |
+| Running Free (runningfree.com) | Canada (Ontario) | 2,505 | 1,090 |
+| Zappos (zappos.com) | USA | 1,261 | 616 |
+| Brooks (brooksrunning.com) | Canada | 196 | 8 |
+| New Balance (newbalance.ca) | Canada | 199 | 0 |
+| ASICS (asics.com/ca) | Canada | 237 | 5 |
+| Sport Chek, adidas.ca | Canada | in the first file (Oct 8), not in 8b | |
+| Backcountry | USA | 6: left out | |
+
 ## Checked and not added
 
 | Store | City | Why not (date checked) |
 |---|---|---|
-| Sport Chek | national | blocks automated reading; saved sale pages (Oct 2, 2026) have no sizes, even filtered to running clearance (74 shoes, 2 pages): wait for the affiliate feed (Canadian Tire) |
+| Sport Chek | national | blocks automated reading; saved sale pages (Oct 2, 2026) have no sizes, even filtered to running clearance (74 shoes, 2 pages). **Since Oct 8: from the GPT catalog file** (see below) |
 | Running Room | national | blocks automated reading |
 | Atmosphere | national | blocks automated reading |
 | Sports Experts | QC | blocks automated reading |
 | Boutique Courir (boutiquecourir.com) | Montréal | blocks automated reading (Oct 1, 2026) |
 | SVP Sports (svpsports.ca) | Québec chain | Shopify behind a Cloudflare "verify your connection" check on products.json and collections (Oct 4, 2026). Its Shopify shopping-agent catalog (UCP/MCP) exists but is meant for buyer assistants and needs an agent profile; not used. Read from the Grab deals bookmark (Oct 4): Bastien saved SVP's running sale collection (svp-DATE.json). **Parked Oct 6, 2026**: the sale page is mostly soccer and budget shoes, not worth a weekly save; reader kept |
 | Kintec (kintec.net) | BC | no readable product feed (Oct 1, 2026) |
-| Running Free (runningfree.com) | Ontario | no readable product feed (Oct 1, 2026) |
 | Gord's Running Store | Calgary | no readable product feed (Oct 1, 2026) |
 | Fast Trax, Mile One Running, The Trail Store | AB / BC | site didn't answer (Oct 1, 2026); try again later |
 
@@ -226,8 +241,8 @@ empty page", so it's off. Reader kept in scrape.py (`bc_product`) for an affilia
 program). Sister site Steep & Cheap: same catalogue.
 
 Checked, not used: Shoebacca (mostly PUMA/adidas/Diadora budget shoes), Potomac River Running (same shop as PR Run & Walk),
-Onion River Sports (VT, 2 shoes), Runner's Den (serves CAD; check which store it is), Running Warehouse, Road Runner Sports, Zappos,
-Dick's, REI (saved pages only), Brooks, Eastbay (blocked or not readable). Squarespace/WooCommerce sites without an online catalogue:
+Onion River Sports (VT, 2 shoes), Runner's Den (serves CAD; check which store it is), Road Runner Sports,
+Dick's, REI (saved pages only), Eastbay (blocked or not readable). Running Warehouse, Zappos and Brooks: from the GPT catalog file since Oct 8. Squarespace/WooCommerce sites without an online catalogue:
 skipped. Candidate list: tools/us_candidates.txt (store finder).
 
 ## Added Oct 6, 2026 (Canada)
@@ -235,5 +250,5 @@ skipped. Candidate list: tools/us_candidates.txt (store finder).
 - SAIL plein air (QC/ON chain) sail.ca/en-ca: Shopify, running collection only (outdoor-gear-running).
 - Runner's Soul (Lethbridge, AB) shop.runnersoul.com: RunFree (night job), Canada side, prices in CAD.
 - Checked, skipped: La Cordée (insolvency, Oct 2026: recheck if it restructures and keeps selling online).
-- Next to check: Gord's Running Store (Calgary, WooCommerce Store API open), Running Free (Ontario chain, own shop system).
+- Next to check: Gord's Running Store (Calgary, WooCommerce Store API open). Running Free: from the GPT catalog file since Oct 8.
   More candidates: Canadian Running Magazine's list of independent running shops (runningmagazine.ca).
