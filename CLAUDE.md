@@ -310,6 +310,9 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   everyone): name first (`name_gender`), then the Shopify store's own tags/product type (`tag_gender`, clothing only, one gender
   only), then `clothing_gender` (bras group, WOMEN_ONLY words skirt/skort/dress/bra/high-rise/legging/capri/prenatal, WOMEN_BRANDS
   Oiselle, MEN_BRANDS Ten Thousand; a name saying Unisex stays unisex). Site test checks men's Tops/Bottoms for women's items.
+  Oct 9 (a subscriber got women's tanks in the Friday email): `url_gender` reads the product address when the name has no gender
+  (rabbit "tempo-tank-womens", Ciele "w-dlysinglet", Saysky "m-…", Brooks "/mens/") and adds " - Women's"/" - Men's" so the two
+  cuts never merge into one card; WOMEN_BRANDS + Kari Traa, Athleta, Title Nine, Tahari, Huha, Sweaty Betty.
 - Brand names (Oct 6): US shops often list the parent company ("Asics Corp.", "Brooks Sports, Inc. #105856", "Ing Source" = Injinji,
   "Medi USA" = CEP): `tidy_brand` drops company words (Inc/Corp/LLC/L.P/#123) then maps `BRAND_ALIAS`; BRAND_PREFER keeps the official
   spelling (the rank otherwise prefers non-capitals: "Asics Corp." beat "ASICS"). Shoe names lose a " - Colour/Colour" segment
