@@ -2574,7 +2574,8 @@ def tag_gender(p):
 # Clothing whose name or brand only fits women, when neither the name nor the store says (Oct 6: a men's runner saw
 # skirts, skorts, bras and high-rise leggings, 1 in 5 clothing items had no gender and showed to everyone).
 WOMEN_ONLY = re.compile(r"\b(skirts?|skorts?|dress|sports? bra|bra|bralette|hi(gh)?[- ]rise|capris?|leggings?|prenatal|maternity|jupes?|soutien-gorge)\b", re.I)
-WOMEN_BRANDS = {"oiselle", "girlfriend collective", "lululemon"}
+WOMEN_BRANDS = {"oiselle", "girlfriend collective", "lululemon", "kari traa", "athleta", "title nine", "tahari", "huha",
+                "sweaty betty", "moving comfort", "shock absorber"}   # Oct 9: Kari Traa "Malia Pants" reached men in the Friday email
 MEN_BRANDS = {"ten thousand", "tenthousand"}
 
 def clothing_gender(o):
