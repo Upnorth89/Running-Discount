@@ -2592,6 +2592,19 @@ def clothing_gender(o):
         return ["men"]
     return []
 
+def url_gender(u):
+    """Gender in a product page's address when the name has none: ".../tempo-tank-womens", ".../w-dlysinglet",
+    ".../m-puma-x-saysky-ultraweave-singlet", "mens/apparel/tops/..." (Brooks), "/All-Womens-66508/" (Running Free)."""
+    path = re.sub(r"^https?://[^/]+", "", u.split("?")[0].split("#")[0]).lower()
+    last = path.rstrip("/").rsplit("/", 1)[-1]
+    w = re.search(r"(?:^|[/_-])(womens?|women-s|wmns|ladies|femmes?)(?=[/_-]|$)", path) or re.match(r"w-", last)
+    m = re.search(r"(?:^|[/_-])(mens?|men-s|hommes?)(?=[/_-]|$)", path) or re.match(r"m-(?!l\b)", last)
+    if w and not m:
+        return ["women"]
+    if m and not w:
+        return ["men"]
+    return None
+
 def name_gender(n):
     """Product names ("... - Women's", "Mens Pressio Tee") beat a store's gender tag, which is
     often "unisex" for women's-cut gear."""
@@ -2748,6 +2761,11 @@ def merge(offers):
             m = re.match(r"^(.+?)\s+trail running((?:\s*\[[^\]]+\])?(?:\s+-\s+(?:Men's|Women's|Unisex))?)$", o["n"], re.I)
             if m and garment_type("shoes", m.group(1)) == "trail" and not re.search(r"\btrail\b", m.group(1), re.I):
                 o["n"] = m.group(1) + (m.group(2) or "")
+        if o["g"] in ("tops", "bottoms", "bras") and not name_gender(o["n"]) and not re.search(r"\bunisex\b", o["n"], re.I):
+            ug = url_gender(o.get("u") or "")
+            if ug:                       # Oct 9: rabbit "Tempo Tank" (tempo-tank-womens), Ciele "DLYSinglet" (w-dlysinglet): the men's
+                o["n"] += " - Women's" if ug == ["women"] else " - Men's"   # and women's cuts share a name; keep them apart
+                o["sx"] = ug
         o["sx"] = name_gender(o["n"]) or o["sx"] or clothing_gender(o)
         tidied.append(o)
     # one brand, one spelling, decided before cards are keyed ("Nathan Sports" = "Nathan", "ciele athletics" = "Ciele",
