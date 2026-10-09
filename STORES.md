@@ -1,7 +1,164 @@
 # Stores: what we read, what we checked
 
 Check this list before looking at a new store, so nobody tests the same shop twice.
-Update it whenever a store is added, rejected or changes. Counts are from Oct 2, 2026.
+Update it whenever a store is added, rejected or changes. The full list of stores we cover is rebuilt with `python tools/store_list.py`.
+
+<!--STORE-LIST-->
+## All stores we cover (141 stores; live site, Oct 8, 2026)
+
+Made by `python tools/store_list.py` from the live site: every store with at least one product on the site that day.
+Products = items on the site with that store; On sale = those on sale. A store missing here had nothing on the site that
+day (e.g. no catalog file). Stores on both sides: Altra, Bandit, District Vision, Janji, Kogalla, Naked, Oiselle, rabbit, Raidlight, rnnr, Roka, Satisfy, Skratch Labs, Smartwool, Soar, Squirrel's Nut Butter, Sunski, Swiftwick, Tailwind, Ten Thousand, The Feed, Wigwam (USA counts not shown).
+
+### Canada side (73)
+| Store | Website | How we read it | Products | On sale |
+|---|---|---|---:|---:|
+| 2XU | ca.2xu.com | Shopify | 226 | 90 |
+| Aerobics First | aerobicsfirst.com | Shopify | 1,635 | 349 |
+| Altitude Sports | altitude-sports.com | own reader | 2,266 | 721 |
+| Altra | altrarunning.com | Shopify | 98 | 32 |
+| ASICS | asics.com | GPT file | 99 | 9 |
+| Balega | balega.ca | Shopify | 103 | 1 |
+| Balmoral | balmoralrunning.com | Shopify | 35 | 1 |
+| Bandit | banditrunning.com | Shopify | 561 | 0 |
+| BlackToe Running | blacktoerunning.com | Shopify | 1,340 | 378 |
+| Boutique Endurance | boutiqueendurance.ca | Shopify | 516 | 179 |
+| Brainsport | brainsport.ca | Shopify | 1,282 | 485 |
+| Brix | brixrechargeparlanature.com | Shopify | 11 | 2 |
+| Brooks | brooksrunning.com | GPT file | 141 | 32 |
+| Bushtukah | bushtukah.com | Shopify | 1,532 | 266 |
+| Capra Running Co. | capra.run | Shopify | 411 | 88 |
+| Ciele | ca.cieleathletics.com | Shopify | 134 | 3 |
+| City Park Runners | cityparkrunners.com | Shopify | 630 | 186 |
+| Cowichan Valley Running | cowichanvalleyrunning.com | Shopify | 431 | 78 |
+| Decathlon | decathlon.ca | slow night read | 200 | 43 |
+| District Vision | districtvision.com | Shopify | 460 | 120 |
+| Feetures | feetures.ca | Shopify | 51 | 16 |
+| Fit First | fitfirst.ca | Shopify | 507 | 105 |
+| Foot Locker | footlocker.ca | own reader | 53 | 37 |
+| Forerunners | shop.forerunners.ca | Shopify | 56 | 15 |
+| Frontrunners | frontrunners.ca | Shopify | 1,185 | 407 |
+| goodr | goodr.ca | Shopify | 237 | 0 |
+| Grynd | grynd.ca | Shopify | 14 | 1 |
+| Huma Canada | humagel.ca | Shopify | 22 | 0 |
+| Inner Self | innerselfrunning.com | Shopify | 19 | 0 |
+| Janji | runjanji.com | Shopify | 98 | 0 |
+| Kogalla | kogalla.com | Shopify | 1 | 0 |
+| Krono Nutrition | krononutrition.com | Shopify | 62 | 0 |
+| Le Coureur | lecoureur.com | Shopify | 1,237 | 619 |
+| Le Coureur Nordique | lecoureurnordique.ca | Shopify | 1,595 | 784 |
+| MEC | mec.ca | saved pages (Grab deals) | 223 | 223 |
+| Naked | nakedsportsinnovations.com | Shopify | 9 | 3 |
+| New Balance | newbalance.ca | GPT file | 121 | 3 |
+| Nordarun | nordarun.com | Shopify | 40 | 7 |
+| Nuun | nuun.ca | Shopify | 26 | 7 |
+| Näak | naak.com | Shopify | 64 | 6 |
+| Oiselle | oiselle.com | Shopify | 96 | 0 |
+| rabbit | runinrabbit.com | Shopify | 333 | 168 |
+| Rackets & Runners | racketsandrunners.ca | Shopify | 286 | 119 |
+| Raidlight | raidlight.com | Shopify | 87 | 10 |
+| rnnr | rnnr.com | Shopify | 77 | 21 |
+| Roka | roka.com | Shopify | 207 | 9 |
+| Run Uphill | runuphill.ca | Shopify | 897 | 236 |
+| Runner's Soul | shop.runnersoul.com | RunFree (night read) | 191 | 45 |
+| Running Free | runningfree.com | GPT file | 549 | 380 |
+| SAIL | sail.ca | Shopify | 375 | 209 |
+| Satisfy | satisfyrunning.com | Shopify | 451 | 1 |
+| SAYSKY | saysky.com | Shopify | 260 | 75 |
+| Sea2Sky Nutrition | sea2skynutrition.ca | own reader | 257 | 14 |
+| Skratch Labs | skratchlabs.com | Shopify | 62 | 16 |
+| Smartwool | smartwool.com | Shopify | 400 | 146 |
+| Soar | soarrunning.com | Shopify | 341 | 1 |
+| Sporting Life | sportinglife.ca | own reader | 653 | 347 |
+| Squirrel's Nut Butter | squirrelsnutbutter.com | Shopify | 36 | 6 |
+| Stampeak | stampeak.com | own reader | 263 | 144 |
+| Stance | stance.ca | Shopify | 610 | 206 |
+| Strides Running | stridesrunning.com | Shopify | 1,366 | 385 |
+| Sunski | sunski.com | Shopify | 110 | 0 |
+| Swiftwick | swiftwick.com | Shopify | 63 | 23 |
+| Tailwind | tailwindnutrition.com | Shopify | 17 | 0 |
+| Ten Thousand | tenthousand.cc | Shopify | 70 | 0 |
+| The Feed | thefeed.com | night read | 2,346 | 566 |
+| The Last Hunt | thelasthunt.com | own reader | 1,202 | 1,202 |
+| The Runners Shop | therunnersshop.com | Shopify | 681 | 279 |
+| The Trail Runner Store | trailrunnerstore.com | Shopify | 876 | 338 |
+| Upika | upika.ca | Shopify | 20 | 1 |
+| Vancouver Running Co. | vanrunco.com | Shopify | 645 | 216 |
+| Wigwam | wigwam.com | Shopify | 126 | 13 |
+| Xact Nutrition | xactnutrition.com | Shopify | 25 | 0 |
+
+### USA side only (68)
+| Store | Website | How we read it | Products | On sale |
+|---|---|---|---:|---:|
+| 2XU | us.2xu.com | Shopify | 205 | 72 |
+| 605 Running Company | shop.run605.com | RunFree (night read) | 160 | 49 |
+| Aardvark Sports Shop | shop.aardvarksportsshop.com | RunFree (night read) | 203 | 60 |
+| Ann Arbor Running Company | annarborrunningcompany.com | Shopify | 305 | 81 |
+| Athletic Annex | athleticannex.com | Shopify | 864 | 375 |
+| Balega | balega.com | Shopify | 151 | 11 |
+| Big Peach Running Co. | shop.bigpeachrunningco.com | RunFree (night read) | 165 | 66 |
+| Bull City Running Co. | shop.bullcityrunning.com | RunFree (night read) | 377 | 100 |
+| Charlotte Running Company | shop.charlotterunning.com | RunFree (night read) | 367 | 105 |
+| Charm City Run | shop.charmcityrun.com | RunFree (night read) | 470 | 125 |
+| Columbus Running Company | columbusrunning.com | Shopify | 795 | 203 |
+| Confluence Running | confluencerunning.com | Shopify | 1,807 | 768 |
+| Darn Tough | darntough.com | Shopify | 281 | 3 |
+| Feetures | feetures.com | Shopify | 163 | 113 |
+| Fitness Sports | fitnesssports.com | Shopify | 551 | 185 |
+| Gazelle Sports | gazellesports.com | Shopify | 3,139 | 688 |
+| Good Times Running Co. | shop.goodtimesrunningco.com | RunFree (night read) | 138 | 44 |
+| goodr | goodr.com | Shopify | 382 | 0 |
+| GU | guenergy.com | Shopify | 15 | 0 |
+| Heartbreak Hill Running Co. | heartbreakhillrunningcompany.com | Shopify | 745 | 199 |
+| Huma | humagel.com | Shopify | 7 | 1 |
+| iRun Texas | shop.iruntexas.net | RunFree (night read) | 229 | 48 |
+| John's Run/Walk Shop | shop.johnsrunwalkshop.com | RunFree (night read) | 6 | 1 |
+| Luke's Locker | lukeslocker.com | Shopify | 379 | 104 |
+| Manhattan Running Company | shop.manhattanrunningco.com | RunFree (night read) | 123 | 28 |
+| Mill City Running | millcityrunning.com | Shopify | 540 | 178 |
+| Millennium Running | shop.millenniumrunning.com | RunFree (night read) | 186 | 55 |
+| Missouri Running Company | shop.moruncocape.com | RunFree (night read) | 262 | 55 |
+| Mount to Coast | mounttocoast.com | Shopify | 7 | 1 |
+| Mountain Running Company | mountainrunningcompany.com | Shopify | 856 | 233 |
+| Nathan | nathansports.com | Shopify | 86 | 29 |
+| Nuun | nuun.com | Shopify | 15 | 7 |
+| Ombraz | ombraz.com | Shopify | 47 | 18 |
+| Pace Yourself Run Co. | shop.pyrunco.com | RunFree (night read) | 317 | 111 |
+| Pacers Running | pacersrunning.com | Shopify | 628 | 312 |
+| Palmetto Running Company | shop.palmettorunningcompany.com | RunFree (night read) | 132 | 31 |
+| Path Projects | pathprojects.com | Shopify | 51 | 10 |
+| Performance Running Outfitters | performancerunning.com | Shopify | 1,277 | 390 |
+| Philadelphia Runner | shop.philadelphiarunner.com | RunFree (night read) | 471 | 125 |
+| Playmakers | playmakers.com | Shopify | 1,560 | 295 |
+| Point 2 Running Company | shop.runpoint2.com | RunFree (night read) | 156 | 60 |
+| Portland Running Company | portlandrunningcompany.com | Shopify | 563 | 189 |
+| PR Run & Walk | prrunandwalk.com | Shopify | 1,719 | 632 |
+| Red Coyote Running and Fitness | shop.redcoyoterunning.com | RunFree (night read) | 380 | 143 |
+| REI | rei.com | GPT file / saved pages | 789 | 785 |
+| Run Flagstaff | runflagstaff.com | Shopify | 153 | 18 |
+| Runner's Roost | shop.runnersroost.com | RunFree (night read) | 454 | 169 |
+| Runners Plus | runnersplus.com | Shopify | 1,500 | 440 |
+| Running Lab | runninglabstore.com | Shopify | 1,044 | 296 |
+| Running Niche | shop.runningniche.com | RunFree (night read) | 322 | 69 |
+| Running Warehouse | runningwarehouse.com | GPT file | 2,731 | 1,598 |
+| Running Zone | shop.runningzone.com | RunFree (night read) | 352 | 99 |
+| Rush Running | shop.rushrunning.com | RunFree (night read) | 42 | 10 |
+| San Francisco Running Company | store.sfrunco.com | Shopify | 214 | 34 |
+| Scranton Running Company | scrantonrunning.com | Shopify | 244 | 45 |
+| Sports Basement | sportsbasement.com | Shopify | 1,285 | 577 |
+| Stance | stance.com | Shopify | 937 | 440 |
+| Terra Running Company | shop.terrarunning.com | RunFree (night read) | 193 | 45 |
+| Territory Run Co. | territoryrun.co | Shopify | 48 | 10 |
+| The Running Well Store | therunningwellstore.com | Shopify | 733 | 266 |
+| Tifosi | tifosioptics.com | Shopify | 150 | 16 |
+| Tortoise & Hare Sports | tortoiseandharesports.com | Shopify | 620 | 84 |
+| Track Shack | shop.trackshack.com | RunFree (night read) | 203 | 52 |
+| Trailhead Running Supply | trailheadrunningsupply.com | Shopify | 596 | 164 |
+| Two Rivers Treads | tworiverstreads.com | Shopify | 292 | 45 |
+| West Stride | shop.weststride.com | RunFree (night read) | 204 | 58 |
+| Xtra Mile Running | xtramilerunning.com | Shopify | 267 | 166 |
+| Zappos | zappos.com | GPT file | 800 | 546 |
+<!--/STORE-LIST-->
 
 ## Master list: stores and brands we can't read (yet)
 
@@ -53,7 +210,7 @@ every check (rule in CLAUDE.md: try every allowed way first; a store that says n
 | La Cordée | Québec | insolvency (Oct 2026) | | recheck if it restructures |
 | Amazon | | no scraping; Associates API needs 3 sales | | affiliate links first |
 
-## Stores we read (63)
+## Store notes (counts from Oct 2; today's full list is "All stores we cover" above)
 
 ### Canadian stores (26)
 | Store | Website | Products | On sale |
