@@ -206,6 +206,8 @@ RUNNINGFREE_FILE = os.environ.get("RUNNINGFREE_FILE", "/tmp/runningfree.json")
 RF_CLOTH = {"XXSmall": "2XS", "XSmall": "XS", "Small": "S", "Medium": "M", "Large": "L", "XLarge": "XL", "XXLarge": "2XL",
             "XXXLarge": "3XL"}
 RF_SHORT = {"NB": "New Balance", "SW": "Smartwool", "TNF": "The North Face", "PI": "Pearl Izumi", "UA": "Under Armour"}
+RF_SWIM = {"arena", "tyr", "aquasphere", "finz", "speedo", "aquaman", "body glove", "funky trunks", "jolyn", "dolfin"}
+RF_NOT_RUN = re.compile(r"\bswim|goggles?\b|jammer|kickboard|snorkel|wetsuit|\bnordic\b|\bski\b", re.I)
 RF_SHOE = re.compile(r"^(\d+)(-5)?-(Regular|Narrow|Wide|XWide|XXWide)-\d+$")
 _rf_last = [0.0]
 
@@ -348,6 +350,8 @@ def scrape_runningfree():
             sz = ["OS"]                 # one size: in no size page ("Gel Cumulus" with no size left is a shoe, not a gel)
         else:
             continue
+        if b.lower() in RF_SWIM or RF_NOT_RUN.search(model):
+            continue                    # swim gear (Arena caps, jammers) and Nordic ski boots: not running (Oct 9)
         nm = model + {"men": " - Men's", "women": " - Women's"}.get(sx[0] if sx else "", "")
         out.append({"st": "runningfree", "b": b, "n": nm, "u": RF_BASE + p["path"], "g": g, "sx": sx, "w": False,
                     "img": p.get("img"), "lp": p["lp"], "bb": None, "ca": True, "no_us": True,
