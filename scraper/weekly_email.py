@@ -493,7 +493,8 @@ def main():
             continue
         SIDE["us"] = p.get("country") == "us" and bool(us_items)
         side = us_items if SIDE["us"] else items
-        sale = [d for d in match(side, p) if d["pct"] >= 1 and terrain_ok(d, p)]      # anything below full price
+        # anything below full price; no nutrition (Oct 9, Bastien: the Friday email is gear, not gels)
+        sale = [d for d in match(side, p) if d["pct"] >= 1 and terrain_ok(d, p) and d["g"] != "nutrition"]
         who = p["email"]
         watch = watch_news.get(p.get("token"))
         has_watch = bool(watch and (watch["drops"] or watch["backs"]))
