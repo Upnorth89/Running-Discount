@@ -1822,14 +1822,19 @@ def scrape_catalog(retailer, st=None):
         if size is None:
             continue
         now_c, reg_c = round(float(now) * p["fx"], 2), round(max(float(reg or now), float(now)) * p["fx"], 2)
+        # Backcountry (Oct 10, Bastien opened an XL pant link and saw only M/L: the page opened on another colour): its SKU
+        # column is Backcountry's own size code, and "?skid=" opens the page on that colour and size
+        link = None
+        if "backcountry.com/" in p["u"] and "?" not in p["u"] and re.fullmatch(r"[A-Z0-9]+-[A-Z0-9]+-[\w.]+", str(r.get("SKU") or "")):
+            link = f"{p['u']}?skid={r['SKU']}"
         old = p["sizes"].get(size)
         if old is None or now_c < old[0]:
-            p["sizes"][size] = (now_c, reg_c)
+            p["sizes"][size] = (now_c, reg_c, link)
     out = []
     for p in prods.values():
         if not p["sizes"] or not p["img"]:          # no photo = not shown (Oct 8: text-only cards looked broken)
             continue
-        sz = [[s, a, b_] for s, (a, b_) in p["sizes"].items()]
+        sz = [[s, a, b_] + ([u_] if u_ else []) for s, (a, b_, u_) in p["sizes"].items()]
         out.append({"st": p["st"], "b": p["b"], "n": p["n"], "u": p["u"], "g": p["g"], "sx": p["sx"], "w": p["w"], "img": p["img"],
                     "lp": max(e[2] for e in sz), "bb": None, "sz": sz})
     print(f"  {st}: {len(out)} products from the catalog file", file=sys.stderr)
