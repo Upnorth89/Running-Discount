@@ -41,7 +41,8 @@ COMPANY = re.compile(r"\b(inc|corp|llc|ltd|usa|us|outlet|vermont|optics|nutritio
 
 # checked by hand and fine (brand + name start): a cap whose colour is "Leather Jacket", a bug jacket sold with mitts
 OK = re.compile(r"^(SOAR Running Artefact Cap|Ben's InvisiNet|Aetrex L\d|Satisfy (TheRocker|Adizero)|rabbit (High Country|Dream Chaser)|"
-                r"Tracksmith Eliot|Tortoise & Hare Trofeo|City Park Runners XACT|CEP Pro Run Optaspeed|.*Mystery Nutrition)", re.I)
+                r"Tracksmith Eliot|Tortoise & Hare Trofeo|City Park Runners XACT|CEP Pro Run Optaspeed|.*Mystery Nutrition|"
+                r"BlackToe Mix Pack|Craft (Nordlite|Xplor))", re.I)
 
 
 def host(i):

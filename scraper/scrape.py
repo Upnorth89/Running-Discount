@@ -2080,7 +2080,7 @@ for _st in RUNFREE:
 
 # Casual footwear some running stores also sell; not what people come here for.
 CASUAL_BRANDS = {"ambler", "birkenstock", "wolky", "teva", "crocs", "ugg", "blundstone", "dr. martens", "clarks", "oofos", "billy footwear"}   # Ambler (Oct 8): toques, and its only "shoe" is a wool slipper
-CASUAL_SHOE = re.compile(r"\b(sandal|sandale|clog|sabot|slipper|pantoufle|mule|flip[- ]flop|loafer|slide|clearwater cnx|recovery (flip|slide)|ora recovery)s?\b", re.I)
+CASUAL_SHOE = re.compile(r"\b(sandal|sandale|clog|sabot|slipper|pantoufle|mule|flip[- ]flops?|ellipse flip|loafer|slide|clearwater cnx|recovery (flip|slide)|ora recovery)s?\b", re.I)
 # court and lifestyle shoes from running brands (ASICS tennis/pickleball lines, retro sneakers)
 COURT_SHOE = re.compile(r"pick[el]+ball|\btennis\b|\bpadel\b|\bcourt\b|gel[- ]?(resolution|dedicate|game|challenger|1130|nyc|kahana)|solution speed", re.I)
 # lifestyle lines stores file under running (brand + model; Foot Locker, Oct 4, 2026)
@@ -2156,7 +2156,7 @@ NOT_SOCK = re.compile(r"t-?shirt|\btee\b|hood|jacket|sweat|pullover|\btank\b|sho
 STRONG_FOOD = re.compile(r"\bgels?\b(?!-| pockets?| force| heel| cups?)|\bchews?\b|drink mix|electrolyte|energy bar|protein|stroopwafel|(?<!wool )waffle|"
                          r"caffeine|hydration mix|\bfuel\b(?! belt|\W+n\W*\s*fly|\s*cell)|\bbars?\b(?=.*\b(\d+ ?g|pack|box|bar)\b)|nut butter|honey|\bmix\b|tablets|capsules", re.I)
 EYEWEAR_BRANDS = {"ombraz", "goodr", "sunski", "tifosi", "roka", "district vision", "julbo", "suncloud", "moana sunnies", "alpinamente", "knockaround"}
-SOCK_BRANDS = {"darn tough", "balega", "feetures", "injinji", "swiftwick", "wigwam", "drymax", "rockay"}
+SOCK_BRANDS = {"darn tough", "balega", "feetures", "injinji", "swiftwick", "wigwam", "drymax", "rockay", "wrightsock", "thorlo", "sockwell", "os1st"}
 CLOTH_SOCK_SHAPE = re.compile(r"\bcrew\b|no[- ]show|\bquarter\b|\bmicro\b|\bmini\b|\btab\b|over[- ]the[- ]calf|\botc\b|\bboot\b", re.I)
 BYOB = re.compile(r"build your own bundle|\bbundle\d{3,}", re.I)
 def tidy_food(offers):
@@ -2447,7 +2447,7 @@ BRAND_CANON = {"hoka one one": "Hoka", "hoka": "Hoka", "asics": "ASICS", "satisf
 
 # US shops often list the parent company or distributor as the vendor (Oct 6, 2026: "Asics Corp." on all 480 US ASICS items,
 # "Brooks Sports, Inc. #105856", "Ing Source, Inc" = Injinji, "Medi USA" = CEP): company words go, then this map
-BRAND_ALIAS = {"balmoral sports": "Balmoral", "inner self": "Inner Self", "krono nutrition": "Krono", "kronobar": "Krono", "grynd food": "Grynd", "grynd food inc": "Grynd", "fast bundle": "Upika", "upika": "Upika", "brix rechargé par la nature": "Brix", "brix recharge par la nature": "Brix", "asics america": "ASICS", "asics": "ASICS", "brooks sports": "Brooks", "nike usa": "Nike", "nike team sale": "Nike",
+BRAND_ALIAS = {"cure hydration": "Cure", "balmoral sports": "Balmoral", "inner self": "Inner Self", "krono nutrition": "Krono", "kronobar": "Krono", "grynd food": "Grynd", "grynd food inc": "Grynd", "fast bundle": "Upika", "upika": "Upika", "brix rechargé par la nature": "Brix", "brix recharge par la nature": "Brix", "asics america": "ASICS", "asics": "ASICS", "brooks sports": "Brooks", "nike usa": "Nike", "nike team sale": "Nike",
                "on shoes": "On", "on footwear": "On", "on-running": "On", "gu energy": "GU", "gu energy labs": "GU", "gu sports": "GU",
                "gu nutrition": "GU", "gu energy gel": "GU", "ing source": "Injinji", "medi usa": "CEP", "medi": "CEP",
                "cep / medi usa": "CEP", "cep/medi usa": "CEP", "medi usa (cep)": "CEP", "medi/cep": "CEP", "medi usa - cep": "CEP", "craft sportswear": "Craft", "craft sportsware usa": "Craft",
@@ -2798,11 +2798,14 @@ def merge(offers):
         if o["g"] == "nutrition" and tot >= 8 and c["nutrition"] / tot < 0.08 and not STRONG_FOOD.search(o["n"]):
             o["g"] = ("bottoms" if re.search(r"\d(\.\d)?\s*(\"|''|”)", o["n"]) else group_of(o["n"])) \
                 or next(g for g, _ in c.most_common() if g != "nutrition")      # rabbit "Fuel n' Fly 5"": shorts
-        elif o["g"] in ("tops", "bottoms") and tot >= 8 and c["socks"] / tot >= 0.8 and not NOT_SOCK.search(o["n"]):
+        elif o["g"] in ("tops", "bottoms") and (tot >= 8 and c["socks"] / tot >= 0.8 or o["b"].lower() in SOCK_BRANDS) \
+                and not NOT_SOCK.search(o["n"]):
             o["g"] = "socks"           # a sock brand's "Franchise Crew" is a crew sock, not a crew-neck top (Stance, OS1st, Sockwell)
         elif o["g"] == "shoes" and tot >= 8 and c["shoes"] / tot < 0.08 and not SHOE_SIZES(o):
             # US shops file headlamps, flasks and spikes packs as footwear (Nathan, Amphipod, 2Toms): not a shoe without shoe sizes
             o["g"] = group_of(o["n"]) or next(g for g, _ in c.most_common() if g != "shoes")
+        elif o["g"] == "shoes" and not SHOE_SIZES(o) and group_of(o["n"]) not in (None, "shoes"):
+            o["g"] = group_of(o["n"])  # any brand: an On "Lightweight Cap" in one size filed as footwear (Charlotte Running, Oct 9)
     # distributors listed as the brand (Brainsport: "Back River Sport" for Feetures socks, Sprints hats, Tailwind):
     # the real brand from the start of the name when we know it (Oct 7 audit)
     known = {bkey(b): b for b in best.values()}
