@@ -173,7 +173,7 @@ every check (rule in CLAUDE.md: try every allowed way first; a store that says n
 | REI | USA | blocks automated reading | **saved pages work** (US side) | affiliate feed |
 | Boutique Courir | Montréal | blocks automated reading (Oct 1) | site | ask the store |
 | SVP Sports | Québec | Cloudflare check (Oct 4) | **saved pages work**; parked Oct 6 (soccer/budget shoes) | none needed |
-| Brooks, New Balance, ASICS, Hoka, Salomon, adidas, Inov-8, The North Face | brands | 403/406 "Access denied" (rechecked Oct 5) | brand sites; **Brooks, New Balance, ASICS, adidas.ca come from the GPT catalog file** (Oct 8) | their shoes reach us through the stores |
+| Brooks, New Balance, ASICS, Hoka, Salomon, adidas, Inov-8, The North Face | brands | 403/406 "Access denied" (rechecked Oct 5; ASICS Oct 10: asics.com CA + US, outlet.asics.com, even robots.txt and sitemaps answer Akamai 403, from my sandbox and from GitHub's servers via probe.yml) | brand sites; **Brooks, New Balance, ASICS, adidas.ca come from the GPT catalog file** (Oct 8) | their shoes reach us through the stores |
 | Nike | brand | robots.txt disallows product pages (sizes) | listings | through the stores |
 | On | brand | script-only page, robots disallows /api | site | through the stores |
 | Backcountry / Steep & Cheap | USA | bot protection: "HTTP 202, empty page" (Oct 6) | site from GitHub; reader built; GPT file had only 6 products (Oct 8: left out, under 25) | affiliate product feed |
