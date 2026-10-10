@@ -356,6 +356,25 @@ def site_flow(base, per, accented):
             return "no accented brand in these sizes today"
         check("Search without accents")(accents, page)
 
+        def punctuation():   # Oct 10 (stats: "arcteryx" and "goretex" found nothing): punctuation and spaces don't matter
+            out = []
+            for written, typed in (("arc'teryx", "arcteryx"), ("gore-tex", "goretex")):
+                all_gear()
+                page.fill("#dSearch", written)
+                settle(page, 900)
+                n = len(cards(page))
+                if not n:
+                    continue
+                page.fill("#dSearch", typed)
+                settle(page, 900)
+                m = len(cards(page))
+                assert m >= n, f"searching '{typed}' finds {m} deals, '{written}' finds {n}"
+                out.append(f"'{typed}' {m} (>= '{written}' {n})")
+            page.fill("#dSearch", "")
+            settle(page)
+            return "; ".join(out) or "neither in these sizes today"
+        check("Search without punctuation")(punctuation, page)
+
         def nonsense():
             all_gear()
             page.fill("#dSearch", "zzqxw")

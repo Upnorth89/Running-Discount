@@ -1199,6 +1199,12 @@ let VOCAB=null;
 function vocab(fold){if(VOCAB)return VOCAB;const c=new Map();
   for(const d of ITEMS)for(const w of fold(d.b+" "+d.n).split(/[^a-z0-9+]+/))if(w.length>=3&&!/^\d+$/.test(w))c.set(w,(c.get(w)||0)+1);
   return VOCAB=c}
+/* Oct 10 (stats: "arcteryx", "goretex", "a1080v15" found nothing): search ignores punctuation and spaces ("arcteryx" finds
+   Arc'teryx, "1080v15" finds "1080 V15" and "1080 15"), and Gore-Tex = GTX. */
+const SQ=s=>s.replace(/[^a-z0-9]/g,"").replace(/v(?=\d)/g,"");
+function hayOf(fold,d){const t=fold(d.b+" "+d.n),w=t.split(/\s+/).map(SQ).filter(Boolean);   // per word: "hood - long" never makes "odlo"
+  const pairs=w.slice(1).map((x,i)=>/\d/.test(x+w[i])?w[i]+x:"").filter(Boolean);                 // "1080 v15" -> "108015", "pegasus 41"
+  return t+" "+w.join(" ")+" "+pairs.join(" ")+(/gore-?tex|\bgtx\b/.test(t)?" goretex gtx":"")}
 function lev(a,b){if(Math.abs(a.length-b.length)>2)return 9;let p=Array.from({length:b.length+1},(_,i)=>i);
   for(let i=1;i<=a.length;i++){const r=[i];for(let j=1;j<=b.length;j++)r[j]=Math.min(p[j]+1,r[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=r}return p[b.length]}
 function suggest(q,fold){const V=vocab(fold);let changed=false;
@@ -1210,12 +1216,12 @@ function suggest(q,fold){const V=vocab(fold);let changed=false;
   return changed?out.join(" "):null}
 function searchHelp(q,p,n,fold){const raw=esc(view.q.trim()),bits=[];
   if(view.anySize)bits.push(`${t("allSizesOn",raw)} <button type="button" data-anysize="0">${t("yourSizesOnly")}</button>`);
-  else if(!n&&hasSizes()){const hit=d=>{const x=fold(d.b+" "+d.n);return q.every(w=>x.includes(w))};
+  else if(!n&&hasSizes()){const hit=d=>{const x=hayOf(fold,d);return q.every(w=>x.includes(w))};
     const k=matchItems({...p,sizes:{},groups:ORDER}).filter(hit).length;
     if(k)bits.push(`${t("noSize",raw,num(k))} <button type="button" data-anysize="1">${t("showAllSizes")}</button>`)}
   const qs=q.join(" "),st=qs.length>=4&&Object.entries(STORES).find(([h,v])=>fold(v[0]).startsWith(qs)||fold(v[0]).replace(/\s+/g,"").startsWith(qs.replace(/\s+/g,"")));
   if(!n&&!view.anySize&&!st&&!bits.length){let sg=suggest(q,fold);
-    if(!sg&&q.length>1){const any=ws=>ITEMS.some(d=>{const x=fold(d.b+" "+d.n);return ws.every(w=>x.includes(w))});   // "alphafly 4" -> "alphafly"
+    if(!sg&&q.length>1){const any=ws=>ITEMS.some(d=>{const x=hayOf(fold,d);return ws.every(w=>x.includes(w))});   // "alphafly 4" -> "alphafly"
       for(let k=q.length-1;k>=1&&!sg;k--)if(any(q.slice(0,k)))sg=q.slice(0,k).join(" ")}
     if(sg)bits.push(`${t("didYou")} <button type="button" data-sq="${esc(sg)}">${esc(sg)}</button>?`)}
   if(st&&st[0]!==view.store)bits.push(`<button type="button" data-shop="${esc(st[0])}">${t("storeGo",esc(st[1][0]))}</button>`)
@@ -1223,7 +1229,7 @@ function searchHelp(q,p,n,fold){const raw=esc(view.q.trim()),bits=[];
 function shoeSearch(q){   // models whose name has every search word: "clif" -> Clifton 10, Clifton 11…
   if(!SHOEPAGES||!q.length)return [];
   const flat=x=>x.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
-  return Object.entries(SHOEPAGES).filter(([sl,m])=>!m.to&&q.every(w=>(flat(m.n)+" "+flat(m.n).replace(/[^a-z0-9]/g,"")).includes(flat(w)))).slice(0,4);
+  return Object.entries(SHOEPAGES).filter(([sl,m])=>!m.to&&q.every(w=>(flat(m.n)+" "+SQ(flat(m.n))).includes(flat(w)))).slice(0,4);
 }
 // "Watch" links on the shoe pages: /?watch=<item key> adds that shoe to the watchlist here
 const WATCH_Q=(()=>{try{return (new URLSearchParams(location.search).get("watch")||"").slice(0,300)}catch(e){return ""}})();
@@ -1749,10 +1755,10 @@ function renderAll(){
   if(w){$("stats").classList.add("hidden");return renderWatch()}
   const p={...toProfile(),store:view.store};
   const fold=x=>String(x).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();   // "naak" finds Näak, "zefal" Zéfal
-  const q=fold(view.q.trim()).split(/\s+/).filter(Boolean);
+  const q=fold(view.q.trim()).split(/\s+/).map(w=>/^[a-z0-9]+$/.test(w)?w.replace(/v(?=\d)/g,""):SQ(w)).filter(Boolean);
   if(q.length&&!FULL)loadFull();     // a search looks at everything in your size, full price too (sale items first)
   // a search stays inside the categories picked (chips); only when nothing matches there does it look in every category
-  const hit=d=>{const t=fold(d.b+" "+d.n);return q.every(w=>t.includes(w))};
+  const hit=d=>{const t=hayOf(fold,d);return q.every(w=>t.includes(w))};
   const cdn=view.cdn&&!US();
   let all=matchItems(q.length&&view.anySize?{...p,sizes:{},...(view.anyFit?{gender:"any"}:{})}:p),wide=false;   // anyFit: a ?q= link shows its deal to anyone
   if(cdn)all=all.filter(cdnBrand);
