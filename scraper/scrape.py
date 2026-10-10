@@ -1154,7 +1154,7 @@ def mec_item(h):
     g_ = h.get("gender")
     sizes = (sz.get("US Men's") if g_ != "womens" else None) or sz.get("US Women's") or sz.get("US Men's") \
         or h.get("sizeClothingMens") or h.get("sizeClothingWomens") or (h.get("clothingSize") or {}).get("Alpha") \
-        or sz.get("Alpha") or ["OS"]
+        or sz.get("Alpha") or ([h["sizeValue"]] if h.get("sizeValue") else None) or ["OS"]   # Oct 10: a lone "Small" was "OS"
     sx = {"mens": ["men"], "womens": ["women"], "unisex": ["men", "women"]}.get(g_, [])
     if img:
         img = img.replace(".1280.1280.", ".500.500.")
