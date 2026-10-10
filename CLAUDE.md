@@ -459,7 +459,10 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   dashboard_key, storage policy) -> catalog_uploaded() records it in catalog_files and starts a refresh (supabase/catalog.sql). scrape.py
   catalog_download() uses the newest upload first (newest 3 kept), then saved-pages/*.xlsx. Keep daily files OUT of git (20 MB each).
   **Before shipping ANY catalog file (Bastien, Oct 9: "Always test this before shipping it"): `python tools/catalog_test.py FILE`
-  must say READY**, and its "Tap to check" list goes to Bastien with the reply. It merges a partial batch (e.g. Backcountry only)
+  must say READY**, and its "Tap to check" list goes to Bastien with the reply.
+  The file that ships must be the exact file that passed (Oct 10, Bastien: "Double check the catalog before shipping it"): any
+  edit after the test (removing a wrong item by hand) = run the test again on the final file before tools/check.py and the push.
+  One wrong live price: the test checks 10 more of that store; 9+ right = that item leaves the file, fewer = NOT READY. It merges a partial batch (e.g. Backcountry only)
   into the newest full file in saved-pages/, then: file scan, store counts vs current (gone/halved = FAIL), Gender column vs name,
   sorting check on today's data + the file for every store in it, live links (4 random sale sizes per store opened on the
   store's page; blocked or script-only prices = tap-check), 5 deals to tap. Then tools/check.py, then push.
