@@ -58,21 +58,61 @@ def stores_of(path):
 
 
 def merge(base, new, out):
-    """Rows of `new` replace the same product/colour/size in `base`; everything else in `base` stays."""
+    """Stores only in `base` stay as they were. For a store in `new` (Oct 10: GPT often re-reads only a store's sale pages):
+    an item in `new` replaces all of its old rows; an old item `new` doesn't have is kept only where it was at full price
+    (a sale it didn't re-confirm may have ended: never show a stale sale price)."""
     b, n = (openpyxl.load_workbook(p, read_only=True, data_only=True) for p in (base, new))
+    h1, s1 = sheet(b, "Sizes & availability")
+    h2, s2 = sheet(n, "Sizes & availability")
+    if h1 != h2:
+        raise SystemExit("FAIL: the two files have different columns in Sizes & availability")
+    ri, ii, cp, rp = (h1.index(c) for c in ("Retailer", "Item ID", "Current price", "Regular price"))
+    fresh = {r[ri] for r in s2}
+    seen = {(r[ri], r[ii]) for r in s2}
+
+    def full_price(r):
+        try:
+            return float(r[cp]) >= float(r[rp]) * 0.99
+        except (TypeError, ValueError):
+            return False
+    sizes = [r for r in s1 if r[ri] not in fresh or ((r[ri], r[ii]) not in seen and full_price(r))] + s2
+    keep = {(r[ri], r[ii]) for r in sizes}
     wb = openpyxl.Workbook(write_only=True)
-    for name, key in (("Products", ("Retailer", "Item ID")), ("Sizes & availability", ("Retailer", "Item ID", "Colour", "Size", "Width / fit"))):
-        h1, r1 = sheet(b, name)
-        h2, r2 = sheet(n, name)
-        if h1 != h2:
-            raise SystemExit(f"FAIL: the two files have different columns in {name}")
-        idx = [h1.index(k) for k in key]
-        newk = {tuple(r[i] for i in idx) for r in r2}
+    hp, p1 = sheet(b, "Products")
+    hq, p2 = sheet(n, "Products")
+    if hp != hq:
+        raise SystemExit("FAIL: the two files have different columns in Products")
+    pi, pk = hp.index("Retailer"), hp.index("Item ID")
+    for name, head, rows in (("Products", hp, [r for r in p1 if (r[pi], r[pk]) in keep and (r[pi], r[pk]) not in seen] + p2),
+                             ("Sizes & availability", h1, sizes)):
         ws = wb.create_sheet(name)
-        ws.append(h1)
-        for r in [r for r in r1 if tuple(r[i] for i in idx) not in newk] + r2:
+        ws.append(head)
+        for r in rows:
             ws.append(list(r))
     wb.save(out)
+
+
+def without(ship, new, urls):
+    """The shipped file minus the rows whose link is in `urls` (written to saved-pages/)."""
+    out = ship
+    if ship == new or ship.parent != SAVED:
+        today = datetime.now(ZoneInfo("America/Vancouver")).strftime("%Y-%m-%d")
+        n = 0
+        while (SAVED / f"catalog-{today}{chr(97 + n) if n else ''}.xlsx").exists():
+            n += 1
+        out = SAVED / f"catalog-{today}{chr(97 + n) if n else ''}.xlsx"
+    b = openpyxl.load_workbook(ship, read_only=True, data_only=True)
+    wb = openpyxl.Workbook(write_only=True)
+    for name in ("Products", "Sizes & availability"):     # sizes only: a product row with no sizes left shows nothing
+        h, rows = sheet(b, name)
+        ws = wb.create_sheet(name)
+        ws.append(h)
+        for r in rows:
+            if name == "Products" or r[h.index("Variant URL")] not in urls:
+                ws.append(list(r))
+    wb.save(out)
+    print(f"  note {len(urls)} item link(s) taken out of {out.name}")
+    return out
 
 
 def load(path, tmp):
@@ -186,38 +226,68 @@ def main(new):
     by = collections.defaultdict(list)
     for r in sale:
         by[r["Retailer"]].append(r)
-    blocked, bad = [], []
+    blocked, bad, wrong = [], [], collections.defaultdict(list)
+
+    def check(r):
+        """'ok', 'bad' (price not on the page), 'gone' (404) or 'blocked' (can't tell)."""
+        url, price = r["Variant URL"], float(r["Current price"])
+        try:
+            resp = requests.get(url, timeout=30, headers={"User-Agent": livecheck.S.headers["User-Agent"]})
+            code = resp.status_code
+        except requests.RequestException:
+            code = 0
+        time.sleep(1)
+        if code in (202, 403, 406, 429) or code == 0 or (code == 200 and len(resp.text) < 2000):
+            return "blocked"
+        if code in (404, 410):
+            return "gone"
+        res = livecheck.still_on_sale(url, price) if code == 200 else None
+        page = re.sub(r"<[^>]+>", " ", resp.text)
+        if res is None or (res is False and not re.search(r"\$\s?\d+(?:\.\d\d)?", page)):
+            return "blocked"              # turned away (406), or no price in the page (filled in by a script): tap-check
+        if res is False:                  # Zappos moves prices by cents during the day: within 2% is the same deal
+            near = [float(x) for x in re.findall(r"\$\s?(\d+\.\d\d)", page)]
+            if any(abs(x - price) <= price * 0.02 for x in near):
+                notes.append(f"{r['Retailer']}: ${price:.2f} is now ${min(near, key=lambda x: abs(x - price)):.2f} on the page")
+                return "ok"
+        return "ok" if res else "bad"
+
     for s, rs in sorted(by.items()):
         ok = tried = 0
         for r in random.sample(rs, min(4, len(rs))):
-            url, price = r["Variant URL"], float(r["Current price"])
-            try:
-                resp = requests.get(url, timeout=30, headers={"User-Agent": livecheck.S.headers["User-Agent"]})
-                code = resp.status_code
-            except requests.RequestException:
-                code = 0
-            time.sleep(1)
-            if code in (202, 403, 406, 429) or code == 0 or (code == 200 and len(resp.text) < 2000):
+            got_ = check(r)
+            if got_ == "blocked":
                 blocked.append(s)
                 break
             tried += 1
-            if code in (404, 410):
-                bad.append(f"{s}: page gone ({url})")
-                continue
-            res = livecheck.still_on_sale(url, price) if code == 200 else None
-            if res is False and not re.search(r"\$\s?\d+(?:\.\d\d)?", re.sub(r"<[^>]+>", "", resp.text)):
-                tried -= 1                 # no price in the page at all (Zappos fills it in with a script): can't tell, tap-check
-                blocked.append(s)
-                continue
-            if res is True:
-                ok += 1
-            elif res is False:
-                bad.append(f"{s}: ${price:.2f} not on the page ({url})")
+            ok += got_ == "ok"
+            if got_ != "ok":
+                wrong[s].append((r, got_))
         if tried:
             print(f"  {'ok  ' if ok == tried else 'note'} Live links, {s}: {ok} of {tried} pages show the file's sale price")
+    # one wrong price (Oct 10: a Zappos SuperComp Elite colour went from $198.71 to $252.35 after GPT's read): 10 more of that
+    # store; 9+ right = it's that item, which is taken out of the file; fewer = the store's data is off, don't ship
+    drop = set()
+    for s, rs in wrong.items():
+        more = [r for r in random.sample(by[s], min(14, len(by[s]))) if r not in [x for x, _ in rs]][:10]
+        res = [check(r) for r in more]
+        seen_ = [x for x in res if x != "blocked"]
+        good = sum(x == "ok" for x in seen_)
+        what = "; ".join(f"${float(r['Current price']):.2f} {'page gone' if why == 'gone' else 'not on the page'} "
+                         f"({r['Variant URL']})" for r, why in rs)
+        if len(seen_) >= 8 and good >= len(seen_) - 1:
+            drop |= {r["Variant URL"] for r, _ in rs}
+            print(f"  note Live links, {s}: {what}; {good} of {len(seen_)} more pages match, so that item is taken out of the file")
+        else:
+            bad.append(f"{s}: {what}; only {good} of {len(seen_)} more pages match")
     if blocked:
         print(f"  note Live links: {', '.join(sorted(set(blocked)))}: blocks robots or shows prices only with a script, tap-check below")
+    for n_ in notes:
+        print("  note Live links, price moved a little: " + n_)
     say(not bad, "Live links: " + ("all opened pages match" if not bad else "; ".join(bad[:6])))
+    if drop and not bad:
+        ship = without(ship, new, drop)
+        by = {s: [r for r in rs if r["Variant URL"] not in drop] for s, rs in by.items()}
 
     # 6. five deals to tap
     print("\nTap to check (price and size we'll show):")

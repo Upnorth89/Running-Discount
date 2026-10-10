@@ -74,7 +74,7 @@ RULES = [
     ("shoes",     r"\bshoes?\b|\bchaussures?\b|\bspikes\b|\bfootwear\b|\bsneakers?\b"),
     ("bras",      r"\bbras?\b"),
     ("socks",     r"\bsocks?\b|\bchaussettes?\b|mini crew|micro crew|mid crew|crew height|no[- ]show|over[- ]the[- ]calf|\bquarter\b(?![- ]?zip)|cushion\b.*\bcrew\b"),
-    ("gloves",    r"\bgloves?\b|\bmitts?\b|mittens"),
+    ("gloves",    r"\bgloves?\b|\bmitts?\b|\bmittens?\b"),
     ("watches",   r"\bwatch(es)?\b(?! cap)"),      # a "Watch Cap Beanie" is a hat (Territory, Oct 8)
     ("gear",      r"\b(filter|bottle|flask|flex) caps?\b|^(?!.*\b(vests?|belts?|packs?)\b).*\bsoft flasks?\b|\b(safety|led|reflective) vest\b"),   # caps that aren't hats, a flask "with bite top", LED vests (Oct 8)
     ("headwear",  r"\bhats?\b|\bcaps?\b(?![- ]sleeve)|\b(?:go|trl|trk|crw|fst|alz|ss|gt)cap\b|beanie|toque|tuque|headband|\bbuffs?\b|neck ?gaiter|neckwear|neck ?warmer|visor"),

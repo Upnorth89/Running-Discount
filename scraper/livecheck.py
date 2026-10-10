@@ -30,8 +30,8 @@ def _shopify(url, price, variant, us=False, tol=0.01):
     u = urlparse(url)
     m = re.match(r"(.*/products/[^/?#]+)", u.path)
     r = S.get(f"{u.scheme}://{u.netloc}{m.group(1)}.js", cookies=None if us else CA_COOKIES, timeout=30)
-    if r.status_code in (403, 429) or r.status_code >= 500:
-        return None
+    if r.status_code in (202, 403, 406, 429) or r.status_code >= 500:     # the store said no (Oct 10: Running Warehouse 406s
+        return None                                                     # us): can't tell, never "sale ended"
     if r.status_code != 200:
         return False                    # 404: the product is gone
     vs = r.json().get("variants") or []
@@ -45,8 +45,8 @@ def _shopify(url, price, variant, us=False, tol=0.01):
 def _page(url, price):
     """Any other store: the page (or its product data) must show this price."""
     r = S.get(url, timeout=30)
-    if r.status_code in (403, 429) or r.status_code >= 500:
-        return None
+    if r.status_code in (202, 403, 406, 429) or r.status_code >= 500:     # the store said no (Oct 10: Running Warehouse 406s
+        return None                                                     # us): can't tell, never "sale ended"
     if r.status_code != 200:
         return False
     whole = f"{price:.2f}"
