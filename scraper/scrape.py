@@ -1533,7 +1533,9 @@ _catalog_lock = threading.Lock()      # the three stores read in parallel lanes:
 def _catalog_size(label, width, group, gender):
     s = re.sub(r'\s*\d+(\.\d+)?"$', "", str(label or "").strip())            # shorts inseam: 'S/P 5"'
     if s.upper() in ("NONE", "ONE SIZE", ""):
-        return "OS"
+        # Oct 10 (a visitor: "size" on an adidas Prime X3 at Running Warehouse): the file left Size empty on 327 RW and 19
+        # Sport Chek rows; as "OS" a shoe matched every visitor's size. Empty = unknown, so sized items skip that row.
+        return None if group in ("shoes", "tops", "bottoms", "bras", "socks", "gloves") else "OS"
     if group == "shoes":
         w = (width or "").lower()
         wide = w in ("wide", "2e", "4e", "extra wide") or (w == "d" and gender == "Women")
@@ -1733,6 +1735,8 @@ def scrape_catalog(retailer, st=None):
                               "sx": catalog_gender(name, g_),
                               "w": False, "img": img, "bb": None, "sizes": {}}
         size = _catalog_size(r.get("Size"), r.get("Width / fit"), p["g"], g_)
+        if size is None:
+            continue
         now_c, reg_c = round(float(now) * p["fx"], 2), round(max(float(reg or now), float(now)) * p["fx"], 2)
         old = p["sizes"].get(size)
         if old is None or now_c < old[0]:

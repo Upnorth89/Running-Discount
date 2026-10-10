@@ -139,6 +139,12 @@ def main(new):
     print("  " + ("note " if wrong else "ok   ") + "Gender: " + (", ".join(f"{s} {n} rows" for s, n in wrong.items())
                                                            + " where the name and the Gender column disagree (the name wins)" if wrong else "names and Gender column agree"))
 
+    # 3b. empty sizes (Oct 10: 327 Running Warehouse rows had no Size; a shoe then matched every visitor). They're skipped now;
+    # listed here so GPT can be asked to fill them
+    nosize = collections.Counter(r["Retailer"] for r in rows if r.get("Online availability") == "In stock" and not r.get("Size"))
+    print("  " + ("note " if nosize else "ok   ") + "Sizes: " + (", ".join(f"{s} {n} in-stock rows" for s, n in nosize.items())
+                                                       + " have no size (left out; ask GPT to fill Size)" if nosize else "every in-stock row has a size"))
+
     # 4. sorting check on today's live data + this file
     rm = tmp / "rm"
     rm.mkdir()
