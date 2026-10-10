@@ -13,6 +13,8 @@ What it catches
   - the whole catalogue shrinking sharply
   - sign-ups getting close to the free email plan's limits
   - anything the site test found (tools/sitetest.py: clicks through the site like a visitor, searches, links)
+  - searches that found nothing in the last 24 h, sorted by why (scraper/search_check.py); our search missing
+    products that have the words in their name is a problem
 
 Usage: python scraper/health.py YESTERDAY_DIR SITE_DIR
 Env:   RESEND_API_KEY, HEALTH_EMAIL (default hello@thegearfox.com), FROM_EMAIL,
@@ -265,6 +267,10 @@ def main():
     problems, stats = check()
     cat_line, cat_probs = catalog_check()
     problems += cat_probs
+    # searches that found nothing in the last 24 h, sorted by why (scraper/search_check.py, Oct 10); morning report only
+    import search_check
+    search_text, search_probs = ("", []) if os.environ.get("HEALTH_WHEN") == "midday" else search_check.run(SITE)
+    problems += search_probs
     prev = load(PREV / "health.json")
     emailed = set(prev.get("emailed", []))        # problems already sent, still ongoing
     reported = prev.get("reported")                # Vancouver date of the last morning report (the backup run skips if it's today)
@@ -303,6 +309,7 @@ def main():
                 if stats["subscribers"] is not None else "") + \
                ("\nBiggest changes by store:\n" + "\n".join(f"- {st}: {a:,} products (was {b:,})" for st, a, b in stats["moves"]) + "\n"
                 if stats["moves"] else "") + \
+               search_text + \
                ("" if mid else catalog_spot()) + \
                "\nFull log: https://github.com/upnorth89/Running-Discount/actions\n"
         r = requests.post("https://api.resend.com/emails", timeout=60,

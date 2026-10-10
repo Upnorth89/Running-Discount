@@ -449,6 +449,11 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   matches nothing -> "Did you mean …?" (`suggest()`: closest brand/model word in today's data, 1 typo under 7 letters, 2 above;
   "norda000" -> "norda 000"; "alphafly 4" -> the longest part that exists); a store's name -> [See every deal at Store]. Suggest,
   never auto-replace. Analytics: kind "search" with detail "any-size:"/"my-size:"/"did-you-mean:". Site test "Search: did you mean".
+  Oct 10 (stats page: "arcteryx", "goretex", "a1080v15" found nothing): search ignores punctuation per word (`hayOf`: Arc'teryx,
+  Gore-Tex = GTX), a number joins its neighbour word ("1080 V15" = "108015"), never across words ("odlo" != "Hood - Long"); site test
+  "Search without punctuation". Morning email "Searches that found nothing (last 24 h)" (`scraper/search_check.py`, a Python copy of
+  hayOf/suggest: keep them the same): our search missed it (a problem) / typo / store name / not in their size / other side only /
+  we don't carry it (store and brand ideas). Side from the device time zone.
 - Catalog file (Oct 8; stores that block us: Bastien has GPT make Running_Gear_Catalog.xlsx and uploads it to saved-pages/ every
   2-3 days): `catalog_rows()` reads the newest .xlsx ("Products" + "Sizes & availability" sheets), ignored 3 days after its own
   "Observed (UTC)" time (CATALOG_MAX_DAYS). Only "In stock" sizes, no kids, adidas size words ("L/G", "XSTP", 'S/P 5"') tidied.
