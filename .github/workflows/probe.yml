@@ -1,0 +1,23 @@
+name: Probe
+
+# Can GitHub's servers read a store? (tools/probe.py; Oct 10). One plain visit per address; results in the run's annotations.
+on:
+  workflow_dispatch:
+    inputs:
+      urls:
+        description: 'Addresses separated by spaces'
+        required: true
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - env:
+          URLS: ${{ inputs.urls }}
+        run: python tools/probe.py
