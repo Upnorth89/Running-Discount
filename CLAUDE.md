@@ -242,6 +242,11 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   in stock in that size (checked against product pages). Saved to runningfree.json on the history branch; the refresh downloads it
   (`RUNNINGFREE_FILE`, fresh = under 36 h). While fresh, the catalog file's Running Free rows are skipped. Short brands `RF_SHORT`
   (NB, SW, TNF, PI). Waist sizes (Size-28…) and shoe-drop filters (4mm…) are not read.
+- Running Room (Oct 10; Canada's biggest running chain, Magento at ca.shop.runningroom.com): `scrape_runningroom` reads its own public
+  product feed (robots.txt sitemap media/sitemap/ai_feed_sitemap.xml -> media/ai/products_N.json, ~22 files, rebuilt ~5am daily, 2 s
+  apart): one record per size with price/final_price, stock qty, photo, a link that opens that colour+size. Tax class code -> group
+  (`RR_GROUP`; 9xx "WR" = Walking Room, sandals, kids, swim, books left out); width from the name ("D Width") into the size. Oct 10:
+  2,974 products, 1,262 on sale; sorting check clean; 4 of 4 sale prices matched on the store's page.
 - Shoe sizes (Oct 9, Bastien: "we aren't pulling shoes that have European sizing?"): 2,476 shoe listings had no readable size.
   Fixed: Shopify option "US Size" (The Trail Runner Store, ~1,100), width first "D / 9.0" (Frontrunners; `canon_shoe(label, women)`),
   US+EU labels ("10.0 (43)", "EU 43 (US 10)", "42.5 (9.5US)"), "9 M / 10.5 W". EU-only sizes ("42", "38.5 EU": La Sportiva,

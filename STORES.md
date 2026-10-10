@@ -169,7 +169,6 @@ every check (rule in CLAUDE.md: try every allowed way first; a store that says n
 |---|---|---|---|---|
 | **Blocked (the store says no)** | | | | |
 | Sport Chek, Atmosphere, Sports Experts (Canadian Tire) | Canada | "Access Denied" to automated reading; saved pages have no sizes (Oct 2) | site, saved pages; **Sport Chek works from the GPT catalog file** (Oct 8; not in the Oct 8b file) | Canadian Tire affiliate feed (Impact.com), December |
-| Running Room | Canada | blocks automated reading | site | partnership or affiliate feed |
 | MEC | Canada | blocks automated reading | site; **saved pages work** (Grab deals) | MEC product feed via AvantLink/Sovrn |
 | REI | USA | blocks automated reading | **saved pages work** (US side) | affiliate feed |
 | Boutique Courir | Montréal | blocks automated reading (Oct 1) | site | ask the store |
@@ -325,7 +324,6 @@ Stores with under 25 products in stock are left out. Numbers from the Oct 8b fil
 | Store | City | Why not (date checked) |
 |---|---|---|
 | Sport Chek | national | blocks automated reading; saved sale pages (Oct 2, 2026) have no sizes, even filtered to running clearance (74 shoes, 2 pages). **Since Oct 8: from the GPT catalog file** (see below) |
-| Running Room | national | blocks automated reading |
 | Atmosphere | national | blocks automated reading |
 | Sports Experts | QC | blocks automated reading |
 | Boutique Courir (boutiquecourir.com) | Montréal | blocks automated reading (Oct 1, 2026) |

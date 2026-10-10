@@ -193,6 +193,90 @@ def eu_only(label):
     m = re.fullmatch(r"(?i)(?:eu\s*)?" + EU_NUM + r"(?:\s*eu)?", t)
     return (_eu_key(m), width) if m else None
 
+# ---------------------------------------------------------------- Running Room (Canada's biggest running chain; Magento)
+# Oct 10, 2026: Running Room publishes its whole Canadian catalogue for machines (robots.txt sitemap ai_feed_sitemap.xml ->
+# media/ai/products_N.json, rebuilt ~5am daily): one record per size with price, sale price, stock, photo and a link that opens
+# that colour and size. Walking Room (its walking/casual shop, tax classes "9xx WR"), sandals, kids, swim and books are left out.
+RR_FEED = "https://ca.shop.runningroom.com/media/sitemap/ai_feed_sitemap.xml"
+RR_GROUP = {range(111, 127): "bottoms", range(131, 145): "tops", range(153, 155): "bottoms", range(155, 156): "bras",
+            range(222, 223): "headwear", range(223, 224): "gear", range(224, 225): "gloves", range(225, 226): "headwear",
+            range(229, 230): "gear", range(230, 240): "nutrition", range(242, 246): "socks", range(281, 282): "gear",
+            range(282, 284): "packs", range(284, 285): "gear", range(424, 425): "gear", range(426, 427): "headwear",
+            range(427, 428): "gear", range(300, 314): "shoes", range(320, 334): "shoes"}
+RR_BRANDS = ("New Balance", "Running Room", "Fuel Belt", "Under Armour", "The North Face", "Black Diamond", "Dr. Cohen's", "Pearl Izumi")
+
+
+def rr_width(w, women):
+    w = (w or "").upper()
+    if women:
+        return " Wide" if w in ("D", "2E", "4E") else " Narrow" if w in ("2A", "AA") else ""
+    return " Wide" if w in ("2E", "4E", "6E") else " Narrow" if w in ("B", "2A") else ""
+
+
+def scrape_runningroom():
+    sm = S.get(RR_FEED, timeout=60)
+    if sm.status_code != 200:
+        raise RuntimeError(f"Running Room feed: HTTP {sm.status_code}")
+    recs = []
+    for u in re.findall(r"<loc>([^<]+/products_\d+\.json)</loc>", sm.text):
+        r = S.get(u, timeout=120)
+        if r.status_code != 200:
+            raise RuntimeError(f"Running Room feed file {u.rsplit('/', 1)[-1]}: HTTP {r.status_code}")
+        recs += r.json()
+        time.sleep(2)
+    offers = {}
+    for p in recs:
+        a = p.get("attributes") or {}
+        m = re.match(r"(\d+)", str(a.get("tax_class_id") or ""))
+        code = int(m.group(1)) if m else 0
+        g = next((v for k, v in RR_GROUP.items() if code in k), None)
+        if not g or not (p.get("stock") or {}).get("is_in_stock") or (p["stock"].get("qty") or 0) <= 0:
+            continue
+        full = re.sub(r"\s*\([^()]*\)\s*$", "", html_lib.unescape(p.get("name") or "")).strip()
+        if re.search(r"\b(kids?|youth|junior|toddler)\b", full, re.I):
+            continue
+        gm = re.search(r"\s(Men's|Women's|Unisex)\s", " " + full + " ")
+        if gm:
+            b, model = full[:gm.start()].strip(), full[gm.end() - 1:].strip()
+        else:
+            b = next((x for x in RR_BRANDS if full.lower().startswith(x.lower() + " ")), full.split(" ")[0])
+            model = full[len(b):].strip()
+        women = bool(gm and gm.group(1) == "Women's")
+        sx = ["women"] if women else ["men"] if gm and gm.group(1) == "Men's" else []
+        wm = re.search(r"\s(\w{1,2})\s+[Ww]idth\b", " " + model)
+        width = rr_width(wm.group(1), women) if wm and g == "shoes" else ""
+        model = re.sub(r"\s+\w{1,2}\s+[Ww]idth\b", "", model).strip()
+        size = str(a.get("size") or "").strip()
+        if not size or size == ".":
+            if g in ("shoes", "tops", "bottoms", "bras", "socks"):
+                continue
+            size = "OS"
+        size = size + width if g == "shoes" else norm_size(size)
+        pr = p.get("price") or {}
+        now, reg = float(pr.get("final_price") or pr.get("price") or 0), float(pr.get("price") or 0)
+        if now <= 0:
+            continue
+        reg = max(reg, now)
+        nm = model + {"men": " - Men's", "women": " - Women's"}.get(sx[0] if sx else "", " - Unisex" if gm else "")
+        key = (a.get("app_style_id"), a.get("color"))
+        o = offers.get(key)
+        if o is None:
+            img = (p.get("images") or {}).get("image_main")
+            o = offers[key] = {"st": "runningroom", "b": b, "n": nm, "u": p.get("url") or "", "g": g, "sx": sx, "w": False,
+                               "img": img, "lp": reg, "bb": None, "ca": True, "no_us": True, "sz": {}}
+        o["lp"] = max(o["lp"], reg)
+        if size not in o["sz"] or now < o["sz"][size][0]:
+            o["sz"][size] = (now, reg, p.get("url"))
+    out = []
+    for o in offers.values():
+        if not o["img"]:
+            continue
+        o["sz"] = [[k, v[0], v[1], None] for k, v in o["sz"].items()]
+        out.append(o)
+    print(f"  runningroom: {len(recs)} feed records -> {len(out)} products", file=sys.stderr)
+    return out
+
+
 # ---------------------------------------------------------------- Running Free (Ontario chain, own shop system)
 # Oct 9, 2026 (Bastien: "Try making our own reader for running free"). No product feed, but its listing pages show each product's
 # name, photo, regular and sale price, and its size filter pages ("10 Regular", "Medium") list only what's in stock in that size
@@ -2065,7 +2149,8 @@ STORES = {
     "decathlon": lambda: scrape_decathlon_saved(),    # read at night, slowly (runfree.yml): Decathlon blocked GitHub's daytime reads
     # "backcountry": off (Oct 6): its bot protection answers GitHub's servers "202, empty"; reader kept for a feed
     "footlocker": scrape_footlocker,
-    "runningfree": scrape_runningfree,   # read at night, a page every 30 s (its robots.txt); Oct 9
+    "runningfree": scrape_runningfree,
+    "runningroom": scrape_runningroom,   # its own public product feed (robots.txt sitemap), Oct 10   # read at night, a page every 30 s (its robots.txt); Oct 9
 }
 # Final sale (Oct 4, 2026; read from each store's return policy, recheck now and then): 1 = every item is final sale,
 # 2 = every item bought on sale is final, N > 2 = final from N% off. Items a store tags "Final sale" count too (offer "fs").
