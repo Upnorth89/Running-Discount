@@ -1784,6 +1784,19 @@ def catalog_gender(name, col):
         return ["men"]
     return {"Men": ["men"], "Women": ["women"], "Unisex": ["men", "women"]}.get(col, [])
 
+def catalog_link(u, sku):
+    """A link that opens on this colour and size, when the store allows it (Oct 10, Bastien opened a Backcountry XL pant link
+    and saw only M/L: the page opened on another colour; "every link brings to actual size and item linked"). The file's SKU
+    column is the store's own size code: Backcountry ?skid=, REI ?sku=. None = the file's link is used as is."""
+    sku = str(sku or "")
+    if "?" in u:
+        return None
+    if "backcountry.com/" in u and re.fullmatch(r"[A-Z0-9]+-[A-Z0-9]+-[\w.]+", sku):
+        return f"{u}?skid={sku}"
+    if "rei.com/product/" in u and re.fullmatch(r"[A-Z]?\d{8,12}", sku):
+        return f"{u}?sku={sku}"
+    return None
+
 def scrape_catalog(retailer, st=None):
     """One retailer's products from the catalog file, in the offers format (prices in CAD)."""
     st = st or CATALOG_STORES[retailer][0]
@@ -1822,11 +1835,7 @@ def scrape_catalog(retailer, st=None):
         if size is None:
             continue
         now_c, reg_c = round(float(now) * p["fx"], 2), round(max(float(reg or now), float(now)) * p["fx"], 2)
-        # Backcountry (Oct 10, Bastien opened an XL pant link and saw only M/L: the page opened on another colour): its SKU
-        # column is Backcountry's own size code, and "?skid=" opens the page on that colour and size
-        link = None
-        if "backcountry.com/" in p["u"] and "?" not in p["u"] and re.fullmatch(r"[A-Z0-9]+-[A-Z0-9]+-[\w.]+", str(r.get("SKU") or "")):
-            link = f"{p['u']}?skid={r['SKU']}"
+        link = catalog_link(p["u"], r.get("SKU"))
         old = p["sizes"].get(size)
         if old is None or now_c < old[0]:
             p["sizes"][size] = (now_c, reg_c, link)

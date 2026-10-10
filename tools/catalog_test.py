@@ -185,6 +185,27 @@ def main(new):
     print("  " + ("note " if nosize else "ok   ") + "Sizes: " + (", ".join(f"{s} {n} in-stock rows" for s, n in nosize.items())
                                                        + " have no size (left out; ask GPT to fill Size)" if nosize else "every in-stock row has a size"))
 
+    # 3c. where each link lands (Oct 10, Bastien: "every link brings to actual size and item linked"): with the store's size code
+    # added (sc.catalog_link), a link must at least open on the item's colour; one link shared by several colours opens on
+    # whichever colour the store shows first, maybe one without the size = FAIL until that store gets a link rule
+    lands = collections.defaultdict(lambda: (collections.defaultdict(set), collections.defaultdict(set)))
+    for r in rows:
+        if r.get("Online availability") != "In stock" or not r.get("Size"):
+            continue
+        u = str(r.get("Variant URL") or "")
+        u = sc.catalog_link(u, r.get("SKU")) or u
+        by_link, by_col = lands[r["Retailer"]]
+        by_link[u].add(str(r.get("Colour") or "").lower())
+        by_col[(r.get("Item ID"), str(r.get("Colour") or "").lower())].add(u)
+    for s_, (by_link, by_col) in sorted(lands.items()):
+        shared = sum(len(c) > 1 for c in by_link.values()) / max(1, len(by_link))
+        per_size = sum(len(v) > 1 for v in by_col.values()) / max(1, len(by_col))
+        if shared > 0.05:
+            say(False, f"Links, {s_}: {shared:.0%} of links are shared by several colours (opens on the wrong colour): needs a link rule")
+        else:
+            print(f"  ok   Links, {s_}: " + ("open on the colour and size" if per_size > 0.5 else
+                                          "open on the colour (size picked on the store's page)"))
+
     # 4. sorting check on today's live data + this file
     rm = tmp / "rm"
     rm.mkdir()
@@ -294,7 +315,7 @@ def main(new):
     pool = [r for s in by for r in random.sample(by[s], min(2, len(by[s])))]
     for r in random.sample(pool, min(5, len(pool))):
         print(f"  {r['Retailer']}: {r['Item']}, size {r['Size']}, ${float(r['Current price']):.2f} {r.get('Currency') or ''} "
-              f"(was ${float(r['Regular price']):.2f})\n    {r['Variant URL']}")
+              f"(was ${float(r['Regular price']):.2f})\n    {sc.catalog_link(str(r['Variant URL']), r.get('SKU')) or r['Variant URL']}")
     return finish(ship, new)
 
 
