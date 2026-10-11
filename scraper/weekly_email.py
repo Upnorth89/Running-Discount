@@ -172,7 +172,7 @@ GROUP_FR = {"shoes": "Chaussures", "tops": "Hauts et manteaux", "bottoms": "Shor
 STR = {
     "en": dict(your_size="Your size: ", best_by="Best by {}", all_sizes="All sizes & stores →", abroad="Ships from outside Canada · converted to CAD, duties may apply",
                abroad_us="Ships from outside the US, duties may apply", final="Final sale: no returns",
-               see_all="See all {} on sale →", watch_head="Your watchlist",
+               see_all="See all {} on sale →", watch_head="Your watchlist", watch_link="♡ Watch the price",
                changes=lambda n: f"{n} {'change' if n == 1 else 'changes'} this week",
                change_sizes="Change your sizes", unsubscribe="Unsubscribe", privacy="Privacy", follow="Follow us on Instagram",
                subject=lambda n, top: f"The Gear Fox: {n} deals in your size this week, up to {top}% off",
@@ -189,7 +189,7 @@ STR = {
     "fr": dict(your_size="Votre taille : ", best_by="Meilleur avant le {}", all_sizes="Toutes les pointures et boutiques →",
                abroad="Expédié de l'extérieur du Canada · converti en $ CA, des droits peuvent s'appliquer",
                abroad_us="Expédié de l'extérieur des États-Unis, des droits peuvent s'appliquer", final="Vente finale : aucun retour",
-               see_all="Voir les {} articles en solde →", watch_head="Vos favoris",
+               see_all="Voir les {} articles en solde →", watch_head="Vos favoris", watch_link="♡ Suivre le prix",
                changes=lambda n: f"{n} {'changement' if n == 1 else 'changements'} cette semaine",
                change_sizes="Modifier vos tailles", unsubscribe="Se désabonner", privacy="Confidentialité", follow="Suivez-nous sur Instagram",
                subject=lambda n, top: f"The Gear Fox : {n} aubaines à votre taille cette semaine, jusqu'à {top} % de rabais",
@@ -272,7 +272,7 @@ def shoe_page_url(d, lang):
         slug, m = m["to"], SHOE_PAGES.get(m["to"])
     return f'{SITE_URL}{"chaussures" if lang == "fr" else "shoes"}/{slug}/?em=friday' if m else ""
 
-def card(d, lang="en"):
+def card(d, lang="en", wl=None):
     img = (f'<img src="{E(d["img"])}" width="84" height="84" alt="" '
            f'style="display:block;width:84px;height:84px;object-fit:contain;background:#fff;border-radius:8px">') if d.get("img") else ""
     fav = " ★" if d["fav"] else ""
@@ -283,8 +283,13 @@ def card(d, lang="en"):
     if d.get("fin"):
         bb += f'<div style="font-size:12px;color:#17201C;font-weight:600">{E(tr(lang, "final"))}</div>'
     sp = shoe_page_url(d, lang)
+    # Oct 11 (only 5 people used the watchlist in 3 weeks; watchers come back twice as often): watch a deal from the email
+    from urllib.parse import quote
+    wk = f'{d["b"]}|{d["n"]}|{d["g"]}|{1 if d.get("w") else 0}'.lower()          # the site's itemKey()
+    wa = f'<a href="{E(wl + "&watch=" + quote(wk))}" style="color:#B8470A;font-weight:700">{E(tr(lang, "watch_link"))}</a>' if wl else ""
+    la = f'<a href="{E(sp)}" style="color:#B8470A;font-weight:700">{E(tr(lang, "all_sizes"))}</a>' if sp else ""
     cmp = (f'<div style="margin:4px 0 0 96px;font-family:Arial,Helvetica,sans-serif;font-size:12px">'
-           f'<a href="{E(sp)}" style="color:#B8470A;font-weight:700">{E(tr(lang, "all_sizes"))}</a></div>') if sp else ""
+           + " &nbsp;·&nbsp; ".join(x for x in (wa, la) if x) + '</div>') if (wa or la) else ""
 
     return f'''<tr><td style="padding:10px 0;border-top:1px solid #E3E7E2">
 <a href="{E(d["url"])}" style="text-decoration:none;color:#17201C;display:block">
@@ -325,7 +330,7 @@ def build(p, sale, watch=None):
                 f'{E(tr(lang, "see_all", len(ds)))}</a></td></tr>') if len(ds) > len(take) else ""
         sections.append(f'''<tr><td style="padding:22px 0 4px;font:800 20px Arial,Helvetica,sans-serif;color:#17201C">
 {E(group_label(g, lang))} <span style="font:400 14px Arial,sans-serif;color:#5C6660">{len(ds)}</span></td></tr>
-{"".join(card(d, lang) for d in take)}{more}''')
+{"".join(card(d, lang, shop) for d in take)}{more}''')
     has_watch = bool(watch and (watch["drops"] or watch["backs"]))
     if has_watch:
         import alerts as A

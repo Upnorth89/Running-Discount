@@ -159,6 +159,15 @@ jobs:
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           MAILING_ADDRESS: ${{ secrets.MAILING_ADDRESS }}
         run: python scraper/alerts.py site/deals.json
+      # one reminder to confirm the email, 20-72 h after signing up (Oct 11: only 52% confirmed); morning run only
+      - name: Confirm reminders
+        if: github.event_name != 'push' && github.event.schedule != '17 23 * * *' && !inputs.afternoon
+        continue-on-error: true
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          SUPABASE_URL: "https://krwymmkauwqqxjxbvkyq.supabase.co"
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+        run: python scraper/confirm_reminder.py
       # compares today with yesterday; emails hello@thegearfox.com only about new problems (morning run only)
       - name: Health check
         continue-on-error: true
