@@ -33,7 +33,7 @@ move backlog rows. When he asks "what's on the to-do list", answer from the curr
   after a change that wasn't run through the shoe page builder; Bastien: "this should not be happening"). It rebuilds deals,
   shoe pages, the Friday email cards and the preview from today's live data, then runs the site test (~3 min). The refresh workflow also refuses to
   publish when the shoe pages are missing (yesterday's site stays up) and the health email flags it.
-- Don't touch `email/profiles.json` (old sign-up list; kept out of commits). Subscribers live in Supabase.
+- Don't touch `email/profiles.json` (old sign-up list; untracked since Oct 11, in .gitignore: the repo is public, no personal email in it). Subscribers live in Supabase. No personal address anywhere in the code (mail_check.py reads OWN_EMAIL = HEALTH_EMAIL secret).
 - Don't circumvent bot protection. Stores that block automated access (Sport Chek, Running Room, Atmosphere,
   Sports Experts, MEC, REI…) are either skipped, read from pages Bastien saves himself, or wait for
   affiliate product feeds.

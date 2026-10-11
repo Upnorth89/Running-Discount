@@ -11,7 +11,9 @@ from datetime import datetime, timedelta, timezone
 import requests
 
 out = []
-OWN = re.compile(r"^bastien\.hammond", re.I)
+# Bastien's own address comes from the HEALTH_EMAIL secret (the repo is public: no personal address in the code)
+OWN_USER = re.sub(r"\+.*", "", (os.environ.get("OWN_EMAIL") or "").partition("@")[0]).lower()
+OWN = re.compile("^" + re.escape(OWN_USER) if OWN_USER else r"^(?!)", re.I)
 
 
 def mask(e):
@@ -43,8 +45,8 @@ try:
         out.append(f"  {str(x['last_mail_at'])[:19]}  {mask(e)}  confirmed={'yes' if x['confirmed_at'] else 'no'}"
                    + (f"  <- {', '.join(flags)}" if flags else ""))
     r = requests.get(f"{sb}/rest/v1/subscribers", headers=SH, timeout=30, params={
-        "select": "email,confirmed_at,unsubscribed_at,last_mail_at", "email": "like.bastien.hammond*"})
-    for x in r.json():
+        "select": "email,confirmed_at,unsubscribed_at,last_mail_at", "email": f"like.{OWN_USER}*"}) if OWN_USER else None
+    for x in (r.json() if r is not None else []):
         out.append(f"Your address {mask(x['email'])}: confirmed={x['confirmed_at']}, unsubscribed={x['unsubscribed_at']}, last email asked {x['last_mail_at']}")
 except Exception as e:
     out.append(f"Database: failed ({e})")

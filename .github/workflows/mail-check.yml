@@ -17,6 +17,7 @@ jobs:
       - run: pip install requests
       - env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          OWN_EMAIL: ${{ secrets.HEALTH_EMAIL }}
           SUPABASE_URL: "https://krwymmkauwqqxjxbvkyq.supabase.co"
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
         run: python tools/mail_check.py
