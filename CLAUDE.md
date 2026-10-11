@@ -453,6 +453,11 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   posts `subscribe` itself, puts the shoe in gf-watch) and the homepage come-back bar's sign-up offer (`offerSignup()`: non-members,
   first return per visit; the store offer waits for the next return). Hearts picked before signing up ride in the profile as
   `watch_new` and come back with the confirm link on any device. Site tests "Sign-up bar after a deal click", "Shoe page: email me…".
+  Oct 11 (Bastien: "optimize to have retention, not just a pathway to another website"; 45% of first visits land on shoe pages, 8 of
+  1,160 signed up): shoe pages show a bottom bar "Didn't buy it? We'll email you when the X drops in your size" when the visitor comes
+  back from a store (once per visit, never members, × = 7 days, size picker in the bar when unknown; it sends #alertBox's form);
+  Black Friday + sale-list pages have `qs_box` (fit + shoe size + email, subscribe right there; ref black-friday / sale-list).
+  Site tests "Shoe page: 'Didn't buy it?' bar", "Black Friday page: sign up right here".
 - Analytics kinds (Oct 8): the database drops any event kind not in `ana_kinds()` (store bar/Canadian/country were lost Oct 5–8);
   `tools/check.py` "Analytics events are all recorded" fails if the site sends one it doesn't list. New kind = SQL for Bastien.
   `load` = ms until the deals show (+ connection, data size); the funnel report shows load bands vs sizes picked.

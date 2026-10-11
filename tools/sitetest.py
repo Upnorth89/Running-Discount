@@ -695,6 +695,41 @@ def site_flow(base, per, accented):
             assert "robot@example.com" in msg or "size" in msg.lower(), f"the box gave no answer ({msg!r})"
             return f"{slug}: {msg[:60]}"
         check("Shoe page: email me when it drops")(shoe_alert, pg)
+
+        def shoe_backbar():     # Oct 11: back on a shoe page from a store, a non-member gets "Didn't buy it?" + email
+            pg.evaluate("localStorage.removeItem('gf-sub');localStorage.removeItem('gf-backno');sessionStorage.removeItem('gf-backshown')")
+            pg.reload(wait_until="domcontentloaded")
+            pg.wait_for_selector("a[data-store]", timeout=8000)
+            pg.evaluate("var a=document.querySelector('a[data-store]');a.addEventListener('click',function(e){e.preventDefault()},{once:true});a.click()")
+            pg.wait_for_selector(".backbar form", timeout=9000)
+            if pg.locator(".backbar .bsel").count():
+                opts = pg.eval_on_selector_all(".backbar .bsel option", "e=>e.map(o=>o.value).filter(Boolean)")
+                pg.select_option(".backbar .bsel", opts[0])
+            pg.fill(".backbar input", "robot@example.com")
+            pg.click(".backbar form button")
+            settle(pg, 900)
+            msg = pg.inner_text("#alertBox .msg")
+            assert "robot@example.com" in msg, f"the come-back bar didn't sign up ({msg!r})"
+            pg.evaluate("localStorage.removeItem('gf-sub')")
+            return "shown after a store click, signed up"
+        check("Shoe page: 'Didn't buy it?' bar")(shoe_backbar, pg)
+
+        def bf_quick():         # Oct 11: Black Friday page: fit + shoe size + email, right on the page
+            pg.evaluate("localStorage.removeItem('gf-sub')")
+            pg.goto(base + "black-friday/", wait_until="domcontentloaded")
+            pg.wait_for_selector("#qsBox form", timeout=8000)
+            pg.fill("#qsBox input", "robot@example.com")
+            pg.click("#qsBox button")
+            settle(pg, 300)
+            assert pg.inner_text("#qsBox .msg").strip(), "no size picked: the box says nothing"
+            pg.select_option("#qsBox .qss", "10")
+            pg.click("#qsBox button")
+            settle(pg, 900)
+            msg = pg.inner_text("#qsBox .msg")
+            assert "robot@example.com" in msg, f"the Black Friday box didn't sign up ({msg!r})"
+            pg.evaluate("localStorage.removeItem('gf-sub')")
+            return "asked for a size, then signed up"
+        check("Black Friday page: sign up right here")(bf_quick, pg)
         ctx2.close()
 
         # an American visitor (Oct 6, 2026): a US time zone opens the USA side; the switch goes back to Canada

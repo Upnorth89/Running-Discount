@@ -81,6 +81,12 @@ T = {
         "us": "ships from the US", "final": "Final sale",
         "cta": "Get it in your size", "ctaTxt": "Pick your sizes once. Every Friday we email the best deals in them, and you can get a price-drop alert on this shoe.",
         "ctaBtn": "See deals in my size",
+        # Oct 11 (Bastien: "optimize to have retention, not just a pathway to another website"): sign up where people are
+        "backH": "Didn't buy it?", "backTxt": "We'll email you when the {name} drops in your size. Free, unsubscribe in one tap.",
+        "backBtn": "Email me", "backNo": "No thanks",
+        "qsHub": "Get the best deals in your size, every Friday", "qsTxt": "Free. One email on Friday mornings with the deals in your size. Unsubscribe in one tap.",
+        "qsMen": "Men's", "qsWomen": "Women's", "qsSize": "Shoe size", "qsBtn": "Send me the deals", "qsPick": "Pick your shoe size first.",
+        "qsMore": "Or pick all your sizes on the site →",
         "more": "More {brand} shoes", "all": "All shoe models",
         "types": {"daily": "Road running shoe", "race": "Racing shoe (plated)", "trail": "Trail running shoe", "hike": "Hiking & winter shoe"},
         "idxTitle": "Running shoe prices by model in Canada",
@@ -154,6 +160,11 @@ T = {
         "us": "expédié des États-Unis", "final": "Vente finale",
         "cta": "Trouvez-la dans votre pointure", "ctaTxt": "Choisissez vos tailles une fois. Chaque vendredi, on vous envoie les meilleures aubaines dans vos tailles, et vous pouvez suivre le prix de cette chaussure.",
         "ctaBtn": "Voir les aubaines à ma taille",
+        "backH": "Pas acheté ?", "backTxt": "On vous écrit quand {name} baisse dans votre pointure. Gratuit, désabonnement en un clic.",
+        "backBtn": "M'avertir", "backNo": "Non merci",
+        "qsHub": "Les meilleures aubaines dans votre pointure, chaque vendredi", "qsTxt": "Gratuit. Un courriel le vendredi matin avec les aubaines dans votre pointure. Désabonnement en un clic.",
+        "qsMen": "Homme", "qsWomen": "Femme", "qsSize": "Pointure", "qsBtn": "Envoyez-moi les aubaines", "qsPick": "Choisissez d'abord votre pointure.",
+        "qsMore": "Ou choisissez toutes vos tailles sur le site →",
         "more": "Autres chaussures {brand}", "all": "Tous les modèles",
         "types": {"daily": "Chaussure de course sur route", "race": "Chaussure de compétition (plaque)", "trail": "Chaussure de course en sentier", "hike": "Chaussure de randonnée et d'hiver"},
         "idxTitle": "Prix des chaussures de course par modèle au Canada",
@@ -388,6 +399,15 @@ tr.yours td:first-child{font-weight:700;box-shadow:inset 4px 0 0 var(--hivis)}
 .alert form{display:flex;gap:8px}.alert input{flex:1;min-width:0;font:16px var(--body);border:0;border-radius:999px;padding:11px 14px}
 .alert button{flex:none;font:700 15px/1 var(--body);background:var(--hivis);color:var(--hivis-ink);border:0;border-radius:999px;padding:11px 16px;cursor:pointer}
 .alert .msg{margin:8px 0 0;font-size:14px}.alert .msg:empty{display:none}
+.qs form{flex-direction:column}.qsrow{display:flex;gap:8px}.qs select{flex:1;min-width:0;font:16px var(--body);border:0;border-radius:999px;padding:11px 12px;background:#fff;color:#17201C}
+.qs .qsrow+.qsrow{flex-wrap:wrap}.qs .qsrow+.qsrow input{flex:1 1 100%}.qs .qsrow+.qsrow button{flex:1 1 100%}
+.qs .qsmore{margin:10px 0 0}.qs .qsmore a{color:var(--band-ink)}
+.backbar{position:fixed;left:0;right:0;bottom:0;z-index:50;background:#17201C;color:#fff;padding:12px 14px calc(12px + env(safe-area-inset-bottom));box-shadow:0 -6px 24px rgba(0,0,0,.25)}
+.backbar .in{max-width:640px;margin:0 auto}.backbar b{font-size:17px}.backbar p{margin:2px 0 8px;font-size:14px;opacity:.85}
+.backbar form{display:flex;gap:8px}.backbar input{flex:1;min-width:0;font:16px var(--body);border:0;border-radius:999px;padding:10px 14px}
+.backbar button{flex:none;font:700 15px/1 var(--body);border:0;border-radius:999px;padding:10px 14px;cursor:pointer;background:var(--hivis);color:var(--hivis-ink)}
+.backbar form{flex-wrap:wrap}.backbar .bsel{flex:1 1 100%;font:16px var(--body);border:0;border-radius:999px;padding:10px 12px}
+.backbar .x{position:absolute;top:6px;right:8px;background:none;color:#fff;font-size:22px;padding:4px 8px}
 .faq h3{font:700 17px/1.3 var(--body);margin:14px 0 4px}
 .faq p{margin:0 0 6px}
 .cards{display:grid;gap:8px;padding:0;margin:0;list-style:none}
@@ -596,6 +616,62 @@ f.addEventListener("submit",function(e){{e.preventDefault();
     b.innerHTML=(us?"These prices are from US stores. ":fr?"Ces prix viennent de boutiques canadiennes. ":"These prices are from Canadian stores. ")+'<a href="'+u+'">'+(us?"See Canadian stores →":fr?"Voir les boutiques américaines →":"See US stores →")+"</a>";
     var m=document.querySelector("main.wrap");if(m)m.insertBefore(b,m.firstChild)}};
   fetch(to,{{method:"HEAD"}}).then(function(r){{show(r.ok?to:(us?"/shoes/":"/us/shoes/"))}}).catch(function(){{}})}})();
+/* Oct 11 (Bastien: "optimize to have retention, not just a pathway to another website"). 1) Shoe pages: back from a store without
+   buying = the moment to offer the price-drop email; a bottom bar sends the shoe page's own "Email me" form (once per visit, never to
+   members, × = not again for 7 days). 2) Black Friday + sale-list pages: fit + shoe size + email, right on the page. */
+(function(){{var box=document.getElementById("alertBox");if(!box||!box.dataset.backh)return;
+var get=function(k){{try{{return JSON.parse(localStorage.getItem(k)||"null")}}catch(e){{return null}}}};
+var sub=get("gf-sub");if(sub&&(sub.active||sub.key||sub.pending))return;
+try{{var no=+localStorage.getItem("gf-backno")||0;if(no&&Date.now()-no<7*864e5)return;if(sessionStorage.getItem("gf-backshown"))return}}catch(e){{}}
+var away=0,shown=false;
+var show=function(){{var bf=box.querySelector("form");if(shown||!bf)return;shown=true;try{{sessionStorage.setItem("gf-backshown","1")}}catch(e){{}}
+  var bar=document.createElement("div");bar.className="backbar";bar.setAttribute("role","dialog");
+  bar.innerHTML='<div class="in"><b></b><p></p><form novalidate><input type="email" autocomplete="email" inputmode="email" aria-label="Email" required><button type="submit"></button></form></div><button type="button" class="x"></button>';
+  bar.querySelector("b").textContent=box.dataset.backh;bar.querySelector("p").textContent=box.dataset.backtxt;
+  bar.querySelector("form button").textContent=box.dataset.backbtn;var x=bar.querySelector(".x");x.textContent="×";x.setAttribute("aria-label",box.dataset.backno);
+  bar.querySelector("input").placeholder=box.querySelector("input").placeholder;
+  var pr=get("rd-profile"),ss0=get("gf-shoe-size"),ms=document.querySelector("#mine select"),bs=null;   // no size yet: pick it in the bar
+  if(!(pr&&pr.sizes&&pr.sizes.shoes&&(pr.sizes.shoes.sizes||[]).length)&&!(ss0&&ss0.s)&&ms){{bs=ms.cloneNode(true);bs.value="";bs.className="bsel";
+    bs.setAttribute("aria-label",(document.querySelector("#mine .pickl")||{{}}).textContent||"Size");bar.querySelector("form").insertBefore(bs,bar.querySelector("input"))}}
+  document.body.appendChild(bar);
+  try{{ana("signup-step","shoe-backbar-view")}}catch(e){{}}
+  x.addEventListener("click",function(){{bar.remove();try{{localStorage.setItem("gf-backno",String(Date.now()))}}catch(e){{}}try{{ana("signup-step","shoe-backbar-close")}}catch(e){{}}}});
+  var msg=box.querySelector(".msg");
+  new MutationObserver(function(){{var t=msg.textContent;if(!t)return;
+    if(!box.querySelector("form")){{bar.querySelector("p").textContent=t;var f2=bar.querySelector("form");if(f2)f2.remove();setTimeout(function(){{bar.remove()}},6000)}}
+    else if(t===box.dataset.pick)bar.remove();else bar.querySelector("p").textContent=t}}).observe(msg,{{childList:true,characterData:true,subtree:true}});
+  bar.querySelector("form").addEventListener("submit",function(e){{e.preventDefault();var bf2=box.querySelector("form");if(!bf2)return;
+    if(bs){{if(!bs.value){{bar.querySelector("p").textContent=box.dataset.pick;bs.focus();return}}var ms2=document.querySelector("#mine select");
+      if(ms2){{ms2.value=bs.value;ms2.dispatchEvent(new Event("change"))}}}}
+    bf2.querySelector("input").value=bar.querySelector("input").value;try{{ana("signup-step","shoe-backbar-send")}}catch(x2){{}}
+    if(bf2.requestSubmit)bf2.requestSubmit();else bf2.dispatchEvent(new Event("submit",{{cancelable:true}}))}})}};
+document.addEventListener("click",function(e){{if(!e.target.closest("a[data-store]"))return;away=Date.now();
+  setTimeout(function(){{if(document.visibilityState==="visible")show()}},4000)}});
+document.addEventListener("visibilitychange",function(){{if(document.visibilityState==="visible"&&away&&Date.now()-away>1500)show()}})}})();
+(function(){{var box=document.getElementById("qsBox");if(!box)return;var f=box.querySelector("form"),msg=box.querySelector(".msg"),g=f.querySelector(".qsg"),s=f.querySelector(".qss");
+var get=function(k){{try{{return JSON.parse(localStorage.getItem(k)||"null")}}catch(e){{return null}}}},put=function(k,v){{try{{localStorage.setItem(k,JSON.stringify(v))}}catch(e){{}}}};
+var sub=get("gf-sub");if(sub&&(sub.active||sub.key)){{box.remove();return}}
+var showG=function(){{[].forEach.call(s.querySelectorAll("optgroup"),function(o){{var on=o.dataset.g===g.value;o.hidden=!on;o.disabled=!on}});
+  var o=s.selectedOptions[0];if(o&&o.parentNode&&o.parentNode.disabled)s.value=""}};
+var p0=get("rd-profile"),ss=get("gf-shoe-size");
+if(ss&&ss.s){{g.value=ss.g==="women"?"women":"men";showG();s.value=String(ss.s)}}else if(p0&&p0.gender==="women"){{g.value="women";showG()}}
+g.addEventListener("change",showG);
+f.addEventListener("submit",function(e){{e.preventDefault();
+  var em=f.querySelector("input").value.trim().replace(/^mailto:/i,"").replace(/^.*<([^>]+)>.*$/,"$1").replace(/\s+/g,"").replace(/\.+$/,"");
+  if(!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{{2,}}$/.test(em)||/\.\./.test(em)){{msg.textContent=box.dataset.bad;return}}
+  if(!s.value){{msg.textContent=box.dataset.pick;s.focus();return}}
+  var fr=document.documentElement.lang==="fr",us=/^\/us\//.test(location.pathname),tz=null;try{{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||null}}catch(x){{}}
+  var G=["shoes","tops","bottoms","bras","socks","gloves","headwear","packs","gear","watches","nutrition"],p;
+  if(p0&&p0.sizes){{p=JSON.parse(JSON.stringify(p0));if(!(p.sizes.shoes&&(p.sizes.shoes.sizes||[]).length))p.sizes.shoes={{sizes:[s.value],width:[]}}}}
+  else{{var sz={{shoes:{{sizes:[s.value],width:[]}}}};G.slice(1).forEach(function(k){{sz[k]={{sizes:[]}}}});
+    p={{lang:fr?"fr":"en",country:us?"us":"ca",tz:tz,name:"",gender:g.value,terrain:"both",ships:"ca",groups:G,sizes:sz,brands:[],activities:[]}}}}
+  p.email=em;if(!p.ref)p.ref=get("gf-ref")||box.dataset.ref;var btn=f.querySelector("button");btn.disabled=true;
+  fetch("{SB_URL}/rest/v1/rpc/subscribe",{{method:"POST",headers:{{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"}},
+    body:JSON.stringify({{p_email:em,p_profile:p}})}}).then(function(r){{if(!r.ok)throw 0;
+    put("gf-sub",{{pending:em}});if(!p0)put("rd-profile",p);put("gf-shoe-size",{{g:g.value,s:s.value}});
+    f.remove();msg.textContent=box.dataset.ok.replace("{{email}}",em);
+    try{{ana("signup",box.dataset.ref)}}catch(x){{}}try{{window.umami&&umami.track("signup",{{method:"email",where:box.dataset.ref,lang:fr?"fr":"en"}})}}catch(x){{}}}})
+  .catch(function(){{btn.disabled=false;msg.textContent=box.dataset.fail}})}})}})();
 document.addEventListener("click",function(e){{var a=e.target.closest("a[data-store]");if(!a)return;
 try{{fetch("{SB_URL}/rest/v1/rpc/log_event",{{method:"POST",keepalive:true,headers:{{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"}},
 body:JSON.stringify({{p_kind:"click",p_store:a.dataset.store,p_group:"shoes",p_ref:"shoe-page",p_lang:"{L['lang'][:2]}"}})}})}}catch(x){{}}
@@ -695,7 +771,8 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None)
     # Oct 8 (funnel: 209 first visits from Google in 14 days, 11% reached the homepage, no way to sign up here): sign up right here
     if any(first[lab].get("of") for lab in merged):
         out.append(f'<section class="alert" id="alertBox" data-pick="{esc(L["alertPick"])}" data-bad="{esc(L["alertBad"])}" data-ok="{esc(L["alertOk"])}" '
-                   f'data-fail="{esc(L["alertFail"])}" data-done="{esc(L["alertDone"])}">'
+                   f'data-fail="{esc(L["alertFail"])}" data-done="{esc(L["alertDone"])}" data-backh="{esc(L["backH"])}" '
+                   f'data-backtxt="{esc(L["backTxt"].format(name=name))}" data-backbtn="{esc(L["backBtn"])}" data-backno="{esc(L["backNo"])}">'
                    f'<h2>{esc(L["alertH"].format(name=name))}</h2><p class="fine">{L["alertTxt"]}</p>'
                    f'<form novalidate><input type="email" autocomplete="email" inputmode="email" placeholder="{esc(L["emailPh"])}" aria-label="Email" required>'
                    f'<button type="submit">{L["alertBtn"]}</button></form><p class="msg" aria-live="polite"></p></section>')
@@ -774,6 +851,21 @@ def black_friday(year):
     """The fourth Friday of November."""
     d = date(year, 11, 1)
     return d + timedelta(days=(4 - d.weekday()) % 7 + 21)
+
+
+def qs_box(L, head, ref):
+    """Quick sign-up on list pages (Black Friday, sale lists; Oct 11): fit + shoe size + email, right here. The script at the
+    page's end sends it like the homepage's sign-up (a member with those sizes gets the Friday email)."""
+    men = "".join(f'<option value="{v:g}">{v:g}</option>' for v in [x / 2 for x in range(12, 31)])
+    women = "".join(f'<option value="{v:g}">{v:g}</option>' for v in [x / 2 for x in range(10, 25)])
+    return (f'<section class="alert qs" id="qsBox" data-ref="{ref}" data-pick="{esc(L["qsPick"])}" data-bad="{esc(L["alertBad"])}" '
+            f'data-ok="{esc(L["alertOk"])}" data-fail="{esc(L["alertFail"])}"><h2>{esc(head)}</h2><p class="fine">{esc(L["qsTxt"])}</p>'
+            f'<form novalidate><div class="qsrow"><select class="qsg" aria-label="Fit"><option value="men">{esc(L["qsMen"])}</option>'
+            f'<option value="women">{esc(L["qsWomen"])}</option></select><select class="qss" aria-label="{esc(L["qsSize"])}">'
+            f'<option value="">{esc(L["qsSize"])}</option><optgroup data-g="men">{men}</optgroup><optgroup data-g="women" hidden disabled>{women}</optgroup></select></div>'
+            f'<div class="qsrow"><input type="email" autocomplete="email" inputmode="email" placeholder="{esc(L["emailPh"])}" aria-label="Email" required>'
+            f'<button type="submit">{esc(L["qsBtn"])}</button></div></form><p class="msg" aria-live="polite"></p>'
+            f'<p class="fine qsmore"><a href="{L["home"]}{"&" if "?" in L["home"] else "?"}ref={ref}">{esc(L["qsMore"])}</a></p></section>')
 
 
 def bf_other(L):
@@ -892,7 +984,7 @@ def main():
             title, h1, intro = L["hubs"][k]
             p = site / sub(L).strip("/") / "index.html"
             p.parent.mkdir(parents=True, exist_ok=True)
-            p.write_text(list_page(L, en_p, fr_p, title, h1, intro, rows[:80], brands))
+            p.write_text(list_page(L, en_p, fr_p, title, h1, intro, rows[:80], brands, qs_box(L, L["qsHub"], "sale-list")))
             extra_urls.append(sub(L))
         for b in brands:
             rows = sorted([(sl, known_live[sl]["n"], summ[sl]) for sl in brand_models[b]], key=lambda r: (-r[2]["top"], r[1].lower()))
@@ -904,8 +996,7 @@ def main():
             extra_urls.append(f'/{L["brandDir"]}/{slugify(b)}/')
         # Black Friday: live from now on so it is known to search engines well before Nov 27
         bf_rows = [r for r in kinds["all"] if r[2]["sizes"] >= 6][:40]
-        cta = (f'<section class="cta"><h2>{L["bfCta"]}</h2><p>{L["bfCtaTxt"]}</p>'
-               f'<a class="btn" href="/?ref=black-friday{"&lang=fr" if L is T["fr"] else ""}">{L["ctaBtn"]}</a></section>')
+        cta = qs_box(L, L["bfCta"], "black-friday")
         p = site / L["bfDir"] / "index.html"
         p.parent.mkdir(parents=True, exist_ok=True)
         today = (datetime.fromisoformat(updated.replace("Z", "+00:00")) if updated else datetime.now(timezone.utc)).astimezone(HOME_TZ).date()
@@ -1036,7 +1127,7 @@ def build_us(site, stores, ca_models, ca_brands):
         title, h1, intro = L["hubs"][k]
         p = site / own.strip("/") / "index.html"
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(list_page(L, own, twin, title, h1, intro, rows[:80], brands))
+        p.write_text(list_page(L, own, twin, title, h1, intro, rows[:80], brands, qs_box(L, L["qsHub"], "sale-list")))
         urls.append(own)
     for b in brands:
         rows = sorted([(sl, live[sl]["n"], summ[sl]) for sl in brand_models[b]], key=lambda r: (-r[2]["top"], r[1].lower()))
@@ -1047,8 +1138,7 @@ def build_us(site, stores, ca_models, ca_brands):
                                L["brandH1"].format(brand=b), L["brandIntro"].format(brand=b), rows, brands))
         urls.append(own)
     bf_rows = [r for r in kinds["all"] if r[2]["sizes"] >= 6][:40]
-    cta = (f'<section class="cta"><h2>{L["bfCta"]}</h2><p>{L["bfCtaTxt"]}</p>'
-           f'<a class="btn" href="/?ref=black-friday{L["q"]}">{L["ctaBtn"]}</a></section>')
+    cta = qs_box(L, L["bfCta"], "black-friday")
     today = datetime.fromisoformat(updated.replace("Z", "+00:00")).date() if updated else datetime.now(timezone.utc).date()
     bf = black_friday(today.year if today <= black_friday(today.year) + timedelta(days=4) else today.year + 1)
     own = f'/{L["bfDir"]}/'
