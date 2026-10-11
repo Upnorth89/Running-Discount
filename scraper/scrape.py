@@ -1828,8 +1828,13 @@ def scrape_catalog(retailer, st=None):
             img = next((str(v) for k, v in {**info, **r}.items() if k and "image" in str(k).lower()
                         and str(v or "").startswith("https://")), None)   # that colour's photo (the size row's), else the product's
             img = _catalog_img(img)
-            p = prods[key] = {"st": st, "b": info.get("Brand") or "", "n": name, "u": url, "g": g, "fx": fx, "gender": g_,
-                              "sx": catalog_gender(name, g_),
+            sx = catalog_gender(name, g_)
+            # Oct 11 (a visitor: Zappos Supernova Rise 3 at $77 was the women's shoe, shown in men's sizes): a name without a
+            # gender takes the Gender column's, so the men's and women's cuts never merge into one card (like url_gender)
+            nm = name + (" - Women's" if sx == ["women"] else " - Men's" if sx == ["men"] else "") \
+                if not re.search(r"\b(wom[ae]n|men|unisex)[’']?s?\b", name, re.I) else name
+            p = prods[key] = {"st": st, "b": info.get("Brand") or "", "n": nm, "u": url, "g": g, "fx": fx, "gender": g_,
+                              "sx": sx,
                               "w": False, "img": img, "bb": None, "sizes": {}}
         size = _catalog_size(r.get("Size"), r.get("Width / fit"), p["g"], g_)
         if size is None:

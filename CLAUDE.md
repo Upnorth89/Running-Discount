@@ -482,6 +482,8 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   are missing, under 500 sizes in stock, <90% with a link, <80% with a photo, or >2% of prices wrong ($0 / above regular); then the
   next newest upload or saved-pages file is used. Warnings (still used): a store halved vs last file, 20%+ of a store's sale sizes
   70%+ off, links to several websites. Result in site/catalog-check.json -> morning email line + problems.
+  Gender (Oct 11, a visitor: Zappos Supernova Rise 3 at $77 was the women's shoe shown in men's sizes): a name without a gender
+  takes the Gender column's (" - Women's"/" - Men's"), so the cuts never merge. Visitor reports log the price as shown ("USD $77.00").
   One offer per colour (link + photo of a colour that has the size); no photo = not shown; under 25 products in stock = store left out
   (CATALOG_MIN); RW photos "&nw=400", Brooks dw/image sw/sh=400. Morning email: "Tap to check" 5 random catalog deals (catalog_spot).
   First file checked by hand on 9 random sale sizes: 9 right. SAVED_STORES expire (no keeping yesterday's deals). Health email:

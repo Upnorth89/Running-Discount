@@ -1523,7 +1523,7 @@ function repClick(e){
     box.innerHTML=`<span>${t("reportWhy")}</span>`+[["price","repPrice"],["size","repSize"],["ended","repEnded"]].map(([v,l])=>`<button type="button" data-repwhy="${v}">${t(l)}</button>`).join("");
     rp.closest(".dw").classList.add("repopen");rp.replaceWith(box);return true}
   const rw=e.target.closest("[data-repwhy]");if(rw){const box=rw.closest(".repbox"),d=RENDERED[box.dataset.k];
-    ana("error",["report",rw.dataset.repwhy,d?(d.b+" "+d.n).slice(0,60):box.dataset.k.slice(0,60),d?storeOf(d.url):"",d?d.best:""].join("|"));
+    ana("error",["report",rw.dataset.repwhy,d?(d.b+" "+d.n).slice(0,60):box.dataset.k.slice(0,60),d?storeOf(d.url):"",d?CUR+" "+money(d.best).replace(/\u00a0/g," "):""].join("|"));   // the price as the visitor saw it (Oct 11: "109.89" was CAD for a US$77 card)
     box.textContent=t("reportThanks");box.classList.add("thanks");box.closest(".dw").classList.remove("repopen");return true}
   return false}
 $("newBox").addEventListener("click",e=>{repClick(e)});
