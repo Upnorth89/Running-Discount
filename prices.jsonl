@@ -1439,7 +1439,7 @@
 {"k":"altra|experience flow 2 - men's|shoes|0","h":[["2026-10-03",159.56,199.44],["2026-10-05",159.64,199.56],["2026-10-06",159.33,199.16],["2026-10-07",159.68,199.6],["2026-10-08",144.0,180.0]]}
 {"k":"altra|experience flow 2 - women's|shoes|0","h":[["2026-10-03",159.56,199.44],["2026-10-05",159.64,199.56],["2026-10-06",159.33,199.16],["2026-10-07",159.68,199.6],["2026-10-08",144.0,180.0]]}
 {"k":"altra|experience flow 2 shoes - men's|shoes|0","h":[["2026-10-02",97.19,179.99],["2026-10-04",98.99,180.0],["2026-10-07",97.19,180.0],["2026-10-08",80.99,180.0],["2026-10-10",82.79,180.0]]}
-{"k":"altra|experience flow 2 shoes - women's|shoes|0","h":[["2026-10-02",104.39,179.99],["2026-10-03",89.94,180.0],["2026-10-08",86.39,180.0],["2026-10-10",89.94,180.0]]}
+{"k":"altra|experience flow 2 shoes - women's|shoes|0","h":[["2026-10-02",104.39,179.99],["2026-10-03",89.94,180.0],["2026-10-08",86.39,180.0],["2026-10-10",89.94,180.0],["2026-10-11",91.79,180.0]]}
 {"k":"altra|experience flow 3 - men's|shoes|0","h":[["2026-10-02",179.95,180.0],["2026-10-03",206.57,206.57],["2026-10-05",206.68,206.68],["2026-10-06",206.28,206.28],["2026-10-07",206.73,206.73],["2026-10-08",180.0,180.0]]}
 {"k":"altra|experience flow 3 - women's|shoes|0","h":[["2026-10-02",179.95,180.0],["2026-10-03",206.57,206.57],["2026-10-05",206.68,206.68],["2026-10-06",206.28,206.28],["2026-10-07",206.73,206.73],["2026-10-08",180.0,180.0]]}
 {"k":"altra|experience flow 3 gore-tex - men's|shoes|0","h":[["2026-10-08",199.95,200.0]]}
@@ -1469,11 +1469,13 @@
 {"k":"altra|experience wild 2 trail running shoes - men's|shoes|0","h":[["2026-10-02",104.39,179.99],["2026-10-03",99.99,179.99],["2026-10-08",91.79,180.0],["2026-10-10",88.19,180.0]]}
 {"k":"altra|experience wild 2 trail running shoes - women's|shoes|0","h":[["2026-10-02",102.59,179.99],["2026-10-07",100.79,180.0],["2026-10-08",86.39,180.0],["2026-10-10",88.19,179.99]]}
 {"k":"altra|experience wild 3 + gtx - men's|shoes|0","h":[["2026-10-10",214.95,214.99]]}
+{"k":"altra|experience wild 3 + gtx - women's|shoes|0","h":[["2026-10-11",214.95,214.99]]}
 {"k":"altra|experience wild 3 - men's|shoes|0","h":[["2026-10-10",179.99,194.95]]}
 {"k":"altra|experience wild 3 - women's|shoes|0","h":[["2026-10-03",213.69,213.69],["2026-10-05",213.81,213.81],["2026-10-06",213.39,213.39],["2026-10-07",213.85,213.85],["2026-10-08",180.0,180.0],["2026-10-10",179.99,195.0]]}
-{"k":"altra|experience wild 3 gtx trail running shoes - men's|shoes|0","h":[["2026-10-05",214.95,219.0],["2026-10-10",214.99,214.99]]}
-{"k":"altra|experience wild 3 gtx trail running shoes - women's|shoes|0","h":[["2026-10-05",214.95,219.0]]}
+{"k":"altra|experience wild 3 gtx trail running shoes - men's|shoes|0","h":[["2026-10-05",214.95,219.0],["2026-10-10",214.99,214.99],["2026-10-11",214.98,214.99]]}
+{"k":"altra|experience wild 3 gtx trail running shoes - women's|shoes|0","h":[["2026-10-05",214.95,219.0],["2026-10-11",214.98,214.99]]}
 {"k":"altra|experience wild 3 trail running shoes - men's|shoes|0","h":[["2026-10-05",179.99,179.99],["2026-10-10",136.47,194.95]]}
+{"k":"altra|experience wild 3 trail running shoes - women's|shoes|0","h":[["2026-10-11",179.99,179.99]]}
 {"k":"altra|experience wild 3+ - men's|shoes|0","h":[["2026-10-02",189.99,195.0],["2026-10-03",213.69,213.69],["2026-10-05",213.81,213.81],["2026-10-06",213.39,213.39],["2026-10-07",213.85,213.85],["2026-10-08",180.0,180.0]]}
 {"k":"altra|experience wild 3+ - women's|shoes|0","h":[["2026-10-02",194.95,195.0]]}
 {"k":"altra|experience wild 3+ gtx - men's|shoes|0","h":[["2026-10-02",214.95,214.95],["2026-10-05",263.7,263.7],["2026-10-06",263.18,263.18],["2026-10-07",263.75,263.75],["2026-10-08",215.0,215.0]]}
@@ -2082,7 +2084,7 @@
 {"k":"arc'teryx|norvan ld 4 gtx trail running shoe - women's|shoes|0","h":[["2026-10-03",181.96,260.0],["2026-10-07",140.0,260.0]]}
 {"k":"arc'teryx|norvan ld 4 shoes - previous season - men's|shoes|0","h":[["2026-10-07",100.0,219.95]]}
 {"k":"arc'teryx|norvan ld 4 trail running shoe - men's|shoes|0","h":[["2026-10-03",153.98,220.0],["2026-10-07",130.0,220.0]]}
-{"k":"arc'teryx|norvan ld 4 trail running shoe - women's|shoes|0","h":[["2026-10-03",153.96,220.0]]}
+{"k":"arc'teryx|norvan ld 4 trail running shoe - women's|shoes|0","h":[["2026-10-03",153.96,220.0],["2026-10-11",219.95,220.0]]}
 {"k":"arc'teryx|norvan ld 4 trail running shoes - men's|shoes|0","h":[["2026-10-02",154.0,220.0]]}
 {"k":"arc'teryx|norvan legging - women's|bottoms|0","h":[["2026-10-03",170.0,170.0]]}
 {"k":"arc'teryx|norvan leggings - women's|bottoms|0","h":[["2026-10-07",169.95,169.95]]}
@@ -2327,9 +2329,9 @@
 {"k":"asi global limited|paneled nylon hat, cool sage|headwear|0","h":[["2026-10-02",94.0,94.0],["2026-10-03",95.0,95.0],["2026-10-06",94.0,94.0],["2026-10-07",95.0,95.0],["2026-10-08",94.0,94.0],["2026-10-09",95.0,95.0]]}
 {"k":"asi global limited|paneled nylon hat, symbol black|headwear|0","h":[["2026-10-02",94.0,94.0],["2026-10-03",95.0,95.0],["2026-10-06",94.0,94.0],["2026-10-07",95.0,95.0],["2026-10-08",94.0,94.0],["2026-10-09",95.0,95.0]]}
 {"k":"asi global limited|paneled nylon hat, vibrant lilac|headwear|0","h":[["2026-10-02",94.0,94.0],["2026-10-03",95.0,95.0],["2026-10-06",94.0,94.0],["2026-10-07",95.0,95.0],["2026-10-08",94.0,94.0],["2026-10-09",95.0,95.0]]}
-{"k":"asi global limited|perforated strap hat, black|headwear|0","h":[["2026-10-02",123.0,123.0],["2026-10-05",124.0,124.0],["2026-10-06",123.0,123.0],["2026-10-07",124.0,124.0],["2026-10-08",123.0,123.0]]}
-{"k":"asi global limited|perforated strap hat, khaki|headwear|0","h":[["2026-10-02",123.0,123.0],["2026-10-05",124.0,124.0],["2026-10-06",123.0,123.0],["2026-10-07",124.0,124.0],["2026-10-08",123.0,123.0]]}
-{"k":"asi global limited|perforated strap hat, light grey|headwear|0","h":[["2026-10-02",123.0,123.0],["2026-10-05",124.0,124.0],["2026-10-06",123.0,123.0],["2026-10-07",124.0,124.0],["2026-10-08",123.0,123.0]]}
+{"k":"asi global limited|perforated strap hat, black|headwear|0","h":[["2026-10-02",123.0,123.0],["2026-10-05",124.0,124.0],["2026-10-06",123.0,123.0],["2026-10-07",124.0,124.0],["2026-10-08",123.0,123.0],["2026-10-11",124.0,124.0]]}
+{"k":"asi global limited|perforated strap hat, khaki|headwear|0","h":[["2026-10-02",123.0,123.0],["2026-10-05",124.0,124.0],["2026-10-06",123.0,123.0],["2026-10-07",124.0,124.0],["2026-10-08",123.0,123.0],["2026-10-11",124.0,124.0]]}
+{"k":"asi global limited|perforated strap hat, light grey|headwear|0","h":[["2026-10-02",123.0,123.0],["2026-10-05",124.0,124.0],["2026-10-06",123.0,123.0],["2026-10-07",124.0,124.0],["2026-10-08",123.0,123.0],["2026-10-11",124.0,124.0]]}
 {"k":"asics|3.5\" print run short - women's|bottoms|0","h":[["2026-10-10",20.0,59.99]]}
 {"k":"asics|accelerate light jacket - men's|tops|0","h":[["2026-10-03",130.0,130.0]]}
 {"k":"asics|accelerate run jacket - women's|tops|0","h":[["2026-10-10",70.0,169.99]]}
@@ -2473,7 +2475,7 @@
 {"k":"asics|gel-cumulus 28 running shoes [wide] - women's|shoes|1","h":[["2026-10-02",179.99,179.99]]}
 {"k":"asics|gel-cumulus 28 wide|shoes|1","h":[["2026-10-08",180.0,180.0]]}
 {"k":"asics|gel-cumulus 28|shoes|0","h":[["2026-10-08",180.0,189.99]]}
-{"k":"asics|gel-cumulus® 27 running shoe - men's|shoes|0","h":[["2026-10-06",99.99,180.0]]}
+{"k":"asics|gel-cumulus® 27 running shoe - men's|shoes|0","h":[["2026-10-06",99.99,180.0],["2026-10-11",107.96,180.0]]}
 {"k":"asics|gel-cumulus® 27 running shoe - women's|shoes|0","h":[["2026-10-03",107.98,180.0]]}
 {"k":"asics|gel-cumulus® 27 running shoes - women's|shoes|0","h":[["2026-10-09",107.97,180.0]]}
 {"k":"asics|gel-cumulus® 28 cushioned running shoes - men's|shoes|0","h":[["2026-10-09",180.0,180.0]]}
@@ -3110,7 +3112,7 @@
 {"k":"asics|road v-neck short sleeve top - women's|tops|0","h":[["2026-10-03",31.94,65.0]]}
 {"k":"asics|road v-neck ss top - women's|tops|0","h":[["2026-10-11",65.0,65.0]]}
 {"k":"asics|road v-neck ss top|tops|0","h":[["2026-10-08",65.0,65.0]]}
-{"k":"asics|road winter gilet - men's|tops|0","h":[["2026-10-02",68.14,144.99],["2026-10-04",69.59,144.99],["2026-10-08",60.89,144.99]]}
+{"k":"asics|road winter gilet - men's|tops|0","h":[["2026-10-02",68.14,144.99],["2026-10-04",69.59,144.99],["2026-10-08",60.89,144.99],["2026-10-11",145.0,145.0]]}
 {"k":"asics|road winter gilet|tops|0","h":[["2026-10-08",145.0,145.0]]}
 {"k":"asics|road winter high waist tight - women's|bottoms|0","h":[["2026-10-03",99.99,130.0]]}
 {"k":"asics|road winter high waist tight|bottoms|0","h":[["2026-10-08",130.0,130.0]]}
@@ -3951,7 +3953,7 @@
 {"k":"bandit running|classic chiller sweatpant - heather grey - unisex|bottoms|0","h":[["2026-10-07",142.0,142.0]]}
 {"k":"bandit running|club crest™ cropped hoodie - ldn ‘26 - unisex|tops|0","h":[["2026-10-07",142.0,142.0]]}
 {"k":"bandit running|cold weather performance run pant - men's|bottoms|0","h":[["2026-10-03",200.0,200.0]]}
-{"k":"bandit running|coldfront™ jacket, unisex - ash|tops|0","h":[["2026-10-03",359.0,359.0],["2026-10-05",359.0,359.0],["2026-10-06",358.0,358.0],["2026-10-07",359.0,359.0]]}
+{"k":"bandit running|coldfront™ jacket, unisex - ash|tops|0","h":[["2026-10-03",359.0,359.0],["2026-10-05",359.0,359.0],["2026-10-06",358.0,358.0],["2026-10-07",359.0,359.0],["2026-10-11",360.0,360.0]]}
 {"k":"bandit running|community hoodie - black - unisex|tops|0","h":[["2026-10-07",142.0,142.0]]}
 {"k":"bandit running|community tee - white - unisex|tops|0","h":[["2026-10-07",80.0,80.0]]}
 {"k":"bandit running|coolgrid™ 2-in-1 run short - black - men's|bottoms|0","h":[["2026-10-03",157.0,157.0],["2026-10-06",156.0,156.0],["2026-10-07",157.0,157.0],["2026-10-08",156.0,156.0],["2026-10-09",157.0,157.0]]}
@@ -4384,7 +4386,7 @@
 {"k":"bandit running|micromesh™ short sleeve run tee - lagoon - men's|tops|0","h":[["2026-10-03",109.0,109.0]]}
 {"k":"bandit running|micromesh™ short sleeve run tee - men's|tops|0","h":[["2026-10-03",109.0,109.0]]}
 {"k":"bandit running|micromesh™ short sleeve run tee - poppy - men's|tops|0","h":[["2026-10-03",109.0,109.0]]}
-{"k":"bandit running|next gen windproof auragrid™ jacket - black - men's|tops|0","h":[["2026-10-03",330.0,330.0],["2026-10-05",331.0,331.0],["2026-10-06",329.0,329.0],["2026-10-07",330.0,330.0]]}
+{"k":"bandit running|next gen windproof auragrid™ jacket - black - men's|tops|0","h":[["2026-10-03",330.0,330.0],["2026-10-05",331.0,331.0],["2026-10-06",329.0,329.0],["2026-10-07",330.0,330.0],["2026-10-11",331.0,331.0]]}
 {"k":"bandit running|nycm '25 \"run city\" cotton tee, unisex - white|tops|0","h":[["2026-10-02",80.0,80.0]]}
 {"k":"bandit running|nycm '25 \"run city\" nylon dad hat|headwear|0","h":[["2026-10-03",66.0,66.0],["2026-10-06",65.0,65.0],["2026-10-07",66.0,66.0],["2026-10-08",65.0,65.0],["2026-10-09",66.0,66.0]]}
 {"k":"bandit running|nycm '25 cotton tee, unisex - black|tops|0","h":[["2026-10-02",80.0,80.0]]}
@@ -4538,9 +4540,9 @@
 {"k":"bandit running|stamina™ race crop - haze multi|tops|0","h":[["2026-10-03",119.0,119.0]]}
 {"k":"bandit running|stamina™ race crop - haze|tops|0","h":[["2026-10-02",113.0,113.0],["2026-10-06",113.0,113.0]]}
 {"k":"bandit running|stamina™ race crop - ny navy - women's|tops|0","h":[["2026-10-03",113.0,113.0],["2026-10-06",113.0,113.0]]}
-{"k":"bandit running|stamina™ race crop - organic stripe cacao - women's|tops|0","h":[["2026-10-03",123.0,123.0],["2026-10-05",124.0,124.0],["2026-10-06",123.0,123.0],["2026-10-07",124.0,124.0],["2026-10-08",123.0,123.0]]}
+{"k":"bandit running|stamina™ race crop - organic stripe cacao - women's|tops|0","h":[["2026-10-03",123.0,123.0],["2026-10-05",124.0,124.0],["2026-10-06",123.0,123.0],["2026-10-07",124.0,124.0],["2026-10-08",123.0,123.0],["2026-10-11",124.0,124.0]]}
 {"k":"bandit running|stamina™ race crop - organic stripe ink blue - women's|tops|0","h":[["2026-10-07",123.0,123.0]]}
-{"k":"bandit running|stamina™ race crop - women's|tops|0","h":[["2026-10-03",123.0,123.0],["2026-10-05",124.0,124.0],["2026-10-06",123.0,123.0],["2026-10-07",124.0,124.0],["2026-10-08",123.0,123.0]]}
+{"k":"bandit running|stamina™ race crop - women's|tops|0","h":[["2026-10-03",123.0,123.0],["2026-10-05",124.0,124.0],["2026-10-06",123.0,123.0],["2026-10-07",124.0,124.0],["2026-10-08",123.0,123.0],["2026-10-11",124.0,124.0]]}
 {"k":"bandit running|stamina™ race crop|tops|0","h":[["2026-10-02",113.0,113.0],["2026-10-06",113.0,113.0]]}
 {"k":"bandit running|stamina™ racing buns with pockets - pine|bottoms|0","h":[["2026-10-02",99.0,99.0]]}
 {"k":"bandit running|stamina™ racing buns with pockets|bottoms|0","h":[["2026-10-02",113.0,113.0],["2026-10-06",113.0,113.0]]}
@@ -5534,9 +5536,9 @@
 {"k":"bolt shave|performance razor|gear|0","h":[["2026-10-02",57.75,57.75],["2026-10-03",57.85,57.85],["2026-10-05",57.89,57.89],["2026-10-06",57.69,57.69],["2026-10-07",57.74,57.74],["2026-10-08",57.81,57.81],["2026-10-09",57.87,57.87]]}
 {"k":"bolt shave|post shave lotion|gear|0","h":[["2026-10-02",24.53,24.53],["2026-10-03",24.58,24.58],["2026-10-05",24.59,24.59],["2026-10-06",24.51,24.51],["2026-10-07",24.53,24.53],["2026-10-08",24.56,24.56],["2026-10-09",24.59,24.59]]}
 {"k":"bolt shave|refill cartridges · 3 cartridges|gear|0","h":[["2026-10-02",18.76,18.76],["2026-10-03",18.79,18.79],["2026-10-05",18.8,18.8],["2026-10-06",18.74,18.74],["2026-10-07",18.76,18.76],["2026-10-08",18.78,18.78],["2026-10-09",18.8,18.8]]}
-{"k":"bonaparte srl|merino wool quarter zip sweater, espresso|tops|0","h":[["2026-10-02",456.0,456.0],["2026-10-05",456.0,456.0],["2026-10-06",455.0,455.0],["2026-10-07",456.0,456.0],["2026-10-08",455.0,455.0],["2026-10-09",456.0,456.0]]}
-{"k":"bonaparte srl|merino wool quarter zip sweater, lilac grey|tops|0","h":[["2026-10-02",456.0,456.0],["2026-10-05",456.0,456.0],["2026-10-06",455.0,455.0],["2026-10-07",456.0,456.0],["2026-10-08",455.0,455.0],["2026-10-09",456.0,456.0]]}
-{"k":"bonaparte srl|merino wool quarter zip sweater, navy|tops|0","h":[["2026-10-02",456.0,456.0],["2026-10-05",456.0,456.0],["2026-10-06",455.0,455.0],["2026-10-07",456.0,456.0],["2026-10-08",455.0,455.0],["2026-10-09",456.0,456.0]]}
+{"k":"bonaparte srl|merino wool quarter zip sweater, espresso|tops|0","h":[["2026-10-02",456.0,456.0],["2026-10-05",456.0,456.0],["2026-10-06",455.0,455.0],["2026-10-07",456.0,456.0],["2026-10-08",455.0,455.0],["2026-10-09",456.0,456.0],["2026-10-11",457.0,457.0]]}
+{"k":"bonaparte srl|merino wool quarter zip sweater, lilac grey|tops|0","h":[["2026-10-02",456.0,456.0],["2026-10-05",456.0,456.0],["2026-10-06",455.0,455.0],["2026-10-07",456.0,456.0],["2026-10-08",455.0,455.0],["2026-10-09",456.0,456.0],["2026-10-11",457.0,457.0]]}
+{"k":"bonaparte srl|merino wool quarter zip sweater, navy|tops|0","h":[["2026-10-02",456.0,456.0],["2026-10-05",456.0,456.0],["2026-10-06",455.0,455.0],["2026-10-07",456.0,456.0],["2026-10-08",455.0,455.0],["2026-10-09",456.0,456.0],["2026-10-11",457.0,457.0]]}
 {"k":"bonk breaker|saltstick chews|nutrition|0","h":[["2026-10-02",3.99,3.99]]}
 {"k":"bonnetier|betsiamites stretchwool merino legging - women's|bottoms|0","h":[["2026-10-11",133.99,133.99]]}
 {"k":"bonnetier|gouffre stretchwool legging - men's|bottoms|0","h":[["2026-10-11",133.99,133.99]]}
@@ -5606,7 +5608,7 @@
 {"k":"brix|gaufre énergétique à l'érable|nutrition|0","h":[["2026-10-08",2.25,49.0]]}
 {"k":"brix|gel 38g · érable & bleuet|nutrition|0","h":[["2026-10-02",3.25,66.99],["2026-10-03",3.25,66.99]]}
 {"k":"brix|gel 38g · érable & framboise|nutrition|0","h":[["2026-10-02",3.25,66.99]]}
-{"k":"brix|gel 38g · érable & gingembre|nutrition|0","h":[["2026-10-02",3.25,66.99],["2026-10-10",66.99,66.99]]}
+{"k":"brix|gel 38g · érable & gingembre|nutrition|0","h":[["2026-10-02",3.25,66.99],["2026-10-10",66.99,66.99],["2026-10-11",3.25,66.99]]}
 {"k":"brix|gel 38g · érable & sel|nutrition|0","h":[["2026-10-02",3.25,66.99]]}
 {"k":"brix|gel 38g · érable|nutrition|0","h":[["2026-10-02",3.25,66.99]]}
 {"k":"brix|gel énergétique 38g|nutrition|0","h":[["2026-10-02",3.25,3.25]]}
@@ -6409,7 +6411,7 @@
 {"k":"brooks|luxe long sleeves - men's|tops|0","h":[["2026-10-03",56.0,56.0]]}
 {"k":"brooks|luxe long sleeves - women's|tops|0","h":[["2026-10-03",56.0,56.0]]}
 {"k":"brooks|luxe long sleeve|tops|0","h":[["2026-10-08",30.0,56.0]]}
-{"k":"brooks|luxe pocket bra - women's|bras|0","h":[["2026-10-02",40.69,54.99],["2026-10-04",41.79,54.99],["2026-10-07",41.24,54.99],["2026-10-08",36.29,54.99],["2026-10-10",35.74,55.0],["2026-10-11",44.99,54.99]]}
+{"k":"brooks|luxe pocket bra - women's|bras|0","h":[["2026-10-02",40.69,54.99],["2026-10-04",41.79,54.99],["2026-10-07",41.24,54.99],["2026-10-08",36.29,54.99],["2026-10-10",35.74,55.0],["2026-10-11",35.74,54.99]]}
 {"k":"brooks|luxe pocket bra|bras|0","h":[["2026-10-02",55.0,55.0],["2026-10-06",54.99,55.0],["2026-10-08",44.99,55.0],["2026-10-09",54.99,55.0],["2026-10-10",55.0,55.0],["2026-10-11",54.99,55.0]]}
 {"k":"brooks|luxe pocket sports bra — heather nightshadow|bras|0","h":[["2026-10-02",54.99,54.99]]}
 {"k":"brooks|luxe pocket sports bra — white|bras|0","h":[["2026-10-02",54.99,54.99]]}
@@ -6700,7 +6702,7 @@
 {"k":"brooks|source 9\" tight - men's|bottoms|0","h":[["2026-10-10",53.99,53.99]]}
 {"k":"brooks|source 9in short tight (men's)|bottoms|0","h":[["2026-10-02",55.0,55.0]]}
 {"k":"brooks|source 9in short tight - men's|bottoms|0","h":[["2026-10-03",55.0,55.0]]}
-{"k":"brooks|source tight - men's|bottoms|0","h":[["2026-10-02",74.95,75.0],["2026-10-03",44.99,75.0]]}
+{"k":"brooks|source tight - men's|bottoms|0","h":[["2026-10-02",74.95,75.0],["2026-10-03",44.99,75.0],["2026-10-11",74.95,75.0]]}
 {"k":"brooks|spark 5\" short tight - women's|bottoms|0","h":[["2026-10-02",25.98,65.99]]}
 {"k":"brooks|spark 5\" short tights - women's|bottoms|0","h":[["2026-10-02",70.0,70.0]]}
 {"k":"brooks|spark 5\" short tight|bottoms|0","h":[["2026-10-08",33.0,65.99]]}
@@ -9154,7 +9156,7 @@
 {"k":"cotopaxi|allpa daypack - del dia - 26l|packs|0","h":[["2026-10-02",209.95,209.95]]}
 {"k":"cotopaxi|allpa travel pack (del dia) - 42l|packs|0","h":[["2026-10-02",339.95,339.95]]}
 {"k":"cotopaxi|allpa travel pack - 28l|packs|0","h":[["2026-10-02",202.49,269.99],["2026-10-05",269.95,269.95]]}
-{"k":"cotopaxi|allpa travel pack - 35l|packs|0","h":[["2026-10-02",319.95,319.95],["2026-10-08",239.96,319.95]]}
+{"k":"cotopaxi|allpa travel pack - 35l|packs|0","h":[["2026-10-02",319.95,319.95],["2026-10-08",239.96,319.95],["2026-10-11",319.95,319.95]]}
 {"k":"cotopaxi|allpa travel pack - 42l|packs|0","h":[["2026-10-02",339.95,339.95]]}
 {"k":"cotopaxi|allpa travel pack - del dia - 28l|packs|0","h":[["2026-10-02",269.95,269.95]]}
 {"k":"cotopaxi|allpa travel pack - del dia - 35l|packs|0","h":[["2026-10-02",319.95,319.95]]}
@@ -9179,6 +9181,7 @@
 {"k":"cowichan valley running|cvr hoodie - women's|tops|0","h":[["2026-10-07",55.0,55.0]]}
 {"k":"cowichan valley running|cvr unisex hoodie|tops|0","h":[["2026-10-07",55.0,55.0]]}
 {"k":"cowichan valley running|cvr unisex tee|tops|0","h":[["2026-10-07",25.0,25.0]]}
+{"k":"craft|active comfort long sleeve top 2 - women's|tops|0","h":[["2026-10-11",80.0,80.0]]}
 {"k":"craft|active essence sock - men's|socks|0","h":[["2026-10-02",29.99,29.99]]}
 {"k":"craft|active extreme wind boxer - men's|bottoms|0","h":[["2026-10-03",60.0,65.0]]}
 {"k":"craft|active extreme x cn ls - women's|tops|0","h":[["2026-10-02",74.99,74.99]]}
@@ -9465,6 +9468,7 @@
 {"k":"craft|essence capri tights - women's|bottoms|0","h":[["2026-10-03",80.0,80.0]]}
 {"k":"craft|essence hotpants 3 - women's|bottoms|0","h":[["2026-10-02",59.99,59.99]]}
 {"k":"craft|essence hybrid gloves - unisex|gloves|0","h":[["2026-10-02",59.99,59.99]]}
+{"k":"craft|essence hybrid glove|gloves|0","h":[["2026-10-11",69.0,69.0]]}
 {"k":"craft|essence hydro 2 jacket - women's|tops|0","h":[["2026-10-02",139.99,139.99]]}
 {"k":"craft|essence jacket 3 - men's|tops|0","h":[["2026-10-03",150.0,150.0]]}
 {"k":"craft|essence jersey - women's|tops|0","h":[["2026-10-09",45.0,79.99]]}
@@ -10870,23 +10874,23 @@
 {"k":"dissent labs|pro fit compression nano tour socks|socks|0","h":[["2026-10-07",54.95,54.95]]}
 {"k":"district vision|2-in-1 trail shorts - women's|bottoms|0","h":[["2026-10-02",214.99,214.99]]}
 {"k":"district vision|california cotton hoodie, arrow eye vintage black|tops|0","h":[["2026-10-06",275.0,275.0]]}
-{"k":"district vision|california cotton hoodie, black wordmark|tops|0","h":[["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0]]}
-{"k":"district vision|california cotton hoodie, california running black|tops|0","h":[["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0]]}
-{"k":"district vision|california cotton hoodie, chakra navy|tops|0","h":[["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0]]}
+{"k":"district vision|california cotton hoodie, black wordmark|tops|0","h":[["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0],["2026-10-11",247.0,247.0]]}
+{"k":"district vision|california cotton hoodie, california running black|tops|0","h":[["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0],["2026-10-11",247.0,247.0]]}
+{"k":"district vision|california cotton hoodie, chakra navy|tops|0","h":[["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0],["2026-10-11",247.0,247.0]]}
 {"k":"district vision|california cotton hoodie, enlightened vintage white|tops|0","h":[["2026-10-06",275.0,275.0]]}
 {"k":"district vision|california cotton hoodie, log off navy|tops|0","h":[["2026-10-06",275.0,275.0]]}
-{"k":"district vision|california cotton hoodie, runner's choice cacao|tops|0","h":[["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0]]}
-{"k":"district vision|california cotton hoodie, runner's choice vintage black|tops|0","h":[["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0]]}
-{"k":"district vision|california cotton hoodie, runner's choice vintage green|tops|0","h":[["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0]]}
+{"k":"district vision|california cotton hoodie, runner's choice cacao|tops|0","h":[["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0],["2026-10-11",247.0,247.0]]}
+{"k":"district vision|california cotton hoodie, runner's choice vintage black|tops|0","h":[["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0],["2026-10-11",247.0,247.0]]}
+{"k":"district vision|california cotton hoodie, runner's choice vintage green|tops|0","h":[["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0],["2026-10-11",247.0,247.0]]}
 {"k":"district vision|california cotton hoodie, runners heather grey|tops|0","h":[["2026-10-06",275.0,275.0]]}
-{"k":"district vision|california cotton hoodie, staff hoodie heather gray|tops|0","h":[["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0]]}
-{"k":"district vision|california cotton hoodie, staff hoodie navy|tops|0","h":[["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0]]}
-{"k":"district vision|california cotton hoodie, staff hoodie warm citron|tops|0","h":[["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0]]}
-{"k":"district vision|california cotton hoodie, super star heather gray|tops|0","h":[["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0]]}
-{"k":"district vision|california cotton hoodie, super star vintage black|tops|0","h":[["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0]]}
-{"k":"district vision|california cotton hoodie, super star vintage green|tops|0","h":[["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0]]}
-{"k":"district vision|california cotton hoodie, teddy navy|tops|0","h":[["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0]]}
-{"k":"district vision|california cotton hoodie, teddy vintage white|tops|0","h":[["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0]]}
+{"k":"district vision|california cotton hoodie, staff hoodie heather gray|tops|0","h":[["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0],["2026-10-11",247.0,247.0]]}
+{"k":"district vision|california cotton hoodie, staff hoodie navy|tops|0","h":[["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0],["2026-10-11",247.0,247.0]]}
+{"k":"district vision|california cotton hoodie, staff hoodie warm citron|tops|0","h":[["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0],["2026-10-11",247.0,247.0]]}
+{"k":"district vision|california cotton hoodie, super star heather gray|tops|0","h":[["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0],["2026-10-11",247.0,247.0]]}
+{"k":"district vision|california cotton hoodie, super star vintage black|tops|0","h":[["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0],["2026-10-11",247.0,247.0]]}
+{"k":"district vision|california cotton hoodie, super star vintage green|tops|0","h":[["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0],["2026-10-11",247.0,247.0]]}
+{"k":"district vision|california cotton hoodie, teddy navy|tops|0","h":[["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0],["2026-10-11",247.0,247.0]]}
+{"k":"district vision|california cotton hoodie, teddy vintage white|tops|0","h":[["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0],["2026-10-11",247.0,247.0]]}
 {"k":"district vision|california cotton hoodie, track club heather grey|tops|0","h":[["2026-10-06",275.0,275.0]]}
 {"k":"district vision|california cotton hoodie, wave runner navy|tops|0","h":[["2026-10-06",275.0,275.0]]}
 {"k":"district vision|california cotton long sleeve tee, cfip flowers vintage white|tops|0","h":[["2026-10-06",62.0,123.0]]}
@@ -10940,9 +10944,9 @@
 {"k":"district vision|junya racer, black/d+ sports yellow|gear|0","h":[["2026-10-06",410.0,410.0]]}
 {"k":"district vision|junya racer, clear/d+ black rose|gear|0","h":[["2026-10-06",410.0,410.0]]}
 {"k":"district vision|karuna tee - unisex|tops|0","h":[["2026-10-02",109.99,109.99]]}
-{"k":"district vision|keiichi standard black, d+ anti-fog|gear|0","h":[["2026-10-06",397.0,397.0],["2026-10-07",398.0,398.0]]}
+{"k":"district vision|keiichi standard black, d+ anti-fog|gear|0","h":[["2026-10-06",397.0,397.0],["2026-10-07",398.0,398.0],["2026-10-11",399.0,399.0]]}
 {"k":"district vision|keiichi standard black, d+ g15|gear|0","h":[["2026-10-06",410.0,410.0]]}
-{"k":"district vision|keiichi standard gray, d+ anti-fog|gear|0","h":[["2026-10-06",397.0,397.0],["2026-10-07",398.0,398.0]]}
+{"k":"district vision|keiichi standard gray, d+ anti-fog|gear|0","h":[["2026-10-06",397.0,397.0],["2026-10-07",398.0,398.0],["2026-10-11",399.0,399.0]]}
 {"k":"district vision|keiichi standard gray, d+ black rose|gear|0","h":[["2026-10-06",410.0,410.0]]}
 {"k":"district vision|keiichi standard gray, d+ water gray|gear|0","h":[["2026-10-06",410.0,410.0]]}
 {"k":"district vision|koharu eclipse sunglasses - brown mosaic - d + copper lens - unisex|gear|0","h":[["2026-10-02",559.99,559.99]]}
@@ -10951,12 +10955,12 @@
 {"k":"district vision|koharu sunglasses|gear|0","h":[["2026-10-02",484.99,484.99]]}
 {"k":"district vision|kohei aero blade ti sunglasses|gear|0","h":[["2026-10-02",634.99,634.99]]}
 {"k":"district vision|lightweight short sleeve t-shirt - men's|tops|0","h":[["2026-10-02",144.39,189.99],["2026-10-04",148.19,189.99],["2026-10-07",150.09,189.99],["2026-10-08",132.99,189.99],["2026-10-10",125.39,189.99]]}
-{"k":"district vision|linto rider sand, d+ blue ice|gear|0","h":[["2026-10-06",484.0,484.0],["2026-10-07",485.0,485.0],["2026-10-08",484.0,484.0],["2026-10-09",485.0,485.0]]}
+{"k":"district vision|linto rider sand, d+ blue ice|gear|0","h":[["2026-10-06",484.0,484.0],["2026-10-07",485.0,485.0],["2026-10-08",484.0,484.0],["2026-10-09",485.0,485.0],["2026-10-11",486.0,486.0]]}
 {"k":"district vision|linto rider tortoise, d+ earth vision|gear|0","h":[["2026-10-06",541.0,541.0],["2026-10-07",542.0,542.0],["2026-10-08",542.0,542.0],["2026-10-09",543.0,543.0]]}
 {"k":"district vision|lono tights - men's|bottoms|0","h":[["2026-10-02",250.24,324.99],["2026-10-04",256.74,324.99],["2026-10-08",227.49,324.99],["2026-10-10",220.99,324.99]]}
 {"k":"district vision|medium support racer-back bra - women's|bras|0","h":[["2026-10-02",139.99,139.99]]}
 {"k":"district vision|nagata speed blade gray, d+ black rose|gear|0","h":[["2026-10-06",410.0,410.0]]}
-{"k":"district vision|nagata speed blade infrared, d+ black rose|gear|0","h":[["2026-10-06",426.0,426.0],["2026-10-07",427.0,427.0],["2026-10-08",426.0,426.0],["2026-10-09",427.0,427.0]]}
+{"k":"district vision|nagata speed blade infrared, d+ black rose|gear|0","h":[["2026-10-06",426.0,426.0],["2026-10-07",427.0,427.0],["2026-10-08",426.0,426.0],["2026-10-09",427.0,427.0],["2026-10-11",428.0,428.0]]}
 {"k":"district vision|nagata speed blade sunglasses|gear|0","h":[["2026-10-02",409.99,409.99]]}
 {"k":"district vision|performance paneled mesh hat|headwear|0","h":[["2026-10-02",124.99,124.99]]}
 {"k":"district vision|pocketed half tights 7\" - women's|bottoms|0","h":[["2026-10-02",160.59,219.99],["2026-10-04",164.99,219.99],["2026-10-07",173.79,219.99],["2026-10-08",140.79,219.99],["2026-10-10",149.59,219.99]]}
@@ -13811,7 +13815,7 @@
 {"k":"hoka|airolite long sleeve 2.0 top - women's|tops|0","h":[["2026-10-03",68.96,92.0]]}
 {"k":"hoka|airolite run gloves - unisex|gloves|0","h":[["2026-10-02",31.79,59.99],["2026-10-04",32.99,59.99],["2026-10-08",28.79,59.99],["2026-10-10",28.19,59.99]]}
 {"k":"hoka|airolite run gloves|gloves|0","h":[["2026-10-07",60.0,60.0]]}
-{"k":"hoka|airolite run long sleeve - men's|tops|0","h":[["2026-10-02",55.0,91.99]]}
+{"k":"hoka|airolite run long sleeve - men's|tops|0","h":[["2026-10-02",55.0,91.99],["2026-10-11",91.99,91.99]]}
 {"k":"hoka|airolite run long sleeve - women's|tops|0","h":[["2026-10-02",91.99,91.99]]}
 {"k":"hoka|airolite run short sleeve - men's|tops|0","h":[["2026-10-10",58.0,71.99]]}
 {"k":"hoka|airolite run short sleeve - women's|tops|0","h":[["2026-10-02",43.2,71.99]]}
@@ -13916,7 +13920,7 @@
 {"k":"hoka|challenger 8 gtx trail running shoes - men's|shoes|0","h":[["2026-10-02",199.99,199.99],["2026-10-03",199.95,199.99]]}
 {"k":"hoka|challenger 8 gtx trail running shoes - women's|shoes|0","h":[["2026-10-02",199.99,199.99],["2026-10-03",199.95,199.99]]}
 {"k":"hoka|challenger 8 trail running shoes - men's|shoes|0","h":[["2026-10-02",179.99,179.99],["2026-10-03",179.95,179.99],["2026-10-04",125.97,179.99]]}
-{"k":"hoka|challenger 8 trail running shoes - women's|shoes|0","h":[["2026-10-02",179.99,179.99],["2026-10-03",179.95,179.99],["2026-10-04",125.97,179.99]]}
+{"k":"hoka|challenger 8 trail running shoes - women's|shoes|0","h":[["2026-10-02",179.99,179.99],["2026-10-03",179.95,179.99],["2026-10-04",125.97,179.99],["2026-10-11",179.99,179.99]]}
 {"k":"hoka|challenger 8 wide - men's|shoes|1","h":[["2026-10-03",180.0,180.0]]}
 {"k":"hoka|challenger atr 7 - men's|shoes|0","h":[["2026-10-09",180.0,180.0]]}
 {"k":"hoka|challenger atr 7 - women's|shoes|0","h":[["2026-10-03",150.0,180.0]]}
@@ -13946,6 +13950,7 @@
 {"k":"hoka|clifton 10 - women's|shoes|0","h":[["2026-10-02",124.95,179.95],["2026-10-03",119.99,189.0],["2026-10-10",110.0,189.0]]}
 {"k":"hoka|clifton 10 road running shoes - men's|shoes|0","h":[["2026-10-02",116.99,189.0],["2026-10-04",89.94,189.0],["2026-10-05",115.19,189.0],["2026-10-06",107.94,189.0],["2026-10-07",109.79,189.0],["2026-10-08",95.39,189.0],["2026-10-10",102.59,189.0]]}
 {"k":"hoka|clifton 10 road running shoes - women's|shoes|0","h":[["2026-10-02",189.0,189.0]]}
+{"k":"hoka|clifton 10 road running shoes [wide] - men's|shoes|1","h":[["2026-10-11",107.99,180.0]]}
 {"k":"hoka|clifton 10 road running shoes [wide] - men’s|shoes|1","h":[["2026-10-02",115.19,179.99]]}
 {"k":"hoka|clifton 10 running shoe - women's|shoes|0","h":[["2026-10-06",89.94,189.0]]}
 {"k":"hoka|clifton 10 running shoes [wide] - women's|shoes|1","h":[["2026-10-02",138.59,179.99]]}
@@ -15071,7 +15076,7 @@
 {"k":"i-blu inc|dv + mo.s cotton tee, vintage black|tops|0","h":[["2026-10-02",145.0,145.0]]}
 {"k":"icebreaker|125 cool-lite speed fusion merino blend tank top - women's|tops|0","h":[["2026-10-02",57.99,99.99],["2026-10-08",52.99,99.99],["2026-10-10",57.99,99.99]]}
 {"k":"icebreaker|125 cool-lite speed merino blend short sleeve quarter-zip top - men's|tops|0","h":[["2026-10-02",87.09,129.99],["2026-10-04",88.39,129.99],["2026-10-07",87.09,129.99],["2026-10-08",76.69,129.99],["2026-10-10",74.09,129.99]]}
-{"k":"icebreaker|125 cool-lite speed merino blend short sleeve t-shirt - men's|tops|0","h":[["2026-10-02",89.99,124.99],["2026-10-04",91.24,124.99],["2026-10-07",76.24,124.99],["2026-10-08",81.24,124.99],["2026-10-10",88.74,124.99]]}
+{"k":"icebreaker|125 cool-lite speed merino blend short sleeve t-shirt - men's|tops|0","h":[["2026-10-02",89.99,124.99],["2026-10-04",91.24,124.99],["2026-10-07",76.24,124.99],["2026-10-08",81.24,124.99],["2026-10-10",88.74,124.99],["2026-10-11",124.99,124.99]]}
 {"k":"icebreaker|125 cool-lite speed merino blend short sleeve t-shirt - women's|tops|0","h":[["2026-10-02",99.99,124.99],["2026-10-04",98.74,124.99],["2026-10-07",97.49,124.99],["2026-10-08",88.74,124.99],["2026-10-10",86.24,124.99]]}
 {"k":"icebreaker|125 cool-lite speed merino blend tank top - men's|tops|0","h":[["2026-10-02",58.79,104.99]]}
 {"k":"icebreaker|125 cool-lite speed merino blend tank top - women's|tops|0","h":[["2026-10-02",81.89,104.99],["2026-10-04",82.94,104.99],["2026-10-07",83.99,104.99],["2026-10-08",73.49,104.99],["2026-10-10",71.39,104.99]]}
@@ -15087,7 +15092,7 @@
 {"k":"icebreaker|125 zoneknit merino blend crewe thermal top - men's|tops|0","h":[["2026-10-02",92.79,159.99],["2026-10-04",91.19,159.99],["2026-10-08",79.99,159.99],["2026-10-10",92.79,159.99]]}
 {"k":"icebreaker|125 zoneknit short sleeve crewe thermal top - women's|tops|0","h":[["2026-10-02",69.99,139.99],["2026-10-04",71.39,139.99],["2026-10-07",72.79,139.99],["2026-10-08",57.39,139.99],["2026-10-10",58.79,139.99]]}
 {"k":"icebreaker|125 zoneknit speed merino blend shorts 6\" - men's|bottoms|0","h":[["2026-10-02",75.89,114.99],["2026-10-04",71.29,114.99],["2026-10-07",70.14,114.99],["2026-10-08",64.39,114.99],["2026-10-10",60.94,114.99]]}
-{"k":"icebreaker|125 zoneknit thermal legging - men's|bottoms|0","h":[["2026-10-02",67.49,149.99],["2026-10-04",70.49,149.99],["2026-10-05",70.49,149.99],["2026-10-08",61.49,149.99],["2026-10-09",61.49,149.99],["2026-10-10",64.49,149.99],["2026-10-11",149.99,149.99]]}
+{"k":"icebreaker|125 zoneknit thermal legging - men's|bottoms|0","h":[["2026-10-02",67.49,149.99],["2026-10-04",70.49,149.99],["2026-10-05",70.49,149.99],["2026-10-08",61.49,149.99],["2026-10-09",61.49,149.99],["2026-10-10",64.49,149.99],["2026-10-11",64.49,149.99]]}
 {"k":"icebreaker|1360 merinoloft milford bomber jacket - men's|tops|0","h":[["2026-10-05",424.99,424.99]]}
 {"k":"icebreaker|150 long sleeve tee rainer ridge t-shirt - men's|tops|0","h":[["2026-10-03",115.0,115.0]]}
 {"k":"icebreaker|150 merinofine ace long sleeve t-shirt - men's|tops|0","h":[["2026-10-02",149.99,149.99]]}
@@ -15667,7 +15672,7 @@
 {"k":"janji|w's pinnacle rd gossamer singlet|tops|0","h":[["2026-10-07",80.0,80.0]]}
 {"k":"janji|w's pinnacle rd gossamer tee|packs|0","h":[["2026-10-02",88.0,88.0]]}
 {"k":"janji|w's pinnacle rd gossamer tee|tops|0","h":[["2026-10-07",88.0,88.0]]}
-{"k":"janji|w's pinnacle rd ultra bra - women's|bras|0","h":[["2026-10-09",88.0,98.0]]}
+{"k":"janji|w's pinnacle rd ultra bra - women's|bras|0","h":[["2026-10-09",88.0,98.0],["2026-10-11",98.0,98.0]]}
 {"k":"janji|w's pinnacle rd ultra bra|bras|0","h":[["2026-10-02",88.0,98.0],["2026-10-03",98.0,98.0]]}
 {"k":"janji|w's pinnacle ultra singlet|tops|0","h":[["2026-10-07",78.0,78.0]]}
 {"k":"janji|w's rainrunner pack jacket|tops|0","h":[["2026-10-07",218.0,218.0]]}
@@ -16640,9 +16645,9 @@
 {"k":"krono|fizz electrolytes effervescentes|nutrition|0","h":[["2026-10-02",12.95,12.95]]}
 {"k":"krono|gaufrette énergétique · érable & bleuet|nutrition|0","h":[["2026-10-02",2.5,25.99]]}
 {"k":"krono|gaufrette énergétique · érable & sel de mer|nutrition|0","h":[["2026-10-02",2.5,25.99],["2026-10-03",2.5,25.99],["2026-10-09",2.5,25.99]]}
-{"k":"krono|gel énergétique · agrumes|nutrition|0","h":[["2026-10-02",3.25,69.99]]}
+{"k":"krono|gel énergétique · agrumes|nutrition|0","h":[["2026-10-02",3.25,69.99],["2026-10-11",69.99,69.99]]}
 {"k":"krono|gel énergétique · caramel salé|nutrition|0","h":[["2026-10-02",3.25,69.99]]}
-{"k":"krono|gel énergétique · fruit des champs|nutrition|0","h":[["2026-10-02",3.25,69.99]]}
+{"k":"krono|gel énergétique · fruit des champs|nutrition|0","h":[["2026-10-02",3.25,69.99],["2026-10-11",69.99,69.99]]}
 {"k":"krono|gel énergétique · tropical|nutrition|0","h":[["2026-10-02",3.25,3.25]]}
 {"k":"krono|gel énergétique · érable café|nutrition|0","h":[["2026-10-02",3.25,69.99]]}
 {"k":"krono|gel énergétique · érable framboise|nutrition|0","h":[["2026-10-02",3.25,69.99]]}
@@ -16811,7 +16816,7 @@
 {"k":"la sportiva|prodigio max trail running shoes - men's|shoes|0","h":[["2026-10-02",153.71,204.95]]}
 {"k":"la sportiva|prodigio max trail running shoes - women's|shoes|0","h":[["2026-10-02",153.71,204.95]]}
 {"k":"la sportiva|prodigio pro trail running shoes - men's|shoes|0","h":[["2026-10-02",234.95,234.95],["2026-10-09",117.47,234.95]]}
-{"k":"la sportiva|prodigio pro trail running shoes - women's|shoes|0","h":[["2026-10-02",234.95,234.95],["2026-10-09",117.47,235.0]]}
+{"k":"la sportiva|prodigio pro trail running shoes - women's|shoes|0","h":[["2026-10-02",234.95,234.95],["2026-10-09",117.47,235.0],["2026-10-11",234.95,235.0]]}
 {"k":"la sportiva|pure 4 inch short - women's|bottoms|0","h":[["2026-10-07",69.95,69.95]]}
 {"k":"la sportiva|pure 7\" short - men's|bottoms|0","h":[["2026-10-07",70.0,70.0]]}
 {"k":"la sportiva|pure cap|headwear|0","h":[["2026-10-07",45.0,45.0]]}
@@ -17140,8 +17145,8 @@
 {"k":"ltp vn|7\" training shorts, black|bottoms|0","h":[["2026-10-02",260.0,260.0]]}
 {"k":"ltp vn|7\" training shorts, carbon|bottoms|0","h":[["2026-10-02",182.0,260.0]]}
 {"k":"ltp vn|7\" training shorts, dark taupe|bottoms|0","h":[["2026-10-02",182.0,260.0]]}
-{"k":"ltp vn|7\" training shorts, espresso|bottoms|0","h":[["2026-10-02",246.0,246.0],["2026-10-05",247.0,247.0],["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0]]}
-{"k":"ltp vn|7\" training shorts, slate blue|bottoms|0","h":[["2026-10-02",246.0,246.0],["2026-10-05",247.0,247.0],["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0]]}
+{"k":"ltp vn|7\" training shorts, espresso|bottoms|0","h":[["2026-10-02",246.0,246.0],["2026-10-05",247.0,247.0],["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0],["2026-10-11",247.0,247.0]]}
+{"k":"ltp vn|7\" training shorts, slate blue|bottoms|0","h":[["2026-10-02",246.0,246.0],["2026-10-05",247.0,247.0],["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0],["2026-10-11",247.0,247.0]]}
 {"k":"ltp vn|9\" recycled tights, black|bottoms|0","h":[["2026-10-02",210.0,210.0]]}
 {"k":"ltp vn|9\" recycled tights, granite|bottoms|0","h":[["2026-10-02",196.0,196.0],["2026-10-06",195.0,195.0],["2026-10-07",196.0,196.0],["2026-10-08",195.0,195.0],["2026-10-09",196.0,196.0]]}
 {"k":"ltp vn|9\" recycled tights, indigo|bottoms|0","h":[["2026-10-02",196.0,196.0],["2026-10-06",195.0,195.0],["2026-10-07",196.0,196.0],["2026-10-08",195.0,195.0],["2026-10-09",196.0,196.0]]}
@@ -17156,8 +17161,8 @@
 {"k":"ltp vn|boxy compression training tee, lunar white/white|tops|0","h":[["2026-10-02",232.0,232.0],["2026-10-06",231.0,231.0],["2026-10-07",232.0,232.0],["2026-10-08",231.0,231.0],["2026-10-09",232.0,232.0]]}
 {"k":"ltp vn|boxy soft interlock tee, black|tops|0","h":[["2026-10-02",253.0,253.0],["2026-10-03",254.0,254.0],["2026-10-06",253.0,253.0],["2026-10-07",254.0,254.0],["2026-10-08",253.0,253.0],["2026-10-09",254.0,254.0]]}
 {"k":"ltp vn|boxy soft interlock tee, earth|tops|0","h":[["2026-10-02",253.0,253.0],["2026-10-03",254.0,254.0],["2026-10-06",253.0,253.0],["2026-10-07",254.0,254.0],["2026-10-08",253.0,253.0],["2026-10-09",254.0,254.0]]}
-{"k":"ltp vn|cropped brushed fleece, melange grey|tops|0","h":[["2026-10-02",398.0,398.0],["2026-10-05",399.0,399.0],["2026-10-06",397.0,397.0],["2026-10-07",398.0,398.0]]}
-{"k":"ltp vn|cropped brushed fleece, slate blue|tops|0","h":[["2026-10-02",398.0,398.0],["2026-10-05",399.0,399.0],["2026-10-06",397.0,397.0],["2026-10-07",398.0,398.0]]}
+{"k":"ltp vn|cropped brushed fleece, melange grey|tops|0","h":[["2026-10-02",398.0,398.0],["2026-10-05",399.0,399.0],["2026-10-06",397.0,397.0],["2026-10-07",398.0,398.0],["2026-10-11",399.0,399.0]]}
+{"k":"ltp vn|cropped brushed fleece, slate blue|tops|0","h":[["2026-10-02",398.0,398.0],["2026-10-05",399.0,399.0],["2026-10-06",397.0,397.0],["2026-10-07",398.0,398.0],["2026-10-11",399.0,399.0]]}
 {"k":"ltp vn|dolman short sleeve tee, deep brown|tops|0","h":[["2026-10-02",210.0,300.0]]}
 {"k":"ltp vn|dolman short sleeve tee, off white|tops|0","h":[["2026-10-02",210.0,300.0]]}
 {"k":"ltp vn|fitted cropped t-shirt, off white|tops|0","h":[["2026-10-02",126.0,180.0]]}
@@ -17215,9 +17220,9 @@
 {"k":"ltp vn|paneled long sleeve t-shirt, black|tops|0","h":[["2026-10-02",167.0,167.0],["2026-10-06",166.0,166.0],["2026-10-07",167.0,167.0]]}
 {"k":"ltp vn|paneled long sleeve t-shirt, espresso|tops|0","h":[["2026-10-02",167.0,167.0],["2026-10-06",166.0,166.0],["2026-10-07",167.0,167.0]]}
 {"k":"ltp vn|paneled long sleeve t-shirt, lunar white|tops|0","h":[["2026-10-02",167.0,167.0],["2026-10-06",166.0,166.0],["2026-10-07",167.0,167.0]]}
-{"k":"ltp vn|paneled short sleeve t-shirt, black|tops|0","h":[["2026-10-02",152.0,152.0],["2026-10-05",152.0,152.0],["2026-10-06",152.0,152.0]]}
-{"k":"ltp vn|paneled short sleeve t-shirt, espresso|tops|0","h":[["2026-10-02",152.0,152.0],["2026-10-05",152.0,152.0],["2026-10-06",152.0,152.0]]}
-{"k":"ltp vn|paneled short sleeve t-shirt, lunar white|tops|0","h":[["2026-10-02",152.0,152.0],["2026-10-05",152.0,152.0],["2026-10-06",152.0,152.0]]}
+{"k":"ltp vn|paneled short sleeve t-shirt, black|tops|0","h":[["2026-10-02",152.0,152.0],["2026-10-05",152.0,152.0],["2026-10-06",152.0,152.0],["2026-10-11",153.0,153.0]]}
+{"k":"ltp vn|paneled short sleeve t-shirt, espresso|tops|0","h":[["2026-10-02",152.0,152.0],["2026-10-05",152.0,152.0],["2026-10-06",152.0,152.0],["2026-10-11",153.0,153.0]]}
+{"k":"ltp vn|paneled short sleeve t-shirt, lunar white|tops|0","h":[["2026-10-02",152.0,152.0],["2026-10-05",152.0,152.0],["2026-10-06",152.0,152.0],["2026-10-11",153.0,153.0]]}
 {"k":"ltp vn|paneled training singlet, black|tops|0","h":[["2026-10-02",140.0,140.0]]}
 {"k":"ltp vn|paneled training singlet, white|tops|0","h":[["2026-10-02",140.0,140.0]]}
 {"k":"ltp vn|paneled training t-shirt, bamboo|tops|0","h":[["2026-10-02",112.0,160.0]]}
@@ -17233,8 +17238,8 @@
 {"k":"ltp vn|performance lab split shorts, black|bottoms|0","h":[["2026-10-02",253.0,253.0],["2026-10-03",254.0,254.0],["2026-10-06",253.0,253.0],["2026-10-07",254.0,254.0],["2026-10-08",253.0,253.0],["2026-10-09",254.0,254.0]]}
 {"k":"ltp vn|performance lab split shorts, white|bottoms|0","h":[["2026-10-02",253.0,253.0],["2026-10-03",254.0,254.0],["2026-10-06",253.0,253.0],["2026-10-07",254.0,254.0],["2026-10-08",253.0,253.0],["2026-10-09",254.0,254.0]]}
 {"k":"ltp vn|performance lab tights, black|bottoms|0","h":[["2026-10-02",354.0,354.0],["2026-10-03",355.0,355.0],["2026-10-06",354.0,354.0],["2026-10-07",355.0,355.0],["2026-10-08",354.0,354.0],["2026-10-09",355.0,355.0]]}
-{"k":"ltp vn|performance lab waterproof jacket, black|tops|0","h":[["2026-10-02",1012.0,1012.0],["2026-10-03",1013.0,1013.0],["2026-10-05",1014.0,1014.0],["2026-10-06",1010.0,1010.0],["2026-10-07",1011.0,1011.0],["2026-10-08",1011.0,1011.0],["2026-10-09",1012.0,1012.0],["2026-10-10",1013.0,1013.0]]}
-{"k":"ltp vn|performance lab waterproof jacket, powder blue|tops|0","h":[["2026-10-02",1012.0,1012.0],["2026-10-03",1013.0,1013.0],["2026-10-05",1014.0,1014.0],["2026-10-06",1010.0,1010.0],["2026-10-07",1011.0,1011.0],["2026-10-08",1011.0,1011.0],["2026-10-09",1012.0,1012.0],["2026-10-10",1013.0,1013.0]]}
+{"k":"ltp vn|performance lab waterproof jacket, black|tops|0","h":[["2026-10-02",1012.0,1012.0],["2026-10-03",1013.0,1013.0],["2026-10-05",1014.0,1014.0],["2026-10-06",1010.0,1010.0],["2026-10-07",1011.0,1011.0],["2026-10-08",1011.0,1011.0],["2026-10-09",1012.0,1012.0],["2026-10-10",1013.0,1013.0],["2026-10-11",1014.0,1014.0]]}
+{"k":"ltp vn|performance lab waterproof jacket, powder blue|tops|0","h":[["2026-10-02",1012.0,1012.0],["2026-10-03",1013.0,1013.0],["2026-10-05",1014.0,1014.0],["2026-10-06",1010.0,1010.0],["2026-10-07",1011.0,1011.0],["2026-10-08",1011.0,1011.0],["2026-10-09",1012.0,1012.0],["2026-10-10",1013.0,1013.0],["2026-10-11",1014.0,1014.0]]}
 {"k":"ltp vn|performance lab zippered jacket, black|tops|0","h":[["2026-10-02",571.0,571.0],["2026-10-03",572.0,572.0],["2026-10-06",570.0,570.0],["2026-10-07",571.0,571.0],["2026-10-08",571.0,571.0],["2026-10-09",572.0,572.0]]}
 {"k":"ltp vn|quarter zip training long sleeve, black|tops|0","h":[["2026-10-02",239.0,239.0],["2026-10-06",239.0,239.0]]}
 {"k":"ltp vn|quarter zip training long sleeve, espresso/black|tops|0","h":[["2026-10-02",239.0,239.0],["2026-10-06",239.0,239.0]]}
@@ -17264,13 +17269,13 @@
 {"k":"ltp vn|ultralight long sleeve aloe tee, mist|tops|0","h":[["2026-10-02",239.0,239.0],["2026-10-06",239.0,239.0]]}
 {"k":"ltp vn|ultralight long sleeve aloe tee, oyster|tops|0","h":[["2026-10-02",239.0,239.0],["2026-10-06",239.0,239.0]]}
 {"k":"ltp vn|ultralight nylon trail shorts, graphite/race blue|bottoms|0","h":[["2026-10-02",203.0,290.0]]}
-{"k":"ltp vn|ultralight nylon trail shorts, mist/indigo|bottoms|0","h":[["2026-10-02",275.0,275.0],["2026-10-05",276.0,276.0],["2026-10-06",275.0,275.0]]}
+{"k":"ltp vn|ultralight nylon trail shorts, mist/indigo|bottoms|0","h":[["2026-10-02",275.0,275.0],["2026-10-05",276.0,276.0],["2026-10-06",275.0,275.0],["2026-10-11",276.0,276.0]]}
 {"k":"ltp vn|ultralight nylon trail shorts, nightshade/black|bottoms|0","h":[["2026-10-02",203.0,290.0]]}
-{"k":"ltp vn|ultralight nylon trail shorts, obsidian/black|bottoms|0","h":[["2026-10-02",275.0,275.0],["2026-10-05",276.0,276.0],["2026-10-06",275.0,275.0]]}
+{"k":"ltp vn|ultralight nylon trail shorts, obsidian/black|bottoms|0","h":[["2026-10-02",275.0,275.0],["2026-10-05",276.0,276.0],["2026-10-06",275.0,275.0],["2026-10-11",276.0,276.0]]}
 {"k":"ltp vn|ultralight nylon trail shorts, obsidian/umber|bottoms|0","h":[["2026-10-02",203.0,290.0]]}
-{"k":"ltp vn|ultralight nylon wind jacket, espresso|tops|0","h":[["2026-10-02",398.0,398.0],["2026-10-05",399.0,399.0],["2026-10-06",397.0,397.0],["2026-10-07",398.0,398.0]]}
+{"k":"ltp vn|ultralight nylon wind jacket, espresso|tops|0","h":[["2026-10-02",398.0,398.0],["2026-10-05",399.0,399.0],["2026-10-06",397.0,397.0],["2026-10-07",398.0,398.0],["2026-10-11",399.0,399.0]]}
 {"k":"ltp vn|ultralight nylon wind jacket, graphite|tops|0","h":[["2026-10-02",294.0,420.0]]}
-{"k":"ltp vn|ultralight nylon wind jacket, mist|tops|0","h":[["2026-10-02",398.0,398.0],["2026-10-05",399.0,399.0],["2026-10-06",397.0,397.0],["2026-10-07",398.0,398.0]]}
+{"k":"ltp vn|ultralight nylon wind jacket, mist|tops|0","h":[["2026-10-02",398.0,398.0],["2026-10-05",399.0,399.0],["2026-10-06",397.0,397.0],["2026-10-07",398.0,398.0],["2026-10-11",399.0,399.0]]}
 {"k":"ltp vn|ultralight nylon wind jacket, nightshade|tops|0","h":[["2026-10-02",294.0,420.0]]}
 {"k":"ltp vn|ultralight nylon wind jacket, obsidian|tops|0","h":[["2026-10-02",420.0,420.0]]}
 {"k":"ltp vn|ultralight nylon windbreaker, nightshade|tops|0","h":[["2026-10-02",294.0,420.0]]}
@@ -17280,9 +17285,9 @@
 {"k":"ltp vn|ultralight nylon zippered shorts, obsidian|bottoms|0","h":[["2026-10-02",171.5,245.0]]}
 {"k":"ltp vn|ultralight short sleeve aloe tee, mist|tops|0","h":[["2026-10-02",210.0,210.0],["2026-10-06",210.0,210.0]]}
 {"k":"ltp vn|ultralight short sleeve aloe tee, oyster|tops|0","h":[["2026-10-02",210.0,210.0],["2026-10-06",210.0,210.0]]}
-{"k":"ltp vn|waffle long sleeve, black|tops|0","h":[["2026-10-02",246.0,246.0],["2026-10-05",247.0,247.0],["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0]]}
-{"k":"ltp vn|waffle long sleeve, oyster|tops|0","h":[["2026-10-02",246.0,246.0],["2026-10-05",247.0,247.0],["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0]]}
-{"k":"ltp vn|waffle long sleeve, white|tops|0","h":[["2026-10-02",246.0,246.0],["2026-10-05",247.0,247.0],["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0]]}
+{"k":"ltp vn|waffle long sleeve, black|tops|0","h":[["2026-10-02",246.0,246.0],["2026-10-05",247.0,247.0],["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0],["2026-10-11",247.0,247.0]]}
+{"k":"ltp vn|waffle long sleeve, oyster|tops|0","h":[["2026-10-02",246.0,246.0],["2026-10-05",247.0,247.0],["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0],["2026-10-11",247.0,247.0]]}
+{"k":"ltp vn|waffle long sleeve, white|tops|0","h":[["2026-10-02",246.0,246.0],["2026-10-05",247.0,247.0],["2026-10-06",246.0,246.0],["2026-10-07",247.0,247.0],["2026-10-08",246.0,246.0],["2026-10-11",247.0,247.0]]}
 {"k":"ltp vn|waffle pants, black|bottoms|0","h":[["2026-10-02",326.0,326.0],["2026-10-06",325.0,325.0],["2026-10-07",326.0,326.0],["2026-10-08",325.0,325.0],["2026-10-09",326.0,326.0]]}
 {"k":"ltp vn|waffle pants, slate blue|bottoms|0","h":[["2026-10-02",326.0,326.0],["2026-10-06",325.0,325.0],["2026-10-07",326.0,326.0],["2026-10-08",325.0,325.0],["2026-10-09",326.0,326.0]]}
 {"k":"ltp vn|wide leg pants, black|bottoms|0","h":[["2026-10-02",360.0,360.0]]}
@@ -17316,7 +17321,7 @@
 {"k":"ltp|aloe short sleeve fitted tee, black|tops|0","h":[["2026-10-02",196.0,196.0],["2026-10-06",195.0,195.0],["2026-10-07",196.0,196.0],["2026-10-08",195.0,195.0],["2026-10-09",196.0,196.0]]}
 {"k":"ltp|aloe short sleeve fitted tee, marine|tops|0","h":[["2026-10-02",98.0,196.0]]}
 {"k":"ltp|aloe short sleeve fitted tee, pistachio|tops|0","h":[["2026-10-02",98.0,196.0]]}
-{"k":"ltp|cargo compression capri tights, black|bottoms|0","h":[["2026-10-02",333.0,333.0],["2026-10-06",332.0,332.0],["2026-10-07",333.0,333.0]]}
+{"k":"ltp|cargo compression capri tights, black|bottoms|0","h":[["2026-10-02",333.0,333.0],["2026-10-06",332.0,332.0],["2026-10-07",333.0,333.0],["2026-10-11",334.0,334.0]]}
 {"k":"ltp|cargo compression full tights, black|bottoms|0","h":[["2026-10-02",542.0,542.0],["2026-10-03",543.0,543.0],["2026-10-06",541.0,541.0],["2026-10-07",542.0,542.0],["2026-10-08",542.0,542.0],["2026-10-09",543.0,543.0]]}
 {"k":"ltp|cargo compression half-tights, black|bottoms|0","h":[["2026-10-02",311.0,311.0],["2026-10-03",312.0,312.0],["2026-10-06",311.0,311.0],["2026-10-07",312.0,312.0],["2026-10-08",311.0,311.0],["2026-10-09",312.0,312.0]]}
 {"k":"ltp|cargo compression long tights, black|bottoms|0","h":[["2026-10-02",362.0,362.0],["2026-10-06",361.0,361.0],["2026-10-07",362.0,362.0],["2026-10-08",361.0,361.0],["2026-10-09",362.0,362.0]]}
@@ -17327,7 +17332,7 @@
 {"k":"ltp|dv + maurten women's elite fuel tights, black|bottoms|0","h":[["2026-10-02",311.0,311.0],["2026-10-03",312.0,312.0],["2026-10-06",311.0,311.0],["2026-10-07",312.0,312.0],["2026-10-08",311.0,311.0],["2026-10-09",312.0,312.0]]}
 {"k":"ltp|fitted baselayer vest, ash|tops|0","h":[["2026-10-02",80.0,159.0]]}
 {"k":"ltp|flared studio legging, black|bottoms|0","h":[["2026-10-02",268.0,268.0],["2026-10-06",267.0,267.0],["2026-10-07",268.0,268.0]]}
-{"k":"ltp|full zip grid fleece, black|tops|0","h":[["2026-10-02",427.0,427.0],["2026-10-05",428.0,428.0],["2026-10-06",426.0,426.0],["2026-10-07",427.0,427.0],["2026-10-08",426.0,426.0],["2026-10-09",427.0,427.0]]}
+{"k":"ltp|full zip grid fleece, black|tops|0","h":[["2026-10-02",427.0,427.0],["2026-10-05",428.0,428.0],["2026-10-06",426.0,426.0],["2026-10-07",427.0,427.0],["2026-10-08",426.0,426.0],["2026-10-09",427.0,427.0],["2026-10-11",428.0,428.0]]}
 {"k":"ltp|full-length recycled tights, black|bottoms|0","h":[["2026-10-02",326.0,326.0],["2026-10-06",325.0,325.0],["2026-10-07",326.0,326.0],["2026-10-08",325.0,325.0],["2026-10-09",326.0,326.0]]}
 {"k":"ltp|full-length recycled tights, slate brown|bottoms|0","h":[["2026-10-02",163.0,326.0],["2026-10-06",163.0,325.0]]}
 {"k":"ltp|half zip grid fleece, black|tops|0","h":[["2026-10-02",282.0,282.0],["2026-10-03",283.0,283.0],["2026-10-06",282.0,282.0],["2026-10-07",283.0,283.0],["2026-10-08",282.0,282.0],["2026-10-09",283.0,283.0]]}
@@ -17387,7 +17392,7 @@
 {"k":"ltp|pocketed long tights, indigo|bottoms|0","h":[["2026-10-02",127.0,253.0]]}
 {"k":"ltp|pocketed long tights, mint|bottoms|0","h":[["2026-10-02",127.0,253.0]]}
 {"k":"ltp|recycled half zip shell, navy|tops|0","h":[["2026-10-02",235.0,470.0],["2026-10-03",236.0,471.0],["2026-10-06",235.0,469.0],["2026-10-07",236.0,471.0],["2026-10-08",235.0,470.0],["2026-10-09",236.0,471.0]]}
-{"k":"ltp|ripstop layered trail shorts, black|bottoms|0","h":[["2026-10-02",275.0,275.0],["2026-10-05",276.0,276.0],["2026-10-06",275.0,275.0]]}
+{"k":"ltp|ripstop layered trail shorts, black|bottoms|0","h":[["2026-10-02",275.0,275.0],["2026-10-05",276.0,276.0],["2026-10-06",275.0,275.0],["2026-10-11",276.0,276.0]]}
 {"k":"ltp|ripstop layered trail shorts, midnight-indigo|bottoms|0","h":[["2026-10-02",138.0,275.0]]}
 {"k":"ltp|ripstop layered trail shorts, mineral-ash|bottoms|0","h":[["2026-10-02",138.0,275.0]]}
 {"k":"ltp|studio bra, black|bras|0","h":[["2026-10-02",138.0,138.0]]}
@@ -18624,8 +18629,8 @@
 {"k":"named|sport energy fruit bar - single|nutrition|0","h":[["2026-10-02",2.75,2.75]]}
 {"k":"named|sport fuel energy gel - single|nutrition|0","h":[["2026-10-02",2.85,2.85]]}
 {"k":"named|sport race fuel energy gel - single|nutrition|0","h":[["2026-10-02",4.75,4.75]]}
-{"k":"nanga|udd dx articulated down jacket, cement|tops|0","h":[["2026-10-02",1156.0,1156.0],["2026-10-03",1158.0,1158.0],["2026-10-05",1159.0,1159.0],["2026-10-06",1155.0,1155.0],["2026-10-07",1156.0,1156.0],["2026-10-08",1155.0,1155.0],["2026-10-09",1157.0,1157.0],["2026-10-10",1158.0,1158.0]]}
-{"k":"nanga|udd dx articulated down jacket, vintage black|tops|0","h":[["2026-10-02",1156.0,1156.0],["2026-10-03",1158.0,1158.0],["2026-10-05",1159.0,1159.0],["2026-10-06",1155.0,1155.0],["2026-10-07",1156.0,1156.0],["2026-10-08",1155.0,1155.0],["2026-10-09",1157.0,1157.0],["2026-10-10",1158.0,1158.0]]}
+{"k":"nanga|udd dx articulated down jacket, cement|tops|0","h":[["2026-10-02",1156.0,1156.0],["2026-10-03",1158.0,1158.0],["2026-10-05",1159.0,1159.0],["2026-10-06",1155.0,1155.0],["2026-10-07",1156.0,1156.0],["2026-10-08",1155.0,1155.0],["2026-10-09",1157.0,1157.0],["2026-10-10",1158.0,1158.0],["2026-10-11",1159.0,1159.0]]}
+{"k":"nanga|udd dx articulated down jacket, vintage black|tops|0","h":[["2026-10-02",1156.0,1156.0],["2026-10-03",1158.0,1158.0],["2026-10-05",1159.0,1159.0],["2026-10-06",1155.0,1155.0],["2026-10-07",1156.0,1156.0],["2026-10-08",1155.0,1155.0],["2026-10-09",1157.0,1157.0],["2026-10-10",1158.0,1158.0],["2026-10-11",1159.0,1159.0]]}
 {"k":"nathan pinnacle 12|hydration pack - unisex|packs|0","h":[["2026-10-10",200.0,249.99]]}
 {"k":"nathan pinnacle 12|hydration pack - women's|packs|0","h":[["2026-10-10",200.0,249.99]]}
 {"k":"nathan pinnacle 4|hydration pack - unisex|packs|0","h":[["2026-10-10",180.0,199.99]]}
@@ -19500,8 +19505,8 @@
 {"k":"new balance|determination tight - women's|bottoms|0","h":[["2026-10-03",120.0,120.0]]}
 {"k":"new balance|district vision x new balance 1080v15 - women's|shoes|0","h":[["2026-10-11",249.99,249.99]]}
 {"k":"new balance|district vision x new balance 1080v15|shoes|0","h":[["2026-10-08",249.99,249.99]]}
-{"k":"new balance|dv + nb 1080 training shoe womens, cortado|shoes|0","h":[["2026-10-05",304.0,304.0],["2026-10-06",303.0,303.0],["2026-10-07",304.0,304.0]]}
-{"k":"new balance|dv + nb 1080 training shoe womens, linen|shoes|0","h":[["2026-10-05",304.0,304.0],["2026-10-06",303.0,303.0],["2026-10-07",304.0,304.0]]}
+{"k":"new balance|dv + nb 1080 training shoe womens, cortado|shoes|0","h":[["2026-10-05",304.0,304.0],["2026-10-06",303.0,303.0],["2026-10-07",304.0,304.0],["2026-10-11",305.0,305.0]]}
+{"k":"new balance|dv + nb 1080 training shoe womens, linen|shoes|0","h":[["2026-10-05",304.0,304.0],["2026-10-06",303.0,303.0],["2026-10-07",304.0,304.0],["2026-10-11",305.0,305.0]]}
 {"k":"new balance|dv + nb sc elite mens, linen|shoes|0","h":[["2026-10-05",406.0,406.0],["2026-10-06",404.0,404.0],["2026-10-07",405.0,405.0],["2026-10-08",405.0,405.0],["2026-10-09",406.0,406.0]]}
 {"k":"new balance|dv + nb sc elite mens, pearl grey|shoes|0","h":[["2026-10-05",406.0,406.0],["2026-10-06",404.0,404.0],["2026-10-07",405.0,405.0],["2026-10-08",405.0,405.0],["2026-10-09",406.0,406.0]]}
 {"k":"new balance|dv + nb sc elite womens, linen|shoes|0","h":[["2026-10-05",406.0,406.0],["2026-10-06",404.0,404.0],["2026-10-07",405.0,405.0],["2026-10-08",405.0,405.0],["2026-10-09",406.0,406.0]]}
@@ -19601,7 +19606,7 @@
 {"k":"new balance|fresh foam x 1080 v14 road running shoes - women's|shoes|0","h":[["2026-10-02",219.0,219.0],["2026-10-03",175.0,219.0],["2026-10-10",219.0,219.0]]}
 {"k":"new balance|fresh foam x 1080 v15 road running shoes - women's|shoes|0","h":[["2026-10-02",219.0,219.0]]}
 {"k":"new balance|fresh foam x 1080v13 - men's|shoes|0","h":[["2026-10-03",140.0,209.99]]}
-{"k":"new balance|fresh foam x 1080v14 - men's|shoes|0","h":[["2026-10-08",131.98,209.99]]}
+{"k":"new balance|fresh foam x 1080v14 - men's|shoes|0","h":[["2026-10-08",131.98,209.99],["2026-10-11",146.99,209.99]]}
 {"k":"new balance|fresh foam x 1080v14 - women's|shoes|0","h":[["2026-10-03",146.99,209.99],["2026-10-06",99.99,210.0]]}
 {"k":"new balance|fresh foam x 1080v14 running shoe - men's|shoes|0","h":[["2026-10-03",146.99,209.99],["2026-10-05",104.94,209.99]]}
 {"k":"new balance|fresh foam x 1080v14 running shoe - women's|shoes|0","h":[["2026-10-05",104.94,209.99]]}
@@ -23418,7 +23423,9 @@
 {"k":"on|climate shirt (men's)|tops|0","h":[["2026-10-02",111.97,160.0]]}
 {"k":"on|climate shirt - black - men's|tops|0","h":[["2026-10-03",160.0,160.0]]}
 {"k":"on|climate shirt - desert - men's|tops|0","h":[["2026-10-03",160.0,160.0]]}
+{"k":"on|climate shirt - hare - women's|tops|0","h":[["2026-10-11",160.0,160.0]]}
 {"k":"on|climate shirt - lilac - women's|tops|0","h":[["2026-10-03",160.0,160.0]]}
+{"k":"on|climate shirt - mallow - women's|tops|0","h":[["2026-10-11",160.0,160.0]]}
 {"k":"on|climate shirt - men's|tops|0","h":[["2026-10-03",111.97,160.0]]}
 {"k":"on|climate shirt - women's|tops|0","h":[["2026-10-02",123.19,159.99],["2026-10-04",125.0,160.0],["2026-10-08",105.59,160.0]]}
 {"k":"on|climate shirt 1/4-zip top - men's|tops|0","h":[["2026-10-03",160.0,160.0]]}
@@ -23448,7 +23455,7 @@
 {"k":"on|cloud 6 wide - men's|shoes|1","h":[["2026-10-02",179.95,179.95]]}
 {"k":"on|cloud waterproof - men's|shoes|0","h":[["2026-10-02",179.95,179.95]]}
 {"k":"on|cloud x - men's|shoes|0","h":[["2026-10-03",190.0,190.0]]}
-{"k":"on|cloud x 4 - men's|shoes|0","h":[["2026-10-02",149.95,189.99],["2026-10-06",143.99,190.0],["2026-10-10",139.99,190.0]]}
+{"k":"on|cloud x 4 - men's|shoes|0","h":[["2026-10-02",149.95,189.99],["2026-10-06",143.99,190.0],["2026-10-10",139.99,190.0],["2026-10-11",143.99,190.0]]}
 {"k":"on|cloud x 4 - women's|shoes|0","h":[["2026-10-02",150.0,189.99],["2026-10-05",139.99,190.0]]}
 {"k":"on|cloud x 4 ad - men's|shoes|0","h":[["2026-10-05",139.99,190.0]]}
 {"k":"on|cloud x 4 seasonal colours - men's|shoes|0","h":[["2026-10-06",143.99,190.0]]}
@@ -23695,6 +23702,7 @@
 {"k":"on|core headband - unisex|headwear|0","h":[["2026-10-02",37.99,37.99]]}
 {"k":"on|core jacket - desert - men's|tops|0","h":[["2026-10-03",182.0,260.0]]}
 {"k":"on|core jacket - men's|tops|0","h":[["2026-10-03",260.0,260.0],["2026-10-10",259.99,259.99]]}
+{"k":"on|core jacket - midnight - women's|tops|0","h":[["2026-10-11",260.0,260.0]]}
 {"k":"on|core jacket - women's|tops|0","h":[["2026-10-03",194.96,260.0]]}
 {"k":"on|core long sleeve - men's|tops|0","h":[["2026-10-03",90.0,90.0]]}
 {"k":"on|core long sleeve - women's|tops|0","h":[["2026-10-03",90.0,90.0]]}
@@ -23723,6 +23731,7 @@
 {"k":"on|core running shorts 5\" - men's|bottoms|0","h":[["2026-10-02",79.99,79.99]]}
 {"k":"on|core running shorts 5\" - women's|bottoms|0","h":[["2026-10-02",60.79,79.99],["2026-10-04",62.39,79.99],["2026-10-08",55.19,79.99],["2026-10-10",54.39,79.99]]}
 {"k":"on|core sports bra - women's|bras|0","h":[["2026-10-02",52.64,64.99],["2026-10-04",53.29,64.99],["2026-10-08",46.79,65.0],["2026-10-10",46.14,65.0]]}
+{"k":"on|core t - barberry - men's|tops|0","h":[["2026-10-11",80.0,80.0]]}
 {"k":"on|core t - sand - women's|tops|0","h":[["2026-10-03",80.0,80.0]]}
 {"k":"on|core t-shirt - men's|tops|0","h":[["2026-10-10",79.99,79.99]]}
 {"k":"on|core t-shirt - women's|tops|0","h":[["2026-10-10",79.99,79.99]]}
@@ -23782,7 +23791,11 @@
 {"k":"on|hydration speed belt - unisex|packs|0","h":[["2026-10-10",49.99,49.99]]}
 {"k":"on|lightspray cloudboom strike 2|shoes|0","h":[["2026-10-02",400.0,400.0]]}
 {"k":"on|lightspray cloudmonster 3 hyper - unisex|shoes|0","h":[["2026-10-07",360.0,360.0]]}
+{"k":"on|lightweight cap - black - unisex|headwear|0","h":[["2026-10-11",55.0,55.0]]}
+{"k":"on|lightweight cap - mallow - unisex|headwear|0","h":[["2026-10-11",55.0,55.0]]}
+{"k":"on|lightweight cap - navy - unisex|headwear|0","h":[["2026-10-11",55.0,55.0]]}
 {"k":"on|lightweight cap - unisex|headwear|0","h":[["2026-10-02",44.8,55.99]]}
+{"k":"on|lightweight cap - white - unisex|headwear|0","h":[["2026-10-11",55.0,55.0]]}
 {"k":"on|lightweight cap|headwear|0","h":[["2026-10-02",54.95,55.95]]}
 {"k":"on|lightweight cap|nutrition|0","h":[["2026-10-06",55.0,55.0]]}
 {"k":"on|lightweight run cap|headwear|0","h":[["2026-10-03",55.0,55.0]]}
@@ -23900,6 +23913,7 @@
 {"k":"on|performance 7/8 running tights - women's|bottoms|0","h":[["2026-10-02",159.99,159.99]]}
 {"k":"on|performance 7/8 tight - women's|bottoms|0","h":[["2026-10-10",159.99,159.99]]}
 {"k":"on|performance 7/8 tights - women's|bottoms|0","h":[["2026-10-03",170.0,170.0]]}
+{"k":"on|performance bra - foxglove|bras|0","h":[["2026-10-11",95.0,95.0]]}
 {"k":"on|performance bra - women's|bras|0","h":[["2026-10-02",71.24,94.99],["2026-10-03",70.96,95.0],["2026-10-08",64.59,95.0],["2026-10-10",62.69,95.0],["2026-10-11",59.98,95.0]]}
 {"k":"on|performance bra 2 - women's|bras|0","h":[["2026-10-02",94.95,95.99]]}
 {"k":"on|performance bra · aquamarine - women's|bras|0","h":[["2026-10-03",95.0,95.0]]}
@@ -23931,6 +23945,7 @@
 {"k":"on|performance long sleeve t - men's|tops|0","h":[["2026-10-10",119.99,119.99]]}
 {"k":"on|performance long sleeve t-shirt - women's|tops|0","h":[["2026-10-02",119.99,119.99]]}
 {"k":"on|performance long-t - black/eclipse - men's|tops|0","h":[["2026-10-03",120.0,120.0]]}
+{"k":"on|performance long-t - brume - men's|tops|0","h":[["2026-10-11",120.0,120.0]]}
 {"k":"on|performance long-t - men's|tops|0","h":[["2026-10-02",119.95,119.95],["2026-10-03",99.99,120.0]]}
 {"k":"on|performance long-t - women's|tops|0","h":[["2026-10-03",120.0,120.0]]}
 {"k":"on|performance long-t lumos - men's|tops|0","h":[["2026-10-02",130.0,130.0]]}
@@ -23976,6 +23991,7 @@
 {"k":"on|performance tights 3'' (women's)|bottoms|0","h":[["2026-10-02",90.0,90.0]]}
 {"k":"on|performance tights 3'' - women's|bottoms|0","h":[["2026-10-03",90.0,90.0]]}
 {"k":"on|performance tights 7/8 - black - women's|bottoms|0","h":[["2026-10-03",160.0,160.0]]}
+{"k":"on|performance tights 7/8 - foxglove - women's|bottoms|0","h":[["2026-10-11",160.0,160.0]]}
 {"k":"on|performance tights 7/8 - malibu - women's|bottoms|0","h":[["2026-10-03",160.0,160.0]]}
 {"k":"on|performance tights 7/8 - women's|bottoms|0","h":[["2026-10-02",159.99,159.99]]}
 {"k":"on|performance tights lumos - women's|bottoms|0","h":[["2026-10-02",108.0,180.0]]}
@@ -24009,6 +24025,8 @@
 {"k":"on|running perf winter tight - women's|bottoms|0","h":[["2026-10-02",179.95,179.95]]}
 {"k":"on|running shorts - women's|bottoms|0","h":[["2026-10-02",119.95,119.95]]}
 {"k":"on|running-t paf - unisex|tops|0","h":[["2026-10-02",140.0,140.0]]}
+{"k":"on|speed belt - black - unisex|packs|0","h":[["2026-10-11",50.0,50.0]]}
+{"k":"on|speed belt - thistle - unisex|packs|0","h":[["2026-10-11",50.0,50.0]]}
 {"k":"on|speed belt · acorn|packs|0","h":[["2026-10-03",50.0,50.0]]}
 {"k":"on|speed belt · black|packs|0","h":[["2026-10-03",50.0,50.0]]}
 {"k":"on|speed belt · fog|packs|0","h":[["2026-10-03",50.0,50.0]]}
@@ -24097,6 +24115,7 @@
 {"k":"on|weather insulated run jacket - mulberry - women's|tops|0","h":[["2026-10-03",240.0,320.0]]}
 {"k":"on|weather jacket (men's)|tops|0","h":[["2026-10-02",300.0,300.0]]}
 {"k":"on|weather jacket (women's)|tops|0","h":[["2026-10-02",300.0,300.0]]}
+{"k":"on|weather jacket - black - men's|tops|0","h":[["2026-10-11",300.0,300.0]]}
 {"k":"on|weather jacket - black / navy - women's|tops|0","h":[["2026-10-03",299.99,299.99]]}
 {"k":"on|weather jacket - men's|tops|0","h":[["2026-10-03",225.0,300.0]]}
 {"k":"on|weather jacket - women's|tops|0","h":[["2026-10-03",300.0,300.0]]}
@@ -24449,7 +24468,7 @@
 {"k":"outdoor research|ferrosi convertible pants - women's|bottoms|0","h":[["2026-10-02",134.95,134.95]]}
 {"k":"outdoor research|ferrosi covertible pants - men's|bottoms|0","h":[["2026-10-02",134.95,134.95],["2026-10-07",101.21,134.95],["2026-10-08",134.95,134.95]]}
 {"k":"outdoor research|ferrosi hybrid women's 7/8 leggings|bottoms|0","h":[["2026-10-06",38.98,129.95]]}
-{"k":"outdoor research|ferrosi pants - men's|bottoms|0","h":[["2026-10-02",62.48,124.95]]}
+{"k":"outdoor research|ferrosi pants - men's|bottoms|0","h":[["2026-10-02",62.48,124.95],["2026-10-11",124.95,124.95]]}
 {"k":"outdoor research|ferrosi pants - women's|bottoms|0","h":[["2026-10-02",124.95,124.95]]}
 {"k":"outdoor research|ferrosi transit pants - men's|bottoms|0","h":[["2026-10-02",124.95,124.95],["2026-10-07",93.71,124.95],["2026-10-08",124.95,124.95]]}
 {"k":"outdoor research|ferrosi transit pants - women's|bottoms|0","h":[["2026-10-02",124.95,124.95]]}
@@ -26047,7 +26066,7 @@
 {"k":"rabbit|layer one trail - men's|tops|0","h":[["2026-10-09",106.0,106.0]]}
 {"k":"rabbit|layer one trail - women's|tops|0","h":[["2026-10-09",83.0,106.0]]}
 {"k":"rabbit|layer one trail|tops|0","h":[["2026-10-02",83.0,105.0]]}
-{"k":"rabbit|layer one zip - men's|tops|0","h":[["2026-10-09",85.0,106.0]]}
+{"k":"rabbit|layer one zip - men's|tops|0","h":[["2026-10-09",85.0,106.0],["2026-10-11",106.0,106.0]]}
 {"k":"rabbit|layer one zip - women's|tops|0","h":[["2026-10-09",85.0,106.0]]}
 {"k":"rabbit|layer one zip|tops|0","h":[["2026-10-02",84.0,105.0],["2026-10-05",85.0,106.0]]}
 {"k":"rabbit|layer one | boston - men's|tops|0","h":[["2026-10-09",85.0,106.0]]}
@@ -27814,7 +27833,9 @@
 {"k":"salomon|bonatti wp five p cap - unisex|headwear|0","h":[["2026-10-02",39.98,59.99]]}
 {"k":"salomon|bonatti wp jacket - antler - women's|tops|0","h":[["2026-10-03",250.0,250.0]]}
 {"k":"salomon|bonatti wp jacket - deep black - women's|tops|0","h":[["2026-10-03",250.0,250.0]]}
+{"k":"salomon|bonatti wp jacket -burnt umber - men's|tops|0","h":[["2026-10-11",250.0,250.0]]}
 {"k":"salomon|bonatti wp mitten|gloves|0","h":[["2026-10-10",25.0,44.99]]}
+{"k":"salomon|brilliant 2.0 jacket - cardamom seed - men's|tops|0","h":[["2026-10-11",550.0,550.0]]}
 {"k":"salomon|brilliant 2.0 jacket - sedona sage - men's|tops|0","h":[["2026-10-03",550.0,550.0]]}
 {"k":"salomon|brilliant 2.0 jacket -deep black - women's|tops|0","h":[["2026-10-03",520.0,520.0]]}
 {"k":"salomon|brilliant 2.0 jacket -green gables - women's|tops|0","h":[["2026-10-03",520.0,520.0]]}
@@ -27822,6 +27843,8 @@
 {"k":"salomon|brilliant pant - deep black - men's|bottoms|0","h":[["2026-10-03",350.0,350.0]]}
 {"k":"salomon|brilliant pant -deep black - women's|bottoms|0","h":[["2026-10-03",350.0,350.0]]}
 {"k":"salomon|chest logo hoodie - men's|tops|0","h":[["2026-10-02",109.99,109.99]]}
+{"k":"salomon|classic beanie - silver cloud - unisex|headwear|0","h":[["2026-10-11",40.0,40.0]]}
+{"k":"salomon|classic beanie -brunnera blue - unisex|headwear|0","h":[["2026-10-11",40.0,40.0]]}
 {"k":"salomon|courtney tee - rose taupe - women's|tops|0","h":[["2026-10-03",110.0,110.0]]}
 {"k":"salomon|cross 4 running pack 4l|packs|0","h":[["2026-10-07",70.0,70.0]]}
 {"k":"salomon|cross belt (1 bottle)|packs|0","h":[["2026-10-07",48.0,65.0]]}
@@ -27839,6 +27862,7 @@
 {"k":"salomon|cross warm glove - unisex|gloves|0","h":[["2026-10-02",44.99,44.99]]}
 {"k":"salomon|cross warm gloves|gloves|0","h":[["2026-10-02",34.0,45.0]]}
 {"k":"salomon|cross warm glove|gloves|0","h":[["2026-10-08",26.99,44.99]]}
+{"k":"salomon|cross warm mitten - deep black - unisex|gloves|0","h":[["2026-10-11",75.0,75.0]]}
 {"k":"salomon|cross warm mitten|gloves|0","h":[["2026-10-10",74.99,74.99]]}
 {"k":"salomon|cross warm tight - women's|bottoms|0","h":[["2026-10-02",109.95,109.95]]}
 {"k":"salomon|crosstrak powder waterproof - women's|shoes|0","h":[["2026-10-02",239.95,239.95]]}
@@ -27863,6 +27887,8 @@
 {"k":"salomon|elixir tour mid wp - women's|shoes|0","h":[["2026-10-09",127.88,169.99]]}
 {"k":"salomon|esseintial midfleece - men's|tops|0","h":[["2026-10-06",74.99,150.0]]}
 {"k":"salomon|esseintial midfleece - women's|tops|0","h":[["2026-10-06",74.99,150.0]]}
+{"k":"salomon|essential lightwarm 1/2 zip men's mid layer - cardamom seed|tops|0","h":[["2026-10-11",100.0,100.0]]}
+{"k":"salomon|essential lightwarm 1/2 zip men's mid layer - deep black|tops|0","h":[["2026-10-11",100.0,100.0]]}
 {"k":"salomon|essential lightwarm col rond - men's|tops|0","h":[["2026-10-05",89.95,89.95]]}
 {"k":"salomon|essential lightwarm crew - long sleeve - men's|tops|0","h":[["2026-10-02",89.99,89.99],["2026-10-07",67.49,89.99],["2026-10-08",89.99,89.99]]}
 {"k":"salomon|essential lightwarm crew - long sleeve - women's|tops|0","h":[["2026-10-02",89.99,89.99]]}
@@ -27874,6 +27900,9 @@
 {"k":"salomon|essential lightwarm half-zip top - men's|tops|0","h":[["2026-10-03",49.94,100.0]]}
 {"k":"salomon|essential lightwarm jacket - men's|tops|0","h":[["2026-10-02",114.99,114.99],["2026-10-07",86.24,114.99],["2026-10-08",114.99,114.99]]}
 {"k":"salomon|essential lightwarm jacket - women's|tops|0","h":[["2026-10-02",114.99,114.99]]}
+{"k":"salomon|essential lightwarm women's base layer crew -icy pink|tops|0","h":[["2026-10-11",90.0,90.0]]}
+{"k":"salomon|essential lightwarm women's base layer crew -whisper white|tops|0","h":[["2026-10-11",90.0,90.0]]}
+{"k":"salomon|essential lightwarm womens's base layer crew -deep black|tops|0","h":[["2026-10-11",90.0,90.0]]}
 {"k":"salomon|essential seamless hoodie - women's|tops|0","h":[["2026-10-07",90.0,90.0]]}
 {"k":"salomon|essential seamless hz midlayer - men's|tops|0","h":[["2026-10-07",100.0,100.0]]}
 {"k":"salomon|fast wing winter glove|gloves|0","h":[["2026-10-02",65.0,65.0],["2026-10-08",40.0,74.99]]}
@@ -27939,6 +27968,7 @@
 {"k":"salomon|grvl skin 4 set|packs|0","h":[["2026-10-02",139.99,139.99]]}
 {"k":"salomon|grvl skin 4|nutrition|0","h":[["2026-10-06",140.0,140.0]]}
 {"k":"salomon|gts softshell tights - women's|bottoms|0","h":[["2026-10-03",150.0,150.0]]}
+{"k":"salomon|heritage beanie -icy pink|headwear|0","h":[["2026-10-11",40.0,40.0]]}
 {"k":"salomon|high pulse belt - black|packs|0","h":[["2026-10-03",50.0,50.0]]}
 {"k":"salomon|high pulse belt - icicle/castelrock|packs|0","h":[["2026-10-03",50.0,50.0]]}
 {"k":"salomon|high pulse belt - nautical blue|packs|0","h":[["2026-10-03",50.0,50.0]]}
@@ -28182,6 +28212,7 @@
 {"k":"salomon|sense aero hybrid crop 1/2 zip pullover - women's|tops|0","h":[["2026-10-02",104.96,139.95]]}
 {"k":"salomon|sense aero hybrid crop pullover - blue granite - women's|tops|0","h":[["2026-10-03",140.0,140.0]]}
 {"k":"salomon|sense aero hybrid crop pullover - deep black - women's|tops|0","h":[["2026-10-03",140.0,140.0]]}
+{"k":"salomon|sense aero hybrid crop pullover -icy pink - women's|tops|0","h":[["2026-10-11",140.0,140.0]]}
 {"k":"salomon|sense aero hybrid cropped pullover - women's|tops|0","h":[["2026-10-10",140.0,140.0]]}
 {"k":"salomon|sense aero hybrid half zip with hood - men's|tops|0","h":[["2026-10-03",180.0,180.0]]}
 {"k":"salomon|sense aero hybrid half-zip hoodie - men's|tops|0","h":[["2026-10-02",179.99,179.99]]}
@@ -28254,6 +28285,7 @@
 {"k":"salomon|sense softshell jacket|tops|0","h":[["2026-10-08",249.99,249.99]]}
 {"k":"salomon|sense softshell pants - men's|bottoms|0","h":[["2026-10-02",160.0,160.0]]}
 {"k":"salomon|sense softshell pants|bottoms|0","h":[["2026-10-08",199.99,199.99]]}
+{"k":"salomon|sense softshell tights - deep black - women's|bottoms|0","h":[["2026-10-11",175.0,175.0]]}
 {"k":"salomon|sense softshell tights - women's|bottoms|0","h":[["2026-10-02",174.99,174.99],["2026-10-07",174.95,174.95]]}
 {"k":"salomon|sense softshell tights|bottoms|0","h":[["2026-10-08",174.99,174.99]]}
 {"k":"salomon|sense stow pants - men's|bottoms|0","h":[["2026-10-06",79.99,160.0]]}
@@ -28417,6 +28449,9 @@
 {"k":"salomon|sleeves - deep black|tops|0","h":[["2026-10-03",50.0,50.0]]}
 {"k":"salomon|snowbird beanie - cosmic sky|headwear|0","h":[["2026-10-03",55.0,55.0]]}
 {"k":"salomon|snowbird beanie - cress green|headwear|0","h":[["2026-10-03",55.0,55.0]]}
+{"k":"salomon|snowbird beanie -burnt umber - unisex|headwear|0","h":[["2026-10-11",55.0,55.0]]}
+{"k":"salomon|snowbird beanie -deep black - unisex|headwear|0","h":[["2026-10-11",55.0,55.0]]}
+{"k":"salomon|snowbird beanie -whisper white - unisex|headwear|0","h":[["2026-10-11",55.0,55.0]]}
 {"k":"salomon|snowbird beanie|headwear|0","h":[["2026-10-09",54.99,54.99]]}
 {"k":"salomon|sntinal lightwarm crew - women's|tops|0","h":[["2026-10-09",54.99,89.99]]}
 {"k":"salomon|sntinal lightwarm crew|tops|0","h":[["2026-10-08",54.99,89.99]]}
@@ -28503,6 +28538,8 @@
 {"k":"salomon|thernova fleece hd - men's|tops|0","h":[["2026-10-09",150.0,150.0]]}
 {"k":"salomon|thernova fleece hd - women's|tops|0","h":[["2026-10-09",150.0,150.0]]}
 {"k":"salomon|thernova fleece hooded pullover - women's|tops|0","h":[["2026-10-02",150.0,150.0]]}
+{"k":"salomon|thernova fleece men's mid layer hoodie -deep black|tops|0","h":[["2026-10-11",150.0,150.0]]}
+{"k":"salomon|thernova fleece mens's mid layer hoodie -castor gray|tops|0","h":[["2026-10-11",150.0,150.0]]}
 {"k":"salomon|thundercross - men's|shoes|0","h":[["2026-10-02",127.95,169.95],["2026-10-03",119.0,170.0],["2026-10-09",118.88,170.0]]}
 {"k":"salomon|thundercross - women's|shoes|0","h":[["2026-10-02",169.95,169.95],["2026-10-09",118.88,170.0]]}
 {"k":"salomon|thundercross gore-tex - men's|shoes|0","h":[["2026-10-03",200.0,200.0]]}
@@ -28516,6 +28553,7 @@
 {"k":"salomon|trackline long sleeve - women's|tops|0","h":[["2026-10-03",80.0,80.0]]}
 {"k":"salomon|trackline long sleeve t-shirt - women's|tops|0","h":[["2026-10-06",48.0,80.0]]}
 {"k":"salomon|trackline long sleeve tee - grape leaf - men's|tops|0","h":[["2026-10-03",80.0,80.0]]}
+{"k":"salomon|trackline long sleeve tee -tempest - women's|tops|0","h":[["2026-10-11",80.0,80.0]]}
 {"k":"salomon|trackline ls tee - castor gray - men's|tops|0","h":[["2026-10-03",80.0,80.0]]}
 {"k":"salomon|trackline ls tee - deep black - men's|tops|0","h":[["2026-10-03",80.0,80.0]]}
 {"k":"salomon|trackline s/s tee - women's|tops|0","h":[["2026-10-09",59.99,69.99]]}
@@ -28608,6 +28646,7 @@
 {"k":"salomon|unisex salomon spikecross 6 gtx|shoes|0","h":[["2026-10-06",172.99,230.0]]}
 {"k":"salomon|unisex salomon ultra glide 4 wide|shoes|0","h":[["2026-10-06",180.0,180.0]]}
 {"k":"salomon|unisex|shoes|0","h":[["2026-10-06",180.0,299.99]]}
+{"k":"salomon|venom beanie -brunnera blue - unisex|headwear|0","h":[["2026-10-11",50.0,50.0]]}
 {"k":"salomon|w aero glide grvl 4|shoes|0","h":[["2026-10-06",209.99,209.99]]}
 {"k":"salomon|w sense softshell tights|bottoms|0","h":[["2026-10-05",174.95,174.95]]}
 {"k":"salomon|wayfarer ease shorts - men's|bottoms|0","h":[["2026-10-09",40.0,84.99]]}
@@ -28746,6 +28785,7 @@
 {"k":"saltstick|fastchews (60 unités)|nutrition|0","h":[["2026-10-02",29.99,29.99]]}
 {"k":"saltstick|fastchews - 60ct bottle|gear|0","h":[["2026-10-07",19.99,19.99]]}
 {"k":"saltstick|fastchews - 60ct bottle|nutrition|0","h":[["2026-10-02",19.99,19.99]]}
+{"k":"saltstick|fastchews -green apple|nutrition|0","h":[["2026-10-11",4.99,4.99]]}
 {"k":"saltstick|fastchews 10 tablet pack|nutrition|0","h":[["2026-10-02",4.99,4.99]]}
 {"k":"saltstick|fastchews 10-tab pack|nutrition|0","h":[["2026-10-02",4.5,4.5]]}
 {"k":"saltstick|fastchews 60 comprimés|nutrition|0","h":[["2026-10-05",29.95,29.95]]}
@@ -31332,6 +31372,7 @@
 {"k":"smartwool|intraknit all season merino bottom - women's|bottoms|0","h":[["2026-10-03",155.0,155.0]]}
 {"k":"smartwool|intraknit all season merino top - women's|tops|0","h":[["2026-10-03",165.0,165.0]]}
 {"k":"smartwool|intraknit all season neck gaiter|headwear|0","h":[["2026-10-03",42.0,42.0]]}
+{"k":"smartwool|intraknit all-season balaclava|headwear|0","h":[["2026-10-11",60.0,60.0]]}
 {"k":"smartwool|intraknit all-season merino base layer bottom - women's|bottoms|0","h":[["2026-10-02",154.99,154.99]]}
 {"k":"smartwool|intraknit all-season merino base layer crew - long sleeve - women's|tops|0","h":[["2026-10-02",164.99,164.99],["2026-10-07",123.74,164.99]]}
 {"k":"smartwool|intraknit all-season merino crew neck base layer top - women's|tops|0","h":[["2026-10-02",164.99,164.99]]}
@@ -31761,6 +31802,7 @@
 {"k":"smartwool|run zero cushion pride rainbow low ankle socks|socks|0","h":[["2026-10-03",23.0,23.0]]}
 {"k":"smartwool|run zero cushion pride rainbow print low ankle socks|socks|0","h":[["2026-10-03",23.0,23.0]]}
 {"k":"smartwool|run zero cushion stripe low ankle socks - women's|socks|0","h":[["2026-10-03",24.0,24.0]]}
+{"k":"smartwool|samartwool anchor line men's winter jacket|tops|0","h":[["2026-10-11",250.0,250.0]]}
 {"k":"smartwool|second cut 1/2 zip - women's|tops|0","h":[["2026-10-03",185.0,185.0]]}
 {"k":"smartwool|second cut fleece 1/2 zip - men's|tops|0","h":[["2026-10-03",180.0,180.0]]}
 {"k":"smartwool|second cut fleece jacket - men's|tops|0","h":[["2026-10-02",199.99,199.99],["2026-10-07",149.99,200.0]]}
@@ -31910,6 +31952,7 @@
 {"k":"smartwool|wander valley active short sleeve graphic tee - men's|tops|0","h":[["2026-10-03",113.97,113.97],["2026-10-05",114.03,114.03],["2026-10-06",113.81,113.81],["2026-10-07",114.06,114.06],["2026-10-08",113.92,113.92],["2026-10-09",100.0,100.0]]}
 {"k":"smartwool|wind boxer brief - men's|bottoms|0","h":[["2026-10-02",74.95,74.99]]}
 {"k":"smartwool|winding trail active short sleeve graphic tee - men's|tops|0","h":[["2026-10-03",79.78,113.97],["2026-10-05",79.82,114.03],["2026-10-06",79.67,113.81],["2026-10-07",79.84,114.06],["2026-10-08",79.74,113.92],["2026-10-09",70.0,100.0]]}
+{"k":"smartwool|winterloft hooded parka women's winter jacket|tops|0","h":[["2026-10-11",525.0,525.0]]}
 {"k":"smartwool|winterloft™ hooded jacket - men's|tops|0","h":[["2026-10-03",534.23,534.23],["2026-10-05",534.52,534.52],["2026-10-06",533.48,533.48],["2026-10-07",534.64,534.64],["2026-10-08",534.0,534.0],["2026-10-09",475.0,475.0]]}
 {"k":"smartwool|winterloft™ hooded jacket - women's|tops|0","h":[["2026-10-03",534.23,534.23],["2026-10-05",534.52,534.52],["2026-10-06",533.48,533.48],["2026-10-07",534.64,534.64],["2026-10-08",534.0,534.0],["2026-10-09",475.0,475.0]]}
 {"k":"smartwool|winterloft™ hooded parka - women's|tops|0","h":[["2026-10-03",605.46,605.46],["2026-10-05",605.79,605.79],["2026-10-06",604.61,604.61],["2026-10-07",605.92,605.92],["2026-10-08",605.2,605.2],["2026-10-09",525.0,525.0]]}
@@ -33044,48 +33087,48 @@
 {"k":"squirrel's nut butter|.5 oz pocket stick|gear|0","h":[["2026-10-05",15.0,15.0]]}
 {"k":"squirrel's nut butter|0.5oz anti-chaf tin|gear|0","h":[["2026-10-06",12.49,12.49]]}
 {"k":"squirrel's nut butter|2 oz compostable tube|gear|0","h":[["2026-10-05",22.0,22.0]]}
-{"k":"squirrel's nut butter|2.0 oz anti-chafe eco-friendly compostable tube twin pack|gear|0","h":[["2026-10-02",41.58,51.98],["2026-10-03",41.63,52.05],["2026-10-05",41.64,52.05],["2026-10-06",41.52,51.9],["2026-10-07",41.56,51.96],["2026-10-08",41.55,51.95],["2026-10-09",41.59,52.0],["2026-10-10",41.65,52.07]]}
-{"k":"squirrel's nut butter|2.7 oz anti-chafe stick twin pack|gear|0","h":[["2026-10-02",50.83,63.54],["2026-10-03",50.89,63.62],["2026-10-05",50.92,63.66],["2026-10-06",50.75,63.44],["2026-10-07",50.8,63.51],["2026-10-08",50.79,63.5],["2026-10-09",50.84,63.56],["2026-10-10",50.91,63.64]]}
+{"k":"squirrel's nut butter|2.0 oz anti-chafe eco-friendly compostable tube twin pack|gear|0","h":[["2026-10-02",41.58,51.98],["2026-10-03",41.63,52.05],["2026-10-05",41.64,52.05],["2026-10-06",41.52,51.9],["2026-10-07",41.56,51.96],["2026-10-08",41.55,51.95],["2026-10-09",41.59,52.0],["2026-10-10",41.65,52.07],["2026-10-11",41.67,52.09]]}
+{"k":"squirrel's nut butter|2.7 oz anti-chafe stick twin pack|gear|0","h":[["2026-10-02",50.83,63.54],["2026-10-03",50.89,63.62],["2026-10-05",50.92,63.66],["2026-10-06",50.75,63.44],["2026-10-07",50.8,63.51],["2026-10-08",50.79,63.5],["2026-10-09",50.84,63.56],["2026-10-10",50.91,63.64],["2026-10-11",50.94,63.68]]}
 {"k":"squirrel's nut butter|2oz happie toes|gear|0","h":[["2026-10-07",23.99,23.99]]}
-{"k":"squirrel's nut butter|4 oz anti-chafe tin twin pack tin|gear|0","h":[["2026-10-02",57.76,72.21],["2026-10-03",57.84,72.3],["2026-10-05",57.87,72.35],["2026-10-06",57.67,72.1],["2026-10-07",57.74,72.18],["2026-10-08",57.72,72.16],["2026-10-09",57.78,72.23],["2026-10-10",57.85,72.33]]}
+{"k":"squirrel's nut butter|4 oz anti-chafe tin twin pack tin|gear|0","h":[["2026-10-02",57.76,72.21],["2026-10-03",57.84,72.3],["2026-10-05",57.87,72.35],["2026-10-06",57.67,72.1],["2026-10-07",57.74,72.18],["2026-10-08",57.72,72.16],["2026-10-09",57.78,72.23],["2026-10-10",57.85,72.33],["2026-10-11",57.89,72.36]]}
 {"k":"squirrel's nut butter|8.0oz anti-chafe & skin repair tub|gear|0","h":[["2026-10-02",65.0,65.0],["2026-10-03",65.08,65.08],["2026-10-05",65.09,65.09],["2026-10-06",64.9,64.9],["2026-10-07",64.97,64.97],["2026-10-08",64.95,64.95],["2026-10-09",65.02,65.02],["2026-10-10",65.1,65.1]]}
-{"k":"squirrel's nut butter|adventure beard balm|gear|0","h":[["2026-10-02",10.84,21.66],["2026-10-03",10.85,21.68],["2026-10-05",10.86,21.7],["2026-10-06",10.82,21.62],["2026-10-07",10.83,21.65],["2026-10-08",10.83,21.64],["2026-10-09",10.84,21.66],["2026-10-10",10.85,21.69]]}
-{"k":"squirrel's nut butter|anti chafe & skin repair stick w/ frankincense & lavender, 1.7 oz — case of 18|gear|0","h":[["2026-10-02",195.05,195.05],["2026-10-03",195.29,195.29],["2026-10-05",195.3,195.3],["2026-10-06",194.75,194.75],["2026-10-07",194.96,194.96],["2026-10-08",194.9,194.9],["2026-10-09",195.1,195.1],["2026-10-10",195.36,195.36]]}
-{"k":"squirrel's nut butter|anti chafe & skin repair stick w/ peppermint & tea tree, 1.7 oz — case of 18|gear|0","h":[["2026-10-02",195.05,195.05],["2026-10-03",195.29,195.29],["2026-10-05",195.3,195.3],["2026-10-06",194.75,194.75],["2026-10-07",194.96,194.96],["2026-10-08",194.9,194.9],["2026-10-09",195.1,195.1],["2026-10-10",195.36,195.36]]}
-{"k":"squirrel's nut butter|anti chafe & skin repair stick, original, 0.5 oz — case of 132|gear|0","h":[["2026-10-02",1907.11,1907.11],["2026-10-03",1909.51,1909.51],["2026-10-05",1909.63,1909.63],["2026-10-06",1904.18,1904.18],["2026-10-07",1906.23,1906.23],["2026-10-08",1905.72,1905.72],["2026-10-09",1907.61,1907.61],["2026-10-10",1910.15,1910.15]]}
-{"k":"squirrel's nut butter|anti chafe & skin repair stick, original, 0.5 oz — case of 22|gear|0","h":[["2026-10-02",158.93,158.93],["2026-10-03",159.13,159.13],["2026-10-05",159.14,159.14],["2026-10-06",158.68,158.68],["2026-10-07",158.85,158.85],["2026-10-08",158.81,158.81],["2026-10-09",158.97,158.97],["2026-10-10",159.18,159.18]]}
-{"k":"squirrel's nut butter|anti chafe & skin repair stick, original, 1.7 oz — case of 18|gear|0","h":[["2026-10-02",195.05,195.05],["2026-10-03",195.29,195.29],["2026-10-05",195.3,195.3],["2026-10-06",194.75,194.75],["2026-10-07",194.96,194.96],["2026-10-08",194.9,194.9],["2026-10-09",195.1,195.1],["2026-10-10",195.36,195.36]]}
-{"k":"squirrel's nut butter|anti-chafe & skin repair adventure packet w/ frankincense & lavender, 9ml — case of 125|gear|0","h":[["2026-10-02",180.6,180.6],["2026-10-03",180.82,180.82],["2026-10-05",180.84,180.84],["2026-10-06",180.32,180.32],["2026-10-07",180.51,180.51],["2026-10-08",180.47,180.47],["2026-10-09",180.64,180.64],["2026-10-10",180.89,180.89]]}
-{"k":"squirrel's nut butter|anti-chafe & skin repair adventure packet, original, 9ml — case of 125|gear|0","h":[["2026-10-02",180.6,180.6],["2026-10-03",180.82,180.82],["2026-10-05",180.84,180.84],["2026-10-06",180.32,180.32],["2026-10-07",180.51,180.51],["2026-10-08",180.47,180.47],["2026-10-09",180.64,180.64],["2026-10-10",180.89,180.89]]}
-{"k":"squirrel's nut butter|anti-chafe & skin repair compostable tube, original, 2.0 oz|gear|0","h":[["2026-10-02",25.99,25.99],["2026-10-03",26.02,26.02],["2026-10-05",26.03,26.03],["2026-10-06",25.95,25.95],["2026-10-07",25.98,25.98],["2026-10-08",25.97,25.97],["2026-10-09",26.0,26.0],["2026-10-10",26.03,26.03]]}
-{"k":"squirrel's nut butter|anti-chafe & skin repair stick w/ frankincense & lavender, 1.7 oz - case of 56|gear|0","h":[["2026-10-02",1213.62,1213.62],["2026-10-03",1215.14,1215.14],["2026-10-05",1215.22,1215.22],["2026-10-06",1211.75,1211.75],["2026-10-07",1213.05,1213.05],["2026-10-08",1212.73,1212.73],["2026-10-09",1213.93,1213.93],["2026-10-10",1215.55,1215.55]]}
-{"k":"squirrel's nut butter|anti-chafe & skin repair stick w/ frankincense & lavender|gear|0","h":[["2026-10-02",21.66,21.66],["2026-10-03",21.68,21.68],["2026-10-05",21.69,21.69],["2026-10-06",21.62,21.62],["2026-10-07",21.65,21.65],["2026-10-08",21.64,21.64],["2026-10-09",21.66,21.66],["2026-10-10",21.69,21.69]]}
-{"k":"squirrel's nut butter|anti-chafe & skin repair stick w/ peppermint & tea tree, 1.7 oz|gear|0","h":[["2026-10-02",21.66,21.66],["2026-10-03",21.68,21.68],["2026-10-05",21.69,21.69],["2026-10-06",21.62,21.62],["2026-10-07",21.65,21.65],["2026-10-08",21.64,21.64],["2026-10-09",21.66,21.66],["2026-10-10",21.69,21.69]]}
-{"k":"squirrel's nut butter|anti-chafe & skin repair stick w/ peppermint & tea tree, 1.7oz - case of 56|gear|0","h":[["2026-10-02",1213.62,1213.62],["2026-10-03",1215.14,1215.14],["2026-10-05",1215.22,1215.22],["2026-10-06",1211.75,1211.75],["2026-10-07",1213.05,1213.05],["2026-10-08",1212.73,1212.73],["2026-10-09",1213.93,1213.93],["2026-10-10",1215.55,1215.55]]}
-{"k":"squirrel's nut butter|anti-chafe & skin repair stick, original, 1.7oz - case of 56|gear|0","h":[["2026-10-02",1213.62,1213.62],["2026-10-03",1215.14,1215.14],["2026-10-05",1215.22,1215.22],["2026-10-06",1211.75,1211.75],["2026-10-07",1213.05,1213.05],["2026-10-08",1212.73,1212.73],["2026-10-09",1213.93,1213.93],["2026-10-10",1215.55,1215.55]]}
-{"k":"squirrel's nut butter|anti-chafe & skin repair stick, original, 2.7 oz|gear|0","h":[["2026-10-02",31.77,31.77],["2026-10-03",31.81,31.81],["2026-10-05",31.83,31.83],["2026-10-06",31.72,31.72],["2026-10-07",31.76,31.76],["2026-10-08",31.75,31.75],["2026-10-09",31.78,31.78],["2026-10-10",31.82,31.82]]}
+{"k":"squirrel's nut butter|adventure beard balm|gear|0","h":[["2026-10-02",10.84,21.66],["2026-10-03",10.85,21.68],["2026-10-05",10.86,21.7],["2026-10-06",10.82,21.62],["2026-10-07",10.83,21.65],["2026-10-08",10.83,21.64],["2026-10-09",10.84,21.66],["2026-10-10",10.85,21.69],["2026-10-11",10.86,21.7]]}
+{"k":"squirrel's nut butter|anti chafe & skin repair stick w/ frankincense & lavender, 1.7 oz — case of 18|gear|0","h":[["2026-10-02",195.05,195.05],["2026-10-03",195.29,195.29],["2026-10-05",195.3,195.3],["2026-10-06",194.75,194.75],["2026-10-07",194.96,194.96],["2026-10-08",194.9,194.9],["2026-10-09",195.1,195.1],["2026-10-10",195.36,195.36],["2026-10-11",195.46,195.46]]}
+{"k":"squirrel's nut butter|anti chafe & skin repair stick w/ peppermint & tea tree, 1.7 oz — case of 18|gear|0","h":[["2026-10-02",195.05,195.05],["2026-10-03",195.29,195.29],["2026-10-05",195.3,195.3],["2026-10-06",194.75,194.75],["2026-10-07",194.96,194.96],["2026-10-08",194.9,194.9],["2026-10-09",195.1,195.1],["2026-10-10",195.36,195.36],["2026-10-11",195.46,195.46]]}
+{"k":"squirrel's nut butter|anti chafe & skin repair stick, original, 0.5 oz — case of 132|gear|0","h":[["2026-10-02",1907.11,1907.11],["2026-10-03",1909.51,1909.51],["2026-10-05",1909.63,1909.63],["2026-10-06",1904.18,1904.18],["2026-10-07",1906.23,1906.23],["2026-10-08",1905.72,1905.72],["2026-10-09",1907.61,1907.61],["2026-10-10",1910.15,1910.15],["2026-10-11",1911.17,1911.17]]}
+{"k":"squirrel's nut butter|anti chafe & skin repair stick, original, 0.5 oz — case of 22|gear|0","h":[["2026-10-02",158.93,158.93],["2026-10-03",159.13,159.13],["2026-10-05",159.14,159.14],["2026-10-06",158.68,158.68],["2026-10-07",158.85,158.85],["2026-10-08",158.81,158.81],["2026-10-09",158.97,158.97],["2026-10-10",159.18,159.18],["2026-10-11",159.26,159.26]]}
+{"k":"squirrel's nut butter|anti chafe & skin repair stick, original, 1.7 oz — case of 18|gear|0","h":[["2026-10-02",195.05,195.05],["2026-10-03",195.29,195.29],["2026-10-05",195.3,195.3],["2026-10-06",194.75,194.75],["2026-10-07",194.96,194.96],["2026-10-08",194.9,194.9],["2026-10-09",195.1,195.1],["2026-10-10",195.36,195.36],["2026-10-11",195.46,195.46]]}
+{"k":"squirrel's nut butter|anti-chafe & skin repair adventure packet w/ frankincense & lavender, 9ml — case of 125|gear|0","h":[["2026-10-02",180.6,180.6],["2026-10-03",180.82,180.82],["2026-10-05",180.84,180.84],["2026-10-06",180.32,180.32],["2026-10-07",180.51,180.51],["2026-10-08",180.47,180.47],["2026-10-09",180.64,180.64],["2026-10-10",180.89,180.89],["2026-10-11",180.98,180.98]]}
+{"k":"squirrel's nut butter|anti-chafe & skin repair adventure packet, original, 9ml — case of 125|gear|0","h":[["2026-10-02",180.6,180.6],["2026-10-03",180.82,180.82],["2026-10-05",180.84,180.84],["2026-10-06",180.32,180.32],["2026-10-07",180.51,180.51],["2026-10-08",180.47,180.47],["2026-10-09",180.64,180.64],["2026-10-10",180.89,180.89],["2026-10-11",180.98,180.98]]}
+{"k":"squirrel's nut butter|anti-chafe & skin repair compostable tube, original, 2.0 oz|gear|0","h":[["2026-10-02",25.99,25.99],["2026-10-03",26.02,26.02],["2026-10-05",26.03,26.03],["2026-10-06",25.95,25.95],["2026-10-07",25.98,25.98],["2026-10-08",25.97,25.97],["2026-10-09",26.0,26.0],["2026-10-10",26.03,26.03],["2026-10-11",26.05,26.05]]}
+{"k":"squirrel's nut butter|anti-chafe & skin repair stick w/ frankincense & lavender, 1.7 oz - case of 56|gear|0","h":[["2026-10-02",1213.62,1213.62],["2026-10-03",1215.14,1215.14],["2026-10-05",1215.22,1215.22],["2026-10-06",1211.75,1211.75],["2026-10-07",1213.05,1213.05],["2026-10-08",1212.73,1212.73],["2026-10-09",1213.93,1213.93],["2026-10-10",1215.55,1215.55],["2026-10-11",1216.2,1216.2]]}
+{"k":"squirrel's nut butter|anti-chafe & skin repair stick w/ frankincense & lavender|gear|0","h":[["2026-10-02",21.66,21.66],["2026-10-03",21.68,21.68],["2026-10-05",21.69,21.69],["2026-10-06",21.62,21.62],["2026-10-07",21.65,21.65],["2026-10-08",21.64,21.64],["2026-10-09",21.66,21.66],["2026-10-10",21.69,21.69],["2026-10-11",21.7,21.7]]}
+{"k":"squirrel's nut butter|anti-chafe & skin repair stick w/ peppermint & tea tree, 1.7 oz|gear|0","h":[["2026-10-02",21.66,21.66],["2026-10-03",21.68,21.68],["2026-10-05",21.69,21.69],["2026-10-06",21.62,21.62],["2026-10-07",21.65,21.65],["2026-10-08",21.64,21.64],["2026-10-09",21.66,21.66],["2026-10-10",21.69,21.69],["2026-10-11",21.7,21.7]]}
+{"k":"squirrel's nut butter|anti-chafe & skin repair stick w/ peppermint & tea tree, 1.7oz - case of 56|gear|0","h":[["2026-10-02",1213.62,1213.62],["2026-10-03",1215.14,1215.14],["2026-10-05",1215.22,1215.22],["2026-10-06",1211.75,1211.75],["2026-10-07",1213.05,1213.05],["2026-10-08",1212.73,1212.73],["2026-10-09",1213.93,1213.93],["2026-10-10",1215.55,1215.55],["2026-10-11",1216.2,1216.2]]}
+{"k":"squirrel's nut butter|anti-chafe & skin repair stick, original, 1.7oz - case of 56|gear|0","h":[["2026-10-02",1213.62,1213.62],["2026-10-03",1215.14,1215.14],["2026-10-05",1215.22,1215.22],["2026-10-06",1211.75,1211.75],["2026-10-07",1213.05,1213.05],["2026-10-08",1212.73,1212.73],["2026-10-09",1213.93,1213.93],["2026-10-10",1215.55,1215.55],["2026-10-11",1216.2,1216.2]]}
+{"k":"squirrel's nut butter|anti-chafe & skin repair stick, original, 2.7 oz|gear|0","h":[["2026-10-02",31.77,31.77],["2026-10-03",31.81,31.81],["2026-10-05",31.83,31.83],["2026-10-06",31.72,31.72],["2026-10-07",31.76,31.76],["2026-10-08",31.75,31.75],["2026-10-09",31.78,31.78],["2026-10-10",31.82,31.82],["2026-10-11",31.84,31.84]]}
 {"k":"squirrel's nut butter|anti-chafe & skin repair sticks, original|gear|0","h":[["2026-10-02",14.43,21.66],["2026-10-03",14.45,21.68],["2026-10-05",14.46,21.7],["2026-10-06",14.41,21.62],["2026-10-07",14.43,21.65],["2026-10-08",14.42,21.64],["2026-10-09",14.44,21.66],["2026-10-10",14.46,21.69]]}
-{"k":"squirrel's nut butter|anti-chafe & skin repair tin w/ frankincense & lavender, 2 oz - case of 40|gear|0","h":[["2026-10-02",260.06,260.06],["2026-10-03",260.39,260.39],["2026-10-05",260.4,260.4],["2026-10-06",259.66,259.66],["2026-10-07",259.94,259.94],["2026-10-08",259.87,259.87],["2026-10-09",260.13,260.13],["2026-10-10",260.48,260.48]]}
-{"k":"squirrel's nut butter|anti-chafe & skin repair tin w/ frankincense & lavender, 2.0oz — case of 18|gear|0","h":[["2026-10-02",195.05,195.05],["2026-10-03",195.29,195.29],["2026-10-05",195.3,195.3],["2026-10-06",194.75,194.75],["2026-10-07",194.96,194.96],["2026-10-08",194.9,194.9],["2026-10-09",195.1,195.1],["2026-10-10",195.36,195.36]]}
-{"k":"squirrel's nut butter|anti-chafe & skin repair tin, original, 0.5 oz — case of 144|gear|0","h":[["2026-10-02",728.17,728.17],["2026-10-03",729.09,729.09],["2026-10-05",729.13,729.13],["2026-10-06",727.05,727.05],["2026-10-07",727.83,727.83],["2026-10-08",727.64,727.64],["2026-10-09",728.36,728.36],["2026-10-10",729.33,729.33]]}
-{"k":"squirrel's nut butter|anti-chafe & skin repair tin, original, 0.5 oz — case of 24|gear|0","h":[["2026-10-02",156.04,156.04],["2026-10-03",156.23,156.23],["2026-10-05",156.24,156.24],["2026-10-06",155.8,155.8],["2026-10-07",155.96,155.96],["2026-10-08",155.92,155.92],["2026-10-09",156.08,156.08],["2026-10-10",156.29,156.29]]}
-{"k":"squirrel's nut butter|anti-chafe & skin repair tin, original, 2.0 oz — case of 18|gear|0","h":[["2026-10-02",195.05,195.05],["2026-10-03",195.29,195.29],["2026-10-05",195.3,195.3],["2026-10-06",194.75,194.75],["2026-10-07",194.96,194.96],["2026-10-08",194.9,194.9],["2026-10-09",195.1,195.1],["2026-10-10",195.36,195.36]]}
-{"k":"squirrel's nut butter|anti-chafe & skin repair tin, original, 2oz - case of 40|gear|0","h":[["2026-10-02",260.06,260.06],["2026-10-03",260.39,260.39],["2026-10-05",260.4,260.4],["2026-10-06",259.66,259.66],["2026-10-07",259.94,259.94],["2026-10-08",259.87,259.87],["2026-10-09",260.13,260.13],["2026-10-10",260.48,260.48]]}
-{"k":"squirrel's nut butter|anti-chafe & skin repair tin, original, 4 oz - case of 18|gear|0","h":[["2026-10-02",195.05,195.05],["2026-10-03",195.29,195.29],["2026-10-05",195.3,195.3],["2026-10-06",194.75,194.75],["2026-10-07",194.96,194.96],["2026-10-08",194.9,194.9],["2026-10-09",195.1,195.1],["2026-10-10",195.36,195.36]]}
-{"k":"squirrel's nut butter|anti-chafe & skin repair tin, original, 4.0 oz — case of 4|gear|0","h":[["2026-10-02",72.24,72.24],["2026-10-03",72.33,72.33],["2026-10-05",72.38,72.38],["2026-10-06",72.13,72.13],["2026-10-07",72.21,72.21],["2026-10-08",72.19,72.19],["2026-10-09",72.26,72.26],["2026-10-10",72.35,72.35]]}
-{"k":"squirrel's nut butter|anti-chafe & skin repair tins, original|gear|0","h":[["2026-10-02",12.99,36.11],["2026-10-03",13.0,36.15],["2026-10-05",13.01,36.15],["2026-10-06",12.97,36.05],["2026-10-07",12.98,36.09],["2026-10-08",12.98,36.08],["2026-10-09",12.99,36.11],["2026-10-10",13.01,36.16]]}
-{"k":"squirrel's nut butter|anti-chafe compostable tube, original, 2.0 oz — case of 18|gear|0","h":[["2026-10-02",234.05,234.05],["2026-10-03",234.35,234.35],["2026-10-05",234.36,234.36],["2026-10-06",233.69,233.69],["2026-10-07",233.95,233.95],["2026-10-08",233.88,233.88],["2026-10-09",234.12,234.12],["2026-10-10",234.43,234.43]]}
-{"k":"squirrel's nut butter|anti-chafe compostable tube, original, 2.0 oz — case of 78|gear|0","h":[["2026-10-02",2028.47,2028.47],["2026-10-03",2031.02,2031.02],["2026-10-05",2031.15,2031.15],["2026-10-06",2025.35,2025.35],["2026-10-07",2027.53,2027.53],["2026-10-08",2026.99,2026.99],["2026-10-09",2029.0,2029.0],["2026-10-10",2031.71,2031.71]]}
+{"k":"squirrel's nut butter|anti-chafe & skin repair tin w/ frankincense & lavender, 2 oz - case of 40|gear|0","h":[["2026-10-02",260.06,260.06],["2026-10-03",260.39,260.39],["2026-10-05",260.4,260.4],["2026-10-06",259.66,259.66],["2026-10-07",259.94,259.94],["2026-10-08",259.87,259.87],["2026-10-09",260.13,260.13],["2026-10-10",260.48,260.48],["2026-10-11",260.61,260.61]]}
+{"k":"squirrel's nut butter|anti-chafe & skin repair tin w/ frankincense & lavender, 2.0oz — case of 18|gear|0","h":[["2026-10-02",195.05,195.05],["2026-10-03",195.29,195.29],["2026-10-05",195.3,195.3],["2026-10-06",194.75,194.75],["2026-10-07",194.96,194.96],["2026-10-08",194.9,194.9],["2026-10-09",195.1,195.1],["2026-10-10",195.36,195.36],["2026-10-11",195.46,195.46]]}
+{"k":"squirrel's nut butter|anti-chafe & skin repair tin, original, 0.5 oz — case of 144|gear|0","h":[["2026-10-02",728.17,728.17],["2026-10-03",729.09,729.09],["2026-10-05",729.13,729.13],["2026-10-06",727.05,727.05],["2026-10-07",727.83,727.83],["2026-10-08",727.64,727.64],["2026-10-09",728.36,728.36],["2026-10-10",729.33,729.33],["2026-10-11",729.72,729.72]]}
+{"k":"squirrel's nut butter|anti-chafe & skin repair tin, original, 0.5 oz — case of 24|gear|0","h":[["2026-10-02",156.04,156.04],["2026-10-03",156.23,156.23],["2026-10-05",156.24,156.24],["2026-10-06",155.8,155.8],["2026-10-07",155.96,155.96],["2026-10-08",155.92,155.92],["2026-10-09",156.08,156.08],["2026-10-10",156.29,156.29],["2026-10-11",156.37,156.37]]}
+{"k":"squirrel's nut butter|anti-chafe & skin repair tin, original, 2.0 oz — case of 18|gear|0","h":[["2026-10-02",195.05,195.05],["2026-10-03",195.29,195.29],["2026-10-05",195.3,195.3],["2026-10-06",194.75,194.75],["2026-10-07",194.96,194.96],["2026-10-08",194.9,194.9],["2026-10-09",195.1,195.1],["2026-10-10",195.36,195.36],["2026-10-11",195.46,195.46]]}
+{"k":"squirrel's nut butter|anti-chafe & skin repair tin, original, 2oz - case of 40|gear|0","h":[["2026-10-02",260.06,260.06],["2026-10-03",260.39,260.39],["2026-10-05",260.4,260.4],["2026-10-06",259.66,259.66],["2026-10-07",259.94,259.94],["2026-10-08",259.87,259.87],["2026-10-09",260.13,260.13],["2026-10-10",260.48,260.48],["2026-10-11",260.61,260.61]]}
+{"k":"squirrel's nut butter|anti-chafe & skin repair tin, original, 4 oz - case of 18|gear|0","h":[["2026-10-02",195.05,195.05],["2026-10-03",195.29,195.29],["2026-10-05",195.3,195.3],["2026-10-06",194.75,194.75],["2026-10-07",194.96,194.96],["2026-10-08",194.9,194.9],["2026-10-09",195.1,195.1],["2026-10-10",195.36,195.36],["2026-10-11",195.46,195.46]]}
+{"k":"squirrel's nut butter|anti-chafe & skin repair tin, original, 4.0 oz — case of 4|gear|0","h":[["2026-10-02",72.24,72.24],["2026-10-03",72.33,72.33],["2026-10-05",72.38,72.38],["2026-10-06",72.13,72.13],["2026-10-07",72.21,72.21],["2026-10-08",72.19,72.19],["2026-10-09",72.26,72.26],["2026-10-10",72.35,72.35],["2026-10-11",72.39,72.39]]}
+{"k":"squirrel's nut butter|anti-chafe & skin repair tins, original|gear|0","h":[["2026-10-02",12.99,36.11],["2026-10-03",13.0,36.15],["2026-10-05",13.01,36.15],["2026-10-06",12.97,36.05],["2026-10-07",12.98,36.09],["2026-10-08",12.98,36.08],["2026-10-09",12.99,36.11],["2026-10-10",13.01,36.16],["2026-10-11",13.02,36.18]]}
+{"k":"squirrel's nut butter|anti-chafe compostable tube, original, 2.0 oz — case of 18|gear|0","h":[["2026-10-02",234.05,234.05],["2026-10-03",234.35,234.35],["2026-10-05",234.36,234.36],["2026-10-06",233.69,233.69],["2026-10-07",233.95,233.95],["2026-10-08",233.88,233.88],["2026-10-09",234.12,234.12],["2026-10-10",234.43,234.43],["2026-10-11",234.55,234.55]]}
+{"k":"squirrel's nut butter|anti-chafe compostable tube, original, 2.0 oz — case of 78|gear|0","h":[["2026-10-02",2028.47,2028.47],["2026-10-03",2031.02,2031.02],["2026-10-05",2031.15,2031.15],["2026-10-06",2025.35,2025.35],["2026-10-07",2027.53,2027.53],["2026-10-08",2026.99,2026.99],["2026-10-09",2029.0,2029.0],["2026-10-10",2031.71,2031.71],["2026-10-11",2032.79,2032.79]]}
 {"k":"squirrel's nut butter|anti-chafe salve|gear|0","h":[["2026-10-02",3.61,28.87],["2026-10-03",3.62,28.92],["2026-10-06",3.61,28.84],["2026-10-07",3.62,28.92],["2026-10-08",3.61,28.9],["2026-10-09",3.62,28.93]]}
 {"k":"squirrel's nut butter|anti-chafe skin repair - frankincense & lavender|gear|0","h":[["2026-10-02",3.61,28.87],["2026-10-03",3.62,28.92],["2026-10-06",3.61,28.84],["2026-10-07",3.62,28.92],["2026-10-08",3.61,28.9],["2026-10-09",3.62,28.93]]}
 {"k":"squirrel's nut butter|anti-chafe skin repair - peppermint & tea tree|gear|0","h":[["2026-10-02",21.65,21.65],["2026-10-03",21.68,21.68],["2026-10-05",21.69,21.69],["2026-10-06",21.62,21.62],["2026-10-07",21.64,21.64],["2026-10-08",21.67,21.67],["2026-10-09",21.69,21.69]]}
-{"k":"squirrel's nut butter|anti-chafe tin & skin repair tin w/ frankincense and lavender, 2.0 oz|gear|0","h":[["2026-10-02",21.66,21.66],["2026-10-03",21.68,21.68],["2026-10-05",21.69,21.69],["2026-10-06",21.62,21.62],["2026-10-07",21.65,21.65],["2026-10-08",21.64,21.64],["2026-10-09",21.66,21.66],["2026-10-10",21.69,21.69]]}
-{"k":"squirrel's nut butter|grease your crease t-shirt|tops|0","h":[["2026-10-02",28.9,28.9],["2026-10-03",28.93,28.93],["2026-10-05",28.95,28.95],["2026-10-06",28.85,28.85],["2026-10-07",28.88,28.88],["2026-10-08",28.87,28.87],["2026-10-09",28.9,28.9],["2026-10-10",28.94,28.94]]}
+{"k":"squirrel's nut butter|anti-chafe tin & skin repair tin w/ frankincense and lavender, 2.0 oz|gear|0","h":[["2026-10-02",21.66,21.66],["2026-10-03",21.68,21.68],["2026-10-05",21.69,21.69],["2026-10-06",21.62,21.62],["2026-10-07",21.65,21.65],["2026-10-08",21.64,21.64],["2026-10-09",21.66,21.66],["2026-10-10",21.69,21.69],["2026-10-11",21.7,21.7]]}
+{"k":"squirrel's nut butter|grease your crease t-shirt|tops|0","h":[["2026-10-02",28.9,28.9],["2026-10-03",28.93,28.93],["2026-10-05",28.95,28.95],["2026-10-06",28.85,28.85],["2026-10-07",28.88,28.88],["2026-10-08",28.87,28.87],["2026-10-09",28.9,28.9],["2026-10-10",28.94,28.94],["2026-10-11",28.96,28.96]]}
 {"k":"squirrel's nut butter|happie toes tin|gear|0","h":[["2026-10-05",35.0,35.0]]}
-{"k":"squirrel's nut butter|lube up & run fast tee|tops|0","h":[["2026-10-02",28.9,36.12],["2026-10-03",28.93,36.16],["2026-10-05",28.95,36.19],["2026-10-06",28.85,36.06],["2026-10-07",28.88,36.1],["2026-10-08",28.87,36.09],["2026-10-09",28.9,36.13],["2026-10-10",28.94,36.18]]}
+{"k":"squirrel's nut butter|lube up & run fast tee|tops|0","h":[["2026-10-02",28.9,36.12],["2026-10-03",28.93,36.16],["2026-10-05",28.95,36.19],["2026-10-06",28.85,36.06],["2026-10-07",28.88,36.1],["2026-10-08",28.87,36.09],["2026-10-09",28.9,36.13],["2026-10-10",28.94,36.18],["2026-10-11",28.96,36.2]]}
 {"k":"squirrel's nut butter|single use pouch|gear|0","h":[["2026-10-05",2.99,2.99]]}
-{"k":"squirrel's nut butter|the drey|gear|0","h":[["2026-10-02",43.3,57.73],["2026-10-03",43.35,57.81],["2026-10-05",43.36,57.81],["2026-10-06",43.23,57.64],["2026-10-07",43.28,57.71],["2026-10-08",43.27,57.69],["2026-10-09",43.31,57.75],["2026-10-10",43.37,57.83]]}
-{"k":"squirrel's nut butter|timber the squirrel boco hat|headwear|0","h":[["2026-10-02",43.33,43.33],["2026-10-03",43.38,43.38],["2026-10-05",43.39,43.39],["2026-10-06",43.26,43.26],["2026-10-07",43.31,43.31],["2026-10-08",43.3,43.3],["2026-10-09",43.34,43.34],["2026-10-10",43.4,43.4]]}
+{"k":"squirrel's nut butter|the drey|gear|0","h":[["2026-10-02",43.3,57.73],["2026-10-03",43.35,57.81],["2026-10-05",43.36,57.81],["2026-10-06",43.23,57.64],["2026-10-07",43.28,57.71],["2026-10-08",43.27,57.69],["2026-10-09",43.31,57.75],["2026-10-10",43.37,57.83],["2026-10-11",43.39,57.86]]}
+{"k":"squirrel's nut butter|timber the squirrel boco hat|headwear|0","h":[["2026-10-02",43.33,43.33],["2026-10-03",43.38,43.38],["2026-10-05",43.39,43.39],["2026-10-06",43.26,43.26],["2026-10-07",43.31,43.31],["2026-10-08",43.3,43.3],["2026-10-09",43.34,43.34],["2026-10-10",43.4,43.4],["2026-10-11",43.42,43.42]]}
 {"k":"squirrel's nut butter|tin|gear|0","h":[["2026-10-05",16.0,16.0]]}
 {"k":"squirrel’s nut butter|.5 oz pocket stick|gear|0","h":[["2026-10-02",15.0,15.0]]}
 {"k":"squirrel’s nut butter|2 oz compostable tube|gear|0","h":[["2026-10-02",22.0,22.0]]}
@@ -35252,7 +35295,7 @@
 {"k":"stance|stacks boxer brief|bottoms|0","h":[["2026-10-07",35.57,35.57],["2026-10-08",35.64,35.64]]}
 {"k":"stance|standard 4in boxer brief|bottoms|0","h":[["2026-10-08",33.82,38.0]]}
 {"k":"stance|standard 6in boxer brief|bottoms|0","h":[["2026-10-02",38.46,38.46],["2026-10-05",38.49,38.49],["2026-10-06",38.41,38.41],["2026-10-07",14.23,38.41],["2026-10-08",14.26,38.49]]}
-{"k":"stance|standard boxer brief|bottoms|0","h":[["2026-10-08",20.0,38.0]]}
+{"k":"stance|standard boxer brief|bottoms|0","h":[["2026-10-08",20.0,38.0],["2026-10-11",25.0,38.0]]}
 {"k":"stance|standard issue t-shirt|tops|0","h":[["2026-10-08",35.0,35.0]]}
 {"k":"stance|staple st 6in|socks|0","h":[["2026-10-07",49.79,49.79],["2026-10-08",49.9,49.9]]}
 {"k":"stance|staple st butter blend boxer wholester 2 pack|bottoms|0","h":[["2026-10-08",86.0,96.0]]}
@@ -36100,6 +36143,8 @@
 {"k":"swany|men's swany viraloff balaclava|nutrition|0","h":[["2026-10-06",40.0,40.0]]}
 {"k":"swany|men's swany viraloff liner gloves|gloves|0","h":[["2026-10-07",40.0,40.0]]}
 {"k":"swany|men's swany viraloff liner gloves|nutrition|0","h":[["2026-10-06",40.0,40.0]]}
+{"k":"swany|nexus heated glove|gloves|0","h":[["2026-10-11",550.0,550.0]]}
+{"k":"swany|nexus heated mitt|gloves|0","h":[["2026-10-11",550.0,550.0]]}
 {"k":"swany|norse mitt - men's|gloves|0","h":[["2026-10-03",100.0,100.0]]}
 {"k":"swany|norse mitt - women's|gloves|0","h":[["2026-10-03",100.0,100.0]]}
 {"k":"swany|powerdry balaclava|headwear|0","h":[["2026-10-07",45.0,45.0]]}
@@ -36478,7 +36523,7 @@
 {"k":"tailwind|nutrition recovery drink mix|nutrition|0","h":[["2026-10-07",4.58,89.95]]}
 {"k":"tailwind|nutrition stick caff|nutrition|0","h":[["2026-10-06",4.25,4.25]]}
 {"k":"tailwind|nutrition stick|nutrition|0","h":[["2026-10-06",4.25,4.25]]}
-{"k":"tailwind|performance starter kit|nutrition|0","h":[["2026-10-06",77.0,77.0]]}
+{"k":"tailwind|performance starter kit|nutrition|0","h":[["2026-10-06",77.0,77.0],["2026-10-11",78.0,78.0]]}
 {"k":"tailwind|rapid hydration 25 servings (325g)|nutrition|0","h":[["2026-10-02",45.0,45.0]]}
 {"k":"tailwind|rapid hydration pack - 15 packs total|packs|0","h":[["2026-10-07",37.0,37.0]]}
 {"k":"tailwind|rapid hydration singles|nutrition|0","h":[["2026-10-06",2.35,2.35]]}
@@ -36690,7 +36735,7 @@
 {"k":"the north face|altamesa 500 v2 gore-tex shoes - men's|shoes|0","h":[["2026-10-02",239.99,239.99]]}
 {"k":"the north face|altamesa 500 v2 gore-tex shoes - women's|shoes|0","h":[["2026-10-02",239.99,239.99]]}
 {"k":"the north face|altamesa 500 v2 lightweight trail running shoes - men's|shoes|0","h":[["2026-10-09",199.99,199.99]]}
-{"k":"the north face|altamesa 500 v2 trail running shoes - men's|shoes|0","h":[["2026-10-02",163.99,199.99],["2026-10-04",165.99,199.99],["2026-10-07",163.99,199.99],["2026-10-08",137.99,199.99]]}
+{"k":"the north face|altamesa 500 v2 trail running shoes - men's|shoes|0","h":[["2026-10-02",163.99,199.99],["2026-10-04",165.99,199.99],["2026-10-07",163.99,199.99],["2026-10-08",137.99,199.99],["2026-10-11",199.99,199.99]]}
 {"k":"the north face|altamesa 500 v2 trail running shoes - women's|shoes|0","h":[["2026-10-02",145.99,199.99],["2026-10-04",147.99,199.99],["2026-10-07",143.99,199.99],["2026-10-08",119.99,199.99]]}
 {"k":"the north face|antora novelty rain jacket - men's|tops|0","h":[["2026-10-03",169.99,169.99]]}
 {"k":"the north face|antora novelty rain jacket - men’s|tops|0","h":[["2026-10-02",169.99,169.99]]}
@@ -36866,6 +36911,7 @@
 {"k":"the north face|sunriser tank - women's|tops|0","h":[["2026-10-02",48.74,64.99],["2026-10-09",60.0,60.0],["2026-10-10",48.74,64.99]]}
 {"k":"the north face|sunriser tank top - women's|tops|0","h":[["2026-10-02",35.09,64.99],["2026-10-04",35.74,64.99],["2026-10-07",37.04,64.99],["2026-10-08",32.49,64.99],["2026-10-10",33.14,64.99]]}
 {"k":"the north face|sunriser trousers - men's|bottoms|0","h":[["2026-10-02",93.59,119.99],["2026-10-04",95.99,119.99]]}
+{"k":"the north face|surge luxe backpack 31l - women's|packs|0","h":[["2026-10-11",199.99,199.99]]}
 {"k":"the north face|terra lumbar pack 1l — transcendent grey/endless dusk|packs|0","h":[["2026-10-05",40.0,40.0]]}
 {"k":"the north face|thermoball traction booties - women's|shoes|0","h":[["2026-10-02",100.0,100.0]]}
 {"k":"the north face|tnf limitless run short|bottoms|0","h":[["2026-10-08",23.0,59.99]]}
@@ -38081,7 +38127,7 @@
 {"k":"upika|barres upika petits fruits - 12 barres|nutrition|0","h":[["2026-10-08",39.99,39.99]]}
 {"k":"upika|barres upika pêche et crème - 12 barres|nutrition|0","h":[["2026-10-08",39.99,39.99]]}
 {"k":"upika|barres énergie · petits fruits|nutrition|0","h":[["2026-10-02",3.79,39.99]]}
-{"k":"upika|barres énergie · pêche et crème|nutrition|0","h":[["2026-10-02",3.79,39.99]]}
+{"k":"upika|barres énergie · pêche et crème|nutrition|0","h":[["2026-10-02",3.79,39.99],["2026-10-11",39.99,39.99]]}
 {"k":"upika|carb-boost sports drink mix 675g - 25-serving pack|nutrition|0","h":[["2026-10-02",49.99,49.99]]}
 {"k":"upika|carb-boost|nutrition|0","h":[["2026-10-02",49.95,49.99]]}
 {"k":"upika|casquette athlétique upika|headwear|0","h":[["2026-10-08",54.99,54.99]]}
@@ -40936,9 +40982,9 @@
 {"k":"us|asi global limited|paneled nylon hat, cool sage|headwear|0","h":[["2026-10-06",66.08,66.08],["2026-10-07",66.63,66.63],["2026-10-08",66.01,66.01],["2026-10-09",66.57,66.57]]}
 {"k":"us|asi global limited|paneled nylon hat, symbol black|headwear|0","h":[["2026-10-06",66.08,66.08],["2026-10-07",66.63,66.63],["2026-10-08",66.01,66.01],["2026-10-09",66.57,66.57]]}
 {"k":"us|asi global limited|paneled nylon hat, vibrant lilac|headwear|0","h":[["2026-10-06",66.08,66.08],["2026-10-07",66.63,66.63],["2026-10-08",66.01,66.01],["2026-10-09",66.57,66.57]]}
-{"k":"us|asi global limited|perforated strap hat, black|headwear|0","h":[["2026-10-06",86.46,86.46],["2026-10-07",86.97,86.97],["2026-10-08",86.27,86.27],["2026-10-09",86.19,86.19]]}
-{"k":"us|asi global limited|perforated strap hat, khaki|headwear|0","h":[["2026-10-06",86.46,86.46],["2026-10-07",86.97,86.97],["2026-10-08",86.27,86.27],["2026-10-09",86.19,86.19]]}
-{"k":"us|asi global limited|perforated strap hat, light grey|headwear|0","h":[["2026-10-06",86.46,86.46],["2026-10-07",86.97,86.97],["2026-10-08",86.27,86.27],["2026-10-09",86.19,86.19]]}
+{"k":"us|asi global limited|perforated strap hat, black|headwear|0","h":[["2026-10-06",86.46,86.46],["2026-10-07",86.97,86.97],["2026-10-08",86.27,86.27],["2026-10-09",86.19,86.19],["2026-10-11",86.89,86.89]]}
+{"k":"us|asi global limited|perforated strap hat, khaki|headwear|0","h":[["2026-10-06",86.46,86.46],["2026-10-07",86.97,86.97],["2026-10-08",86.27,86.27],["2026-10-09",86.19,86.19],["2026-10-11",86.89,86.89]]}
+{"k":"us|asi global limited|perforated strap hat, light grey|headwear|0","h":[["2026-10-06",86.46,86.46],["2026-10-07",86.97,86.97],["2026-10-08",86.27,86.27],["2026-10-09",86.19,86.19],["2026-10-11",86.89,86.89]]}
 {"k":"us|asics sportstyle|gel-preleus™ - women's|shoes|0","h":[["2026-10-11",109.95,109.95]]}
 {"k":"us|asics sportstyle|gel-preleus™|shoes|0","h":[["2026-10-08",109.95,109.95]]}
 {"k":"us|asics tiger co|challenger 15 - men's|shoes|0","h":[["2026-10-06",115.0,115.0]]}
@@ -42404,7 +42450,7 @@
 {"k":"us|bandit running|classic cropped mockneck sweatshirt - aegean blue wave ombre - women's|tops|0","h":[["2026-10-06",98.0,98.0]]}
 {"k":"us|bandit running|club crest™ cropped hoodie - ldn ‘26 - unisex|tops|0","h":[["2026-10-07",99.6,99.6],["2026-10-08",99.72,99.72],["2026-10-09",99.5,99.5]]}
 {"k":"us|bandit running|cold weather performance run pant - men's|bottoms|0","h":[["2026-10-06",140.59,140.59],["2026-10-07",140.28,140.28],["2026-10-08",140.45,140.45],["2026-10-09",140.14,140.14]]}
-{"k":"us|bandit running|coldfront™ jacket, unisex - ash|tops|0","h":[["2026-10-06",251.65,251.65],["2026-10-07",251.81,251.81],["2026-10-08",252.11,252.11],["2026-10-09",251.56,251.56]]}
+{"k":"us|bandit running|coldfront™ jacket, unisex - ash|tops|0","h":[["2026-10-06",251.65,251.65],["2026-10-07",251.81,251.81],["2026-10-08",252.11,252.11],["2026-10-09",251.56,251.56],["2026-10-11",252.26,252.26]]}
 {"k":"us|bandit running|community hoodie - black - unisex|tops|0","h":[["2026-10-07",99.6,99.6],["2026-10-08",99.72,99.72],["2026-10-09",99.5,99.5]]}
 {"k":"us|bandit running|community tee - white - unisex|tops|0","h":[["2026-10-07",56.11,56.11],["2026-10-08",56.18,56.18],["2026-10-09",56.06,56.06]]}
 {"k":"us|bandit running|coolgrid 2-in-1 run shorts 7\" - men's|bottoms|0","h":[["2026-10-06",108.0,108.0]]}
@@ -42641,7 +42687,7 @@
 {"k":"us|bandit running|micromesh™ short sleeve run tee - lagoon - men's|tops|0","h":[["2026-10-06",76.62,76.62],["2026-10-07",76.45,76.45],["2026-10-08",76.54,76.54],["2026-10-09",76.38,76.38]]}
 {"k":"us|bandit running|micromesh™ short sleeve run tee - men's|tops|0","h":[["2026-10-06",72.0,76.62]]}
 {"k":"us|bandit running|micromesh™ short sleeve run tee - poppy - men's|tops|0","h":[["2026-10-06",76.62,76.62],["2026-10-07",76.45,76.45],["2026-10-08",76.54,76.54],["2026-10-09",76.38,76.38]]}
-{"k":"us|bandit running|next gen windproof auragrid™ jacket - black - men's|tops|0","h":[["2026-10-06",231.27,231.27],["2026-10-07",231.47,231.47],["2026-10-08",231.74,231.74],["2026-10-09",231.24,231.24]]}
+{"k":"us|bandit running|next gen windproof auragrid™ jacket - black - men's|tops|0","h":[["2026-10-06",231.27,231.27],["2026-10-07",231.47,231.47],["2026-10-08",231.74,231.74],["2026-10-09",231.24,231.24],["2026-10-11",231.94,231.94]]}
 {"k":"us|bandit running|nycm '25 \"run city\" cotton tee, unisex - white|tops|0","h":[["2026-10-06",56.24,56.24],["2026-10-07",56.11,56.11],["2026-10-08",56.18,56.18],["2026-10-09",56.06,56.06]]}
 {"k":"us|bandit running|nycm '25 \"run city\" nylon dad hat|headwear|0","h":[["2026-10-06",45.69,45.69],["2026-10-07",46.29,46.29],["2026-10-08",45.65,45.65],["2026-10-09",46.25,46.25]]}
 {"k":"us|bandit running|nycm '25 cotton tee, unisex - black|tops|0","h":[["2026-10-06",56.24,56.24],["2026-10-07",56.11,56.11],["2026-10-08",56.18,56.18],["2026-10-09",56.06,56.06]]}
@@ -42814,9 +42860,9 @@
 {"k":"us|bandit running|stamina™ race crop - haze multi|tops|0","h":[["2026-10-06",83.65,83.65],["2026-10-07",83.47,83.47]]}
 {"k":"us|bandit running|stamina™ race crop - haze|tops|0","h":[["2026-10-06",79.43,79.43],["2026-10-07",79.26,79.26],["2026-10-08",79.35,79.35],["2026-10-09",79.18,79.18]]}
 {"k":"us|bandit running|stamina™ race crop - ny navy - women's|tops|0","h":[["2026-10-06",79.43,79.43],["2026-10-07",79.26,79.26],["2026-10-08",79.35,79.35],["2026-10-09",79.18,79.18]]}
-{"k":"us|bandit running|stamina™ race crop - organic stripe cacao - women's|tops|0","h":[["2026-10-06",86.46,86.46],["2026-10-07",86.97,86.97],["2026-10-08",86.27,86.27],["2026-10-09",86.19,86.19]]}
+{"k":"us|bandit running|stamina™ race crop - organic stripe cacao - women's|tops|0","h":[["2026-10-06",86.46,86.46],["2026-10-07",86.97,86.97],["2026-10-08",86.27,86.27],["2026-10-09",86.19,86.19],["2026-10-11",86.89,86.89]]}
 {"k":"us|bandit running|stamina™ race crop - organic stripe ink blue - women's|tops|0","h":[["2026-10-07",86.46,86.46]]}
-{"k":"us|bandit running|stamina™ race crop - women's|tops|0","h":[["2026-10-06",86.46,86.46],["2026-10-07",86.97,86.97],["2026-10-08",86.27,86.27],["2026-10-09",86.19,86.19]]}
+{"k":"us|bandit running|stamina™ race crop - women's|tops|0","h":[["2026-10-06",86.46,86.46],["2026-10-07",86.97,86.97],["2026-10-08",86.27,86.27],["2026-10-09",86.19,86.19],["2026-10-11",86.89,86.89]]}
 {"k":"us|bandit running|stamina™ race crop|tops|0","h":[["2026-10-06",79.43,79.43],["2026-10-07",79.26,79.26],["2026-10-08",79.35,79.35],["2026-10-09",79.18,79.18]]}
 {"k":"us|bandit running|stamina™ racing buns with pockets - pine|bottoms|0","h":[["2026-10-06",69.59,69.59],["2026-10-07",69.44,69.44],["2026-10-08",69.52,69.52],["2026-10-09",69.37,69.37]]}
 {"k":"us|bandit running|stamina™ racing buns with pockets|bottoms|0","h":[["2026-10-06",79.43,79.43],["2026-10-07",79.26,79.26],["2026-10-08",79.35,79.35],["2026-10-09",79.18,79.18]]}
@@ -43608,9 +43654,9 @@
 {"k":"us|bolt shave|performance razor|gear|0","h":[["2026-10-06",40.55,40.55],["2026-10-07",40.59,40.59],["2026-10-08",40.6,40.6],["2026-10-09",40.55,40.55]]}
 {"k":"us|bolt shave|post shave lotion|gear|0","h":[["2026-10-06",17.23,17.23],["2026-10-07",17.24,17.24],["2026-10-08",17.25,17.25],["2026-10-09",17.23,17.23]]}
 {"k":"us|bolt shave|refill cartridges · 3 cartridges|gear|0","h":[["2026-10-06",13.17,13.17],["2026-10-07",13.19,13.19],["2026-10-09",13.17,13.17]]}
-{"k":"us|bonaparte srl|merino wool quarter zip sweater, espresso|tops|0","h":[["2026-10-06",319.84,319.84],["2026-10-07",319.84,319.84],["2026-10-08",319.52,319.52],["2026-10-09",319.53,319.53]]}
-{"k":"us|bonaparte srl|merino wool quarter zip sweater, lilac grey|tops|0","h":[["2026-10-06",319.84,319.84],["2026-10-07",319.84,319.84],["2026-10-08",319.52,319.52],["2026-10-09",319.53,319.53]]}
-{"k":"us|bonaparte srl|merino wool quarter zip sweater, navy|tops|0","h":[["2026-10-06",319.84,319.84],["2026-10-07",319.84,319.84],["2026-10-08",319.52,319.52],["2026-10-09",319.53,319.53]]}
+{"k":"us|bonaparte srl|merino wool quarter zip sweater, espresso|tops|0","h":[["2026-10-06",319.84,319.84],["2026-10-07",319.84,319.84],["2026-10-08",319.52,319.52],["2026-10-09",319.53,319.53],["2026-10-11",320.23,320.23]]}
+{"k":"us|bonaparte srl|merino wool quarter zip sweater, lilac grey|tops|0","h":[["2026-10-06",319.84,319.84],["2026-10-07",319.84,319.84],["2026-10-08",319.52,319.52],["2026-10-09",319.53,319.53],["2026-10-11",320.23,320.23]]}
+{"k":"us|bonaparte srl|merino wool quarter zip sweater, navy|tops|0","h":[["2026-10-06",319.84,319.84],["2026-10-07",319.84,319.84],["2026-10-08",319.52,319.52],["2026-10-09",319.53,319.53],["2026-10-11",320.23,320.23]]}
 {"k":"us|bondi band|3\" tapered solid wicking headband|headwear|0","h":[["2026-10-06",11.99,11.99]]}
 {"k":"us|bondi band|4\" tapered solid wicking headband|headwear|0","h":[["2026-10-06",11.99,11.99]]}
 {"k":"us|bonk breaker|energy chews|nutrition|0","h":[["2026-10-06",2.75,2.75]]}
@@ -43719,7 +43765,7 @@
 {"k":"us|brooks|ariel gts 24|shoes|0","h":[["2026-10-08",160.0,160.0]]}
 {"k":"us|brooks|ariel gts 26 - women's|shoes|0","h":[["2026-10-06",169.95,169.95]]}
 {"k":"us|brooks|ariel gts 26 - women's|shoes|1","h":[["2026-10-06",169.95,170.0]]}
-{"k":"us|brooks|ariel gts 26 road-running shoes - women's|shoes|0","h":[["2026-10-09",169.95,170.0]]}
+{"k":"us|brooks|ariel gts 26 road-running shoes - women's|shoes|0","h":[["2026-10-09",169.95,170.0],["2026-10-11",160.0,170.0]]}
 {"k":"us|brooks|ariel gts 26|shoes|0","h":[["2026-10-08",169.95,170.0]]}
 {"k":"us|brooks|atmosphere long sleeve 3.0 - men's|tops|0","h":[["2026-10-06",55.0,55.0]]}
 {"k":"us|brooks|atmosphere long sleeve- run nh black - men's|tops|0","h":[["2026-10-07",55.0,55.0]]}
@@ -43747,7 +43793,7 @@
 {"k":"us|brooks|beast gts 24 - men's|shoes|1","h":[["2026-10-10",120.0,160.0]]}
 {"k":"us|brooks|beast gts 26 - men's|shoes|0","h":[["2026-10-06",169.95,169.95]]}
 {"k":"us|brooks|beast gts 26 - men's|shoes|1","h":[["2026-10-06",169.95,170.0]]}
-{"k":"us|brooks|beast gts 26 road-running shoes - men's|shoes|0","h":[["2026-10-09",169.95,169.95]]}
+{"k":"us|brooks|beast gts 26 road-running shoes - men's|shoes|0","h":[["2026-10-09",169.95,169.95],["2026-10-11",160.0,170.0]]}
 {"k":"us|brooks|beast gts 26|shoes|0","h":[["2026-10-08",169.95,170.0]]}
 {"k":"us|brooks|black - men's|tops|0","h":[["2026-10-06",75.0,75.0]]}
 {"k":"us|brooks|black - women's|bottoms|0","h":[["2026-10-06",83.99,83.99]]}
@@ -48263,23 +48309,23 @@
 {"k":"us|diadora|women's blushield torneo 3|shoes|0","h":[["2026-10-06",150.0,150.0]]}
 {"k":"us|district vision|5in training short - men's|gear|0","h":[["2026-10-09",149.95,174.95]]}
 {"k":"us|district vision|california cotton hoodie, arrow eye vintage black|tops|0","h":[["2026-10-06",193.31,193.31],["2026-10-07",192.89,192.89],["2026-10-08",193.12,193.12],["2026-10-09",192.7,192.7]]}
-{"k":"us|district vision|california cotton hoodie, black wordmark|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38]]}
-{"k":"us|district vision|california cotton hoodie, california running black|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38]]}
-{"k":"us|district vision|california cotton hoodie, chakra navy|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38]]}
+{"k":"us|district vision|california cotton hoodie, black wordmark|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38],["2026-10-11",173.08,173.08]]}
+{"k":"us|district vision|california cotton hoodie, california running black|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38],["2026-10-11",173.08,173.08]]}
+{"k":"us|district vision|california cotton hoodie, chakra navy|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38],["2026-10-11",173.08,173.08]]}
 {"k":"us|district vision|california cotton hoodie, enlightened vintage white|tops|0","h":[["2026-10-06",193.31,193.31],["2026-10-07",192.89,192.89],["2026-10-08",193.12,193.12],["2026-10-09",192.7,192.7]]}
 {"k":"us|district vision|california cotton hoodie, log off navy|tops|0","h":[["2026-10-06",193.31,193.31],["2026-10-07",192.89,192.89],["2026-10-08",193.12,193.12],["2026-10-09",192.7,192.7]]}
-{"k":"us|district vision|california cotton hoodie, runner's choice cacao|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38]]}
-{"k":"us|district vision|california cotton hoodie, runner's choice vintage black|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38]]}
-{"k":"us|district vision|california cotton hoodie, runner's choice vintage green|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38]]}
+{"k":"us|district vision|california cotton hoodie, runner's choice cacao|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38],["2026-10-11",173.08,173.08]]}
+{"k":"us|district vision|california cotton hoodie, runner's choice vintage black|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38],["2026-10-11",173.08,173.08]]}
+{"k":"us|district vision|california cotton hoodie, runner's choice vintage green|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38],["2026-10-11",173.08,173.08]]}
 {"k":"us|district vision|california cotton hoodie, runners heather grey|tops|0","h":[["2026-10-06",193.31,193.31],["2026-10-07",192.89,192.89],["2026-10-08",193.12,193.12],["2026-10-09",192.7,192.7]]}
-{"k":"us|district vision|california cotton hoodie, staff hoodie heather gray|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38]]}
-{"k":"us|district vision|california cotton hoodie, staff hoodie navy|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38]]}
-{"k":"us|district vision|california cotton hoodie, staff hoodie warm citron|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38]]}
-{"k":"us|district vision|california cotton hoodie, super star heather gray|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38]]}
-{"k":"us|district vision|california cotton hoodie, super star vintage black|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38]]}
-{"k":"us|district vision|california cotton hoodie, super star vintage green|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38]]}
-{"k":"us|district vision|california cotton hoodie, teddy navy|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38]]}
-{"k":"us|district vision|california cotton hoodie, teddy vintage white|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38]]}
+{"k":"us|district vision|california cotton hoodie, staff hoodie heather gray|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38],["2026-10-11",173.08,173.08]]}
+{"k":"us|district vision|california cotton hoodie, staff hoodie navy|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38],["2026-10-11",173.08,173.08]]}
+{"k":"us|district vision|california cotton hoodie, staff hoodie warm citron|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38],["2026-10-11",173.08,173.08]]}
+{"k":"us|district vision|california cotton hoodie, super star heather gray|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38],["2026-10-11",173.08,173.08]]}
+{"k":"us|district vision|california cotton hoodie, super star vintage black|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38],["2026-10-11",173.08,173.08]]}
+{"k":"us|district vision|california cotton hoodie, super star vintage green|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38],["2026-10-11",173.08,173.08]]}
+{"k":"us|district vision|california cotton hoodie, teddy navy|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38],["2026-10-11",173.08,173.08]]}
+{"k":"us|district vision|california cotton hoodie, teddy vintage white|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38],["2026-10-11",173.08,173.08]]}
 {"k":"us|district vision|california cotton hoodie, track club heather grey|tops|0","h":[["2026-10-06",193.31,193.31],["2026-10-07",192.89,192.89],["2026-10-08",193.12,193.12],["2026-10-09",192.7,192.7]]}
 {"k":"us|district vision|california cotton hoodie, wave runner navy|tops|0","h":[["2026-10-06",193.31,193.31],["2026-10-07",192.89,192.89],["2026-10-08",193.12,193.12],["2026-10-09",192.7,192.7]]}
 {"k":"us|district vision|california cotton long sleeve tee, cfip flowers vintage white|tops|0","h":[["2026-10-06",43.58,86.46],["2026-10-07",43.49,86.97],["2026-10-08",43.54,86.38],["2026-10-09",43.44,86.19]]}
@@ -48332,9 +48378,9 @@
 {"k":"us|district vision|junya racer, black/d+ g15|gear|0","h":[["2026-10-06",288.2,288.2],["2026-10-07",287.58,287.58],["2026-10-08",287.92,287.92],["2026-10-09",287.3,287.3]]}
 {"k":"us|district vision|junya racer, black/d+ sports yellow|gear|0","h":[["2026-10-06",288.2,288.2],["2026-10-07",287.58,287.58],["2026-10-08",287.92,287.92],["2026-10-09",287.3,287.3]]}
 {"k":"us|district vision|junya racer, clear/d+ black rose|gear|0","h":[["2026-10-06",288.2,288.2],["2026-10-07",287.58,287.58],["2026-10-08",287.92,287.92],["2026-10-09",287.3,287.3]]}
-{"k":"us|district vision|keiichi standard black, d+ anti-fog|gear|0","h":[["2026-10-06",279.07,279.07],["2026-10-07",279.16,279.16],["2026-10-08",279.49,279.49],["2026-10-09",278.89,278.89]]}
+{"k":"us|district vision|keiichi standard black, d+ anti-fog|gear|0","h":[["2026-10-06",279.07,279.07],["2026-10-07",279.16,279.16],["2026-10-08",279.49,279.49],["2026-10-09",278.89,278.89],["2026-10-11",279.59,279.59]]}
 {"k":"us|district vision|keiichi standard black, d+ g15|gear|0","h":[["2026-10-06",250.0,250.0]]}
-{"k":"us|district vision|keiichi standard gray, d+ anti-fog|gear|0","h":[["2026-10-06",279.07,279.07],["2026-10-07",279.16,279.16],["2026-10-08",279.49,279.49],["2026-10-09",278.89,278.89]]}
+{"k":"us|district vision|keiichi standard gray, d+ anti-fog|gear|0","h":[["2026-10-06",279.07,279.07],["2026-10-07",279.16,279.16],["2026-10-08",279.49,279.49],["2026-10-09",278.89,278.89],["2026-10-11",279.59,279.59]]}
 {"k":"us|district vision|keiichi standard gray, d+ black rose|gear|0","h":[["2026-10-06",288.2,288.2],["2026-10-07",287.58,287.58],["2026-10-08",287.92,287.92],["2026-10-09",287.3,287.3]]}
 {"k":"us|district vision|keiichi standard gray, d+ water gray|gear|0","h":[["2026-10-06",288.2,288.2],["2026-10-07",287.58,287.58],["2026-10-08",287.92,287.92],["2026-10-09",287.3,287.3]]}
 {"k":"us|district vision|koharu eclipse - tortoise/d+ blue mirror|gear|0","h":[["2026-10-06",365.0,365.0]]}
@@ -48343,11 +48389,11 @@
 {"k":"us|district vision|koharu eclipse paf - sand/d+ black rose gradient|gear|0","h":[["2026-10-06",370.0,370.0]]}
 {"k":"us|district vision|koharu eclipse, black/d+ onyx mirror|gear|0","h":[["2026-10-06",309.29,309.29],["2026-10-07",308.62,308.62],["2026-10-08",308.99,308.99],["2026-10-09",308.32,308.32]]}
 {"k":"us|district vision|koharu eclipse, limestone/d+ onyx mirror|gear|0","h":[["2026-10-06",309.29,309.29],["2026-10-07",308.62,308.62],["2026-10-08",308.99,308.99],["2026-10-09",308.32,308.32]]}
-{"k":"us|district vision|linto rider sand, d+ blue ice|gear|0","h":[["2026-10-06",340.22,340.22],["2026-10-07",340.18,340.18],["2026-10-08",339.89,339.89],["2026-10-09",339.85,339.85]]}
+{"k":"us|district vision|linto rider sand, d+ blue ice|gear|0","h":[["2026-10-06",340.22,340.22],["2026-10-07",340.18,340.18],["2026-10-08",339.89,339.89],["2026-10-09",339.85,339.85],["2026-10-11",340.55,340.55]]}
 {"k":"us|district vision|linto rider tortoise, d+ earth vision|gear|0","h":[["2026-10-06",380.29,380.29],["2026-10-07",380.87,380.87],["2026-10-08",380.62,380.62],["2026-10-09",380.49,380.49]]}
 {"k":"us|district vision|nagata speed blade - black/d+ g15|gear|0","h":[["2026-10-06",295.0,295.0]]}
 {"k":"us|district vision|nagata speed blade gray, d+ black rose|gear|0","h":[["2026-10-06",288.2,288.2],["2026-10-07",287.58,287.58],["2026-10-08",287.92,287.92],["2026-10-09",287.3,287.3]]}
-{"k":"us|district vision|nagata speed blade infrared, d+ black rose|gear|0","h":[["2026-10-06",299.45,299.45],["2026-10-07",299.5,299.5],["2026-10-08",299.16,299.16],["2026-10-09",299.21,299.21]]}
+{"k":"us|district vision|nagata speed blade infrared, d+ black rose|gear|0","h":[["2026-10-06",299.45,299.45],["2026-10-07",299.5,299.5],["2026-10-08",299.16,299.16],["2026-10-09",299.21,299.21],["2026-10-11",299.91,299.91]]}
 {"k":"us|district vision|takeyoshi altitude master - flint/d+ silver flash mirror|gear|0","h":[["2026-10-06",325.0,325.0]]}
 {"k":"us|district vision|takeyoshi altitude master - ink black/d+ onyx mirror|gear|0","h":[["2026-10-06",295.0,295.0]]}
 {"k":"us|district vision|takeyoshi altitude master, gray/d+ black rose|gear|0","h":[["2026-10-06",288.2,288.2],["2026-10-07",287.58,287.58],["2026-10-08",287.92,287.92],["2026-10-09",287.3,287.3]]}
@@ -52009,7 +52055,7 @@
 {"k":"us|hoka|cielo x3 md|shoes|0","h":[["2026-10-06",160.0,160.0]]}
 {"k":"us|hoka|clifton 10 - men's|shoes|1","h":[["2026-10-06",109.95,155.0],["2026-10-07",99.99,155.0],["2026-10-11",98.0,155.0]]}
 {"k":"us|hoka|clifton 10 road-running shoes - men's|shoes|0","h":[["2026-10-06",99.87,155.0],["2026-10-07",75.0,155.0],["2026-10-08",99.87,155.0],["2026-10-09",98.0,155.0],["2026-10-10",99.87,155.0]]}
-{"k":"us|hoka|clifton 10 road-running shoes - women's|shoes|0","h":[["2026-10-06",99.87,155.0],["2026-10-08",98.0,155.0]]}
+{"k":"us|hoka|clifton 10 road-running shoes - women's|shoes|0","h":[["2026-10-06",99.87,155.0],["2026-10-08",98.0,155.0],["2026-10-11",99.87,155.0]]}
 {"k":"us|hoka|clifton 10 running shoe - women's|shoes|1","h":[["2026-10-06",109.95,155.0],["2026-10-08",100.0,155.0],["2026-10-09",109.95,155.0]]}
 {"k":"us|hoka|clifton 10|shoes|0","h":[["2026-10-06",124.0,155.0],["2026-10-08",104.88,155.0],["2026-10-09",105.0,155.0],["2026-10-10",108.5,155.0],["2026-10-11",124.0,155.0]]}
 {"k":"us|hoka|clifton 11 - men's|shoes|0","h":[["2026-10-06",154.95,155.0]]}
@@ -53628,7 +53674,7 @@
 {"k":"us|janji|w's pinnacle rd gossamer singlet|tops|0","h":[["2026-10-07",56.11,56.11],["2026-10-08",56.18,56.18],["2026-10-09",56.06,56.06]]}
 {"k":"us|janji|w's pinnacle rd gossamer tee|packs|0","h":[["2026-10-06",61.86,61.86]]}
 {"k":"us|janji|w's pinnacle rd gossamer tee|tops|0","h":[["2026-10-07",61.72,61.72],["2026-10-08",61.8,61.8],["2026-10-09",61.66,61.66]]}
-{"k":"us|janji|w's pinnacle rd ultra bra - women's|bras|0","h":[["2026-10-09",61.66,68.67]]}
+{"k":"us|janji|w's pinnacle rd ultra bra - women's|bras|0","h":[["2026-10-09",61.66,68.67],["2026-10-11",68.67,68.67]]}
 {"k":"us|janji|w's pinnacle rd ultra bra|bras|0","h":[["2026-10-06",68.89,68.89],["2026-10-07",68.74,68.74],["2026-10-08",68.82,68.82]]}
 {"k":"us|janji|w's pinnacle ultra singlet|tops|0","h":[["2026-10-07",54.71,54.71],["2026-10-08",54.78,54.78],["2026-10-09",54.66,54.66]]}
 {"k":"us|janji|w's rainrunner pack jacket|tops|0","h":[["2026-10-07",152.91,152.91],["2026-10-08",153.09,153.09],["2026-10-09",152.76,152.76]]}
@@ -54296,8 +54342,8 @@
 {"k":"us|lems|boulder summit waterproof|shoes|0","h":[["2026-10-09",200.0,210.0]]}
 {"k":"us|lems|drifter|shoes|0","h":[["2026-10-09",105.0,105.0]]}
 {"k":"us|lems|kourt grip|shoes|0","h":[["2026-10-09",108.5,155.0]]}
-{"k":"us|lems|laguna - women's|shoes|0","h":[["2026-10-06",105.0,115.0]]}
-{"k":"us|lems|mariner - unisex|shoes|0","h":[["2026-10-09",145.0,145.0]]}
+{"k":"us|lems|laguna - women's|shoes|0","h":[["2026-10-06",105.0,115.0],["2026-10-11",52.5,105.0]]}
+{"k":"us|lems|mariner - unisex|shoes|0","h":[["2026-10-09",145.0,145.0],["2026-10-11",72.5,145.0]]}
 {"k":"us|lems|nine2five (unisex sizing)|shoes|0","h":[["2026-10-09",37.5,150.0]]}
 {"k":"us|lems|nine2five v2 (unisex sizing)|shoes|0","h":[["2026-10-09",160.0,160.0]]}
 {"k":"us|lems|outlander|shoes|0","h":[["2026-10-09",195.0,195.0]]}
@@ -54432,8 +54478,8 @@
 {"k":"us|ltp vn|7\" training shorts, black|bottoms|0","h":[["2026-10-06",182.76,182.76],["2026-10-07",182.37,182.37],["2026-10-08",182.58,182.58],["2026-10-09",182.19,182.19]]}
 {"k":"us|ltp vn|7\" training shorts, carbon|bottoms|0","h":[["2026-10-06",127.93,182.76],["2026-10-07",127.66,182.37],["2026-10-08",127.81,182.58],["2026-10-09",127.53,182.19]]}
 {"k":"us|ltp vn|7\" training shorts, dark taupe|bottoms|0","h":[["2026-10-06",127.93,182.76],["2026-10-07",127.66,182.37],["2026-10-08",127.81,182.58],["2026-10-09",127.53,182.19]]}
-{"k":"us|ltp vn|7\" training shorts, espresso|bottoms|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38]]}
-{"k":"us|ltp vn|7\" training shorts, slate blue|bottoms|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38]]}
+{"k":"us|ltp vn|7\" training shorts, espresso|bottoms|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38],["2026-10-11",173.08,173.08]]}
+{"k":"us|ltp vn|7\" training shorts, slate blue|bottoms|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38],["2026-10-11",173.08,173.08]]}
 {"k":"us|ltp vn|9\" recycled tights, black|bottoms|0","h":[["2026-10-06",147.62,147.62],["2026-10-07",147.3,147.3],["2026-10-08",147.47,147.47],["2026-10-09",147.15,147.15]]}
 {"k":"us|ltp vn|9\" recycled tights, granite|bottoms|0","h":[["2026-10-06",137.07,137.07],["2026-10-07",137.48,137.48],["2026-10-08",136.94,136.94],["2026-10-09",137.34,137.34]]}
 {"k":"us|ltp vn|9\" recycled tights, indigo|bottoms|0","h":[["2026-10-06",137.07,137.07],["2026-10-07",137.48,137.48],["2026-10-08",136.94,136.94],["2026-10-09",137.34,137.34]]}
@@ -54447,8 +54493,8 @@
 {"k":"us|ltp vn|boxy compression training tee, lunar white/white|tops|0","h":[["2026-10-06",162.38,162.38],["2026-10-07",162.73,162.73],["2026-10-08",162.22,162.22],["2026-10-09",162.57,162.57]]}
 {"k":"us|ltp vn|boxy soft interlock tee, black|tops|0","h":[["2026-10-06",177.84,177.84],["2026-10-07",178.16,178.16],["2026-10-08",177.67,177.67],["2026-10-09",177.98,177.98]]}
 {"k":"us|ltp vn|boxy soft interlock tee, earth|tops|0","h":[["2026-10-06",177.84,177.84],["2026-10-07",178.16,178.16],["2026-10-08",177.67,177.67],["2026-10-09",177.98,177.98]]}
-{"k":"us|ltp vn|cropped brushed fleece, melange grey|tops|0","h":[["2026-10-06",279.07,279.07],["2026-10-07",279.16,279.16],["2026-10-08",279.49,279.49],["2026-10-09",278.89,278.89]]}
-{"k":"us|ltp vn|cropped brushed fleece, slate blue|tops|0","h":[["2026-10-06",279.07,279.07],["2026-10-07",279.16,279.16],["2026-10-08",279.49,279.49],["2026-10-09",278.89,278.89]]}
+{"k":"us|ltp vn|cropped brushed fleece, melange grey|tops|0","h":[["2026-10-06",279.07,279.07],["2026-10-07",279.16,279.16],["2026-10-08",279.49,279.49],["2026-10-09",278.89,278.89],["2026-10-11",279.59,279.59]]}
+{"k":"us|ltp vn|cropped brushed fleece, slate blue|tops|0","h":[["2026-10-06",279.07,279.07],["2026-10-07",279.16,279.16],["2026-10-08",279.49,279.49],["2026-10-09",278.89,278.89],["2026-10-11",279.59,279.59]]}
 {"k":"us|ltp vn|dolman short sleeve tee, deep brown|tops|0","h":[["2026-10-06",147.62,210.88],["2026-10-07",147.3,210.42],["2026-10-08",147.47,210.67],["2026-10-09",147.15,210.22]]}
 {"k":"us|ltp vn|dolman short sleeve tee, off white|tops|0","h":[["2026-10-06",147.62,210.88],["2026-10-07",147.3,210.42],["2026-10-08",147.47,210.67],["2026-10-09",147.15,210.22]]}
 {"k":"us|ltp vn|fitted cropped t-shirt, off white|tops|0","h":[["2026-10-06",88.57,126.53],["2026-10-07",88.38,126.25],["2026-10-08",88.48,126.4],["2026-10-09",88.29,126.13]]}
@@ -54506,9 +54552,9 @@
 {"k":"us|ltp vn|paneled long sleeve t-shirt, black|tops|0","h":[["2026-10-06",116.69,116.69],["2026-10-07",117.14,117.14],["2026-10-08",117.28,117.28],["2026-10-09",117.02,117.02]]}
 {"k":"us|ltp vn|paneled long sleeve t-shirt, espresso|tops|0","h":[["2026-10-06",116.69,116.69],["2026-10-07",117.14,117.14],["2026-10-08",117.28,117.28],["2026-10-09",117.02,117.02]]}
 {"k":"us|ltp vn|paneled long sleeve t-shirt, lunar white|tops|0","h":[["2026-10-06",116.69,116.69],["2026-10-07",117.14,117.14],["2026-10-08",117.28,117.28],["2026-10-09",117.02,117.02]]}
-{"k":"us|ltp vn|paneled short sleeve t-shirt, black|tops|0","h":[["2026-10-06",106.85,106.85],["2026-10-07",106.61,106.61],["2026-10-08",106.74,106.74],["2026-10-09",106.51,106.51]]}
-{"k":"us|ltp vn|paneled short sleeve t-shirt, espresso|tops|0","h":[["2026-10-06",106.85,106.85],["2026-10-07",106.61,106.61],["2026-10-08",106.74,106.74],["2026-10-09",106.51,106.51]]}
-{"k":"us|ltp vn|paneled short sleeve t-shirt, lunar white|tops|0","h":[["2026-10-06",106.85,106.85],["2026-10-07",106.61,106.61],["2026-10-08",106.74,106.74],["2026-10-09",106.51,106.51]]}
+{"k":"us|ltp vn|paneled short sleeve t-shirt, black|tops|0","h":[["2026-10-06",106.85,106.85],["2026-10-07",106.61,106.61],["2026-10-08",106.74,106.74],["2026-10-09",106.51,106.51],["2026-10-11",107.21,107.21]]}
+{"k":"us|ltp vn|paneled short sleeve t-shirt, espresso|tops|0","h":[["2026-10-06",106.85,106.85],["2026-10-07",106.61,106.61],["2026-10-08",106.74,106.74],["2026-10-09",106.51,106.51],["2026-10-11",107.21,107.21]]}
+{"k":"us|ltp vn|paneled short sleeve t-shirt, lunar white|tops|0","h":[["2026-10-06",106.85,106.85],["2026-10-07",106.61,106.61],["2026-10-08",106.74,106.74],["2026-10-09",106.51,106.51],["2026-10-11",107.21,107.21]]}
 {"k":"us|ltp vn|paneled training singlet, black|tops|0","h":[["2026-10-06",98.41,98.41],["2026-10-07",98.2,98.2],["2026-10-08",98.31,98.31],["2026-10-09",98.1,98.1]]}
 {"k":"us|ltp vn|paneled training singlet, white|tops|0","h":[["2026-10-06",98.41,98.41],["2026-10-07",98.2,98.2],["2026-10-08",98.31,98.31],["2026-10-09",98.1,98.1]]}
 {"k":"us|ltp vn|paneled training t-shirt, bamboo|tops|0","h":[["2026-10-06",78.73,112.47],["2026-10-07",78.56,112.23],["2026-10-08",78.65,112.36],["2026-10-09",78.48,112.12]]}
@@ -54524,8 +54570,8 @@
 {"k":"us|ltp vn|performance lab split shorts, black|bottoms|0","h":[["2026-10-06",177.84,177.84],["2026-10-07",178.16,178.16],["2026-10-08",177.67,177.67],["2026-10-09",177.98,177.98]]}
 {"k":"us|ltp vn|performance lab split shorts, white|bottoms|0","h":[["2026-10-06",177.84,177.84],["2026-10-07",178.16,178.16],["2026-10-08",177.67,177.67],["2026-10-09",177.98,177.98]]}
 {"k":"us|ltp vn|performance lab tights, black|bottoms|0","h":[["2026-10-06",248.84,248.84],["2026-10-07",249.0,249.0],["2026-10-08",248.6,248.6],["2026-10-09",248.76,248.76]]}
-{"k":"us|ltp vn|performance lab waterproof jacket, black|tops|0","h":[["2026-10-06",709.97,709.97],["2026-10-07",710.67,710.67],["2026-10-08",709.97,709.97],["2026-10-09",709.83,709.83]]}
-{"k":"us|ltp vn|performance lab waterproof jacket, powder blue|tops|0","h":[["2026-10-06",709.97,709.97],["2026-10-07",710.67,710.67],["2026-10-08",709.97,709.97],["2026-10-09",709.83,709.83]]}
+{"k":"us|ltp vn|performance lab waterproof jacket, black|tops|0","h":[["2026-10-06",709.97,709.97],["2026-10-07",710.67,710.67],["2026-10-08",709.97,709.97],["2026-10-09",709.83,709.83],["2026-10-11",710.53,710.53]]}
+{"k":"us|ltp vn|performance lab waterproof jacket, powder blue|tops|0","h":[["2026-10-06",709.97,709.97],["2026-10-07",710.67,710.67],["2026-10-08",709.97,709.97],["2026-10-09",709.83,709.83],["2026-10-11",710.53,710.53]]}
 {"k":"us|ltp vn|performance lab zippered jacket, black|tops|0","h":[["2026-10-06",400.67,400.67],["2026-10-07",401.21,401.21],["2026-10-08",400.98,400.98],["2026-10-09",400.81,400.81]]}
 {"k":"us|ltp vn|quarter zip training long sleeve, black|tops|0","h":[["2026-10-06",168.0,168.0],["2026-10-07",167.64,167.64],["2026-10-08",167.84,167.84],["2026-10-09",167.47,167.47]]}
 {"k":"us|ltp vn|quarter zip training long sleeve, espresso/black|tops|0","h":[["2026-10-06",168.0,168.0],["2026-10-07",167.64,167.64],["2026-10-08",167.84,167.84],["2026-10-09",167.47,167.47]]}
@@ -54555,13 +54601,13 @@
 {"k":"us|ltp vn|ultralight long sleeve aloe tee, mist|tops|0","h":[["2026-10-06",168.0,168.0],["2026-10-07",167.64,167.64],["2026-10-08",167.84,167.84],["2026-10-09",167.47,167.47]]}
 {"k":"us|ltp vn|ultralight long sleeve aloe tee, oyster|tops|0","h":[["2026-10-06",168.0,168.0],["2026-10-07",167.64,167.64],["2026-10-08",167.84,167.84],["2026-10-09",167.47,167.47]]}
 {"k":"us|ltp vn|ultralight nylon trail shorts, graphite/race blue|bottoms|0","h":[["2026-10-06",142.7,203.85],["2026-10-07",142.39,203.41],["2026-10-08",142.56,203.65],["2026-10-09",142.25,203.21]]}
-{"k":"us|ltp vn|ultralight nylon trail shorts, mist/indigo|bottoms|0","h":[["2026-10-06",193.31,193.31],["2026-10-07",192.89,192.89],["2026-10-08",193.12,193.12],["2026-10-09",192.7,192.7]]}
+{"k":"us|ltp vn|ultralight nylon trail shorts, mist/indigo|bottoms|0","h":[["2026-10-06",193.31,193.31],["2026-10-07",192.89,192.89],["2026-10-08",193.12,193.12],["2026-10-09",192.7,192.7],["2026-10-11",193.4,193.4]]}
 {"k":"us|ltp vn|ultralight nylon trail shorts, nightshade/black|bottoms|0","h":[["2026-10-06",142.7,203.85],["2026-10-07",142.39,203.41],["2026-10-08",142.56,203.65],["2026-10-09",142.25,203.21]]}
-{"k":"us|ltp vn|ultralight nylon trail shorts, obsidian/black|bottoms|0","h":[["2026-10-06",193.31,193.31],["2026-10-07",192.89,192.89],["2026-10-08",193.12,193.12],["2026-10-09",192.7,192.7]]}
+{"k":"us|ltp vn|ultralight nylon trail shorts, obsidian/black|bottoms|0","h":[["2026-10-06",193.31,193.31],["2026-10-07",192.89,192.89],["2026-10-08",193.12,193.12],["2026-10-09",192.7,192.7],["2026-10-11",193.4,193.4]]}
 {"k":"us|ltp vn|ultralight nylon trail shorts, obsidian/umber|bottoms|0","h":[["2026-10-06",142.7,203.85],["2026-10-07",142.39,203.41],["2026-10-08",142.56,203.65],["2026-10-09",142.25,203.21]]}
-{"k":"us|ltp vn|ultralight nylon wind jacket, espresso|tops|0","h":[["2026-10-06",279.07,279.07],["2026-10-07",279.16,279.16],["2026-10-08",279.49,279.49],["2026-10-09",278.89,278.89]]}
+{"k":"us|ltp vn|ultralight nylon wind jacket, espresso|tops|0","h":[["2026-10-06",279.07,279.07],["2026-10-07",279.16,279.16],["2026-10-08",279.49,279.49],["2026-10-09",278.89,278.89],["2026-10-11",279.59,279.59]]}
 {"k":"us|ltp vn|ultralight nylon wind jacket, graphite|tops|0","h":[["2026-10-06",206.66,295.23],["2026-10-07",206.21,294.59],["2026-10-08",206.46,294.94],["2026-10-09",206.01,294.3]]}
-{"k":"us|ltp vn|ultralight nylon wind jacket, mist|tops|0","h":[["2026-10-06",279.07,279.07],["2026-10-07",279.16,279.16],["2026-10-08",279.49,279.49],["2026-10-09",278.89,278.89]]}
+{"k":"us|ltp vn|ultralight nylon wind jacket, mist|tops|0","h":[["2026-10-06",279.07,279.07],["2026-10-07",279.16,279.16],["2026-10-08",279.49,279.49],["2026-10-09",278.89,278.89],["2026-10-11",279.59,279.59]]}
 {"k":"us|ltp vn|ultralight nylon wind jacket, nightshade|tops|0","h":[["2026-10-06",206.66,295.23],["2026-10-07",206.21,294.59],["2026-10-08",206.46,294.94],["2026-10-09",206.01,294.3]]}
 {"k":"us|ltp vn|ultralight nylon wind jacket, obsidian|tops|0","h":[["2026-10-06",295.23,295.23],["2026-10-07",294.59,294.59],["2026-10-08",294.94,294.94],["2026-10-09",294.3,294.3]]}
 {"k":"us|ltp vn|ultralight nylon windbreaker, nightshade|tops|0","h":[["2026-10-06",206.66,295.23],["2026-10-07",206.21,294.59],["2026-10-08",206.46,294.94],["2026-10-09",206.01,294.3]]}
@@ -54571,9 +54617,9 @@
 {"k":"us|ltp vn|ultralight nylon zippered shorts, obsidian|bottoms|0","h":[["2026-10-06",120.55,172.22],["2026-10-07",120.29,171.85],["2026-10-08",120.44,172.05],["2026-10-09",120.17,171.68]]}
 {"k":"us|ltp vn|ultralight short sleeve aloe tee, mist|tops|0","h":[["2026-10-06",147.62,147.62],["2026-10-07",147.3,147.3],["2026-10-08",147.47,147.47],["2026-10-09",147.15,147.15]]}
 {"k":"us|ltp vn|ultralight short sleeve aloe tee, oyster|tops|0","h":[["2026-10-06",147.62,147.62],["2026-10-07",147.3,147.3],["2026-10-08",147.47,147.47],["2026-10-09",147.15,147.15]]}
-{"k":"us|ltp vn|waffle long sleeve, black|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38]]}
-{"k":"us|ltp vn|waffle long sleeve, oyster|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38]]}
-{"k":"us|ltp vn|waffle long sleeve, white|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38]]}
+{"k":"us|ltp vn|waffle long sleeve, black|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38],["2026-10-11",173.08,173.08]]}
+{"k":"us|ltp vn|waffle long sleeve, oyster|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38],["2026-10-11",173.08,173.08]]}
+{"k":"us|ltp vn|waffle long sleeve, white|tops|0","h":[["2026-10-06",172.92,172.92],["2026-10-07",173.25,173.25],["2026-10-08",172.55,172.55],["2026-10-09",172.38,172.38],["2026-10-11",173.08,173.08]]}
 {"k":"us|ltp vn|waffle pants, black|bottoms|0","h":[["2026-10-06",228.45,228.45],["2026-10-07",228.66,228.66],["2026-10-08",228.23,228.23],["2026-10-09",228.44,228.44]]}
 {"k":"us|ltp vn|waffle pants, slate blue|bottoms|0","h":[["2026-10-06",228.45,228.45],["2026-10-07",228.66,228.66],["2026-10-08",228.23,228.23],["2026-10-09",228.44,228.44]]}
 {"k":"us|ltp vn|wide leg pants, black|bottoms|0","h":[["2026-10-06",253.06,253.06],["2026-10-07",252.51,252.51],["2026-10-08",252.81,252.81],["2026-10-09",252.26,252.26]]}
@@ -54607,7 +54653,7 @@
 {"k":"us|ltp|aloe short sleeve fitted tee, black|tops|0","h":[["2026-10-06",137.07,137.07],["2026-10-07",137.48,137.48],["2026-10-08",136.94,136.94],["2026-10-09",137.34,137.34]]}
 {"k":"us|ltp|aloe short sleeve fitted tee, marine|tops|0","h":[["2026-10-06",68.89,137.07],["2026-10-07",68.74,137.48],["2026-10-08",68.82,136.94],["2026-10-09",68.67,137.34]]}
 {"k":"us|ltp|aloe short sleeve fitted tee, pistachio|tops|0","h":[["2026-10-06",68.89,137.07],["2026-10-07",68.74,137.48],["2026-10-08",68.82,136.94],["2026-10-09",68.67,137.34]]}
-{"k":"us|ltp|cargo compression capri tights, black|bottoms|0","h":[["2026-10-06",233.38,233.38],["2026-10-07",233.57,233.57],["2026-10-08",233.85,233.85],["2026-10-09",233.34,233.34]]}
+{"k":"us|ltp|cargo compression capri tights, black|bottoms|0","h":[["2026-10-06",233.38,233.38],["2026-10-07",233.57,233.57],["2026-10-08",233.85,233.85],["2026-10-09",233.34,233.34],["2026-10-11",234.04,234.04]]}
 {"k":"us|ltp|cargo compression full tights, black|bottoms|0","h":[["2026-10-06",380.29,380.29],["2026-10-07",380.87,380.87],["2026-10-08",380.62,380.62],["2026-10-09",380.49,380.49]]}
 {"k":"us|ltp|cargo compression half-tights, black|bottoms|0","h":[["2026-10-06",218.61,218.61],["2026-10-07",218.84,218.84],["2026-10-08",218.4,218.4],["2026-10-09",218.63,218.63]]}
 {"k":"us|ltp|cargo compression long tights, black|bottoms|0","h":[["2026-10-06",253.76,253.76],["2026-10-07",253.91,253.91],["2026-10-08",253.51,253.51],["2026-10-09",253.66,253.66]]}
@@ -54618,7 +54664,7 @@
 {"k":"us|ltp|dv + maurten women's elite fuel tights, black|bottoms|0","h":[["2026-10-06",218.61,218.61],["2026-10-07",218.84,218.84],["2026-10-08",218.4,218.4],["2026-10-09",218.63,218.63]]}
 {"k":"us|ltp|fitted baselayer vest, ash|tops|0","h":[["2026-10-06",56.24,111.77],["2026-10-07",56.11,112.23],["2026-10-08",56.18,111.66],["2026-10-09",56.06,112.12]]}
 {"k":"us|ltp|flared studio legging, black|bottoms|0","h":[["2026-10-06",187.68,187.68],["2026-10-07",187.98,187.98],["2026-10-08",188.2,188.2],["2026-10-09",187.79,187.79]]}
-{"k":"us|ltp|full zip grid fleece, black|tops|0","h":[["2026-10-06",299.45,299.45],["2026-10-07",299.5,299.5],["2026-10-08",299.16,299.16],["2026-10-09",299.21,299.21]]}
+{"k":"us|ltp|full zip grid fleece, black|tops|0","h":[["2026-10-06",299.45,299.45],["2026-10-07",299.5,299.5],["2026-10-08",299.16,299.16],["2026-10-09",299.21,299.21],["2026-10-11",299.91,299.91]]}
 {"k":"us|ltp|full-length recycled tights, black|bottoms|0","h":[["2026-10-06",228.45,228.45],["2026-10-07",228.66,228.66],["2026-10-08",228.23,228.23],["2026-10-09",228.44,228.44]]}
 {"k":"us|ltp|full-length recycled tights, slate brown|bottoms|0","h":[["2026-10-06",114.58,228.45],["2026-10-07",114.33,228.66],["2026-10-08",114.47,228.23],["2026-10-09",114.22,228.44]]}
 {"k":"us|ltp|half zip grid fleece, black|tops|0","h":[["2026-10-06",198.23,198.23],["2026-10-07",198.5,198.5],["2026-10-08",198.03,198.03],["2026-10-09",198.3,198.3]]}
@@ -54677,7 +54723,7 @@
 {"k":"us|ltp|pocketed long tights, indigo|bottoms|0","h":[["2026-10-06",89.27,177.84],["2026-10-07",89.08,178.16],["2026-10-08",89.19,177.67],["2026-10-09",88.99,177.98]]}
 {"k":"us|ltp|pocketed long tights, mint|bottoms|0","h":[["2026-10-06",89.27,177.84],["2026-10-07",89.08,178.16],["2026-10-08",89.19,177.67],["2026-10-09",88.99,177.98]]}
 {"k":"us|ltp|recycled half zip shell, navy|tops|0","h":[["2026-10-06",165.19,329.68],["2026-10-07",165.53,330.36],["2026-10-08",165.03,330.06],["2026-10-09",165.37,330.04]]}
-{"k":"us|ltp|ripstop layered trail shorts, black|bottoms|0","h":[["2026-10-06",193.31,193.31],["2026-10-07",192.89,192.89],["2026-10-08",193.12,193.12],["2026-10-09",192.7,192.7]]}
+{"k":"us|ltp|ripstop layered trail shorts, black|bottoms|0","h":[["2026-10-06",193.31,193.31],["2026-10-07",192.89,192.89],["2026-10-08",193.12,193.12],["2026-10-09",192.7,192.7],["2026-10-11",193.4,193.4]]}
 {"k":"us|ltp|ripstop layered trail shorts, midnight-indigo|bottoms|0","h":[["2026-10-06",97.01,193.31],["2026-10-07",96.79,192.89],["2026-10-08",96.91,193.12],["2026-10-09",96.7,192.7]]}
 {"k":"us|ltp|ripstop layered trail shorts, mineral-ash|bottoms|0","h":[["2026-10-06",97.01,193.31],["2026-10-07",96.79,192.89],["2026-10-08",96.91,193.12],["2026-10-09",96.7,192.7]]}
 {"k":"us|ltp|studio bra, black|bras|0","h":[["2026-10-06",97.01,97.01],["2026-10-07",96.79,96.79],["2026-10-08",96.91,96.91],["2026-10-09",96.7,96.7]]}
@@ -55753,8 +55799,8 @@
 {"k":"us|naked|running flask - 500ml.|gear|0","h":[["2026-10-06",25.0,25.0]]}
 {"k":"us|naked|soft flask (500ml)|packs|0","h":[["2026-10-10",25.0,25.0]]}
 {"k":"us|naked|t/r trail racing shoe|shoes|0","h":[["2026-10-06",45.0,180.0]]}
-{"k":"us|nanga|udd dx articulated down jacket, cement|tops|0","h":[["2026-10-06",811.89,811.89],["2026-10-07",812.23,812.23],["2026-10-08",811.1,811.1],["2026-10-09",811.44,811.44]]}
-{"k":"us|nanga|udd dx articulated down jacket, vintage black|tops|0","h":[["2026-10-06",811.89,811.89],["2026-10-07",812.23,812.23],["2026-10-08",811.1,811.1],["2026-10-09",811.44,811.44]]}
+{"k":"us|nanga|udd dx articulated down jacket, cement|tops|0","h":[["2026-10-06",811.89,811.89],["2026-10-07",812.23,812.23],["2026-10-08",811.1,811.1],["2026-10-09",811.44,811.44],["2026-10-11",812.14,812.14]]}
+{"k":"us|nanga|udd dx articulated down jacket, vintage black|tops|0","h":[["2026-10-06",811.89,811.89],["2026-10-07",812.23,812.23],["2026-10-08",811.1,811.1],["2026-10-09",811.44,811.44],["2026-10-11",812.14,812.14]]}
 {"k":"us|nathan hydration|1.5l bladder|gear|0","h":[["2026-10-06",35.0,35.0]]}
 {"k":"us|nathan hydration|pinnacle 14oz soft flask|packs|0","h":[["2026-10-06",46.0,46.0]]}
 {"k":"us|nathan hydration|pinnacle 18oz soft flask|packs|0","h":[["2026-10-06",52.0,52.0]]}
@@ -56396,7 +56442,7 @@
 {"k":"us|nathan|vaporairess lite 4 liter women's hydration vest|packs|0","h":[["2026-10-06",51.99,130.0]]}
 {"k":"us|nathan|vaporairess lt 3 7l|gear|0","h":[["2026-10-07",149.99,149.99]]}
 {"k":"us|nathan|vibe reflective vest (clearance)|tops|0","h":[["2026-10-06",12.49,25.0]]}
-{"k":"us|nathan|vibe reflective vest|gear|0","h":[["2026-10-08",12.49,25.0]]}
+{"k":"us|nathan|vibe reflective vest|gear|0","h":[["2026-10-08",12.49,25.0],["2026-10-11",25.0,25.0]]}
 {"k":"us|nathan|vibe reflective vest|tops|0","h":[["2026-10-06",25.0,25.0],["2026-10-07",12.49,25.0]]}
 {"k":"us|nathan|vista handheld phone carrier|gear|0","h":[["2026-10-06",30.0,30.0]]}
 {"k":"us|nathan|w pinnacle 4|gear|0","h":[["2026-10-06",175.0,175.0]]}
@@ -56658,6 +56704,7 @@
 {"k":"us|new balance|880 v15 - n15 white - men's|shoes|1","h":[["2026-10-06",150.0,150.0],["2026-10-10",114.99,150.0]]}
 {"k":"us|new balance|880 v15 - pink salt - women's|shoes|0","h":[["2026-10-06",150.0,150.0],["2026-10-10",114.99,150.0]]}
 {"k":"us|new balance|880 v15 - slate grey - men's|shoes|0","h":[["2026-10-06",150.0,150.0],["2026-10-10",114.99,150.0]]}
+{"k":"us|new balance|880 v15 - smomed violet - women's|shoes|0","h":[["2026-10-11",114.99,150.0]]}
 {"k":"us|new balance|880 v15 - women's|shoes|0","h":[["2026-10-06",115.0,150.0],["2026-10-09",139.99,150.0],["2026-10-10",114.95,150.0]]}
 {"k":"us|new balance|880 v15 2e - men's|shoes|0","h":[["2026-10-10",139.99,139.99]]}
 {"k":"us|new balance|880 v15 d - women's|shoes|0","h":[["2026-10-09",139.99,139.99]]}
@@ -56774,8 +56821,8 @@
 {"k":"us|new balance|crc logo athletics running long sleeve - men's|tops|0","h":[["2026-10-06",55.0,55.0]]}
 {"k":"us|new balance|drapey jersey long sleeve t-shirt - women's|tops|0","h":[["2026-10-07",35.0,50.0]]}
 {"k":"us|new balance|drapey jersey tank|tops|0","h":[["2026-10-06",35.0,35.0]]}
-{"k":"us|new balance|dv + nb 1080 training shoe womens, cortado|shoes|0","h":[["2026-10-06",212.99,212.99],["2026-10-07",213.23,213.23],["2026-10-08",213.48,213.48],["2026-10-09",213.02,213.02]]}
-{"k":"us|new balance|dv + nb 1080 training shoe womens, linen|shoes|0","h":[["2026-10-06",212.99,212.99],["2026-10-07",213.23,213.23],["2026-10-08",213.48,213.48],["2026-10-09",213.02,213.02]]}
+{"k":"us|new balance|dv + nb 1080 training shoe womens, cortado|shoes|0","h":[["2026-10-06",212.99,212.99],["2026-10-07",213.23,213.23],["2026-10-08",213.48,213.48],["2026-10-09",213.02,213.02],["2026-10-11",213.72,213.72]]}
+{"k":"us|new balance|dv + nb 1080 training shoe womens, linen|shoes|0","h":[["2026-10-06",212.99,212.99],["2026-10-07",213.23,213.23],["2026-10-08",213.48,213.48],["2026-10-09",213.02,213.02],["2026-10-11",213.72,213.72]]}
 {"k":"us|new balance|dv + nb sc elite mens, linen|shoes|0","h":[["2026-10-06",283.99,283.99],["2026-10-07",284.69,284.69],["2026-10-08",284.41,284.41],["2026-10-09",284.49,284.49]]}
 {"k":"us|new balance|dv + nb sc elite mens, pearl grey|shoes|0","h":[["2026-10-06",283.99,283.99],["2026-10-07",284.69,284.69],["2026-10-08",284.41,284.41],["2026-10-09",284.49,284.49]]}
 {"k":"us|new balance|dv + nb sc elite womens, linen|shoes|0","h":[["2026-10-06",283.99,283.99],["2026-10-07",284.69,284.69],["2026-10-08",284.41,284.41],["2026-10-09",284.49,284.49]]}
@@ -59188,7 +59235,7 @@
 {"k":"us|nike|pegasus trail 5 gore-tex trail-running shoes - women's|shoes|0","h":[["2026-10-09",180.0,180.0]]}
 {"k":"us|nike|pegasus trail 5 gore-tex|shoes|0","h":[["2026-10-09",145.0,180.0]]}
 {"k":"us|nike|pegasus trail 5 gtx|shoes|0","h":[["2026-10-08",145.0,180.0]]}
-{"k":"us|nike|pegasus trail 5 trail-running shoes - men's|shoes|0","h":[["2026-10-09",89.95,160.0]]}
+{"k":"us|nike|pegasus trail 5 trail-running shoes - men's|shoes|0","h":[["2026-10-09",89.95,160.0],["2026-10-11",137.0,160.0]]}
 {"k":"us|nike|pegasus trail 5 trail-running shoes - women's|shoes|0","h":[["2026-10-09",89.95,160.0]]}
 {"k":"us|nike|pegasus trail 5|shoes|0","h":[["2026-10-08",137.0,155.0]]}
 {"k":"us|nike|pegasus turbo 2 shield - women's|shoes|0","h":[["2026-10-06",99.95,210.0]]}
@@ -63119,10 +63166,10 @@
 {"k":"us|pelotan|spf 30 sunscreen · roll on 2oz|gear|0","h":[["2026-10-06",20.23,20.23],["2026-10-07",20.25,20.25],["2026-10-08",20.25,20.25],["2026-10-09",20.23,20.23]]}
 {"k":"us|pelotan|spf 30 sunscreen · spray 4oz|gear|0","h":[["2026-10-06",30.37,30.37],["2026-10-07",30.4,30.4],["2026-10-08",30.41,30.41],["2026-10-09",30.37,30.37]]}
 {"k":"us|pelotan|spf 30 sunscreen · spray 6oz|gear|0","h":[["2026-10-06",37.01,40.51],["2026-10-07",37.04,40.55],["2026-10-08",37.06,40.56],["2026-10-09",37.01,40.51]]}
-{"k":"us|peluva|strand - men's|shoes|0","h":[["2026-10-06",148.0,148.0]]}
-{"k":"us|peluva|strand - women's|shoes|0","h":[["2026-10-06",148.0,148.0]]}
-{"k":"us|peluva|strand atr - men's|shoes|0","h":[["2026-10-06",145.0,153.0],["2026-10-07",153.0,153.0],["2026-10-08",145.0,153.0],["2026-10-09",153.0,153.0],["2026-10-11",145.0,153.0]]}
-{"k":"us|peluva|strand atr - women's|shoes|0","h":[["2026-10-06",145.0,153.0],["2026-10-07",153.0,153.0],["2026-10-08",145.0,153.0],["2026-10-09",153.0,153.0],["2026-10-10",145.0,153.0],["2026-10-11",153.0,153.0]]}
+{"k":"us|peluva|strand - men's|shoes|0","h":[["2026-10-06",148.0,148.0],["2026-10-11",118.0,148.0]]}
+{"k":"us|peluva|strand - women's|shoes|0","h":[["2026-10-06",148.0,148.0],["2026-10-11",118.0,148.0]]}
+{"k":"us|peluva|strand atr - men's|shoes|0","h":[["2026-10-06",145.0,153.0],["2026-10-07",153.0,153.0],["2026-10-08",145.0,153.0],["2026-10-09",153.0,153.0],["2026-10-11",123.0,153.0]]}
+{"k":"us|peluva|strand atr - women's|shoes|0","h":[["2026-10-06",145.0,153.0],["2026-10-07",153.0,153.0],["2026-10-08",145.0,153.0],["2026-10-09",153.0,153.0],["2026-10-10",145.0,153.0],["2026-10-11",123.0,153.0]]}
 {"k":"us|pendleton|100% merino - women's|tops|0","h":[["2026-10-06",119.0,119.0]]}
 {"k":"us|pendleton|carryall tote · smith rock|packs|0","h":[["2026-10-06",89.5,89.5]]}
 {"k":"us|pendleton|long-sleeve turtleneck jersey tee - women's|tops|0","h":[["2026-10-06",59.5,59.5]]}
@@ -69220,7 +69267,7 @@
 {"k":"us|sfh|pure plant protein · vanilla|nutrition|0","h":[["2026-10-06",55.76,55.76],["2026-10-07",55.81,55.81],["2026-10-08",53.8,55.83],["2026-10-09",53.73,55.76]]}
 {"k":"us|sfuels|water bottle|gear|0","h":[["2026-10-06",14.19,14.19],["2026-10-07",14.2,14.2],["2026-10-08",14.21,14.21],["2026-10-09",14.18,14.18]]}
 {"k":"us|shamma sandals|trailstar alphas|shoes|0","h":[["2026-10-06",124.95,124.95]]}
-{"k":"us|shamma sandals|warrior maximus (unisex sizing)|shoes|0","h":[["2026-10-06",99.95,99.95]]}
+{"k":"us|shamma sandals|warrior maximus (unisex sizing)|shoes|0","h":[["2026-10-06",99.95,99.95],["2026-10-11",79.96,99.95]]}
 {"k":"us|shefit|ultimate bra|bras|0","h":[["2026-10-10",69.0,69.0]]}
 {"k":"us|sherpani|logan mini backpack|packs|0","h":[["2026-10-06",60.0,60.0]]}
 {"k":"us|shokz - aftershokz|openrun pro 2|watches|0","h":[["2026-10-06",179.95,179.95]]}
@@ -70121,7 +70168,7 @@
 {"k":"us|smartwool|classic thermal merino base layer 1/4 zip - men's|tops|0","h":[["2026-10-06",72.0,130.0],["2026-10-09",63.06,112.12]]}
 {"k":"us|smartwool|classic thermal merino base layer 1/4 zip - twilight blue heather - women's|tops|0","h":[["2026-10-06",91.0,130.0]]}
 {"k":"us|smartwool|classic thermal merino base layer 1/4 zip - women's|tops|0","h":[["2026-10-06",72.0,120.0],["2026-10-09",63.06,105.11]]}
-{"k":"us|smartwool|classic thermal merino base layer 1/4 zip plus - women's|tops|0","h":[["2026-10-06",72.0,130.0],["2026-10-09",63.06,112.12]]}
+{"k":"us|smartwool|classic thermal merino base layer 1/4 zip plus - women's|tops|0","h":[["2026-10-06",72.0,130.0],["2026-10-09",63.06,112.12],["2026-10-11",112.12,112.12]]}
 {"k":"us|smartwool|classic thermal merino base layer 1/4 zip plus|tops|0","h":[["2026-10-06",120.0,120.0]]}
 {"k":"us|smartwool|classic thermal merino base layer 1/4 zip|tops|0","h":[["2026-10-06",115.0,130.0],["2026-10-09",120.0,130.0]]}
 {"k":"us|smartwool|classic thermal merino base layer 3/4 bottom - men's|bottoms|0","h":[["2026-10-06",115.0,115.0],["2026-10-09",94.6,94.6]]}
@@ -70610,7 +70657,7 @@
 {"k":"us|smartwool|run ankle socks - women's|socks|0","h":[["2026-10-06",20.0,20.0],["2026-10-09",13.24,18.92]]}
 {"k":"us|smartwool|run ankle socks 4-pack|socks|0","h":[["2026-10-06",80.0,80.0],["2026-10-09",70.07,70.07]]}
 {"k":"us|smartwool|run ankle socks|socks|0","h":[["2026-10-06",14.0,20.0],["2026-10-09",12.75,18.22]]}
-{"k":"us|smartwool|run brushed print low ankle socks - women's|socks|0","h":[["2026-10-06",13.3,19.0],["2026-10-09",12.26,19.0]]}
+{"k":"us|smartwool|run brushed print low ankle socks - women's|socks|0","h":[["2026-10-06",13.3,19.0],["2026-10-09",12.26,19.0],["2026-10-11",19.0,19.0]]}
 {"k":"us|smartwool|run cold weather crew socks - women's|socks|0","h":[["2026-10-06",24.0,24.0],["2026-10-09",14.72,21.02]]}
 {"k":"us|smartwool|run cold weather crew socks 3-pack - women's|socks|0","h":[["2026-10-06",72.0,72.0],["2026-10-09",70.77,70.77]]}
 {"k":"us|smartwool|run cold weather crew socks 4-pack|socks|0","h":[["2026-10-06",96.0,96.0],["2026-10-09",94.6,94.6]]}
@@ -72128,44 +72175,44 @@
 {"k":"us|squirrel's nut butter|0.5 oz anti-chafe|gear|0","h":[["2026-10-06",10.0,10.0]]}
 {"k":"us|squirrel's nut butter|1.7 oz anti-chafe|gear|0","h":[["2026-10-06",15.0,15.0]]}
 {"k":"us|squirrel's nut butter|2.0 compostable tube|gear|0","h":[["2026-10-07",17.99,17.99]]}
-{"k":"us|squirrel's nut butter|2.0 oz anti-chafe eco-friendly compostable tube twin pack|gear|0","h":[["2026-10-06",29.19,36.48],["2026-10-07",29.21,36.52],["2026-10-08",29.18,36.48],["2026-10-09",29.19,36.49]]}
+{"k":"us|squirrel's nut butter|2.0 oz anti-chafe eco-friendly compostable tube twin pack|gear|0","h":[["2026-10-06",29.19,36.48],["2026-10-07",29.21,36.52],["2026-10-08",29.18,36.48],["2026-10-09",29.19,36.49],["2026-10-11",29.2,36.5]]}
 {"k":"us|squirrel's nut butter|2.0 oz anti-chafe|gear|0","h":[["2026-10-06",18.0,18.0]]}
-{"k":"us|squirrel's nut butter|2.7 oz anti-chafe stick twin pack|gear|0","h":[["2026-10-06",35.67,44.59],["2026-10-07",35.71,44.64],["2026-10-08",35.67,44.59],["2026-10-09",35.67,44.59]]}
-{"k":"us|squirrel's nut butter|4 oz anti-chafe tin twin pack tin|gear|0","h":[["2026-10-06",40.54,50.68],["2026-10-07",40.58,50.73],["2026-10-08",40.53,50.67],["2026-10-09",40.54,50.68]]}
+{"k":"us|squirrel's nut butter|2.7 oz anti-chafe stick twin pack|gear|0","h":[["2026-10-06",35.67,44.59],["2026-10-07",35.71,44.64],["2026-10-08",35.67,44.59],["2026-10-09",35.67,44.59],["2026-10-11",35.69,44.62]]}
+{"k":"us|squirrel's nut butter|4 oz anti-chafe tin twin pack tin|gear|0","h":[["2026-10-06",40.54,50.68],["2026-10-07",40.58,50.73],["2026-10-08",40.53,50.67],["2026-10-09",40.54,50.68],["2026-10-11",40.56,50.7]]}
 {"k":"us|squirrel's nut butter|8.0oz anti-chafe & skin repair tub|gear|0","h":[["2026-10-06",45.62,45.62],["2026-10-07",45.67,45.67],["2026-10-08",45.61,45.61],["2026-10-09",45.62,45.62]]}
-{"k":"us|squirrel's nut butter|adventure beard balm|gear|0","h":[["2026-10-06",7.61,15.2],["2026-10-07",7.61,15.21],["2026-10-09",7.6,15.2]]}
+{"k":"us|squirrel's nut butter|adventure beard balm|gear|0","h":[["2026-10-06",7.61,15.2],["2026-10-07",7.61,15.21],["2026-10-09",7.6,15.2],["2026-10-11",7.61,15.21]]}
 {"k":"us|squirrel's nut butter|adventure packet - original|gear|0","h":[["2026-10-06",2.5,2.5]]}
-{"k":"us|squirrel's nut butter|anti chafe & skin repair stick w/ frankincense & lavender, 1.7 oz — case of 18|gear|0","h":[["2026-10-06",136.9,136.9],["2026-10-07",137.04,137.04],["2026-10-08",136.87,136.87],["2026-10-09",136.89,136.89]]}
-{"k":"us|squirrel's nut butter|anti chafe & skin repair stick w/ peppermint & tea tree, 1.7 oz — case of 18|gear|0","h":[["2026-10-06",136.9,136.9],["2026-10-07",137.04,137.04],["2026-10-08",136.87,136.87],["2026-10-09",136.89,136.89]]}
-{"k":"us|squirrel's nut butter|anti chafe & skin repair stick, original, 0.5 oz — case of 132|gear|0","h":[["2026-10-06",1338.52,1338.52],["2026-10-07",1339.93,1339.93],["2026-10-08",1338.29,1338.29],["2026-10-09",1338.48,1338.48]]}
-{"k":"us|squirrel's nut butter|anti chafe & skin repair stick, original, 0.5 oz — case of 22|gear|0","h":[["2026-10-06",111.54,111.54],["2026-10-07",111.66,111.66],["2026-10-08",111.52,111.52],["2026-10-09",111.54,111.54]]}
-{"k":"us|squirrel's nut butter|anti chafe & skin repair stick, original, 1.7 oz — case of 18|gear|0","h":[["2026-10-06",136.9,136.9],["2026-10-07",137.04,137.04],["2026-10-08",136.87,136.87],["2026-10-09",136.89,136.89]]}
-{"k":"us|squirrel's nut butter|anti-chafe & skin repair adventure packet w/ frankincense & lavender, 9ml — case of 125|gear|0","h":[["2026-10-06",126.75,126.75],["2026-10-07",126.89,126.89],["2026-10-08",126.73,126.73],["2026-10-09",126.75,126.75]]}
-{"k":"us|squirrel's nut butter|anti-chafe & skin repair adventure packet, original, 9ml — case of 125|gear|0","h":[["2026-10-06",126.75,126.75],["2026-10-07",126.89,126.89],["2026-10-08",126.73,126.73],["2026-10-09",126.75,126.75]]}
-{"k":"us|squirrel's nut butter|anti-chafe & skin repair compostable tube, original, 2.0 oz|gear|0","h":[["2026-10-06",18.24,18.24],["2026-10-07",18.26,18.26],["2026-10-08",18.24,18.24],["2026-10-09",18.24,18.24]]}
+{"k":"us|squirrel's nut butter|anti chafe & skin repair stick w/ frankincense & lavender, 1.7 oz — case of 18|gear|0","h":[["2026-10-06",136.9,136.9],["2026-10-07",137.04,137.04],["2026-10-08",136.87,136.87],["2026-10-09",136.89,136.89],["2026-10-11",136.96,136.96]]}
+{"k":"us|squirrel's nut butter|anti chafe & skin repair stick w/ peppermint & tea tree, 1.7 oz — case of 18|gear|0","h":[["2026-10-06",136.9,136.9],["2026-10-07",137.04,137.04],["2026-10-08",136.87,136.87],["2026-10-09",136.89,136.89],["2026-10-11",136.96,136.96]]}
+{"k":"us|squirrel's nut butter|anti chafe & skin repair stick, original, 0.5 oz — case of 132|gear|0","h":[["2026-10-06",1338.52,1338.52],["2026-10-07",1339.93,1339.93],["2026-10-08",1338.29,1338.29],["2026-10-09",1338.48,1338.48],["2026-10-11",1339.2,1339.2]]}
+{"k":"us|squirrel's nut butter|anti chafe & skin repair stick, original, 0.5 oz — case of 22|gear|0","h":[["2026-10-06",111.54,111.54],["2026-10-07",111.66,111.66],["2026-10-08",111.52,111.52],["2026-10-09",111.54,111.54],["2026-10-11",111.6,111.6]]}
+{"k":"us|squirrel's nut butter|anti chafe & skin repair stick, original, 1.7 oz — case of 18|gear|0","h":[["2026-10-06",136.9,136.9],["2026-10-07",137.04,137.04],["2026-10-08",136.87,136.87],["2026-10-09",136.89,136.89],["2026-10-11",136.96,136.96]]}
+{"k":"us|squirrel's nut butter|anti-chafe & skin repair adventure packet w/ frankincense & lavender, 9ml — case of 125|gear|0","h":[["2026-10-06",126.75,126.75],["2026-10-07",126.89,126.89],["2026-10-08",126.73,126.73],["2026-10-09",126.75,126.75],["2026-10-11",126.82,126.82]]}
+{"k":"us|squirrel's nut butter|anti-chafe & skin repair adventure packet, original, 9ml — case of 125|gear|0","h":[["2026-10-06",126.75,126.75],["2026-10-07",126.89,126.89],["2026-10-08",126.73,126.73],["2026-10-09",126.75,126.75],["2026-10-11",126.82,126.82]]}
+{"k":"us|squirrel's nut butter|anti-chafe & skin repair compostable tube, original, 2.0 oz|gear|0","h":[["2026-10-06",18.24,18.24],["2026-10-07",18.26,18.26],["2026-10-08",18.24,18.24],["2026-10-09",18.24,18.24],["2026-10-11",18.25,18.25]]}
 {"k":"us|squirrel's nut butter|anti-chafe & skin repair stick - 1.7 oz.|gear|0","h":[["2026-10-09",14.95,14.95]]}
-{"k":"us|squirrel's nut butter|anti-chafe & skin repair stick w/ frankincense & lavender, 1.7 oz - case of 56|gear|0","h":[["2026-10-06",851.79,851.79],["2026-10-07",852.68,852.68],["2026-10-08",851.64,851.64],["2026-10-09",851.76,851.76]]}
-{"k":"us|squirrel's nut butter|anti-chafe & skin repair stick w/ frankincense & lavender|gear|0","h":[["2026-10-06",15.2,15.2],["2026-10-07",15.21,15.21],["2026-10-08",15.2,15.2],["2026-10-09",15.2,15.2]]}
-{"k":"us|squirrel's nut butter|anti-chafe & skin repair stick w/ peppermint & tea tree, 1.7 oz|gear|0","h":[["2026-10-06",15.2,15.2],["2026-10-07",15.21,15.21],["2026-10-08",15.2,15.2],["2026-10-09",15.2,15.2]]}
-{"k":"us|squirrel's nut butter|anti-chafe & skin repair stick w/ peppermint & tea tree, 1.7oz - case of 56|gear|0","h":[["2026-10-06",851.79,851.79],["2026-10-07",852.68,852.68],["2026-10-08",851.64,851.64],["2026-10-09",851.76,851.76]]}
-{"k":"us|squirrel's nut butter|anti-chafe & skin repair stick, original, 1.7oz - case of 56|gear|0","h":[["2026-10-06",851.79,851.79],["2026-10-07",852.68,852.68],["2026-10-08",851.64,851.64],["2026-10-09",851.76,851.76]]}
-{"k":"us|squirrel's nut butter|anti-chafe & skin repair stick, original, 2.7 oz|gear|0","h":[["2026-10-06",22.3,22.3],["2026-10-07",22.32,22.32],["2026-10-08",22.3,22.3],["2026-10-09",22.3,22.3]]}
+{"k":"us|squirrel's nut butter|anti-chafe & skin repair stick w/ frankincense & lavender, 1.7 oz - case of 56|gear|0","h":[["2026-10-06",851.79,851.79],["2026-10-07",852.68,852.68],["2026-10-08",851.64,851.64],["2026-10-09",851.76,851.76],["2026-10-11",852.22,852.22]]}
+{"k":"us|squirrel's nut butter|anti-chafe & skin repair stick w/ frankincense & lavender|gear|0","h":[["2026-10-06",15.2,15.2],["2026-10-07",15.21,15.21],["2026-10-08",15.2,15.2],["2026-10-09",15.2,15.2],["2026-10-11",15.21,15.21]]}
+{"k":"us|squirrel's nut butter|anti-chafe & skin repair stick w/ peppermint & tea tree, 1.7 oz|gear|0","h":[["2026-10-06",15.2,15.2],["2026-10-07",15.21,15.21],["2026-10-08",15.2,15.2],["2026-10-09",15.2,15.2],["2026-10-11",15.21,15.21]]}
+{"k":"us|squirrel's nut butter|anti-chafe & skin repair stick w/ peppermint & tea tree, 1.7oz - case of 56|gear|0","h":[["2026-10-06",851.79,851.79],["2026-10-07",852.68,852.68],["2026-10-08",851.64,851.64],["2026-10-09",851.76,851.76],["2026-10-11",852.22,852.22]]}
+{"k":"us|squirrel's nut butter|anti-chafe & skin repair stick, original, 1.7oz - case of 56|gear|0","h":[["2026-10-06",851.79,851.79],["2026-10-07",852.68,852.68],["2026-10-08",851.64,851.64],["2026-10-09",851.76,851.76],["2026-10-11",852.22,852.22]]}
+{"k":"us|squirrel's nut butter|anti-chafe & skin repair stick, original, 2.7 oz|gear|0","h":[["2026-10-06",22.3,22.3],["2026-10-07",22.32,22.32],["2026-10-08",22.3,22.3],["2026-10-09",22.3,22.3],["2026-10-11",22.31,22.31]]}
 {"k":"us|squirrel's nut butter|anti-chafe & skin repair sticks, original|gear|0","h":[["2026-10-06",10.13,15.2],["2026-10-07",10.14,15.22],["2026-10-08",10.13,15.2],["2026-10-09",10.13,15.2]]}
 {"k":"us|squirrel's nut butter|anti-chafe & skin repair tin - 2 oz.|gear|0","h":[["2026-10-09",14.95,14.95]]}
-{"k":"us|squirrel's nut butter|anti-chafe & skin repair tin w/ frankincense & lavender, 2 oz - case of 40|gear|0","h":[["2026-10-06",182.52,182.52],["2026-10-07",182.72,182.72],["2026-10-08",182.49,182.49],["2026-10-09",182.52,182.52]]}
-{"k":"us|squirrel's nut butter|anti-chafe & skin repair tin w/ frankincense & lavender, 2.0oz — case of 18|gear|0","h":[["2026-10-06",136.9,136.9],["2026-10-07",137.04,137.04],["2026-10-08",136.87,136.87],["2026-10-09",136.89,136.89]]}
-{"k":"us|squirrel's nut butter|anti-chafe & skin repair tin, original, 0.5 oz — case of 144|gear|0","h":[["2026-10-06",511.07,511.07],["2026-10-07",511.61,511.61],["2026-10-08",510.98,510.98],["2026-10-09",511.06,511.06]]}
-{"k":"us|squirrel's nut butter|anti-chafe & skin repair tin, original, 0.5 oz — case of 24|gear|0","h":[["2026-10-06",109.52,109.52],["2026-10-07",109.63,109.63],["2026-10-08",109.49,109.49],["2026-10-09",109.52,109.52]]}
-{"k":"us|squirrel's nut butter|anti-chafe & skin repair tin, original, 2.0 oz — case of 18|gear|0","h":[["2026-10-06",136.9,136.9],["2026-10-07",137.04,137.04],["2026-10-08",136.87,136.87],["2026-10-09",136.89,136.89]]}
-{"k":"us|squirrel's nut butter|anti-chafe & skin repair tin, original, 2oz - case of 40|gear|0","h":[["2026-10-06",182.52,182.52],["2026-10-07",182.72,182.72],["2026-10-08",182.49,182.49],["2026-10-09",182.52,182.52]]}
-{"k":"us|squirrel's nut butter|anti-chafe & skin repair tin, original, 4 oz - case of 18|gear|0","h":[["2026-10-06",136.9,136.9],["2026-10-07",137.04,137.04],["2026-10-08",136.87,136.87],["2026-10-09",136.89,136.89]]}
-{"k":"us|squirrel's nut butter|anti-chafe & skin repair tin, original, 4.0 oz — case of 4|gear|0","h":[["2026-10-06",50.7,50.7],["2026-10-07",50.75,50.75],["2026-10-08",50.7,50.7],["2026-10-09",50.7,50.7]]}
+{"k":"us|squirrel's nut butter|anti-chafe & skin repair tin w/ frankincense & lavender, 2 oz - case of 40|gear|0","h":[["2026-10-06",182.52,182.52],["2026-10-07",182.72,182.72],["2026-10-08",182.49,182.49],["2026-10-09",182.52,182.52],["2026-10-11",182.62,182.62]]}
+{"k":"us|squirrel's nut butter|anti-chafe & skin repair tin w/ frankincense & lavender, 2.0oz — case of 18|gear|0","h":[["2026-10-06",136.9,136.9],["2026-10-07",137.04,137.04],["2026-10-08",136.87,136.87],["2026-10-09",136.89,136.89],["2026-10-11",136.96,136.96]]}
+{"k":"us|squirrel's nut butter|anti-chafe & skin repair tin, original, 0.5 oz — case of 144|gear|0","h":[["2026-10-06",511.07,511.07],["2026-10-07",511.61,511.61],["2026-10-08",510.98,510.98],["2026-10-09",511.06,511.06],["2026-10-11",511.33,511.33]]}
+{"k":"us|squirrel's nut butter|anti-chafe & skin repair tin, original, 0.5 oz — case of 24|gear|0","h":[["2026-10-06",109.52,109.52],["2026-10-07",109.63,109.63],["2026-10-08",109.49,109.49],["2026-10-09",109.52,109.52],["2026-10-11",109.57,109.57]]}
+{"k":"us|squirrel's nut butter|anti-chafe & skin repair tin, original, 2.0 oz — case of 18|gear|0","h":[["2026-10-06",136.9,136.9],["2026-10-07",137.04,137.04],["2026-10-08",136.87,136.87],["2026-10-09",136.89,136.89],["2026-10-11",136.96,136.96]]}
+{"k":"us|squirrel's nut butter|anti-chafe & skin repair tin, original, 2oz - case of 40|gear|0","h":[["2026-10-06",182.52,182.52],["2026-10-07",182.72,182.72],["2026-10-08",182.49,182.49],["2026-10-09",182.52,182.52],["2026-10-11",182.62,182.62]]}
+{"k":"us|squirrel's nut butter|anti-chafe & skin repair tin, original, 4 oz - case of 18|gear|0","h":[["2026-10-06",136.9,136.9],["2026-10-07",137.04,137.04],["2026-10-08",136.87,136.87],["2026-10-09",136.89,136.89],["2026-10-11",136.96,136.96]]}
+{"k":"us|squirrel's nut butter|anti-chafe & skin repair tin, original, 4.0 oz — case of 4|gear|0","h":[["2026-10-06",50.7,50.7],["2026-10-07",50.75,50.75],["2026-10-08",50.7,50.7],["2026-10-09",50.7,50.7],["2026-10-11",50.73,50.73]]}
 {"k":"us|squirrel's nut butter|anti-chafe & skin repair tins, original|gear|0","h":[["2026-10-06",9.12,25.34],["2026-10-07",9.13,25.37],["2026-10-08",9.12,25.34]]}
 {"k":"us|squirrel's nut butter|anti-chafe & skin repair|gear|0","h":[["2026-10-06",9.99,9.99]]}
 {"k":"us|squirrel's nut butter|anti-chafe (adventure packets)|gear|0","h":[["2026-10-06",2.0,2.0]]}
 {"k":"us|squirrel's nut butter|anti-chafe compostable tube - original|gear|0","h":[["2026-10-06",18.0,18.0]]}
-{"k":"us|squirrel's nut butter|anti-chafe compostable tube, original, 2.0 oz — case of 18|gear|0","h":[["2026-10-06",164.27,164.27],["2026-10-07",164.45,164.45],["2026-10-08",164.24,164.24],["2026-10-09",164.27,164.27]]}
-{"k":"us|squirrel's nut butter|anti-chafe compostable tube, original, 2.0 oz — case of 78|gear|0","h":[["2026-10-06",1423.7,1423.7],["2026-10-07",1425.2,1425.2],["2026-10-08",1423.45,1423.45],["2026-10-09",1423.66,1423.66]]}
+{"k":"us|squirrel's nut butter|anti-chafe compostable tube, original, 2.0 oz — case of 18|gear|0","h":[["2026-10-06",164.27,164.27],["2026-10-07",164.45,164.45],["2026-10-08",164.24,164.24],["2026-10-09",164.27,164.27],["2026-10-11",164.35,164.35]]}
+{"k":"us|squirrel's nut butter|anti-chafe compostable tube, original, 2.0 oz — case of 78|gear|0","h":[["2026-10-06",1423.7,1423.7],["2026-10-07",1425.2,1425.2],["2026-10-08",1423.45,1423.45],["2026-10-09",1423.66,1423.66],["2026-10-11",1424.42,1424.42]]}
 {"k":"us|squirrel's nut butter|anti-chafe salve 1.7oz stick|gear|0","h":[["2026-10-08",14.99,14.99]]}
 {"k":"us|squirrel's nut butter|anti-chafe salve 2.0oz tin|gear|0","h":[["2026-10-08",14.99,14.99]]}
 {"k":"us|squirrel's nut butter|anti-chafe salve tin - 0.5 oz.|gear|0","h":[["2026-10-09",8.95,8.95]]}
@@ -72175,22 +72222,22 @@
 {"k":"us|squirrel's nut butter|anti-chafe skin repair - peppermint & tea tree|gear|0","h":[["2026-10-06",15.2,15.2],["2026-10-07",15.21,15.21],["2026-10-08",15.22,15.22],["2026-10-09",15.2,15.2]]}
 {"k":"us|squirrel's nut butter|anti-chafe stick 0.5oz|gear|0","h":[["2026-10-06",10.0,10.0]]}
 {"k":"us|squirrel's nut butter|anti-chafe stick 1.7oz|gear|0","h":[["2026-10-06",15.0,15.0]]}
-{"k":"us|squirrel's nut butter|anti-chafe tin & skin repair tin w/ frankincense and lavender, 2.0 oz|gear|0","h":[["2026-10-06",15.2,15.2],["2026-10-07",15.21,15.21],["2026-10-08",15.2,15.2],["2026-10-09",15.2,15.2]]}
+{"k":"us|squirrel's nut butter|anti-chafe tin & skin repair tin w/ frankincense and lavender, 2.0 oz|gear|0","h":[["2026-10-06",15.2,15.2],["2026-10-07",15.21,15.21],["2026-10-08",15.2,15.2],["2026-10-09",15.2,15.2],["2026-10-11",15.21,15.21]]}
 {"k":"us|squirrel's nut butter|anti-chafe tin 0.5oz|gear|0","h":[["2026-10-06",9.0,9.0]]}
 {"k":"us|squirrel's nut butter|anti-chafe tin 2oz|gear|0","h":[["2026-10-06",15.0,15.0]]}
 {"k":"us|squirrel's nut butter|anti-chafe tin 4oz|gear|0","h":[["2026-10-06",25.0,25.0]]}
 {"k":"us|squirrel's nut butter|anti-chafe|gear|0","h":[["2026-10-11",14.99,14.99]]}
-{"k":"us|squirrel's nut butter|grease your crease t-shirt|tops|0","h":[["2026-10-06",20.28,20.28],["2026-10-07",20.3,20.3],["2026-10-08",20.27,20.27],["2026-10-09",20.28,20.28]]}
+{"k":"us|squirrel's nut butter|grease your crease t-shirt|tops|0","h":[["2026-10-06",20.28,20.28],["2026-10-07",20.3,20.3],["2026-10-08",20.27,20.27],["2026-10-09",20.28,20.28],["2026-10-11",20.29,20.29]]}
 {"k":"us|squirrel's nut butter|happie toes tin 2oz|gear|0","h":[["2026-10-06",15.0,15.0]]}
 {"k":"us|squirrel's nut butter|happie toes tin|gear|0","h":[["2026-10-11",17.0,17.0]]}
-{"k":"us|squirrel's nut butter|lube up & run fast tee|tops|0","h":[["2026-10-06",20.28,25.35],["2026-10-07",20.3,25.38],["2026-10-08",20.27,25.34],["2026-10-09",20.28,25.35]]}
+{"k":"us|squirrel's nut butter|lube up & run fast tee|tops|0","h":[["2026-10-06",20.28,25.35],["2026-10-07",20.3,25.38],["2026-10-08",20.27,25.34],["2026-10-09",20.28,25.35],["2026-10-11",20.29,25.37]]}
 {"k":"us|squirrel's nut butter|snb anti chafe|gear|0","h":[["2026-10-06",14.99,14.99]]}
 {"k":"us|squirrel's nut butter|squirrel's nut butter anti-chafe stick 1.7 oz|gear|0","h":[["2026-10-06",14.95,14.95]]}
 {"k":"us|squirrel's nut butter|squirrel's nut butter anti-chafe tin|gear|0","h":[["2026-10-06",8.95,14.95]]}
 {"k":"us|squirrel's nut butter|squirrel's nut butter, anti-chafe & skin repair compostable tube, original, 2.0 oz|gear|0","h":[["2026-10-06",17.99,17.99]]}
 {"k":"us|squirrel's nut butter|squirrel's nut butter, anti-chafe & skin repair sticks, original|gear|0","h":[["2026-10-06",9.99,9.99]]}
-{"k":"us|squirrel's nut butter|the drey|gear|0","h":[["2026-10-06",30.39,40.52],["2026-10-07",30.42,40.57],["2026-10-08",30.39,40.51],["2026-10-09",30.39,40.52]]}
-{"k":"us|squirrel's nut butter|timber the squirrel boco hat|headwear|0","h":[["2026-10-06",30.41,30.41],["2026-10-07",30.44,30.44],["2026-10-08",30.41,30.41],["2026-10-09",30.41,30.41]]}
+{"k":"us|squirrel's nut butter|the drey|gear|0","h":[["2026-10-06",30.39,40.52],["2026-10-07",30.42,40.57],["2026-10-08",30.39,40.51],["2026-10-09",30.39,40.52],["2026-10-11",30.4,40.54]]}
+{"k":"us|squirrel's nut butter|timber the squirrel boco hat|headwear|0","h":[["2026-10-06",30.41,30.41],["2026-10-07",30.44,30.44],["2026-10-08",30.41,30.41],["2026-10-09",30.41,30.41],["2026-10-11",30.43,30.43]]}
 {"k":"us|stabil lite|3/4 insoles|gear|0","h":[["2026-10-06",20.0,20.0]]}
 {"k":"us|stabil lite|max|gear|0","h":[["2026-10-06",25.0,25.0]]}
 {"k":"us|stabil|run|gear|0","h":[["2026-10-07",49.95,49.95]]}
@@ -74271,7 +74318,7 @@
 {"k":"us|tailwind|orange 30 srv|nutrition|0","h":[["2026-10-09",30.99,30.99]]}
 {"k":"us|tailwind|orange 50 srv|nutrition|0","h":[["2026-10-07",42.99,42.99]]}
 {"k":"us|tailwind|orangle single srv|nutrition|0","h":[["2026-10-06",2.75,2.75]]}
-{"k":"us|tailwind|performance starter kit|nutrition|0","h":[["2026-10-06",54.13,54.13],["2026-10-07",54.01,54.01],["2026-10-08",54.07,54.07],["2026-10-09",53.96,53.96]]}
+{"k":"us|tailwind|performance starter kit|nutrition|0","h":[["2026-10-06",54.13,54.13],["2026-10-07",54.01,54.01],["2026-10-08",54.07,54.07],["2026-10-09",53.96,53.96],["2026-10-11",54.66,54.66]]}
 {"k":"us|tailwind|rapid hydration (25 serving)|packs|0","h":[["2026-10-07",29.99,29.99],["2026-10-11",23.99,29.99]]}
 {"k":"us|tailwind|rapid hydration single serve|packs|0","h":[["2026-10-08",1.59,1.59]]}
 {"k":"us|tailwind|rapid hydration single serving|packs|0","h":[["2026-10-09",1.59,1.59]]}
@@ -77903,7 +77950,7 @@
 {"k":"us|xero shoes|mesa summit wp trail-running shoes - women's|shoes|0","h":[["2026-10-09",145.0,145.0]]}
 {"k":"us|xero shoes|mesa trail wp shoes - women's|shoes|0","h":[["2026-10-06",54.87,139.99]]}
 {"k":"us|xero shoes|nexus knit - men's|shoes|0","h":[["2026-10-06",119.99,119.99]]}
-{"k":"us|xero shoes|nexus knit - women's|shoes|0","h":[["2026-10-06",119.99,119.99]]}
+{"k":"us|xero shoes|nexus knit - women's|shoes|0","h":[["2026-10-06",119.99,119.99],["2026-10-11",71.99,119.99]]}
 {"k":"us|xero shoes|phoenix knit - women's|shoes|0","h":[["2026-10-06",63.99,79.99]]}
 {"k":"us|xero shoes|prio - men's|shoes|0","h":[["2026-10-06",99.99,99.99]]}
 {"k":"us|xero shoes|prio - women's|shoes|0","h":[["2026-10-06",79.99,99.99]]}
@@ -77918,7 +77965,7 @@
 {"k":"us|xero shoes|x1 low - men's|shoes|0","h":[["2026-10-06",169.99,169.99]]}
 {"k":"us|xero shoes|x1 low - women's|shoes|0","h":[["2026-10-06",169.99,169.99]]}
 {"k":"us|xero shoes|z-trail ev - men's|shoes|0","h":[["2026-10-06",63.99,79.99]]}
-{"k":"us|xero shoes|z-trail ev - women's|shoes|0","h":[["2026-10-06",79.99,79.99]]}
+{"k":"us|xero shoes|z-trail ev - women's|shoes|0","h":[["2026-10-06",79.99,79.99],["2026-10-11",63.99,79.99]]}
 {"k":"us|xero|hfs ii - men's|shoes|0","h":[["2026-10-06",129.99,130.0]]}
 {"k":"us|xero|hfs ii - women's|shoes|0","h":[["2026-10-06",130.0,130.0],["2026-10-07",129.99,129.99]]}
 {"k":"us|xero|hfs ii running shoe - men's|shoes|0","h":[["2026-10-09",129.99,130.0]]}
