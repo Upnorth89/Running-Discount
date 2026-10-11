@@ -246,7 +246,83 @@ try:
 except Exception as e:
     out.append(f"This month's click table: couldn't read ({str(e)[:80]})")
 
+# RETENTION DRIVERS (Oct 11, Bastien: "use our analytics to pinpoint exactly what we need to do"): for each device first seen in this
+# window (2+ days ago, so it had time to come back), what it did on its first visit vs whether it came back on another day
+try:
+    from datetime import date as _d
+    day = lambda e: e["at"][:10]
+    dev = defaultdict(lambda: {"first": None, "days": set(), "k": set(), "entry": None, "src": None, "dev": None, "ref": None})
+    for e in rows:
+        if not e.get("sid"):
+            continue
+    # device id isn't in the selected columns: re-read did per session from a light query
+    r2, ds = [], 0
+    while True:
+        rr = requests.get(f"{SB}/rest/v1/ana_events", headers={**H, "Range": f"{len(r2)}-{len(r2) + step - 1}"}, timeout=60,
+                          params={"select": "did,sid,at,nv", "at": f"gte.{since}", "kind": "eq.visit", "order": "id"})
+        rr.raise_for_status()
+        bb = rr.json()
+        r2 += bb
+        if len(bb) < step:
+            break
+    sid_did = {x["sid"]: x["did"] for x in r2}
+    first_sid, days_of = {}, defaultdict(set)
+    for x in r2:
+        days_of[x["did"]].add(x["at"][:10])
+        if x["nv"] == 1 and x["did"] not in first_sid:
+            first_sid[x["did"]] = (x["sid"], x["at"][:10])
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=2)).date().isoformat()
+    D = []
+    for did, (sid, d0) in first_sid.items():
+        if d0 > cutoff or sid not in S:
+            continue
+        ss = S[sid]
+        back = any(dd > d0 for dd in days_of[did])
+        D.append((ss, back))
+    if D:
+        base = sum(b for _, b in D) / len(D)
+        out.append(f"RETENTION DRIVERS: {len(D)} devices first seen 2+ days ago; {round(100 * base)}% came back on another day. "
+                   "Came back, by what they did on the first visit (did it / didn't):")
+        feats = [("picked sizes", lambda s: "sizes-saved" in s["kinds"] or "shoe-page-size" in s["kinds"]),
+                 ("hearted a deal", lambda s: "watch-add" in s["kinds"]), ("signed up", lambda s: "signup" in s["kinds"]),
+                 ("clicked a store", lambda s: "deal-click" in s["kinds"]), ("searched", lambda s: "search" in s["kinds"] or "search-none" in s["kinds"]),
+                 ("landed on homepage", lambda s: land(s) == "homepage"), ("landed on a shoe page", lambda s: land(s) == "shoe pages"),
+                 ("came from reddit", lambda s: src(s) == "reddit"), ("came from google", lambda s: src(s) == "google"),
+                 ("on a phone", lambda s: s["dev"] == "phone"), ("stayed 60s+", lambda s: (s["secs"] or 0) >= 60),
+                 ("saw the come-back bar", lambda s: "store-offer" in s["kinds"] or "backbar-view" in s["steps"])]
+        for name, f in feats:
+            yes = [b for s_, b in D if f(s_)]
+            no = [b for s_, b in D if not f(s_)]
+            if yes:
+                out.append(f"  {name}: {len(yes)} devices -> {round(100 * sum(yes) / len(yes))}% came back | didn't: "
+                           f"{round(100 * sum(no) / max(1, len(no)))}% ({len(no)})")
+except Exception as e:
+    out.append(f"Retention drivers: couldn't compute ({str(e)[:80]})")
+# confirmations: of the sign-ups in this window, how many confirmed the email (double opt-in)
+try:
+    hh = {**H, "Prefer": "count=exact", "Range": "0-0"}
+    def cnt(params):
+        rr = requests.get(f"{SB}/rest/v1/subscribers", headers=hh, params={"select": "email", **params}, timeout=30)
+        rr.raise_for_status()
+        return int(rr.headers.get("content-range", "*/0").split("/")[-1])
+    made = cnt({"created_at": f"gte.{since}"})
+    conf = cnt({"created_at": f"gte.{since}", "confirmed_at": "not.is.null"})
+    live = cnt({"confirmed_at": "not.is.null", "unsubscribed_at": "is.null"})
+    unsub = cnt({"unsubscribed_at": "not.is.null"})
+    out.append(f"EMAIL: sign-ups in this window {made}, confirmed {conf} ({round(100 * conf / max(1, made))}%); "
+               f"active subscribers now {live}; unsubscribed ever {unsub}")
+except Exception as e:
+    out.append(f"Email numbers: couldn't read ({str(e)[:80]})")
+
 text = "\n".join(out)
 print(text)
 if os.environ.get("GITHUB_ACTIONS"):
-    print("::notice title=Funnel::" + text.replace("%", "%25").replace("\r", "").replace("\n", "%0A"))
+    parts, cur = [], ""
+    for ln in out:                      # GitHub cuts a notice at ~4 KB (Oct 11: the end was lost): several notices, in order
+        if len(cur) + len(ln) > 3500:
+            parts.append(cur)
+            cur = ""
+        cur += ln + "\n"
+    parts.append(cur)
+    for i, ptxt in enumerate(parts, 1):
+        print(f"::notice title=Funnel {i}/{len(parts)}::" + ptxt.replace("%", "%25").replace("\r", "").replace("\n", "%0A"))
