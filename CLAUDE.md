@@ -186,6 +186,10 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   (`supabase/clicks.sql`: the site logs one visit per session and each deal click via `log_event`; nothing
   personal), since Umami's free plan has no API. Countries/pages stay in the Umami dashboard.
 - **Tracking links**: `?ref=name` (kept per device, sent with visits/sign-ups, saved in the profile), `?lang=fr`.
+- **Post maker** (`tools/reddit_post.py --ref <place> [--side ca|us|both] [--out FILE]`, Oct 11; Bastien: post every 3 days, format
+  "6 shoes 4 gear Canada and 6 shoes 4 gear USA, that's it", names as links): famous models first, biggest discount, 7+ sizes, each
+  deal confirmed on the store's page (else the next one), shoe page link or a ?q= search that finds only that item; writes the
+  Markdown (paste at old.reddit.com) and a plain version (address under each line, for the phone app). One ?ref per place.
 
 GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_ADDRESS` (CASL footer),
 `HEALTH_EMAIL`.
