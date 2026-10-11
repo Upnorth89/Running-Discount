@@ -199,6 +199,20 @@ jobs:
       - id: deployment
         uses: actions/deploy-pages@v4
 
+  # IndexNow (Oct 11, 2026): after the morning deploy, tell Bing (+ DuckDuckGo, ChatGPT search) which pages changed today
+  indexnow:
+    needs: [check, deploy]
+    if: needs.check.outputs.morning == 'true'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - run: python tools/indexnow.py
+
   # Wednesdays (Oct 7, 2026): the Instagram kit starts right after the morning deploy, so it's built from this
   # morning's prices (GitHub ran its own Wednesday schedule 6 h late, after a store had ended its sale)
   igbrief:
