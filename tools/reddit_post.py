@@ -52,6 +52,13 @@ def base(n):
     return re.sub(r"[\s-]*(road|trail)?[\s-]*(running|race|racing)?[\s-]*shoes?$", "", n, flags=re.I).strip(" -").removesuffix(" Road")
 
 
+def noun(n):
+    """What kind of thing it is, from the last word of the name: Knee Warmer / Leg Warmers / Leg Cooler = one kind."""
+    w = re.sub(r"[^a-z ]", "", fold(base(n))).split() or [""]
+    w = w[-1].rstrip("s")
+    return "warmer" if w in ("warmer", "cooler", "warm", "sleeve") else w
+
+
 def slug(s):
     return re.sub(r"-+", "-", re.sub(r"[^a-z0-9]+", "-", fold(s))).strip("-")
 
@@ -76,12 +83,22 @@ def confirm(it, at, fx, us):
     return False
 
 
-def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, under=None):
+def cdn_brands():
+    """The site's Canadian-brands list (index.html CDN_BRANDS, checked by hand), so posts and the 🍁 filter agree."""
+    html = (ROOT / "site" / "index.html").read_text()
+    m = re.search(r"const CDN_BRANDS=new Set\(\[(.*?)\]\)", html, re.S)
+    return set(re.findall(r'"([^"]+)"', m.group(1)))
+
+
+def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, under=None, canadian=False):
     d = requests.get(f"{SITE}/{'sale.json' if side == 'ca' else 'sale-us.json'}", timeout=200).json()
     fx = d["fx"]["USD"] if side == "us" else 1.0
     pre = "shoes" if side == "ca" else "us/shoes"
     pages = requests.get(f"{SITE}/{pre}/pages.json", timeout=60).json()
     items = [i for i in d["items"] if i.get("ca")]
+    if canadian:         # Canadian brands only (r/BuyCanadian, Canada pages): any of their shoes, gear, clothing or fuel
+        cb = cdn_brands()
+        items = [i for i in items if fold(i["b"]) in cb]
     if sex:              # a women's or men's post (r/xxrunning…): that cut, or unisex
         items = [i for i in items if not i.get("sx") or sex in i["sx"]]
     hay = [(i, fold(i["b"] + " " + i["n"])) for i in items]
@@ -94,20 +111,23 @@ def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, u
             continue
         if it["g"] == "shoes" and b in SHOE_BR:
             rank = next((k for k, h in enumerate(HYPE) if h in n), None)
-            if rank is None and not kind:          # themed posts take any known-brand shoe of that kind
+            if rank is None and not kind and not canadian:          # themed posts take any known-brand shoe of that kind
                 continue
             if kind and it.get("t") != kind:
                 continue
-            pct, at = best_band(it, 7)
+            pct, at = best_band(it, 5 if canadian else 7)
             if pct and pct >= 0.30 and (not under or min(s[1] for s in at) / fx <= under):
                 shoes.append((pct, it, at))
-        elif it["g"] in GEAR_GROUPS and b in GEAR_BR:
-            pct, at = best_band(it, 1 if it["g"] in ("gear", "watches") else 3)
-            if pct and pct >= 0.35 and min(s[1] for s in at) / fx >= 30 and (not under or min(s[1] for s in at) / fx <= under) \
+        elif (it["g"] in GEAR_GROUPS and b in GEAR_BR) or (canadian and it["g"] != "shoes"):
+            pct, at = best_band(it, 1 if it["g"] in ("gear", "watches", "nutrition", "packs") else 3)
+            if pct and pct >= (0.25 if canadian else 0.35) and min(s[1] for s in at) / fx >= (10 if canadian else 30) and (not under or min(s[1] for s in at) / fx <= under) \
                     and (kind != "trail" or re.search(r"trail|vest|pole|headlamp|light|wind|rain|jacket", fold(it["n"]))):
                 gear.append((pct, it, at))
     out = {}
+    brands, nouns = {}, {}
     for kind, pool, k in (("shoes", shoes, n_shoes), ("gear", gear, n_gear)):
+        if kind == "gear" and canadian:          # fewer Canadian shoes than asked: gear fills the list
+            k += n_shoes - len(out.get("shoes", []))
         pool.sort(key=lambda r: -r[0])
         got, seen, groups = [], set(), {}
         for pct, it, at in pool:
@@ -115,13 +135,18 @@ def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, u
                 break
             key = fold(it["b"] + " " + base(it["n"]))
             fam = re.sub(r"\s*(v?\d+(\.\d)?)$", "", key)          # Neo Vista 2 and Neo Vista: one model family per post
-            if key in seen or fam in seen or (kind == "gear" and groups.get(it["g"], 0) >= 2):     # gear: a mix, at most 2 of a kind
+            if key in seen or fam in seen or (kind == "gear" and groups.get(it["g"], 0) >= 2) \
+                    or (canadian and brands.get(fold(it["b"]), 0) >= 2) \
+                    or (kind == "gear" and nouns.get(noun(it["n"]), 0) >= 1):     # a mix of brands and of kinds of thing     # gear: a mix, at most 2 of a kind
                 continue
             if not confirm(it, at, fx, side == "us"):
                 log(f"  skipped (not confirmed on the store's page): {it['b']} {it['n']}")
                 continue
             seen |= {key, fam}
             groups[it["g"]] = groups.get(it["g"], 0) + 1
+            brands[fold(it["b"])] = brands.get(fold(it["b"]), 0) + 1
+            if kind == "gear":
+                nouns[noun(it["n"])] = nouns.get(noun(it["n"]), 0) + 1
             name = f"{it['b']} {base(it['n'])}"
             m = re.search(r"(men|women)'?s", it["n"], re.I)
             label = name + (f" ({m.group(1).lower()}'s)" if m and not re.search(r"(men|women)'?s", name, re.I) else "")
@@ -173,10 +198,13 @@ def main():
     ap.add_argument("--out", help="write the Markdown here (the plain version goes beside it, .txt)")
     ap.add_argument("--kind", choices=["daily", "race", "trail"], help="themed post: only this kind of shoe")
     ap.add_argument("--sex", choices=["men", "women"], help="themed post: men's or women's (unisex included)")
+    ap.add_argument("--canadian", action="store_true", help="Canadian brands only (the site's 🍁 list): 4 shoes + 6 others")
     ap.add_argument("--under", type=float, help="themed post: nothing over this price (C25K: --under 100)")
     a = ap.parse_args()
     sides = ["ca", "us"] if a.side == "both" else [a.side]
-    picks = {s: side_picks(s, a.ref, log=lambda m: print(m, file=sys.stderr), kind=a.kind, sex=a.sex, under=a.under) for s in sides}
+    n = (4, 6) if a.canadian else (6, 4)
+    picks = {s: side_picks(s, a.ref, n[0], n[1], log=lambda m: print(m, file=sys.stderr), kind=a.kind, sex=a.sex, under=a.under,
+                           canadian=a.canadian) for s in sides}
     md, plain = write(picks, sides)
     print(md)
     if a.out:
