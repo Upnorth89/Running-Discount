@@ -48,7 +48,7 @@ GEAR_GROUPS = {"packs", "gear", "watches", "tops", "bottoms", "gloves", "headwea
 
 def base(n):
     n = re.sub(r"\s*-\s*(men|women)'?s.*$|\s*-\s*unisex.*$|\s*\((men|women)'?s\)", "", n, flags=re.I)
-    return re.sub(r"\s*(road |trail )?(running |race )?shoes?$", "", n, flags=re.I).strip()
+    return re.sub(r"[\s-]*(road|trail)?[\s-]*(running|race|racing)?[\s-]*shoes?$", "", n, flags=re.I).strip(" -").removesuffix(" Road")
 
 
 def slug(s):
@@ -75,12 +75,14 @@ def confirm(it, at, fx, us):
     return False
 
 
-def side_picks(side, ref, n_shoes=6, n_gear=4, log=print):
+def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, under=None):
     d = requests.get(f"{SITE}/{'sale.json' if side == 'ca' else 'sale-us.json'}", timeout=200).json()
     fx = d["fx"]["USD"] if side == "us" else 1.0
     pre = "shoes" if side == "ca" else "us/shoes"
     pages = requests.get(f"{SITE}/{pre}/pages.json", timeout=60).json()
     items = [i for i in d["items"] if i.get("ca")]
+    if sex:              # a women's or men's post (r/xxrunning…): that cut, or unisex
+        items = [i for i in items if not i.get("sx") or sex in i["sx"]]
     hay = [(i, fold(i["b"] + " " + i["n"])) for i in items]
     shoes, gear = [], []
     for it in items:
@@ -89,14 +91,17 @@ def side_picks(side, ref, n_shoes=6, n_gear=4, log=print):
         b, n = it["b"].lower(), fold(it["n"])
         if it["g"] == "shoes" and b in SHOE_BR:
             rank = next((k for k, h in enumerate(HYPE) if h in n), None)
-            if rank is None:
+            if rank is None and not kind:          # themed posts take any known-brand shoe of that kind
+                continue
+            if kind and it.get("t") != kind:
                 continue
             pct, at = best_band(it, 7)
-            if pct and pct >= 0.30:
+            if pct and pct >= 0.30 and (not under or min(s[1] for s in at) / fx <= under):
                 shoes.append((pct, it, at))
         elif it["g"] in GEAR_GROUPS and b in GEAR_BR:
             pct, at = best_band(it, 1 if it["g"] in ("gear", "watches") else 3)
-            if pct and pct >= 0.35 and min(s[1] for s in at) / fx >= 30:
+            if pct and pct >= 0.35 and min(s[1] for s in at) / fx >= 30 and (not under or min(s[1] for s in at) / fx <= under) \
+                    and (kind != "trail" or re.search(r"trail|vest|pole|headlamp|light|wind|rain|jacket", fold(it["n"]))):
                 gear.append((pct, it, at))
     out = {}
     for kind, pool, k in (("shoes", shoes, n_shoes), ("gear", gear, n_gear)):
@@ -163,9 +168,12 @@ def main():
     ap.add_argument("--ref", required=True, help="tracking tag, one per place: reddit-runningshoes, fb-trail-bc…")
     ap.add_argument("--side", choices=["ca", "us", "both"], default="both")
     ap.add_argument("--out", help="write the Markdown here (the plain version goes beside it, .txt)")
+    ap.add_argument("--kind", choices=["daily", "race", "trail"], help="themed post: only this kind of shoe")
+    ap.add_argument("--sex", choices=["men", "women"], help="themed post: men's or women's (unisex included)")
+    ap.add_argument("--under", type=float, help="themed post: nothing over this price (C25K: --under 100)")
     a = ap.parse_args()
     sides = ["ca", "us"] if a.side == "both" else [a.side]
-    picks = {s: side_picks(s, a.ref, log=lambda m: print(m, file=sys.stderr)) for s in sides}
+    picks = {s: side_picks(s, a.ref, log=lambda m: print(m, file=sys.stderr), kind=a.kind, sex=a.sex, under=a.under) for s in sides}
     md, plain = write(picks, sides)
     print(md)
     if a.out:
