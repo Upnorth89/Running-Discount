@@ -58,6 +58,7 @@ T = {
         "bfTitlePre": "Black Friday 2026 running shoe deals in Canada: what to expect",
         "bfH1Pre": "Black Friday 2026 in Canada: November {date}",
         "bfIntroPre": "{days} days to go. Black Friday deals aren't out yet. During Black Friday week this page shows the real deals from 60+ Canadian running stores, checked every morning.",
+        "bfOther": ("In the US?", "See Black Friday deals at US stores →", "/us/black-friday/"),   # Oct 10: both sides link each other
         "bfTrackH": "We're tracking real prices before Black Friday",
         "bfTrackTxt": "Since October 2 we record the price of every running product we follow, every day: {n} products so far. So on Black Friday we'll know which deals are real and which prices went up in November just to come back down.",
         "bfSpotH": "How to spot a real Black Friday deal",
@@ -130,6 +131,7 @@ T = {
         "bfTitlePre": "Vendredi fou 2026 : aubaines de chaussures de course au Canada, à quoi s'attendre",
         "bfH1Pre": "Vendredi fou 2026 au Canada : le {date} novembre",
         "bfIntroPre": "Encore {days} jours. Les aubaines du Vendredi fou ne sont pas encore là. Pendant la semaine du Vendredi fou, cette page montre les vraies aubaines de plus de 60 boutiques de course canadiennes, vérifiées chaque matin.",
+        "bfOther": ("Aux États-Unis ?", "Voir les aubaines du Black Friday dans les boutiques américaines →", "/us/black-friday/"),
         "bfTrackH": "On suit les vrais prix avant le Vendredi fou",
         "bfTrackTxt": "Depuis le 2 octobre, on note chaque jour le prix de chaque article de course qu'on suit : {n} articles jusqu'ici. Au Vendredi fou, on saura quelles aubaines sont vraies et quels prix ont monté en novembre pour mieux redescendre.",
         "bfSpotH": "Comment reconnaître une vraie aubaine du Vendredi fou",
@@ -199,6 +201,8 @@ US.update({
     "idxTitle": "Running shoe prices by model", "idxIntro": "Every popular running shoe we track, with today's best price in each size at US running stores. Updated every morning.",
     "idxDesc": "Today's best price in every size for {n} running shoe models at US running stores. Updated every morning by The Gear Fox.",
     "switch": "Canadian stores", "homeH": "Today's best running shoe deals",
+    "bfOther": ("In Canada?", "See Black Friday deals at Canadian stores →", "/black-friday/"),
+    "bfTrackTxt": "Since October 6 we record the price of every running product we follow at US stores, every day: {n} products so far. So on Black Friday we'll know which deals are real and which prices went up in November just to come back down.",
 })
 T["en"].update({"q": "", "home": "/", "cur": "CAD"})
 T["fr"].update({"q": "&lang=fr", "home": "/?lang=fr", "cur": "CAD"})
@@ -432,8 +436,10 @@ def alternates(L, path_en, path_fr):
         twin = (f'\n<link rel="alternate" hreflang="en-CA" href="{BASE}{path_fr}">\n<link rel="alternate" hreflang="x-default" href="{BASE}{path_fr}">'
                 if path_fr else "")
         return f'<link rel="alternate" hreflang="en-US" href="{BASE}{path_en}">{twin}'
+    us = "/us" + path_en if path_en == "/black-friday/" or path_en.startswith("/running-shoes-sale/") else ""   # pages that always have a US twin
     return (f'<link rel="alternate" hreflang="en-CA" href="{BASE}{path_en}">\n<link rel="alternate" hreflang="fr-CA" href="{BASE}{path_fr}">\n'
-            f'<link rel="alternate" hreflang="x-default" href="{BASE}{path_en}">')
+            + (f'<link rel="alternate" hreflang="en-US" href="{BASE}{us}">\n' if us else "")
+            + f'<link rel="alternate" hreflang="x-default" href="{BASE}{path_en}">')
 
 
 def page_head(L, title, desc, path_en, path_fr, extra=""):
@@ -770,6 +776,11 @@ def black_friday(year):
     return d + timedelta(days=(4 - d.weekday()) % 7 + 21)
 
 
+def bf_other(L):
+    q, txt, href = L["bfOther"]
+    return f'<p><strong>{esc(q)}</strong> <a href="{href}">{esc(txt)}</a></p>'
+
+
 def list_page(L, path_en, path_fr, title, h1, intro, rows, brands, extra=""):
     out = [page_head(L, title, intro, path_en, path_fr)]
     out.append(f'<h1>{esc(h1)}</h1><p class="sub">{esc(intro)}</p>{extra}')
@@ -900,10 +911,10 @@ def main():
         today = (datetime.fromisoformat(updated.replace("Z", "+00:00")) if updated else datetime.now(timezone.utc)).astimezone(HOME_TZ).date()
         bf = black_friday(today.year if today <= black_friday(today.year) + timedelta(days=4) else today.year + 1)
         if bf - timedelta(days=7) <= today <= bf + timedelta(days=4):     # Black Friday week to Cyber Monday: the real deals
-            p.write_text(list_page(L, "/black-friday/", "/vendredi-fou/", L["bfTitle"], L["bfH1"], L["bfIntro"], bf_rows, brands, cta))
+            p.write_text(list_page(L, "/black-friday/", "/vendredi-fou/", L["bfTitle"], L["bfH1"], L["bfIntro"], bf_rows, brands, bf_other(L) + cta))
         else:   # before: honest page, the price tracking + tips, and today's deals clearly labelled as today's (Bastien, Oct 4)
             tracked = sum(1 for i in items if i.get("hd"))
-            extra = (cta + f'<h2>{esc(L["bfTrackH"])}</h2><p>{esc(L["bfTrackTxt"].format(n=f"{tracked:,}".replace(",", " " if L is T["fr"] else ",")))}</p>'
+            extra = (bf_other(L) + cta + f'<h2>{esc(L["bfTrackH"])}</h2><p>{esc(L["bfTrackTxt"].format(n=f"{tracked:,}".replace(",", " " if L is T["fr"] else ",")))}</p>'
                      + f'<h2>{esc(L["bfSpotH"])}</h2><ul>' + "".join(f"<li>{esc(x)}</li>" for x in L["bfSpot"]) + "</ul>"
                      + f'<h2>{esc(L["bfTodayH"].format(date=fmt_date(updated, L)))}</h2>')
             p.write_text(list_page(L, "/black-friday/", "/vendredi-fou/", L["bfTitlePre"], L["bfH1Pre"].format(date=bf.day),
@@ -1044,9 +1055,11 @@ def build_us(site, stores, ca_models, ca_brands):
     p = site / own.strip("/") / "index.html"
     p.parent.mkdir(parents=True, exist_ok=True)
     if bf - timedelta(days=7) <= today <= bf + timedelta(days=4):
-        p.write_text(list_page(L, own, "/black-friday/", L["bfTitle"], L["bfH1"], L["bfIntro"], bf_rows, brands, cta))
+        p.write_text(list_page(L, own, "/black-friday/", L["bfTitle"], L["bfH1"], L["bfIntro"], bf_rows, brands, bf_other(L) + cta))
     else:
-        extra = (cta + f'<h2>{esc(L["bfSpotH"])}</h2><ul>' + "".join(f"<li>{esc(x)}</li>" for x in L["bfSpot"]) + "</ul>"
+        tracked = sum(1 for i in items if i.get("hd"))
+        extra = (bf_other(L) + cta + f'<h2>{esc(L["bfTrackH"])}</h2><p>{esc(L["bfTrackTxt"].format(n=f"{tracked:,}"))}</p>'
+                 + f'<h2>{esc(L["bfSpotH"])}</h2><ul>' + "".join(f"<li>{esc(x)}</li>" for x in L["bfSpot"]) + "</ul>"
                  + f'<h2>{esc(L["bfTodayH"].format(date=fmt_date(updated, L)))}</h2>')
         p.write_text(list_page(L, own, "/black-friday/", L["bfTitlePre"], L["bfH1Pre"].format(date=bf.day),
                                L["bfIntroPre"].format(days=(bf - today).days), bf_rows[:6], brands, extra))

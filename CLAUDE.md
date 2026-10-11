@@ -365,6 +365,9 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   "HTTP 202, empty page": OFF (no circumventing). Revisit with an affiliate product feed.
 - US shoe pages: shoe_pages.py `build_us()` from deals-us.json: /us/shoes/<slug>/, /us/running-shoes-sale/…, /us/brands/<b>/,
   /us/black-friday/ (US English `US` strings, US$, `L["abroad"]` labels); hreflang en-US + en-CA twin; registry us/shoes/pages.json
+  Oct 10 (Bastien: "the Black Friday page only talks about Canadian stores"): both Black Friday pages link each other (`bf_other`:
+  "In the US? / In Canada?", FR « Aux États-Unis ? »), Canadian BF + sale-list pages name their US twin in hreflang (en-US), and the
+  US BF page has the price-tracking section (US history since Oct 6).
   (refresh.yml fetches it like shoes/pages.json); in the sitemap. The site links US cards/menu/footer there (`shoeDir()`).
 
 ## Fox Pro (decided Oct 4, 2026; table in the 6-month plan doc)
