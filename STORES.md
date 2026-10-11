@@ -172,6 +172,7 @@ every check (rule in CLAUDE.md: try every allowed way first; a store that says n
 | MEC | Canada | blocks automated reading | site; **saved pages work** (Grab deals) | MEC product feed via AvantLink/Sovrn |
 | REI | USA | blocks automated reading | **saved pages work** (US side) | affiliate feed |
 | Boutique Courir | Montréal | blocks automated reading (Oct 1) | site | ask the store |
+| Simons | Québec (simons.ca) | Cloudflare 403 on every page, sitemap and search, from my sandbox and from GitHub's servers (probe.yml, Oct 11); robots.txt empty | site, sitemap, search, GitHub probe | GPT catalog file (ask GPT to add Simons' running/activewear), or an affiliate feed |
 | SVP Sports | Québec | Cloudflare check (Oct 4) | **saved pages work**; parked Oct 6 (soccer/budget shoes) | none needed |
 | Brooks, New Balance, ASICS, Hoka, Salomon, adidas, Inov-8, The North Face | brands | 403/406 "Access denied" (rechecked Oct 5; ASICS Oct 10: asics.com CA + US, outlet.asics.com, even robots.txt and sitemaps answer Akamai 403, from my sandbox and from GitHub's servers via probe.yml) | brand sites; **Brooks, New Balance, ASICS, adidas.ca come from the GPT catalog file** (Oct 8) | their shoes reach us through the stores |
 | Nike | brand | robots.txt disallows product pages (sizes) | listings | through the stores |
