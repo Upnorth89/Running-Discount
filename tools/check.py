@@ -10,6 +10,7 @@ cards for a sample runner · the preview builds · the site test clicks through 
 (tools/sitetest.py; set CHROMIUM=/path/to/chromium if Playwright's own browser isn't installed). Added Oct 4, 2026 after the shoe pages broke silently for 3 hours.
 """
 import json
+import os
 import py_compile
 import re
 import shutil
@@ -181,7 +182,10 @@ def main():
         return f"{st['passed']} checks, clicked through like a visitor"
     step("Site test (tools/sitetest.py)", sitetest)
 
-    shutil.rmtree(work, ignore_errors=True)
+    if not os.environ.get("CHECK_KEEP"):
+        shutil.rmtree(work, ignore_errors=True)
+    else:
+        print("kept", work)
     shutil.rmtree(ROOT / "scraper" / "__pycache__", ignore_errors=True)
     if fails:
         print(f"\nNOT READY: {len(fails)} problem(s): {', '.join(fails)}. Don't push.")

@@ -482,6 +482,18 @@ def site_flow(base, per, accented):
             return f"{name}: {len(cs)} deals ({' '.join(bar.split()[:6])}…)"
         check("Come-back bar after a deal click")(comeback, page)
 
+        def small_phone():   # Oct 11: at 320px "$100.00 CAD $229.99" made the page 24px too wide (bottom bars cut off)
+            page.set_viewport_size({"width": 320, "height": 700})
+            settle(page, 500)
+            try:
+                w = page.evaluate("() => document.documentElement.scrollWidth")    # a phone widens innerWidth to the page: compare with 320
+                assert w <= 321, f"the page is {w - 320}px too wide on a 320px phone"
+            finally:
+                page.set_viewport_size({"width": 390, "height": 844})
+                settle(page, 300)
+            return "no sideways scroll at 320px"
+        check("Fits a small phone (320px)")(small_phone, page)
+
         def returning():
             page.reload(wait_until="domcontentloaded")
             page.wait_for_selector("section.grp .deal", timeout=20000)

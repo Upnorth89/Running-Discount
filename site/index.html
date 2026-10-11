@@ -254,7 +254,7 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
 .deal .pct{font:800 20px/1 var(--display);background:var(--hivis);color:var(--hivis-ink);border:1.5px solid var(--ink);border-radius:6px;padding:4px 7px}
 .deal .brand{font-weight:600;font-size:15px;color:var(--moss)}
 .deal .name{font-weight:500;line-height:1.3;overflow-wrap:anywhere}
-.deal .price{display:flex;align-items:baseline;gap:8px;margin-top:4px}
+.deal .price{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;margin-top:4px}   /* wraps on 320px phones (Oct 11: "$100.00 CAD $229.99" made the page 24px too wide) */
 .deal .price b{font:800 28px/1 var(--display)}
 .deal .price s{color:var(--muted);font-size:15px}
 .deal .price .cur{font:600 12px/1 var(--body);letter-spacing:.04em;color:var(--muted);margin-left:-4px}
