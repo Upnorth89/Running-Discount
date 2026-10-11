@@ -457,10 +457,25 @@ def site_flow(base, per, accented):
             # that store's other deals; Show = only that store; "× All stores" = everything again
             all_gear()
             n0 = len(cards(page))
-            page.evaluate("""() => { const a = [...document.querySelectorAll('section.grp a.deal')]
+            tap = """() => { const a = [...document.querySelectorAll('section.grp a.deal')]
                 .find(a => /altitude|lasthunt|sportinglife|thefeed|bushtukah/.test(a.dataset.store)) || document.querySelector('section.grp a.deal');
-                a.addEventListener('click', e => e.preventDefault(), {once: true}); a.click(); }""")
-            page.wait_for_selector("#backBar", timeout=6000)
+                a.addEventListener('click', e => e.preventDefault(), {once: true}); a.click(); return a.parentNode.querySelector('.heart').dataset.key; }"""
+            key = page.evaluate(tap)
+            # Oct 11: the first return offers to watch that deal's price ("Didn't buy it?")
+            page.wait_for_selector("#backBar.bwbar", timeout=6000)
+            page.click("#backBar .go")
+            settle(page, 400)
+            hb = page.locator(f'.heart[data-key="{key}"]').first
+            assert hb.get_attribute("aria-pressed") == "true", "'Watch price' in the come-back bar didn't watch the deal"
+            assert "Watching" in hb.inner_text(), f"the card's button doesn't say Watching ({hb.inner_text()!r})"
+            if page.locator("#backBar.subar").count():          # non-members: the email offer follows in the same bar
+                page.click("#backBar .x")
+            hb.click()                                           # unwatch (keeps the watchlist empty for the next checks)
+            if page.locator("#sheet").is_visible():
+                page.click("#closeSheet")
+            settle(page, 300)
+            page.evaluate(tap)                                   # second return: that store's other deals
+            page.wait_for_selector("#backBar:not(.bwbar):not(.subar)", timeout=6000)
             bar = page.inner_text("#backBar")
             page.click("#backBar .go")
             page.wait_for_selector(".storebar")
@@ -481,6 +496,12 @@ def site_flow(base, per, accented):
             assert not page.locator(".storebar").count() and len(cards(page)) >= min(n0, 20), "'× All stores' didn't bring every deal back"
             return f"{name}: {len(cs)} deals ({' '.join(bar.split()[:6])}…)"
         check("Come-back bar after a deal click")(comeback, page)
+
+        def watch_label():   # Oct 11: cards say "Watch price" (the small heart alone was used by 5 people in 3 weeks)
+            labels = page.eval_on_selector_all("section.grp .heart .hl", "e => e.map(x => x.textContent)")
+            assert labels and all(x in ("Watch price", "Watching") for x in labels), f"cards' watch buttons say {set(labels)}"
+            return f"{len(labels)} cards"
+        check("Cards have a 'Watch price' button")(watch_label, page)
 
         def small_phone():   # Oct 11: at 320px "$100.00 CAD $229.99" made the page 24px too wide (bottom bars cut off)
             page.set_viewport_size({"width": 320, "height": 700})
@@ -692,6 +713,33 @@ def site_flow(base, per, accented):
             pg.evaluate("localStorage.removeItem('gf-sub')")
             return "offered, refused a bad email, signed up"
         check("Sign-up bar after a deal click")(backbar_signup, pg)
+
+        def open_mail():     # Oct 11 (52% confirmed): "Check your inbox" opens their mail app
+            pg.evaluate("localStorage.setItem('gf-sub',JSON.stringify({pending:'robot@gmail.com'}))")
+            pg.reload(wait_until="domcontentloaded")
+            pg.wait_for_selector(".signup .mailbtn", timeout=8000)
+            href = pg.get_attribute(".signup .mailbtn", "href")
+            assert "mail.google.com" in href, f"Gmail address, button goes to {href}"
+            pg.evaluate("localStorage.setItem('gf-sub',JSON.stringify({pending:'robot@hotmail.com'}))")
+            pg.reload(wait_until="domcontentloaded")
+            pg.wait_for_selector(".signup .mailbtn", timeout=8000)
+            assert "outlook" in pg.get_attribute(".signup .mailbtn", "href"), "Hotmail address doesn't open Outlook"
+            pg.evaluate("localStorage.removeItem('gf-sub')")
+            return "Gmail, Outlook"
+        check("Check your inbox: open my mail")(open_mail, pg)
+
+        def q_landing():     # Oct 11: a ?q= link from a post: the deal first, then one short sign-up line
+            nm = pg.evaluate("() => { const a = document.querySelector('section.grp a.deal'); return a.querySelector('.brand').textContent.replace('🍁','').trim() + ' ' + a.querySelector('.name').textContent }")
+            q = " ".join(nm.split()[:3])
+            pg.evaluate("localStorage.removeItem('gf-nosignup')")
+            pg.goto(base + "?q=" + q.replace(" ", "+") + "&ref=sitetest", wait_until="domcontentloaded")
+            pg.wait_for_selector("section.grp .deal", timeout=20000)
+            pg.wait_for_selector(".signup.qsline #suForm", timeout=8000)
+            first = pg.evaluate("() => { const l = document.querySelector('.qsline'), g = document.querySelector('section.grp'); return !!(g.compareDocumentPosition(l) & 4) }")
+            assert first, "the sign-up line shows above the deal"
+            assert pg.locator(".signup").count() == 1, "two sign-up asks on the page"
+            return q
+        check("Post link (?q=): deal, then a sign-up line")(q_landing, pg)
 
         def shoe_alert():       # Oct 8: "Email me when it drops in my size" on shoe pages (Google visitors)
             reg = site_json("shoes/pages.json")

@@ -458,6 +458,20 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   back from a store (once per visit, never members, × = 7 days, size picker in the bar when unknown; it sends #alertBox's form);
   Black Friday + sale-list pages have `qs_box` (fit + shoe size + email, subscribe right there; ref black-friday / sale-list).
   Site tests "Shoe page: 'Didn't buy it?' bar", "Black Friday page: sign up right here".
+  Oct 11 batch 2 (retention numbers: 11% of new visitors came back, watchers/members ~2x; 52% of sign-ups confirmed; the
+  Friday email brought 7 visits): cards' heart is a "♡ Watch price" / « Suivre le prix » pill ("Watching"/« Suivi »; `setHearts()`);
+  back from a store, `offerWatch()` shows a light card "Didn't buy it?" (photo, name, price, "♡ Watch price"; once per item per visit,
+  before the sign-up/store offers; lastShop.k = the card's itemKey); tapping it watches quietly (`toggleWatch(k,true)`) and non-members
+  get `offerSignup(true)` ("Want an email when it drops?", shown even after No thanks). Bars `.bwbar`/`.subar` are light cards (Bastien:
+  the dark bar was "hard to read"). "Check your inbox" (card + bar) has `mailBtn()` "Open Gmail/Outlook/Yahoo Mail/iCloud Mail/Proton
+  Mail" by email domain (analytics signup-step open-mail|App); "or continue with Google" always on the sign-up card. `?q=` landings
+  (`QLAND`, post links) get one short sign-up line (`.qsline`) right after the first deal section instead of the big card. Analytics
+  signup-step watch-offer / watch-offer-yes / watch-offer-close / watchbar-view. Preview panel: "Pretend I came from a Reddit link".
+  Backend the same day: `scraper/confirm_reminder.py` (refresh.yml morning step "Confirm reminders"): ONE email 20-72 h after an
+  unconfirmed sign-up, same ?confirm= link, column confirm_reminded_at (supabase/confirm-reminder-oct11.sql; does nothing until
+  pasted); Friday email cards have "♡ Watch the price" -> shop link + &watch=<itemKey>. Site tests "Come-back bar after a deal click"
+  (watch offer first), "Cards have a 'Watch price' button", "Fits a small phone (320px)", "Check your inbox: open my mail",
+  "Post link (?q=): deal, then a sign-up line".
 - Analytics kinds (Oct 8): the database drops any event kind not in `ana_kinds()` (store bar/Canadian/country were lost Oct 5–8);
   `tools/check.py` "Analytics events are all recorded" fails if the site sends one it doesn't list. New kind = SQL for Bastien.
   `load` = ms until the deals show (+ connection, data size); the funnel report shows load bands vs sizes picked.

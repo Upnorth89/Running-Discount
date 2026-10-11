@@ -59,6 +59,7 @@ rep('<header class="topbar">', '''<div class="pv"><div class="pvin">
     <button type="button" class="pvb" id="pvReset">Start as a new visitor</button>
     <button type="button" class="pvb" id="pvConfirm">Pretend I confirmed my email</button>
     <button type="button" class="pvb" id="pvDay">Pretend a day has passed</button>
+    <button type="button" class="pvb" id="pvPost">Pretend I came from a Reddit link</button>
   </div>
   <p id="pvMsg">A, B, C and D are the four first-visit versions: pick one to start over as a new visitor. Nothing here is saved or emailed, and product photos don't load in the preview. Everything else is the real page with today's deals.</p>
 </div></div>
@@ -187,6 +188,15 @@ $("pvDay").addEventListener("click",()=>{
   const d=sale[0];if(d&&!Object.keys(clicks).length){clicks[itemKey(d)]={off:Math.round((d.reg-d.best)*100)/100,at:Date.now()-26*3600e3,p:Math.round(d.best*1.15)};LS.set("gf-clicks",clicks)}   // a deal "opened yesterday" at a higher price: "Since your last visit" shows a drop
   location.reload();
 });
+
+$("pvPost").addEventListener("click",()=>{     // a post link (?q=) opens on one deal; the preview can't change its own address
+  if(typeof QLAND==="undefined"){pvMsg("This version of the site has no post-link view.");return}
+  const d=matchItems({...toProfile(),sizes:{},gender:"any"}).filter(x=>x.g==="shoes"&&x.pct>=30).sort((a,b)=>b.pct-a.pct)[0];
+  if(!d){pvMsg("No deal to open.");return}
+  setSub(null);LS.set("gf-nosignup",null);BROWSE=true;closeSheet();
+  const q=(d.b+" "+d.n).replace(/ - .*$/,"").split(/\s+/).slice(0,4).join(" ");
+  QLAND=true;view.q=q;view.anySize=true;view.anyFit=true;$("dSearch").value=q;renderAll();window.scrollTo({top:0});
+  pvMsg(`Opened like the link thegearfox.com/?q=${q.replace(/ /g,"+")} from a post. Scroll down: one sign-up line under the deal.`)});
 
 /* ---------- start ---------- */''')
 s = s.replace("__PVNEW__", new_js)

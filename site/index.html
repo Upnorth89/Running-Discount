@@ -107,7 +107,22 @@ html.us .seo-today .seo-en,html.us .seo-today .seo-fr,html:not(.us) .seo-today .
 .spcard b{font:700 18px/1.15 var(--display)}
 .spcard small{display:block;color:var(--muted);font-size:13px}
 .spcard span.go{color:var(--moss);font-weight:700;white-space:nowrap}
-.heart{position:absolute;right:8px;bottom:8px;width:44px;height:44px;border-radius:50%;border:0;background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.heart{position:absolute;right:8px;bottom:6px;height:34px;min-width:44px;padding:0 11px 0 8px;gap:5px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);color:var(--moss);font:700 13px/1 var(--body);cursor:pointer;display:flex;align-items:center;justify-content:center;white-space:nowrap}
+.heart svg{width:17px;height:17px;flex:none}
+.heart[aria-pressed="true"]{border-color:var(--hivis)}
+.mailbtn{display:inline-block;margin:10px 0 2px;font:700 15px/1 var(--body);background:var(--hivis);color:#fff;border-radius:999px;padding:11px 16px;text-decoration:none}
+.backbar .mailbtn{margin:8px 0 0}
+/* Oct 11 (Bastien: the dark bar was "hard to read"): the watch offer and the email offer are light cards with an orange edge */
+.backbar.bwbar,.backbar.subar{background:var(--card);color:var(--ink);border:2px solid var(--hivis);padding:14px 16px;font-size:16px;line-height:1.4}
+.backbar.bwbar{flex-direction:column;align-items:stretch;gap:0}
+.backbar.bwbar .x,.backbar.subar .x{position:absolute;top:4px;right:4px;color:var(--muted);opacity:1;font-size:26px;padding:6px 10px}
+.bwh{font:800 22px/1.15 var(--display);margin:0 36px 10px 0}
+.bwi{display:flex;gap:12px;align-items:center}.bwi img{width:60px;height:60px;flex:none;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:8px}
+.bwi .n{font-weight:600;line-height:1.3}.bwi .pr{display:block;margin-top:2px}.bwi .pr b{font:800 20px var(--display)}.bwi .pr s{color:var(--muted);font-size:14px;margin-left:6px}
+.bwbar .why{margin:10px 0 12px;color:var(--muted);font-size:15px}
+.backbar.bwbar .go{width:100%;padding:14px;font-size:17px}
+.backbar.subar p{margin:0 36px 10px 0}.backbar.subar input{border:1.5px solid var(--line)}.backbar.subar .msg{color:var(--err)}
+.qsline p{margin:0 0 8px}
 .heart:hover{color:var(--ink)}
 .heart[aria-pressed="true"]{color:var(--hivis)}
 .heart[aria-pressed="true"] svg path{fill:currentColor}
@@ -247,7 +262,7 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
   .compact .deal .price b{font-size:22px}
   .compact .deal .sizes,.compact .deal .store{font-size:13px;padding-right:40px}
   .compact .dw .deal{padding-bottom:10px}
-  .compact .heart{right:4px;bottom:4px}
+  .compact .heart{right:6px;bottom:6px}
   .compact .grid{gap:8px}
 }
 .deal .top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:2px}
@@ -685,7 +700,7 @@ en:{
   get shareText(){return `Running and outdoor gear on sale in your size, from stores ${US()?"across the US":"across Canada"}.`},usFuel:"Fuel from US stores (The Feed, Skratch…) is hidden while “Ships from Canada” is on.",usFuelShow:"Show US stores too",shipsFrom:c=>`ships from ${({US:"the US",CA:"Canada",UK:"the UK",FR:"France",DK:"Denmark",AU:"Australia"})[c]||(US()?"outside the US":"outside Canada")}, duties may apply`,showMore:n=>`Show ${n} more`,
   allGear:"All gear",typeAll:"All",types:{daily:"Daily trainers",race:"Carbon & race",trail:"Trail",hike:"Hiking & winter",spike:"Track & XC spikes",light:"Lights",pole:"Poles",bottle:"Bottles & flasks",sun:"Sunglasses",tee:"T-shirts & tanks",layer:"Long sleeves & hoodies",jacket:"Jackets & vests",short:"Shorts",tight:"Tights",pant:"Pants"},
   get shipsCA(){return US()?"Ships from the US":"Ships from Canada"},saleOnly:"Include full price",
-  stopWatching:"Stop watching",watch:"Watch",removed:"Removed from your watchlist.",
+  stopWatching:"Stop watching",watchBtn:"Watch price",watchOn:"Watching",openMail:n=>`Open ${n}`,bwH:"Didn't buy it?",bwTxt:"We'll show you when the price drops.",bwGo:"♡ Watch price",bwSuH:"Want an email when it drops?",bwSuTxt:"Add your email: we'll write when it drops in your size, plus the best deals every Friday. Free.",qsH:"Like this deal?",qsTxt:"Get the best ones in your size every Friday. Free, one email a week.",watch:"Watch",removed:"Removed from your watchlist.",
   watching:"Watching. We'll email you if it drops or comes back in your size.",
   watchingPending:"Watching. Confirm your email to get price-drop alerts.",watchingSignup:"Watching. Sign up for the Friday email to get price-drop alerts.",
   watchlistChanges:n=>`Your watchlist, ${n} ${PL(n,"change","changes")}`,
@@ -785,7 +800,7 @@ fr:{
   get shareText(){return `Des aubaines de course et de plein air dans votre taille, dans des boutiques ${US()?"partout aux États-Unis":"partout au Canada"}.`},usFuel:"La nutrition des boutiques américaines (The Feed, Skratch…) est masquée quand « Expédié du Canada » est activé.",usFuelShow:"Voir aussi les boutiques américaines",shipsFrom:c=>`expédié ${({US:"des États-Unis",CA:"du Canada",UK:"du Royaume-Uni",FR:"de France",DK:"du Danemark",AU:"d'Australie"})[c]||(US()?"de l'extérieur des États-Unis":"de l'extérieur du Canada")}, des droits peuvent s'appliquer`,showMore:n=>`Voir ${n} de plus`,
   allGear:"Tout",typeAll:"Tout",types:{daily:"Entraînement",race:"Carbone et compétition",trail:"Sentier",hike:"Randonnée et hiver",spike:"Pointes (piste et cross)",light:"Frontales",pole:"Bâtons",bottle:"Gourdes et flasques",sun:"Lunettes de soleil",tee:"T-shirts et camisoles",layer:"Manches longues et kangourous",jacket:"Manteaux et vestes",short:"Shorts",tight:"Collants",pant:"Pantalons"},
   get shipsCA(){return US()?"Expédié des États-Unis":"Expédié du Canada"},saleOnly:"Inclure le prix régulier",
-  stopWatching:"Retirer des favoris",watch:"Ajouter aux favoris",removed:"Retiré de vos favoris.",
+  stopWatching:"Retirer des favoris",watchBtn:"Suivre le prix",watchOn:"Suivi",openMail:n=>`Ouvrir ${n}`,bwH:"Pas acheté?",bwTxt:"On vous montre quand le prix baisse.",bwGo:"♡ Suivre le prix",bwSuH:"Un courriel quand il baisse?",bwSuTxt:"Entrez votre courriel : on vous écrit quand il baisse dans votre taille, et les meilleures aubaines chaque vendredi. Gratuit.",qsH:"Cette aubaine vous plaît?",qsTxt:"Recevez les meilleures à votre taille chaque vendredi. Gratuit, un courriel par semaine.",watch:"Ajouter aux favoris",removed:"Retiré de vos favoris.",
   watching:"Ajouté. On vous écrit si le prix baisse ou si votre taille revient en stock.",
   watchingPending:"Ajouté. Confirmez votre courriel pour recevoir les alertes de baisse de prix.",watchingSignup:"Ajouté. Abonnez-vous au courriel du vendredi pour recevoir les alertes de baisse de prix.",
   watchlistChanges:n=>`Vos favoris, ${n} ${PL(n,"changement","changements")}`,
@@ -986,6 +1001,7 @@ function gated(){return !(sub&&(sub.key||sub.pending))}     // first visit: size
 // "peek": sizes picked, no email yet: their top 6 deals show (clickable), then the email card (flow D only)
 let PEEK=!!LS.get("gf-peek");
 /* "Just show me deals" (Oct 6): browse every size before picking any; a note on top offers the sizes step */
+let QLAND=(()=>{try{return !!new URLSearchParams(location.search).get("q")}catch(e){return false}})();   // opened from a ?q= link in a post
 let BROWSE=!!LS.get("gf-browse")||(()=>{try{return !!new URLSearchParams(location.search).get("q")}catch(e){return false}})();   // a ?q= link (posts) opens straight on the item, no welcome screen (Oct 8)
 const peeking=()=>gated()&&FLOW==="D"&&((PEEK&&hasSizes())||BROWSE);
 function gateErr(msg,el){const e=$("gateErr");e.textContent=msg||"";e.classList.toggle("hidden",!msg);
@@ -1466,26 +1482,44 @@ const offered=new Set((()=>{try{return JSON.parse(sessionStorage.getItem("gf-off
 function hideBackBar(){const b=$("backBar");if(b)b.remove()}
 /* Oct 8 (funnel: 129 first visitors clicked a deal, 16 signed up): back from a store, a visitor who isn't a member and hasn't
    said "No thanks" gets the Friday email offer in the bar, once per visit; the store offer waits for the next return */
-function offerSignup(){
-  if((sub&&(sub.active||sub.pending||sub.key))||LS.get("gf-nosignup"))return false;
-  try{if(sessionStorage.getItem("gf-bsu"))return false;sessionStorage.setItem("gf-bsu","1")}catch(e){return false}
+function offerSignup(watched){
+  if((sub&&(sub.active||sub.pending||sub.key))||(LS.get("gf-nosignup")&&!watched))return false;
+  try{if(sessionStorage.getItem("gf-bsu")&&!watched)return false;sessionStorage.setItem("gf-bsu","1")}catch(e){return false}
+  const H=watched?t("bwSuH"):t("bsuH"),TX=watched?t("bwSuTxt"):t("bsuTxt");
   hideBackBar();lastShop=null;try{sessionStorage.removeItem("gf-lastshop")}catch(e){}   // this return's offer; the store offer waits for the next click
-  const b=document.createElement("div");b.id="backBar";b.className="backbar subar";b.setAttribute("role","dialog");b.setAttribute("aria-label",t("bsuH"));
-  b.innerHTML=`<form novalidate><p><b>${t("bsuH")}</b> ${t("bsuTxt")}</p><div class="row"><input type="email" autocomplete="email" inputmode="email" placeholder="${t("emailPh")}" aria-label="${t("email")}" value="${esc(state.email||"")}"><button type="submit" class="go">${t("bsuGo")}</button></div><p class="msg" aria-live="polite"></p></form><button type="button" class="x" aria-label="${t("close")}">×</button>`;
-  document.body.appendChild(b);ana("signup-step","backbar-view");
+  const b=document.createElement("div");b.id="backBar";b.className="backbar subar";b.setAttribute("role","dialog");b.setAttribute("aria-label",H);
+  b.innerHTML=`<form novalidate><p><b>${H}</b> ${TX}</p><div class="row"><input type="email" autocomplete="email" inputmode="email" placeholder="${t("emailPh")}" aria-label="${t("email")}" value="${esc(state.email||"")}"><button type="submit" class="go">${t("bsuGo")}</button></div><p class="msg" aria-live="polite"></p></form><button type="button" class="x" aria-label="${t("close")}">×</button>`;
+  document.body.appendChild(b);ana("signup-step",watched?"watchbar-view":"backbar-view");
   const f=b.querySelector("form"),msg=b.querySelector(".msg");
   f.addEventListener("submit",async e=>{e.preventDefault();const email=cleanMail(f.querySelector("input").value);
     if(!okMail(email)){msg.textContent=t("badEmail");return}
     const btn=f.querySelector("button");btn.disabled=true;btn.textContent="…";
     state.email=email;const p=toProfile();LS.set("rd-profile",p);
-    try{await rpc("subscribe",{p_email:email,p_profile:subProfile(p)});setSub({pending:email});track("signup",{method:"email",lang:LANG,where:"backbar",ref:REF||"none"});
-      f.innerHTML=`<p><b>${t("checkInbox")}</b> ${t("checkInboxTxt",esc(email))}</p>`;renderAll();setTimeout(hideBackBar,9000)}
+    try{await rpc("subscribe",{p_email:email,p_profile:subProfile(p)});setSub({pending:email});track("signup",{method:"email",lang:LANG,where:watched?"watchbar":"backbar",ref:REF||"none"});
+      f.innerHTML=`<p><b>${t("checkInbox")}</b> ${t("checkInboxTxt",esc(email))}</p>${mailBtn(email)}`;renderAll();setTimeout(hideBackBar,20000)}
     catch(err){btn.disabled=false;btn.textContent=t("bsuGo");msg.textContent=t("signupFail",err.message)}});
   b.querySelector(".x").addEventListener("click",()=>{ana("signup-step","backbar-close");hideBackBar()});
   return true}
+/* Oct 11 (3 weeks: 5 devices hearted, and they came back twice as often as the rest): back from a store without the deal,
+   offer to watch its price, once per item per visit; non-members then get the email offer in the same bar */
+function offerWatch(){
+  const k=lastShop&&lastShop.k;if(!k||watches[k]||!byKey[k])return false;
+  let seen=[];try{seen=JSON.parse(sessionStorage.getItem("gf-bw")||"[]");if(seen.includes(k))return false;seen.push(k);sessionStorage.setItem("gf-bw",JSON.stringify(seen))}catch(e){return false}
+  lastShop.k=null;try{sessionStorage.setItem("gf-lastshop",JSON.stringify(lastShop))}catch(e){}
+  const d=byKey[k][0];hideBackBar();
+  const b=document.createElement("div");b.id="backBar";b.className="backbar bwbar";b.setAttribute("role","dialog");b.setAttribute("aria-label",t("bwH"));
+  const r=RENDERED[k],nmx=esc(d.b+" "+nm(d.n).replace(/ - (Men's|Women's|Unisex|Homme|Femme|Unisexe)$/,""));
+  b.innerHTML=`<p class="bwh">${t("bwH")}</p><div class="bwi">${d.img?`<img src="${esc(d.img)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">`:""}<span><span class="n">${nmx}</span>${r&&r.best?`<span class="pr"><b>${money(r.best)}</b>${r.pct?`<s>${money(r.reg)}</s>`:""}</span>`:""}</span></div><p class="why">${t("bwTxt")}</p><button type="button" class="go">${t("bwGo")}</button><button type="button" class="x" aria-label="${t("close")}">×</button>`;
+  document.body.appendChild(b);ana("signup-step","watch-offer");
+  b.querySelector(".go").addEventListener("click",()=>{ana("signup-step","watch-offer-yes");toggleWatch(k,true);setHearts(k);hideBackBar();
+    if(!offerSignup(true))toast(sub&&sub.active?t("watching"):sub&&sub.pending?t("watchingPending"):t("watchingSignup"))});
+  b.querySelector(".x").addEventListener("click",()=>{ana("signup-step","watch-offer-close");hideBackBar()});
+  return true}
 function offerStore(){
-  if(document.querySelector("#backBar.subar"))return;     // the sign-up offer stays until it's answered or closed
-  if(!lastShop||view.store||offered.has(lastShop.h)||Date.now()-lastShop.t>45*60e3)return;
+  if(document.querySelector("#backBar.subar,#backBar.bwbar"))return;     // the sign-up / watch offer stays until it's answered or closed
+  if(!lastShop||view.store||Date.now()-lastShop.t>45*60e3)return;
+  if(offerWatch())return;
+  if(offered.has(lastShop.h))return;
   if(offerSignup())return;
   const h=lastShop.h,n=storeCounts()[h]||0;if(n<4||!STORES[h])return;
   offered.add(h);try{sessionStorage.setItem("gf-offered",JSON.stringify([...offered]))}catch(e){}hideBackBar();
@@ -1549,10 +1583,15 @@ $("dealList").addEventListener("click",e=>{
 const HEART='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 6.9 4.5c2.1 0 3.6 1.2 5.1 3 1.5-1.8 3-3 5.1-3 3.5 0 5.5 3.5 4.2 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>';
 let watches=LS.get("gf-watch")||{};           // key -> {b,n,g,url,price,saved}
 const itemKey=d=>`${d.b}|${d.n}|${d.g}|${d.w?1:0}`.toLowerCase();   // same id the alert emails use
-function heartBtn(k,on,d){return `<button type="button" class="heart" data-key="${esc(k)}" aria-pressed="${on}" aria-label="${on?t("stopWatching"):t("watch")} ${esc(d.b+" "+d.n)}">${HEART}</button>`}
+function heartBtn(k,on,d){return `<button type="button" class="heart" data-key="${esc(k)}" aria-pressed="${on}" aria-label="${on?t("stopWatching"):t("watch")} ${esc(d.b+" "+d.n)}">${HEART}<span class="hl" aria-hidden="true">${on?t("watchOn"):t("watchBtn")}</span></button>`}
+function setHearts(k){const on=!!watches[k];document.querySelectorAll(`.heart[data-key="${CSS.escape(k)}"]`).forEach(x=>{x.setAttribute("aria-pressed",String(on));const l=x.querySelector(".hl");if(l)l.textContent=on?t("watchOn"):t("watchBtn")})}
+/* Oct 11 (52% of sign-ups tapped the confirm link): "Check your inbox" gets a button that opens their mail (Gmail, Outlook…) */
+const MAILAPPS=[[/^(gmail|googlemail)\./,"Gmail","https://mail.google.com/mail/u/0/#search/from%3Athegearfox.com"],[/^(outlook|hotmail|live|msn)\./,"Outlook","https://outlook.live.com/mail/0/"],[/^(yahoo|ymail|rocketmail)\./,"Yahoo Mail","https://mail.yahoo.com/"],[/^(icloud|me|mac)\.com$/,"iCloud Mail","https://www.icloud.com/mail"],[/^(proton|protonmail|pm)\./,"Proton Mail","https://mail.proton.me/"]];
+function mailBtn(e){const dm=(String(e||"").split("@")[1]||"").toLowerCase(),m=MAILAPPS.find(x=>x[0].test(dm));return m?`<a class="mailbtn" href="${m[2]}" target="_blank" rel="noopener" data-mailapp="${m[1]}">${t("openMail",m[1])}</a>`:""}
+document.addEventListener("click",e=>{const a=e.target.closest("[data-mailapp]");if(a)ana("signup-step","open-mail|"+a.dataset.mailapp)});
 function saveWatches(){LS.set("gf-watch",watches);const n=Object.keys(watches).length;$("watchCount").textContent=n?String(n):""}
 let toastT;function toast(t){const e=$("toast");e.textContent=t;e.classList.remove("hidden");clearTimeout(toastT);toastT=setTimeout(()=>e.classList.add("hidden"),3200)}
-function toggleWatch(k){
+function toggleWatch(k,quiet){     // quiet: the come-back bar asks for the email itself (no sheet, no toast)
   if(watches[k]){ana("watch-remove",watches[k].g);delete watches[k];saveWatches();
     if(sub&&sub.key)rpc("watch_remove",{p_token:sub.key,p_key:k}).catch(()=>{});
     toast(t("removed"));return}
@@ -1564,8 +1603,8 @@ function toggleWatch(k){
   track("watch-add",{brand:d.b,group:d.g});
   if(sub&&sub.key&&sub.active){rpc("watch_add",{p_token:sub.key,p_key:k,p_meta:watches[k]}).catch(()=>{});
     toast(t("watching"))}
-  else toast(sub&&sub.pending?t("watchingPending"):t("watchingSignup"));
-  if(peeking()){step=2;openSheet();$("panel").scrollTop=0}
+  else if(!quiet)toast(sub&&sub.pending?t("watchingPending"):t("watchingSignup"));
+  if(peeking()&&!quiet){step=2;openSheet();$("panel").scrollTop=0}
 }
 async function syncWatches(){
   if(!(sub&&sub.key))return;
@@ -1579,7 +1618,7 @@ async function syncWatches(){
 }
 ["dealList","newBox"].forEach(id=>$(id).addEventListener("click",e=>{const h=e.target.closest(".heart");if(!h)return;e.preventDefault();e.stopPropagation();
   toggleWatch(h.dataset.key);const on=!!watches[h.dataset.key];
-  if(view.watch)renderAll();else{document.querySelectorAll(`.heart[data-key="${CSS.escape(h.dataset.key)}"]`).forEach(x=>x.setAttribute("aria-pressed",String(on)))}}));
+  if(view.watch)renderAll();else setHearts(h.dataset.key)}));
 function setWatchView(on){if(on)ana("watchlist-open",Object.keys(watches).length);view.watch=on;if(on)loadFull();$("openWatch").setAttribute("aria-pressed",String(on));view.open={};renderAll();window.scrollTo({top:0})}
 $("openWatch").addEventListener("click",()=>setWatchView(!view.watch));
 $("filtersBox").addEventListener("change",e=>{const el=e.target;if(!el||el.closest("#cats"))return;
@@ -1732,7 +1771,7 @@ function renderStats(){
   try{const g=a.closest(".grid"),w=a.closest(".dw"),sec=a.closest(".grp");
     ana("deal-click",[a.dataset.store||storeOf(a.href),d?d.g:"",d?d.pct:"",view.watch?"watchlist":(sec&&sec.id?sec.id.replace("grp-",""):"top"),peeking()?"peek":""].join("|"),g&&w?[...g.children].indexOf(w)+1:null)}catch(e){}
   logEvent("click",a.dataset.store||storeOf(a.href),d?d.g:null);
-  lastShop={h:storeOf(d&&d.url||a.href),t:Date.now()};try{sessionStorage.setItem("gf-lastshop",JSON.stringify(lastShop))}catch(e){}setTimeout(()=>{if(document.visibilityState==="visible"&&document.hasFocus())offerStore()},2500);
+  lastShop={h:storeOf(d&&d.url||a.href),t:Date.now(),k:h?h.dataset.key:null};try{sessionStorage.setItem("gf-lastshop",JSON.stringify(lastShop))}catch(e){}setTimeout(()=>{if(document.visibilityState==="visible"&&document.hasFocus())offerStore()},2500);
   if(h){recordClick(h.dataset.key);setTimeout(renderStats,0)}},true));
 
 function renderAll(){
@@ -1792,6 +1831,7 @@ function renderAll(){
   if(q.length){const hint=searchHelp(q,p,all.length,fold);if(hint)parts.unshift(hint)}
   else if(!view.store&&!cdn){const sb=sinceBar(all);if(sb)parts.unshift(sb)}
   const body=parts.filter(Boolean);
+  if(QLAND&&view.q){const i=body.findIndex(x=>x.includes('class="grp'));body.splice(i<0?body.length:i+1,0,signupHTML())}else
   body.splice(Math.min(1+(view.store?1:0)+(cdn?1:0)+(!hasSizes()&&!view.store?1:0),body.length),0,signupHTML());   // after the first block of deals (a note on top doesn't count)   // the email card sits right after the first block of deals
   $("dealList").innerHTML=body.join("")||`<div class="empty">${t("nothing")}</div>`;
   bindSignup();
@@ -1817,17 +1857,22 @@ let signupErr="",resentAt=0;
 function signupHTML(){
   if(sub&&sub.active)return "";
   if(sub&&sub.pending)return `<div class="signup"><h3>${t("checkInbox")}</h3><p style="margin:0">${sub.signin?t("signinCard",esc(sub.pending)):t("checkInboxTxt",esc(sub.pending))}</p>
-    <p class="fine">${t("junkHint")}</p>
+    ${mailBtn(sub.pending)}<p class="fine">${t("junkHint")}</p>
     <p class="fine"><button type="button" id="suResend" style="font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;cursor:pointer">${t("resend")}</button> · <button type="button" id="suRetry" style="font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;cursor:pointer">${t("otherEmail")}</button></p></div>`;
   if(LS.get("gf-nosignup"))return "";                  // "No thanks" on this device: hearts still ask
-  const pk=peeking();
+  if(QLAND&&view.q)return `<div class="signup qsline"><p><b>${t("qsH")}</b> ${t("qsTxt")}</p>
+    <form id="suForm" novalidate><label for="suEmail" class="hidden">${t("email")}</label>
+      <input id="suEmail" type="email" autocomplete="email" inputmode="email" placeholder="${t("emailPh")}" value="${esc(state.email)}" required>
+      <button class="primary" type="submit">${t("signUp")}</button></form>
+    ${signupErr?`<p class="err">${esc(signupErr)}</p>`:""}
+    <p class="fine"><button type="button" id="suGoogle" class="linkbtn">${t("peekG")}</button> · <button type="button" id="suNo" class="linkbtn">${t("noThanks")}</button></p></div>`;
   return `<div class="signup"><h3>${t("perksTitle")}</h3>
     <ul class="perks"><li>${t("perk1")}</li><li>${t("perk2")}</li><li>${t("perk3")}</li></ul>
     <form id="suForm" novalidate><label for="suEmail" class="hidden">${t("email")}</label>
       <input id="suEmail" type="email" autocomplete="email" inputmode="email" placeholder="${t("emailPh")}" value="${esc(state.email)}" required>
       <button class="primary" type="submit">${t("signUp")}</button></form>
     ${signupErr?`<p class="err">${esc(signupErr)}</p>`:""}
-    ${pk?`<p class="fine"><button type="button" id="suGoogle" class="linkbtn">${t("peekG")}</button></p>`:""}
+    <p class="fine"><button type="button" id="suGoogle" class="linkbtn">${t("peekG")}</button></p>
     <p class="fine">${t("signupFine")} · <button type="button" id="suNo" class="linkbtn">${t("noThanks")}</button></p></div>`;
 }
 function bindSignup(){
