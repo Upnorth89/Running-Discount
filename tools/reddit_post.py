@@ -47,6 +47,7 @@ GEAR_GROUPS = {"packs", "gear", "watches", "tops", "bottoms", "gloves", "headwea
 
 
 def base(n):
+    n = re.sub(r"\s*\((also )?available in [^)]*\)", "", n, flags=re.I)       # "(Available in Wide Widths)"
     n = re.sub(r"\s*-\s*(men|women)'?s.*$|\s*-\s*unisex.*$|\s*\((men|women)'?s\)", "", n, flags=re.I)
     return re.sub(r"[\s-]*(road|trail)?[\s-]*(running|race|racing)?[\s-]*shoes?$", "", n, flags=re.I).strip(" -").removesuffix(" Road")
 
@@ -89,6 +90,8 @@ def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, u
         if it.get("t") == "spike":
             continue
         b, n = it["b"].lower(), fold(it["n"])
+        if re.search(r"cumulus 16|kayano 14|gt-?2160|gel-?nyc|gel-?1130|1906|2002r|990v|530|9060", n):   # retro lifestyle reissues
+            continue
         if it["g"] == "shoes" and b in SHOE_BR:
             rank = next((k for k, h in enumerate(HYPE) if h in n), None)
             if rank is None and not kind:          # themed posts take any known-brand shoe of that kind
@@ -126,7 +129,7 @@ def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, u
             if kind == "shoes" and sl in pages and not (pages[sl] or {}).get("to"):
                 link = f"{SITE}/{pre}/{sl}/?ref={ref}"
             else:          # a search that finds this item: the shortest run of name words that matches nothing else
-                words = fold(name).replace("-", " ").split()
+                words = re.sub(r"[^a-z0-9' ]+", " ", fold(name)).split()
                 q = " ".join(words)
                 for j in range(2, len(words) + 1):
                     cand = words[:j]
