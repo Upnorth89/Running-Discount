@@ -43,6 +43,7 @@ GEAR_BR = {"nathan", "salomon", "patagonia", "arc'teryx", "the north face", "cie
            "garmin", "coros", "suunto", "black diamond", "petzl", "brooks", "hoka", "on", "nike", "adidas", "smartwool", "oakley",
            "ultimate direction", "craft", "icebreaker", "saucony", "new balance", "asics", "2xu", "gorewear", "sugoi", "garneau",
            "odlo", "life sports gear", "kogalla", "raidlight", "osprey", "camelbak", "mec"}
+FAMOUS_CDN = ["arc'teryx", "norda", "ciele", "saxx", "mec", "lole", "tentree", "reigning champ", "knix", "kombi", "naak", "sugoi"]
 GEAR_GROUPS = {"packs", "gear", "watches", "tops", "bottoms", "gloves", "headwear"}
 
 
@@ -128,8 +129,11 @@ def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, u
     for kind, pool, k in (("shoes", shoes, n_shoes), ("gear", gear, n_gear)):
         if kind == "gear" and canadian:          # fewer Canadian shoes than asked: gear fills the list
             k += n_shoes - len(out.get("shoes", []))
-        pool.sort(key=lambda r: -r[0])
+        # Canadian posts: the brands people know first (Bastien, Oct 11: "you haven't found Canadian items like Arc'teryx")
+        fame = lambda it: FAMOUS_CDN.index(fold(it["b"])) if canadian and fold(it["b"]) in FAMOUS_CDN else len(FAMOUS_CDN)
+        pool.sort(key=lambda r: (fame(r[1]), -r[0]))
         got, seen, groups = [], set(), {}
+        brands = {}
         for pct, it, at in pool:
             if len(got) >= k:
                 break
