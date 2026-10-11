@@ -185,6 +185,11 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   applications ("we sent N shoppers to X"). Manual run = this month so far. Reads our own counts in Supabase
   (`supabase/clicks.sql`: the site logs one visit per session and each deal click via `log_event`; nothing
   personal), since Umami's free plan has no API. Countries/pages stay in the Umami dashboard.
+- **IndexNow** (Oct 11): refresh.yml job `indexnow` (morning runs, after deploy) sends every sitemap URL to api.indexnow.org (Bing,
+  DuckDuckGo, ChatGPT search, Yandex); key file site/d5b591bd5a0f92826eeb50008110fb99.txt (public by design). First submit Oct 11: 1,856 URLs, HTTP 200.
+- **Growth calendar** (Oct 11, Bastien: "post every 3 days on running gear"): plan doc section "Growth: a post every 3 days" + send_later
+  reminders at 6:30am Vancouver (C25K Oct 14, RunningShoes 17, runninglifestyle 20, BuyCanadian 23, xxrunning 26, trailrunning 29,
+  FrugalMaleFashionCDN Nov 1, ultrarunning 4, RunningShoeGeeks 7 + plan the rest to Cyber Monday). A different place each time.
 - **Tracking links**: `?ref=name` (kept per device, sent with visits/sign-ups, saved in the profile), `?lang=fr`.
 - **Post maker** (`tools/reddit_post.py --ref <place> [--side ca|us|both] [--out FILE]`, Oct 11; Bastien: post every 3 days, format
   "6 shoes 4 gear Canada and 6 shoes 4 gear USA, that's it", names as links): famous models first, biggest discount, 7+ sizes, each
