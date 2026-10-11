@@ -87,6 +87,7 @@ th:first-child,td:first-child{text-align:left}th{color:var(--muted);font-weight:
     <p class="muted" id="whenNote"></p></div>
   <div class="grid2">
     <div class="card"><h2>New visitors: where they drop off</h2><p class="sub" id="funnelSub"></p><div class="bars" id="funnel"></div></div>
+    <div class="card" id="landCard" hidden><h2>New visitors, by where they landed</h2><p class="sub">Shoe-page visitors come from Reddit and Google straight to one shoe: they never see the welcome screen.</p><div id="land"></div></div>
     <div class="card"><h2>Do they come back?</h2><p class="sub">Of the devices first seen each week</p><div id="cohorts"></div></div>
   </div>
   <div class="card"><h2>Where they came from</h2><p class="sub">Visits per link, and what those visitors did</p><div id="sources"></div></div>
@@ -184,6 +185,13 @@ function render(d){
   $("funnelSub").textContent=`${fmt(f.sessions)} first visits in this period (last 45 days at most)`;
   bars("funnel",[["Arrived",f.sessions],["Saw the welcome",f.welcome],["Picked their sizes",f.sizes],["Saw their deals",f.peek],["Signed up",f.signup],["Clicked a deal",f.clicked]]
     .map(([k,n])=>({k,n:n||0,extra:pct(n||0,f.sessions)})));
+  // Oct 11 (Bastien: "seems like a big drop"): the same funnel split by landing page (needs supabase/ana-landing-oct11.sql)
+  const fl=r.funnel_land||{},LAND=[["homepage","Landed on the homepage"],["shoe pages","Landed on a shoe page (Reddit, Google)"],["other","Other pages"]];
+  $("landCard").hidden=!Object.keys(fl).length;
+  $("land").innerHTML=LAND.filter(([k])=>fl[k]).map(([k,t],i)=>`<h3 style="margin:${i?"18px":"4px"} 0 6px;font-size:15px">${E(t)}: ${fmt(fl[k].sessions)}</h3><div class="bars" id="land${i}"></div>`).join("");
+  LAND.forEach(([k],i)=>{const g=fl[k];if(!g)return;
+    bars("land"+i,(k==="homepage"?[["Saw the welcome",g.welcome],["Picked their sizes",g.sizes],["Clicked a deal",g.clicked],["Signed up",g.signup]]
+      :[["Picked a size",g.sizes],["Clicked a deal",g.clicked],["Went on to the homepage",g.home],["Signed up",g.signup]]).map(([kk,n])=>({k:kk,n:n||0,extra:pct(n||0,g.sessions)})))});
   const co=r.cohorts||[];
   $("cohorts").innerHTML=co.length?`<table><tr><th>Week of</th><th>New</th><th>Came back</th><th>After 7+ days</th><th>Signed up</th></tr>`+
     co.map(c=>`<tr><td>${E(c.week)}</td><td>${c.devices}</td><td>${pct(c.came_back,c.devices)}</td><td>${pct(c.back_after_7d,c.devices)}</td><td>${pct(c.signed_up,c.devices)}</td></tr>`).join("")+"</table>":`<p class="muted">Nothing yet.</p>`;

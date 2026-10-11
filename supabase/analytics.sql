@@ -101,8 +101,13 @@ returns jsonb language sql stable security definer set search_path = public as $
            bool_or(kind = 'peek-view') peek, bool_or(kind = 'signup') signup,
            bool_or(kind = 'deal-click') clicked, bool_or(kind = 'watch-add') hearted,
            bool_or(kind = 'search') searched, max(num) filter (where kind = 'leave') secs,
-           max(num) filter (where kind = 'scroll') scrolled, count(*) filter (where kind = 'deal-click') clicks
+           max(num) filter (where kind = 'scroll') scrolled, count(*) filter (where kind = 'deal-click') clicks,
+           bool_or(kind = 'shoe-page-size') shoe_size
     from e group by sid),
+  -- where each session landed (Oct 11, Bastien: half of first visits land on a shoe page and never see the welcome)
+  sl as (select *, case when coalesce(entry, '') in ('/', '/index.html') then 'homepage'
+                        when entry ~ '^/(us/)?(shoes|chaussures|running-shoes-sale|chaussures-course-solde|brands|marques|black-friday|vendredi-fou)/'
+                             then 'shoe pages' else 'other' end land from s),
   top as (select kind, detail, count(*) n, count(distinct did) devices from e
           where kind in ('search','search-none','category','type','filter','sort','menu','shoe-page-view','shoe-page-size',
                          'deal-click','watch-add','share','language','currency','error')
@@ -124,6 +129,11 @@ returns jsonb language sql stable security definer set search_path = public as $
                 'sessions', count(*), 'welcome', count(*) filter (where welcome), 'sizes', count(*) filter (where sizes),
                 'peek', count(*) filter (where peek), 'signup', count(*) filter (where signup),
                 'clicked', count(*) filter (where clicked)) from s where nv = 1),
+    'funnel_land', coalesce((select jsonb_object_agg(land, x) from (
+                select land, jsonb_build_object('sessions', count(*), 'welcome', count(*) filter (where welcome),
+                       'sizes', count(*) filter (where sizes or shoe_size), 'signup', count(*) filter (where signup),
+                       'clicked', count(*) filter (where clicked), 'home', count(*) filter (where welcome or sizes)) x
+                from sl where nv = 1 group by land) y), '{}'),
     'returning', (select jsonb_build_object(
                 'sessions', count(*), 'clicked', count(*) filter (where clicked), 'hearted', count(*) filter (where hearted),
                 'searched', count(*) filter (where searched)) from s where nv > 1),
