@@ -218,6 +218,34 @@ for k, n in Counter(src(s) for s in new).most_common(8):
                    + "; went on to the homepage " + str(sum(1 for s in g if land(s) != "homepage"
                                                            and {"welcome-view", "sizes-saved"} & s["kinds"])))
 
+# sign-up card (Oct 11, Bastien deciding "a sign-up card on every page"): how often it's waved off, and where sign-ups come from
+st = Counter()
+for e in rows:
+    if e["kind"] == "signup-step" and e["detail"] in ("no-thanks", "backbar-view", "backbar-close", "drop-ask"):
+        st[e["detail"]] += 1
+saw_deals = [s for s in alls if {"sizes-saved", "deal-click"} & s["kinds"] or "browse" in s["steps"]]
+out.append(f"SIGN-UP CARD: sessions that saw deals {len(saw_deals)}; 'No thanks' taps {st['no-thanks']}; come-back sign-up bar shown "
+           f"{st['backbar-view']}, closed {st['backbar-close']}; watchlist 'email me' asks {st['drop-ask']}; "
+           f"sign-ups total {sum(wh.values())}, by where: " + (", ".join(f"{k} {v}" for k, v in wh.most_common(8)) or "none"))
+shoe_signup = sum(1 for s in alls if "signup" in s["kinds"] and (s["entry"] or "").startswith(("/shoes", "/us/shoes", "/chaussures")))
+out.append(f"  sessions that landed on a shoe page and signed up: {shoe_signup}")
+
+# deal clicks per store (Oct 11: the affiliate pitch quotes each store's clicks): this window from analytics, and this month
+# so far from our own click table (the monthly report's numbers)
+dc = Counter((e["detail"] or "?").split("|")[0] for e in rows if e["kind"] == "deal-click")
+out.append(f"DEAL CLICKS BY STORE (last {DAYS} days, {sum(dc.values())} clicks): " + ", ".join(f"{k} {v}" for k, v in dc.most_common(20)))
+try:
+    now = datetime.now(timezone.utc)
+    m0 = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    r = requests.post(f"{SB}/rest/v1/rpc/click_report", headers=H, timeout=60, json={"p_from": m0.isoformat(), "p_to": now.isoformat()})
+    r.raise_for_status()
+    c = r.json()
+    bs = Counter(c.get("by_store") or {})
+    out.append(f"THIS MONTH SO FAR (own click table): {int(c.get('visits') or 0)} visits, {int(c.get('clicks') or 0)} clicks; by store: "
+               + ", ".join(f"{k} {v}" for k, v in bs.most_common(20)))
+except Exception as e:
+    out.append(f"This month's click table: couldn't read ({str(e)[:80]})")
+
 text = "\n".join(out)
 print(text)
 if os.environ.get("GITHUB_ACTIONS"):
