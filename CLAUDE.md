@@ -195,6 +195,10 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   "6 shoes 4 gear Canada and 6 shoes 4 gear USA, that's it", names as links): famous models first, biggest discount, 7+ sizes, each
   deal confirmed on the store's page (else the next one), shoe page link or a ?q= search that finds only that item; writes the
   Markdown (paste at old.reddit.com) and a plain version (address under each line, for the phone app). One ?ref per place.
+  `--canadian` (Oct 11): the site's CDN_BRANDS only, well-known ones first (FAMOUS_CDN: Arc'teryx, norda, Ciele, SAXX, MEC…),
+  4 shoes + 6 others, max 2 per brand, one per kind of thing (`noun()`: vests, warmers). Retro lifestyle reissues skipped.
+  Oct 12: a post with 20 thegearfox.com links was removed by Reddit's spam filter: link items straight to the store, one
+  Gear Fox line at the bottom, check the sub's self-promo rules / ask mods (r/runTO: Toronto-store list, marathon week).
 
 GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_ADDRESS` (CASL footer),
 `HEALTH_EMAIL`.
@@ -256,6 +260,8 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   apart): one record per size with price/final_price, stock qty, photo, a link that opens that colour+size. Tax class code -> group
   (`RR_GROUP`; 9xx "WR" = Walking Room, sandals, kids, swim, books left out); width from the name ("D Width") into the size. Oct 10:
   2,974 products, 1,262 on sale; sorting check clean; 4 of 4 sale prices matched on the store's page.
+  Oct 12: asked for gzip, its server sometimes sends a file cut short (19 KB, the store failed): files are read with
+  Accept-Encoding: identity + one retry.
 - Shoe sizes (Oct 9, Bastien: "we aren't pulling shoes that have European sizing?"): 2,476 shoe listings had no readable size.
   Fixed: Shopify option "US Size" (The Trail Runner Store, ~1,100), width first "D / 9.0" (Frontrunners; `canon_shoe(label, women)`),
   US+EU labels ("10.0 (43)", "EU 43 (US 10)", "42.5 (9.5US)"), "9 M / 10.5 W". EU-only sizes ("42", "38.5 EU": La Sportiva,
@@ -484,7 +490,8 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   Gore-Tex = GTX), a number joins its neighbour word ("1080 V15" = "108015"), never across words ("odlo" != "Hood - Long"); site test
   "Search without punctuation". Morning email "Searches that found nothing (last 24 h)" (`scraper/search_check.py`, a Python copy of
   hayOf/suggest: keep them the same): our search missed it (a problem) / typo / store name / not in their size / other side only /
-  we don't carry it (store and brand ideas). Side from the device time zone.
+  we don't carry it (store and brand ideas). Side from the device time zone. Its loose match must start at a word
+  (Oct 12: 'vest' isn't in 'Five Stripes').
 - Catalog file (Oct 8; stores that block us: Bastien has GPT make Running_Gear_Catalog.xlsx and uploads it to saved-pages/ every
   2-3 days): `catalog_rows()` reads the newest .xlsx ("Products" + "Sizes & availability" sheets), ignored 3 days after its own
   "Observed (UTC)" time (CATALOG_MAX_DAYS). Only "In stock" sizes, no kids, adidas size words ("L/G", "XSTP", 'S/P 5"') tidied.
