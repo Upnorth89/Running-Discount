@@ -57,6 +57,8 @@ def noun(n):
     """What kind of thing it is, from the last word of the name: Knee Warmer / Leg Warmers / Leg Cooler = one kind."""
     w = re.sub(r"[^a-z ]", "", fold(base(n))).split() or [""]
     w = w[-1].rstrip("s")
+    if "vest" in fold(n) or "vesta" in fold(n):
+        return "vest"                       # Race Vesta, Hydration Race Vest 4L: one kind
     return "warmer" if w in ("warmer", "cooler", "warm", "sleeve") else w
 
 
