@@ -173,7 +173,7 @@ every check (rule in CLAUDE.md: try every allowed way first; a store that says n
 | REI | USA | blocks automated reading | **saved pages work** (US side) | affiliate feed |
 | Boutique Courir | Montréal | blocks automated reading (Oct 1) | site | ask the store |
 | Simons | Québec (simons.ca) | Cloudflare 403 on every page, sitemap and search, from my sandbox and from GitHub's servers (probe.yml, Oct 11); robots.txt empty | site, sitemap, search, GitHub probe | GPT catalog file (ask GPT to add Simons' running/activewear), or an affiliate feed |
-| SVP Sports | Québec | Cloudflare check (Oct 4) | **saved pages work**; parked Oct 6 (soccer/budget shoes) | none needed |
+| SVP Sports | Québec | Cloudflare check (Oct 4); gone Oct 12 | **live since Oct 12** (Shopify, running-collection only) | none needed |
 | Brooks, New Balance, ASICS, Hoka, Salomon, adidas, Inov-8, The North Face | brands | 403/406 "Access denied" (rechecked Oct 5; ASICS Oct 10: asics.com CA + US, outlet.asics.com, even robots.txt and sitemaps answer Akamai 403, from my sandbox and from GitHub's servers via probe.yml) | brand sites; **Brooks, New Balance, ASICS, adidas.ca come from the GPT catalog file** (Oct 8) | their shoes reach us through the stores |
 | Nike | brand | robots.txt disallows product pages (sizes) | listings | through the stores |
 | On | brand | script-only page, robots disallows /api | site | through the stores |
@@ -328,7 +328,7 @@ Stores with under 25 products in stock are left out. Numbers from the Oct 8b fil
 | Atmosphere | national | blocks automated reading |
 | Sports Experts | QC | blocks automated reading |
 | Boutique Courir (boutiquecourir.com) | Montréal | blocks automated reading (Oct 1, 2026) |
-| SVP Sports (svpsports.ca) | Québec chain | Shopify behind a Cloudflare "verify your connection" check on products.json and collections (Oct 4, 2026). Its Shopify shopping-agent catalog (UCP/MCP) exists but is meant for buyer assistants and needs an agent profile; not used. Read from the Grab deals bookmark (Oct 4): Bastien saved SVP's running sale collection (svp-DATE.json). **Parked Oct 6, 2026**: the sale page is mostly soccer and budget shoes, not worth a weekly save; reader kept |
+| SVP Sports (svpsports.ca) | Québec chain | Shopify behind a Cloudflare "verify your connection" check on products.json and collections (Oct 4, 2026). Its Shopify shopping-agent catalog (UCP/MCP) exists but is meant for buyer assistants and needs an agent profile; not used. Read from the Grab deals bookmark (Oct 4): Bastien saved SVP's running sale collection (svp-DATE.json). **Parked Oct 6, 2026**: the sale page is mostly soccer and budget shoes, not worth a weekly save; reader kept. **Live again Oct 12, 2026**: products.json answers (no Cloudflare check), robots allow it (but forbid /cart.js: `NO_CART`, currency from meta.json = CAD, ships to CA only). Reads /collections/running-collection (~1,370 products: adidas/Nike/Saucony/NB/Puma/ASICS, Endorphin Speed 5 48% off); `tidy_svp` drops "Brand - ", style codes, "Shoes", yoga/maternity/track suits, reads "M11" as 11. Sorting check clean; 5 of 5 prices matched on the store's page |
 | Kintec (kintec.net) | BC | no readable product feed (Oct 1, 2026) |
 | Gord's Running Store | Calgary | no readable product feed (Oct 1, 2026) |
 | Fast Trax, Mile One Running, The Trail Store | AB / BC | site didn't answer (Oct 1, 2026); try again later |

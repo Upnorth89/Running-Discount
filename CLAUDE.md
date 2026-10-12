@@ -247,8 +247,9 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   morning reads failed twice in 2 days): read at night by runfree.yml job "thefeed" (`scrape.py --thefeed-night hist/thefeed.json`:
   a page every 10 s, waits Retry-After up to 15 times per page, slim copy of each product); the refresh downloads it to
   /tmp/thefeed.json (`THEFEED_FILE`) and uses it when under 36 h old, else reads live. Long term: The Feed's CJ affiliate product feed.
-  SVP Sports (Oct 4, Québec chain, Shopify behind Cloudflare): saved pages too: the Grab deals bookmark on any SVP collection
-  saves its products.json (svp-DATE.json, `scrape_svp_saved`); expires after 10 days like MEC/REI. PARKED Oct 6 (mostly soccer/budget shoes): out of STORES, no reminders.
+  SVP Sports (Québec chain, Shopify): Cloudflare blocked it Oct 4 (saved pages, parked Oct 6); since Oct 12 read LIVE (the check is
+  gone, robots allow): SHOPIFY_STORES "svp", only /collections/running-collection (US_COLLECTIONS), no cart.js (robots forbid it:
+  `NO_CART`), `tidy_svp` ("adidas - Men's X Shoes (CODE)" -> "Men's X", sizes "M11" -> 11, "(Wide)", yoga/maternity/track suits out).
 - Running Free (Oct 9; Ontario chain, own shop system, no feed): `runningfree_night` in scrape.py, runfree.yml job "runningfree"
   (~2 h, one page every 30 s = its robots.txt Crawl-delay). Listing pages (96 a page) of the men's/women's sections give name,
   "Mens Black" gender+colour, photo, regular + sale price; size filter pages ("10-Regular-66612", "Medium-45397") list only what's

@@ -1616,7 +1616,7 @@ def scrape_rei_saved():
 CATALOG_MAX_DAYS = 3
 CATALOG_MIN = 25       # a store with fewer products in stock than this is left out (Oct 8, Bastien: Backcountry's 6 "isn't enough")
 CATALOG_SKIP = set()   # stores to leave out of the catalog file by name
-SAVED_STORES = {"mec", "rei", "svp", "sportchek", "adidasca", "catalog"}   # from files Bastien brings: no file = no deals, never stale ones
+SAVED_STORES = {"mec", "rei", "sportchek", "adidasca", "catalog"}   # from files Bastien brings: no file = no deals, never stale ones
 CATALOG_STORES = {"Sport Chek": ("sportchek", "https://www.sportchek.ca"), "Adidas": ("adidasca", "https://www.adidas.ca"),
                   "REI": ("rei", "https://www.rei.com")}
 _catalog_cache = {}
@@ -1970,6 +1970,8 @@ SHOPIFY_STORES = [
     # added 2026-10-06
     ("brainsport",     "https://www.brainsport.ca",          "gear"),   # Brainsport (Saskatoon, SK)
     ("sail",           "https://www.sail.ca/en-ca",          "gear"),   # SAIL plein air (QC/ON chain): its running section only
+    ("svp",            "https://www.svpsports.ca",           "gear"),   # SVP Sports (Québec chain): its running section only. Its feed
+                                                                        # answers again (Cloudflare check gone, Oct 12, 2026); robots allow it
     # US running shops (Oct 6, 2026): the USA side of the site only (they may not ship to Canada); read in their US market
     ("pacers",         "https://pacersrunning.com",          "gear"),   # Pacers Running (Washington DC area)
     ("portlandrun",    "https://portlandrunningcompany.com", "gear"),   # Portland Running Company (Oregon)
@@ -2109,12 +2111,40 @@ US_SHOPS = {"pacers", "portlandrun", "heartbreak", "runnersplus", "gazelle", "sp
             "scrantonrun", "trailheadrun", "prrunwalk", "performancerun", "fitnesssports", "athleticannex", "annarborrun",
             "tworivers", "xtramile", "lukeslocker", "sfrunco", "backcountry", "rei",
             "territory", "pathprojects", "ombraz", "2xuus"} | set(RUNFREE_US)   # REI ships within the US only
-US_COLLECTIONS = {"sportsbasement": ["running"], "sail": ["outdoor-gear-running"], "humaca": ["nutrition"]}   # (Canadian stores too: SAIL)   # general stores: their running section only (Sports Basement also sells
+US_COLLECTIONS = {"sportsbasement": ["running"], "sail": ["outdoor-gear-running"], "svp": ["running-collection"], "humaca": ["nutrition"]}   # (Canadian stores too: SAIL)   # general stores: their running section only (Sports Basement also sells
                                                    # snowboards, swimwear, tennis: those topped the US deals, Oct 6, 2026)
 # Shoebacca was tried and dropped (Oct 6, 2026): mostly PUMA/adidas/Diadora budget and gym shoes, no Hoka/Brooks/ASICS/Nike
+NO_CART = {"svp"}      # robots.txt forbids /cart.js: the currency comes from meta.json only (SVP: CAD)
 SHIPS_US = set()       # Canadian stores that ship to the US, shown on the USA side too. Empty: Altitude Sports doesn't ship
                        # there (Bastien, Oct 6, 2026) and most Canadian shops don't; add one only after checking its shipping page
        # Canadian stores that also ship to the US (shown on the USA side too)
+
+SVP_NOT_RUNNING = re.compile(r"\b(yoga|maternity|nursing|skateboarding|track (top|jacket|pant)|tricot|firebird|adicolor|fenty)\b", re.I)
+
+def tidy_svp(items):
+    """SVP Sports writes "adidas - Men's Ultradream DNA Shoes (JS0321)" with sizes "M11" / "W8": drop the brand in front,
+    the style code and "Shoes" so the same shoe at other stores becomes one card, and read men's "M11" as 11 (Oct 12, 2026).
+    Its running section also holds yoga, maternity and track suits: left out."""
+    out = []
+    for o in items:
+        n = re.sub(r"^\s*[^-]{1,30}? - ", "", o["n"])                         # "adidas - ", "Nike Canada - "
+        n = re.sub(r"\s*\((?=[^)]*\d)[A-Z0-9][A-Za-z0-9 ./-]*\)\s*$", "", n)     # "(JS0321)", "(DR2698 002)", "(JX0516-PANT)"
+        if SVP_NOT_RUNNING.search(n):
+            continue
+        if o["g"] == "shoes":
+            m = re.search(r"\s*\((x-?wide|extra wide|wide|narrow)\)", n, re.I)   # "Cohesion 18 Shoes (Wide)"
+            if m:
+                if "narrow" in m.group(1).lower():
+                    continue                                                  # narrow widths are hidden on the site
+                o["w"], n = True, n[:m.start()] + n[m.end():]
+            n = re.sub(r"\s+(running\s+)?shoes?(?=$|\s+-\s)", "", n, flags=re.I)
+            men, women = re.search(r"\bmen[’']?s\b", n, re.I) and not re.search(r"women", n, re.I), re.search(r"\bwomen[’']?s\b", n, re.I)
+            want = "M" if men else "W" if women else None
+            if want:                                                          # unisex keeps "M10" (read as M:10)
+                o["sz"] = [[re.sub(rf"^{want}(?=\d)", "", e[0])] + list(e[1:]) for e in o["sz"]]
+        o["n"] = n
+        out.append(o)
+    return out
 
 def make_shopify_scraper(st, base, kind):
     def run():
@@ -2132,7 +2162,7 @@ def make_shopify_scraper(st, base, kind):
         # always ask for the store's Canadian market: the price and stock a Canadian visitor actually gets
         # (otherwise the store guesses from GitHub's server location: Chilean pesos, or "not available here")
         cookies = None if st in US_SHOPS else CA_COOKIES    # US shops: their own (US) market
-        served = shopify_price_currency(base, cookies)   # the currency the prices actually come back in
+        served = None if st in NO_CART else shopify_price_currency(base, cookies)   # the currency the prices actually come back in
         home = home or served
         if not home:
             print(f"  ! {st}: currency unknown, assuming CAD", file=sys.stderr)
@@ -2151,6 +2181,8 @@ def make_shopify_scraper(st, base, kind):
         print(f"  {st}: {len(prods)} products, store {home}, prices in {cur}" + (f" x{fx}" if cur != "CAD" else ""), file=sys.stderr)
         items = shopify_items(st, base, prods, generic_group(kind), fx=fx, size_aware=True, collapse=True,
                               size_fn=(lambda _l: "OS") if kind == "eyewear" else generic_size)
+        if st == "svp":
+            items = tidy_svp(items)
         for o in items:
             o["ca"] = home == "CAD"         # a store based in CAD ships from Canada; USD/EUR/GBP stores are cross-border
             o["us"] = home == "USD"         # ships from the US (the USA side's "Ships from the US")
@@ -2173,7 +2205,7 @@ STORES = {
     "sportchek": lambda: scrape_catalog("Sport Chek"),    # from the catalog file Bastien brings (blocks automated reads)
     "adidasca": lambda: scrape_catalog("Adidas"),
     "catalog": scrape_catalog_others,                     # every other store in the catalog file, each under its own name
-    # "svp": scrape_svp_saved,   # parked Oct 6, 2026 (Bastien: its sale page is mostly soccer and budget shoes); reader kept
+    # SVP Sports: read live as a Shopify store since Oct 12, 2026 (SHOPIFY_STORES); scrape_svp_saved kept for saved pages
     "decathlon": lambda: scrape_decathlon_saved(),    # read at night, slowly (runfree.yml): Decathlon blocked GitHub's daytime reads
     # "backcountry": off (Oct 6): its bot protection answers GitHub's servers "202, empty"; reader kept for a feed
     "footlocker": scrape_footlocker,
