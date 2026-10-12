@@ -525,6 +525,9 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   takes the Gender column's (" - Women's"/" - Men's"), so the cuts never merge. Visitor reports log the price as shown ("USD $77.00").
   One offer per colour (link + photo of a colour that has the size); no photo = not shown; under 25 products in stock = store left out
   (CATALOG_MIN); RW photos "&nw=400", Brooks dw/image sw/sh=400. Morning email: "Tap to check" 5 random catalog deals (catalog_spot).
+  Row age (Oct 12; a visitor found adidas sizes sold out): GPT fills the file store by store, so its newest rows were 1 day old while
+  adidas/New Balance/Sport Chek rows were 3.5 days old. Every ROW older than CATALOG_MAX_DAYS now leaves (not just the whole file);
+  the morning email names each store left out ("ask GPT for a fresh X batch") and the ones whose rows run out tomorrow.
   First file checked by hand on 9 random sale sizes: 9 right. SAVED_STORES expire (no keeping yesterday's deals). Health email:
   "Catalog file is N days old" the day before it runs out. No photos in the file (cards show text only).
 - Shipping countries (Oct 8, Bastien spotted 2XU: 2xu.com is the Australian store): the Shopify reader reads each store's
@@ -536,7 +539,8 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   `scraper/featured_check.py` (refresh.yml, before the shoe pages): the top 60 Canadian / 30 USA sale items by score are opened on the
   store's page (`livecheck.still_on_sale`, `us=True` on the USA side: CAD copy -> USD, 2% leeway, Shopify only); a sale that ended is
   taken out of sale/deals(-us).json before publishing; /tmp/featured.json -> health email "Accuracy: X of Y featured deals confirmed".
-  Every card: "Wrong price or size?" / « Prix ou taille erronés ? » (bottom-left; above "All sizes & stores" on shoe cards) -> 3 reasons
+  (Oct 12) A flag whose item has no sale size at that store on today's site moves to "Already handled" in the health email
+  (`report_gone`), not counted as a problem. Every card: "Wrong price or size?" / « Prix ou taille erronés ? » (bottom-left; above "All sizes & stores" on shoe cards) -> 3 reasons
   -> analytics error "report|why|item|store|price"; the health email lists the last 24 h as "A visitor says: …". Top deals skip items
   left only in odd sizes until a size is picked (`commonFit`). Returning visitor (6 h+): "Since your last visit (Tuesday): N new · deals
   you opened that dropped" (`sinceBar`, from gf-base + gf-clicks `p`; the new count is left out when the new-deals row shows it).

@@ -1712,6 +1712,31 @@ def _catalog_rows():
         canon = {re.sub(r"\W", "", k.lower()): k for k in CATALOG_STORES}     # "SportChek", "ADIDAS" -> our names
         for r in got + prods:
             r["Retailer"] = canon.get(re.sub(r"\W", "", str(r.get("Retailer") or "").lower()), r.get("Retailer"))
+        # Each row's own age (Oct 12, 2026: a visitor found adidas sizes sold out. The file is filled store by store, so
+        # its newest rows were 1 day old while adidas, New Balance and Sport Chek were read 3.5 days earlier.)
+        now, stale = dt.datetime.utcnow(), {}
+        def fresh(r):
+            o = r.get("Observed (UTC)")
+            if isinstance(o, dt.datetime) and (now - o).total_seconds() / 86400 > CATALOG_MAX_DAYS:
+                n, old = stale.get(r["Retailer"], (0, o))
+                stale[r["Retailer"]] = (n + 1, min(old, o))
+                return False
+            return True
+        got = [r for r in got if fresh(r)]
+        kept = {r["Retailer"] for r in got}
+        stale_warn = [f"{st}: {n} sizes read {old:%b %-d} ({(now - old).total_seconds() / 86400:.1f} days ago) left out"
+                      + (" (its newer rows are used)" if st in kept else f", so no {st} deals: ask GPT for a fresh {st} batch")
+                      for st, (n, old) in sorted(stale.items()) if st != "Running Free"]   # read nightly on its own
+        oldest = {}                         # the day before a store's part runs out: a nudge in the morning email
+        for r in got:
+            o = r.get("Observed (UTC)")
+            if isinstance(o, dt.datetime):
+                oldest[r["Retailer"]] = min(oldest.get(r["Retailer"], o), o)
+        stale_warn += [f"{st}: read {o:%b %-d}, its deals leave the site in {CATALOG_MAX_DAYS - (now - o).total_seconds() / 86400:.0f} "
+                       f"day or less, ask GPT for a fresh {st} batch" for st, o in sorted(oldest.items())
+                       if (now - o).total_seconds() / 86400 > CATALOG_MAX_DAYS - 1 and st != "Running Free"]
+        if stale_warn:
+            print("  catalog: " + "; ".join(stale_warn), file=sys.stderr)
         _catalog_cache["products"] = {(p["Retailer"], p["Item ID"]): p for p in prods}
         hard, warn, stores = catalog_validate(got, prods)
         report["checked"].append({"file": f.name, "age_days": round(age, 1), "problems": hard})
@@ -1719,7 +1744,7 @@ def _catalog_rows():
             print(f"  catalog file {f.name} NOT used: " + "; ".join(hard), file=sys.stderr)
             continue
         print(f"  catalog file {f.name}: {len(got)} size rows, {age:.1f} days old, check passed", file=sys.stderr)
-        report.update(used=f.name, age_days=round(age, 1), warnings=warn, stores=stores)
+        report.update(used=f.name, age_days=round(age, 1), warnings=stale_warn + warn, stores=stores)
         rows = got
         break
     prev = {}                               # the morning email reads catalog-check.json (health.py "Catalog file check")

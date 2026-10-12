@@ -190,7 +190,10 @@ def check():
             r.raise_for_status()
             reports = [x["detail"][7:] for x in r.json()]
             for x in reports[:10]:
-                problems.append((f"report:{x[:60]}", f"A visitor says: {x.replace('|', ' · ')}"))
+                if report_gone(x):            # Oct 12: the sale already left the site, so nothing left to fix
+                    HANDLED.append(f"A visitor said: {x.replace('|', ' · ')} (no longer on sale there on today's site)")
+                else:
+                    problems.append((f"report:{x[:60]}", f"A visitor says: {x.replace('|', ' · ')}"))
         except Exception as e:
             print(f"visitor reports skipped: {e}")
     sale = lambda its: sum(1 for i in its if any(len(e) > 3 and e[1] < e[3] * 0.99 for e in i.get("sz", [])))
@@ -263,6 +266,22 @@ def site_line(st):
     return f"- Site test (a robot visitor clicked through the site): {ok} of {n} checks passed{links}\n"
 
 
+HANDLED = []        # visitor flags already gone from today's site: listed once, not counted as problems
+
+def report_gone(x):
+    """A "Wrong price or size?" flag ("why|item|store|price") whose item no longer has a sale size at that store today."""
+    why, item, store = (x.split("|") + ["", "", ""])[:3]
+    if why not in ("ended", "price", "size") or not store:
+        return False
+    for f in ("deals.json", "deals-us.json"):
+        for it in load(SITE / f).get("items", []):
+            if f"{it.get('b', '')} {it.get('n', '')}".strip() != item and it.get("n") != item:
+                continue
+            idx = {i for i, o in enumerate(it.get("of", [])) if store in str(o)}
+            if any(e[2] in idx and len(e) > 3 and e[1] < e[3] * 0.99 for e in it.get("sz", [])):
+                return False
+    return True
+
 def main():
     problems, stats = check()
     cat_line, cat_probs = catalog_check()
@@ -300,6 +319,7 @@ def main():
         text = ("All good. Every store updated and nothing looks off.\n\n" if not problems else "") + \
                ("New today:\n" + "\n".join(f"- {m}" for m in new_part) + "\n\n" if new_part else "") + \
                ("Still to fix:\n" + "\n".join(f"- {m}" for m in old_part) + "\n\n" if old_part else "") + \
+               ("Already handled:\n" + "\n".join(f"- {m}" for m in HANDLED) + "\n\n" if HANDLED else "") + \
                "Today on the site:\n" + \
                f"- {stats['items']:,} products{d(stats['items'], stats['items0'])}\n" + \
                f"- {stats['sale']:,} on sale{d(stats['sale'], stats['sale0'])}\n" + \
