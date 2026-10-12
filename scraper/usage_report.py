@@ -9,6 +9,7 @@ Usage: python scraper/usage_report.py [--dry-run]   (--dry-run writes email/usag
 """
 import html
 import os
+import re
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -28,6 +29,13 @@ P = 'style="font:15px/1.5 Arial,sans-serif;color:#17201C;margin:0 0 12px"'
 H = 'style="font:800 18px Arial,sans-serif;color:#B8470A;margin:26px 0 8px"'
 TD = 'style="padding:5px 10px;border-bottom:1px solid #E3E7E3;font:14px Arial,sans-serif;text-align:{a}"'
 
+
+
+# Errors that come from the visitor's browser, add-ons or app, not from our code (Oct 12, 2026): crypto wallets
+# (window.ethereum), Firefox for iPhone's reader (__firefox__), and "Script error." = a script from another site whose
+# details the browser hides (since Oct 12 the site adds which app it was, e.g. "Script error. (other site, Instagram)").
+NOT_OURS = re.compile(r"ethereum|__firefox__|^Script error|webkit\.messageHandlers|__gCrWeb|zaloJSV2|"
+                      r"(chrome|moz|safari(-web)?)-extension", re.I)
 
 def report(start, end):
     sb, h = supabase()
@@ -132,9 +140,22 @@ def build(d, start, end):
     if sc:
         out.append(f'<p {P}><b>How far down they scrolled:</b> ' + " · ".join(f"{k}%: {sc.get(k, 0)}" for k in ("25", "50", "75", "100")) + "</p>")
     errs = top.get("error") or []
-    if errs:
-        out.append(f'<div {H}>Errors seen on visitors\' screens</div><p {P}>Claude should look at these.</p>' +
-                   table(["Error", "Times", "Devices"], [[E(x["d"] or ""), str(x["n"]), str(x["devices"])] for x in errs[:8]]))
+    reports = [x for x in errs if (x["d"] or "").startswith("report|")]       # "Wrong price or size?" taps on cards
+    theirs = [x for x in errs if x not in reports and NOT_OURS.search(x["d"] or "")]
+    ours = [x for x in errs if x not in reports and x not in theirs]
+    if reports:
+        why = {"price": "wrong price", "size": "size not available", "ended": "sale ended"}
+        out.append(f'<div {H}>Visitors flagged a deal</div><p {P}>Claude checks each one against the store.</p>' +
+                   table(["What they said", "Item", "Store", "Price shown"],
+                         [[E(why.get(r[1], r[1])), E(r[2]), E(r[3]), E(r[4])] for r in
+                          ((x["d"].split("|") + ["", "", "", ""])[:5] for x in reports[:10])]))
+    if ours:
+        out.append(f'<div {H}>Errors from our site</div><p {P}>Claude should look at these.</p>' +
+                   table(["Error", "Times", "Devices"], [[E(x["d"] or ""), str(x["n"]), str(x["devices"])] for x in ours[:8]]))
+    if theirs:
+        out.append(f'<p {P}><b>Errors from visitors\' browsers or apps</b> (crypto wallets, reader modes, the Instagram/Facebook '
+                   'in-app browser; not our code, nothing to fix): ' +
+                   " · ".join(f"{E((x['d'] or '')[:60])} ({x['n']})" for x in theirs[:6]) + "</p>")
     head = (f'<p {P}>Hi Bastien, here\'s how people used thegearfox.com from {start:%b %-d} to {(end - timedelta(seconds=1)):%b %-d}. '
             "Behaviour only: no names or emails are ever recorded.</p>")
     if insights:

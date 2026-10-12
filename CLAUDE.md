@@ -86,6 +86,9 @@ supabase/analytics.sql   own product analytics (Oct 4): ana_events (raw, 45 days
                          plus search/search-none with result count, category, filter, sort, deal-click with card position, scroll,
                          leave seconds, errors); shoe pages send visit/shoe-page-view/shoe-page-size/deal-click. Privacy page says so.
                          scraper/usage_report.py + usage-report.yml: Monday 8:13am Vancouver email "How people used The Gear Fox".
+                         Its errors (Oct 12) come in 3 parts: "Visitors flagged a deal" (report|… taps), "Errors from our site", and one
+                         line for the visitor's browser/app (`NOT_OURS`: crypto wallets, __firefox__, "Script error." = another site's script;
+                         the site now adds the app: "Script error. (other site, Instagram)"). Umami's script loads crossorigin (shows details).
                          Dashboard: site/stats.html (noindex, robots-disallowed; Chart.js) reads ana_dashboard(p_key, p_days):
                          ana_daily = nightly per-day totals (ana_rollup via pg_cron 9:13 UTC, kept forever) + today live; key
                          in ana_settings.dashboard_key (Bastien copies it from Supabase Table Editor; stored in his browser).

@@ -582,7 +582,7 @@ function esc(s){const d=document.createElement("div");d.textContent=s;return d.i
 
 /* ---------- Visitor stats (Umami Cloud: no cookies, no personal data) ---------- */
 const UMAMI_ID="d73c30be-171d-40d8-8101-278c2a536699";            // paste the Website ID from cloud.umami.is here; empty = no tracking
-(function(){if(!UMAMI_ID)return;const s=document.createElement("script");s.defer=true;
+(function(){if(!UMAMI_ID)return;const s=document.createElement("script");s.defer=true;s.crossOrigin="anonymous";   // its errors show their details (CORS allowed)
   s.src="https://cloud.umami.is/script.js";s.dataset.websiteId=UMAMI_ID;s.dataset.domains="thegearfox.com,www.thegearfox.com";document.head.appendChild(s)})();
 /* Our own analytics (supabase/analytics.sql): what people do, never who they are. A random device number
    (localStorage gf-did) tells a returning visitor from a new one; no email, no cookies. Sent in small batches. */
@@ -606,7 +606,10 @@ const ANA=(()=>{const ls=k=>{try{return localStorage.getItem(k)}catch(e){return 
     clearTimeout(timer);timer=null;flush(true)};
   document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")bye();else{away=false;t0=Date.now()}});
   addEventListener("pagehide",bye);
-  addEventListener("error",e=>{try{add("error",(e.message||"")+" @"+((e.filename||"").split("/").pop())+":"+e.lineno)}catch(x){}});
+  // "Script error." = a script from another site (the browser hides which): name the app the page is open in (Oct 12, 2026)
+  const app=(()=>{const u=navigator.userAgent||"";return /Instagram/.test(u)?"Instagram":/FBAN|FBAV|FB_IAB/.test(u)?"Facebook":/Reddit/i.test(u)?"Reddit":
+    /GSA\//.test(u)?"Google app":/FxiOS/.test(u)?"Firefox":/CriOS/.test(u)?"Chrome iPhone":/EdgiOS|EdgA/.test(u)?"Edge":/Android/.test(u)?"Android browser":/iPhone|iPad/.test(u)?"Safari iPhone":"computer"})();
+  addEventListener("error",e=>{try{const m=e.message||"";add("error",/^Script error/.test(m)&&!e.filename?"Script error. (other site, "+app+")":m+" @"+((e.filename||"").split("/").pop())+":"+e.lineno)}catch(x){}});
   const em=(()=>{try{return (new URLSearchParams(location.search).get("em")||"").replace(/[^a-z-]/g,"").slice(0,20)}catch(e){return ""}})();   // ?em=friday|alert: links in our emails (Oct 8)
   if(fresh)add("visit",em?"email-"+em:(matchMedia("(display-mode: standalone)").matches||navigator.standalone)?"home-screen app":document.referrer?new URL(document.referrer).hostname:"",null,location.pathname);
   return {add,nv:()=>nv}})();
@@ -1420,7 +1423,7 @@ function card(d,extra){
   const isNew=!extra&&NEWSET.has(k);
   const sp=shoePage(d);
   return `<div class="dw${sp?" hascmp":""}"><a class="deal" href="${esc(affUrl(d.url))}" data-store="${esc(storeOf(d.url))}" target="_blank" rel="noopener">
-    ${d.img?`<div class="pic"><img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.remove()">${lowDays(d)?`<span class="lostamp" aria-hidden="true"><span>${t("lowL1")}</span><span>${t("lowStampDays",lowDays(d))}</span></span>`:""}</div>`:""}
+    ${d.img?`<div class="pic"><img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode&&this.parentNode.remove()">${lowDays(d)?`<span class="lostamp" aria-hidden="true"><span>${t("lowL1")}</span><span>${t("lowStampDays",lowDays(d))}</span></span>`:""}</div>`:""}
     <div class="top"><span class="brand">${esc(d.b)}${d.fav?" ★":""}${cdnBrand(d)?`&nbsp;<span class="leaf" title="${t("cdnTip")}" aria-label="${t("cdnTip")}">🍁</span>`:""}</span>${d.pct?`<span class="pct">−${d.pct}%</span>`:""}</div>
     <div class="name">${esc(nm(d.n))}</div>
     <div class="price"><b>${money(d.best)}</b>${curTag()}${d.pct?`<s>${money(d.reg)}</s>`:""}</div>
