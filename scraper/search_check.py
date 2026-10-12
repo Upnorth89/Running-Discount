@@ -72,7 +72,14 @@ class Side:
             for w in re.split(r"[^a-z0-9+]+", fold(d["b"] + " " + d["n"])):
                 if len(w) >= 3 and not w.isdigit():
                     self.vocab[w] = self.vocab.get(w, 0) + 1
-        self.squash = [sq(fold(d["b"] + " " + d["n"])) for d in items]
+        self.squash = []         # (whole name squashed, where each word starts): a loose hit must start at a word
+        for d in items:
+            ws = [x for x in (sq(w) for w in fold(d["b"] + " " + d["n"]).split()) if x]
+            starts, at = set(), 0
+            for w in ws:
+                starts.add(at)
+                at += len(w)
+            self.squash.append(("".join(ws), starts))
 
     def hits(self, q):
         return sum(1 for h in self.hays if all(w in h for w in q))
@@ -110,9 +117,17 @@ class Side:
         return None
 
     def loose(self, q):
-        """A looser match than the site's: the whole query squashed, inside the whole name squashed."""
+        """A looser match than the site's: the whole query squashed, inside the whole name squashed, starting at a word."""
         s = sq("".join(q))
-        return sum(1 for x in self.squash if len(s) >= 4 and s in x)
+        if len(s) < 4:
+            return 0
+        n = 0
+        for x, starts in self.squash:     # "vest" isn't in "Five Stripes" (fi-vest-ripes) - Oct 12 false alarm
+            i = x.find(s)
+            while i >= 0 and i not in starts:
+                i = x.find(s, i + 1)
+            n += i >= 0
+        return n
 
 
 def store_names(site):

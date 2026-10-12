@@ -219,10 +219,19 @@ def scrape_runningroom():
         raise RuntimeError(f"Running Room feed: HTTP {sm.status_code}")
     recs = []
     for u in re.findall(r"<loc>([^<]+/products_\d+\.json)</loc>", sm.text):
-        r = S.get(u, timeout=120)
-        if r.status_code != 200:
-            raise RuntimeError(f"Running Room feed file {u.rsplit('/', 1)[-1]}: HTTP {r.status_code}")
-        recs += r.json()
+        # Oct 12: asked for gzip, Running Room's server sometimes sends a file cut short (19 KB instead of 2 MB, no
+        # content-encoding) and the whole store failed; uncompressed it comes back whole. One retry on top.
+        for attempt in (1, 2):
+            r = S.get(u, timeout=180, headers={"Accept-Encoding": "identity"})
+            if r.status_code != 200:
+                raise RuntimeError(f"Running Room feed file {u.rsplit('/', 1)[-1]}: HTTP {r.status_code}")
+            try:
+                recs += r.json()
+                break
+            except ValueError:
+                if attempt == 2:
+                    raise RuntimeError(f"Running Room feed file {u.rsplit('/', 1)[-1]}: not readable ({len(r.content)} bytes)")
+                time.sleep(10)
         time.sleep(2)
     offers = {}
     for p in recs:
