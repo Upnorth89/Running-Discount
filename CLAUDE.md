@@ -204,7 +204,8 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   Gear Fox line at the bottom, check the sub's self-promo rules / ask mods (r/runTO: Toronto-store list, marathon week).
   Oct 13 (Bastien): he WANTS item links to thegearfox.com (shoe page or ?q= search, ?ref per post), every link opened on the live
   site first. **Give posts right in the chat as hyperlinked items only** ("easier for me to copy paste. Only put the items"): no title,
-  no footer, no files.
+  no footer, no files. Put the Markdown inside ONE code block (copying rendered chat links loses them; Oct 13: "It doesn't
+  work"); he pastes it in Reddit's Markdown mode.
 
 GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_ADDRESS` (CASL footer),
 `HEALTH_EMAIL`.
