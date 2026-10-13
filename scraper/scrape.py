@@ -926,6 +926,8 @@ def shopify_price_currency(base, cookies=None):
             pass
     return None
 
+SHOPIFY_MAX_PAGES = 80   # 20,000 products (Oct 14: Pacers lists 17,341, Athletic Annex ~7,500; we stopped at 24 pages = 6,000)
+
 def shopify_products(base, max_pages=40, cookies=None):
     # A later page that fails (usually 429 "too busy") gets one more try after a pause; if it fails again the whole read
     # fails, so the store keeps yesterday's full catalogue instead of publishing a partial one (Oct 6: Athletic Annex
@@ -948,7 +950,7 @@ def shopify_products(base, max_pages=40, cookies=None):
             break
         prods += batch
         page += 1
-    if page > max_pages:                    # stopped at the page limit, not at the end: say so (Oct 13)
+    if page > max_pages and len(batch) == 250:    # stopped at the page limit on a full page, not at the end: say so (Oct 13)
         host = re.sub(r"^https?://(www\.)?|/.*$", "", base)
         save_coverage(host, len(prods), len(prods), f"stopped at {max_pages} pages ({len(prods):,} products): there may be more")
     return prods
@@ -1764,8 +1766,9 @@ def _catalog_rows():
             o = r.get("Observed (UTC)")
             if isinstance(o, dt.datetime):
                 oldest[r["Retailer"]] = min(oldest.get(r["Retailer"], o), o)
-        stale_warn += [f"{st}: read {o:%b %-d}, its deals leave the site in {CATALOG_MAX_DAYS - (now - o).total_seconds() / 86400:.0f} "
-                       f"day or less, ask GPT for a fresh {st} batch" for st, o in sorted(oldest.items())
+        stale_warn += [f"{st}: read {o:%b %-d}, those deals leave the site "
+                       f"{'today' if CATALOG_MAX_DAYS - (now - o).total_seconds() / 86400 < 0.5 else 'tomorrow'}, ask GPT for a fresh {st} batch"
+                       for st, o in sorted(oldest.items())
                        if (now - o).total_seconds() / 86400 > CATALOG_MAX_DAYS - 1 and st != "Running Free"]
         if stale_warn:
             print("  catalog: " + "; ".join(stale_warn), file=sys.stderr)
@@ -2228,12 +2231,12 @@ def make_shopify_scraper(st, base, kind):
         if st in US_COLLECTIONS:
             seen, prods = set(), []
             for h in US_COLLECTIONS[st]:
-                for p in shopify_products(f"{base}/collections/{h}", max_pages=24, cookies=cookies):
+                for p in shopify_products(f"{base}/collections/{h}", max_pages=SHOPIFY_MAX_PAGES, cookies=cookies):
                     if p["id"] not in seen:
                         seen.add(p["id"])
                         prods.append(p)
         else:
-            prods = shopify_products(base, max_pages=24, cookies=cookies)
+            prods = shopify_products(base, max_pages=SHOPIFY_MAX_PAGES, cookies=cookies)
         fx = fx_to_cad(cur)
         print(f"  {st}: {len(prods)} products, store {home}, prices in {cur}" + (f" x{fx}" if cur != "CAD" else ""), file=sys.stderr)
         items = shopify_items(st, base, prods, generic_group(kind), fx=fx, size_aware=True, collapse=True,

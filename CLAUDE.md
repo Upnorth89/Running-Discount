@@ -244,6 +244,8 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   Coverage check (Oct 13, Bastien: "how do we make sure we don't skip this"): `save_coverage(st, listed, read, note)` writes
   site/coverage.json (Foot Locker: the store's own count per gender vs codes read + product cards our pattern couldn't read;
   Shopify: a store that hits the 24-page limit); health.py `coverage_check` adds "Store coverage" to the email and flags <97%.
+  First morning (Oct 14) it caught 3 US stores stopped at 24 pages: SHOPIFY_MAX_PAGES = 80 now (Athletic Annex 7,312 products,
+  Pacers 8,191: +3,500); only a FULL last page is flagged (PR Run & Walk ended at 5,795 = false alarm).
   Next: the same count for Altitude/Last Hunt (commercetools total), Sporting Life, Running Room, Decathlon.
 - Speed (Oct 5): stores are read in 4 lanes at once (`run(st,fn)` + ThreadPoolExecutor(4)); all Shopify stores share one
   sequential lane (4 at once got 429s). The full scrape takes ~13 min instead of ~35.
