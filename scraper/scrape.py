@@ -769,6 +769,10 @@ def fl_state(html):
     m = re.search(r"window\.__REACT_QUERY_STATE__\s*=\s*", html)
     return json.JSONDecoder().raw_decode(html[m.end():])[0] if m else None
 
+# Foot Locker's running tag misses real running shoes (Oct 13: the Evo SL sat under "Casual Sneakers"; Bondi 9, Clifton 10,
+# Winflo 12 at $99.99 were dropped). Untagged items are kept unless they're a known lifestyle line or clothing.
+FL_LIFESTYLE = re.compile(r"vomero 5|\bxt-\d|p-6000|air max|gel-1130|gel-nyc|\b(990|9060|2002r|1906r|530)\b|"
+                          r"windrunner|hoodie|jacket|fleece|pants?\b|shorts?\b|tee\b|t-shirt|socks?\b", re.I)
 FL_UNREAD = []          # product cards on a list page that FL_CARD couldn't read (Oct 13: codes with letters were skipped)
 
 def fl_page(path, q):
@@ -816,8 +820,8 @@ def fl_product(sku):
     if not p:
         return None
     st, mo = p["style"], p["model"]
-    if not any("performancerunning" in k.lower() for k in st.get("keywords") or []):
-        return None                                         # lifestyle sneaker filed under Running
+    if not any("performancerunning" in k.lower() for k in st.get("keywords") or []) and FL_LIFESTYLE.search(mo["name"]):
+        return None                                         # lifestyle sneaker or clothing filed under Running
     name = re.sub(r"\s+", " ", mo["name"].replace("®", "").replace("™", "")).strip()
     brand = (mo.get("brand") or "").replace("®", "").strip()
     if brand and name.lower().startswith(brand.lower()):
