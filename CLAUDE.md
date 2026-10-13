@@ -34,7 +34,7 @@ move backlog rows. When he asks "what's on the to-do list", answer from the curr
   shoe pages, the Friday email cards and the preview from today's live data, then runs the site test (~3 min). The refresh workflow also refuses to
   publish when the shoe pages are missing (yesterday's site stays up) and the health email flags it.
 - Don't touch `email/profiles.json` (old sign-up list; untracked since Oct 11, in .gitignore: the repo is public, no personal email in it). Subscribers live in Supabase. No personal address anywhere in the code (mail_check.py reads OWN_EMAIL = HEALTH_EMAIL secret).
-- Don't circumvent bot protection. Stores that block automated access (Sport Chek, Running Room, Atmosphere,
+- Don't circumvent bot protection. Stores that block automated access (Atmosphere,
   Sports Experts, MEC, REI…) are either skipped, read from pages Bastien saves himself, or wait for
   affiliate product feeds.
 
@@ -247,6 +247,13 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   First morning (Oct 14) it caught 3 US stores stopped at 24 pages: SHOPIFY_MAX_PAGES = 80 now (Athletic Annex 7,312 products,
   Pacers 8,191: +3,500); only a FULL last page is flagged (PR Run & Walk ended at 5,795 = false alarm).
   Next: the same count for Altitude/Last Hunt (commercetools total), Sporting Life, Running Room, Decathlon.
+- Sport Chek (Oct 13; Bastien: "build the Sport Chek reader"): it stopped blocking (robots.txt allows products, llms.txt published),
+  so `scrape_sportchek` reads it live with an honest bot name through the data its own pages use (public key in every page, no
+  login): search of the Running section etc. (~1,090 products), price/stock per 500 colour+sizes, size details only for products in
+  stock online. Only web-warehouse stock that ships home. Size links open that colour+size. livecheck `_sportchek` asks the same price
+  service (its pages show prices only after a script, so the page-text check would have called every deal "ended"). The catalog file's
+  Sport Chek rows are ignored (`CATALOG_LIVE`). If it ever answers 403/captcha: stop, don't work around it. Atmosphere and Sports
+  Experts run the same shop system: recheck them.
 - Speed (Oct 5): stores are read in 4 lanes at once (`run(st,fn)` + ThreadPoolExecutor(4)); all Shopify stores share one
   sequential lane (4 at once got 429s). The full scrape takes ~13 min instead of ~35.
 - Shopify stores: listed in `SHOPIFY_STORES` in scrape.py (~44). Read via `/products.json`, prices checked

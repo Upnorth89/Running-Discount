@@ -168,7 +168,7 @@ every check (rule in CLAUDE.md: try every allowed way first; a store that says n
 | Company | Where | Why not | Tried | What would unlock it |
 |---|---|---|---|---|
 | **Blocked (the store says no)** | | | | |
-| Sport Chek, Atmosphere, Sports Experts (Canadian Tire) | Canada | "Access Denied" to automated reading; saved pages have no sizes (Oct 2) | site, saved pages; **Sport Chek works from the GPT catalog file** (Oct 8; not in the Oct 8b file) | Canadian Tire affiliate feed (Impact.com), December |
+| Atmosphere, Sports Experts (Canadian Tire) | Canada | "Access Denied" to automated reading (Oct 2) | site, saved pages | **Recheck**: Sport Chek (same company, same shop system) opened up by Oct 13 and is read live now; Canadian Tire affiliate feed (Impact.com), December |
 | MEC | Canada | blocks automated reading | site; **saved pages work** (Grab deals) | MEC product feed via AvantLink/Sovrn |
 | REI | USA | blocks automated reading | **saved pages work** (US side) | affiliate feed |
 | Boutique Courir | Montréal | blocks automated reading (Oct 1) | site | ask the store |
@@ -324,7 +324,7 @@ Stores with under 25 products in stock are left out. Numbers from the Oct 8b fil
 
 | Store | City | Why not (date checked) |
 |---|---|---|
-| Sport Chek | national | blocks automated reading; saved sale pages (Oct 2, 2026) have no sizes, even filtered to running clearance (74 shoes, 2 pages). **Since Oct 8: from the GPT catalog file** (see below) |
+| Sport Chek | national | **Read live since Oct 13, 2026** (`scrape_sportchek`). Oct 2: "Access Denied", saved pages had no sizes; Oct 8-13: from the GPT catalog file. Oct 13 it answered again: robots.txt blocks only cart/checkout/account, and it publishes an llms.txt. Read with our own bot name through the data its own pages use (public key printed in every page, no login): search of the Running section + trail running, running jackets, hydration, sunglasses (~1,090 products), one price/stock call per 500 colour+sizes, size details only for products with online stock. Only sizes in the web warehouse that ship home. The catalog file's Sport Chek rows are ignored (`CATALOG_LIVE`). A 403/captcha one day = stop |
 | Atmosphere | national | blocks automated reading |
 | Sports Experts | QC | blocks automated reading |
 | Boutique Courir (boutiquecourir.com) | Montréal | blocks automated reading (Oct 1, 2026) |

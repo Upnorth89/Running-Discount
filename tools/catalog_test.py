@@ -212,7 +212,7 @@ def main(new):
     r = requests.get("https://thegearfox.com/offers.json", timeout=300)
     offers = r.json()
     offers["catalog"] = sc.scrape_catalog_others()
-    for st, ret in (("sportchek", "Sport Chek"), ("adidasca", "Adidas"), ("rei", "REI")):
+    for st, ret in (("adidasca", "Adidas"), ("rei", "REI")):      # (Sport Chek is read live since Oct 13)
         got_ = sc.scrape_catalog(ret)
         if got_:
             for o in got_:
@@ -229,7 +229,7 @@ def main(new):
         say(False, "Merge with today's data failed: " + p.stderr[-300:])
         return finish(ship, new)
     doms = set()
-    for o in offers["catalog"] + offers.get("sportchek", []) + offers.get("adidasca", []) + offers.get("rei", []):
+    for o in offers["catalog"] + offers.get("adidasca", []) + offers.get("rei", []):
         doms.add(re.sub(r"^https?://(www\.)?", "", o["u"]).split("/")[0])
     hits = []
     for dom in sorted(doms):

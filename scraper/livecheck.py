@@ -62,6 +62,39 @@ def _page(url, price):
     return found
 
 
+SC_API = "https://www.sportchek.ca/api/v1/product/api"
+SC_HEAD = {"User-Agent": "Mozilla/5.0 (compatible; TheGearFoxBot/1.0; +https://thegearfox.com/about.html)",
+           "ocp-apim-subscription-key": "c01ef3612328420c9f5cd9277e815a0e", "bannerid": "SC", "basesiteid": "SC"}
+
+
+def _sportchek(url, price, variant):
+    """Sport Chek (Oct 13): its pages fill in prices with a script, so ask the price service its pages use (same key and calls
+    as scrape_sportchek). The size's link ends in its colour+size code (".333330634.html"); without one, any size of the product."""
+    m = re.search(r"\.(\d{6,12})\.html", str(variant or "")) or re.search(r"\.(\d{6,12})\.html", url)
+    if m:
+        codes = [m.group(1)]
+    else:
+        f = re.search(r"-(\d+f)\.html", url, re.I)
+        if not f:
+            return None
+        r = S.get(f"{SC_API}/v1/product-families/{f.group(1).lower()}?lang=en_CA", headers=SC_HEAD, timeout=30)
+        if r.status_code != 200:
+            return None if r.status_code in (403, 406, 429) or r.status_code >= 500 else False
+        codes = [x["code"] for x in r.json().get("skus") or []]
+    r = S.post(f"{SC_API}/v2/product/sku/PriceAvailability?lang=en_CA&storeId=314&cache=true", headers=SC_HEAD, timeout=30,
+               json={"skus": [{"code": c, "lowStockThreshold": 0, "brand": ""} for c in codes]})
+    if r.status_code != 200:
+        return None
+    for x in r.json().get("skus") or []:
+        fu = x.get("fulfillment") or {}
+        now = (x.get("currentPrice") or {}).get("value") or 0
+        reg = (x.get("originalPrice") or {}).get("value") or 0
+        if (((fu.get("availability") or {}).get("Corporate") or {}).get("Quantity") or 0) > 0 \
+                and (fu.get("shipToHome") or {}).get("enabled") and 0 < now <= price + 0.01 and reg > now:
+            return True
+    return False
+
+
 def still_on_sale(url, price, variant=None, us=False):
     """us=True (the USA side, Oct 8): price is in USD converted back from our CAD copy, so allow 2%; only Shopify shops can
     be checked that way (another page has to show the exact price string)."""
@@ -71,6 +104,8 @@ def still_on_sale(url, price, variant=None, us=False):
         if re.search(r"/products/[^/?#]+/?$", urlparse(url).path):
             return _shopify(url, price, variant if variant and str(variant).isdigit() else None, us=us,
                             tol=max(0.01, price * 0.02) if us else 0.01)
+        if urlparse(url).netloc.endswith("sportchek.ca"):
+            return None if us else _sportchek(url, price, variant)
         return None if us else _page(url, price)
     except (requests.RequestException, ValueError, KeyError, AttributeError):
         return None

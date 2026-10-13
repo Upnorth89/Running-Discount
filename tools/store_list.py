@@ -53,7 +53,7 @@ def name_of(h):
 src = (ROOT / "scraper" / "scrape.py").read_text()
 shopify = set(re.findall(r'^\s+\("([a-z0-9]+)",\s*"https?://', src[src.index("SHOPIFY_STORES = ["):], re.M))
 runfree = {st for st, *_ in RF.RUNFREE_STORES}
-METHOD = {"mec": "saved pages (Grab deals)", "rei": "GPT file / saved pages", "sportchek": "GPT file", "adidasca": "GPT file",
+METHOD = {"mec": "saved pages (Grab deals)", "rei": "GPT file / saved pages", "sportchek": "its own site data", "adidasca": "GPT file",
           "decathlon": "slow night read", "thefeed": "night read"}
 how = {}
 for st, offers in get("offers.json").items():

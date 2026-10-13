@@ -286,6 +286,176 @@ def scrape_runningroom():
     return out
 
 
+# ---------------------------------------------------------------- Sport Chek (Canadian Tire's sports chain)
+# Oct 13, 2026 (Bastien: "build the Sport Chek reader"). On Oct 2 its site answered "Access Denied"; now it answers, its robots.txt
+# blocks only cart/checkout/account pages (and it publishes an llms.txt for AI tools), so we read what its own pages read, with our
+# own name in the User-Agent (no disguise): the search (/api/v1/search/v2/search) lists the Running section (1,015 products) plus
+# trail running, running jackets, hydration and sunglasses, each with its colours that have stock; one price call
+# (sku/PriceAvailability, up to 500 colour+size codes at once) gives each code's price, regular price, "Final Sale" and online stock
+# ("Corporate" = the web warehouse; store stock isn't ours to show); the product's own page data (product-families) says which
+# code is which size. Only sizes that ship to your home and are in the web warehouse count. The access key is the public one
+# printed in every page for every visitor (no login). A 403 / captcha one day = the store said no: stop, don't work around it.
+SC_API = "https://www.sportchek.ca/api"
+SC_KEY = "c01ef3612328420c9f5cd9277e815a0e"     # public: in the page source of sportchek.ca for every visitor (apim-subscriptionkey)
+SC_CATS = [(2, "DC2000077"),    # Activities & Equipment > Running (shoes, apparel, socks, accessories, headwear)
+           (2, "DC2002084"),    # Outdoor > Trail Running
+           (3, "DC2000564"), (3, "DC2001005"),    # men's / women's athletic & running jackets
+           (3, "DC2000918"),    # hydration > running
+           (3, "DC2002091")]    # sunglasses > running
+SC_HEAD = {"User-Agent": "Mozilla/5.0 (compatible; TheGearFoxBot/1.0; +https://thegearfox.com/about.html)",
+           "ocp-apim-subscription-key": SC_KEY, "bannerid": "SC", "basesiteid": "SC", "Accept": "application/json"}
+SC_NOT_SIZE = ("KIDS_SIZE_GROUP_CD", "SECOND_SIZE_RANGE_CD")    # every other "…SIZE…" option is the size (shoe, SIZE_CD, sock, waist)
+SC_PAUSE = 0.5
+
+
+def sc_call(path, body=None):
+    for i in range(4):
+        try:
+            r = (S.post(SC_API + path, json=body, headers=SC_HEAD, timeout=60) if body is not None
+                 else S.get(SC_API + path, headers=SC_HEAD, timeout=60))
+            if r.status_code in (403, 406):      # the store said no: never work around it
+                raise PermissionError(f"HTTP {r.status_code}")
+            if r.status_code in (429, 500, 502, 503, 504):
+                raise requests.HTTPError(f"HTTP {r.status_code}")
+            r.raise_for_status()
+            time.sleep(SC_PAUSE)
+            return r.json()
+        except PermissionError:
+            raise
+        except Exception:
+            if i == 3:
+                raise
+            time.sleep(5 * (i + 1))
+
+
+def sc_name(p):
+    """("HOKA", "Clifton 10 Running Shoes - Men's", ["men"]) from "HOKA Men's Clifton 10 Running Shoes"."""
+    t = re.sub(r"[®™]", "", html_lib.unescape(p.get("title") or "")).replace("’", "'")
+    t = re.sub(r"\s+", " ", t.split(",")[0]).strip()       # "Saucony Men's Axon Running Shoes, Comfortable, Mesh"
+    label = ((p.get("brand") or {}).get("label") or "").strip()
+    b = t[:len(label)] if label and t.lower().startswith(label.lower() + " ") else label.title()
+    model = t[len(b):].strip() if t.lower().startswith(b.lower() + " ") else t
+    gm = re.match(r"(?i)(men's/women's|women's/men's|men's|women's|unisex)\s+", model)
+    gw = (gm.group(1).lower() if gm else "")
+    model = model[gm.end():] if gm else model
+    sx = ["women"] if gw == "women's" else ["men"] if gw == "men's" else []
+    return b, model + {"men": " - Men's", "women": " - Women's"}.get(sx[0] if sx else "", " - Unisex" if gw else ""), sx
+
+
+def scrape_sportchek():
+    fams = {}
+    for lvl, cat in SC_CATS:
+        page = 1
+        while True:
+            d = sc_call(f"/v1/search/v2/search?q=*&lang=en_CA&store=&x1=ast-id-level-{lvl}&q1={cat}&count=100&page={page}")
+            for p in d.get("products") or []:
+                fams.setdefault(p["code"], p)
+            if not d.get("products") or page >= (d.get("pagination") or {}).get("total", 1):
+                break
+            page += 1
+    if len(fams) < 300:
+        raise RuntimeError(f"only {len(fams)} products listed")
+    # every colour+size code the search lists (its colours with stock), plus each product's own list (one-colour items)
+    codes = {}
+    for f, p in fams.items():
+        if KIDS.search(p.get("title") or ""):
+            continue
+        for o in p.get("options") or []:
+            for v in o.get("values") or []:
+                for c in v.get("skuCodes") or []:
+                    codes[c] = f
+        for s in p.get("skus") or []:
+            codes.setdefault(s.get("code"), f)
+    price = {}
+    todo = [c for c in codes if c]
+    for i in range(0, len(todo), 500):
+        for s in sc_call("/v1/product/api/v2/product/sku/PriceAvailability?lang=en_CA&storeId=314&cache=true",
+                         {"skus": [{"code": c, "lowStockThreshold": 0, "brand": ""} for c in todo[i:i + 500]]}).get("skus") or []:
+            fu = s.get("fulfillment") or {}
+            qty = ((fu.get("availability") or {}).get("Corporate") or {}).get("Quantity") or 0
+            now_ = (s.get("currentPrice") or {}).get("value")
+            if qty > 0 and (fu.get("shipToHome") or {}).get("enabled") and s.get("sellable") is not False and now_:
+                reg = (s.get("originalPrice") or {}).get("value") or now_
+                fs = any(FINAL_TAG.search(m.get("label") or "") for m in s.get("priceMessage") or [])
+                price[s["code"]] = (float(now_), max(float(reg), float(now_)), fs)
+    stocked = sorted({codes[c] for c in price})
+    offers, seen = {}, collections.Counter()
+    for f in stocked:
+        p = fams[f]
+        try:
+            d = sc_call(f"/v1/product/api/v1/product-families/{f.lower()}?lang=en_CA")
+        except PermissionError:
+            raise
+        except Exception as e:
+            print(f"  sportchek: {f} skipped ({str(e)[:60]})", file=sys.stderr)
+            continue
+        val = {v.get("id"): v.get("value") for o in d.get("options") or [] for v in o.get("values") or []}
+        size_ids = {v.get("id") for o in d.get("options") or [] if "SIZE" in (o.get("descriptor") or "")
+                    and o.get("descriptor") not in SC_NOT_SIZE for v in o.get("values") or []}
+        for o in d.get("options") or []:
+            seen[o.get("descriptor")] += 1
+        if any(o.get("descriptor") == "KIDS_SIZE_GROUP_CD" for o in d.get("options") or []):
+            continue
+        b, nm, sx = sc_name(p)
+        if not sx:
+            gs = next((s.get("value") for s in d.get("specifications") or [] if s.get("label") == "Gender"), "") or ""
+            sx = ["women"] if gs.strip() == "Female" else ["men"] if gs.strip() == "Male" else []
+            if sx and not nm.endswith(("Men's", "Women's", "Unisex")):
+                nm += " - Women's" if sx == ["women"] else " - Men's"
+        g = "nutrition" if re.search(SL_FOOD, nm.lower()) else group_of(nm)
+        shoe_opt = any(o.get("descriptor") == "SHOE_SIZE_US_CD" for o in d.get("options") or [])
+        if shoe_opt and g in (None, "nutrition", "gear"):
+            g = "shoes"
+        if not g:
+            continue
+        pics = {v.get("value"): (v.get("mediaSet") or [{}])[0].get("url") for o in p.get("options") or []
+                if o.get("descriptor") == "COLOUR" for v in o.get("values") or []}
+        for s in d.get("skus") or []:
+            pr = price.get(s.get("code"))
+            if not pr:
+                continue
+            ids = s.get("optionIds") or []
+            size = next((val.get(i) for i in ids if i in size_ids), None)
+            width = next((val.get(i) for i in ids if i.startswith("SHOE_WIDTH_CD")), "") or ""
+            rng = next((val.get(i) for i in ids if i.startswith(("SECOND_SIZE_RANGE_CD", "PRODUCT_LENGTH_CD", "PANTS_LENGTH_CD"))), "") or ""
+            if rng and rng.lower() != "regular":
+                continue                    # tall / short / plus cuts: not the size people picked
+            if not size:
+                if g in ("shoes", "tops", "bottoms", "bras", "socks"):
+                    continue
+                size = "OS"
+            if g == "shoes":
+                w = width.lower()
+                size = str(size) + (" Wide" if "wide" in w else " Narrow" if "narrow" in w else "")
+            else:
+                size = norm_size(size)
+            col = s.get("marketingColour") or ""
+            o = offers.get((f, col))
+            if o is None:
+                img = pics.get(col) or next((m.get("url") for m in d.get("images") or [] if m.get("url")), None)
+                o = offers[(f, col)] = {"st": "sportchek", "b": b, "n": nm, "u": "https://www.sportchek.ca" + (p.get("url") or d.get("pdpUrl") or ""),
+                                        "g": g, "sx": sx, "w": False, "img": img, "lp": 0, "bb": None, "ca": True, "no_us": True,
+                                        "sz": {}, "_fs": False}
+            now_, reg, fs = pr
+            o["lp"] = max(o["lp"], reg)
+            o["_fs"] = o["_fs"] or fs
+            link = "https://www.sportchek.ca" + (s.get("url") or s.get("canonicalUrl") or "") if s.get("url") or s.get("canonicalUrl") else None
+            if size not in o["sz"] or now_ < o["sz"][size][0]:
+                o["sz"][size] = (now_, reg, link)
+    out = []
+    for o in offers.values():
+        if not o["img"] or not o["sz"]:
+            continue
+        o["sz"] = [[k, v[0], v[1]] + ([v[2]] if v[2] else []) for k, v in o["sz"].items()]
+        if o.pop("_fs"):
+            o["fs"] = 1
+        out.append(o)
+    print(f"  sportchek: {len(fams)} listed, {len(price)} sizes in stock online, {len(stocked)} products -> {len(out)} offers",
+          file=sys.stderr)
+    print(f"  sportchek: options seen {dict(seen.most_common())}", file=sys.stderr)
+    return out
+
+
 # ---------------------------------------------------------------- Running Free (Ontario chain, own shop system)
 # Oct 9, 2026 (Bastien: "Try making our own reader for running free"). No product feed, but its listing pages show each product's
 # name, photo, regular and sale price, and its size filter pages ("10 Regular", "Medium") list only what's in stock in that size
@@ -1650,7 +1820,8 @@ def scrape_rei_saved():
 CATALOG_MAX_DAYS = 3
 CATALOG_MIN = 25       # a store with fewer products in stock than this is left out (Oct 8, Bastien: Backcountry's 6 "isn't enough")
 CATALOG_SKIP = set()   # stores to leave out of the catalog file by name
-SAVED_STORES = {"mec", "rei", "sportchek", "adidasca", "catalog"}   # from files Bastien brings: no file = no deals, never stale ones
+SAVED_STORES = {"mec", "rei", "adidasca", "catalog"}   # from files Bastien brings: no file = no deals, never stale ones
+CATALOG_LIVE = {"Sport Chek"}     # read live now (Sport Chek since Oct 13): the file's rows for them are ignored
 CATALOG_STORES = {"Sport Chek": ("sportchek", "https://www.sportchek.ca"), "Adidas": ("adidasca", "https://www.adidas.ca"),
                   "REI": ("rei", "https://www.rei.com")}
 _catalog_cache = {}
@@ -1746,6 +1917,8 @@ def _catalog_rows():
         canon = {re.sub(r"\W", "", k.lower()): k for k in CATALOG_STORES}     # "SportChek", "ADIDAS" -> our names
         for r in got + prods:
             r["Retailer"] = canon.get(re.sub(r"\W", "", str(r.get("Retailer") or "").lower()), r.get("Retailer"))
+        got = [r for r in got if r["Retailer"] not in CATALOG_LIVE]      # stores we now read live (their rows are older news)
+        prods = [r for r in prods if r.get("Retailer") not in CATALOG_LIVE]
         # Each row's own age (Oct 12, 2026: a visitor found adidas sizes sold out. The file is filled store by store, so
         # its newest rows were 1 day old while adidas, New Balance and Sport Chek were read 3.5 days earlier.)
         now, stale = dt.datetime.utcnow(), {}
@@ -2263,7 +2436,7 @@ STORES = {
     "stampeak": scrape_stampeak,
     "mec": scrape_mec_saved,       # from pages you save (their sites block automated access)
     "rei": lambda: scrape_catalog("REI") or scrape_rei_saved(),   # the catalog file (Oct 8: every size, with stock), else saved pages
-    "sportchek": lambda: scrape_catalog("Sport Chek"),    # from the catalog file Bastien brings (blocks automated reads)
+    "sportchek": scrape_sportchek,        # read live since Oct 13, 2026 (was the catalog file: its Sport Chek rows are now ignored)
     "adidasca": lambda: scrape_catalog("Adidas"),
     "catalog": scrape_catalog_others,                     # every other store in the catalog file, each under its own name
     # SVP Sports: read live as a Shopify store since Oct 12, 2026 (SHOPIFY_STORES); scrape_svp_saved kept for saved pages

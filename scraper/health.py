@@ -40,7 +40,7 @@ FROM = os.environ.get("FROM_EMAIL", "The Gear Fox <deals@thegearfox.com>")
 # Free Resend plan: 100 emails a day, 3,000 a month. Weekly email = 1 per subscriber per Friday.
 WEEKLY_SUBS_WARN = 500      # ~650 subscribers x 4.3 Fridays = the monthly cap
 DAILY_SIGNUPS_WARN = 60     # confirmation emails + alerts share the 100/day cap
-SAVED = {"mec", "rei", "sportchek", "adidasca"}       # (SVP parked Oct 6)      # stores read from pages you save by hand (their sites block automated access)
+SAVED = {"mec", "rei", "adidasca"}   # (Sport Chek read live since Oct 13)       # (SVP parked Oct 6)      # stores read from pages you save by hand (their sites block automated access)
 
 
 def load(p):
@@ -81,7 +81,7 @@ def check():
         newest = max((float(x) for x in ts if x), default=max(f.stat().st_mtime for f in cat))
         age = (datetime.now(timezone.utc).timestamp() - newest) / 86400
         if 2 <= age <= 3:
-            problems.append(("catalog-due", f"Catalog file (Sport Chek, adidas.ca, REI) is {age:.0f} days old: its deals come "
+            problems.append(("catalog-due", f"Catalog file (adidas.ca, REI, Zappos…) is {age:.0f} days old: its deals come "
                                             f"off the site tomorrow. Upload a fresh one to saved-pages/."))
     deals, deals0 = load(SITE / "deals.json"), load(PREV / "deals.json")
     offers, offers0 = load(SITE / "offers.json"), load(PREV / "offers.json")
@@ -97,9 +97,9 @@ def check():
             since = f"since {t:%b %-d}" if t else "for a while"
             problems.append((f"stale:{st}", f"{st}: hasn't updated {since}"
                              + (". The site is still showing its older deals." if n else " and has no products on the site.")))
-        if st in ("sportchek", "adidasca") and n == 0 and load(SITE / "catalog-check.json").get("used"):
+        if st == "adidasca" and n == 0 and load(SITE / "catalog-check.json").get("used"):
             pass                                   # the catalog line already says which stores are out (Oct 14)
-        elif st in ("sportchek", "adidasca") and n == 0:
+        elif st == "adidasca" and n == 0:
             problems.append((f"zero:{st}", f"{st}: no catalog file from the last 3 days, so its deals are hidden. "
                                            f"Upload a fresh Running_Gear_Catalog.xlsx at thegearfox.com/catalog.html to bring them back."))
         elif st in SAVED and n == 0:
@@ -255,7 +255,7 @@ def catalog_spot():
     import random
     offers = load(SITE / "offers.json")
     pool = []
-    for st in ("catalog", "sportchek", "adidasca"):
+    for st in ("catalog", "adidasca"):
         for o in offers.get(st, []):
             for e in o.get("sz", []):
                 if len(e) > 2 and e[1] < e[2] * 0.95:
