@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl *sportchek.ca/api/*)",
+      "Bash(python3 scraper/sportchek.py*)"
+    ]
+  },
+  "autoMode": {
+    "allow": [
+      "$defaults",
+      "Requests to https://www.sportchek.ca/api/ (Sport Chek's product search and price services) that send the public key published in sportchek.ca's own pages: approved by the project owner on Oct 14, 2026 (Sport Chek told him this public key may be used). Read-only product and price reads at a gentle pace only."
+    ]
+  }
+}
