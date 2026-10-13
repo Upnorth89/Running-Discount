@@ -225,6 +225,19 @@ def catalog_check():
     return line, probs
 
 
+def coverage_check():
+    """Stores whose own product count is above what we read (scrape.py save_coverage, Oct 13: Foot Locker's $99.99 Evo SL
+    was skipped because its code started with letters). A line for the email, a problem under 97% or with unread cards."""
+    c, probs, parts = load(SITE / "coverage.json"), [], []
+    for st, x in sorted(c.items()):
+        listed, read = x.get("listed") or 0, x.get("read") or 0
+        parts.append(f"{st} {read:,} of {listed:,}")
+        if (listed and read < listed * 0.97) or x.get("note"):
+            probs.append((f"coverage:{st}", f"{st}: the store lists {listed:,} running products, we read {read:,}"
+                          + (f" ({x['note']})" if x.get("note") else "") + ". Deals may be missing: Claude should look."))
+    return (f"- Store coverage (what each store lists vs what we read): {', '.join(parts)}\n" if parts else ""), probs
+
+
 def catalog_spot():
     """5 random sale deals from the catalog file, to tap and check (Oct 8: the file can't be checked by the robot)."""
     import random
@@ -286,6 +299,9 @@ def main():
     problems, stats = check()
     cat_line, cat_probs = catalog_check()
     problems += cat_probs
+    cov_line, cov_probs = coverage_check()
+    cat_line += cov_line
+    problems += cov_probs
     # searches that found nothing in the last 24 h, sorted by why (scraper/search_check.py, Oct 10); morning report only
     import search_check
     search_text, search_probs = ("", []) if os.environ.get("HEALTH_WHEN") == "midday" else search_check.run(SITE)

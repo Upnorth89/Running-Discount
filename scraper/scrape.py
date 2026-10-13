@@ -761,18 +761,38 @@ def scrape_decathlon():
 FL_BASE = "https://www.footlocker.ca"
 FL_LISTS = [("/en/category/collection/performance-running.html", 'performancerunning:relevance:gender:{g}:price:"{lo}"-"{hi}"'),
             ("/en/category/sale/shoes.html", 'sale:relevance:collection_id:sale-shoes:sport:Running:gender:{g}:price:"{lo}"-"{hi}"')]
-FL_CARD = re.compile(r'data-productcard="\{"name":"[^"]*","pos":\d+,"sku":"([A-Za-z0-9]+)"\}')   # Oct 13: codes can start
-# with letters ("KI424725": adidas Adizero Evo SL Silver/Black/White at $99.99 was missed; Bastien saw it at Foot Locker)
+FL_CARD = re.compile(r'data-productcard="\{"name":.{0,300}?,"pos":\d+,"sku":"([A-Za-z0-9]+)"\}')   # Oct 13: codes can start
+# with letters ("KI424725": adidas Adizero Evo SL Silver/Black/White at $99.99 was missed; Bastien saw it at Foot Locker),
+# and names can hold a quote ('Nike Specs 7" Volley Shorts')
 
 def fl_state(html):
     m = re.search(r"window\.__REACT_QUERY_STATE__\s*=\s*", html)
     return json.JSONDecoder().raw_decode(html[m.end():])[0] if m else None
 
+FL_UNREAD = []          # product cards on a list page that FL_CARD couldn't read (Oct 13: codes with letters were skipped)
+
 def fl_page(path, q):
     page = html_lib.unescape(get(f"{FL_BASE}{path}?query={quote(q, safe='')}").text)
     time.sleep(1)
     m = re.search(r"([0-9,]+) results", page)
-    return (int(m.group(1).replace(",", "")) if m else 0), FL_CARD.findall(page)
+    got = FL_CARD.findall(page)
+    if page.count("data-productcard=") > len(got):
+        FL_UNREAD.append(page.count("data-productcard=") - len(got))
+    return (int(m.group(1).replace(",", "")) if m else 0), got
+
+def save_coverage(st, listed, read, note=""):
+    """What the store says it has vs what we read (Oct 13, Bastien: "these are massive deals, how do we make sure we don't
+    skip this"). site/coverage.json -> the morning email flags any store we read under 97% of."""
+    f = OUT.parent / "coverage.json"
+    try:
+        d = json.loads(f.read_text())
+    except Exception:
+        d = {}
+    d[st] = {"listed": listed, "read": read, "note": note, "at": dt.datetime.utcnow().isoformat(timespec="seconds")}
+    try:
+        f.write_text(json.dumps(d, indent=1))
+    except Exception:
+        pass
 
 def fl_list(g, lo, hi, depth=0):
     """Every running shoe for one gender and price band: the collection first, the sale list in another order when a
@@ -827,10 +847,14 @@ def fl_product(sku):
             "lp": float(lp), "bb": None, "sz": [[k + ("~W" if wide else ""), a, b] for k, (a, b) in sizes.items()], "ca": True}
 
 def scrape_footlocker():
-    skus = []
+    skus, listed = [], 0
+    FL_UNREAD.clear()
     for g in ("Men's", "Women's"):
+        listed += fl_page(FL_LISTS[0][0], f"performancerunning:relevance:gender:{g}")[0]   # the store's own count
         for lo, hi in (("-inf", "100"), ("100", "150"), ("150", "200"), ("200", "inf")):
             skus += [x for x in fl_list(g, lo, hi) if x not in skus]
+    save_coverage("footlocker", listed, len(skus),
+                  f"{sum(FL_UNREAD)} product cards we couldn't read" if FL_UNREAD else "")
     out, errors = [], 0
     for sku in skus:
         time.sleep(1)
@@ -920,6 +944,9 @@ def shopify_products(base, max_pages=40, cookies=None):
             break
         prods += batch
         page += 1
+    if page > max_pages:                    # stopped at the page limit, not at the end: say so (Oct 13)
+        host = re.sub(r"^https?://(www\.)?|/.*$", "", base)
+        save_coverage(host, len(prods), len(prods), f"stopped at {max_pages} pages ({len(prods):,} products): there may be more")
     return prods
 
 SIZE_OPT = re.compile(r"^((us|eu|uk|men'?s|women'?s|mens|womens|shoe)\s+)?(size|taille|pointure)(\s+(us|eu|uk))?( ?\([^)]*\))?$", re.I)
