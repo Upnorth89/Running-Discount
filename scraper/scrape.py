@@ -761,7 +761,8 @@ def scrape_decathlon():
 FL_BASE = "https://www.footlocker.ca"
 FL_LISTS = [("/en/category/collection/performance-running.html", 'performancerunning:relevance:gender:{g}:price:"{lo}"-"{hi}"'),
             ("/en/category/sale/shoes.html", 'sale:relevance:collection_id:sale-shoes:sport:Running:gender:{g}:price:"{lo}"-"{hi}"')]
-FL_CARD = re.compile(r'data-productcard="\{"name":"[^"]*","pos":\d+,"sku":"(\d+)"\}')
+FL_CARD = re.compile(r'data-productcard="\{"name":"[^"]*","pos":\d+,"sku":"([A-Za-z0-9]+)"\}')   # Oct 13: codes can start
+# with letters ("KI424725": adidas Adizero Evo SL Silver/Black/White at $99.99 was missed; Bastien saw it at Foot Locker)
 
 def fl_state(html):
     m = re.search(r"window\.__REACT_QUERY_STATE__\s*=\s*", html)
