@@ -34,8 +34,8 @@ move backlog rows. When he asks "what's on the to-do list", answer from the curr
   shoe pages, the Friday email cards and the preview from today's live data, then runs the site test (~3 min). The refresh workflow also refuses to
   publish when the shoe pages are missing (yesterday's site stays up) and the health email flags it.
 - Don't touch `email/profiles.json` (old sign-up list; untracked since Oct 11, in .gitignore: the repo is public, no personal email in it). Subscribers live in Supabase. No personal address anywhere in the code (mail_check.py reads OWN_EMAIL = HEALTH_EMAIL secret).
-- Don't circumvent bot protection. Stores that block automated access (Atmosphere,
-  Sports Experts, MEC, REI…) are either skipped, read from pages Bastien saves himself, or wait for
+- Don't circumvent bot protection. Stores that block automated access (Sports Experts,
+  MEC, REI…) are either skipped, read from pages Bastien saves himself, or wait for
   affiliate product feeds.
 
 ## Repo map (github.com/upnorth89/Running-Discount, branch main)
@@ -252,8 +252,8 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   login): search of the Running section etc. (~1,090 products), price/stock per 500 colour+sizes, size details only for products in
   stock online. Only web-warehouse stock that ships home. Size links open that colour+size. livecheck `_sportchek` asks the same price
   service (its pages show prices only after a script, so the page-text check would have called every deal "ended"). The catalog file's
-  Sport Chek rows are ignored (`CATALOG_LIVE`). If it ever answers 403/captcha: stop, don't work around it. Atmosphere and Sports
-  Experts run the same shop system: recheck them.
+  Sport Chek rows are ignored (`CATALOG_LIVE`). If it ever answers 403/captcha: stop, don't work around it. Checked Oct 14: Atmosphere
+  closed its online store (moved into Sport Chek); Sports Experts is behind an Incapsula 403 wall (no).
 - Speed (Oct 5): stores are read in 4 lanes at once (`run(st,fn)` + ThreadPoolExecutor(4)); all Shopify stores share one
   sequential lane (4 at once got 429s). The full scrape takes ~13 min instead of ~35.
 - Shopify stores: listed in `SHOPIFY_STORES` in scrape.py (~44). Read via `/products.json`, prices checked

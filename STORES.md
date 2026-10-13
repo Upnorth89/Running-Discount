@@ -168,7 +168,7 @@ every check (rule in CLAUDE.md: try every allowed way first; a store that says n
 | Company | Where | Why not | Tried | What would unlock it |
 |---|---|---|---|---|
 | **Blocked (the store says no)** | | | | |
-| Atmosphere, Sports Experts (Canadian Tire) | Canada | "Access Denied" to automated reading (Oct 2) | site, saved pages | **Recheck**: Sport Chek (same company, same shop system) opened up by Oct 13 and is read live now; Canadian Tire affiliate feed (Impact.com), December |
+| Sports Experts (Canadian Tire, Québec) | Canada | Incapsula bot wall: HTTP 403 on every page, robots.txt included (rechecked Oct 14, 2026) | site, saved pages | GPT catalog file (any store in it comes in by itself), or the Canadian Tire affiliate feed (Impact.com), December |
 | MEC | Canada | blocks automated reading | site; **saved pages work** (Grab deals) | MEC product feed via AvantLink/Sovrn |
 | REI | USA | blocks automated reading | **saved pages work** (US side) | affiliate feed |
 | Boutique Courir | Montréal | blocks automated reading (Oct 1) | site | ask the store |
@@ -325,8 +325,8 @@ Stores with under 25 products in stock are left out. Numbers from the Oct 8b fil
 | Store | City | Why not (date checked) |
 |---|---|---|
 | Sport Chek | national | **Read live since Oct 13, 2026** (`scrape_sportchek`). Oct 2: "Access Denied", saved pages had no sizes; Oct 8-13: from the GPT catalog file. Oct 13 it answered again: robots.txt blocks only cart/checkout/account, and it publishes an llms.txt. Read with our own bot name through the data its own pages use (public key printed in every page, no login): search of the Running section + trail running, running jackets, hydration, sunglasses (~1,090 products), one price/stock call per 500 colour+sizes, size details only for products with online stock. Only sizes in the web warehouse that ship home. The catalog file's Sport Chek rows are ignored (`CATALOG_LIVE`). A 403/captcha one day = stop |
-| Atmosphere | national | blocks automated reading |
-| Sports Experts | QC | blocks automated reading |
+| Atmosphere | national | **Closed online** (Oct 14, 2026): atmosphere.ca shows a "Consolidation Notice": everything moved to Sport Chek, which we read live since Oct 13 (its trail running section is in the read) |
+| Sports Experts | QC | blocks automated reading (Oct 14, 2026: Incapsula 403 even on robots.txt) |
 | Boutique Courir (boutiquecourir.com) | Montréal | blocks automated reading (Oct 1, 2026) |
 | SVP Sports (svpsports.ca) | Québec chain | Shopify behind a Cloudflare "verify your connection" check on products.json and collections (Oct 4, 2026). Its Shopify shopping-agent catalog (UCP/MCP) exists but is meant for buyer assistants and needs an agent profile; not used. Read from the Grab deals bookmark (Oct 4): Bastien saved SVP's running sale collection (svp-DATE.json). **Parked Oct 6, 2026**: the sale page is mostly soccer and budget shoes, not worth a weekly save; reader kept. **Live again Oct 12, 2026**: products.json answers (no Cloudflare check), robots allow it (but forbid /cart.js: `NO_CART`, currency from meta.json = CAD, ships to CA only). Reads /collections/running-collection (~1,370 products: adidas/Nike/Saucony/NB/Puma/ASICS, Endorphin Speed 5 48% off); `tidy_svp` drops "Brand - ", style codes, "Shoes", yoga/maternity/track suits, reads "M11" as 11. Sorting check clean; 5 of 5 prices matched on the store's page |
 | Kintec (kintec.net) | BC | no readable product feed (Oct 1, 2026) |
