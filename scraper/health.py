@@ -97,7 +97,9 @@ def check():
             since = f"since {t:%b %-d}" if t else "for a while"
             problems.append((f"stale:{st}", f"{st}: hasn't updated {since}"
                              + (". The site is still showing its older deals." if n else " and has no products on the site.")))
-        if st in ("sportchek", "adidasca") and n == 0:
+        if st in ("sportchek", "adidasca") and n == 0 and load(SITE / "catalog-check.json").get("used"):
+            pass                                   # the catalog line already says which stores are out (Oct 14)
+        elif st in ("sportchek", "adidasca") and n == 0:
             problems.append((f"zero:{st}", f"{st}: no catalog file from the last 3 days, so its deals are hidden. "
                                            f"Upload a fresh Running_Gear_Catalog.xlsx at thegearfox.com/catalog.html to bring them back."))
         elif st in SAVED and n == 0:
@@ -219,6 +221,16 @@ def catalog_check():
                       + (f"Still showing the previous file ({c['used']})." if c.get("used") else "No catalog deals on the site until a good file is uploaded.")))
     for w in c.get("warnings") or []:
         probs.append((f"catalog-warn:{w[:40]}", f"Catalog file: {w}"))
+    out, leaving = c.get("out") or {}, c.get("leaving") or {}
+    if out or leaving:                           # one line, not one per store (Oct 14)
+        parts = []
+        if out:
+            parts.append("no deals from " + ", ".join(out) + f" (last read {min(out.values())})")
+        for when in ("today", "tomorrow"):
+            ss = [st for st, w in leaving.items() if w == when]
+            if ss:
+                parts.append(f"Leaving {when}: " + ", ".join(ss))
+        probs.append(("catalog-age", "Catalog: " + ". ".join(parts) + ". Upload a fresh GPT file at thegearfox.com/catalog.html."))
     st = c.get("stores") or {}
     line = (f"- Catalog file check: passed ({c.get('age_days')} days old); "
             + ", ".join(f"{s} {n} in stock / {k} on sale" for s, (n, k) in sorted(st.items(), key=lambda x: -x[1][0])) + "\n") if c.get("used") else ""

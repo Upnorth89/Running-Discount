@@ -1766,12 +1766,12 @@ def _catalog_rows():
             o = r.get("Observed (UTC)")
             if isinstance(o, dt.datetime):
                 oldest[r["Retailer"]] = min(oldest.get(r["Retailer"], o), o)
-        stale_warn += [f"{st}: read {o:%b %-d}, those deals leave the site "
-                       f"{'today' if CATALOG_MAX_DAYS - (now - o).total_seconds() / 86400 < 0.5 else 'tomorrow'}, ask GPT for a fresh {st} batch"
-                       for st, o in sorted(oldest.items())
-                       if (now - o).total_seconds() / 86400 > CATALOG_MAX_DAYS - 1 and st != "Running Free"]
-        if stale_warn:
-            print("  catalog: " + "; ".join(stale_warn), file=sys.stderr)
+        leaving = {st: ("today" if CATALOG_MAX_DAYS - (now - o).total_seconds() / 86400 < 0.5 else "tomorrow")
+                   for st, o in sorted(oldest.items())
+                   if (now - o).total_seconds() / 86400 > CATALOG_MAX_DAYS - 1 and st != "Running Free"}
+        out_stores = {st: f"{old:%b %-d}" for st, (n, old) in sorted(stale.items()) if st not in kept and st != "Running Free"}
+        if stale_warn or leaving:
+            print("  catalog: " + "; ".join(stale_warn + [f"{st} leaves {w}" for st, w in leaving.items()]), file=sys.stderr)
         _catalog_cache["products"] = {(p["Retailer"], p["Item ID"]): p for p in prods}
         hard, warn, stores = catalog_validate(got, prods)
         report["checked"].append({"file": f.name, "age_days": round(age, 1), "problems": hard})
@@ -1779,7 +1779,8 @@ def _catalog_rows():
             print(f"  catalog file {f.name} NOT used: " + "; ".join(hard), file=sys.stderr)
             continue
         print(f"  catalog file {f.name}: {len(got)} size rows, {age:.1f} days old, check passed", file=sys.stderr)
-        report.update(used=f.name, age_days=round(age, 1), warnings=stale_warn + warn, stores=stores)
+        report.update(used=f.name, age_days=round(age, 1), warnings=warn, stores=stores, out=out_stores, leaving=leaving, aged=sorted(stale))
+        # (Oct 14, Bastien's email had 15 lines of row ages: the health email now says it in one line from out/leaving)
         rows = got
         break
     prev = {}                               # the morning email reads catalog-check.json (health.py "Catalog file check")
@@ -1788,7 +1789,7 @@ def _catalog_rows():
     except Exception:
         pass
     for s, (n, _) in (report.get("stores") or {}).items():
-        if prev.get(s) and n < prev[s][0] / 2:
+        if prev.get(s) and n < prev[s][0] / 2 and s not in (report.get("aged") or []):   # shrunk because old rows aged out: said once
             report.setdefault("warnings", []).append(f"{s}: {n} products in stock, half of last time ({prev[s][0]})")
     if files:
         try:
@@ -3004,9 +3005,11 @@ def merge(offers):
     for o in tidied:
         c = per[o["b"]]
         tot = sum(c.values())
-        if o["g"] == "nutrition" and tot >= 8 and c["nutrition"] / tot < 0.08 and not STRONG_FOOD.search(o["n"]):
-            o["g"] = ("bottoms" if re.search(r"\d(\.\d)?\s*(\"|''|”)", o["n"]) else group_of(o["n"])) \
-                or next(g for g, _ in c.most_common() if g != "nutrition")      # rabbit "Fuel n' Fly 5"": shorts
+        cloth = len({str(e[0]).upper() for e in o["sz"]} & {"XS", "S", "M", "L", "XL", "XXL", "2XL"}) >= 2   # food never comes in S/M/L
+        if o["g"] == "nutrition" and tot >= 8 and c["nutrition"] / tot < 0.08 and (cloth or not STRONG_FOOD.search(o["n"])):
+            usual = next(g for g, _ in c.most_common() if g != "nutrition")
+            o["g"] = ("bottoms" if re.search(r"\d(\.\d)?\s*(\"|''|”)", o["n"]) else usual if cloth else group_of(o["n"])) \
+                or usual      # rabbit "Fuel n' Fly 5"": shorts; Sky "Rush Waffle Quarter" (Oct 14): a quarter-zip, Sky's usual = tops
         elif o["g"] in ("tops", "bottoms") and (tot >= 8 and c["socks"] / tot >= 0.8 or o["b"].lower() in SOCK_BRANDS) \
                 and not NOT_SOCK.search(o["n"]):
             o["g"] = "socks"           # a sock brand's "Franchise Crew" is a crew sock, not a crew-neck top (Stance, OS1st, Sockwell)

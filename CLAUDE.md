@@ -314,7 +314,8 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   Oct 8: brand-based rules in the merge (`per` brand counts): food from a brand that's <8% food goes to the name's category or the
   brand's usual one (STRONG_FOOD keeps real food); a "shoe" without shoe sizes from a non-shoe brand likewise; a sock brand's (80%+
   socks) "Crew" under tops/bottoms -> socks (NOT_SOCK keeps tees/joggers/boxers). CAMP_BRANDS (Big Agnes, Esbit) dropped;
-  EYEWEAR_BRANDS (goodr…) never food/clothing. sortcheck has the same "odd one out for its brand" rule (it found these).
+  EYEWEAR_BRANDS (goodr…) never food/clothing. Food never comes in S/M/L: an item filed as food with 2+ clothing sizes ignores STRONG_FOOD
+  and takes its brand's usual category (Oct 14: Sky "Rush Waffle Quarter", a quarter-zip, was food). sortcheck has the same "odd one out for its brand" rule (it found these).
 - Shoe names (Oct 7 audit): a gender word/code in front ("M Ghost 18", "MEN'S GEL-KAYANO 33", "Unisex ASICS Megablast") moves to the
   end for any store; filler "Road", "Running Road", "Road Racing" goes; "X Trail Running" -> "X" only when X is a trail model.
   base_model (shoe_pages.py) and baseModel (index.html) strip the same; `tools/check.py` step "Shoe page links match" compares
@@ -541,7 +542,8 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   (CATALOG_MIN); RW photos "&nw=400", Brooks dw/image sw/sh=400. Morning email: "Tap to check" 5 random catalog deals (catalog_spot).
   Row age (Oct 12; a visitor found adidas sizes sold out): GPT fills the file store by store, so its newest rows were 1 day old while
   adidas/New Balance/Sport Chek rows were 3.5 days old. Every ROW older than CATALOG_MAX_DAYS now leaves (not just the whole file);
-  the morning email names each store left out ("ask GPT for a fresh X batch") and the ones whose rows run out tomorrow.
+  the morning email says it in ONE line (Oct 14, it was 15): "Catalog: no deals from X, Y (last read Oct 9). Leaving today: …
+  Leaving tomorrow: …" (catalog-check.json `out`/`leaving`; stores halved only because rows aged out aren't flagged again).
   First file checked by hand on 9 random sale sizes: 9 right. SAVED_STORES expire (no keeping yesterday's deals). Health email:
   "Catalog file is N days old" the day before it runs out. No photos in the file (cards show text only).
 - Shipping countries (Oct 8, Bastien spotted 2XU: 2xu.com is the Australian store): the Shopify reader reads each store's
