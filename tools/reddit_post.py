@@ -93,7 +93,7 @@ def cdn_brands():
     return set(re.findall(r'"([^"]+)"', m.group(1)))
 
 
-def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, under=None, canadian=False):
+def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, under=None, canadian=False, direct=False):
     d = requests.get(f"{SITE}/{'sale.json' if side == 'ca' else 'sale-us.json'}", timeout=200).json()
     fx = d["fx"]["USD"] if side == "us" else 1.0
     pre = "shoes" if side == "ca" else "us/shoes"
@@ -114,14 +114,19 @@ def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, u
             continue
         if it["g"] == "shoes" and b in SHOE_BR:
             rank = next((k for k, h in enumerate(HYPE) if h in n), None)
-            if rank is None and not kind and not canadian:          # themed posts take any known-brand shoe of that kind
+            if re.search(r"spike|track|terminal vt|velocity mp|\bkids?\b|youth|junior|grade school|\bgs\b", n):
+                continue                          # Oct 14: a track spike and a kids' shoe made a beginner list
+            if not re.search(r"[a-z]{3}", fold(base(it["n"])).replace(b, "")):
+                continue                          # a name that is only the brand ("New Balance New Balance")
+            if rank is None and (kind != "daily" or under) and not canadian:   # daily lists (C25K) still want known models          # themed posts take any known-brand shoe of that kind
                 continue
             if kind and it.get("t") != kind:
                 continue
             pct, at = best_band(it, 5 if canadian else 7)
             if pct and pct >= 0.30 and (not under or min(s[1] for s in at) / fx <= under):
                 shoes.append((pct, it, at))
-        elif (it["g"] in GEAR_GROUPS and b in GEAR_BR) or (canadian and it["g"] != "shoes"):
+        elif ((it["g"] in GEAR_GROUPS and b in GEAR_BR) or (canadian and it["g"] != "shoes")) \
+                and not (kind == "daily" and (it["g"] == "packs" or re.search(r"vest|onesie", n))):   # beginners: no race vests
             pct, at = best_band(it, 1 if it["g"] in ("gear", "watches", "nutrition", "packs") else 3)
             if pct and pct >= (0.25 if canadian else 0.35) and min(s[1] for s in at) / fx >= (10 if canadian else 30) and (not under or min(s[1] for s in at) / fx <= under) \
                     and (kind != "trail" or re.search(r"trail|vest|pole|headlamp|light|wind|rain|jacket", fold(it["n"]))):
@@ -142,7 +147,7 @@ def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, u
             key = fold(it["b"] + " " + base(it["n"]))
             fam = re.sub(r"\s*(v?\d+(\.\d)?)$", "", key)          # Neo Vista 2 and Neo Vista: one model family per post
             if key in seen or fam in seen or (kind == "gear" and groups.get(it["g"], 0) >= 2) \
-                    or (canadian and brands.get(fold(it["b"]), 0) >= 2) \
+                    or ((canadian or kind) and brands.get(fold(it["b"]), 0) >= 2) \
                     or (kind == "gear" and nouns.get(noun(it["n"]), 0) >= 1):     # a mix of brands and of kinds of thing     # gear: a mix, at most 2 of a kind
                 continue
             if not confirm(it, at, fx, side == "us"):
@@ -169,6 +174,8 @@ def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, u
                         q = " ".join(cand)
                         break
                 link = f"{SITE}/?{'c=us&' if side == 'us' else ''}q={quote(q)}&ref={ref}"
+            if direct:       # Oct 12: Reddit's spam filter removed a post with 20 thegearfox.com links: link the store itself
+                link = it["of"][min(at, key=lambda s: s[1])[2]]
             lo, was = min(s[1] for s in at) / fx, max(s[3] for s in at) / fx
             got.append({"label": label, "price": lo, "was": was, "pct": round(pct * 100), "link": link,
                         "sizes": len({s[0] for s in at})})
@@ -178,6 +185,9 @@ def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, u
 
 def money(v):
     return f"${v:,.2f}".replace(".00", "") if v >= 100 else f"${v:,.2f}"
+
+
+FOOT = ""
 
 
 def write(picks, sides):
@@ -194,6 +204,9 @@ def write(picks, sides):
                 md.append(f"{n}. [{x['label']}]({x['link']}): {line}")
                 plain.append(f"{n}. {x['label']}: {line}\n{x['link']}\n")
         md.append("")
+    if FOOT:
+        md.append(FOOT)
+        plain.append(FOOT)
     return "\n".join(md), "\n".join(plain)
 
 
@@ -204,13 +217,18 @@ def main():
     ap.add_argument("--out", help="write the Markdown here (the plain version goes beside it, .txt)")
     ap.add_argument("--kind", choices=["daily", "race", "trail"], help="themed post: only this kind of shoe")
     ap.add_argument("--sex", choices=["men", "women"], help="themed post: men's or women's (unisex included)")
+    ap.add_argument("--direct", action="store_true", help="link each item to the store (one Gear Fox line at the bottom)")
     ap.add_argument("--canadian", action="store_true", help="Canadian brands only (the site's 🍁 list): 4 shoes + 6 others")
     ap.add_argument("--under", type=float, help="themed post: nothing over this price (C25K: --under 100)")
     a = ap.parse_args()
     sides = ["ca", "us"] if a.side == "both" else [a.side]
     n = (4, 6) if a.canadian else (6, 4)
     picks = {s: side_picks(s, a.ref, n[0], n[1], log=lambda m: print(m, file=sys.stderr), kind=a.kind, sex=a.sex, under=a.under,
-                           canadian=a.canadian) for s in sides}
+                           canadian=a.canadian, direct=a.direct) for s in sides}
+    global FOOT
+    if a.direct:
+        FOOT = (f"*Found with [thegearfox.com](https://thegearfox.com/?ref={a.ref}), a free site I made that shows running deals "
+                "in your size. No affiliate links, I don't make anything from these.*")
     md, plain = write(picks, sides)
     print(md)
     if a.out:
