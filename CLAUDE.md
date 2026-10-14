@@ -194,7 +194,7 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   reminders at 6:30am Vancouver (C25K Oct 14, RunningShoes 17, runninglifestyle 20, BuyCanadian 23, xxrunning 26, trailrunning 29,
   FrugalMaleFashionCDN Nov 1, ultrarunning 4, RunningShoeGeeks 7 + plan the rest to Cyber Monday). A different place each time.
 - **Tracking links**: `?ref=name` (kept per device, sent with visits/sign-ups, saved in the profile), `?lang=fr`.
-- **Post maker** (`tools/reddit_post.py --ref <place> [--side ca|us|both] [--out FILE]`, Oct 11; Bastien: post every 3 days, format
+- **Post maker** (`tools/reddit_post.py --ref <place> [--side ca|us|both] [--direct] [--out FILE]`; use --direct for Reddit, Oct 11; Bastien: post every 3 days, format
   "6 shoes 4 gear Canada and 6 shoes 4 gear USA, that's it", names as links): famous models first, biggest discount, 7+ sizes, each
   deal confirmed on the store's page (else the next one), shoe page link or a ?q= search that finds only that item; writes the
   Markdown (paste at old.reddit.com) and a plain version (address under each line, for the phone app). One ?ref per place.
