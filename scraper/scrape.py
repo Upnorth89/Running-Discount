@@ -2627,7 +2627,8 @@ TYPES["shoes"] = [
     # winter trail shoes with ice studs ("Speedgoat GTX Spike", "Norda G+ Spike") and "Norvan LD" (long distance) are trail
     ("trail", r"norvan|speedgoat.*spike|norda|\bg\+|carbide|cross spike|mtn racer|\bice\b"),
     ("spike", r"spikes?\b(?<!cross spike)|\bpointes?\b|\bxc\d*\b|\bm?xcs\d|\bwxcs|zoom rival|\bavanti\b|sprintstar|evospeed|"
-              r"\bja fly|maxfly|dragonfly|\bvictory\b|\b[LMS]D(-X)?\b|metaspeed (ld|md|sp)|ambition|\bdistance (nitro|11)\b"),
+              r"\bja fly|maxfly|dragonfly|\bvictory\b|\b[LMS]D(-X)?\b|metaspeed (ld|md|sp)|ambition|\bdistance (nitro|11)\b|terminal vt|"
+              r"\bendorphin cheetah\b"),   # Oct 14: Saucony's track (Terminal VT) and XC (Endorphin Cheetah) spikes were typed road
     ("hike", r"\bhik(e|er|ing)\b|\bboots?\b|\bbottes?\b|\bmid\b|chelsea|\bpolar\b|winter|hiver|snow ?boot|"
              r"approach(?!.*trail running)|toundra|\bkaha\b|\bmoab\b|targhee|x ultra|genesis mid|renegade|nabucco|sawtooth|"
              r"crosscut|\bbogs\b|cloudsoma|\btransport\b|\bax4\b|trailmaker|kopec|eastrail"),
