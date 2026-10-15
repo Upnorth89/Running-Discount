@@ -73,6 +73,12 @@ scraper/shoe_pages.py    Google pages: one per popular shoe model (3+ Canadian s
                          brand pages /brands/<b>/ + /marques/<b>/ (brands with 3+ models), /black-friday/ + /vendredi-fou/;
                          it also fills the homepage block between <!--SEO-TODAY--> markers (keep them EMPTY in git: the
                          morning build writes today's top 12 + links there; one EN and one FR copy, CSS shows the one matching html[lang]).
+                         Size pages (Oct 15): /running-shoes-sale/men/size-11/ … (FR /chaussures-course-solde/homme/pointure-10-5/, USA
+                         /us/…): men 7-13 + 14, women 5-11, sale only, regular width; size menu on the men/women pages, qs_box after cards.
+                         Price line (Oct 15, Bastien dropped the chart: "not make people feel like they missed a sale"): `price_chart()` under
+                         the size tables, per version, from hist/prices.jsonl: 5%+ cheaper in 60 days -> "It was $X on <date> ($Y today). Sales
+                         come back: don't miss the next one." + [Email me when it drops] (#alertBox); today lowest -> green line only with 30+
+                         days of history (badge rule); flat -> nothing. Site test "Shoe page price history line".
 supabase/setup.sql       database: tables, sign-up/confirm/profile/Google functions, email templates
 supabase/watchlist.sql   watchlist table + functions
 supabase/friday-switch.sql  latest change (Friday wording + weekly_sent_at column); already applied
