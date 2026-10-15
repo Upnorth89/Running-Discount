@@ -4,6 +4,7 @@ annotations (Claude reads those; the logs aren't reachable). Says what came back
 product data (JSON-LD offers, __NEXT_DATA__, Shopify). Never retries around a block.
 
   URLS="https://a/robots.txt https://a/p/1" python tools/probe.py      (workflow: .github/workflows/probe.yml)
+  SAVE=1: also keep each page in probe-out/ (the workflow uploads it as the "probe" artifact). HONEST=1: our own bot name.
 """
 import os
 import re
@@ -12,11 +13,18 @@ import time
 import requests
 
 H = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"}
+if os.environ.get("HONEST") == "1":
+    H = {"User-Agent": "Mozilla/5.0 (compatible; TheGearFoxBot/1.0; +https://thegearfox.com/about.html)"}
+SAVE = os.environ.get("SAVE") == "1"
+if SAVE:
+    os.makedirs("probe-out", exist_ok=True)
 
-for u in os.environ.get("URLS", "").split():
+for i, u in enumerate(os.environ.get("URLS", "").split()):
     try:
         r = requests.get(u, headers=H, timeout=30)
         t = r.text
+        if SAVE:
+            open(f"probe-out/{i:02d}-" + re.sub(r"[^\w.-]+", "_", u.split("//", 1)[-1])[:120], "w").write(t)
         bits = [f"{r.status_code}", f"{len(t)} chars", r.headers.get("server") or "", (r.headers.get("content-type") or "")[:30]]
         if u.endswith("robots.txt") and r.status_code == 200:
             rules = [l.strip() for l in t.splitlines() if re.match(r"(?i)(user-agent|disallow|allow|crawl-delay|sitemap)", l.strip())]

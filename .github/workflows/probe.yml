@@ -7,6 +7,14 @@ on:
       urls:
         description: 'Addresses separated by spaces'
         required: true
+      save:
+        description: 'Keep the pages (artifact "probe")'
+        type: boolean
+        default: false
+      honest:
+        description: 'Use our own bot name'
+        type: boolean
+        default: false
 
 jobs:
   probe:
@@ -20,4 +28,11 @@ jobs:
       - run: pip install requests
       - env:
           URLS: ${{ inputs.urls }}
+          SAVE: ${{ inputs.save && '1' || '' }}
+          HONEST: ${{ inputs.honest && '1' || '' }}
         run: python tools/probe.py
+      - if: inputs.save
+        uses: actions/upload-artifact@v4
+        with:
+          name: probe
+          path: probe-out/
