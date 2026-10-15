@@ -16,6 +16,7 @@ H = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
 if os.environ.get("HONEST") == "1":
     H = {"User-Agent": "Mozilla/5.0 (compatible; TheGearFoxBot/1.0; +https://thegearfox.com/about.html)"}
 SAVE = os.environ.get("SAVE") == "1"
+GREP = os.environ.get("GREP")   # a pattern: print up to 80 different matches per page (to learn how a store's pages are built)
 if SAVE:
     os.makedirs("probe-out", exist_ok=True)
 
@@ -36,6 +37,9 @@ for i, u in enumerate(os.environ.get("URLS", "").split()):
             bits.append(f"ld+json offers: {offers}, __NEXT_DATA__: {'__NEXT_DATA__' in t}, prices: {prices}, "
                         f"title: {title.group(1).strip()[:80] if title else ''}")
         print(f"::warning title=probe {u[:100]}::" + " | ".join(bits)[:3500].replace("\n", " "))
+        if GREP:
+            hits = list(dict.fromkeys(m.group(0) for m in re.finditer(GREP, t)))[:80]
+            print(f"::warning title=grep {u[:100]}::{len(hits)} | " + " ¦ ".join(hits)[:3900].replace("\n", " "))
     except Exception as e:
         print(f"::warning title=probe {u[:100]}::failed: {type(e).__name__} {str(e)[:200]}")
     time.sleep(2)

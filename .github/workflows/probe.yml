@@ -7,6 +7,10 @@ on:
       urls:
         description: 'Addresses separated by spaces'
         required: true
+      grep:
+        description: 'Show up to 80 matches of this pattern per page'
+        required: false
+        default: ''
       save:
         description: 'Keep the pages (artifact "probe")'
         type: boolean
@@ -28,6 +32,7 @@ jobs:
       - run: pip install requests
       - env:
           URLS: ${{ inputs.urls }}
+          GREP: ${{ inputs.grep }}
           SAVE: ${{ inputs.save && '1' || '' }}
           HONEST: ${{ inputs.honest && '1' || '' }}
         run: python tools/probe.py
