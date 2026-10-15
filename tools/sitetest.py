@@ -597,6 +597,29 @@ def site_flow(base, per, accented):
             return f"{len(out)} pages"
         check("Shoe lists, Black Friday, About, privacy", critical=False)(pages, page)
 
+        def size_pages():     # Oct 14: one page per shoe size (SEO: "men's size 11 running shoes on sale")
+            got = []
+            for rel, word in (("running-shoes-sale/men/size-11/", "Size 11"), ("chaussures-course-solde/femme/pointure-8/", "pointure 8"),
+                              ("us/running-shoes-sale/women/size-8/", "Size 8")):
+                h = site_get(rel) or ""
+                assert word in h, f"{rel} is missing or has the wrong title"
+                n = h.count('<li><a href="/')
+                assert n >= 5, f"{rel} lists only {n} shoes"
+                got.append(n)
+            return f"size pages list {got} shoes"
+        check("Size pages")(size_pages, page)
+
+        def price_watch():    # Oct 15: price history line on shoe pages ("lowest in N days" / "it was $X: email me when it drops")
+            reg = site_json("shoes/pages.json") or {}
+            pages_ = [site_get(f"shoes/{k}/") or "" for k in list(reg)[:40]]
+            n = sum('class="pws"' in h for h in pages_)
+            if not n:
+                return "no price history in this build (skipped)"
+            bad = [h for h in pages_ if 'class="pw was"' in h and 'id="alertBox"' not in h]
+            assert not bad, "'Email me when it drops' points to an email box the page doesn't have"
+            return f"{n} of {len(pages_)} shoe pages show a price-history line"
+        check("Shoe page price history line")(price_watch, page)
+
         def inside_links():
             seen, bad = set(), []
             for path in ["", "shoes/", "about.html", "black-friday/", page_any_model()]:

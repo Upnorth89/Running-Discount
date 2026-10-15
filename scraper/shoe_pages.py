@@ -33,6 +33,7 @@ T = {
         "title": "{name} price in Canada: every size, every store",
         "titleSale": "{name} Sale Canada: from {price} (−{p}%)",
         "aboutH": "About this shoe", "faqH": "Quick answers",
+        "pwLow": "Today's price is the lowest we've seen in {n} days: {today}.", "pwWas": "It was {low} on {date} ({now} today). Sales come back: don't miss the next one.", "pwBtn": "Email me when it drops",
         "about": "The {name} is a {type}. Today {stores} stores in Canada carry it and we found {sizes} sizes in stock.",
         "aboutBest": " The lowest price is {price} at {store}.", "aboutMost": " {store} is the cheapest in the most sizes ({n}).",
         "qSale": "Is the {name} on sale in Canada right now?",
@@ -48,6 +49,11 @@ T = {
                  "women": ("Women's running shoes on sale in Canada", "Women's running shoes on sale", "Women's running shoes on sale today at Canadian stores, biggest discount first."),
                  "men": ("Men's running shoes on sale in Canada", "Men's running shoes on sale", "Men's running shoes on sale today at Canadian stores, biggest discount first.")},
         "hubDir": "running-shoes-sale", "hubSlugs": {"all": "", "road": "road", "trail": "trail", "racing": "racing", "women": "women", "men": "men"},
+        "sizeDir": "size", "gWord": {"men": "Men's", "women": "Women's"},
+        "sizeTitle": "{g} Size {s} Running Shoes on Sale in Canada: {n} deals today",
+        "sizeH1": "{g} running shoes on sale in size {s}",
+        "sizeIntro": "{n} running shoes on sale today in {g} size {s} at Canadian stores. Every price is the price in size {s}, biggest discount first. Checked every morning.",
+        "sizeAt": "at {store}", "sizeNav": "Other sizes", "sizeOther": "{g} sizes",
         "brandDir": "brands", "brandTitle": "{brand} Sale Canada: running shoes on sale today", "brandH1": "{brand} on sale in Canada",
         "brandIntro": "Every {brand} running shoe we track at Canadian stores, with today's best price. Biggest discount first; checked every morning.",
         "browse": "Browse", "brandsH": "Brands", "bfLink": "Black Friday",
@@ -112,6 +118,7 @@ T = {
         "title": "{name} : prix au Canada, chaque pointure, chaque boutique",
         "titleSale": "{name} en solde au Canada : dès {price} (−{p} %)",
         "aboutH": "À propos de cette chaussure", "faqH": "Réponses rapides",
+        "pwLow": "Le prix d'aujourd'hui est le plus bas des {n} derniers jours : {today}.", "pwWas": "Elle était à {low} le {date} ({now} aujourd'hui). Les soldes reviennent : ne manquez pas la prochaine.", "pwBtn": "M'avertir quand il baisse",
         "about": "La {name} est une {type}. Aujourd'hui, {stores} boutiques au Canada la vendent et nous avons trouvé {sizes} pointures en stock.",
         "aboutBest": " Le prix le plus bas est {price} chez {store}.", "aboutMost": " {store} est la moins chère dans le plus de pointures ({n}).",
         "qSale": "La {name} est-elle en solde au Canada en ce moment?",
@@ -127,6 +134,11 @@ T = {
                  "women": ("Chaussures de course pour femme en solde au Canada", "Chaussures de course pour femme en solde", "Chaussures de course pour femme en solde aujourd'hui au Canada, plus gros rabais en premier."),
                  "men": ("Chaussures de course pour homme en solde au Canada", "Chaussures de course pour homme en solde", "Chaussures de course pour homme en solde aujourd'hui au Canada, plus gros rabais en premier.")},
         "hubDir": "chaussures-course-solde", "hubSlugs": {"all": "", "road": "route", "trail": "sentier", "racing": "competition", "women": "femme", "men": "homme"},
+        "sizeDir": "pointure", "gWord": {"men": "pour hommes", "women": "pour femmes"},
+        "sizeTitle": "Chaussures de course {g} pointure {s} en solde au Canada : {n} aubaines aujourd'hui",
+        "sizeH1": "Chaussures de course {g} en solde, pointure {s}",
+        "sizeIntro": "{n} chaussures de course {g} en solde aujourd'hui en pointure {s} dans les boutiques canadiennes. Chaque prix est celui de la pointure {s}, du plus gros rabais au plus petit. Vérifié chaque matin.",
+        "sizeAt": "chez {store}", "sizeNav": "Autres pointures", "sizeOther": "Pointures {g}",
         "brandDir": "marques", "brandTitle": "{brand} en solde au Canada : chaussures de course en solde", "brandH1": "{brand} en solde au Canada",
         "brandIntro": "Toutes les chaussures de course {brand} que nous suivons dans les boutiques canadiennes, avec le meilleur prix du jour. Plus gros rabais en premier; vérifié chaque matin.",
         "browse": "Parcourir", "brandsH": "Marques", "bfLink": "Vendredi fou",
@@ -201,6 +213,8 @@ US.update({
              "women": ("Women's running shoes on sale", "Women's running shoes on sale", "Women's running shoes on sale today at US running stores, biggest discount first."),
              "men": ("Men's running shoes on sale", "Men's running shoes on sale", "Men's running shoes on sale today at US running stores, biggest discount first.")},
     "hubDir": "us/running-shoes-sale", "brandDir": "us/brands", "bfDir": "us/black-friday",
+    "sizeTitle": "{g} Size {s} Running Shoes on Sale: {n} deals today",
+    "sizeIntro": "{n} running shoes on sale today in {g} size {s} at US running stores. Every price is the price in size {s}, biggest discount first. Checked every morning.",
     "brandTitle": "{brand} Sale: running shoes on sale today", "brandH1": "{brand} running shoes on sale",
     "brandIntro": "Every {brand} running shoe we track at US running stores, with today's best price. Biggest discount first; checked every morning.",
     "bfTitle": "Black Friday 2026 running shoe deals", "bfH1": "Black Friday 2026: running shoe deals",
@@ -431,6 +445,10 @@ tr.yours td:first-child{font-weight:700;box-shadow:inset 4px 0 0 var(--hivis)}
 .jump a{flex:none;font:600 13px var(--body);color:var(--ink);text-decoration:none;border:1.5px solid var(--line);border-radius:999px;padding:4px 10px;background:var(--card)}
 .nomatch{color:var(--muted);margin:16px 0}
 .foot{font-size:13px;color:var(--muted);margin:30px 0 10px}
+.pws{margin:14px 0}.pw{background:var(--card);border:1.5px solid var(--line);border-left:5px solid var(--hivis);border-radius:12px;padding:10px 14px;margin:0 0 8px;font-size:15px}
+.pw.good{border-left-color:#1C6B37}.pw b{display:block;font-size:14px;color:var(--muted)}
+.pwbtn{display:inline-block;margin-top:2px;background:var(--hivis);color:#17201C;font-weight:700;text-decoration:none;border-radius:999px;padding:8px 14px}
+.browse.sizes a[aria-current]{background:var(--ink);color:var(--card)}
 """
 
 
@@ -715,6 +733,163 @@ def summary(its, stores, gender=None):
             "img": next((d["img"] for d in its if d.get("img")), None), "t": its[0].get("t") or ""}
 
 
+# Size pages (Oct 14, 2026; Bastien: "how do we dominate the SEO space"): "men's size 11 running shoes on sale" is what people
+# type, and in-your-size is what only we can answer. One page per size, every price is the price in THAT size.
+SIZES = {"men": [x / 2 for x in range(14, 27)] + [14.0], "women": [x / 2 for x in range(10, 23)]}
+
+
+def size_slug(L, s):
+    return f'{L["sizeDir"]}-{s:g}'.replace(".", "-")
+
+
+def size_path(L, g, s):
+    return f'/{L["hubDir"]}/{L["hubSlugs"][g]}/{size_slug(L, s)}/'
+
+
+def size_summary(its, stores, gender, size):
+    """Today's best sale price for one model in one size (regular width): (price, regular, store, %off) or None."""
+    best = None
+    for d in its:
+        sx = d.get("sx") or []
+        for e in d["sz"]:
+            k = str(e[0])
+            if k.endswith(("~N", "~W")):
+                continue
+            if k.startswith("M:"):
+                if gender != "men":
+                    continue
+                k = k[2:]
+            elif k.startswith("W:"):
+                if gender != "women":
+                    continue
+                k = k[2:]
+            elif gender == "women" and sx != ["women"]:
+                continue                       # plain sizes on a unisex shoe are men's sizes
+            elif gender == "men" and sx == ["women"]:
+                continue
+            try:
+                if float(k) != size:
+                    continue
+            except ValueError:
+                continue
+            reg = e[3] if len(e) > 3 and e[3] else e[1]
+            if e[1] >= reg * 0.99:
+                continue
+            if best is None or e[1] < best[0]:
+                best = (e[1], reg, host(size_url(d, e)))
+    if not best:
+        return None
+    return {"price": best[0], "reg": best[1], "top": round(100 * (1 - best[0] / best[1])), "sizes": 1, "stores": 1,
+            "note": stores.get(best[2], [best[2]])[0], "img": next((d["img"] for d in its if d.get("img")), None)}
+
+
+def size_nav(L, g, current=None):
+    """Links to every size of one gender (and the other gender's sizes), so Google finds them all."""
+    other = "women" if g == "men" else "men"
+    cur = ' aria-current="page"'
+    links = "".join(f'<a href="{size_path(L, g, s)}"{cur if s == current else ""}>{s:g}</a>' for s in SIZES[g])
+    return (f'<nav class="browse sizes" aria-label="{esc(L["sizeNav"])}"><strong>{esc(L["sizeOther"].format(g=L["gWord"][g]))}</strong> {links}</nav>'
+            f'<p class="fine"><a href="{size_path(L, other, SIZES[other][len(SIZES[other]) // 2])}">{esc(L["sizeOther"].format(g=L["gWord"][other]))} →</a></p>')
+
+
+def size_pages(site, L, models, live, stores, brands, twin=None):
+    """Writes every size page for one language/side; twin(L2, g, s) gives the other-language address. Returns the URLs."""
+    urls = []
+    for g in ("men", "women"):
+        for size in SIZES[g]:
+            rows = []
+            for sl in live:
+                if models.get(sl):
+                    sm = size_summary(models[sl], stores, g, size)
+                    if sm and sm["top"] >= 10:
+                        sm["note"] = L["sizeAt"].format(store=sm["note"])
+                        rows.append((sl, live[sl]["n"], sm))
+            rows.sort(key=lambda r: (-r[2]["top"], r[2]["price"]))
+            own = size_path(L, g, size)
+            en_p, fr_p = twin(g, size) if twin else (own, "")
+            gw, sz = L["gWord"][g], f"{size:g}"
+            p = site / own.strip("/") / "index.html"
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text(list_page(L, en_p, fr_p, L["sizeTitle"].format(g=gw, s=sz, n=len(rows)), L["sizeH1"].format(g=gw, s=sz),
+                                   L["sizeIntro"].format(g=gw.lower() if L.get("lang", "").startswith("en") else gw, s=sz, n=len(rows)),
+                                   rows[:80], brands, size_nav(L, g, size), after=qs_box(L, L["qsHub"], "size-page")))
+            urls.append(own)
+    return urls
+
+
+# Price history chart (Oct 14, 2026; Bastien: "how do we dominate the SEO space"): the lowest price per day for each version
+# (men's / women's), from the price history on the history branch. Information other sites don't have, and the answer to
+# "is this a real deal?" before Black Friday. Drawn as plain SVG on the server: readable without scripts, light in both themes.
+HIST = {}
+MONTHS = {"en": "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split(),
+          "fr": "janv. févr. mars avr. mai juin juil. août sept. oct. nov. déc.".split()}
+
+
+def load_history(path):
+    try:
+        for line in Path(path).read_text().splitlines():
+            if line.strip():
+                row = json.loads(line)
+                HIST[row["k"]] = row["h"]
+    except Exception:
+        pass
+    return len(HIST)
+
+
+def short_date(d, L):
+    fr = L["lang"] == "fr-CA"
+    return f"{d.day} {MONTHS['fr'][d.month - 1]}" if fr else f"{MONTHS['en'][d.month - 1]} {d.day}"
+
+
+def price_chart(its, L, updated, prefix=""):
+    """One small step chart per version (men's / women's / unisex), regular width only; "" until 7+ days of history."""
+    today = (datetime.fromisoformat(updated.replace("Z", "+00:00")) if updated else datetime.now(timezone.utc)).astimezone(HOME_TZ).date()
+    scale = L.get("fx", 1.0) if prefix else 1.0          # the USA side's history is in USD; L["money"] expects CAD
+    money = L["money"]
+    groups = defaultdict(list)
+    for d in its:
+        if d.get("w"):
+            continue
+        h = HIST.get(prefix + f"{d['b']}|{d['n']}|{d['g']}|0".lower())
+        if h:
+            groups[variant_label(d, L)].append(sorted(h))
+    blocks = []
+    for lab, hs in groups.items():
+        start = max(min(date.fromisoformat(h[0][0]) for h in hs), today - timedelta(days=59))
+        days = [start + timedelta(days=i) for i in range((today - start).days + 1)]
+        if len(days) < 7:
+            continue
+        vals = []
+        for day in days:
+            best = None
+            for h in hs:
+                v = None
+                for dd, p, _ in h:
+                    if date.fromisoformat(dd) <= day:
+                        v = p
+                    else:
+                        break
+                if v is not None and (best is None or v < best):
+                    best = v
+            vals.append(None if best is None else best * scale)
+        pts = [(i, v) for i, v in enumerate(vals) if v is not None]
+        if len(pts) < 7:
+            continue
+        lo_i, lo = min(pts, key=lambda t: (t[1], -t[0]))         # the most recent day at the lowest price
+        now = pts[-1][1]
+        if now <= lo:                                              # good news only: today is the lowest, 30+ days (badge rule)
+            if len(days) >= 30 and max(v for _, v in pts) > now * 1.02:
+                blocks.append((lab, "good", "✓ " + L["pwLow"].format(n=min(len(days), 60), today=money(now))))
+        elif lo < now * 0.95:                                      # it was cheaper: "don't miss the next one" + the email box
+            blocks.append((lab, "was", L["pwWas"].format(low=money(lo), date=short_date(days[lo_i], L), now=money(now))))
+    if not blocks:
+        return ""
+    same = len(blocks) > 1 and len({(k, t) for _, k, t in blocks}) == 1   # men's and women's say the same: one line
+    out = [f'<p class="pw {k}">{"" if same else f"<b>{esc(lab)}</b> "}{esc(t)}</p>' for lab, k, t in (blocks[:1] if same else blocks)]
+    btn = f'<a class="pwbtn" href="#alertBox">{esc(L["pwBtn"])}</a>' if any(k == "was" for _, k, _ in blocks) else ""
+    return f'<section class="pws">{"".join(out)}{btn}</section>'
+
+
 def model_page(slug, its, stores, L, updated, related, brand_models, paths=None):
     first = its[0]
     brand = first["b"]
@@ -794,6 +969,7 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None)
             price = f'<b>{money(p)}</b>' + (f'<s>{money(reg)}</s><span class="off">−{off}%</span>' if off else "")
             out.append(f'<tr data-s="{esc(size)}" data-p="{p:.2f}"><td>{esc(size)}</td><td class="p">{price}</td><td><a href="{esc(u)}" rel="nofollow noopener" target="_blank" data-store="{esc(h)}">{esc(st[0])}</a>{us}{fin}</td></tr>')
         out.append("</tbody></table>")
+    out.append(price_chart(its, L, updated, "us|" if L.get("dir", "").startswith("us/") else ""))
     if sm:     # a few lines Google (and people) can read: what it is, where it's cheapest, sizes, today's answers
         about = L["about"].format(name=esc(name), type=L["typeLower"].get(sm["t"], L["typeLower"][""]), stores=sm["stores"], sizes=sm["sizes"])
         about += L["aboutBest"].format(price=money(sm["price"]), store=esc(sm["store"]))
@@ -831,7 +1007,7 @@ def card_list(L, rows):
         price = (f'<b>{money(sm["price"])}</b><span class="off">−{sm["top"]}%</span>' if sm["top"] >= 10
                  else f'<b>{money(sm["price"])}</b><small>{L["fullPrice"]}</small>')
         out.append(f'<li><a href="/{L["dir"]}/{slug}/">{img}<span class="nm"><b>{esc(name)}</b>'
-                   f'<small>{L["sizesStores"].format(sizes=sm["sizes"], stores=sm["stores"])}</small></span><span class="pr">{price}</span></a></li>')
+                   f'<small>{esc(sm["note"]) if sm.get("note") else L["sizesStores"].format(sizes=sm["sizes"], stores=sm["stores"])}</small></span><span class="pr">{price}</span></a></li>')
     return '<ul class="cards">' + "".join(out) + "</ul>"
 
 
@@ -873,10 +1049,11 @@ def bf_other(L):
     return f'<p><strong>{esc(q)}</strong> <a href="{href}">{esc(txt)}</a></p>'
 
 
-def list_page(L, path_en, path_fr, title, h1, intro, rows, brands, extra=""):
+def list_page(L, path_en, path_fr, title, h1, intro, rows, brands, extra="", after=""):
     out = [page_head(L, title, intro, path_en, path_fr)]
     out.append(f'<h1>{esc(h1)}</h1><p class="sub">{esc(intro)}</p>{extra}')
     out.append(card_list(L, rows) if rows else f'<p>{esc(L["none"])}</p>')
+    out.append(after)
     out.append(browse_nav(L, brands))
     out.append(page_foot(L))
     return "".join(out)
@@ -930,6 +1107,9 @@ nm.hidden=any||!w.length;document.querySelector(".jump").hidden=!!w.length})})()
 
 def main():
     site = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
+    import os
+    n_hist = load_history(os.environ.get("HISTORY_FILE") or "hist/prices.jsonl")
+    print(f"price history: {n_hist} products")
     data = json.loads((site / "deals.json").read_text())
     items, updated = data["items"], data.get("updated")
     stores = store_names((site / "index.html").read_text())
@@ -984,8 +1164,12 @@ def main():
             title, h1, intro = L["hubs"][k]
             p = site / sub(L).strip("/") / "index.html"
             p.parent.mkdir(parents=True, exist_ok=True)
-            p.write_text(list_page(L, en_p, fr_p, title, h1, intro, rows[:80], brands, qs_box(L, L["qsHub"], "sale-list")))
+            p.write_text(list_page(L, en_p, fr_p, title, h1, intro, rows[:80], brands,
+                                   (size_nav(L, k) if k in ("men", "women") else "") + qs_box(L, L["qsHub"], "sale-list")))
             extra_urls.append(sub(L))
+        en_L, fr_L = T["en"], T["fr"]
+        extra_urls += size_pages(site, L, models, known_live, stores, brands,
+                                 twin=lambda g, sz: (size_path(en_L, g, sz), size_path(fr_L, g, sz)))
         for b in brands:
             rows = sorted([(sl, known_live[sl]["n"], summ[sl]) for sl in brand_models[b]], key=lambda r: (-r[2]["top"], r[1].lower()))
             en_p, fr_p = f'/brands/{slugify(b)}/', f'/marques/{slugify(b)}/'
@@ -1127,8 +1311,10 @@ def build_us(site, stores, ca_models, ca_brands):
         title, h1, intro = L["hubs"][k]
         p = site / own.strip("/") / "index.html"
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(list_page(L, own, twin, title, h1, intro, rows[:80], brands, qs_box(L, L["qsHub"], "sale-list")))
+        p.write_text(list_page(L, own, twin, title, h1, intro, rows[:80], brands,
+                               (size_nav(L, k) if k in ("men", "women") else "") + qs_box(L, L["qsHub"], "sale-list")))
         urls.append(own)
+    urls += size_pages(site, L, models, live, stores, brands, twin=lambda g, sz: (size_path(L, g, sz), size_path(T["en"], g, sz)))
     for b in brands:
         rows = sorted([(sl, live[sl]["n"], summ[sl]) for sl in brand_models[b]], key=lambda r: (-r[2]["top"], r[1].lower()))
         own = f'/{L["brandDir"]}/{slugify(b)}/'
