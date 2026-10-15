@@ -623,6 +623,190 @@ def scrape_runningfree():
     return out
 
 
+# ---------------------------------------------------------------- Sports Experts (Québec chain, Canadian Tire / FGL)
+# Oct 15, 2026 (Bastien: "Try to pull sport expert data. Gpt keeps running out of tokens"). Its wall (Cloudflare "Just a
+# moment") stops Claude's sandbox, but GitHub's servers get plain pages, robots.txt included: it allows category and product
+# pages (Disallow: search, sorting, account, checkout, its Google feed; no Crawl-delay). Listing pages carry each product as
+# JSON (brand, name, sale + regular price, photo, link); product pages carry every colour+size with its stock flag
+# (IsAvailableToSell) and price, and /p-<slug>/<id>/<variant id> opens that colour and size (checked Oct 15). ~1,300 product
+# pages, so it's read at night (runfree.yml job "sportsexperts", a page every 3 s, ~1 h) into sportsexperts.json on the
+# history branch; the refresh downloads it to SPORTSEXPERTS_FILE. While that copy is fresh, the catalog file's rows are skipped.
+SE_BASE = "https://www.sportsexperts.ca"
+SE_LISTS = ["running/running/running-shoes", "running/trail-running/trail-running-shoes", "running/running/running-clothing",
+            "running/trail-running/trail-running-clothing", "running/running/running-accessories",
+            "running/trail-running/trail-running-accessories", "running/hydration-vests-and-bags",
+            "running/nutrition-and-electrolytes", "running/winter-running", "running/sunglasses", "running/smartwatches"]
+SE_DELAY = 3
+SPORTSEXPERTS_FILE = os.environ.get("SPORTSEXPERTS_FILE", "/tmp/sportsexperts.json")
+SE_HEAD = {"User-Agent": "Mozilla/5.0 (compatible; TheGearFoxBot/1.0; +https://thegearfox.com/about.html)",
+           "Accept-Language": "en-CA,en;q=0.8"}
+_se_last = [0.0]
+
+
+def _se_get(path):
+    wait = _se_last[0] + SE_DELAY - time.time()
+    if wait > 0:
+        time.sleep(wait)
+    for t in range(3):
+        _se_last[0] = time.time()
+        try:
+            r = S.get(SE_BASE + path, headers=SE_HEAD, timeout=60)
+            if r.status_code == 200 and "Just a moment" not in r.text[:3000]:
+                return r.text
+            print(f"::warning::sportsexperts: {path} HTTP {r.status_code}", file=sys.stderr)
+            if r.status_code in (403, 429) or "Just a moment" in r.text[:3000]:
+                raise RuntimeError(f"Sports Experts said no (HTTP {r.status_code})")   # its wall: stop, never work around it
+        except requests.RequestException as e:
+            print(f"::warning::sportsexperts: {path} {type(e).__name__}", file=sys.stderr)
+        time.sleep(SE_DELAY * (t + 3))
+    return None
+
+
+def _se_listing(h):
+    """Listing page -> its products (the SearchResults JSON in the page)."""
+    t = html_lib.unescape(h)
+    i = t.find('"SearchResults":[')
+    if i < 0:
+        return []
+    try:
+        res, _ = json.JSONDecoder().raw_decode(t, i + len('"SearchResults":'))
+    except ValueError:
+        return []
+    return [x for x in res if isinstance(x, dict) and x.get("ProductId")]
+
+
+def _se_variants(h):
+    """Product page -> {variant id: {kvas, ok, price, reg}}."""
+    t = h.replace('\\"', '"').replace("\\u0027", "'")
+    out = {}
+    for seg in t.split('{"Id":"')[1:]:
+        m = re.match(r'([\w]+-\d+)","Kvas":\{([^}]*)\}', seg)
+        if not m or m.group(1) in out:
+            continue
+        head = seg[:900].split('{"Id":"')[0]
+        ok = re.search(r'"IsAvailableToSell":(true|false)', head)
+        price = re.search(r'"ListPrice":"\$([\d,]+\.\d\d)"', head)
+        reg = re.search(r'"DefaultListPrice":"\$([\d,]+\.\d\d)"', head)
+        if not (ok and price):
+            continue
+        p = float(price.group(1).replace(",", ""))
+        out[m.group(1)] = {"kvas": dict(re.findall(r'"(\w+)":"([^"]*)"', m.group(2))), "ok": ok.group(1) == "true",
+                           "price": p, "reg": float(reg.group(1).replace(",", "")) if reg else p}
+    return out
+
+
+def sportsexperts_night(out, hours=3.5):
+    """Every product of the running sections, then each product page for its sizes in stock (a page every 3 s)."""
+    start, prods = time.time(), {}
+    for path in SE_LISTS:
+        for n in range(1, 60):
+            h = _se_get(f"/en-CA/{path}" + (f"?page={n}" if n > 1 else ""))
+            if h is None:
+                raise RuntimeError(f"Sports Experts: {path} page {n} didn't load")
+            items = _se_listing(h)
+            new = [x for x in items if x["ProductId"] not in prods]
+            for x in items:
+                prods.setdefault(x["ProductId"], {"brand": x.get("Brand") or "", "name": x.get("FullDisplayName") or x.get("DisplayName") or "",
+                                                  "url": x.get("Url") or "", "cat": x.get("CategoryId") or "", "img": x.get("ImageUrl"),
+                                                  "lists": []})
+                if path not in prods[x["ProductId"]]["lists"]:
+                    prods[x["ProductId"]]["lists"].append(path)
+            if not items or (n > 1 and not new):
+                break
+        print(f"  sportsexperts: {path}: {len(prods)} products so far", file=sys.stderr)
+    failed, kv = [], collections.Counter()
+    for i, (pid, p) in enumerate(prods.items()):
+        if time.time() - start > hours * 3600:
+            raise RuntimeError("Sports Experts: out of time for tonight (the last good copy stays)")
+        h = _se_get(p["url"])
+        if h is None:
+            failed.append(pid)
+            if len(failed) > 30:
+                raise RuntimeError(f"Sports Experts: {len(failed)} product pages didn't load")
+            continue
+        p["vars"] = _se_variants(h)
+        for v in p["vars"].values():
+            kv.update(f"{k}={x}" if k != "VENDOR_COLOR_CODE" and not re.search(r"Size$", k) else k for k, x in v["kvas"].items())
+        if i % 200 == 199:
+            print(f"  sportsexperts: {i + 1} product pages read", file=sys.stderr)
+    print(f"  sportsexperts: options seen {dict(kv.most_common(25))}", file=sys.stderr)
+    Path(out).write_text(json.dumps({"updated": now(), "prods": prods}, separators=(",", ":")))
+    print(f"sportsexperts night read: {len(prods)} products, {sum(1 for p in prods.values() for v in p.get('vars', {}).values() if v['ok'])} "
+          f"colour+sizes in stock in {(time.time() - start) / 60:.0f} min -> {out}", file=sys.stderr)
+    return 0
+
+
+def _se_fresh():
+    try:
+        d = json.loads(Path(SPORTSEXPERTS_FILE).read_text())
+        return (dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(d["updated"])).total_seconds() < 36 * 3600 and d
+    except Exception:
+        return None
+
+
+SE_KIDS = re.compile(r"\b(kids?|youth|junior|juniors|boys?|girls?|toddler|infant|child(ren)?)\b|^(Boys|Girls|Kids|Junior)", re.I)
+
+
+def scrape_sportsexperts():
+    d = _se_fresh()
+    if not d:
+        raise RuntimeError("no Sports Experts night copy from the last 36 h")
+    out, skipped = [], collections.Counter()
+    for pid, p in d["prods"].items():
+        full, cat = p["name"], p["cat"]
+        if SE_KIDS.search(full) or SE_KIDS.search(cat):
+            skipped["kids"] += 1
+            continue
+        model, _, desc = full.rpartition(" - ") if " - " in full else (full, "", "")
+        sx = (["men", "women"] if re.search(r"\bunisex\b", desc, re.I) else ["men"] if re.search(r"\bmen'?s\b", desc, re.I)
+              and not re.search(r"\bwomen'?s\b", desc, re.I) else ["women"] if re.search(r"\bwomen'?s\b", desc, re.I)
+              else ["men"] if cat.startswith("Men_") else ["women"] if cat.startswith("Women_") else [])
+        rest = re.sub(r"(?i)\b(unisex|(wo)?men'?s|adult'?s?)\b\s*", "", desc).strip()
+        words = re.sub(r"([a-z])([A-Z])", r"\1 \2", cat.replace("_", " "))
+        g = generic_group("gear")({"title": f"{model} {rest}", "product_type": words})
+        if re.search(r"Footwear|Shoes", cat) and g in (None, "gear", "shoes"):
+            g = "shoes"
+        if g is None:
+            skipped["not running"] += 1
+            continue
+        if g == "shoes" and len(sx) != 1:
+            skipped["shoe without one gender"] += 1          # sizes would be ambiguous (men's or women's 9?)
+            continue
+        sizes, colours = {}, collections.Counter()
+        for vid, v in (p.get("vars") or {}).items():
+            if not v["ok"]:
+                continue
+            colours[v["kvas"].get("VENDOR_COLOR_CODE")] += 1
+            kv = {k: x for k, x in v["kvas"].items() if k != "VENDOR_COLOR_CODE"}
+            lab = next((x for k, x in kv.items() if k.endswith("Size")), None)
+            width = next((x for k, x in kv.items() if "width" in k.lower()), "")
+            if lab is None:
+                lab = "OS"
+            lab = lab.replace("_Half", ".5").replace("_", " ").strip()
+            if g == "shoes":
+                if re.search(r"(?i)narrow|^(b|2a|aa)$" if sx == ["men"] else r"(?i)narrow|^(2a|aa)$", width):
+                    continue
+                if re.search(r"(?i)wide|^(2e|ee|4e|6e)$", width) or (sx == ["women"] and width.upper() == "D"):
+                    lab += " Wide"
+            link = SE_BASE + re.sub(r"/[\w]+-\d+$", "/" + vid, p["url"])
+            if lab not in sizes or v["price"] < sizes[lab][0]:
+                sizes[lab] = (v["price"], max(v["reg"], v["price"]), link)
+        if not sizes:
+            skipped["nothing in stock"] += 1
+            continue
+        nm = f"{model} {rest}".strip() + {"men": " - Men's", "women": " - Women's"}.get(sx[0] if len(sx) == 1 else "", "")
+        img = p.get("img")
+        shown = ((p.get("vars") or {}).get(p["url"].rsplit("/", 1)[-1]) or {}).get("kvas", {}).get("VENDOR_COLOR_CODE")
+        if colours and shown not in colours and img and re.search(r"/\d+-[\w]+-1-Medium\.jpg$", img):
+            top = colours.most_common(1)[0][0]       # the listing's colour is sold out: the photo of a colour that's in stock
+            img = re.sub(r"/(\d+)-[\w]+-1-Medium\.jpg$", lambda m: f"/{m.group(1)}-{str(top).lower()}-1-Medium.jpg", img)
+        out.append({"st": "sportsexperts", "b": p["brand"], "n": nm, "u": SE_BASE + p["url"], "g": g, "sx": sx, "w": False,
+                    "img": img, "lp": max(r for _, r, _ in sizes.values()), "bb": None, "ca": True, "no_us": True,
+                    "sz": [[k, pr, rg, u] for k, (pr, rg, u) in sizes.items()]})
+    print(f"  sportsexperts: night copy from {d['updated']}: {len(out)} products (left out: {dict(skipped)})", file=sys.stderr)
+    return out
+
+
 # ---------------------------------------------------------------- Altitude / Last Hunt (same Next.js + commercetools platform)
 
 # ---------------------------------------------------------------- Altitude / Last Hunt (same Next.js + commercetools platform)
@@ -2110,6 +2294,8 @@ def scrape_catalog_others():
             continue
         if re.sub(r"\W", "", str(ret or "").lower()) == "runningfree" and _rf_fresh():
             continue                    # our own night read is fresher than the file (Oct 9)
+        if re.sub(r"\W", "", str(ret or "").lower()) == "sportsexperts" and _se_fresh():
+            continue                    # same for Sports Experts (Oct 15)
         if ret and ret not in CATALOG_STORES and ret not in by:
             by[ret] = r
     out = []
@@ -2882,7 +3068,7 @@ def tidy_brand(b):
         return tidy_brand(r)
     return c or b
 
-CAPS_STORES = {"lecoureur", "runnerssoul"}
+CAPS_STORES = {"lecoureur", "runnerssoul", "sportsexperts"}
 OWN_BRAND = {"rabbit": "rabbit", "bandit": "Bandit Running"}
 GENDER_PREFIX_STORES = {"frontrunners",    # names start with "M " / "W " / "U " ("M Adidas Boston 13")
                         "aerobicsfirst",   # "Saucony Women's Endorphin Speed 5 - White/Black *SALE*"
@@ -3616,6 +3802,14 @@ def scrape_backcountry_saved():
 if __name__ == "__main__" and "--backcountry-night" in sys.argv:
     sys.exit(backcountry_night(sys.argv[sys.argv.index("--backcountry-night") + 1], "--sale-only" in sys.argv))
 
+if __name__ == "__main__" and "--sportsexperts-night" in sys.argv:
+    try:
+        sys.exit(sportsexperts_night(sys.argv[sys.argv.index("--sportsexperts-night") + 1]))
+    except Exception as e:
+        print(f"::error::Sports Experts night read stopped: {type(e).__name__}: {str(e)[:300]}", file=sys.stderr)   # shows on the run page
+        sys.exit(1)
+if __name__ == "__main__" and "--thefeed-night" in sys.argv:
+    sys.exit(thefeed_night(sys.argv[sys.argv.index("--thefeed-night") + 1]))
 if __name__ == "__main__" and "--runningfree-night" in sys.argv:
     try:
         sys.exit(runningfree_night(sys.argv[sys.argv.index("--runningfree-night") + 1]))
