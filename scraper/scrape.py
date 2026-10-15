@@ -2583,6 +2583,9 @@ def tidy_gear(offers):
         if o["g"] in ("nutrition", "gloves") and (o["b"] or "").lower() in SHOE_BRANDS and SHOE_SIZES(o):
             o["g"] = "_drop" if COURT_SHOE.search(o["n"]) or CASUAL_SHOE.search(o["n"]) else "shoes"
             continue
+        if o["g"] in ("headwear", "gloves") and re.search(r"\b(jacket|veste)\b", o["n"], re.I):
+            o["g"] = "tops"            # Oct 15: Saysky "Pace Jacket Combat Cap Set" (a jacket sold with a cap) was under hats
+            continue
         if o["g"] != "gear":
             continue
         n = o["n"]
