@@ -986,8 +986,9 @@ def _arcteryx_read():
     return prods
 
 
-JL_SITES = {"arcteryx": ("Arc'teryx", _arcteryx_read), "salomon": ("Salomon", _salomon_read)}
-# Salomon (Oct 16): a page every 3 s got a 403 after about an hour; second try at a page every 20 s (Bastien OK'd). Another 403 = a firm no.
+JL_SITES = {"arcteryx": ("Arc'teryx", _arcteryx_read)}
+# "salomon": ("Salomon", _salomon_read): off. Oct 16: a page every 3 s got a 403 after about an hour; the second try at a page every
+# 20 s got a 403 on its first product page: a firm no. store_recheck.py knocks again on the 1st and 15th.
 
 
 def scrape_jl_site(key):
