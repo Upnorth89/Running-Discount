@@ -2822,7 +2822,8 @@ STORES = {
     # "backcountry": off (Oct 6): its bot protection answers GitHub's servers "202, empty"; reader kept for a feed
     "footlocker": scrape_footlocker,
     "runningfree": scrape_runningfree,
-    "sportsexperts": scrape_sportsexperts,   # read at night from GitHub's servers (runfree.yml), a page every 3 s; Oct 15
+    "sportsexperts": scrape_sportsexperts,
+    "saucony": lambda: scrape_brand_site("saucony"),   # brand store, read at night from GitHub's servers (runfree.yml "brands"); Oct 16   # read at night from GitHub's servers (runfree.yml), a page every 3 s; Oct 15
     "runningroom": scrape_runningroom,   # its own public product feed (robots.txt sitemap), Oct 10   # read at night, a page every 30 s (its robots.txt); Oct 9
 }
 # Final sale (Oct 4, 2026; read from each store's return policy, recheck now and then): 1 = every item is final sale,
