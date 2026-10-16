@@ -15,6 +15,9 @@ on:
       only:
         description: "Run only this read (all, runfree, decathlon, thefeed, runningfree, sportsexperts, brands)"
         default: "all"
+      brand:
+        description: "With 'brands': only these brand stores, comma-separated (saucony, arcteryx, salomon); the others keep last night's copy"
+        default: ""
 
 permissions:
   contents: write
@@ -182,6 +185,8 @@ jobs:
           ref: history
           path: hist
       - name: Read brand stores
+        env:
+          BRANDS_ONLY: ${{ inputs.brand }}
         run: python scraper/scrape.py --brands-night hist/brands.json
       - name: Save to the history branch
         if: success()

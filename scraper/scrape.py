@@ -834,8 +834,8 @@ BRANDS_FILE = os.environ.get("BRANDS_FILE", "/tmp/brands.json")
 _ww_last = [0.0]
 
 
-def _ww_get(url):
-    wait = _ww_last[0] + WW_DELAY - time.time()
+def _ww_get(url, delay=None):
+    wait = _ww_last[0] + (delay or WW_DELAY) - time.time()
     if wait > 0:
         time.sleep(wait)
     for t in range(3):
@@ -851,7 +851,7 @@ def _ww_get(url):
                 raise RuntimeError(f"{url.split('/')[2]} said no (HTTP {r.status_code})")   # stop, never work around it
         except requests.RequestException as e:
             print(f"::warning::brands: {url[:120]} {type(e).__name__}", file=sys.stderr)
-        time.sleep(WW_DELAY * (t + 3))
+        time.sleep((delay or WW_DELAY) * (t + 3))
     return None
 
 
@@ -904,6 +904,7 @@ def _ww_sizes(h):
 # its running lists load by script, so the sitemap gives the product pages of its running lines (ARC_RUN); JSON-LD per colour+size
 # with InStock / LimitedAvailability / OutOfStock. Its own store rarely discounts: the page shows one price (regular = that price).
 SAL_BASE = "https://www.salomon.com"
+SAL_DELAY = 20        # Oct 16: at a page every 3 s it answered 403 after about an hour; now one every 20 s, and a 403 still stops it
 SAL_LISTS = [("men", "men/shoes/trail-running"), ("women", "women/shoes/trail-running"),
              ("men", "men/shoes/running"), ("women", "women/shoes/running")]
 ARC_BASE = "https://arcteryx.com"
@@ -929,7 +930,7 @@ def _salomon_read():
     prods = {}
     for gender, lst in SAL_LISTS:
         for n in range(1, 6):
-            h = _ww_get(f"{SAL_BASE}/en-ca/shop/{lst}.html" + (f"?page={n}" if n > 1 else ""))
+            h = _ww_get(f"{SAL_BASE}/en-ca/shop/{lst}.html" + (f"?page={n}" if n > 1 else ""), SAL_DELAY)
             urls = []
             for x in _ld_blocks(h or ""):
                 for li in x.get("itemListElement") or [] if x.get("@type") == "ItemList" else []:
@@ -942,7 +943,7 @@ def _salomon_read():
                 break
         print(f"  brands: salomon: {lst}: {len(prods)} colours so far", file=sys.stderr)
     for u, p in prods.items():
-        h = _ww_get(SAL_BASE + u if u.startswith("/") else u)
+        h = _ww_get(SAL_BASE + u if u.startswith("/") else u, SAL_DELAY)
         if not h:
             continue
         group = next((x for x in _ld_blocks(h) if x.get("@type") == "ProductGroup"), {})
@@ -985,8 +986,8 @@ def _arcteryx_read():
     return prods
 
 
-JL_SITES = {"arcteryx": ("Arc'teryx", _arcteryx_read)}
-# "salomon": ("Salomon", _salomon_read): off (Oct 16): it answered 403 after about an hour of pages: taken as a no
+JL_SITES = {"arcteryx": ("Arc'teryx", _arcteryx_read), "salomon": ("Salomon", _salomon_read)}
+# Salomon (Oct 16): a page every 3 s got a 403 after about an hour; second try at a page every 20 s (Bastien OK'd). Another 403 = a firm no.
 
 
 def scrape_jl_site(key):
@@ -1053,7 +1054,13 @@ def brands_night(out, hours=3.0):
         old = json.loads(Path(out).read_text()).get("sites", {})
     except Exception:
         old = {}
+    only = {x.strip() for x in os.environ.get("BRANDS_ONLY", "").split(",") if x.strip()}
+    for key in [k for k in list(WW_SITES) + list(JL_SITES) if only and k not in only]:
+        if key in old:
+            res[key] = old[key]                  # not read this time: keep its last copy
     for key, cfg in WW_SITES.items():
+        if only and key not in only:
+            continue
         try:
             prods = {}
             for gender, lists in cfg["lists"].items():
@@ -1093,6 +1100,8 @@ def brands_night(out, hours=3.0):
             if key in old:
                 res[key] = old[key]
     for key, (brand, fn) in JL_SITES.items():
+        if only and key not in only:
+            continue
         try:
             prods = fn()
             res[key] = {"updated": now(), "prods": prods}
