@@ -28,19 +28,34 @@ const FROM=["https://www.mec.ca","https://www.rei.com","https://www.svpsports.ca
 const NAMES={mec:"MEC",rei:"REI",svp:"SVP Sports"};
 const $=id=>document.getElementById(id), say=(t,c)=>{$("msg").textContent=t;$("msg").className=c||"m"};
 let KEY=null,got=null;try{KEY=localStorage.getItem("gf-stats-key")}catch(e){}
+async function call(part){
+  const r=await fetch(SB+"/rest/v1/rpc/grab_save",{method:"POST",headers:{"Content-Type":"application/json",apikey:PK,Authorization:"Bearer "+PK},
+    body:JSON.stringify({p_key:KEY,p_store:got.store,p_data:part})});
+  return [r,await r.json()];
+}
+// Oct 16: a whole running section (REI ~3,000 products) took longer than the database allows one call ("statement
+// timeout"), so big lists go in parts of 200, one after another; each part is kept like its own save (the site merges them).
 async function send(){
   if(!KEY){$("keybox").hidden=false;say("Paste your private key to send "+got.n+" "+NAMES[got.store]+" products.");return}
-  $("keybox").hidden=true;say("Sending "+got.n+" "+NAMES[got.store]+" products…");
+  $("keybox").hidden=true;
+  const p=got.payload, k=["hits","results","products"].find(x=>Array.isArray(p[x])), all=p[k], SIZE=200;
+  const parts=[];for(let i=0;i<all.length;i+=SIZE)parts.push({...p,[k]:all.slice(i,i+SIZE)});
+  let saved=0;
   try{
-    const r=await fetch(SB+"/rest/v1/rpc/grab_save",{method:"POST",headers:{"Content-Type":"application/json",apikey:PK,Authorization:"Bearer "+PK},
-      body:JSON.stringify({p_key:KEY,p_store:got.store,p_data:got.payload})});
-    const j=await r.json();
-    if(j&&j.ok){say("✓ Saved "+j.n+" "+NAMES[got.store]+" products. The site updates in about 20 minutes. You can close this tab.","ok");return}
-    if(j&&j.why==="key"){try{localStorage.removeItem("gf-stats-key")}catch(e){}KEY=null;$("keybox").hidden=false;say("That key didn't match. Paste it again.","no");return}
-    if(j&&j.code==="PGRST202"){say("The database isn't ready for this yet: paste supabase/grab.sql in Supabase → SQL Editor once, then tap Send to The Gear Fox again.","no");return}
-    say("Couldn't save ("+((j&&(j.why||j.message))||r.status)+"). Try the bookmark again, or use the file download on a computer.","no");
-  }catch(e){say("Couldn't reach the database ("+e.message+"). Check your connection and send again.","no")}
+    for(let i=done;i<parts.length;i++){
+      say(parts.length>1?"Sending "+NAMES[got.store]+" products: part "+(i+1)+" of "+parts.length+"…":"Sending "+got.n+" "+NAMES[got.store]+" products…");
+      let [r,j]=await call(parts[i]);
+      if(!(j&&j.ok)&&!(j&&j.why==="key")){await new Promise(x=>setTimeout(x,2000));[r,j]=await call(parts[i])}   // one more try
+      if(j&&j.ok){saved+=j.n;done=i+1;continue}
+      if(j&&j.why==="key"){try{localStorage.removeItem("gf-stats-key")}catch(e){}KEY=null;$("keybox").hidden=false;say("That key didn't match. Paste it again.","no");return}
+      if(j&&j.code==="PGRST202"){say("The database isn't ready for this yet: paste supabase/grab.sql in Supabase → SQL Editor once, then tap Send to The Gear Fox again.","no");return}
+      say("Couldn't save part "+(i+1)+" of "+parts.length+" ("+((j&&(j.why||j.message))||r.status)+"). "+(done?done+" parts are saved. ":"")+"Tap Send again to send the rest.","no");
+      $("keybox").hidden=false;$("keyIn").value=KEY;return;
+    }
+    say("✓ Saved "+got.n+" "+NAMES[got.store]+" products. The site updates in about 20 minutes. You can close this tab.","ok");
+  }catch(e){say("Couldn't reach the database ("+e.message+"). Check your connection and tap Send again.","no");$("keybox").hidden=false;$("keyIn").value=KEY||""}
 }
+let done=0;
 $("keyGo").addEventListener("click",()=>{KEY=$("keyIn").value.trim();if(!KEY)return;try{localStorage.setItem("gf-stats-key",KEY)}catch(e){}send()});
 addEventListener("message",e=>{
   if(!FROM.includes(e.origin)||!e.data||e.data.gf!=="save"||got)return;
