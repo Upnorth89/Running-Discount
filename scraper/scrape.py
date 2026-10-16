@@ -865,9 +865,12 @@ def _ww_listing(h):
             continue
         for d1 in (d if isinstance(d, list) else [d]):
             for li in (d1.get("itemListElement") or []) if isinstance(d1, dict) else []:
-                it = li.get("item") or {}
+                it = li.get("item") if isinstance(li, dict) else None
+                if not isinstance(it, dict):
+                    continue                 # the breadcrumb list's items are plain links
                 if it.get("url") and it.get("sku"):
                     off = it.get("offers") or {}
+                    off = (off[0] if off and isinstance(off[0], dict) else {}) if isinstance(off, list) else off
                     out.append({"name": it.get("name") or "", "url": it["url"], "sku": str(it["sku"]), "img": it.get("image"),
                                 "price": off.get("price")})
     return out
@@ -887,10 +890,10 @@ def _ww_sizes(h):
         d = json.loads(m.group(1))
     except ValueError:
         return {}
-    stock = {x["id"]: x.get("status") == "IN_STOCK" and (x.get("quantity") or 0) > 0 for x in d.get("inventory") or []}
+    stock = {x["id"]: x.get("status") == "IN_STOCK" and (x.get("quantity") or 0) > 0 for x in d.get("inventory") or [] if isinstance(x, dict)}
     return {k: {"size": v.get("sizeDisplayValue") or v.get("size") or "", "width": v.get("widthDisplayValue") or v.get("width") or "",
                 "color": v.get("color"), "ok": stock.get(k, False) and v.get("isAvailable", True)}
-            for k, v in (d.get("variations") or {}).items()}
+            for k, v in (d.get("variations") or {}).items() if isinstance(v, dict)}
 
 
 def brands_night(out, hours=3.0):
@@ -930,8 +933,8 @@ def brands_night(out, hours=3.0):
             res[key] = {"updated": now(), "prods": prods}
             print(f"::warning title=brands {key}::{len(prods)} colours, "
                   f"{sum(1 for p in prods.values() for x in p.get('vars', {}).values() if x['ok'])} sizes in stock", file=sys.stderr)
-        except RuntimeError as e:
-            print(f"::warning::brands: {key} stopped: {e} (its last good copy stays)", file=sys.stderr)
+        except Exception as e:               # one brand failing never stops the others
+            print(f"::warning::brands: {key} stopped: {type(e).__name__}: {e} (its last good copy stays)", file=sys.stderr)
             if key in old:
                 res[key] = old[key]
     Path(out).write_text(json.dumps({"updated": now(), "sites": res}, separators=(",", ":")))
