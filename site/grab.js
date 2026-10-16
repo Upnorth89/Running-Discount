@@ -106,22 +106,36 @@
         const u = new URL(location.href); u.searchParams.set("page", n);
         add(pp(await fetchDoc(u)));
       }
-      const todo = [...urls.entries()].sort((a, b) => b[1] - a[1]).map(x => x[0]).slice(0, 900);   // sale items first
+      // Oct 16 (Bastien: "25/900 after 1 min ... I can't keep my phone open for the whole day"): sale items only (what the
+      // site shows by default), at most 300, 4 product pages at a time, and a "Send what's read so far" button at any moment.
+      const onSale = [...urls.entries()].filter(x => x[1] > 0).map(x => x[0]);
+      const todo = (onSale.length ? onSale : [...urls.keys()]).slice(0, 300);
       if (!todo.length) throw new Error("no product list on this page: open a list like Running shoes or the running deals");
       const products = [];
-      for (let i = 0; i < todo.length; i++) {
-        say(`Backcountry: product ${i + 1} of ${todo.length}… (keep this tab open)`); await sleep(1500);
-        try {
-          const p = pp(await fetchDoc(location.origin + todo[i])).product;
-          if (!p) continue;
-          products.push({ url: todo[i], title: p.title, brand: { name: (p.brand || {}).name },
-            breadcrumbs: (p.breadcrumbs || []).map(b => ({ name: b.name })),
-            productMainImage: { mediumImg: (p.productMainImage || {}).mediumImg },
-            skus: (p.skus || []).map(k => ({ id: k.id, size: { name: (k.size || {}).name, scale: (k.size || {}).scale },
-              availability: { status: (k.availability || {}).status, stockLevel: (k.availability || {}).stockLevel },
-              salePrice: k.salePrice, listPrice: k.listPrice })) });
-        } catch (e) {}
-      }
+      let stop = false, done = 0;
+      const slim = (u, p) => ({ url: u, title: p.title, brand: { name: (p.brand || {}).name },
+        breadcrumbs: (p.breadcrumbs || []).map(b => ({ name: b.name })),
+        productMainImage: { mediumImg: (p.productMainImage || {}).mediumImg },
+        skus: (p.skus || []).map(k => ({ id: k.id, size: { name: (k.size || {}).name, scale: (k.size || {}).scale },
+          availability: { status: (k.availability || {}).status, stockLevel: (k.availability || {}).stockLevel },
+          salePrice: k.salePrice, listPrice: k.listPrice })) });
+      const early = document.createElement("button");
+      early.textContent = "Send what's read so far";
+      early.style.cssText = "display:block;margin-top:8px;font:700 14px system-ui;background:#fff;color:#17201C;border:0;border-radius:8px;padding:8px 12px";
+      early.onclick = () => { stop = true; };
+      let next = 0;
+      const worker = async () => {
+        while (!stop && next < todo.length) {
+          const u = todo[next++];
+          try { const p = pp(await fetchDoc(location.origin + u)).product; if (p) products.push(slim(u, p)); } catch (e) {}
+          done++;
+          say(`Backcountry: ${done} of ${todo.length} sale items read… (keep this tab in front)`);
+          box.appendChild(early);
+          await sleep(300);
+        }
+      };
+      await Promise.all([worker(), worker(), worker(), worker()]);
+      early.remove();
       save(`backcountry-${new Date().toISOString().slice(0, 10)}.json`, { store: "backcountry", saved: new Date().toISOString(), url: location.href, products });
     } else if (/svpsports\.ca$/.test(host)) {
       // SVP is a Shopify store: read the collection you're on (e.g. running shoes on sale) page by page
