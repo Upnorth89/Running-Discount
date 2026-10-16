@@ -37,6 +37,7 @@ async function send(){
     const j=await r.json();
     if(j&&j.ok){say("✓ Saved "+j.n+" "+NAMES[got.store]+" products. The site updates in about 20 minutes. You can close this tab.","ok");return}
     if(j&&j.why==="key"){try{localStorage.removeItem("gf-stats-key")}catch(e){}KEY=null;$("keybox").hidden=false;say("That key didn't match. Paste it again.","no");return}
+    if(j&&j.code==="PGRST202"){say("The database isn't ready for this yet: paste supabase/grab.sql in Supabase → SQL Editor once, then tap Send to The Gear Fox again.","no");return}
     say("Couldn't save ("+((j&&(j.why||j.message))||r.status)+"). Try the bookmark again, or use the file download on a computer.","no");
   }catch(e){say("Couldn't reach the database ("+e.message+"). Check your connection and send again.","no")}
 }
