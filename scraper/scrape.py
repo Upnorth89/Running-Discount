@@ -814,6 +814,184 @@ def scrape_sportsexperts():
     return out
 
 
+# ---------------------------------------------------------------- Brand stores on Wolverine's shop system (Saucony; Merrell next)
+# Oct 16, 2026 (Bastien: "If we could build readers for the brand websites that would be great ... Return policy are always
+# better directly with the brands"). saucony.com/CA answers GitHub's servers and its robots.txt allows Claude by name; it
+# forbids search, filters (prefn/pmin/srule/cgid) and "Product-Variation", which we never ask. Listing pages carry each colour
+# as JSON-LD (name, link, photo, price); the product page has the regular price; Product-GetSelectableVariations (the service
+# its own page calls for the size buttons) lists every size of that colour with IN_STOCK / NOT_AVAILABLE. The product link with a
+# size's own number (/<slug>/<upc>.html) opens on that size. Read at night (runfree.yml job "brands", a page every 3 s) into
+# brands.json on the history branch; the refresh downloads it to BRANDS_FILE.
+WW_SITES = {
+    "saucony": {"base": "https://www.saucony.com", "site": "saucony_ca", "loc": "/CA/en_CA", "brand": "Saucony",
+                "lists": {"men": ["mens-running-shoes", "mens-running-trail-running", "mens-running-apparel",
+                                  "mens-apparel-accessories", "outlet-men-shoes", "outlet-men-apparel"],
+                          "women": ["womens-running-shoes", "womens-running-trail-running", "womens-running-apparel",
+                                    "womens-apparel-accessories", "outlet-women-sale-shoes", "outlet-women-sale-apparel"]}},
+}
+WW_DELAY = 3
+BRANDS_FILE = os.environ.get("BRANDS_FILE", "/tmp/brands.json")
+_ww_last = [0.0]
+
+
+def _ww_get(url):
+    wait = _ww_last[0] + WW_DELAY - time.time()
+    if wait > 0:
+        time.sleep(wait)
+    for t in range(3):
+        _ww_last[0] = time.time()
+        try:
+            r = S.get(url, headers=SE_HEAD, timeout=60)
+            if r.status_code == 200 and "Just a moment" not in r.text[:3000]:
+                return r.text
+            if r.status_code == 404:
+                return None
+            print(f"::warning::brands: {url[:120]} HTTP {r.status_code}", file=sys.stderr)
+            if r.status_code in (403, 429) or "Just a moment" in r.text[:3000]:
+                raise RuntimeError(f"{url.split('/')[2]} said no (HTTP {r.status_code})")   # stop, never work around it
+        except requests.RequestException as e:
+            print(f"::warning::brands: {url[:120]} {type(e).__name__}", file=sys.stderr)
+        time.sleep(WW_DELAY * (t + 3))
+    return None
+
+
+def _ww_listing(h):
+    """Listing page -> [{name, url, sku, img, price}] from its JSON-LD ItemList."""
+    out = []
+    for blk in re.findall(r'<script type="application/ld\+json">(.*?)</script>', h, re.S):
+        try:
+            d = json.loads(blk)
+        except ValueError:
+            continue
+        for d1 in (d if isinstance(d, list) else [d]):
+            for li in (d1.get("itemListElement") or []) if isinstance(d1, dict) else []:
+                it = li.get("item") or {}
+                if it.get("url") and it.get("sku"):
+                    off = it.get("offers") or {}
+                    out.append({"name": it.get("name") or "", "url": it["url"], "sku": str(it["sku"]), "img": it.get("image"),
+                                "price": off.get("price")})
+    return out
+
+
+def _ww_money(pat, h):
+    m = re.search(pat + r'[^>]*>\s*(?:<[^>]+>\s*)*\$\s?([\d,]+(?:\.\d\d)?)', h)
+    return float(m.group(1).replace(",", "")) if m else None
+
+
+def _ww_sizes(h):
+    """GetSelectableVariations answer -> {upc: {size, width, ok}}."""
+    m = re.search(r'id="productDimensionsAndVariations-[^"]*">\s*(\{.*?\})\s*</div>', h, re.S)
+    if not m:
+        return {}
+    try:
+        d = json.loads(m.group(1))
+    except ValueError:
+        return {}
+    stock = {x["id"]: x.get("status") == "IN_STOCK" and (x.get("quantity") or 0) > 0 for x in d.get("inventory") or []}
+    return {k: {"size": v.get("sizeDisplayValue") or v.get("size") or "", "width": v.get("widthDisplayValue") or v.get("width") or "",
+                "color": v.get("color"), "ok": stock.get(k, False) and v.get("isAvailable", True)}
+            for k, v in (d.get("variations") or {}).items()}
+
+
+def brands_night(out, hours=3.0):
+    start, res = time.time(), {}
+    try:
+        old = json.loads(Path(out).read_text()).get("sites", {})
+    except Exception:
+        old = {}
+    for key, cfg in WW_SITES.items():
+        try:
+            prods = {}
+            for gender, lists in cfg["lists"].items():
+                for lst in lists:
+                    for n in range(0, 20):
+                        h = _ww_get(f"{cfg['base']}{cfg['loc']}/{lst}/" + (f"?start={n * 48}&sz=48" if n else ""))
+                        items = _ww_listing(h) if h else []
+                        new = [x for x in items if x["sku"] not in prods]
+                        for x in new:
+                            prods[x["sku"]] = x | {"gender": gender, "list": lst}
+                        if not new:
+                            break
+                print(f"  brands: {key}: {gender}: {len(prods)} colours so far", file=sys.stderr)
+            for i, (sku, p) in enumerate(prods.items()):
+                if time.time() - start > hours * 3600:
+                    raise RuntimeError(f"{key}: out of time")
+                h = _ww_get(p["url"])
+                if h:
+                    p["reg"] = _ww_money(r'class="product-standard-price"', h)
+                    p["now"] = _ww_money(r'class="product-sales-price"', h)
+                v = _ww_get(f"{cfg['base']}/on/demandware.store/Sites-{cfg['site']}-Site/{cfg['loc'].split('/')[-1]}"
+                            f"/Product-GetSelectableVariations?pid={sku}")
+                p["vars"] = _ww_sizes(v) if v else {}
+                if i < 3:
+                    print(f"::warning title=brands {key} sample::{p['name']} | now {p.get('now')} (list {p.get('price')}) reg "
+                          f"{p.get('reg')} | {sum(1 for x in p['vars'].values() if x['ok'])} of {len(p['vars'])} sizes in stock "
+                          f"| {[x['size'] + '/' + x['width'] for x in list(p['vars'].values())[:4]]}", file=sys.stderr)
+            res[key] = {"updated": now(), "prods": prods}
+            print(f"::warning title=brands {key}::{len(prods)} colours, "
+                  f"{sum(1 for p in prods.values() for x in p.get('vars', {}).values() if x['ok'])} sizes in stock", file=sys.stderr)
+        except RuntimeError as e:
+            print(f"::warning::brands: {key} stopped: {e} (its last good copy stays)", file=sys.stderr)
+            if key in old:
+                res[key] = old[key]
+    Path(out).write_text(json.dumps({"updated": now(), "sites": res}, separators=(",", ":")))
+    return 0
+
+
+def scrape_brand_site(key):
+    """One brand store from last night's read (fresh = under 36 h)."""
+    cfg = WW_SITES[key]
+    try:
+        d = json.loads(Path(BRANDS_FILE).read_text())["sites"][key]
+        fresh = (dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(d["updated"])).total_seconds() < 36 * 3600
+    except Exception:
+        fresh = False
+    if not fresh:
+        raise RuntimeError(f"no {cfg['brand']} night copy from the last 36 h")
+    out, skipped = [], collections.Counter()
+    for sku, p in d["prods"].items():
+        name = re.sub(r"\s+", " ", p["name"]).strip()
+        if re.search(r"(?i)\b(kids?|youth|big kid|little kid|toddler)\b", name):
+            skipped["kids"] += 1
+            continue
+        sx = [p["gender"]]
+        g = generic_group("gear")({"title": name, "product_type": p["list"].replace("-", " ")})
+        if re.search(r"shoes|trail-running", p["list"]) and g in (None, "gear", "shoes"):
+            g = "shoes"
+        if g is None:
+            skipped["not running"] += 1
+            continue
+        now_p = p.get("now") or p.get("price")
+        reg = max(p.get("reg") or 0, now_p or 0)
+        if not now_p:
+            skipped["no price"] += 1
+            continue
+        sizes = {}
+        for upc, v in (p.get("vars") or {}).items():
+            if not v["ok"]:
+                continue
+            lab = v["size"].strip() or "OS"
+            w = v["width"].upper().replace("MEDIUM", "M").replace("REGULAR", "M")
+            if g == "shoes":                 # Saucony widths: men M (D) / W (2E) / XW (4E); women M (B) / W (D); N = narrow
+                regular = {"", "M", "D"} if p["gender"] == "men" else {"", "M", "B"}
+                if w in ("N", "2A", "AA") or (p["gender"] == "men" and w == "B"):
+                    continue                 # narrow: the site has no narrow option
+                if w not in regular:
+                    lab += " Wide"
+            link = re.sub(r"/[0-9A-Z-]+\.html$", f"/{upc}.html", p["url"])
+            sizes.setdefault(lab, (now_p, reg, link))
+        if not sizes:
+            skipped["nothing in stock"] += 1
+            continue
+        nm = name + {"men": " - Men's", "women": " - Women's"}[p["gender"]]
+        out.append({"st": key, "b": cfg["brand"], "n": nm, "u": p["url"], "g": g, "sx": sx,
+                    "w": any(k.endswith(" Wide") for k in sizes) and all(k.endswith(" Wide") for k in sizes),
+                    "img": p.get("img"), "lp": reg, "bb": None, "ca": True, "no_us": True,
+                    "sz": [[k, a, b, u] for k, (a, b, u) in sizes.items()]})
+    print(f"  {key}: night copy from {d['updated']}: {len(out)} products (left out: {dict(skipped)})", file=sys.stderr)
+    return out
+
+
 # ---------------------------------------------------------------- Altitude / Last Hunt (same Next.js + commercetools platform)
 
 # ---------------------------------------------------------------- Altitude / Last Hunt (same Next.js + commercetools platform)
@@ -3810,6 +3988,12 @@ def scrape_backcountry_saved():
 if __name__ == "__main__" and "--backcountry-night" in sys.argv:
     sys.exit(backcountry_night(sys.argv[sys.argv.index("--backcountry-night") + 1], "--sale-only" in sys.argv))
 
+if __name__ == "__main__" and "--brands-night" in sys.argv:
+    try:
+        sys.exit(brands_night(sys.argv[sys.argv.index("--brands-night") + 1]))
+    except Exception as e:
+        print(f"::error::Brand stores night read stopped: {type(e).__name__}: {str(e)[:300]}", file=sys.stderr)
+        sys.exit(1)
 if __name__ == "__main__" and "--sportsexperts-night" in sys.argv:
     try:
         sys.exit(sportsexperts_night(sys.argv[sys.argv.index("--sportsexperts-night") + 1]))

@@ -13,7 +13,7 @@ on:
         type: boolean
         default: false
       only:
-        description: "Run only this read (all, runfree, decathlon, thefeed, runningfree, sportsexperts)"
+        description: "Run only this read (all, runfree, decathlon, thefeed, runningfree, sportsexperts, brands)"
         default: "all"
 
 permissions:
@@ -162,6 +162,37 @@ jobs:
           git add sportsexperts.json
           git diff --cached --quiet && exit 0
           git commit -q -m "sportsexperts $(TZ=America/Vancouver date +%F)"
+          for i in 1 2 3 4; do git pull -q --rebase origin history && git push -q origin HEAD:history && exit 0; sleep $((i * 5)); done
+          exit 1
+
+  # Brand stores (Oct 16, 2026; Saucony first): listing pages + each colour's page and size list, a page every 3 s.
+  brands:
+    needs: check
+    if: needs.check.outputs.skip != 'true' && (inputs.only == '' || inputs.only == null || inputs.only == 'all' || inputs.only == 'brands')
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r scraper/requirements.txt
+      - uses: actions/checkout@v4
+        with:
+          ref: history
+          path: hist
+      - name: Read brand stores
+        run: python scraper/scrape.py --brands-night hist/brands.json
+      - name: Save to the history branch
+        if: success()
+        run: |
+          cd hist
+          git config user.name "The Gear Fox"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          [ -f brands.json ] || exit 0
+          git add brands.json
+          git diff --cached --quiet && exit 0
+          git commit -q -m "brands $(TZ=America/Vancouver date +%F)"
           for i in 1 2 3 4; do git pull -q --rebase origin history && git push -q origin HEAD:history && exit 0; sleep $((i * 5)); done
           exit 1
 

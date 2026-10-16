@@ -85,6 +85,7 @@ jobs:
           curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/history/thefeed.json" -o /tmp/thefeed.json || true
           curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/history/runningfree.json" -o /tmp/runningfree.json || true
           curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/history/sportsexperts.json" -o /tmp/sportsexperts.json || true
+          curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/history/brands.json" -o /tmp/brands.json || true
           mkdir -p /tmp/prev && cp site/deals.json site/offers.json site/health.json /tmp/prev/ 2>/dev/null || true
       - name: Keep the subscriber database awake
         continue-on-error: true
