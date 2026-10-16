@@ -858,9 +858,9 @@ def _ww_get(url):
 def _ww_listing(h):
     """Listing page -> [{name, url, sku, img, price}] from its JSON-LD ItemList."""
     out = []
-    for blk in re.findall(r'<script type="application/ld\+json">(.*?)</script>', h, re.S):
+    for blk in re.findall(r'<script[^>]*application/ld\+json[^>]*>(.*?)</script>', h, re.S):   # id="productitem-schema"
         try:
-            d = json.loads(blk)
+            d = json.loads(blk, strict=False)
         except ValueError:
             continue
         for d1 in (d if isinstance(d, list) else [d]):
