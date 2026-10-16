@@ -1,0 +1,25 @@
+name: Store recheck
+
+# Oct 16, 2026 (Bastien: "Everyone that says no we should try every 2 weeks"): on the 1st and 15th, one polite visit per
+# door (robots.txt, running list page, public product data) for every store that said no; emails which ones may be open now.
+on:
+  schedule:
+    - cron: "37 16 1,15 * *"   # 9:37am Vancouver, the 1st and 15th
+  workflow_dispatch:
+
+jobs:
+  recheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - name: Knock again on every store that said no
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          HEALTH_EMAIL: ${{ secrets.HEALTH_EMAIL }}
+          FROM_EMAIL: "The Gear Fox <deals@thegearfox.com>"
+        run: python scraper/store_recheck.py

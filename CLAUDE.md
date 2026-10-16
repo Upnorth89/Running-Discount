@@ -342,6 +342,11 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   (STORES.md "Master list") with what was tried and what would unlock it (affiliate feed, partnership, saved pages).
 , ones checked and rejected (blocked, no feed) and ones waiting:
   check it before testing a shop, update it after.
+- **Store recheck** (Oct 16; Bastien: "Everyone that says no we should try every 2 weeks to make sure there's no other way in"):
+  store-recheck.yml on the 1st and 15th runs scraper/store_recheck.py from GitHub's servers: one polite visit per door (robots.txt
+  incl. ClaudeBot/AI rules, running list page, public products.json) for every store in its STORES list (keep it in step with
+  STORES.md blocked rows); emails "Store recheck: N may let us in now" / "all still say no". Open = page 200 with product data and
+  robots ok -> build the reader (sortcheck + preview rules). Never a workaround.
 - **Every store reader reads the full running catalogue, full price included, never only the sale section** (Bastien, Oct 4:
   "this should always be our default"). Full-price items are what people watch for a drop, and the "Include full price" filter needs them.
 - **Sorting check** (`scraper/sortcheck.py`, Oct 7; Bastien: wrong categories are "the most common bug we find"): flags non-food
