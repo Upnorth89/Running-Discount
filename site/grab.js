@@ -106,11 +106,17 @@
         const u = new URL(location.href); u.searchParams.set("page", n);
         add(pp(await fetchDoc(u)));
       }
-      // Oct 16 (Bastien: "25/900 after 1 min ... I can't keep my phone open for the whole day"): sale items only (what the
-      // site shows by default), at most 300, 4 product pages at a time, and a "Send what's read so far" button at any moment.
-      const onSale = [...urls.entries()].filter(x => x[1] > 0).map(x => x[0]);
-      const todo = (onSale.length ? onSale : [...urls.keys()]).slice(0, 300);
-      if (!todo.length) throw new Error("no product list on this page: open a list like Running shoes or the running deals");
+      // Oct 16 (Bastien: "25/900 after 1 min ... I can't keep my phone open for the whole day", then "we want all the catalog as
+      // always, so people can heart and watch stuff drop"): the whole list, sale items first, 4 product pages at a time, and it
+      // picks up where it stopped: products read in the last 7 days are skipped (sale items are always read again: prices move).
+      // "Send what's read so far" at any moment; the site keeps every send for 10 days, so a few short sessions cover everything.
+      let seen = {};
+      try { seen = JSON.parse(localStorage.getItem("gf-bc-read") || "{}"); } catch (e) {}
+      const week = Date.now() - 7 * 864e5;
+      const all = [...urls.entries()].sort((a, b) => b[1] - a[1]);
+      const todo = all.filter(([u, sale]) => sale > 0 || !(seen[u] > week)).map(x => x[0]).slice(0, 3000);
+      const skipped = all.length - todo.length;
+      if (!all.length) throw new Error("no product list on this page: open a list like Running shoes or the running deals");
       const products = [];
       let stop = false, done = 0;
       const slim = (u, p) => ({ url: u, title: p.title, brand: { name: (p.brand || {}).name },
@@ -127,15 +133,18 @@
       const worker = async () => {
         while (!stop && next < todo.length) {
           const u = todo[next++];
-          try { const p = pp(await fetchDoc(location.origin + u)).product; if (p) products.push(slim(u, p)); } catch (e) {}
+          try { const p = pp(await fetchDoc(location.origin + u)).product; if (p) { products.push(slim(u, p)); seen[u] = Date.now(); } } catch (e) {}
           done++;
-          say(`Backcountry: ${done} of ${todo.length} sale items read… (keep this tab in front)`);
+          say(`Backcountry: ${done} of ${todo.length} read (sale items first${skipped ? `; ${skipped} already read this week` : ""}). ` +
+              `Keep this tab in front, or send what's read so far: next time it continues.`);
           box.appendChild(early);
           await sleep(300);
         }
       };
       await Promise.all([worker(), worker(), worker(), worker()]);
       early.remove();
+      try { for (const k in seen) if (seen[k] < week) delete seen[k]; localStorage.setItem("gf-bc-read", JSON.stringify(seen)); } catch (e) {}
+      if (!products.length) throw new Error(skipped ? "everything here was already read this week" : "no product could be read");
       save(`backcountry-${new Date().toISOString().slice(0, 10)}.json`, { store: "backcountry", saved: new Date().toISOString(), url: location.href, products });
     } else if (/svpsports\.ca$/.test(host)) {
       // SVP is a Shopify store: read the collection you're on (e.g. running shoes on sale) page by page
