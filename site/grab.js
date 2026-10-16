@@ -1,5 +1,6 @@
 /* The Gear Fox — "Grab deals" bookmark.
-   Run it on MEC's, REI's or SVP Sports' running-deals page in your own browser. It reads the page you're on,
+   Run it on any MEC, REI or SVP Sports product list in your own browser: the running deals, or a regular list (all running
+   gear, running shoes, clothing...; Oct 16, Bastien: "both options for all websites... all running gear and on sale items"). It reads the page you're on,
    then opens the next pages one at a time (a relaxed ~2 s apart, like clicking "next"), and
    downloads one file to upload to saved-pages/ on GitHub. */
 (async () => {
@@ -46,11 +47,21 @@
   const host = location.hostname;
   try {
     if (/mec\.ca$/.test(host)) {
-      const results = d => { const ir = d.props.pageProps.serverState.initialResults; return ir[Object.keys(ir).find(k => k.startsWith("products"))].results[0]; };
+      // the product list in the page's data: any object with "hits" + "nbPages" (deals and regular lists name it differently)
+      const find = (o, depth = 0) => {
+        if (!o || typeof o !== "object" || depth > 12) return null;
+        if (Array.isArray(o.hits) && "nbPages" in o) return o;
+        for (const v of Object.values(o)) { const r = find(v, depth + 1); if (r) return r; }
+        return null;
+      };
+      const results = d => { const r = find(d.props); if (!r) throw new Error("no product list on this page: open a list like Running shoes or the running deals"); return r; };
+      const DROP = ["_highlightResult", "_rankingInfo", "_collections", "styleCategoryPageId", "categoryPageId", "facets",
+                    "imageTransparent", "swatch", "analytics", "storeInventory", "promotions", "stylePromotions", "priceBuckets"];
+      const slim = h => { const o = { ...h }; DROP.forEach(k => delete o[k]); return o; };   // ~23 KB -> ~5 KB a product
       const nd = doc => JSON.parse(doc.getElementById("__NEXT_DATA__").textContent);
       say("MEC: reading page 1…");
       const first = results(nd(await fetchDoc(location.href)));   // fresh copy: the open tab may be stale after filtering
-      let hits = [...first.hits]; const pages = Math.min(first.nbPages || 1, 20);
+      let hits = first.hits.map(slim); const pages = Math.min(first.nbPages || 1, 80);
       let offset = null;
       for (let n = 1; n < pages; n++) {
         say(`MEC: page ${n + 1} of ${pages}…`); await sleep(2000);
@@ -58,7 +69,7 @@
           const u = new URL(location.href); u.searchParams.set("page", cand);
           const doc = await fetchDoc(u);
           const r = results(nd(doc));
-          if (r.page === n) { offset = cand - n; hits = hits.concat(r.hits); break; }
+          if (r.page === n) { offset = cand - n; hits = hits.concat(r.hits.map(slim)); break; }
         }
       }
       save(`mec-${new Date().toISOString().slice(0, 10)}.json`, { store: "mec", saved: new Date().toISOString(), hits });
@@ -67,13 +78,16 @@
       say("REI: reading page 1…");
       const first = results(await fetchDoc(location.href));      // fresh copy: reflects your current sort/filter
       const m = ((first.pagination || {}).lastPage || {}).queryString?.match(/[?&]page=(\d+)/);
-      const pages = Math.min(m ? +m[1] : 1, 60);           // 30 per page: 15 pages stopped at 450 of 900+ (Oct 6)
-      let items = [...first.results];
+      const pages = Math.min(m ? +m[1] : 1, 150);          // 30 per page: all running gear is ~100 pages (deals ~30)
+      const KEEP = ["prodId", "title", "cleanTitle", "brand", "link", "thumbnailImageLink", "sizeDetails", "regularPrice",
+                    "displayPrice", "sale", "clearance", "gender", "available", "percentageOff", "skus", "skuSizes"];
+      const slim = r => Object.fromEntries(KEEP.filter(k => k in r).map(k => [k, r[k]]));   // ~5 KB -> ~1.5 KB a product
+      let items = first.results.map(slim);
       const start = +(new URL(location.href).searchParams.get("page") || 1);
       for (let n = start + 1; n <= pages; n++) {
         say(`REI: page ${n} of ${pages}…`); await sleep(2000);
         const u = new URL(location.href); u.searchParams.set("page", n);
-        items = items.concat(results(await fetchDoc(u)).results || []);
+        items = items.concat((results(await fetchDoc(u)).results || []).map(slim));
       }
       save(`rei-${new Date().toISOString().slice(0, 10)}.json`, { store: "rei", saved: new Date().toISOString(), results: items });
     } else if (/svpsports\.ca$/.test(host)) {
@@ -100,10 +114,10 @@
       download(`hoka-${new Date().toISOString().slice(0, 10)}.json`, { store: "hoka", saved: new Date().toISOString(), url: location.href, ld, data, tiles });
       say(`Hoka: ${tiles.length} shoes on this page saved. File saved.`);
     } else {
-      say("Open the running-deals page of MEC, REI, SVP Sports or Hoka first, then click the bookmark.");
+      say("Open a running product list on MEC, REI or SVP Sports first (the deals or all running gear), then tap the bookmark.");
     }
   } catch (e) {
-    say("Couldn't read this page (" + e.message + "). Make sure it's the running-deals list, then try again.");
+    say("Couldn't read this page (" + e.message + "). Open a product list (running deals, Running shoes, Running clothing...), then try again.");
   }
   if (!keep) setTimeout(() => box.remove(), 12000);
 })();
