@@ -125,7 +125,7 @@ T = {
         "aboutBest": " Le prix le plus bas est {price} chez {store} ({bsizes}).", "aboutMost": " {store} est la moins chère dans le plus de pointures ({n}).",
         "qSale": "La {name} est-elle en solde au Canada en ce moment?",
         "aSaleYesG": "Oui. {lines} Les prix sont vérifiés chaque matin.",
-        "aSaleG": "{g} : dès {price} ({p} % de rabais) chez {store}, en {bsizes}.", "aSaleGNo": "{g} : pas en solde aujourd'hui, dès {price}.",
+        "aSaleG": "{g} : à {price} ({p} % de rabais) chez {store}, en {bsizes}.", "aSaleGNo": "{g} : pas en solde aujourd'hui, à {price}.",
         "aSaleYes": "Oui. Aujourd'hui, jusqu'à {p} % de rabais : {price} chez {store} en {bsizes}, et {n} pointures en solde en tout. Les prix sont vérifiés chaque matin.",
         "aSaleNo": "Pas aujourd'hui. Elle est en stock au prix régulier dès {price}. Touchez « Suivre le prix » et on vous écrira dès qu'elle baisse.",
         "qSizes": "Quelles pointures sont en stock?", "qWhere": "Où la {name} est-elle la moins chère au Canada?",
