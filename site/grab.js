@@ -97,7 +97,7 @@
       say("Backcountry: reading the list…");
       const first = pp(await fetchDoc(location.href));
       const cat = (((first.plpData || {}).data || {}).category) || {};
-      const last = Math.min((((cat.pageInfo || {}).lastPage) || {}).value || 1, 30);
+      const last = Math.min((((cat.pageInfo || {}).lastPage) || {}).value || 1, 80);   // whole running sections (the old night reader allowed 80)
       const urls = new Map();
       const add = p => { for (const [k, v] of Object.entries(p.__APOLLO_STATE__ || {})) if (k.startsWith("Product:") && v.url && !/stroller|kids'|\bkids\b|toddler/i.test(v.name || "")) urls.set(v.url, (urls.get(v.url) || 0) + (((v.aggregates || {}).variationsOnSale || 0) > 0 ? 1 : 0)); };
       add(first);
