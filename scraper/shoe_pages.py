@@ -37,6 +37,8 @@ T = {
         "about": "The {name} is a {type}. Today {stores} stores in Canada carry it and we found {sizes} sizes in stock.",
         "aboutBest": " The lowest price is {price} at {store} ({bsizes}).", "aboutMost": " {store} is the cheapest in the most sizes ({n}).",
         "qSale": "Is the {name} on sale in Canada right now?",
+        "aSaleYesG": "Yes. {lines} Prices are checked every morning.",
+        "aSaleG": "{g}: from {price} ({p}% off) at {store}, in {bsizes}.", "aSaleGNo": "{g}: not on sale today, from {price}.",
         "aSaleYes": "Yes. Today it's up to {p}% off: {price} at {store} in {bsizes}, and {n} sizes on sale in all. Prices are checked every morning.",
         "aSaleNo": "Not today. It's in stock at full price from {price}. Tap \u201cWatch the price\u201d and we'll email you when it drops.",
         "qSizes": "Which sizes are in stock?", "qWhere": "Where is the {name} cheapest in Canada?",
@@ -49,7 +51,7 @@ T = {
                  "women": ("Women's running shoes on sale in Canada", "Women's running shoes on sale", "Women's running shoes on sale today at Canadian stores, biggest discount first."),
                  "men": ("Men's running shoes on sale in Canada", "Men's running shoes on sale", "Men's running shoes on sale today at Canadian stores, biggest discount first.")},
         "hubDir": "running-shoes-sale", "hubSlugs": {"all": "", "road": "road", "trail": "trail", "racing": "racing", "women": "women", "men": "men"},
-        "sizeDir": "size", "gWord": {"men": "Men's", "women": "Women's"},
+        "sizeDir": "size", "gWord": {"men": "Men's", "women": "Women's"}, "gLab": {"men": "Men's", "women": "Women's"},
         "sizeTitle": "{g} Size {s} Running Shoes on Sale in Canada: {n} deals today",
         "sizeH1": "{g} running shoes on sale in size {s}",
         "sizeIntro": "{n} running shoes on sale today in {g} size {s} at Canadian stores. Every price is the price in size {s}, biggest discount first. Checked every morning.",
@@ -122,6 +124,8 @@ T = {
         "about": "La {name} est une {type}. Aujourd'hui, {stores} boutiques au Canada la vendent et nous avons trouvé {sizes} pointures en stock.",
         "aboutBest": " Le prix le plus bas est {price} chez {store} ({bsizes}).", "aboutMost": " {store} est la moins chère dans le plus de pointures ({n}).",
         "qSale": "La {name} est-elle en solde au Canada en ce moment?",
+        "aSaleYesG": "Oui. {lines} Les prix sont vérifiés chaque matin.",
+        "aSaleG": "{g} : dès {price} ({p} % de rabais) chez {store}, en {bsizes}.", "aSaleGNo": "{g} : pas en solde aujourd'hui, dès {price}.",
         "aSaleYes": "Oui. Aujourd'hui, jusqu'à {p} % de rabais : {price} chez {store} en {bsizes}, et {n} pointures en solde en tout. Les prix sont vérifiés chaque matin.",
         "aSaleNo": "Pas aujourd'hui. Elle est en stock au prix régulier dès {price}. Touchez « Suivre le prix » et on vous écrira dès qu'elle baisse.",
         "qSizes": "Quelles pointures sont en stock?", "qWhere": "Où la {name} est-elle la moins chère au Canada?",
@@ -134,7 +138,7 @@ T = {
                  "women": ("Chaussures de course pour femme en solde au Canada", "Chaussures de course pour femme en solde", "Chaussures de course pour femme en solde aujourd'hui au Canada, plus gros rabais en premier."),
                  "men": ("Chaussures de course pour homme en solde au Canada", "Chaussures de course pour homme en solde", "Chaussures de course pour homme en solde aujourd'hui au Canada, plus gros rabais en premier.")},
         "hubDir": "chaussures-course-solde", "hubSlugs": {"all": "", "road": "route", "trail": "sentier", "racing": "competition", "women": "femme", "men": "homme"},
-        "sizeDir": "pointure", "gWord": {"men": "pour hommes", "women": "pour femmes"},
+        "sizeDir": "pointure", "gWord": {"men": "pour hommes", "women": "pour femmes"}, "gLab": {"men": "Hommes", "women": "Femmes"},
         "sizeTitle": "Chaussures de course {g} pointure {s} en solde au Canada : {n} aubaines aujourd'hui",
         "sizeH1": "Chaussures de course {g} en solde, pointure {s}",
         "sizeIntro": "{n} chaussures de course {g} en solde aujourd'hui en pointure {s} dans les boutiques canadiennes. Chaque prix est celui de la pointure {s}, du plus gros rabais au plus petit. Vérifié chaque matin.",
@@ -713,9 +717,23 @@ def sizes_phrase(keys, L):
         k = (k.replace(".", ",") if fr else k) + ((" large" if fr else " wide") if wide else "")
         labs.append(k)
     labs = list(dict.fromkeys(labs))
+    def order(k):                              # "11" before "11 wide"; men's/women's letters kept together
+        m = re.search(r"(\d+(?:[.,]\d)?)", k)
+        return (k[:1] if k[:1].isalpha() else "", float(m.group(1).replace(",", ".")) if m else 99, k.endswith(("wide", "large")))
+    labs.sort(key=order)
     if not labs:
         return ""
     if len(labs) > 4:
+        nums = []
+        for k in labs:
+            try:
+                nums.append(float(k.replace(",", ".")))
+            except ValueError:
+                break
+        if len(nums) == len(labs):             # "sizes 7–10" / « pointures 7 à 10 »
+            f = lambda x: (f"{x:g}".replace(".", ",") if fr else f"{x:g}")
+            n = len(labs)
+            return f"{n} pointures, de {f(min(nums))} à {f(max(nums))}" if fr else f"{n} sizes from {f(min(nums))} to {f(max(nums))}"
         return f"{len(labs)} pointures" if fr else f"{len(labs)} sizes"
     one, many, and_ = ("pointure", "pointures", " et ") if fr else ("size", "sizes", " and ")
     return f"{one} {labs[0]}" if len(labs) == 1 else f"{many} " + ", ".join(labs[:-1]) + and_ + labs[-1]
@@ -736,7 +754,7 @@ def summary(its, stores, gender=None):
             by_store[h].add((tuple(sx), str(e[0]), bool(d.get("w"))))
             reg = e[3] if len(e) > 3 else e[1]
             if best is None or e[1] < best[0]:
-                best = (e[1], reg, h, u)
+                best = (e[1], reg, h, u, tuple(sx))
     if not best:
         return None
     sizes = len({x for v in by_store.values() for x in v})
@@ -750,9 +768,11 @@ def summary(its, stores, gender=None):
     # Oct 16 (Bastien couldn't find the $99 Kjerag: it was only in sizes 4.5 and 5): the sizes at that lowest price
     at_best = list(dict.fromkeys(str(e[0]) for d in its for e in d["sz"] if abs(e[1] - best[0]) < 0.005
                                  and not str(e[0]).endswith("~N") and host(size_url(d, e)) == best[2]
-                                 and (not gender or not d.get("sx") or gender in d["sx"])))
+                                 and (not gender or not d.get("sx") or gender in d["sx"])
+                                 and (len(best[4]) != 1 or (d.get("sx") or []) == list(best[4]))))   # that cut's sizes only
     return {"price": best[0], "reg": best[1], "off": off, "top": top, "store": stores.get(best[2], [best[2]])[0], "url": best[3],
             "sizes": sizes, "stores": len(carriers), "sale_sizes": sale_sizes, "best_sizes": at_best,
+            "best_sx": best[4][0] if len(best[4]) == 1 else None,
             "most": stores.get(most[0], [most[0]])[0], "most_n": len(most[1]),
             "img": next((d["img"] for d in its if d.get("img")), None), "t": its[0].get("t") or ""}
 
@@ -996,7 +1016,11 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None)
     out.append(price_chart(its, L, updated, "us|" if L.get("dir", "").startswith("us/") else ""))
     if sm:     # a few lines Google (and people) can read: what it is, where it's cheapest, sizes, today's answers
         about = L["about"].format(name=esc(name), type=L["typeLower"].get(sm["t"], L["typeLower"][""]), stores=sm["stores"], sizes=sm["sizes"])
-        bsz = esc(sizes_phrase(sm.get("best_sizes") or [], L))
+        bsz = sizes_phrase(sm.get("best_sizes") or [], L)
+        g1 = sm.get("best_sx")
+        if bsz and g1 and any(d.get("sx") == [("women" if g1 == "men" else "men")] for d in its):   # both cuts exist: say whose sizes
+            bsz = f"{bsz} {L['gWord'][g1]}" if L["lang"] == "fr-CA" else f"{L['gLab'][g1].lower()}: {bsz}"
+        bsz = esc(bsz)
         about += L["aboutBest"].format(price=money(sm["price"]), store=esc(sm["store"]), bsizes=bsz).replace(" ()", "")
         if sm["most"] != sm["store"] and sm["stores"] > 1:
             about += L["aboutMost"].format(store=esc(sm["most"]), n=sm["most_n"])
@@ -1010,6 +1034,19 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None)
                 ranges.append(f"{lab}{c}{f(nums[0])}–{f(nums[-1])}" if len(nums) > 1 else f"{lab}{c}{f(nums[0])}")
         ans_sale = (L["aSaleYes"].format(p=sm["top"], price=money(sm["price"]), store=esc(sm["store"]), n=sm["sale_sizes"], bsizes=bsz) if sm["top"] >= 5
                     else L["aSaleNo"].format(price=money(sm["price"])))
+        # Oct 16 (Bastien, Agravic 3: "you say 17 sizes but only on sale in women's in a couple sizes"): a model with its own
+        # men's and women's versions gets one line each, so the deepest discount never reads as both
+        if sm["top"] >= 5 and any(d.get("sx") == ["men"] for d in its) and any(d.get("sx") == ["women"] for d in its):
+            lines = []
+            for g in ("women", "men"):
+                sg = summary(its, stores, g)
+                if not sg:
+                    continue
+                gs = esc(sizes_phrase(sg.get("best_sizes") or [], L))
+                lines.append(L["aSaleG"].format(g=L["gLab"][g], price=money(sg["price"]), p=sg["off"], store=esc(sg["store"]), bsizes=gs)
+                             if sg["off"] >= 5 else L["aSaleGNo"].format(g=L["gLab"][g], price=money(sg["price"])))
+            if lines:
+                ans_sale = L["aSaleYesG"].format(lines=" ".join(lines))
         out.append(f'<h2>{L["aboutH"]}</h2><p>{about}</p><h2>{L["faqH"]}</h2><div class="faq">'
                    f'<h3>{L["qSale"].format(name=esc(name))}</h3><p>{ans_sale}</p>'
                    f'<h3>{L["qSizes"]}</h3><p>{esc("; ".join(ranges))}.</p>'
