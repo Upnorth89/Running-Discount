@@ -169,6 +169,7 @@ every check (rule in CLAUDE.md: try every allowed way first; a store that says n
 |---|---|---|---|---|
 | **Blocked (the store says no)** | | | | |
 | Hoka (hoka.com, brand store) | Canada/US | Cloudflare 403 to GitHub's servers on every product list (robots.txt itself answers; Oct 16, 2026). Bookmark test file (Oct 16, US men's, 175 shoes): list pages carry no sizes (`data-all-sizes` empty) and the saver cut each tile before its price | site from GitHub, Grab deals bookmark | an affiliate feed (Hoka is on AvantLink/Rakuten in some regions); Hoka shoes already come from ~20 Canadian stores |
+| Merrell (merrell.com/CA) | Canada | robots.txt blocks ClaudeBot and other AI robots (`Disallow: /`, Oct 16, 2026), so it isn't read even though the site answers | site from GitHub | an affiliate feed, or Merrell allowing AI agents |
 | MEC | Canada | blocks automated reading | site; **saved pages work** (Grab deals) | MEC product feed via AvantLink/Sovrn |
 | REI | USA | blocks automated reading | **saved pages work** (US side) | affiliate feed |
 | Boutique Courir | Montréal | blocks automated reading (Oct 1) | site | ask the store |

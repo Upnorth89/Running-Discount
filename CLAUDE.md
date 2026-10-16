@@ -50,6 +50,10 @@ site/grab.html, grab.js  "Grab deals" bookmark for MEC/REI (Bastien saves their 
                          which takes the list by postMessage (only from mec.ca/rei.com/svpsports.ca) and calls Supabase grab_save()
                          (supabase/grab.sql; same private key as stats.html, gf-stats-key) -> table grab_saves + starts a refresh.
                          scrape.py grab_saves() reads the last 10 days like saved-pages files. After editing grab.js: python tools/make_grab.py
+                         Oct 16: any MEC/REI list (sale or all running gear; MEC 80 pages, REI 150), only the fields the site reads;
+                         grab-save.html sends big lists in parts of 200 (one 3,000-product save hit Supabase's statement timeout).
+                         Backcountry (Oct 16): the bookmark reads a list + each product's page data (1.5 s apart, max 900, sale first)
+                         -> scrape_backcountry_grab (bc_item, USD->CAD, USA side); needs supabase/grab-backcountry-oct16.sql pasted.
 site/deals.json          generated daily (merged items); sale.json = only items on sale (the site loads it first;
                          deals.json only for "Include full price" or the watchlist); offers.json = raw per-store data;
                          health.json

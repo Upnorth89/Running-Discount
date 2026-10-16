@@ -90,6 +90,39 @@
         items = items.concat((results(await fetchDoc(u)).results || []).map(slim));
       }
       save(`rei-${new Date().toISOString().slice(0, 10)}.json`, { store: "rei", saved: new Date().toISOString(), results: items });
+    } else if (/backcountry\.com$/.test(host)) {
+      // Oct 16: any Backcountry list (running deals, running shoes...): its pages, then each product's page data for the sizes
+      // in stock (Backcountry answers our servers "202, empty", so this runs in your browser), a relaxed ~1.5 s apart.
+      const pp = doc => JSON.parse(doc.getElementById("__NEXT_DATA__").textContent).props.pageProps;
+      say("Backcountry: reading the list…");
+      const first = pp(await fetchDoc(location.href));
+      const cat = (((first.plpData || {}).data || {}).category) || {};
+      const last = Math.min((((cat.pageInfo || {}).lastPage) || {}).value || 1, 30);
+      const urls = new Map();
+      const add = p => { for (const [k, v] of Object.entries(p.__APOLLO_STATE__ || {})) if (k.startsWith("Product:") && v.url && !/stroller|kids'|\bkids\b|toddler/i.test(v.name || "")) urls.set(v.url, (urls.get(v.url) || 0) + (((v.aggregates || {}).variationsOnSale || 0) > 0 ? 1 : 0)); };
+      add(first);
+      for (let n = 2; n <= last; n++) {
+        say(`Backcountry: list page ${n} of ${last}…`); await sleep(1500);
+        const u = new URL(location.href); u.searchParams.set("page", n);
+        add(pp(await fetchDoc(u)));
+      }
+      const todo = [...urls.entries()].sort((a, b) => b[1] - a[1]).map(x => x[0]).slice(0, 900);   // sale items first
+      if (!todo.length) throw new Error("no product list on this page: open a list like Running shoes or the running deals");
+      const products = [];
+      for (let i = 0; i < todo.length; i++) {
+        say(`Backcountry: product ${i + 1} of ${todo.length}… (keep this tab open)`); await sleep(1500);
+        try {
+          const p = pp(await fetchDoc(location.origin + todo[i])).product;
+          if (!p) continue;
+          products.push({ url: todo[i], title: p.title, brand: { name: (p.brand || {}).name },
+            breadcrumbs: (p.breadcrumbs || []).map(b => ({ name: b.name })),
+            productMainImage: { mediumImg: (p.productMainImage || {}).mediumImg },
+            skus: (p.skus || []).map(k => ({ id: k.id, size: { name: (k.size || {}).name, scale: (k.size || {}).scale },
+              availability: { status: (k.availability || {}).status, stockLevel: (k.availability || {}).stockLevel },
+              salePrice: k.salePrice, listPrice: k.listPrice })) });
+        } catch (e) {}
+      }
+      save(`backcountry-${new Date().toISOString().slice(0, 10)}.json`, { store: "backcountry", saved: new Date().toISOString(), url: location.href, products });
     } else if (/svpsports\.ca$/.test(host)) {
       // SVP is a Shopify store: read the collection you're on (e.g. running shoes on sale) page by page
       const m = location.pathname.match(/^((?:\/[a-z]{2})?\/collections\/[^/]+)/);
@@ -114,7 +147,7 @@
       download(`hoka-${new Date().toISOString().slice(0, 10)}.json`, { store: "hoka", saved: new Date().toISOString(), url: location.href, ld, data, tiles });
       say(`Hoka: ${tiles.length} shoes on this page saved. File saved.`);
     } else {
-      say("Open a running product list on MEC, REI or SVP Sports first (the deals or all running gear), then tap the bookmark.");
+      say("Open a running product list on MEC, REI, Backcountry or SVP Sports first (the deals or all running gear), then tap the bookmark.");
     }
   } catch (e) {
     say("Couldn't read this page (" + e.message + "). Open a product list (running deals, Running shoes, Running clothing...), then try again.");

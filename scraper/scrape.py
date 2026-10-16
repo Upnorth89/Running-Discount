@@ -2354,7 +2354,7 @@ def scrape_rei_saved():
 CATALOG_MAX_DAYS = 3
 CATALOG_MIN = 25       # a store with fewer products in stock than this is left out (Oct 8, Bastien: Backcountry's 6 "isn't enough")
 CATALOG_SKIP = set()   # stores to leave out of the catalog file by name
-SAVED_STORES = {"mec", "rei", "adidasca", "catalog"}   # from files Bastien brings: no file = no deals, never stale ones
+SAVED_STORES = {"mec", "rei", "adidasca", "catalog", "backcountry"}   # from files Bastien brings: no file = no deals, never stale ones
 CATALOG_LIVE = {"Sport Chek"}     # read live now (Sport Chek since Oct 13): the file's rows for them are ignored
 CATALOG_STORES = {"Sport Chek": ("sportchek", "https://www.sportchek.ca"), "Adidas": ("adidasca", "https://www.adidas.ca"),
                   "REI": ("rei", "https://www.rei.com")}
@@ -2977,7 +2977,7 @@ STORES = {
     "catalog": scrape_catalog_others,                     # every other store in the catalog file, each under its own name
     # SVP Sports: read live as a Shopify store since Oct 12, 2026 (SHOPIFY_STORES); scrape_svp_saved kept for saved pages
     "decathlon": lambda: scrape_decathlon_saved(),    # read at night, slowly (runfree.yml): Decathlon blocked GitHub's daytime reads
-    # "backcountry": off (Oct 6): its bot protection answers GitHub's servers "202, empty"; reader kept for a feed
+    "backcountry": lambda: scrape_backcountry_grab(),   # Oct 16: from the Grab deals bookmark (GitHub's servers get "202, empty")
     "footlocker": scrape_footlocker,
     "runningfree": scrape_runningfree,
     "sportsexperts": scrape_sportsexperts,
@@ -4062,7 +4062,10 @@ def bc_group(title, crumbs):
     return g or group_of(c)
 
 def bc_product(url):
-    p = bc_data(url)["product"]
+    return bc_item(bc_data(url)["product"], url)
+
+def bc_item(p, url):
+    """One Backcountry product (its page data's "product") -> an offer in USD."""
     title = p.get("title") or ""
     crumbs = [b.get("name") or "" for b in p.get("breadcrumbs") or []]
     g = bc_group(title, crumbs)
@@ -4137,6 +4140,36 @@ def backcountry_night(out, sale_only=False):
             prev["failed"] = str(e)[:120]
             p.write_text(json.dumps(prev, separators=(",", ":"), ensure_ascii=False))
     return 0
+
+def scrape_backcountry_grab():
+    """Backcountry from the Grab deals bookmark (Oct 16, 2026; Bastien: "Are able to have a grab deal for backcountry"): its bot
+    protection answers GitHub's servers "202, empty", so Bastien's own browser reads a list and each product's page data
+    (bookmark: slim copy of pageProps.product). Newest save first; prices USD -> CAD; USA side (US_SHOPS)."""
+    fx, out, seen, used = fx_to_cad("USD"), [], set(), 0
+    for f in saved_pages():
+        if f.suffix != ".json":
+            continue
+        try:
+            d = json.loads(f.read_text())
+        except Exception:
+            continue
+        if d.get("store") != "backcountry":
+            continue
+        used += 1
+        for p in d.get("products") or []:
+            url = p.get("url") or ""
+            if not url or url in seen:
+                continue
+            seen.add(url)
+            try:
+                o = bc_item(p, url)
+            except Exception:
+                continue
+            if o:
+                out.append(dict(o, ca=False, us=True, lp=round(o["lp"] * fx, 2),
+                                sz=[[k, round(pr * fx, 2), round(rg * fx, 2), u] for k, pr, rg, u in o["sz"]]))
+    print(f"  backcountry: {used} saved list(s), {len(out)} products, USD->CAD {fx}", file=sys.stderr)
+    return out
 
 def scrape_backcountry_saved():
     try:
