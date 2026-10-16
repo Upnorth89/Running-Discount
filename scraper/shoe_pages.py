@@ -35,12 +35,12 @@ T = {
         "aboutH": "About this shoe", "faqH": "Quick answers",
         "pwLow": "Today's price is the lowest we've seen in {n} days: {today}.", "pwWas": "It was {low} on {date} ({now} today). Sales come back: don't miss the next one.", "pwBtn": "Email me when it drops",
         "about": "The {name} is a {type}. Today {stores} stores in Canada carry it and we found {sizes} sizes in stock.",
-        "aboutBest": " The lowest price is {price} at {store}.", "aboutMost": " {store} is the cheapest in the most sizes ({n}).",
+        "aboutBest": " The lowest price is {price} at {store} ({bsizes}).", "aboutMost": " {store} is the cheapest in the most sizes ({n}).",
         "qSale": "Is the {name} on sale in Canada right now?",
-        "aSaleYes": "Yes. Today it's up to {p}% off, from {price} at {store}, in {n} sizes. Prices are checked every morning.",
+        "aSaleYes": "Yes. Today it's up to {p}% off: {price} at {store} in {bsizes}, and {n} sizes on sale in all. Prices are checked every morning.",
         "aSaleNo": "Not today. It's in stock at full price from {price}. Tap \u201cWatch the price\u201d and we'll email you when it drops.",
         "qSizes": "Which sizes are in stock?", "qWhere": "Where is the {name} cheapest in Canada?",
-        "aWhere": "{store}, at {price} today. Each size can be cheapest at a different store: the tables above show the best one for every size.",
+        "aWhere": "{store}, at {price} today ({bsizes}). Each size can be cheapest at a different store: the tables above show the best one for every size.",
         "typeLower": {"daily": "road running shoe", "race": "racing shoe", "trail": "trail running shoe", "hike": "hiking shoe", "": "running shoe"},
         "hubs": {"all": ("Running shoes on sale in Canada", "Running shoes on sale in Canada today", "Every popular running shoe on sale today at Canadian stores, sorted by the biggest discount. Checked every morning."),
                  "road": ("Road running shoes on sale in Canada", "Road running shoes on sale", "Daily trainers and road shoes on sale today at Canadian stores, biggest discount first."),
@@ -120,12 +120,12 @@ T = {
         "aboutH": "À propos de cette chaussure", "faqH": "Réponses rapides",
         "pwLow": "Le prix d'aujourd'hui est le plus bas des {n} derniers jours : {today}.", "pwWas": "Elle était à {low} le {date} ({now} aujourd'hui). Les soldes reviennent : ne manquez pas la prochaine.", "pwBtn": "M'avertir quand il baisse",
         "about": "La {name} est une {type}. Aujourd'hui, {stores} boutiques au Canada la vendent et nous avons trouvé {sizes} pointures en stock.",
-        "aboutBest": " Le prix le plus bas est {price} chez {store}.", "aboutMost": " {store} est la moins chère dans le plus de pointures ({n}).",
+        "aboutBest": " Le prix le plus bas est {price} chez {store} ({bsizes}).", "aboutMost": " {store} est la moins chère dans le plus de pointures ({n}).",
         "qSale": "La {name} est-elle en solde au Canada en ce moment?",
-        "aSaleYes": "Oui. Aujourd'hui, jusqu'à {p} % de rabais, dès {price} chez {store}, en {n} pointures. Les prix sont vérifiés chaque matin.",
+        "aSaleYes": "Oui. Aujourd'hui, jusqu'à {p} % de rabais : {price} chez {store} en {bsizes}, et {n} pointures en solde en tout. Les prix sont vérifiés chaque matin.",
         "aSaleNo": "Pas aujourd'hui. Elle est en stock au prix régulier dès {price}. Touchez « Suivre le prix » et on vous écrira dès qu'elle baisse.",
         "qSizes": "Quelles pointures sont en stock?", "qWhere": "Où la {name} est-elle la moins chère au Canada?",
-        "aWhere": "Chez {store}, à {price} aujourd'hui. Chaque pointure peut être moins chère ailleurs : les tableaux ci-dessus montrent la meilleure boutique pour chacune.",
+        "aWhere": "Chez {store}, à {price} aujourd'hui ({bsizes}). Chaque pointure peut être moins chère ailleurs : les tableaux ci-dessus montrent la meilleure boutique pour chacune.",
         "typeLower": {"daily": "chaussure de course sur route", "race": "chaussure de compétition", "trail": "chaussure de course en sentier", "hike": "chaussure de randonnée", "": "chaussure de course"},
         "hubs": {"all": ("Chaussures de course en solde au Canada", "Chaussures de course en solde aujourd'hui", "Toutes les chaussures de course populaires en solde aujourd'hui dans les boutiques canadiennes, du plus gros rabais au plus petit. Vérifié chaque matin."),
                  "road": ("Chaussures de course sur route en solde au Canada", "Chaussures de route en solde", "Chaussures d'entraînement et de route en solde aujourd'hui au Canada, plus gros rabais en premier."),
@@ -701,6 +701,26 @@ try{{var tr=a.closest("tr");ana("deal-click",a.dataset.store+"|shoes||shoe-page"
 """
 
 
+def sizes_phrase(keys, L):
+    """["4.5", "5"] -> "sizes 4.5 and 5" / « pointures 4,5 et 5 »; "M:9" -> "M 9", "W:10" -> "W 10" (as the tables say)."""
+    fr = L["lang"] == "fr-CA"
+    labs = []
+    for k in keys:
+        k = str(k)
+        wide = k.endswith("~W")
+        k = k.replace("~W", "")
+        k = re.sub(r"^M:", "H " if fr else "M ", re.sub(r"^W:", "F " if fr else "W ", k))
+        k = (k.replace(".", ",") if fr else k) + ((" large" if fr else " wide") if wide else "")
+        labs.append(k)
+    labs = list(dict.fromkeys(labs))
+    if not labs:
+        return ""
+    if len(labs) > 4:
+        return f"{len(labs)} pointures" if fr else f"{len(labs)} sizes"
+    one, many, and_ = ("pointure", "pointures", " et ") if fr else ("size", "sizes", " and ")
+    return f"{one} {labs[0]}" if len(labs) == 1 else f"{many} " + ", ".join(labs[:-1]) + and_ + labs[-1]
+
+
 def summary(its, stores, gender=None):
     """Today's numbers for one model (optionally one gender): best price, its discount, store, sizes, stores."""
     sizes, by_store, best = 0, defaultdict(set), None
@@ -727,8 +747,12 @@ def summary(its, stores, gender=None):
     most = max(by_store.items(), key=lambda kv: len(kv[1]))
     sale_sizes = len({(tuple(d.get("sx") or []), str(e[0]), bool(d.get("w"))) for d in its for e in d["sz"] if len(e) > 3 and e[1] < e[3] * 0.99
                       and (not gender or not d.get("sx") or gender in d["sx"])})
+    # Oct 16 (Bastien couldn't find the $99 Kjerag: it was only in sizes 4.5 and 5): the sizes at that lowest price
+    at_best = list(dict.fromkeys(str(e[0]) for d in its for e in d["sz"] if abs(e[1] - best[0]) < 0.005
+                                 and not str(e[0]).endswith("~N") and host(size_url(d, e)) == best[2]
+                                 and (not gender or not d.get("sx") or gender in d["sx"])))
     return {"price": best[0], "reg": best[1], "off": off, "top": top, "store": stores.get(best[2], [best[2]])[0], "url": best[3],
-            "sizes": sizes, "stores": len(carriers), "sale_sizes": sale_sizes,
+            "sizes": sizes, "stores": len(carriers), "sale_sizes": sale_sizes, "best_sizes": at_best,
             "most": stores.get(most[0], [most[0]])[0], "most_n": len(most[1]),
             "img": next((d["img"] for d in its if d.get("img")), None), "t": its[0].get("t") or ""}
 
@@ -972,7 +996,8 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None)
     out.append(price_chart(its, L, updated, "us|" if L.get("dir", "").startswith("us/") else ""))
     if sm:     # a few lines Google (and people) can read: what it is, where it's cheapest, sizes, today's answers
         about = L["about"].format(name=esc(name), type=L["typeLower"].get(sm["t"], L["typeLower"][""]), stores=sm["stores"], sizes=sm["sizes"])
-        about += L["aboutBest"].format(price=money(sm["price"]), store=esc(sm["store"]))
+        bsz = esc(sizes_phrase(sm.get("best_sizes") or [], L))
+        about += L["aboutBest"].format(price=money(sm["price"]), store=esc(sm["store"]), bsizes=bsz).replace(" ()", "")
         if sm["most"] != sm["store"] and sm["stores"] > 1:
             about += L["aboutMost"].format(store=esc(sm["most"]), n=sm["most_n"])
         ranges = []
@@ -983,12 +1008,12 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None)
                 f = lambda x: f"{x:g}".replace(".", ",") if fr else f"{x:g}"
                 c = " : " if fr else ": "
                 ranges.append(f"{lab}{c}{f(nums[0])}–{f(nums[-1])}" if len(nums) > 1 else f"{lab}{c}{f(nums[0])}")
-        ans_sale = (L["aSaleYes"].format(p=sm["top"], price=money(sm["price"]), store=esc(sm["store"]), n=sm["sale_sizes"]) if sm["top"] >= 5
+        ans_sale = (L["aSaleYes"].format(p=sm["top"], price=money(sm["price"]), store=esc(sm["store"]), n=sm["sale_sizes"], bsizes=bsz) if sm["top"] >= 5
                     else L["aSaleNo"].format(price=money(sm["price"])))
         out.append(f'<h2>{L["aboutH"]}</h2><p>{about}</p><h2>{L["faqH"]}</h2><div class="faq">'
                    f'<h3>{L["qSale"].format(name=esc(name))}</h3><p>{ans_sale}</p>'
                    f'<h3>{L["qSizes"]}</h3><p>{esc("; ".join(ranges))}.</p>'
-                   f'<h3>{L["qWhere"].format(name=esc(name))}</h3><p>{L["aWhere"].format(store=esc(sm["store"]), price=money(sm["price"]))}</p></div>')
+                   f'<h3>{L["qWhere"].format(name=esc(name))}</h3><p>{L["aWhere"].format(store=esc(sm["store"]), price=money(sm["price"]), bsizes=bsz).replace(" ()", "")}</p></div>')
     home = "/?ref=shoe-page" + L["q"]
     out.append(f'<section class="cta"><h2>{L["cta"]}</h2><p>{L["ctaTxt"]}</p><a class="btn" href="{home}">{L["ctaBtn"]}</a></section>')
     if related:
