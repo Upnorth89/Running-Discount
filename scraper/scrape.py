@@ -872,7 +872,7 @@ def _ww_listing(h):
                     off = it.get("offers") or {}
                     off = (off[0] if off and isinstance(off[0], dict) else {}) if isinstance(off, list) else off
                     out.append({"name": it.get("name") or "", "url": it["url"], "sku": str(it["sku"]), "img": it.get("image"),
-                                "price": off.get("price")})
+                                "price": off.get("price") or off.get("lowPrice")})   # clothing: an AggregateOffer (low/high)
     return out
 
 
@@ -924,6 +924,9 @@ def brands_night(out, hours=3.0):
                     # product page: <span class="price-standard bfx-list-price"> C$ 230.00 / <span class="price-sales ..."> C$ 160.95
                     p["reg"] = _ww_money(r'class="price-standard[ "]', h) or _ww_money(r'class="product-standard-price"', h)
                     p["now"] = _ww_money(r'class="price-sales[ "]', h) or _ww_money(r'class="product-sales-price"', h)
+                    if not p["now"]:                 # full price: only the page's itemprop="price" (clothing had no list price)
+                        m = re.search(r'itemprop="price"[^>]*>\s*([\d,]+(?:\.\d\d)?)\s*<', h)
+                        p["now"] = float(m.group(1).replace(",", "")) if m else None
                 v = _ww_get(f"{cfg['base']}/on/demandware.store/Sites-{cfg['site']}-Site/{cfg['loc'].split('/')[-1]}"
                             f"/Product-GetSelectableVariations?pid={sku}")
                 p["vars"] = _ww_sizes(v) if v else {}
