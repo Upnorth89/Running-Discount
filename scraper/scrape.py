@@ -977,14 +977,16 @@ def _arcteryx_read():
         for v in vars_:
             ok = re.search(r"InStock|LimitedAvailability", str(v["offers"].get("availability") or "")) is not None
             sizes[str(v["size"])] = {"ok": sizes.get(str(v["size"]), {}).get("ok") or ok, "link": u}
-        name = re.sub(r"\s+(Men's|Women's|Unisex)$", "", (vars_[0].get("name") or "").strip())
+        # variant names carry colour and size: "Norvan 7 Vest Women's, Black, Size L" -> "Norvan 7 Vest"
+        name = re.sub(r"\s+(Men's|Women's|Unisex)$", "", (vars_[0].get("name") or "").split(",")[0].strip())
         now_p = float(vars_[0]["offers"].get("price") or 0) or None
         prods[u] = {"name": name, "url": u, "gender": {"mens": "men", "womens": "women"}.get(g), "list": u,
                     "img": vars_[0].get("image"), "now": now_p, "reg": now_p, "pct": None, "sizes": sizes}
     return prods
 
 
-JL_SITES = {"salomon": ("Salomon", _salomon_read), "arcteryx": ("Arc'teryx", _arcteryx_read)}
+JL_SITES = {"arcteryx": ("Arc'teryx", _arcteryx_read)}
+# "salomon": ("Salomon", _salomon_read): off (Oct 16): it answered 403 after about an hour of pages: taken as a no
 
 
 def scrape_jl_site(key):
@@ -1000,6 +1002,9 @@ def scrape_jl_site(key):
     out, skipped = [], collections.Counter()
     for u, p in d["prods"].items():
         name = re.sub(r"\s+", " ", p.get("name") or "").strip()
+        if key == "arcteryx":
+            name = re.sub(r"\s+(Men's|Women's|Unisex)$", "", name.split(",")[0].strip())
+        name = name.replace('\\"', '"')         # 'Silene Short 6\"' -> 'Silene Short 6"' 
         if not name or not p.get("now"):
             skipped["no name or price"] += 1
             continue
@@ -1029,6 +1034,8 @@ def scrape_jl_site(key):
         g = generic_group("gear")({"title": name, "product_type": p.get("list", "").replace("-", " ")})
         if re.search(r"(?i)shoe", name + " " + p.get("list", "")) and g in (None, "gear", "shoes"):
             g = "shoes"
+        if re.search(r"(?i)\b\d{1,2}\s*L?\s+vest\b", name):
+            g = "packs"                          # "Norvan 7 Vest" = a 7-litre hydration vest, not clothing
         if g is None or (g == "shoes" and len(sx) != 1):
             skipped["not running / no gender"] += 1
             continue
@@ -2981,7 +2988,8 @@ STORES = {
     "footlocker": scrape_footlocker,
     "runningfree": scrape_runningfree,
     "sportsexperts": scrape_sportsexperts,
-    "saucony": lambda: scrape_brand_site("saucony"),   # brand store, read at night from GitHub's servers (runfree.yml "brands"); Oct 16   # read at night from GitHub's servers (runfree.yml), a page every 3 s; Oct 15
+    "saucony": lambda: scrape_brand_site("saucony"),
+    "arcteryx": lambda: scrape_jl_site("arcteryx"),   # brand store, night read (runfree.yml "brands"); Oct 16   # brand store, read at night from GitHub's servers (runfree.yml "brands"); Oct 16   # read at night from GitHub's servers (runfree.yml), a page every 3 s; Oct 15
     "runningroom": scrape_runningroom,   # its own public product feed (robots.txt sitemap), Oct 10   # read at night, a page every 30 s (its robots.txt); Oct 9
 }
 # Final sale (Oct 4, 2026; read from each store's return policy, recheck now and then): 1 = every item is final sale,

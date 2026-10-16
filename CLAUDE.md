@@ -300,7 +300,7 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   "Wide"/"[Extra Wide]" in the name; "Performance (Running) Shoes/Footwear" -> "Running Shoes" so cards merge; footwear without
   shoe sizes (LED lights, ice grips) -> gear. A 403/"Just a moment" from GitHub = it said no: stop. probe.yml now has grep/save/honest.
 - Brand stores (Oct 16; Bastien: "readers for the brand websites ... Return policy are always better directly with the brands"):
-  `WW_SITES` in scrape.py (Wolverine's Salesforce shops; Saucony Canada first, Merrell next on the same system), runfree.yml job
+  `WW_SITES` in scrape.py (Wolverine's Salesforce shops; Saucony Canada; Merrell's robots.txt blocks AI robots, so not read), runfree.yml job
   "brands" (`scrape.py --brands-night hist/brands.json`, a page every 3 s): listing pages' JSON-LD ItemList (`<script ... id=
   "productitem-schema">`; clothing = AggregateOffer lowPrice), each colour's page (price-standard / price-sales "C$ 230.00", else
   itemprop price) and `Product-GetSelectableVariations?pid=<upc>` (the service its size buttons use; robots only forbid
@@ -308,6 +308,10 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   reads BRANDS_FILE (fresh < 36 h). Saucony's robots.txt allows ClaudeBot by name. Checked Oct 16 from GitHub: Brooks, New Balance,
   ASICS 403 (no); Hoka 403 (STORES.md); Salomon readable (needs its own reader); On near-empty page; Arc'teryx __NEXT_DATA__ (to check).
   First read: 360 colours, 120 on sale, 156 cards (92 new). sortcheck OK: "Endorphin Pro N Speed-lace" is a shoe.
+  Arc'teryx (Oct 16, live): `JL_SITES` / `scrape_jl_site`: running lines (ARC_RUN: Norvan, Sylan, Incendo, Motus, Cormac, Silene,
+  Essent) from its sitemap (lists load by script), JSON-LD per colour+size (InStock/LimitedAvailability); one price (no sales seen),
+  links open the product (no size link); "N Vest" = hydration vest -> packs. 32 cards. Salomon: reader built but it answered 403
+  after ~1 h of pages -> a no (STORES.md); left out of STORES. Merrell: robots.txt blocks ClaudeBot -> not read.
 - Running Room (Oct 10; Canada's biggest running chain, Magento at ca.shop.runningroom.com): `scrape_runningroom` reads its own public
   product feed (robots.txt sitemap media/sitemap/ai_feed_sitemap.xml -> media/ai/products_N.json, ~22 files, rebuilt ~5am daily, 2 s
   apart): one record per size with price/final_price, stock qty, photo, a link that opens that colour+size. Tax class code -> group
