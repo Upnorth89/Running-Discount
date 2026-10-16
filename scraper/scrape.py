@@ -896,6 +896,150 @@ def _ww_sizes(h):
             for k, v in (d.get("variations") or {}).items() if isinstance(v, dict)}
 
 
+# Salomon and Arc'teryx (Oct 16, 2026; Bastien: "You can ship all 3 if they come up with no issues"; Merrell's robots.txt
+# blocks ClaudeBot and other AI robots, so it isn't read). Both describe every colour+size on the product page as JSON-LD.
+# Salomon (robots allow product pages): running lists -> colour pages; JSON-LD variants (size "8 Men's", ?sizeId= link opens that
+# size) but no stock per size, only "inStockPercentage" per colour: only colours at 100 (every size in stock) are used, never a guess.
+# Price: the page's {"basePrice","finalPrice"} when finalPrice equals the JSON-LD price. Arc'teryx (robots allow ClaudeBot by name):
+# its running lists load by script, so the sitemap gives the product pages of its running lines (ARC_RUN); JSON-LD per colour+size
+# with InStock / LimitedAvailability / OutOfStock. Its own store rarely discounts: the page shows one price (regular = that price).
+SAL_BASE = "https://www.salomon.com"
+SAL_LISTS = [("men", "men/shoes/trail-running"), ("women", "women/shoes/trail-running"),
+             ("men", "men/shoes/running"), ("women", "women/shoes/running")]
+ARC_BASE = "https://arcteryx.com"
+ARC_RUN = re.compile(r"/ca/en/shop/(?:(mens|womens)/)?((?:norvan|sylan|incendo|motus|cormac|silene|essent)[a-z0-9-]*)$")
+
+
+def _ld_blocks(h):
+    for blk in re.findall(r'<script[^>]*application/ld\+json[^>]*>(.*?)</script>', h, re.S):
+        try:
+            d = json.loads(blk, strict=False)
+        except ValueError:
+            continue
+        for x in (d if isinstance(d, list) else [d]):
+            if isinstance(x, dict):
+                yield x
+                for k in ("@graph", "hasVariant"):
+                    for y in x.get(k) or []:
+                        if isinstance(y, dict):
+                            yield y
+
+
+def _salomon_read():
+    prods = {}
+    for gender, lst in SAL_LISTS:
+        for n in range(1, 6):
+            h = _ww_get(f"{SAL_BASE}/en-ca/shop/{lst}.html" + (f"?page={n}" if n > 1 else ""))
+            urls = []
+            for x in _ld_blocks(h or ""):
+                for li in x.get("itemListElement") or [] if x.get("@type") == "ItemList" else []:
+                    if isinstance(li, dict) and isinstance(li.get("url"), str) and "/product/" in li["url"]:
+                        urls.append(li["url"])
+            new = [u for u in urls if u not in prods]
+            for u in new:
+                prods[u] = {"gender": gender, "list": lst}
+            if not new:
+                break
+        print(f"  brands: salomon: {lst}: {len(prods)} colours so far", file=sys.stderr)
+    for u, p in prods.items():
+        h = _ww_get(SAL_BASE + u if u.startswith("/") else u)
+        if not h:
+            continue
+        group = next((x for x in _ld_blocks(h) if x.get("@type") == "ProductGroup"), {})
+        vars_ = [x for x in _ld_blocks(h) if x.get("@type") == "Product" and x.get("size")]
+        if not vars_:
+            continue
+        now_p = float(((vars_[0].get("offers") or {}).get("price")) or 0) or None
+        m = re.search(r'\\"price\\":\{\\"basePrice\\":([\d.]+),\\"finalPrice\\":([\d.]+)', h)
+        reg = float(m.group(1)) if m and now_p and abs(float(m.group(2)) - now_p) < 0.01 else now_p
+        pct = re.search(r'inStockPercentage\\?":(\d+)', h)
+        p.update({"name": group.get("name") or vars_[0].get("name") or "", "url": SAL_BASE + u if u.startswith("/") else u,
+                  "img": vars_[0].get("image"), "now": now_p, "reg": reg, "pct": int(pct.group(1)) if pct else None,
+                  "sizes": {v["size"]: {"ok": True, "link": (v.get("offers") or {}).get("url")} for v in vars_}})
+    return prods
+
+
+def _arcteryx_read():
+    urls = []
+    for sm in ("sitemap_1.xml", "sitemap_2.xml"):
+        h = _ww_get(f"{ARC_BASE}/{sm}") or ""
+        urls += [u for u in re.findall(r"<loc>(https://arcteryx\.com/ca/en/shop/[^<]+)</loc>", h) if ARC_RUN.search(u)]
+    prods = {}
+    for u in dict.fromkeys(urls):
+        g = ARC_RUN.search(u).group(1)
+        h = _ww_get(u)
+        if not h:
+            continue
+        vars_ = [x for x in _ld_blocks(h) if x.get("@type") == "Product" and x.get("size") and isinstance(x.get("offers"), dict)]
+        if not vars_:
+            continue
+        sizes = {}
+        for v in vars_:
+            ok = re.search(r"InStock|LimitedAvailability", str(v["offers"].get("availability") or "")) is not None
+            sizes[str(v["size"])] = {"ok": sizes.get(str(v["size"]), {}).get("ok") or ok, "link": u}
+        name = re.sub(r"\s+(Men's|Women's|Unisex)$", "", (vars_[0].get("name") or "").strip())
+        now_p = float(vars_[0]["offers"].get("price") or 0) or None
+        prods[u] = {"name": name, "url": u, "gender": {"mens": "men", "womens": "women"}.get(g), "list": u,
+                    "img": vars_[0].get("image"), "now": now_p, "reg": now_p, "pct": None, "sizes": sizes}
+    return prods
+
+
+JL_SITES = {"salomon": ("Salomon", _salomon_read), "arcteryx": ("Arc'teryx", _arcteryx_read)}
+
+
+def scrape_jl_site(key):
+    """Salomon / Arc'teryx from last night's read (fresh = under 36 h)."""
+    brand = JL_SITES[key][0]
+    try:
+        d = json.loads(Path(BRANDS_FILE).read_text())["sites"][key]
+        fresh = (dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(d["updated"])).total_seconds() < 36 * 3600
+    except Exception:
+        fresh = False
+    if not fresh:
+        raise RuntimeError(f"no {brand} night copy from the last 36 h")
+    out, skipped = [], collections.Counter()
+    for u, p in d["prods"].items():
+        name = re.sub(r"\s+", " ", p.get("name") or "").strip()
+        if not name or not p.get("now"):
+            skipped["no name or price"] += 1
+            continue
+        if name.isupper():
+            name = soften_caps(name)
+        if p.get("pct") is not None and p["pct"] < 100:
+            skipped["some sizes sold out (which ones unknown)"] += 1
+            continue
+        if re.search(r"(?i)\b(kids?|junior|youth|j)\b", name):
+            skipped["kids"] += 1
+            continue
+        sizes, genders = {}, set()
+        for lab, v in (p.get("sizes") or {}).items():
+            if not v.get("ok"):
+                continue
+            m = re.match(r"(?i)^\s*(\d+(?:\.5)?)\s*(men'?s|women'?s)?\s*$", lab)
+            if m:
+                if m.group(2):
+                    genders.add("women" if m.group(2).lower().startswith("w") else "men")
+                sizes[m.group(1)] = (p["now"], max(p.get("reg") or 0, p["now"]), v.get("link") or p["url"])
+            else:
+                sizes[norm_size(lab)] = (p["now"], max(p.get("reg") or 0, p["now"]), v.get("link") or p["url"])
+        if not sizes:
+            skipped["nothing in stock"] += 1
+            continue
+        sx = [p["gender"]] if p.get("gender") else sorted(genders) if len(genders) == 1 else []
+        g = generic_group("gear")({"title": name, "product_type": p.get("list", "").replace("-", " ")})
+        if re.search(r"(?i)shoe", name + " " + p.get("list", "")) and g in (None, "gear", "shoes"):
+            g = "shoes"
+        if g is None or (g == "shoes" and len(sx) != 1):
+            skipped["not running / no gender"] += 1
+            continue
+        nm = name + ({"men": " - Men's", "women": " - Women's"}.get(sx[0], "") if sx else "")
+        out.append({"st": key, "b": brand, "n": nm, "u": p["url"], "g": g, "sx": sx, "w": bool(re.search(r"(?i)\bwide\b", name)),
+                    "img": p.get("img"), "lp": max(r for _, r, _ in sizes.values()), "bb": None, "ca": True, "no_us": True,
+                    "sz": [[k, a, b, link] for k, (a, b, link) in sizes.items()]})
+    print(f"  {key}: night copy from {d['updated']}: {len(out)} products (left out: {dict(skipped)})", file=sys.stderr)
+    return out
+
+
 def brands_night(out, hours=3.0):
     start, res = time.time(), {}
     try:
@@ -938,6 +1082,20 @@ def brands_night(out, hours=3.0):
             print(f"::warning title=brands {key}::{len(prods)} colours, "
                   f"{sum(1 for p in prods.values() for x in p.get('vars', {}).values() if x['ok'])} sizes in stock", file=sys.stderr)
         except Exception as e:               # one brand failing never stops the others
+            print(f"::warning::brands: {key} stopped: {type(e).__name__}: {e} (its last good copy stays)", file=sys.stderr)
+            if key in old:
+                res[key] = old[key]
+    for key, (brand, fn) in JL_SITES.items():
+        try:
+            prods = fn()
+            res[key] = {"updated": now(), "prods": prods}
+            print(f"::warning title=brands {key}::{len(prods)} colours, "
+                  f"{sum(1 for p in prods.values() for x in (p.get('sizes') or {}).values() if x.get('ok'))} sizes listed in stock, "
+                  f"{sum(1 for p in prods.values() if p.get('reg') and p.get('now') and p['now'] < p['reg'] * 0.99)} on sale", file=sys.stderr)
+            for p in list(prods.values())[:2]:
+                print(f"::warning title=brands {key} sample::{p.get('name')} | now {p.get('now')} reg {p.get('reg')} pct {p.get('pct')} | "
+                      f"{list((p.get('sizes') or {}).items())[:3]}", file=sys.stderr)
+        except Exception as e:
             print(f"::warning::brands: {key} stopped: {type(e).__name__}: {e} (its last good copy stays)", file=sys.stderr)
             if key in old:
                 res[key] = old[key]
