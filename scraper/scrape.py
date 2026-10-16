@@ -877,7 +877,7 @@ def _ww_listing(h):
 
 
 def _ww_money(pat, h):
-    m = re.search(pat + r'[^>]*>\s*(?:<[^>]+>\s*)*\$\s?([\d,]+(?:\.\d\d)?)', h)
+    m = re.search(pat + r'[^>]*>\s*(?:<[^>]+>\s*)*(?:C\$|CA\$|\$)\s?([\d,]+(?:\.\d\d)?)', h)
     return float(m.group(1).replace(",", "")) if m else None
 
 
@@ -921,8 +921,9 @@ def brands_night(out, hours=3.0):
                     raise RuntimeError(f"{key}: out of time")
                 h = _ww_get(p["url"])
                 if h:
-                    p["reg"] = _ww_money(r'class="product-standard-price"', h)
-                    p["now"] = _ww_money(r'class="product-sales-price"', h)
+                    # product page: <span class="price-standard bfx-list-price"> C$ 230.00 / <span class="price-sales ..."> C$ 160.95
+                    p["reg"] = _ww_money(r'class="price-standard[ "]', h) or _ww_money(r'class="product-standard-price"', h)
+                    p["now"] = _ww_money(r'class="price-sales[ "]', h) or _ww_money(r'class="product-sales-price"', h)
                 v = _ww_get(f"{cfg['base']}/on/demandware.store/Sites-{cfg['site']}-Site/{cfg['loc'].split('/')[-1]}"
                             f"/Product-GetSelectableVariations?pid={sku}")
                 p["vars"] = _ww_sizes(v) if v else {}
