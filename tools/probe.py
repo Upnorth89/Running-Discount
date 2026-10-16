@@ -36,10 +36,10 @@ for i, u in enumerate(os.environ.get("URLS", "").split()):
             prices = sorted(set(re.findall(r"\$\s?\d+\.\d\d", t)))[:6]
             bits.append(f"ld+json offers: {offers}, __NEXT_DATA__: {'__NEXT_DATA__' in t}, prices: {prices}, "
                         f"title: {title.group(1).strip()[:80] if title else ''}")
-        print(f"::warning title=probe {u[:100]}::" + " | ".join(bits)[:3500].replace("\n", " "))
+        print(f"::warning title=probe {u[:100]}::" + re.sub(r"[\r\n]+", " ", " | ".join(bits)[:3500]))
         if GREP:
             hits = list(dict.fromkeys(m.group(0) for m in re.finditer(GREP, t)))[:80]
-            print(f"::warning title=grep {u[:100]}::{len(hits)} | " + " ¦ ".join(hits)[:3900].replace("\n", " "))
+            print(f"::warning title=grep {u[:100]}::{len(hits)} | " + re.sub(r"[\r\n]+", " ", " ¦ ".join(hits)[:3900]))
     except Exception as e:
         print(f"::warning title=probe {u[:100]}::failed: {type(e).__name__} {str(e)[:200]}")
     time.sleep(2)
