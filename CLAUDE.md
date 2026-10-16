@@ -286,6 +286,15 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   in stock in that size (checked against product pages). Saved to runningfree.json on the history branch; the refresh downloads it
   (`RUNNINGFREE_FILE`, fresh = under 36 h). While fresh, the catalog file's Running Free rows are skipped. Short brands `RF_SHORT`
   (NB, SW, TNF, PI). Waist sizes (Size-28…) and shoe-drop filters (4mm…) are not read.
+- Sports Experts (Oct 15; Québec chain, Canadian Tire/FGL; Bastien: "GPT keeps running out of tokens"): its Cloudflare wall
+  stops Claude's sandbox but NOT GitHub's servers (probe.yml showed 200s, robots.txt allows category + product pages; Disallow
+  search/sort/account/GoogleProductFeed), so it's read at night: runfree.yml job "sportsexperts" (`scrape.py --sportsexperts-night
+  hist/sportsexperts.json`, one page every 3 s, ~75 min): listing pages' SearchResults JSON (SE_LISTS: running road/trail shoes,
+  clothing, accessories, vests, nutrition, winter, sunglasses, watches), then each product page's variants (Kvas ShoeSize "8_Half",
+  MenSize/WomenSize/BraSize/EquipmentSize, IsAvailableToSell, price per variant). /p-<slug>/<id>/<variant> opens that colour+size.
+  The refresh downloads it to SPORTSEXPERTS_FILE (fresh = under 36 h); while fresh, the catalog file's rows are skipped. Wide =
+  "Wide"/"[Extra Wide]" in the name; "Performance (Running) Shoes/Footwear" -> "Running Shoes" so cards merge; footwear without
+  shoe sizes (LED lights, ice grips) -> gear. A 403/"Just a moment" from GitHub = it said no: stop. probe.yml now has grep/save/honest.
 - Running Room (Oct 10; Canada's biggest running chain, Magento at ca.shop.runningroom.com): `scrape_runningroom` reads its own public
   product feed (robots.txt sitemap media/sitemap/ai_feed_sitemap.xml -> media/ai/products_N.json, ~22 files, rebuilt ~5am daily, 2 s
   apart): one record per size with price/final_price, stock qty, photo, a link that opens that colour+size. Tax class code -> group

@@ -769,6 +769,10 @@ def scrape_sportsexperts():
         if g is None:
             skipped["not running"] += 1
             continue
+        if g == "shoes" and not any("ShoeSize" in v["kvas"] for v in (p.get("vars") or {}).values()):
+            g = "gear"                     # filed under footwear without shoe sizes: LED shoe lights, ice grips (Oct 15)
+        if g == "shoes":                   # "Performance Running Shoes", "Performance Footwear": racing shoes, same model elsewhere
+            rest = re.sub(r"(?i)^performance\s+(running\s+)?(shoes|footwear)$", "Running Shoes", re.sub(r"(?i)\bperformance\s+(?=running\b)", "", rest))
         if g == "shoes" and len(sx) != 1:
             skipped["shoe without one gender"] += 1          # sizes would be ambiguous (men's or women's 9?)
             continue
@@ -800,7 +804,10 @@ def scrape_sportsexperts():
         if colours and shown not in colours and img and re.search(r"/\d+-[\w]+-1-Medium\.jpg$", img):
             top = colours.most_common(1)[0][0]       # the listing's colour is sold out: the photo of a colour that's in stock
             img = re.sub(r"/(\d+)-[\w]+-1-Medium\.jpg$", lambda m: f"/{m.group(1)}-{str(top).lower()}-1-Medium.jpg", img)
-        out.append({"st": "sportsexperts", "b": p["brand"], "n": nm, "u": SE_BASE + p["url"], "g": g, "sx": sx, "w": False,
+        wide = g == "shoes" and bool(re.search(r"(?i)\bwide\b|\b(2e|4e)\b", full))   # "Bondi 9 GLM Wide", "[Extra Wide]": its own product
+        if wide:
+            nm = re.sub(r"(?i)\s*[(\[]?\b(extra |x-?)?wide\b[)\]]?|\s*\b(2e|4e)\b", "", nm).strip()
+        out.append({"st": "sportsexperts", "b": p["brand"], "n": nm, "u": SE_BASE + p["url"], "g": g, "sx": sx, "w": wide,
                     "img": img, "lp": max(r for _, r, _ in sizes.values()), "bb": None, "ca": True, "no_us": True,
                     "sz": [[k, pr, rg, u] for k, (pr, rg, u) in sizes.items()]})
     print(f"  sportsexperts: night copy from {d['updated']}: {len(out)} products (left out: {dict(skipped)})", file=sys.stderr)
@@ -2630,6 +2637,7 @@ STORES = {
     # "backcountry": off (Oct 6): its bot protection answers GitHub's servers "202, empty"; reader kept for a feed
     "footlocker": scrape_footlocker,
     "runningfree": scrape_runningfree,
+    "sportsexperts": scrape_sportsexperts,   # read at night from GitHub's servers (runfree.yml), a page every 3 s; Oct 15
     "runningroom": scrape_runningroom,   # its own public product feed (robots.txt sitemap), Oct 10   # read at night, a page every 30 s (its robots.txt); Oct 9
 }
 # Final sale (Oct 4, 2026; read from each store's return policy, recheck now and then): 1 = every item is final sale,
