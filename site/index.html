@@ -146,21 +146,8 @@ html.us .seo-today .seo-en,html.us .seo-today .seo-fr,html:not(.us) .seo-today .
   font:800 7.5px/1.1 var(--display);text-transform:uppercase;letter-spacing:.4px;pointer-events:none;white-space:nowrap}
 .lostamp span+span{font-size:9.5px}
 @media (min-width:600px){.deal .lostamp{font-size:10px;padding:3px 7px;right:10px;bottom:10px}.deal .lostamp span+span{font-size:13px}}
-.badge.drop.today{background:var(--moss);color:#fff;border-color:var(--moss)}
 .badge.fox{background:var(--hivis);color:var(--hivis-ink);border:1.5px solid var(--ink);font-weight:700}
 .grp.drops h2::before{border-color:var(--hivis);background:var(--hivis)}
-.eyebox{background:var(--card);border:1.5px solid var(--ink);border-radius:16px;padding:14px 16px;margin:0 0 26px}
-.eyebox h2{font:700 24px/1.1 var(--display);margin:0 0 4px}.eyebox p{margin:0 0 12px;color:var(--muted)}
-.eyegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-@media(min-width:900px){.eyegrid{grid-template-columns:repeat(6,1fr)}}
-.eye{display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--mist);border:1.5px solid var(--line);border-radius:12px;padding:8px 6px;cursor:pointer;font:500 13px/1.2 var(--body);color:var(--ink);text-align:center;min-height:44px}
-.eye img{width:100%;height:64px;object-fit:contain;background:#fff;border-radius:8px}
-.eye small{color:var(--muted)}
-.eye[aria-pressed="true"]{background:var(--hivis);color:var(--hivis-ink);border-color:var(--ink)}
-.eye[aria-pressed="true"] small{color:var(--hivis-ink)}
-.eye[aria-pressed="true"]::after{content:"♥ Watching";font-weight:700;font-size:12px}
-html[lang=fr] .eye[aria-pressed="true"]::after{content:"♥ Suivie"}
-.eyefoot{margin-top:12px;text-align:center}
 .badge.new{background:transparent;color:var(--moss);border:1.5px solid var(--moss);padding:2px 6px;font-size:12px}
 .watchbtn.hot .n{background:var(--hivis);color:var(--hivis-ink)}
 .watchbtn .n{background:var(--ink);color:var(--card)}
@@ -740,8 +727,7 @@ en:{
   gatedLede:"Pick your sizes to see today's deals.",unlock:"See deals in my size",
   get storesAll(){return US()?"stores in the US and abroad":"stores in Canada and abroad"},get storesCA(){return US()?"US stores":"Canadian stores"},
   lede:(s,a,w,u)=>`${s} on sale and ${a} in stock from ${w}${u?` · updated ${u}`:""}.`,
-  secNew:"New since your last visit",secSale:"Top deals",secDrops:"Dropped today in your size",dropToday:m=>`−${m} today`,dropTop:"Fox Find of the day",
-  eyeH:"Which shoes are you eyeing?",eyeTxt:"Tap 1 to 3. We'll watch their price in your size and tell you when it drops.",eyeDone:n=>`Done · watching ${n}`,eyeSkip:"Not now",eyeOk:"Watching. You'll see drops on top of your deals.",
+  secNew:"New since your last visit",secSale:"Top deals",secDrops:"Dropped today in your size",dropTop:"Fox Find of the day",
   nothing:"Nothing matches right now. Try clearing the search or picking more categories.",
   noSize:(q,n)=>`Nothing in your size for “${q}” right now, but ${n} in other sizes.`,showAllSizes:"Show all sizes",yourSizesOnly:"Back to my sizes",
   allSizesOn:q=>`Showing “${q}” in every size.`,didYou:"Did you mean",storeGo:s=>`See every deal at ${s}`,addSizes:"Add your sizes to hide gear that won't fit. ",
@@ -841,8 +827,7 @@ fr:{
   gatedLede:"Choisissez vos tailles pour voir les aubaines du jour.",unlock:"Voir les aubaines à ma taille",
   get storesAll(){return US()?"des boutiques aux États-Unis et à l'étranger":"des boutiques au Canada et à l'étranger"},get storesCA(){return US()?"des boutiques américaines":"des boutiques canadiennes"},
   lede:(s,a,w,u)=>`${s} en solde et ${a} en stock ${w}${u?` · mis à jour ${u}`:""}.`,
-  secNew:"Nouveau depuis votre dernière visite",secSale:"Meilleures aubaines",secDrops:"En baisse aujourd'hui dans votre taille",dropToday:m=>`−${m} aujourd'hui`,dropTop:"Trouvaille du renard du jour",
-  eyeH:"Quelles chaussures vous font de l'œil ?",eyeTxt:"Touchez-en 1 à 3. On surveille leur prix dans votre pointure et on vous avertit quand il baisse.",eyeDone:n=>`Terminé · ${n} ${n>1?"suivies":"suivie"}`,eyeSkip:"Plus tard",eyeOk:"C'est suivi. Les baisses s'affichent en haut de vos aubaines.",
+  secNew:"Nouveau depuis votre dernière visite",secSale:"Meilleures aubaines",secDrops:"En baisse aujourd'hui dans votre taille",dropTop:"Trouvaille du jour",
   nothing:"Rien ne correspond pour l'instant. Effacez la recherche ou choisissez plus de catégories.",
   noSize:(q,n)=>`Rien dans votre taille pour « ${q} » en ce moment, mais ${n} dans d'autres tailles.`,showAllSizes:"Voir toutes les tailles",yourSizesOnly:"Revenir à mes tailles",
   allSizesOn:q=>`« ${q} » dans toutes les tailles.`,didYou:"Vouliez-vous dire",storeGo:s=>`Voir toutes les aubaines chez ${s}`,addSizes:"Ajoutez vos tailles pour cacher ce qui ne vous va pas. ",
@@ -1446,7 +1431,7 @@ function card(d,extra){
     <div class="name">${esc(nm(d.n))}</div>
     <div class="price"><b>${money(d.best)}</b>${curTag()}${d.pct?`<s>${money(d.reg)}</s>`:""}</div>
     ${lowDays(d)?`<span class="badge lo30" title="${esc(t("lowDaysTip"))}" aria-label="${esc(t("lowDays",lowDays(d)))}"><span class="l1">${t("lowL1")}</span> <span class="l2">${t("lowL2",lowDays(d))}</span></span>`:""}
-    ${extra||""}${d.dp&&d.best<d.dp-0.5?`<span class="badge drop today">${t("dropToday",money(Math.round(d.dp-d.best)).replace(/[.,]00(?=\D|$)/,""))}</span>`:""}${isNew?`<span class="badge new">${t("isNew")}</span>`:""}
+    ${extra||""}${isNew?`<span class="badge new">${t("isNew")}</span>`:""}
     ${sizes}
     ${d.bb?`<div class="warn">${t("bestBy",esc(d.bb))}</div>`:""}
     ${storeLine(d)}
@@ -1762,29 +1747,6 @@ let clicks=(()=>{const c=LS.get("gf-clicks")||{},cut=Date.now()-TALLY_DAYS*864e5
 LS.set("gf-clicks",clicks);
 const tally=()=>Object.values(clicks).reduce((a,v)=>a+v.off,0);
 function recordClick(k){const d=RENDERED[k];if(!d||!d.pct||clicks[k])return;clicks[k]={off:Math.round((d.reg-d.best)*100)/100,at:Date.now(),p:d.best};LS.set("gf-clicks",clicks)}
-/* "Which shoes are you eyeing?" (Oct 17; 30 days: 9 devices of 3,828 used Watch price, yet watchers come back 3x as often):
-   right after the sizes, 6 well-known models in your size (most stores first, one per model); tap 1-3 to watch them. Once per
-   device: it goes when something is watched, or on "Not now" (gf-eye). */
-let EYE=[];
-function eyeHTML(all){
-  if(!hasSizes()||!state.shoe.length||Object.keys(watches).length||LS.get("gf-eye")||view.watch)return "";
-  const seen=new Set();EYE=all.filter(d=>d.g==="shoes"&&!SPIKE.test(d.n)&&d.t!=="hike"&&d.img).sort((a,b)=>(b.of||[]).length-(a.of||[]).length||(b.pct||0)-(a.pct||0))
-    .filter(d=>{const m=(d.b+" "+baseModel(d.n)).toLowerCase();if(seen.has(m))return false;seen.add(m);return true}).slice(0,6);
-  if(EYE.length<3)return "";
-  if(!eyeHTML.seen){eyeHTML.seen=1;ana("signup-step","eyeing-view")}
-  const n=Object.keys(watches).length;
-  return `<section class="eyebox" aria-labelledby="eyeH"><h2 id="eyeH">${t("eyeH")}</h2><p>${t("eyeTxt")}</p><div class="eyegrid">${EYE.map(d=>{const k=itemKey(d);
-    return `<button type="button" class="eye" data-eye="${esc(k)}" aria-pressed="${!!watches[k]}"><img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer"><b>${esc(d.b)} ${esc(nm(baseModel(d.n)))}</b><small>${money(d.best)}${d.pct?` · −${d.pct}%`:""}</small></button>`}).join("")}</div>
-    <div class="eyefoot"><button type="button" class="linkbtn" data-eyeskip>${t("eyeSkip")}</button></div></section>`}
-document.addEventListener("click",e=>{
-  const b=e.target.closest("[data-eye]");
-  if(b){const k=b.dataset.eye,on=!watches[k];if(on&&Object.keys(watches).length>=3)return;
-    toggleWatch(k,true);b.setAttribute("aria-pressed",String(!!watches[k]));ana("signup-step",on?"eyeing-pick":"eyeing-unpick");
-    const n=Object.keys(watches).length,f=b.closest(".eyebox").querySelector(".eyefoot");
-    f.innerHTML=n?`<button type="button" class="primary" data-eyedone>${t("eyeDone",n)}</button>`:`<button type="button" class="linkbtn" data-eyeskip>${t("eyeSkip")}</button>`;return}
-  if(e.target.closest("[data-eyedone]")){LS.set("gf-eye",1);ana("signup-step","eyeing-done|"+Object.keys(watches).length);renderAll();
-    if(!offerSignup(true))toast(t("eyeOk"));return}   // non-members: the bar asks for the email (one message at a time)
-  if(e.target.closest("[data-eyeskip]")){LS.set("gf-eye",1);ana("signup-step","eyeing-skip");renderAll()}});
 /* Since your last visit (Oct 8, Bastien: retention): on a return (6 h+), one line on top: new deals in your size, and deals you
    opened that are cheaper now ("Clifton 10 −$20"). Built from what this device already keeps (gf-base, gf-clicks). */
 function sinceBar(all){const base=LS.get("gf-base");if(!base||!base.at)return "";
@@ -1857,7 +1819,6 @@ function renderAll(){
   const parts=[];
   // one category picked ("Lights, poles & bottles"): open straight on it, no Top deals / new row repeating part of it
   NARROW=p.groups.length===1;
-  if(!q.length&&!view.store){const eh=eyeHTML(all);if(eh)$("newBox").innerHTML=eh}
   if(!q.length&&!NARROW&&!view.store){
     // Oct 17 (Bastien: be part of people's daily habit): price drops since yesterday in your size, biggest first, every morning
     const drops=onSale.filter(d=>d.dp&&d.best<d.dp-0.5).sort((a,b)=>(b.dp-b.best)-(a.dp-a.best));

@@ -187,6 +187,10 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   price on the page) just before sending; brief and Reel feature only True (blocked = left out), the email lists what was left
   out. Timing: the Wednesday morning refresh starts ig-brief.yml after its deploy (refresh.yml `igbrief`); the 17:33 UTC
   schedule is the backup and skips when today's kit already went out.
+- **Own the design and product calls (Bastien, Oct 17: "You're supposed to optimize this to make it look the best and cleanest...
+  We're supposed to be a team, not me just telling you what to do").** Decide clutter, wording, what stays on a card, what's
+  in or out of a batch, and which idea the data really backs; show him one finished, clean version with the reasons in a few lines.
+  Ask him only for real business choices (spend, rules he set, what ships). Don't send options to pick from when one is clearly best.
 - **Check my own work before sending anything (Bastien, Oct 17: "I shouldn't have to review everything. My time is adding up").**
   Videos/graphics: look at frames from start, middle, end (text centered in its box, nothing cut by the bands, no overlap), every
   number from today's data (store count = n_stores in sale.json, 143 on Oct 17, "140+"), no over-explaining (people know CA = CAD).
