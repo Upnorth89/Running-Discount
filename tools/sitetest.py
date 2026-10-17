@@ -463,16 +463,11 @@ def site_flow(base, per, accented):
             key = page.evaluate(tap)
             # Oct 11: the first return offers to watch that deal's price ("Didn't buy it?")
             page.wait_for_selector("#backBar.bwbar", timeout=6000)
-            page.click("#backBar .go")
-            settle(page, 400)
-            hb = page.locator(f'.heart[data-key="{key}"]').first
-            assert hb.get_attribute("aria-pressed") == "true", "'Watch price' in the come-back bar didn't watch the deal"
-            assert "Watching" in hb.inner_text(), f"the card's button doesn't say Watching ({hb.inner_text()!r})"
-            if page.locator("#backBar.subar").count():          # non-members: the email offer follows in the same bar
-                page.click("#backBar .x")
-            hb.click()                                           # unwatch (keeps the watchlist empty for the next checks)
-            if page.locator("#sheet").is_visible():
-                page.click("#closeSheet")
+            # Oct 17: non-members get it in one step (email box + "Notify me" in the card); not sent here, so the next checks
+            # still see a visitor without an email
+            assert page.locator("#backBar.bwbar input[type=email]").count(), "the 'Didn't buy it?' card has no email box"
+            assert "Notify me" in page.inner_text("#backBar .go"), f"the card's button says {page.inner_text('#backBar .go')!r}"
+            page.click("#backBar .x")
             settle(page, 300)
             page.evaluate(tap)                                   # second return: that store's other deals
             page.wait_for_selector("#backBar:not(.bwbar):not(.subar)", timeout=6000)
