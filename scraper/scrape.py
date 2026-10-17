@@ -3439,6 +3439,7 @@ def tidy_brand(b):
     return c or b
 
 CAPS_STORES = {"lecoureur", "runnerssoul", "sportsexperts"}
+MODEL_TYPOS = [(re.compile(r"(?i)\bendorphine\b"), "Endorphin")]   # Running Room's "Endorphine Elite 2" (Oct 17, r/runTO list)
 OWN_BRAND = {"rabbit": "rabbit", "bandit": "Bandit Running"}
 GENDER_PREFIX_STORES = {"frontrunners",    # names start with "M " / "W " / "U " ("M Adidas Boston 13")
                         "aerobicsfirst",   # "Saucony Women's Endorphin Speed 5 - White/Black *SALE*"
@@ -3674,6 +3675,8 @@ def merge(offers):
                 o["n"] += {"M": " - Men's", "W": " - Women's", "U": " - Unisex"}[k]
             if o["g"] == "shoes" and (o["b"] or "").lower() == "frontrunners footwear":
                 o["g"] = "gear"            # the store's own accessories (toe spreaders, lights) filed under footwear
+        for bad, good in MODEL_TYPOS:          # store typos that split one shoe into two cards
+            o["n"] = re.sub(bad, good, o["n"])
         if o.get("st") in CAPS_STORES:
             if (o["b"] or "").lower() not in BRAND_CANON and re.fullmatch(r"[A-Z][A-Z .'&-]{3,}", o["b"] or ""):
                 o["b"] = o["b"].title()

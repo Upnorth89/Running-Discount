@@ -93,18 +93,40 @@ def cdn_brands():
     return set(re.findall(r'"([^"]+)"', m.group(1)))
 
 
-def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, under=None, canadian=False, direct=False):
+# Oct 17 (Bastien, r/runTO: "Put best deals around Toronto"): stores with shops in Toronto / the GTA
+TORONTO = ["runningfree.com", "runningroom.com", "blacktoerunning.com", "sportinglife.ca", "mec.ca", "sportchek.ca",
+           "decathlon.ca", "footlocker.ca", "arcteryx.com"]
+
+
+def store_names():
+    html = (ROOT / "site" / "index.html").read_text()
+    return {d: n for d, n in re.findall(r'"([a-z0-9.-]+\.[a-z]+)":\["([^"]+)"', html)}
+
+
+def host(u):
+    return re.sub(r"^https?://(www\.)?", "", u).split("/")[0].lower()
+
+
+def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, under=None, canadian=False, direct=False, stores=None):
     d = requests.get(f"{SITE}/{'sale.json' if side == 'ca' else 'sale-us.json'}", timeout=200).json()
     fx = d["fx"]["USD"] if side == "us" else 1.0
     pre = "shoes" if side == "ca" else "us/shoes"
     pages = requests.get(f"{SITE}/{pre}/pages.json", timeout=60).json()
-    items = [i for i in d["items"] if i.get("ca")]
+    items = [dict(i, n=re.sub(r"(?i)\bendorphine\b", "Endorphin", i["n"])) for i in d["items"] if i.get("ca")]   # Running Room typo
+    everything = list(items)    # search links must find only this item on the whole site, not just among the Toronto picks
+    if stores:           # only the sizes whose best price is at one of these stores (r/runTO: shops you can walk into)
+        keep = []
+        for i in items:
+            sz = [x for x in i["sz"] if any(host(i["of"][x[2]]).endswith(st) for st in stores)]
+            if sz:
+                keep.append(dict(i, sz=sz))
+        items = keep
     if canadian:         # Canadian brands only (r/BuyCanadian, Canada pages): any of their shoes, gear, clothing or fuel
         cb = cdn_brands()
         items = [i for i in items if fold(i["b"]) in cb]
     if sex:              # a women's or men's post (r/xxrunning…): that cut, or unisex
         items = [i for i in items if not i.get("sx") or sex in i["sx"]]
-    hay = [(i, fold(i["b"] + " " + i["n"])) for i in items]
+    hay = [(i, fold(i["b"] + " " + i["n"])) for i in everything]
     shoes, gear = [], []
     for it in items:
         if it.get("t") == "spike":
@@ -153,12 +175,7 @@ def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, u
             if not confirm(it, at, fx, side == "us"):
                 log(f"  skipped (not confirmed on the store's page): {it['b']} {it['n']}")
                 continue
-            seen |= {key, fam}
-            groups[it["g"]] = groups.get(it["g"], 0) + 1
-            brands[fold(it["b"])] = brands.get(fold(it["b"]), 0) + 1
-            if kind == "gear":
-                nouns[noun(it["n"])] = nouns.get(noun(it["n"]), 0) + 1
-            name = f"{it['b']} {base(it['n'])}"
+            name = re.sub(r"[®™]", "", f"{it['b']} {base(it['n'])}")
             m = re.search(r"(men|women)'?s", it["n"], re.I)
             label = name + (f" ({m.group(1).lower()}'s)" if m and not re.search(r"(men|women)'?s", name, re.I) else "")
             sl = slug(name)
@@ -166,19 +183,30 @@ def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, u
                 link = f"{SITE}/{pre}/{sl}/?ref={ref}"
             else:          # a search that finds this item: the shortest run of name words that matches nothing else
                 words = re.sub(r"[^a-z0-9' ]+", " ", fold(name)).split()
-                q = " ".join(words)
+                q = None
                 for j in range(2, len(words) + 1):
                     cand = words[:j]
                     hits = [i for i, h in hay if all(w in h for w in cand)]
                     if hits and all(fold(i["b"] + " " + base(i["n"])) == key for i in hits):
                         q = " ".join(cand)
                         break
+                if q is None:      # Oct 17: "On Cloudsurfer" also finds Cloudsurfer 2 / Max / Next: no precise link, next item
+                    log(f"  skipped (no link that finds only this item): {it['b']} {it['n']}")
+                    continue
                 link = f"{SITE}/?{'c=us&' if side == 'us' else ''}q={quote(q)}&ref={ref}"
+            seen |= {key, fam}
+            groups[it["g"]] = groups.get(it["g"], 0) + 1
+            brands[fold(it["b"])] = brands.get(fold(it["b"]), 0) + 1
+            if kind == "gear":
+                nouns[noun(it["n"])] = nouns.get(noun(it["n"]), 0) + 1
             if direct:       # Oct 12: Reddit's spam filter removed a post with 20 thegearfox.com links: link the store itself
                 link = it["of"][min(at, key=lambda s: s[1])[2]]
             lo, was = min(s[1] for s in at) / fx, max(s[3] for s in at) / fx
+            at_host = host(it["of"][min(at, key=lambda s: s[1])[2]])
+            names = store_names()
+            shop = next((n for d_, n in names.items() if at_host.endswith(d_)), at_host) if stores else None
             got.append({"label": label, "price": lo, "was": was, "pct": round(pct * 100), "link": link,
-                        "sizes": len({s[0] for s in at})})
+                        "sizes": len({s[0] for s in at}), "store": shop})
         out[kind] = got
     return out
 
@@ -200,7 +228,7 @@ def write(picks, sides):
         for kind in ("shoes", "gear"):
             for x in picks[side][kind]:
                 n += 1
-                line = f"{money(x['price'])} (was {money(x['was'])}, −{x['pct']}%)"
+                line = f"{money(x['price'])} (was {money(x['was'])}, −{x['pct']}%)" + (f" at {x['store']}" if x.get("store") else "")
                 md.append(f"{n}. [{x['label']}]({x['link']}): {line}")
                 plain.append(f"{n}. {x['label']}: {line}\n{x['link']}\n")
         md.append("")
@@ -220,11 +248,12 @@ def main():
     ap.add_argument("--direct", action="store_true", help="link each item to the store (one Gear Fox line at the bottom)")
     ap.add_argument("--canadian", action="store_true", help="Canadian brands only (the site's 🍁 list): 4 shoes + 6 others")
     ap.add_argument("--under", type=float, help="themed post: nothing over this price (C25K: --under 100)")
+    ap.add_argument("--toronto", action="store_true", help="only deals at stores with Toronto shops (r/runTO), store named on each line")
     a = ap.parse_args()
     sides = ["ca", "us"] if a.side == "both" else [a.side]
     n = (4, 6) if a.canadian else (6, 4)
     picks = {s: side_picks(s, a.ref, n[0], n[1], log=lambda m: print(m, file=sys.stderr), kind=a.kind, sex=a.sex, under=a.under,
-                           canadian=a.canadian, direct=a.direct) for s in sides}
+                           canadian=a.canadian, direct=a.direct, stores=TORONTO if a.toronto else None) for s in sides}
     global FOOT
     if a.direct:
         FOOT = (f"*Found with [thegearfox.com](https://thegearfox.com/?ref={a.ref}), a free site I made that shows running deals "
