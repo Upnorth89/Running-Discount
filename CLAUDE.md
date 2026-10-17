@@ -187,6 +187,9 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   price on the page) just before sending; brief and Reel feature only True (blocked = left out), the email lists what was left
   out. Timing: the Wednesday morning refresh starts ig-brief.yml after its deploy (refresh.yml `igbrief`); the 17:33 UTC
   schedule is the backup and skips when today's kit already went out.
+- **No claims we can't back up (Bastien, Oct 17: "Let's not make any claims like 1/2 the marathon is wearing this").** Reels, posts,
+  captions and scripts state only facts from our data or the product itself (price, % off, sizes, store, "carbon plate"): no
+  "half the start line wears it", "best shoe of the year", "most deals are fake" unless we have our own numbers for it.
 - **Instagram Reels (Bastien's rule, Oct 3): always with safe bands.** Screen recordings of the site sit in the middle of a
   1080x1920 frame: dark (#17201C) band 218px on top (Instagram's Reels title/camera cover it) and 400px below (name, caption,
   like/comment buttons). Recorder + example in `tools/reels/` (rec.js records a 360x434 phone; ffmpeg line in its header).
