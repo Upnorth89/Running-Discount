@@ -614,8 +614,17 @@ const ANA=(()=>{const ls=k=>{try{return localStorage.getItem(k)}catch(e){return 
     /GSA\//.test(u)?"Google app":/FxiOS/.test(u)?"Firefox":/CriOS/.test(u)?"Chrome iPhone":/EdgiOS|EdgA/.test(u)?"Edge":/Android/.test(u)?"Android browser":/iPhone|iPad/.test(u)?"Safari iPhone":"computer"})();
   addEventListener("error",e=>{try{const m=e.message||"";add("error",/^Script error/.test(m)&&!e.filename?"Script error. (other site, "+app+")":m+" @"+((e.filename||"").split("/").pop())+":"+e.lineno)}catch(x){}});
   const em=(()=>{try{return (new URLSearchParams(location.search).get("em")||"").replace(/[^a-z-]/g,"").slice(0,20)}catch(e){return ""}})();   // ?em=friday|alert: links in our emails (Oct 8)
+  /* Experiments (Oct 17, Bastien: "data driven and proven methods ... no guessing"): each device is put in group A (as before)
+     or B (the new thing) by its random number, the same group every visit, one coin per test. Every session says its groups
+     ("exp|drops|B"); tools/funnel.py compares the groups (came back, signed up, clicked) with a significance test.
+     ?exp=drops:B (kept in gf-exp) shows one group on purpose: previews, checks. */
+  let over={};try{const q=new URLSearchParams(location.search).get("exp");over=JSON.parse(ls("gf-exp")||"{}");
+    if(q){q.split(",").forEach(x=>{const [n,a]=x.split(":");if(n&&/^[AB]$/.test(a))over[n]=a});localStorage.setItem("gf-exp",JSON.stringify(over))}}catch(e){}
+  const arm=n=>{if(over[n])return over[n];let h=2166136261;for(const c of did+"|"+n){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return (h>>>0)%2?"B":"A"};
+  const TESTS=["drops"];
+  if(fresh){TESTS.forEach(n=>add("signup-step",`exp|${n}|${arm(n)}`))}
   if(fresh)add("visit",em?"email-"+em:(matchMedia("(display-mode: standalone)").matches||navigator.standalone)?"home-screen app":document.referrer?new URL(document.referrer).hostname:"",null,location.pathname);
-  return {add,nv:()=>nv}})();
+  return {add,nv:()=>nv,arm}})();
 function ana(k,d,n){try{ANA.add(k,d,n)}catch(e){}}
 function track(name,data){try{if(window.umami&&umami.track)umami.track(name,data)}catch(e){}
   try{const o=data||{};
@@ -1822,7 +1831,7 @@ function renderAll(){
   if(!q.length&&!NARROW&&!view.store){
     // Oct 17 (Bastien: be part of people's daily habit): price drops since yesterday in your size, biggest first, every morning
     const drops=onSale.filter(d=>d.dp&&d.best<d.dp-0.5).sort((a,b)=>(b.dp-b.best)-(a.dp-a.best));
-    const ds=drops.length?section("__drops",t("secDrops"),drops,"new drops"):"";
+    const ds=drops.length&&ANA.arm("drops")==="B"?section("__drops",t("secDrops"),drops,"new drops"):"";   // test: group B only
     const ns=section("__new",t("secNew"),onSale.filter(d=>NEWSET.has(itemKey(d))).sort(SORTS[view.sort]),"new");
     $("newBox").innerHTML+=ds;
     if(CALM&&NEWSTYLE==="row"&&!view.newAll)$("newBox").innerHTML+=ns;else parts.push(ns)}

@@ -187,6 +187,13 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   price on the page) just before sending; brief and Reel feature only True (blocked = left out), the email lists what was left
   out. Timing: the Wednesday morning refresh starts ig-brief.yml after its deploy (refresh.yml `igbrief`); the 17:33 UTC
   schedule is the backup and skips when today's kit already went out.
+- **Decide with data, not guesses (Bastien, Oct 17: "Use data driven and proven methods ... No guessing like we've been doing").**
+  Every site change that aims at a goal (come back, sign up, click) ships as an A/B test: `TESTS` + `ANA.arm(name)` in index.html
+  (a coin per device and test, same group every visit; "exp|<test>|A/B" logged once per session; ?exp=<test>:B forces a group for
+  previews/checks). Before it ships, write in the plan doc: the one metric, the baseline, the sample needed (two-proportion power
+  calc, 80% power, 5% level) and the stop date. funnel.yml's "EXPERIMENT" lines give A vs B with p-values: keep B only at p < 0.05,
+  else remove it. Bugs/trust fixes don't need a test. Correlations from the "RETENTION DRIVERS" lines are leads, never proof
+  (Oct 17: "watchers come back 33%" was 9 devices).
 - **Own the design and product calls (Bastien, Oct 17: "You're supposed to optimize this to make it look the best and cleanest...
   We're supposed to be a team, not me just telling you what to do").** Decide clutter, wording, what stays on a card, what's
   in or out of a batch, and which idea the data really backs; show him one finished, clean version with the reasons in a few lines.

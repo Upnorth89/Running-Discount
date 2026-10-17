@@ -298,6 +298,38 @@ try:
                            f"{round(100 * sum(no) / max(1, len(no)))}% ({len(no)})")
 except Exception as e:
     out.append(f"Retention drivers: couldn't compute ({str(e)[:80]})")
+
+# EXPERIMENTS (Oct 17, Bastien: "data driven and proven methods ... no guessing"): devices first seen in this window (2+ days ago)
+# split by their test group (the site sends "exp|<test>|A/B" once per session). A = as before, B = the new thing. A difference
+# counts only when p < 0.05 (two-proportion z-test); until then it's "not proven yet".
+try:
+    import math
+    def ztest(y1, n1, y2, n2):
+        if not n1 or not n2:
+            return 1.0
+        p = (y1 + y2) / (n1 + n2)
+        se = math.sqrt(p * (1 - p) * (1 / n1 + 1 / n2)) or 1
+        return math.erfc(abs(y1 / n1 - y2 / n2) / se / math.sqrt(2))
+    tests = sorted({x.split("|")[1] for s_, _ in D for x in s_["steps"] if x and x.startswith("exp|")})
+    for tname in tests:
+        g = {"A": [], "B": []}
+        for s_, b in D:
+            a_ = next((x.split("|")[2] for x in s_["steps"] if x and x.startswith(f"exp|{tname}|")), None)
+            if a_ in g:
+                g[a_].append((s_, b))
+        out.append(f"EXPERIMENT '{tname}' (A = as before, B = new): A {len(g['A'])} devices, B {len(g['B'])} devices")
+        for mname, f in (("came back on another day", lambda s_, b: b), ("signed up", lambda s_, b: "signup" in s_["kinds"]),
+                         ("clicked a store", lambda s_, b: "deal-click" in s_["kinds"])):
+            for who, keep in (("everyone", lambda s_: True), ("picked sizes", lambda s_: "sizes-saved" in s_["kinds"])):
+                A = [f(s_, b) for s_, b in g["A"] if keep(s_)]
+                B = [f(s_, b) for s_, b in g["B"] if keep(s_)]
+                if A and B:
+                    pv = ztest(sum(B), len(B), sum(A), len(A))
+                    verdict = ("B WINS" if sum(B) / len(B) > sum(A) / len(A) else "A WINS") if pv < 0.05 else "not proven yet"
+                    out.append(f"  {mname} ({who}): A {round(100 * sum(A) / len(A), 1)}% of {len(A)} | B {round(100 * sum(B) / len(B), 1)}% "
+                               f"of {len(B)} | p={pv:.3f} -> {verdict}")
+except Exception as e:
+    out.append(f"Experiments: couldn't compute ({str(e)[:80]})")
 # confirmations: of the sign-ups in this window, how many confirmed the email (double opt-in)
 try:
     hh = {**H, "Prefer": "count=exact", "Range": "0-0"}
