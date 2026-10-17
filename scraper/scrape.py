@@ -3103,6 +3103,8 @@ def tidy_food(offers):
         for e in o.get("sz") or []:
             if len(e) > 2 and e[1] and e[2] and e[2] > e[1] * 7:
                 e[2] = e[1]            # "93% off": a store's typo in the regular price (Feetures socks "was $312.97"), not a deal
+        if o.get("g") in ("shoes", "tops", "bottoms", "bras", "packs") and o.get("sz"):   # Oct 17: The Trail Runner Store lists
+            o["sz"] = [e for e in o["sz"] if not (len(e) > 1 and e[1] is not None and e[1] < 2)]   # Patagonia pants at "$1": a placeholder
         o["n"] = re.sub(r"\s*\(needs description\)", "", o["n"], flags=re.I)   # a store's note to itself (Run Uphill)
         if BYOB.search(o["n"]) or re.fullmatch(r"(?=.*\d)[A-Z0-9-]{6,}", o["n"].strip()):   # a code, not a name ("MRCXLB4")
             o["g"] = "_drop"           # other shoppers' saved bundles ("Build Your Own Bundle · Bundle20740_2026-09-14T17:33")

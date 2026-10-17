@@ -91,6 +91,15 @@ def lowest(h, day, today_best=None):
     return (min(prices) if prices else None), (date.fromisoformat(day) - date.fromisoformat(first)).days, (max(prices) if prices else None)
 
 
+def dropped_today(h, day):
+    """Today's drop (Oct 17, Bastien: be part of people's daily habit): the best price before today when it fell today by 3%+
+    and $3+ (going on sale counts). The site shows "−$X today" and a "Dropped today in your size" row from it."""
+    if len(h) < 2 or h[-1][0] != day:
+        return None
+    prev, cur = h[-2][1], h[-1][1]
+    return prev if prev * 0.25 <= cur <= prev * 0.97 and prev - cur >= 3 else None   # a 75%+ one-day fall is a store's placeholder ($1)
+
+
 def annotate(site, hist, prices, day, names=("deals.json", "sale.json"), prefix="", fx=1.0):
     for name in names:
         p = site / name
@@ -104,6 +113,10 @@ def annotate(site, hist, prices, day, names=("deals.json", "sale.json"), prefix=
             lo, hd, hi = lowest(hist.get(k, []), day, prices.get(k, (None,))[0])
             if lo is not None:
                 d["lo"], d["hd"], d["hi"] = round(lo * fx, 2), hd, round(hi * fx, 2)   # back in CAD, like every price in the site files
+            d.pop("dp", None)
+            dp = dropped_today(hist.get(k, []), day)
+            if dp:
+                d["dp"] = round(dp * fx, 2)
         p.write_text(json.dumps(data, separators=(",", ":"), ensure_ascii=False))
 
 
