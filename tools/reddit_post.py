@@ -294,11 +294,14 @@ def main():
     ap.add_argument("--direct", action="store_true", help="link each item to the store (one Gear Fox line at the bottom)")
     ap.add_argument("--canadian", action="store_true", help="Canadian brands only (the site's 🍁 list): 4 shoes + 6 others")
     ap.add_argument("--under", type=float, help="themed post: nothing over this price (C25K: --under 100)")
+    ap.add_argument("--shoes", type=int, help="shoes per country (default 6, --canadian 4)")
+    ap.add_argument("--gear", type=int, help="other items per country (default 4, --canadian 6)")
     ap.add_argument("--html", help="also write a copy page here (names as links, 'Copy post' button keeps them clickable)")
     ap.add_argument("--toronto", action="store_true", help="only deals at stores with Toronto shops (r/runTO), store named on each line")
     a = ap.parse_args()
     sides = ["ca", "us"] if a.side == "both" else [a.side]
     n = (4, 6) if a.canadian else (6, 4)
+    n = (n[0] if a.shoes is None else a.shoes, n[1] if a.gear is None else a.gear)
     picks = {s: side_picks(s, a.ref, n[0], n[1], log=lambda m: print(m, file=sys.stderr), kind=a.kind, sex=a.sex, under=a.under,
                            canadian=a.canadian, direct=a.direct, stores=TORONTO if a.toronto else None) for s in sides}
     global FOOT
