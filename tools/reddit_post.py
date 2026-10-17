@@ -6,6 +6,9 @@ Picks today's best deals from the live site, opens every one on the store's own 
 confirmed is skipped and the next one taken), and writes the post two ways:
   - Markdown: the name is the link (paste at old.reddit.com, or the app's Markdown mode)
   - plain:    the address on its own line under each deal (works anywhere, phone app included)
+  - --html:   a page with the post already showing clickable names and a "Copy post" button (Oct 17; Bastien: "the shoe
+              name should be a clickable link"): it copies the links as rich text, so they stay clickable when pasted in
+              Reddit's normal editor (no Markdown mode needed)
 
 Shoes: famous models first (the ones people search for), biggest discount first, 7+ sizes at the shown price, no spikes.
 Gear: vests, tights, jackets, watches, lights from known brands, 3+ sizes (or one-size gear), $30+ (US$ on the USA side).
@@ -238,6 +241,49 @@ def write(picks, sides):
     return "\n".join(md), "\n".join(plain)
 
 
+def write_html(picks, sides, ref):
+    """The copy page: names are links; the button copies the list as rich text (+ the Markdown as plain text)."""
+    import html as H
+    import json
+    md, _ = write(picks, sides)
+    body = []
+    for side in sides:
+        if len(sides) > 1:
+            body.append(f"<p><strong>{'Canada' if side == 'ca' else 'USA'}</strong></p>")
+        body.append("<ol>")
+        for kind in ("shoes", "gear"):
+            for x in picks[side][kind]:
+                line = f"{money(x['price'])} (was {money(x['was'])}, −{x['pct']}%)" + (f" at {x['store']}" if x.get("store") else "")
+                body.append(f'<li><a href="{H.escape(x["link"])}">{H.escape(x["label"])}</a>: {H.escape(line)}</li>')
+        body.append("</ol>")
+    if FOOT:
+        body.append("<p>" + re.sub(r"\[(.+?)\]\((.+?)\)", r'<a href="\2">\1</a>', H.escape(FOOT).strip("*")) + "</p>")
+    post = "\n".join(body)
+    return f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reddit Post Copy</title><style>
+:root{{--bg:#fff;--ink:#17201C;--mute:#5b6660;--line:#dfe5e1;--acc:#e8692c;--link:#1a5fb4}}
+@media (prefers-color-scheme:dark){{:root:not([data-theme="light"]){{--bg:#151a18;--ink:#eef2ef;--mute:#a3ada7;--line:#2c3430;--link:#8cb8ff}}}}
+:root[data-theme="dark"]{{--bg:#151a18;--ink:#eef2ef;--mute:#a3ada7;--line:#2c3430;--link:#8cb8ff}}
+body{{background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,sans-serif;margin:0;padding:16px;max-width:720px;margin-inline:auto}}
+a{{color:var(--link)}} button{{font:600 17px system-ui;background:var(--acc);color:#fff;border:0;border-radius:10px;padding:12px 18px;width:100%}}
+#post{{border:1px solid var(--line);border-radius:10px;padding:4px 14px;margin:14px 0}} li{{margin:6px 0}} .m{{color:var(--mute);font-size:14px}}
+</style></head><body>
+<button id="copy">Copy post</button>
+<p class="m" id="msg">Tap Copy post, then paste in Reddit's normal editor: the names stay clickable. ({H.escape(ref)})</p>
+<div id="post">{post}</div>
+<script>
+const MD={json.dumps(md)};
+document.getElementById('copy').onclick=async()=>{{
+  const el=document.getElementById('post'),msg=document.getElementById('msg');
+  try{{await navigator.clipboard.write([new ClipboardItem({{'text/html':new Blob([el.innerHTML],{{type:'text/html'}}),'text/plain':new Blob([MD],{{type:'text/plain'}})}})]);
+    msg.textContent='Copied. Paste it in the post body on Reddit.';}}
+  catch(e){{const r=document.createRange();r.selectNodeContents(el);const s=getSelection();s.removeAllRanges();s.addRange(r);
+    msg.textContent=document.execCommand('copy')?'Copied. Paste it in the post body on Reddit.':'Selected: tap Copy in the menu.';}}
+}};
+</script></body></html>
+"""
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--ref", required=True, help="tracking tag, one per place: reddit-runningshoes, fb-trail-bc…")
@@ -248,6 +294,7 @@ def main():
     ap.add_argument("--direct", action="store_true", help="link each item to the store (one Gear Fox line at the bottom)")
     ap.add_argument("--canadian", action="store_true", help="Canadian brands only (the site's 🍁 list): 4 shoes + 6 others")
     ap.add_argument("--under", type=float, help="themed post: nothing over this price (C25K: --under 100)")
+    ap.add_argument("--html", help="also write a copy page here (names as links, 'Copy post' button keeps them clickable)")
     ap.add_argument("--toronto", action="store_true", help="only deals at stores with Toronto shops (r/runTO), store named on each line")
     a = ap.parse_args()
     sides = ["ca", "us"] if a.side == "both" else [a.side]
@@ -263,6 +310,8 @@ def main():
     if a.out:
         Path(a.out).write_text(md)
         Path(a.out).with_suffix(".txt").write_text(plain)
+    if a.html:
+        Path(a.html).write_text(write_html(picks, sides, a.ref))
 
 
 if __name__ == "__main__":

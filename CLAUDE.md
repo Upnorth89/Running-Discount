@@ -220,6 +220,10 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   (TORONTO: Running Free, Running Room, BlackToe, Sporting Life, MEC, Sport Chek, Decathlon, Foot Locker, Arc'teryx), "at <store>"
   on each line; an item whose ?q= link would find other models too is skipped. Put the Markdown inside ONE code block (copying rendered chat links loses them; Oct 13: "It doesn't
   work"); he pastes it in Reddit's Markdown mode.
+  **Rule (Oct 17, Bastien: "the shoe name should be a clickable link. It makes it look cleaner"): item names are ALWAYS the
+  link, never a bare address under the line.** His Markdown paste in Reddit's normal editor showed raw [..](..), so every post
+  also gets `--html FILE` (a copy page: names as links + "Copy post" button that copies rich text, links survive a paste in
+  Reddit's normal editor): publish it as an artifact and give him the link, plus the Markdown code block for Markdown mode.
 
 GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_ADDRESS` (CASL footer),
 `HEALTH_EMAIL`.
