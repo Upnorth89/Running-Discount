@@ -507,16 +507,16 @@ def site_flow(base, per, accented):
             def at(group):
                 page.goto(base + f"?exp=drops:{group}", wait_until="domcontentloaded")
                 page.wait_for_selector("section.grp .deal", timeout=20000)
-                return page.locator(".grp.drops").count(), page.evaluate("() => (DATA && DATA.items || []).filter(d => d.dp).length")
-            rb, n = at("B")
-            ra, _ = at("A")
+                return page.locator(".grp.drops").count()
+            rb = at("B")
+            ra = at("A")
             page.evaluate("() => localStorage.removeItem('gf-exp')")
             page.goto(base, wait_until="domcontentloaded")
             page.wait_for_selector("section.grp .deal", timeout=20000)
             assert ra == 0, "group A shows the 'Dropped today' row"
             if rb:
-                return f"group B: row shown ({n} items dropped today in the data); group A: hidden"
-            return f"group B: no row (no drop in men's 11 / M today; {n} items dropped in the data); group A: hidden"
+                return "group B: row shown; group A: hidden"
+            return "group B: no row (nothing in men's 11 / M dropped today); group A: hidden"
         check("Test 'drops': row only for group B")(drops_test, page)
 
         def small_phone():   # Oct 11: at 320px "$100.00 CAD $229.99" made the page 24px too wide (bottom bars cut off)
