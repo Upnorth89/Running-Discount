@@ -223,6 +223,9 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
 - **Growth calendar** (Oct 11, Bastien: "post every 3 days on running gear"): plan doc section "Growth: a post every 3 days" + send_later
   reminders at 6:30am Vancouver (C25K Oct 14, RunningShoes 17, runninglifestyle 20, BuyCanadian 23, xxrunning 26, trailrunning 29,
   FrugalMaleFashionCDN Nov 1, ultrarunning 4, RunningShoeGeeks 7 + plan the rest to Cyber Monday). A different place each time.
+- **Reddit results (keep current):** r/RunningDeals: Oct 18 post (3 CA + 3 US, item links to thegearfox.com) stayed up. r/BuyCanadian: removed
+  by the mods Oct 17 even with only 3 items: don't post there again (ask the mods first if ever). Posting in the same sub again:
+  `reddit_post.py --exclude "model,model"` skips items posted there recently (ask Bastien whether the last draft was actually posted).
 - **Tracking links**: `?ref=name` (kept per device, sent with visits/sign-ups, saved in the profile), `?lang=fr`.
 - **Post maker** (`tools/reddit_post.py --ref <place> [--side ca|us|both] [--direct] [--out FILE]`; use --direct for Reddit, Oct 11; Bastien: post every 3 days, format
   "6 shoes 4 gear Canada and 6 shoes 4 gear USA, that's it", names as links): famous models first, biggest discount, 7+ sizes, each
