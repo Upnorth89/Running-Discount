@@ -937,7 +937,7 @@ def price_chart(its, L, updated, prefix=""):
     # under its own table; when men's and women's say the same, one line after all the tables
     same = len(blocks) > 1 and len({(k, t) for _, k, t in blocks}) == 1
     btn = f'<a class="pwbtn" href="#alertBox">{esc(L["pwBtn"])}</a>' if any(k == "was" for _, k, _ in blocks) else ""
-    if same or len(blocks) == 1:
+    if same:          # (one version only: its line goes under its own table, below)
         lab, k, t = blocks[0]
         return {}, f'<section class="pws"><p class="pw {k}">{esc(t)}</p>{btn}</section>'
     return {lab: f'<section class="pws"><p class="pw {k}">{esc(t)}</p>{btn}</section>' for lab, k, t in blocks}, ""
