@@ -350,7 +350,7 @@ try:
         sess = lambda f: len({e["sid"] for e in ev if f(e)})
         made = cnt2({"and": f"(created_at.gte.{a0},created_at.lt.{a1 + timedelta(days=1)})"})
         conf = cnt2({"and": f"(created_at.gte.{a0},created_at.lt.{a1 + timedelta(days=1)})", "confirmed_at": "not.is.null"})
-        out.append(f"  {a0:%b %d}-{a1:%b %d}: {len(g)} new devices, came back {pct(back(g), len(g))} (within 7 days: {pct(b7, len(g))}); "
+        out.append(f"  {a0:%b %d}-{a1:%b %d}: {len(g)} new devices, came back {pct(sum(1 for d in g if (d['days'] or 1) > 1), len(g))} (within 7 days: {pct(b7, len(g))}); "
                    f"sign-ups {made}, confirmed {conf} ({round(100 * conf / max(1, made))}%)")
         out.append(f"    Watch price taps {sess(lambda e: e['kind'] == 'watch-add')} sessions | 'Didn't buy it?' card shown "
                    f"{sess(lambda e: e['kind'] == 'signup-step' and (e['detail'] or '') == 'watch-offer')}, watched from it "
