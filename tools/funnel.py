@@ -332,6 +332,17 @@ try:
                                f"of {len(B)} | p={pv:.3f} -> {verdict}")
 except Exception as e:
     out.append(f"Experiments: couldn't compute ({str(e)[:80]})")
+# card parts (Oct 18, Bastien: shoe cards are "super crammed"): what people actually use on a card, in sessions
+try:
+    ss = lambda f: len({e["sid"] for e in rows if f(e)})
+    dc = ss(lambda e: e["kind"] == "deal-click")
+    out.append(f"CARD PARTS (sessions, last {DAYS} days): clicked a deal {dc} | 'All sizes & stores' "
+               f"{ss(lambda e: e['kind'] == 'shoe-page-link' and (e['detail'] or '') == 'card')} | Watch price "
+               f"{ss(lambda e: e['kind'] == 'watch-add')} | 'Wrong price or size?' sent "
+               f"{ss(lambda e: e['kind'] == 'error' and (e['detail'] or '').startswith('report|'))} | shoe-page links from anywhere "
+               f"{ss(lambda e: e['kind'] == 'shoe-page-link')}")
+except Exception as e:
+    out.append(f"Card parts: couldn't compute ({str(e)[:80]})")
 # week vs week (Oct 18, plan Week 3 retention check): the last two full 7-day weeks before today, side by side
 try:
     today = datetime.now(timezone.utc).date()
