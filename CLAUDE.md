@@ -102,7 +102,7 @@ supabase/analytics.sql   own product analytics (Oct 4): ana_events (raw, 45 days
                          line for the visitor's browser/app (`NOT_OURS`: crypto wallets, __firefox__, "Script error." = another site's script;
                          the site now adds the app: "Script error. (other site, Instagram)"). Umami's script loads crossorigin (shows details).
                          Dashboard: site/stats.html (noindex, robots-disallowed; Chart.js) reads ana_dashboard(p_key, p_days):
-                         ana_daily = nightly per-day totals (ana_rollup via pg_cron 9:13 UTC, kept forever) + today live; key
+                         ana_daily = per-day totals (ana_rollup via pg_cron, hourly at :05 since Oct 18 (ana-rollup-hourly-oct18.sql; was once at 9:13 UTC, so yesterday looked empty until 2:13am Vancouver), kept forever) + today live; key
                          in ana_settings.dashboard_key (Bastien copies it from Supabase Table Editor; stored in his browser).
                          Region = the device's time zone (ana_events.tz, p_tz), mapped to provinces/US/Europe in stats.html (Québec
                          mostly reports America/Toronto: "Ontario & Québec"). No IP, so no country from the network.
