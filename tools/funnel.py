@@ -332,6 +332,34 @@ try:
                                f"of {len(B)} | p={pv:.3f} -> {verdict}")
 except Exception as e:
     out.append(f"Experiments: couldn't compute ({str(e)[:80]})")
+# week vs week (Oct 18, plan Week 3 retention check): the last two full 7-day weeks before today, side by side
+try:
+    today = datetime.now(timezone.utc).date()
+    weeks = [(today - timedelta(days=14), today - timedelta(days=8)), (today - timedelta(days=7), today - timedelta(days=1))]
+    D = lambda x: datetime.fromisoformat(x).date()
+    hh = {**H, "Prefer": "count=exact", "Range": "0-0"}
+    def cnt2(params):
+        rr = requests.get(f"{SB}/rest/v1/subscribers", headers=hh, params={"select": "email", **params}, timeout=30)
+        rr.raise_for_status()
+        return int(rr.headers.get("content-range", "*/0").split("/")[-1])
+    out.append("WEEK VS WEEK (new devices that week; came back = visited again on a later day, so far):")
+    for a0, a1 in weeks:
+        g = [d for d in dv if a0 <= D(d["first_day"]) <= a1]
+        b7 = sum(1 for d in g if (d["days"] or 1) > 1 and (D(d["last_day"]) - D(d["first_day"])).days <= 7)
+        ev = [e for e in rows if a0 <= D(e["at"][:10]) <= a1]
+        sess = lambda f: len({e["sid"] for e in ev if f(e)})
+        made = cnt2({"and": f"(created_at.gte.{a0},created_at.lt.{a1 + timedelta(days=1)})"})
+        conf = cnt2({"and": f"(created_at.gte.{a0},created_at.lt.{a1 + timedelta(days=1)})", "confirmed_at": "not.is.null"})
+        out.append(f"  {a0:%b %d}-{a1:%b %d}: {len(g)} new devices, came back {pct(back(g), len(g))} (within 7 days: {pct(b7, len(g))}); "
+                   f"sign-ups {made}, confirmed {conf} ({round(100 * conf / max(1, made))}%)")
+        out.append(f"    Watch price taps {sess(lambda e: e['kind'] == 'watch-add')} sessions | 'Didn't buy it?' card shown "
+                   f"{sess(lambda e: e['kind'] == 'signup-step' and (e['detail'] or '') == 'watch-offer')}, watched from it "
+                   f"{sess(lambda e: e['kind'] == 'signup-step' and (e['detail'] or '') == 'watch-offer-yes')}, signed up from it "
+                   f"{sess(lambda e: e['kind'] == 'signup' and 'watchoffer' in (e['detail'] or ''))} | shoe-page 'Didn't buy it?' bar shown "
+                   f"{sess(lambda e: e['kind'] == 'signup-step' and (e['detail'] or '') == 'watchbar-view')} | Open my mail taps "
+                   f"{sess(lambda e: e['kind'] == 'signup-step' and (e['detail'] or '').startswith('open-mail'))}")
+except Exception as e:
+    out.append(f"Week vs week: couldn't compute ({str(e)[:80]})")
 # confirmations: of the sign-ups in this window, how many confirmed the email (double opt-in)
 try:
     hh = {**H, "Prefer": "count=exact", "Range": "0-0"}
