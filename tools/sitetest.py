@@ -383,7 +383,7 @@ def site_flow(base, per, accented):
             settle(page, 600)
             assert not cards(page), "a nonsense search still shows deals"
             txt = page.inner_text("main")
-            assert "Nothing matches" in txt, "a search with no results doesn't say 'Nothing matches'"
+            assert "Nothing matches" in txt or "don't have “zzqxw” yet" in txt, "a search with no results says nothing"   # Oct 18: "We don't have X yet" once the full list is in
             page.fill("#dSearch", "")
             settle(page)
             assert cards(page), "deals didn't come back after clearing the search"
