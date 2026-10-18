@@ -101,7 +101,7 @@ TORONTO = ["runningfree.com", "runningroom.com", "blacktoerunning.com", "sportin
            "decathlon.ca", "footlocker.ca", "arcteryx.com"]
 # Oct 18 (Bastien: Montréal and Vancouver running subs): chains / shops with stores in each city
 CITIES = {"toronto": TORONTO,
-          "montreal": ["runningroom.com", "sportsexperts.ca", "svpsports.ca", "mec.ca", "sportchek.ca", "decathlon.ca",
+          "montreal": ["boutiqueendurance.ca", "runningroom.com", "sportsexperts.ca", "svpsports.ca", "mec.ca", "sportchek.ca", "decathlon.ca",
                        "footlocker.ca", "arcteryx.com"],
           "vancouver": ["vanrunco.com", "shop.forerunners.ca", "racketsandrunners.ca", "runningroom.com", "mec.ca",
                         "sportchek.ca", "footlocker.ca", "arcteryx.com"]}

@@ -2739,7 +2739,7 @@ SHOPIFY_STORES = [
     # added 2026-09-30
     ("capra",          "https://www.capra.run",              "gear"),   # Capra Running Co. (Squamish trail running)
     # added 2026-10-01
-    ("lecoureur",      "https://www.lecoureur.com",          "gear"),   # Le Coureur (Montréal running)
+    ("lecoureur",      "https://www.lecoureur.com",          "gear"),   # Le Coureur (Sherbrooke running)
     ("blacktoe",       "https://www.blacktoerunning.com",    "gear"),   # BlackToe Running (Toronto)
     # added 2026-10-02
     ("frontrunners",   "https://www.frontrunners.ca",        "gear"),   # Frontrunners (Victoria)
