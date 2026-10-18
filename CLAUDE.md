@@ -205,7 +205,11 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   of first visits, ~1,000 per group, decide ~Nov 1)., 'layout' (Oct 18, Bastien: the top row was "a big row of stuff":
   B = search + Filters right under the sizes line, categories under it, then the swipe rows as small tiles `tile()`: photo, discount,
   price, heart, one line of name (Baymard: names tell items apart); metric = homepage visitors who search or click a deal, decide
-  ~Nov 1). Parked: test 'card' (cleaner deal cards, ⋯ menu; commit 629e4d1, backlog). Site tests check each one. Correlations from the "RETENTION DRIVERS" lines are leads, never proof
+  ~Nov 1). 'runcard' (Oct 18; B = the sign-up card asks "What do you run in?": type, up to 6 suggestions under the box (`rcSuggest`, every
+  typed word starts a word of the model; iPhones show a <datalist> as a menu to scroll), one entry per model; the pick is watched
+  (watch_new rides with the sign-up); full catalogue loads 1.5 s after the card shows, typing survives the redraw; metric = sign-ups,
+  ~1% of homepage first visits, ~2,300 a group, decide ~Nov 15; also read runcard-focus / runcard-pick to see if people use it).
+  Parked: test 'card' (cleaner deal cards, ⋯ menu; commit 629e4d1, backlog). Site tests check each one. Correlations from the "RETENTION DRIVERS" lines are leads, never proof
   (Oct 17: "watchers come back 33%" was 9 devices).
 - **Own the design and product calls (Bastien, Oct 17: "You're supposed to optimize this to make it look the best and cleanest...
   We're supposed to be a team, not me just telling you what to do").** Decide clutter, wording, what stays on a card, what's

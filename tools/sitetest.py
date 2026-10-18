@@ -129,7 +129,7 @@ def stub(ctx):
     ctx.route(re.compile(r"umami|googletagmanager|accounts\.google|gstatic"), lambda r: r.abort())
     ctx.route(re.compile(r"^https?://(?!127\.0\.0\.1).*\.(jpe?g|png|webp|gif|avif)(\?.*)?$", re.I), lambda r: r.abort())
     # A/B tests (Oct 18): the robot is group A unless a check asks otherwise (test "welcome" B skips the welcome screen)
-    ctx.add_init_script("try{if(!localStorage.getItem('gf-exp'))localStorage.setItem('gf-exp',JSON.stringify({welcome:'A',layout:'A'}))}catch(e){}")
+    ctx.add_init_script("try{if(!localStorage.getItem('gf-exp'))localStorage.setItem('gf-exp',JSON.stringify({welcome:'A',layout:'A',runcard:'A'}))}catch(e){}")
 
 
 # ---------- what today's data says we should see ----------
@@ -575,6 +575,24 @@ def site_flow(base, per, accented):
             return (f"{len(names)} tests ({', '.join(names)}); all on: {res['B']['rows']} row, first deal at {res['B']['deal'] / res['B']['h']:.1f} screens; "
                     f"all off: {res['A']['rows']} row, {res['A']['deal'] / res['A']['h']:.1f} screens")
         check("Whole page: every live test on at once stays tidy")(whole_page, page)
+
+        def runcard_test():   # Oct 18, A/B test 'runcard': the sign-up card asks "What do you run in?" with suggestions as you type
+            page.goto(base + "?exp=runcard:B", wait_until="domcontentloaded")
+            page.wait_for_selector("section.grp .deal", timeout=20000)
+            if not page.locator(".runcard").count():
+                page.evaluate("() => localStorage.removeItem('gf-exp')")
+                return "no sign-up card on this visit (signed up or 'No thanks' earlier): skipped"
+            page.click("#rcShoe")
+            page.keyboard.type("peg")
+            page.wait_for_timeout(500)
+            sug = page.eval_on_selector_all("#rcSug button", "e => e.map(x => x.textContent)")
+            page.evaluate("() => localStorage.removeItem('gf-exp')")
+            page.goto(base, wait_until="domcontentloaded")
+            page.wait_for_selector("section.grp .deal", timeout=20000)
+            assert sug, "typing 'peg' suggests nothing"
+            assert len(sug) <= 6 and all("peg" in x.lower() for x in sug), f"odd suggestions: {sug}"
+            return f"'peg' -> {', '.join(sug[:3])}…"
+        check("Test 'runcard': 'What do you run in?' suggests shoes as you type")(runcard_test, page)
 
         def small_phone():   # Oct 11: at 320px "$100.00 CAD $229.99" made the page 24px too wide (bottom bars cut off)
             page.set_viewport_size({"width": 320, "height": 700})

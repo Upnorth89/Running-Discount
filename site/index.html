@@ -337,6 +337,8 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
 
 /* Friday email card */
 .signup{background:var(--band);color:var(--band-ink);border-radius:14px;padding:18px;margin:0 0 30px}
+.rcwrap{position:relative}.rcsug{display:flex;flex-direction:column;background:var(--card);border-radius:10px;overflow:hidden;margin-top:4px}.rcsug:empty{display:none}.rcsug button{all:unset;cursor:pointer;padding:11px 14px;font:500 15px/1.25 var(--body);color:var(--ink);border-top:1px solid var(--line)}.rcsug button:first-child{border-top:0}.rcsug button:active,.rcsug button:hover{background:var(--mist)}
+.runcard #suForm{flex-direction:column}.runcard #suForm input,.runcard #suForm .primary{flex:none;width:100%}.runcard #suForm .primary{min-height:48px;line-height:1.15;padding:8px 16px}
 .signup h3{font:800 24px/1.1 var(--display);margin:0 0 4px}
 .signup p{margin:0 0 12px;color:var(--band-muted);font-size:15px}
 .signup .perks{margin:8px 0 14px;padding-left:20px;font-size:16px;line-height:1.4}.signup .perks li{margin:5px 0}
@@ -646,7 +648,7 @@ const ANA=(()=>{const ls=k=>{try{return localStorage.getItem(k)}catch(e){return 
   let over={};try{const q=new URLSearchParams(location.search).get("exp");over=JSON.parse(ls("gf-exp")||"{}");
     if(q){q.split(",").forEach(x=>{const [n,a]=x.split(":");if(n&&/^[AB]$/.test(a))over[n]=a});localStorage.setItem("gf-exp",JSON.stringify(over))}}catch(e){}
   const arm=n=>{if(over[n])return over[n];let h=2166136261;for(const c of did+"|"+n){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return (h>>>0)%2?"B":"A"};
-  const TESTS=["drops","welcome","r100","layout"];
+  const TESTS=["drops","welcome","r100","layout","runcard"];
   if(fresh){TESTS.forEach(n=>add("signup-step",`exp|${n}|${arm(n)}`))}
   if(fresh)add("visit",em?"email-"+em:(matchMedia("(display-mode: standalone)").matches||navigator.standalone)?"home-screen app":document.referrer?new URL(document.referrer).hostname:"",null,location.pathname);
   return {add,nv:()=>nv,arm}})();
@@ -769,7 +771,7 @@ en:{
   junkHint:"Not there after a minute? Check Junk or Promotions (Outlook and Hotmail often file us there) and mark it \"Not junk\".",
   resend:"Send it again",resendFail:"Couldn't send just now. Try again in a minute.",resent:"Sent again. Give it a minute.",resendWait:"Just sent. Give it a minute, then check Junk.",
   otherEmail:"Use a different email",getDeals:"Get deals like these every Friday",
-  getDealsTxt:"One email, Friday morning, only gear on sale in your sizes.",perksTitle:"Free with your email",perk1:"An alert when gear you heart drops in price",perk2:"Your best deals every Friday morning",perk3:"Your sizes and hearts on all your devices",noThanks:"No thanks",peekTitle:n=>`${n} deals in your size today`,peekTxt:"Add your email to see them all, get price-drop alerts on deals you heart, and the best ones every Friday.",peekG:"or continue with Google",email:"Email",signUp:"Sign up",
+  getDealsTxt:"One email, Friday morning, only gear on sale in your sizes.",perksTitle:"Free with your email",rcH:"What do you run in?",rcTxt:"Pick your shoe: we'll email you when it drops in your size. Plus your best deals every Friday.",rcPh:"Your shoe, e.g. Pegasus 41",rcGo:"Email me when it drops",perk1:"An alert when gear you heart drops in price",perk2:"Your best deals every Friday morning",perk3:"Your sizes and hearts on all your devices",noThanks:"No thanks",peekTitle:n=>`${n} deals in your size today`,peekTxt:"Add your email to see them all, get price-drop alerts on deals you heart, and the best ones every Friday.",peekG:"or continue with Google",email:"Email",signUp:"Sign up",
   signupFine:'We\'ll email you to confirm. Unsubscribe with one tap. <a href="privacy.html">Privacy</a>',
   badEmail:"That email doesn't look right.",signupFail:m=>`Couldn't sign you up just now: ${m}`,
   emailOn:e=>`Friday email on for ${e} · <button type="button" id="stopEmail">Stop it</button>`,
@@ -869,7 +871,7 @@ fr:{
   junkHint:"Pas reçu après une minute? Vérifiez les courriels indésirables ou Promotions (Outlook et Hotmail nous y classent souvent) et indiquez « Pas un courriel indésirable ».",
   resend:"Renvoyer",resendFail:"Envoi impossible pour l'instant. Réessayez dans une minute.",resent:"Renvoyé. Laissez-lui une minute.",resendWait:"Tout juste envoyé. Donnez-lui une minute, puis vérifiez les indésirables.",
   otherEmail:"Utiliser un autre courriel",getDeals:"Recevez des aubaines comme celles-ci chaque vendredi",
-  getDealsTxt:"Un courriel le vendredi matin, seulement des articles en solde dans vos tailles.",perksTitle:"Gratuit avec votre courriel",perk1:"Une alerte quand un coup de cœur baisse de prix",perk2:"Vos meilleures aubaines chaque vendredi matin",perk3:"Vos tailles et vos coups de cœur sur tous vos appareils",noThanks:"Non merci",peekTitle:n=>`${n} aubaines dans vos tailles aujourd'hui`,peekTxt:"Entrez votre courriel pour toutes les voir, être averti des baisses de prix sur vos coups de cœur et recevoir les meilleures chaque vendredi.",peekG:"ou continuer avec Google",email:"Courriel",signUp:"M'abonner",
+  getDealsTxt:"Un courriel le vendredi matin, seulement des articles en solde dans vos tailles.",perksTitle:"Gratuit avec votre courriel",rcH:"Vous courez avec quoi?",rcTxt:"Choisissez votre chaussure : on vous écrit quand elle baisse à votre taille. En prime, vos meilleures aubaines chaque vendredi.",rcPh:"Votre chaussure (ex. Pegasus 41)",rcGo:"M'avertir d'une baisse",perk1:"Une alerte quand un coup de cœur baisse de prix",perk2:"Vos meilleures aubaines chaque vendredi matin",perk3:"Vos tailles et vos coups de cœur sur tous vos appareils",noThanks:"Non merci",peekTitle:n=>`${n} aubaines dans vos tailles aujourd'hui`,peekTxt:"Entrez votre courriel pour toutes les voir, être averti des baisses de prix sur vos coups de cœur et recevoir les meilleures chaque vendredi.",peekG:"ou continuer avec Google",email:"Courriel",signUp:"M'abonner",
   signupFine:'On vous écrit pour confirmer. Désabonnement en un clic. <a href="privacy.html">Confidentialité</a>',
   badEmail:"Ce courriel ne semble pas valide.",signupFail:m=>`Impossible de vous abonner pour l'instant : ${m}`,
   emailOn:e=>`Courriel du vendredi activé pour ${e} · <button type="button" id="stopEmail">L'arrêter</button>`,
@@ -1961,11 +1963,45 @@ function signupHTML(){
       <button class="primary" type="submit">${t("signUp")}</button></form>
     ${signupErr?`<p class="err">${esc(signupErr)}</p>`:""}
     <p class="fine"><button type="button" id="suGoogle" class="linkbtn">${t("peekG")}</button> · <button type="button" id="suNo" class="linkbtn">${t("noThanks")}</button></p></div>`;
+  if(ANA.arm("runcard")==="B")return runCardHTML();
   return `<div class="signup"><h3>${t("perksTitle")}</h3>
     <ul class="perks"><li>${t("perk1")}</li><li>${t("perk2")}</li><li>${t("perk3")}</li></ul>
     <form id="suForm" novalidate><label for="suEmail" class="hidden">${t("email")}</label>
       <input id="suEmail" type="email" autocomplete="email" inputmode="email" placeholder="${t("emailPh")}" value="${esc(state.email)}" required>
       <button class="primary" type="submit">${t("signUp")}</button></form>
+    ${signupErr?`<p class="err">${esc(signupErr)}</p>`:""}
+    <p class="fine"><button type="button" id="suGoogle" class="linkbtn">${t("peekG")}</button></p>
+    <p class="fine">${t("signupFine")} · <button type="button" id="suNo" class="linkbtn">${t("noThanks")}</button></p></div>`;
+}
+/* Test 'runcard' (Oct 18): the sign-up card asks one concrete thing, "What do you run in?", and watches that shoe.
+   Metric: homepage visitors who sign up (about 1% of first visits; ~2,300 a group to see 2%, decide ~Nov 15). */
+let RC_SHOE="",RC_FOCUS="";
+// Oct 18 (Bastien: "people should be able to type their shoe and then it auto populates. People won't scroll down that menu"):
+// our own suggestions under the box (iPhone shows a <datalist> as a menu to scroll): every typed word starts a word of the model
+const rcFold=x=>x.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9 ]+/g," ").trim();
+function rcSuggest(q){const ws=rcFold(q).split(/\s+/).filter(Boolean);if(!ws.length)return [];
+  const out=[];for(const m of runModels().keys()){const mw=rcFold(m).split(/\s+/);
+    if(ws.every(w=>mw.some(x=>x.startsWith(w))))out.push([ws.every(w=>mw.slice(1).some(x=>x.startsWith(w)))?0:1,m.length,m])}
+  return out.sort((a,b)=>a[0]-b[0]||a[1]-b[1]||a[2].localeCompare(b[2])).slice(0,6).map(x=>x[2])}
+function rcShow(){const i=$("rcShoe"),box=$("rcSug");if(!i||!box)return;const list=document.activeElement===i?rcSuggest(i.value):[];
+  box.innerHTML=list.map(m=>`<button type="button" role="option" data-rcpick="${esc(m)}">${esc(m)}</button>`).join("");
+  i.setAttribute("aria-expanded",list.length?"true":"false")}
+document.addEventListener("pointerdown",e=>{const b=e.target.closest("[data-rcpick]");if(!b)return;e.preventDefault();
+  const i=$("rcShoe");i.value=RC_SHOE=b.dataset.rcpick;$("rcSug").innerHTML="";i.setAttribute("aria-expanded","false");ana("signup-step","runcard-pick");
+  const em=$("suEmail");if(em&&!em.value)em.focus()});
+function runModels(){const g=state.gender,seen=new Map();
+  const by=new Map();      // one entry per model whatever the spelling ("Clifton 9 Gtx" = "Clifton 9 GTX"; wide "- Large" = the model)
+  ITEMS.forEach(d=>{if(d.g!=="shoes"||(g&&g!=="any"&&d.sx&&d.sx.length&&!d.sx.includes(g)))return;
+    const m=`${d.b} ${baseModel(d.n)}`.replace(/\s*(-\s*large|\(large\)|\(\d{4}\))\s*$/i,"").replace(/\bgtx\b/gi,"GTX").trim(),f=rcFold(m);
+    if(!by.has(f)){by.set(f,m);seen.set(m,d)}else if(d.w===false&&seen.get(by.get(f)).w)seen.set(by.get(f),d)});
+  return seen}
+function runCardHTML(){
+  return `<div class="signup runcard"><h3>${t("rcH")}</h3><p style="margin:0 0 10px">${t("rcTxt")}</p>
+    <form id="suForm" novalidate><label for="rcShoe" class="hidden">${t("rcH")}</label>
+      <div class="rcwrap"><input id="rcShoe" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${t("rcPh")}" value="${esc(RC_SHOE)}" role="combobox" aria-autocomplete="list" aria-controls="rcSug" aria-expanded="false"><div class="rcsug" id="rcSug" role="listbox"></div></div>
+      <label for="suEmail" class="hidden">${t("email")}</label>
+      <input id="suEmail" type="email" autocomplete="email" inputmode="email" placeholder="${t("emailPh")}" value="${esc(state.email)}" required>
+      <button class="primary" type="submit">${t("rcGo")}</button></form>
     ${signupErr?`<p class="err">${esc(signupErr)}</p>`:""}
     <p class="fine"><button type="button" id="suGoogle" class="linkbtn">${t("peekG")}</button></p>
     <p class="fine">${t("signupFine")} · <button type="button" id="suNo" class="linkbtn">${t("noThanks")}</button></p></div>`;
@@ -1977,10 +2013,21 @@ function bindSignup(){
     if(!okMail(email)){signupErr=t("badEmail");renderAll();$("suEmail").focus();return}
     const btn=f.querySelector("button");btn.disabled=true;btn.textContent="…";
     state.email=email;const p=toProfile();LS.set("rd-profile",p);
-    try{await rpc("subscribe",{p_email:email,p_profile:subProfile(p)});signupErr="";setSub({pending:email});track("signup",{method:"email",lang:LANG,where:"card",ref:REF||"none"})}
+    const rs=$("rcShoe"),pick=rs&&rs.value.trim()?runModels().get(rs.value.trim()):null;
+    if(rs&&rs.value.trim())ana("signup-step",pick?"runcard-shoe":"runcard-shoe-unknown");
+    if(pick&&!watches[itemKey(pick)])toggleWatch(itemKey(pick),true);
+    try{await rpc("subscribe",{p_email:email,p_profile:subProfile(p)});signupErr="";setSub({pending:email});track("signup",{method:"email",lang:LANG,where:rs?"runcard":"card",ref:REF||"none"})}
     catch(err){signupErr=t("signupFail",err.message)}
     renderAll();
   });
+  const rcs=$("rcShoe");if(rcs){
+    rcs.addEventListener("focus",()=>ana("signup-step","runcard-focus"),{once:true});
+    rcs.addEventListener("input",()=>{RC_SHOE=rcs.value;rcShow()});
+    rcs.addEventListener("focus",rcShow);rcs.addEventListener("blur",()=>setTimeout(()=>{const x=$("rcSug");if(x&&document.activeElement!==$("rcShoe"))x.innerHTML=""},150));
+    $("suEmail").addEventListener("input",e=>{state.email=e.target.value});
+    [rcs,$("suEmail")].forEach(x=>{x.addEventListener("focus",()=>{RC_FOCUS=x.id});x.addEventListener("blur",()=>{setTimeout(()=>{if(document.activeElement!==x&&!document.activeElement.closest(".runcard"))RC_FOCUS=""},0)})});
+    if(RC_FOCUS){const x=$(RC_FOCUS);if(x){x.focus({preventScroll:true});const n=x.value.length;try{x.setSelectionRange(n,n)}catch(e){}if(x.id==="rcShoe")rcShow()}}   // a redraw (full list arriving) keeps the typing going
+    if(!FULL)setTimeout(loadFull,1500)}      // the shoe list wants full-price models too (the shoe you run in may not be on sale)
   const no=$("suNo");if(no)no.addEventListener("click",()=>{LS.set("gf-nosignup",1);ana("signup-step","no-thanks");renderAll()});
   const sg=$("suGoogle");if(sg)sg.addEventListener("click",()=>{step=2;openSheet();$("panel").scrollTop=0});
   const r=$("suRetry");if(r)r.addEventListener("click",()=>{setSub(null);renderAll();openSheet();setTimeout(()=>$("gateEmail").focus(),60)});
