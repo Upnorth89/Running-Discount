@@ -47,7 +47,7 @@ GROUP_LABEL = {"shoes": "Shoes", "tops": "Tops & jackets", "bottoms": "Shorts & 
                "socks": "Socks", "gloves": "Gloves", "headwear": "Hats & buffs", "packs": "Vests & packs",
                "gear": "Lights, poles & bottles", "watches": "Watches", "nutrition": "Nutrition"}
 SIZED = {"shoes", "tops", "bottoms", "bras", "socks", "gloves", "headwear"}
-PER_GROUP, TOTAL = 6, 36
+PER_GROUP, TOTAL, DROPS = 4, 20, 6     # Oct 18: shorter (was 6 a group, 36 in all), with this week's drops on top
 
 WORD = {"ONE SIZE": "OS", "O/S": "OS", "X-SMALL": "XS", "XSMALL": "XS", "SMALL": "S", "MEDIUM": "M",
         "LARGE": "L", "X-LARGE": "XL", "XLARGE": "XL",
@@ -185,7 +185,11 @@ STR = {
                            "don't end up in junk.",
                fine="Prices and stock change daily; the product page has the final price.<br>"
                     "You get this because you signed up for Friday deals on The Gear Fox. Outfox full price.",
-               was="was", all_deals="All deals", logo="logo-email.png"),
+               was="was", all_deals="All deals", logo="logo-email.png",
+               drops_head="Dropped this week in your size", wk_drop=lambda m: f"↓ {m} since last Friday",
+               subject_drop=lambda name, m, n: f"{name} dropped {m} in your size" + (f", + {n} more this week" if n else ""),
+               intro_drop=lambda first, n: f"{first}, {n} {'thing' if n == 1 else 'things'} dropped in your sizes since last Friday. Here they are, then the week's best deals.",
+               see_all_btn=lambda n: f"See all {n} deals in your size"),
     "fr": dict(your_size="Votre taille : ", best_by="Meilleur avant le {}", all_sizes="Toutes les pointures et boutiques →",
                abroad="Expédié de l'extérieur du Canada · converti en $ CA, des droits peuvent s'appliquer",
                abroad_us="Expédié de l'extérieur des États-Unis, des droits peuvent s'appliquer", final="Vente finale : aucun retour",
@@ -203,7 +207,11 @@ STR = {
                            "les prochains n'aboutissent pas dans les indésirables.",
                fine="Les prix et les stocks changent chaque jour; le prix final est sur la page du produit.<br>"
                     "Vous recevez ce courriel parce que vous êtes abonné aux aubaines du vendredi de The Gear Fox. Flairez les aubaines.",
-               was="avant", all_deals="Toutes les aubaines", logo="logo-email-fr.png"),
+               was="avant", all_deals="Toutes les aubaines", logo="logo-email-fr.png",
+               drops_head="En baisse cette semaine à votre taille", wk_drop=lambda m: f"↓ {m} depuis vendredi dernier",
+               subject_drop=lambda name, m, n: f"{name} : −{m} à votre taille" + (f", + {n} autres baisses cette semaine" if n else ""),
+               intro_drop=lambda first, n: f"{first}, {n} {'article a baissé' if n == 1 else 'articles ont baissé'} dans vos tailles depuis vendredi dernier. Les voici, puis les meilleures aubaines de la semaine.",
+               see_all_btn=lambda n: f"Voir les {n} aubaines à votre taille"),
 }
 
 
@@ -224,6 +232,14 @@ def money(v, lang="en"):
         v = v / SIDE["fx"]
         return f"{v:.2f}".replace(".", ",") + " $ US" if lang == "fr" else f"US${v:.2f}"
     return f"{v:.2f}".replace(".", ",") + " $" if lang == "fr" else f"${v:.2f}"
+
+
+def whole(v, lang="en"):
+    """A saving in whole dollars ("$45", "45 $")."""
+    n = round(v / SIDE["fx"] if SIDE["us"] else v)
+    if SIDE["us"]:
+        return f"{n} $ US" if lang == "fr" else f"US${n}"
+    return f"{n} $" if lang == "fr" else f"${n}"
 
 
 def pct_txt(n, lang="en"):
@@ -260,6 +276,50 @@ def sizes_label(d, lang="en"):
 
 E = html.escape
 SHOE_PAGES = {}     # shoes/pages.json from the site: models with a price page (see scraper/shoe_pages.py)
+HIST = {}           # price history (history branch, prices.jsonl): each item's best price by day, for "dropped this week"
+HISTORY_URL = "https://raw.githubusercontent.com/Upnorth89/Running-Discount/history/prices.jsonl"
+
+
+def load_history():
+    from datetime import date
+    p = os.environ.get("HISTORY_FILE")
+    try:
+        text = Path(p).read_text() if p and Path(p).exists() else requests.get(HISTORY_URL, timeout=120).text
+    except Exception as e:
+        print(f"  (no price history: {e}; no 'dropped this week' block)")
+        return
+    for line in text.splitlines():
+        try:
+            r = json.loads(line)
+            HIST[r["k"]] = r["h"]
+        except Exception:
+            pass
+    HIST["_today"] = date.today().isoformat()
+
+
+def week_drop(d):
+    """Oct 18 (the Friday email brought 16 visits in 16 days; Bastien: make it a reason to come back): the item's best price
+    a week ago vs today's price in this person's sizes. A real drop only, like the alerts: 10% or $10, at least $5.
+    Returns last week's price in CAD (the site files' currency), else None."""
+    from datetime import date, timedelta
+    h = HIST.get(("us|" if SIDE["us"] else "") + f'{d["b"]}|{d["n"]}|{d["g"]}|{1 if d.get("w") else 0}'.lower())
+    if not h or len(h) < 2 or d["best"] >= d["reg"]:
+        return None
+    cut = (date.fromisoformat(HIST.get("_today") or date.today().isoformat()) - timedelta(days=7)).isoformat()
+    old = [x for x in h if x[0] <= cut]
+    if not old:
+        return None
+    then = old[-1][1] * (SIDE["fx"] if SIDE["us"] else 1)     # US lines are in US dollars
+    off = then - d["best"]
+    return then if off >= 5 and (off >= 10 or off / then >= 0.10) and d["best"] < then * 0.97 else None
+
+
+def short_name(d, lang):
+    n = re.sub(r"\s+-\s+(Men's|Women's|Unisex|Homme|Femme|Unisexe)$", "", nm(d["n"], lang))
+    if d["g"] == "shoes":
+        n = re.sub(r"\s+((road|trail)\s+)?(running\s+)?(racing\s+)?shoes?\b", "", n, flags=re.I)
+    return f'{d["b"]} {n}'.strip()
+
 
 def shoe_page_url(d, lang):
     """Link to the shoe's price page (every size, every store), when it has one."""
@@ -301,6 +361,7 @@ def card(d, lang="en", wl=None):
 <div><span style="font-size:20px;font-weight:800">{money(d["best"], lang)}</span>
 <span style="font-size:13px;color:#5C6660;text-decoration:line-through;margin-left:6px">{money(d["reg"], lang)}</span>
 <span style="font-size:13px;font-weight:800;background:#F26A1B;border:1px solid #17201C;border-radius:4px;padding:1px 5px;margin-left:6px">{pct_txt(d["pct"], lang)}</span></div>
+{f'<div style="font-size:13px;color:#2F6B3A;font-weight:700;margin-top:3px">{E(tr(lang, "wk_drop", whole(d["wk"] - d["best"], lang)))}</div>' if d.get("wk") else ""}
 <div style="font-size:12px;color:#5C6660;margin-top:3px">{E(sz)}</div>{bb}
 </td></tr></table></a>{cmp}</td></tr>'''
 
@@ -319,9 +380,24 @@ def build(p, sale, watch=None):
     first = (p.get("name") or "").split(" ")[0] or tr(lang, "hi")
     sale.sort(key=lambda d: (-d["fav"], not d.get("img"), -score(d), d["best"]))   # photo-less deals last (Oct 8)
     sections, shown = [], 0
+    for d in sale:
+        d["wk"] = week_drop(d) if HIST else None
+    drops, seen = [], set()
+    for d in sorted((d for d in sale if d["wk"]), key=lambda d: (-d["fav"], -(d["wk"] - d["best"]))):
+        base = (d["b"], re.sub(r"\s+·\s+[^-]+", "", d["n"]))      # one per product: The Feed lists each colour ("Jacket - Men · White")
+        if base not in seen:
+            seen.add(base)
+            drops.append(d)
+    shoes_d, other_d = [d for d in drops if d["g"] == "shoes"], [d for d in drops if d["g"] != "shoes"]
+    drops = [x for pair in zip(shoes_d, other_d) for x in pair] + shoes_d[len(other_d):] + other_d[len(shoes_d):]   # shoe first, then alternate
+    if drops:
+        sections.append(f'''<tr><td style="padding:22px 0 4px;font:800 20px Arial,Helvetica,sans-serif;color:#17201C">
+{E(tr(lang, "drops_head"))} <span style="font:400 14px Arial,sans-serif;color:#5C6660">{len(drops)}</span></td></tr>
+{"".join(card(d, lang, shop) for d in drops[:DROPS])}''')
+    skip = {id(d) for d in drops[:DROPS]}
     order = [g for g in GROUP_LABEL if g in set(p.get("groups") or [])]
     for g in order:
-        ds = [d for d in sale if d["g"] == g]
+        ds = [d for d in sale if d["g"] == g and id(d) not in skip]
         if not ds or shown >= TOTAL:
             continue
         take = ds[:min(PER_GROUP, TOTAL - shown)]
@@ -346,8 +422,10 @@ def build(p, sale, watch=None):
     links.append(f'<a href="{E(SITE_URL)}privacy.html" style="color:#5C6660">{E(tr(lang, "privacy"))}</a>')
     links.append(f'<a href="{IG_URL}" style="color:#5C6660">{E(tr(lang, "follow"))} @thegearfox</a>')
     footer_links = " · ".join(links) + (f"<br>The Gear Fox · {E(ADDRESS)}" if ADDRESS else "")
-    subject = tr(lang, "subject_watch", len(sale)) if has_watch else tr(lang, "subject", len(sale), top)
-    intro = E(tr(lang, "intro", first))
+    subject = (tr(lang, "subject_watch", len(sale)) if has_watch
+               else tr(lang, "subject_drop", short_name(drops[0], lang), whole(drops[0]["wk"] - drops[0]["best"], lang), len(drops) - 1) if drops
+               else tr(lang, "subject", len(sale), top))
+    intro = E(tr(lang, "intro_drop", first, len(drops)) if drops else tr(lang, "intro", first))
     first_note = ""                       # only in someone's first Friday email (nothing recorded in weekly_sent_at yet)
     if not p.get("_sent"):
         gmail = re.search(r"@(gmail|googlemail)\.com$", (p.get("email") or "").lower())
@@ -361,7 +439,7 @@ def build(p, sale, watch=None):
 <tr><td style="padding:0 20px 8px;text-align:center;font:15px/1.45 Arial,sans-serif;color:#5C6660">{intro}</td></tr>
 {first_note}<tr><td style="padding:0 20px 20px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">{"".join(sections)}</table></td></tr>
 <tr><td style="padding:14px 20px 22px;text-align:center;border-top:2px dashed #CBD2CC">
-<a href="{E(shop)}" style="display:inline-block;background:#F26A1B;color:#17201C;border:2px solid #17201C;border-radius:10px;padding:12px 20px;font:800 16px Arial,sans-serif;text-decoration:none">{E(tr(lang, "open_shop"))}</a>
+<a href="{E(shop)}" style="display:inline-block;background:#F26A1B;color:#17201C;border:2px solid #17201C;border-radius:10px;padding:12px 20px;font:800 16px Arial,sans-serif;text-decoration:none">{E(tr(lang, "see_all_btn", len(sale)))}</a>
 <div style="font:12px/1.4 Arial,sans-serif;color:#5C6660;margin-top:14px">{tr(lang, "fine")}<br>
 {footer_links}</div></td></tr>
 </table></td></tr></table></body></html>'''
@@ -478,6 +556,7 @@ def main():
                           else json.loads((ROOT / "site" / "shoes" / "pages.json").read_text()))
     except Exception as e:
         print(f"  (no shoe pages list: {e})")
+    load_history()
     watch_news = {}
     if SB_URL and SB_KEY and any(p.get("token") for p in profiles):
         try:

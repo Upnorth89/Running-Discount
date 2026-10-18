@@ -165,6 +165,12 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   (road = daily+race, trail = trail+hike); the site ranks them first (`terrainFit`), spikes excluded.
   No nutrition deals in the Friday email (Oct 9, Bastien); hearted nutrition still gets watchlist news.
   First Friday email (no `weekly_sent_at` yet) shows a note: Gmail → drag to Primary; others → add us to contacts.
+  Oct 18 (it brought 16 visits in 16 days; Bastien OK'd the mock): it leads with "Dropped this week in your size" (`week_drop()`:
+  the item's best price 7 days ago in the history file vs today's price in their sizes; a real drop = 10% or $10, at least $5;
+  one per product across colours; shoe first, then alternating; 6 shown, "↓ $X since last Friday"); the subject names the
+  biggest one ("Saucony Ride TR2 dropped $100 in your size, + 67 more this week"; watchlist news still wins the subject);
+  then 4 per category, 20 in all; button "See all N deals in your size". Judged on email-friday visits (65 subscribers:
+  too few for an A/B test).
 - **Alerts**: at most one email per person every 3 days, only real drops (10% or $10), none on Fridays
   (the Friday email carries watchlist news).
 - **Health check**: emails a daily report (subject says "all good", "all running, N still to fix" or

@@ -20,6 +20,8 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -r scraper/requirements.txt
+      - name: Price history (for "Dropped this week in your size")
+        run: git fetch --depth=1 origin history && git show FETCH_HEAD:prices.jsonl > /tmp/prices.jsonl || true
       - name: Send weekly email
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
@@ -29,4 +31,5 @@ jobs:
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           MAILING_ADDRESS: ${{ secrets.MAILING_ADDRESS }}
           SEND_TO: ${{ inputs.send_to }}
+          HISTORY_FILE: /tmp/prices.jsonl
         run: python scraper/weekly_email.py
