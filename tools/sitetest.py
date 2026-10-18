@@ -128,6 +128,8 @@ def stub(ctx):
     ctx.route("**/rest/v1/rpc/**", lambda r: r.fulfill(status=200, content_type="application/json", body="null"))
     ctx.route(re.compile(r"umami|googletagmanager|accounts\.google|gstatic"), lambda r: r.abort())
     ctx.route(re.compile(r"^https?://(?!127\.0\.0\.1).*\.(jpe?g|png|webp|gif|avif)(\?.*)?$", re.I), lambda r: r.abort())
+    # A/B tests (Oct 18): the robot is group A unless a check asks otherwise (test "welcome" B skips the welcome screen)
+    ctx.add_init_script("try{if(!localStorage.getItem('gf-exp'))localStorage.setItem('gf-exp',JSON.stringify({welcome:'A'}))}catch(e){}")
 
 
 # ---------- what today's data says we should see ----------
@@ -688,6 +690,27 @@ def site_flow(base, per, accented):
             assert "Pick your clothing size" in pg.inner_text("main"), "clothing doesn't offer to pick a clothing size"
             return f"{n} deals in every size, then men's 10"
         check("Just show me deals, sizes later")(browse, pg)
+
+        def welcome_b():   # Oct 18, test "welcome" group B: no welcome screen, deals in every size, "Pick your size" stuck on top
+            c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+            stub(c)
+            c.add_init_script("try{localStorage.setItem('gf-exp',JSON.stringify({welcome:'B'}))}catch(e){}")
+            q = c.new_page()
+            q.on("pageerror", lambda e: errors.append(str(e)))
+            q.goto(base, wait_until="domcontentloaded")
+            q.wait_for_selector("section.grp .deal", timeout=30000)
+            settle(q, 600)
+            assert q.locator("#sheet").is_hidden(), "group B still gets the welcome screen"
+            assert q.locator("#stickPick").is_visible(), "group B has no 'Pick your size' bar on top"
+            q.mouse.wheel(0, 2500)
+            settle(q, 500)
+            y = q.locator("#stickPick").bounding_box()["y"]
+            assert 0 <= y < 160, f"the 'Pick your size' bar doesn't stay on top when scrolling (y={round(y)})"
+            q.click("#stickPick [data-picksize]")
+            q.wait_for_selector("#shoeSizes button", state="visible")
+            c.close()
+            return f"deals first, bar stays at y={round(y)}, sizes step opens"
+        check("Test 'welcome' B: deals before questions")(welcome_b, pg)
 
         def canadian():   # Oct 7: Canadian brands filter (Canada side): only maple-leaf brands, a box saying so, × turns it off
             pg.goto(base + "?canadian", wait_until="domcontentloaded")

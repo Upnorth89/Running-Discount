@@ -398,6 +398,7 @@ body.locked #langBtn,body.locked #curBtn,body.locked #openWatch,body.locked #men
 #sizesPart.short .later{display:none}
 .moresz{display:none;margin:14px 0 0}#sizesPart.short .moresz{display:block}
 .browsebar{background:var(--card);border:1.5px solid var(--hivis);border-radius:12px;padding:12px 14px;margin:0 0 16px;font-size:15px}
+.browsebar.stick{position:sticky;top:var(--tbh,64px);z-index:15;box-shadow:0 6px 18px rgba(0,0,0,.10);border-width:2px}
 .browsebar button,.grpnote button{font:inherit;font-weight:700;color:var(--moss);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}
 .tease{filter:blur(3px);opacity:.7;pointer-events:none;user-select:none}
 .sheetfoot{position:sticky;bottom:0;z-index:2;margin:20px -20px 0;padding:12px 20px calc(14px + env(safe-area-inset-bottom,0px));background:var(--card);border-top:1.5px solid var(--line);box-shadow:0 -8px 16px -12px rgba(0,0,0,.35)}
@@ -624,7 +625,7 @@ const ANA=(()=>{const ls=k=>{try{return localStorage.getItem(k)}catch(e){return 
   let over={};try{const q=new URLSearchParams(location.search).get("exp");over=JSON.parse(ls("gf-exp")||"{}");
     if(q){q.split(",").forEach(x=>{const [n,a]=x.split(":");if(n&&/^[AB]$/.test(a))over[n]=a});localStorage.setItem("gf-exp",JSON.stringify(over))}}catch(e){}
   const arm=n=>{if(over[n])return over[n];let h=2166136261;for(const c of did+"|"+n){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return (h>>>0)%2?"B":"A"};
-  const TESTS=["drops"];
+  const TESTS=["drops","welcome"];
   if(fresh){TESTS.forEach(n=>add("signup-step",`exp|${n}|${arm(n)}`))}
   if(fresh)add("visit",em?"email-"+em:(matchMedia("(display-mode: standalone)").matches||navigator.standalone)?"home-screen app":document.referrer?new URL(document.referrer).hostname:"",null,location.pathname);
   return {add,nv:()=>nv,arm}})();
@@ -739,7 +740,7 @@ en:{
   gatedLede:"Pick your sizes to see today's deals.",unlock:"See deals in my size",
   get storesAll(){return US()?"stores in the US and abroad":"stores in Canada and abroad"},get storesCA(){return US()?"US stores":"Canadian stores"},
   lede:(s,a,w,u)=>`${s} on sale and ${a} in stock from ${w}${u?` · updated ${u}`:""}.`,
-  secNew:"New since your last visit",secSale:"Top deals",secDrops:"Dropped today in your size",dropTop:"Fox Find of the day",
+  secNew:"New since your last visit",secSale:"Top deals",secDrops:"Dropped today in your size",secDropsAll:"Dropped today",dropTop:"Fox Find of the day",
   nothing:"Nothing matches right now. Try clearing the search or picking more categories.",
   noSize:(q,n)=>`Nothing in your size for “${q}” right now, but ${n} in other sizes.`,showAllSizes:"Show all sizes",yourSizesOnly:"Back to my sizes",
   allSizesOn:q=>`Showing “${q}” in every size.`,didYou:"Did you mean",storeGo:s=>`See every deal at ${s}`,addSizes:"Add your sizes to hide gear that won't fit. ",
@@ -839,7 +840,7 @@ fr:{
   gatedLede:"Choisissez vos tailles pour voir les aubaines du jour.",unlock:"Voir les aubaines à ma taille",
   get storesAll(){return US()?"des boutiques aux États-Unis et à l'étranger":"des boutiques au Canada et à l'étranger"},get storesCA(){return US()?"des boutiques américaines":"des boutiques canadiennes"},
   lede:(s,a,w,u)=>`${s} en solde et ${a} en stock ${w}${u?` · mis à jour ${u}`:""}.`,
-  secNew:"Nouveau depuis votre dernière visite",secSale:"Meilleures aubaines",secDrops:"En baisse aujourd'hui dans votre taille",dropTop:"Trouvaille du jour",
+  secNew:"Nouveau depuis votre dernière visite",secSale:"Meilleures aubaines",secDrops:"En baisse aujourd'hui dans votre taille",secDropsAll:"En baisse aujourd'hui",dropTop:"Trouvaille du jour",
   nothing:"Rien ne correspond pour l'instant. Effacez la recherche ou choisissez plus de catégories.",
   noSize:(q,n)=>`Rien dans votre taille pour « ${q} » en ce moment, mais ${n} dans d'autres tailles.`,showAllSizes:"Voir toutes les tailles",yourSizesOnly:"Revenir à mes tailles",
   allSizesOn:q=>`« ${q} » dans toutes les tailles.`,didYou:"Vouliez-vous dire",storeGo:s=>`Voir toutes les aubaines chez ${s}`,addSizes:"Ajoutez vos tailles pour cacher ce qui ne vous va pas. ",
@@ -1021,6 +1022,11 @@ let PEEK=!!LS.get("gf-peek");
 /* "Just show me deals" (Oct 6): browse every size before picking any; a note on top offers the sizes step */
 let QLAND=(()=>{try{return !!new URLSearchParams(location.search).get("q")}catch(e){return false}})();   // opened from a ?q= link in a post
 let BROWSE=!!LS.get("gf-browse")||(()=>{try{return !!new URLSearchParams(location.search).get("q")}catch(e){return false}})();   // a ?q= link (posts) opens straight on the item, no welcome screen (Oct 8)
+/* Test "welcome" (Oct 18; 30 days: 1 in 3 homepage first visits saw the welcome screen and left in a median 9 s without a
+   deal): group B skips it on a first visit and lands on the deals in every size, with the "Pick your size" bar stuck on top. */
+const WELCOME_B=ANA.arm("welcome")==="B"&&!LS.get("rd-profile")&&!LS.get("gf-peek")&&!LS.get("gf-sub");
+if(WELCOME_B&&!BROWSE){BROWSE=true;LS.set("gf-browse",1)}
+{const tbh=()=>{const tb=document.querySelector(".topbar");if(tb)document.documentElement.style.setProperty("--tbh",tb.offsetHeight+"px")};addEventListener("load",tbh);addEventListener("resize",tbh)}
 const peeking=()=>gated()&&FLOW==="D"&&((PEEK&&hasSizes())||BROWSE);
 function gateErr(msg,el){const e=$("gateErr");e.textContent=msg||"";e.classList.toggle("hidden",!msg);
   document.querySelectorAll("#sheet .need").forEach(x=>x.classList.remove("need"));
@@ -1595,6 +1601,7 @@ function repClick(e){
     box.textContent=t("reportThanks");box.classList.add("thanks");box.closest(".dw").classList.remove("repopen");return true}
   return false}
 $("newBox").addEventListener("click",e=>{repClick(e)});
+document.addEventListener("click",e=>{const ps=e.target.closest("#stickPick [data-picksize]");if(ps){ana("signup-step","pick-sizes");editSizes()}});   // test "welcome" B: the bar sits outside the deal list
 $("dealList").addEventListener("click",e=>{
   const sb=e.target.closest("[data-shop]");if(sb){shopStore(sb.dataset.shop,"bar");return}
   if(e.target.closest("[data-cdnoff]")){cdnView(false,"bar");return}
@@ -1811,6 +1818,7 @@ function renderStats(){
 function renderAll(){
   $("sizeSummary").textContent=sizeSummary();
   $("newBox").innerHTML="";
+  {const o=$("stickPick");if(o)o.remove()}
   const sh=$("subhead");sh.classList.toggle("hidden",!CALM||!!view.watch||(gated()&&!peeking()));
   if(CALM){sh.innerHTML=`${esc(sizeSummary())} · <button type="button" class="linkbtn" id="editSz">${t("edit")}</button>`;$("editSz").addEventListener("click",editSizes);
     const dirty=state.ships==="all"||view.fullPrice||view.sort!=="match"||!!view.store||(view.cdn&&!US());$("filtDot").classList.toggle("hidden",!dirty)}
@@ -1850,7 +1858,7 @@ function renderAll(){
   if(!q.length&&!NARROW&&!view.store){
     // Oct 17 (Bastien: be part of people's daily habit): price drops since yesterday in your size, biggest first, every morning
     const drops=onSale.filter(d=>d.dp&&d.best<d.dp-0.5).sort((a,b)=>(b.dp-b.best)-(a.dp-a.best));
-    const ds=drops.length&&ANA.arm("drops")==="B"?section("__drops",t("secDrops"),drops,"new drops"):"";   // test: group B only
+    const ds=drops.length&&ANA.arm("drops")==="B"?section("__drops",t(hasSizes()?"secDrops":"secDropsAll"),drops,"new drops"):"";   // test: group B only
     const ns=section("__new",t("secNew"),onSale.filter(d=>NEWSET.has(itemKey(d))).sort(SORTS[view.sort]),"new");
     $("newBox").innerHTML+=ds;
     if(CALM&&NEWSTYLE==="row"&&!view.newAll)$("newBox").innerHTML+=ns;else parts.push(ns)}
@@ -1863,7 +1871,8 @@ function renderAll(){
   ORDER.filter(g=>wide||p.groups.includes(g)).forEach(g=>{const ty=view.type[g];   // a type picked: every match, Top deals included
     parts.push(section(g,GL(g),shown.filter(d=>d.g===g&&(ty?d.t===ty:!inTop.has(itemKey(d))))))});
   if(wide)parts.unshift(`<div class="widen">${t("searchWide")}</div>`);
-  if(!hasSizes()&&!view.store)parts.unshift(`<div class="browsebar">${t("browseNote")} <button type="button" data-picksize>${t("browsePick")}</button>${t("browseWhy")}</div>`);
+  if(!hasSizes()&&!view.store){const bb=`<div class="browsebar${ANA.arm("welcome")==="B"?" stick":""}">${t("browseNote")} <button type="button" data-picksize>${t("browsePick")}</button>${t("browseWhy")}</div>`;
+    if(ANA.arm("welcome")==="B")$("newBox").insertAdjacentHTML("beforebegin",bb.replace('<div class="browsebar','<div id="stickPick" class="browsebar'));else parts.unshift(bb)}   // test "welcome" B: on top of everything, stuck there
   if(cdn)parts.unshift(`<div class="storebar cdnbar"><div><small>${t("cdnH")}</small><b>${t("cdnB")}</b><small>${t("storeCount",num((view.fullPrice||q.length?all:onSale).length))}. ${t("cdnNote")}</small></div><button type="button" data-cdnoff>${t("cdnBack")}</button></div>`);
   if(view.store)parts.unshift(`<div class="storebar"><div><small>${t("storeH")}</small><b>${esc((STORES[view.store]||[view.store])[0])}</b><small>${t("storeCount",num((view.fullPrice||q.length?all:onSale).length))}</small></div><button type="button" data-shop="">${t("storeBack")}</button></div>`);
   if(q.length){const hits=shoeSearch(q);if(hits.length)parts.unshift(`<div class="spcards">${hits.map(([sl,m])=>`<a class="spcard" href="${shoeUrl(sl)}" data-sp="search"><span><b>${esc(m.n)}</b><small>${t("spCardTxt")}</small></span><span class="go">${t("spCardGo")}</span></a>`).join("")}</div>`)}
@@ -1871,7 +1880,7 @@ function renderAll(){
   else if(!view.store&&!cdn){const sb=sinceBar(all);if(sb)parts.unshift(sb)}
   const body=parts.filter(Boolean);
   if(QLAND&&view.q){const i=body.findIndex(x=>x.includes('class="grp'));body.splice(i<0?body.length:i+1,0,signupHTML())}else
-  body.splice(Math.min(1+(view.store?1:0)+(cdn?1:0)+(!hasSizes()&&!view.store?1:0),body.length),0,signupHTML());   // after the first block of deals (a note on top doesn't count)   // the email card sits right after the first block of deals
+  body.splice(Math.min(1+(view.store?1:0)+(cdn?1:0)+(!hasSizes()&&!view.store&&ANA.arm("welcome")!=="B"?1:0),body.length),0,signupHTML());   // after the first block of deals (a note on top doesn't count)   // the email card sits right after the first block of deals
   $("dealList").innerHTML=body.join("")||`<div class="empty">${t("nothing")}</div>`;
   bindSignup();
   $("dealsFoot").textContent=(hasSizes()?"":t("addSizes"))+t("pricesChange");

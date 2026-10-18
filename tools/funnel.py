@@ -319,6 +319,8 @@ try:
                 g[a_].append((s_, b))
         out.append(f"EXPERIMENT '{tname}' (A = as before, B = new): A {len(g['A'])} devices, B {len(g['B'])} devices")
         for mname, f in (("came back on another day", lambda s_, b: b), ("signed up", lambda s_, b: "signup" in s_["kinds"]),
+                         ("picked sizes", lambda s_, b: "sizes-saved" in s_["kinds"]),
+                         ("clicked a store or picked sizes", lambda s_, b: "deal-click" in s_["kinds"] or "sizes-saved" in s_["kinds"]),
                          ("clicked a store", lambda s_, b: "deal-click" in s_["kinds"])):
             for who, keep in (("everyone", lambda s_: True), ("picked sizes", lambda s_: "sizes-saved" in s_["kinds"])):
                 A = [f(s_, b) for s_, b in g["A"] if keep(s_)]
