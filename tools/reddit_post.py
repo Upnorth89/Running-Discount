@@ -110,7 +110,7 @@ def host(u):
     return re.sub(r"^https?://(www\.)?", "", u).split("/")[0].lower()
 
 
-def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, under=None, canadian=False, direct=False, stores=None):
+def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, under=None, canadian=False, direct=False, stores=None, exclude=()):
     d = requests.get(f"{SITE}/{'sale.json' if side == 'ca' else 'sale-us.json'}", timeout=200).json()
     fx = d["fx"]["USD"] if side == "us" else 1.0
     pre = "shoes" if side == "ca" else "us/shoes"
@@ -170,6 +170,8 @@ def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, u
             if len(got) >= k:
                 break
             key = fold(it["b"] + " " + base(it["n"]))
+            if any(x in key for x in exclude):     # Oct 18: same sub two days in a row gets fresh items (--exclude)
+                continue
             fam = re.sub(r"\s*(v?\d+(\.\d)?)$", "", key)          # Neo Vista 2 and Neo Vista: one model family per post
             if key in seen or fam in seen or (kind == "gear" and groups.get(it["g"], 0) >= 2) \
                     or ((canadian or kind) and brands.get(fold(it["b"]), 0) >= 2) \
@@ -296,6 +298,7 @@ def main():
     ap.add_argument("--under", type=float, help="themed post: nothing over this price (C25K: --under 100)")
     ap.add_argument("--shoes", type=int, help="shoes per country (default 6, --canadian 4)")
     ap.add_argument("--gear", type=int, help="other items per country (default 4, --canadian 6)")
+    ap.add_argument("--exclude", default="", help="comma-separated words: skip items whose brand+model contains any (items posted there recently)")
     ap.add_argument("--html", help="also write a copy page here (names as links, 'Copy post' button keeps them clickable)")
     ap.add_argument("--toronto", action="store_true", help="only deals at stores with Toronto shops (r/runTO), store named on each line")
     a = ap.parse_args()
@@ -303,7 +306,8 @@ def main():
     n = (4, 6) if a.canadian else (6, 4)
     n = (n[0] if a.shoes is None else a.shoes, n[1] if a.gear is None else a.gear)
     picks = {s: side_picks(s, a.ref, n[0], n[1], log=lambda m: print(m, file=sys.stderr), kind=a.kind, sex=a.sex, under=a.under,
-                           canadian=a.canadian, direct=a.direct, stores=TORONTO if a.toronto else None) for s in sides}
+                           canadian=a.canadian, direct=a.direct, stores=TORONTO if a.toronto else None,
+                           exclude=[fold(x.strip()) for x in a.exclude.split(",") if x.strip()]) for s in sides}
     global FOOT
     if a.direct:
         FOOT = (f"*Found with [thegearfox.com](https://thegearfox.com/?ref={a.ref}), a free site I made that shows running deals "
