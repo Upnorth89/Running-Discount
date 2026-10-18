@@ -206,6 +206,14 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   without talking to me first. I want us to have conversations around changes").** Bring the idea + my pick + why in a few lines,
   agree, then build it in the preview, then ship on his OK. Ship without asking only what's clearly broken (wrong price, duplicate
   cards, crashes, sorting bugs).
+- **Be blunt, with real evidence (Bastien, Oct 18: "Use accurate consumer trends and data. If I suggest something that doesn't work,
+  tell me it's stupid and the reason why. I need to stop reminding you of this").** Every recommendation cites our own numbers
+  (funnel.yml) and/or established UX/consumer research (Baymard, Nielsen Norman Group…), named, never made-up stats. When his idea
+  won't work, say so plainly first, then why, then what would. Agreeing to be agreeable is the failure he keeps flagging.
+- **Daily site review (Bastien, Oct 18: "Daily lets go through the website to make it the most user friendly and increase retention
+  on all fronts").** Each day: one part of the site (welcome, sizes, top of deals, cards, search, shoe pages, sign-up, watchlist,
+  Friday email), looked at on a phone with that day's numbers; bring the 1-2 biggest problems + my fix + the evidence; he decides;
+  fixes go through preview, goal changes as A/B tests.
 - **Check my own work before sending anything (Bastien, Oct 17: "I shouldn't have to review everything. My time is adding up").**
   Videos/graphics: look at frames from start, middle, end (text centered in its box, nothing cut by the bands, no overlap), every
   number from today's data (store count = n_stores in sale.json, 143 on Oct 17, "140+"), no over-explaining (people know CA = CAD).
