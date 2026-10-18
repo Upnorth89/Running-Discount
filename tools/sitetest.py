@@ -129,7 +129,7 @@ def stub(ctx):
     ctx.route(re.compile(r"umami|googletagmanager|accounts\.google|gstatic"), lambda r: r.abort())
     ctx.route(re.compile(r"^https?://(?!127\.0\.0\.1).*\.(jpe?g|png|webp|gif|avif)(\?.*)?$", re.I), lambda r: r.abort())
     # A/B tests (Oct 18): the robot is group A unless a check asks otherwise (test "welcome" B skips the welcome screen)
-    ctx.add_init_script("try{if(!localStorage.getItem('gf-exp'))localStorage.setItem('gf-exp',JSON.stringify({welcome:'A'}))}catch(e){}")
+    ctx.add_init_script("try{if(!localStorage.getItem('gf-exp'))localStorage.setItem('gf-exp',JSON.stringify({welcome:'A',layout:'A'}))}catch(e){}")
 
 
 # ---------- what today's data says we should see ----------
@@ -532,6 +532,25 @@ def site_flow(base, per, accented):
             n = sum("$" in t for t, _ in b)
             return f"group B: {n} dollar badges ($100+), {len(b) - n} percent; group A: all percent"
         check("Test 'r100': dollars off at $100+ for group B")(r100_test, page)
+
+        def layout_test():   # Oct 18, A/B test 'layout': group B has search on top and the swipe rows as small tiles
+            def at(group):
+                page.goto(base + f"?exp=layout:{group},drops:B", wait_until="domcontentloaded")
+                page.wait_for_selector("section.grp .deal", timeout=20000)
+                return page.evaluate("""() => {const y = s => {const e = document.querySelector(s); return e ? e.getBoundingClientRect().top : null};
+                    return {search: y('.searchrow'), row: y('#newBox section.grp'), tiles: document.querySelectorAll('#newBox .tw').length,
+                            cards: document.querySelectorAll('#newBox .dw:not(.tw)').length}}""")
+            b, a = at("B"), at("A")
+            page.evaluate("() => localStorage.removeItem('gf-exp')")
+            page.goto(base, wait_until="domcontentloaded")
+            page.wait_for_selector("section.grp .deal", timeout=20000)
+            assert a["tiles"] == 0, "group A shows tiles"
+            if b["row"] is None:
+                return "no swipe row today (nothing dropped / new in men's 11 / M); group A: no tiles"
+            assert b["tiles"] and not b["cards"], f"group B row: {b['tiles']} tiles, {b['cards']} full cards"
+            assert b["search"] < b["row"], "group B: search is not above the row"
+            return f"group B: {b['tiles']} tiles, search on top; group A: full cards"
+        check("Test 'layout': search on top, tiles in the row for group B")(layout_test, page)
 
         def small_phone():   # Oct 11: at 320px "$100.00 CAD $229.99" made the page 24px too wide (bottom bars cut off)
             page.set_viewport_size({"width": 320, "height": 700})

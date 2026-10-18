@@ -219,6 +219,25 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
 .newrow .grp.new .deal{background:var(--mist)}
 .seeall{flex:0 0 42%;max-width:190px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:transparent;border:1.5px dashed var(--moss);border-radius:12px;color:var(--moss);font:800 22px/1.1 var(--display);cursor:pointer;scroll-snap-align:start;text-align:center;padding:12px;min-height:120px}
 .seeall small{font:500 14px var(--body);color:var(--muted)}
+/* Test 'layout' B: search on top, swipe rows as small tiles (photo, discount, price, heart; one line of name) */
+.lay-b #filtersBox .searchrow{order:-1;margin:0 0 8px}
+.lay-b #newBox{margin-top:16px}
+.lay-b .grp.new .dw.tw{flex:0 0 30%;max-width:160px}
+@media(min-width:560px){.lay-b .grp.new .dw.tw{flex-basis:21%}}
+.lay-b .grp.new .grid{gap:10px}
+.newrow .grp.new .deal.tile{display:block;background:transparent;border:0;padding:0 0 6px;box-shadow:none;border-radius:0;min-width:0}
+.tpic{position:relative;aspect-ratio:1;border-radius:12px;background:#fff;border:1px solid var(--line);overflow:hidden;display:flex;align-items:center;justify-content:center}
+.tpic img{width:100%;height:100%;object-fit:contain}
+.tpic img+.tnoimg{display:none}
+.tnoimg{font:700 13px/1.2 var(--body);color:var(--muted);padding:8px;text-align:center}
+.tpic .pct{position:absolute;left:6px;top:6px;font-size:12px;padding:3px 6px}
+.deal.tile .price{display:flex;align-items:baseline;gap:0 5px;flex-wrap:wrap;margin:6px 0 1px}
+.compact .deal.tile .price b,.deal.tile .price b{font-size:15px;line-height:1.1}.deal.tile .price s{font-size:11px}
+.lay-b .grp.new h2{font-size:19px}
+.tname{font:500 12px/1.3 var(--body);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tw{container-type:inline-size}
+.tw .heart{right:6px;bottom:auto;top:calc(100cqw - 38px);min-width:32px;width:32px;height:32px;padding:0;border-radius:50%}
+.tw .heart .hl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .grp h2 .swipe{margin-left:auto;font:600 14px var(--body);color:var(--muted)}
 .grp h2 .linkbtn{margin-left:auto;font:600 14px var(--body);color:var(--moss);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer;min-height:32px}
 @media(min-width:900px){.grp h2 .swipe{display:none}}
@@ -625,7 +644,7 @@ const ANA=(()=>{const ls=k=>{try{return localStorage.getItem(k)}catch(e){return 
   let over={};try{const q=new URLSearchParams(location.search).get("exp");over=JSON.parse(ls("gf-exp")||"{}");
     if(q){q.split(",").forEach(x=>{const [n,a]=x.split(":");if(n&&/^[AB]$/.test(a))over[n]=a});localStorage.setItem("gf-exp",JSON.stringify(over))}}catch(e){}
   const arm=n=>{if(over[n])return over[n];let h=2166136261;for(const c of did+"|"+n){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return (h>>>0)%2?"B":"A"};
-  const TESTS=["drops","welcome","r100"];
+  const TESTS=["drops","welcome","r100","layout"];
   if(fresh){TESTS.forEach(n=>add("signup-step",`exp|${n}|${arm(n)}`))}
   if(fresh)add("visit",em?"email-"+em:(matchMedia("(display-mode: standalone)").matches||navigator.standalone)?"home-screen app":document.referrer?new URL(document.referrer).hostname:"",null,location.pathname);
   return {add,nv:()=>nv,arm}})();
@@ -1025,6 +1044,9 @@ let BROWSE=!!LS.get("gf-browse")||(()=>{try{return !!new URLSearchParams(locatio
 /* Test "welcome" (Oct 18; 30 days: 1 in 3 homepage first visits saw the welcome screen and left in a median 9 s without a
    deal): group B skips it on a first visit and lands on the deals in every size, with the "Pick your size" bar stuck on top. */
 const WELCOME_B=ANA.arm("welcome")==="B"&&!LS.get("rd-profile")&&!LS.get("gf-peek")&&!LS.get("gf-sub");
+// Test 'layout' B: search + categories first, then the swipe row as small tiles (tile())
+const LAYOUT_B=ANA.arm("layout")==="B";
+if(LAYOUT_B){document.body.classList.add("lay-b");$("filtersBox").after($("newBox"))}
 if(WELCOME_B&&!BROWSE){BROWSE=true;LS.set("gf-browse",1)}
 {const tbh=()=>{const tb=document.querySelector(".topbar");if(tb)document.documentElement.style.setProperty("--tbh",tb.offsetHeight+"px")};addEventListener("load",tbh);addEventListener("resize",tbh)}
 const peeking=()=>gated()&&FLOW==="D"&&((PEEK&&hasSizes())||BROWSE);
@@ -1461,11 +1483,21 @@ function card(d,extra){
     ${storeLine(d)}
   </a>${sp?`<a class="cmp" href="${shoeUrl(sp.slug)}" data-sp="card">${t("cmpLink")}</a>`:""}<button type="button" class="rep" data-rep="${esc(k)}">${t("report")}</button>${heartBtn(k,on,d)}</div>`;
 }
+/* Test 'layout' (Oct 18, Bastien: the top row is "a big row of stuff ... just the picture with price, discount, heart"):
+   group B's swipe rows (new since your last visit, dropped today) are small tiles, 3 on a phone screen instead of 1 card */
+function tile(d){
+  const k=itemKey(d),on=!!watches[k];RENDERED[k]=d;
+  const short=nm(d.n).replace(/ - (Men's|Women's|Unisex|Homme|Femme|Unisexe)$/,"");
+  return `<div class="dw tw"><a class="deal tile" href="${esc(affUrl(d.url))}" data-store="${esc(storeOf(d.url))}" target="_blank" rel="noopener" title="${esc(d.b+" "+nm(d.n))}">
+    <div class="tpic">${d.img?`<img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:""}<span class="tnoimg">${esc(d.b)}</span>${d.pct?`<span class="pct">${offTag(d)}</span>`:""}</div>
+    <div class="price"><b>${money(d.best)}</b>${d.pct?`<s>${money(d.reg)}</s>`:""}</div>
+    <div class="tname">${esc(d.b)} ${esc(short)}</div></a>${heartBtn(k,on,d)}</div>`;
+}
 function section(key,title,list,cls){
   if(!list.length&&!(TYPES[key]&&view.type[key]))return "";   // keep the type buttons when a type has nothing
   if((key==="__new"&&NEWSTYLE==="row"&&!view.newAll)||key==="__drops"){       // one swipeable row, then "See all" as a list
     const n=list.length,row=list.slice(0,24),dr=key==="__drops";
-    return `<section class="grp ${cls||""}" id="grp-${key}"><h2>${title} <small>${num(n)}</small>${n>1?`<span class="swipe" aria-hidden="true">${t("swipe")}</span>`:""}</h2><div class="grid">${row.map((d,i)=>card(d,dr&&i===0&&n>1?`<span class="badge fox">🦊 ${t("dropTop")}</span>`:"")).join("")}
+    return `<section class="grp ${cls||""}" id="grp-${key}"><h2>${title} <small>${num(n)}</small>${n>1?`<span class="swipe" aria-hidden="true">${t("swipe")}</span>`:""}</h2><div class="grid">${row.map((d,i)=>LAYOUT_B?tile(d):card(d,dr&&i===0&&n>1?`<span class="badge fox">🦊 ${t("dropTop")}</span>`:"")).join("")}
       ${n>1&&!dr?`<button type="button" class="seeall" data-newall>${t("seeAll",num(n))}<small>${t("asList")}</small></button>`:""}</div>
       ${n>1?`<button type="button" class="rowarrow prev" data-row="-1" aria-label="${LANG==="fr"?"Précédent":"Previous"}">‹</button><button type="button" class="rowarrow next" data-row="1" aria-label="${LANG==="fr"?"Suivant":"Next"}">›</button>`:""}</section>`;
   }

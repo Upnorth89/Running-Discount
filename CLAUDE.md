@@ -196,7 +196,10 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   Live tests (Oct 18): 'drops' (B: "Dropped today in your size" row), 'welcome' (B: no welcome screen, every size + sticky
   "Pick your size" bar), 'r100' (Rule of 100, Berger: B's card badge = "−$66" when the regular price is $100+ in the shown
   currency, "−30%" below; homepage cards + welcome deals only, `offTag()`; metric = homepage visitors who click a deal, baseline 30%
-  of first visits, ~1,000 per group, decide ~Nov 1). Site tests check each one. Correlations from the "RETENTION DRIVERS" lines are leads, never proof
+  of first visits, ~1,000 per group, decide ~Nov 1)., 'layout' (Oct 18, Bastien: the top row was "a big row of stuff":
+  B = search + Filters right under the sizes line, categories under it, then the swipe rows as small tiles `tile()`: photo, discount,
+  price, heart, one line of name (Baymard: names tell items apart); metric = homepage visitors who search or click a deal, decide
+  ~Nov 1). Parked: test 'card' (cleaner deal cards, ⋯ menu; commit 629e4d1, backlog). Site tests check each one. Correlations from the "RETENTION DRIVERS" lines are leads, never proof
   (Oct 17: "watchers come back 33%" was 9 devices).
 - **Own the design and product calls (Bastien, Oct 17: "You're supposed to optimize this to make it look the best and cleanest...
   We're supposed to be a team, not me just telling you what to do").** Decide clutter, wording, what stays on a card, what's
