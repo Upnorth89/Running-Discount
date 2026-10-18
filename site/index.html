@@ -1928,9 +1928,12 @@ function renderAll(){
   if(q.length){const hint=searchHelp(q,p,all.length,fold);if(hint)parts.unshift(hint)}
   else if(!view.store&&!cdn){const sb=sinceBar(all);if(sb)parts.unshift(sb)}
   const body=parts.filter(Boolean);
-  if(QLAND&&view.q){const i=body.findIndex(x=>x.includes('class="grp'));body.splice(i<0?body.length:i+1,0,signupHTML())}else
-  body.splice(Math.min(1+(view.store?1:0)+(cdn?1:0)+(!hasSizes()&&!view.store&&ANA.arm("welcome")!=="B"?1:0),body.length),0,signupHTML());   // after the first block of deals (a note on top doesn't count)   // the email card sits right after the first block of deals
-  $("dealList").innerHTML=body.join("")||`<div class="empty">${t("nothing")}</div>`;
+  // the email card sits right after the first block of deals (notes on top don't count). Oct 18 (spy-shopper pass): a search
+  // with no results showed only the sign-up card and no "Nothing matches" (non-members), and a store search put the card above
+  // the results; now: no deals = the message and no card, and the card always comes after the first block of deals
+  const firstGrp=body.findIndex(x=>x.includes('class="grp'));
+  if(firstGrp<0)body.push(`<div class="empty">${t("nothing")}</div>`);else body.splice(firstGrp+1,0,signupHTML());
+  $("dealList").innerHTML=body.join("");
   bindSignup();
   $("dealsFoot").textContent=(hasSizes()?"":t("addSizes"))+(CALM&&DATA.updated?t("updated",ago(DATA.updated)):"")+t("pricesChange");
   $("shareCard").classList.remove("hidden");$("shareTxt").textContent=t("shareTxt");$("shareBtn").textContent=t("shareBtn");

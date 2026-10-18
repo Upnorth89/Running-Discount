@@ -594,6 +594,26 @@ def site_flow(base, per, accented):
             return f"'peg' -> {', '.join(sug[:3])}…"
         check("Test 'runcard': 'What do you run in?' suggests shoes as you type")(runcard_test, page)
 
+        def nonmember_search():   # Oct 18: a visitor who never tapped "No thanks" searched "lululemon" and saw only the sign-up card
+            prev = page.evaluate("() => localStorage.getItem('gf-nosignup')")
+            page.evaluate("() => localStorage.removeItem('gf-nosignup')")
+            page.goto(base, wait_until="domcontentloaded")
+            page.wait_for_selector("section.grp .deal", timeout=20000)
+            out = {}
+            for q in ("zzqxv", "running"):
+                page.fill("#dSearch", q)
+                page.wait_for_timeout(1500)
+                out[q] = page.evaluate("""() => {const kids = [...document.querySelectorAll('#dealList > *')];
+                    const card = kids.findIndex(x => x.classList.contains('signup')), grp = kids.findIndex(x => x.matches('section.grp'));
+                    return {empty: !!document.querySelector('#dealList .empty'), card, grp}}""")
+            page.fill("#dSearch", "")
+            page.evaluate("p => p === null ? localStorage.removeItem('gf-nosignup') : localStorage.setItem('gf-nosignup', p)", prev)
+            assert out["zzqxv"]["empty"] and out["zzqxv"]["card"] < 0, f"no-result search: {out['zzqxv']}"
+            r = out["running"]
+            assert r["card"] < 0 or (r["grp"] >= 0 and r["card"] > r["grp"]), f"sign-up card above the results: {r}"
+            return "no results -> 'Nothing matches' and no card; with results the card comes after the first deals"
+        check("Search as a non-member: message when nothing matches, card after the deals")(nonmember_search, page)
+
         def small_phone():   # Oct 11: at 320px "$100.00 CAD $229.99" made the page 24px too wide (bottom bars cut off)
             page.set_viewport_size({"width": 320, "height": 700})
             settle(page, 500)
