@@ -198,6 +198,10 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   We're supposed to be a team, not me just telling you what to do").** Decide clutter, wording, what stays on a card, what's
   in or out of a batch, and which idea the data really backs; show him one finished, clean version with the reasons in a few lines.
   Ask him only for real business choices (spend, rules he set, what ships). Don't send options to pick from when one is clearly best.
+  **Talk first on anything visible (Oct 18, after I shipped a new top line unasked: "Remember we're a team. Don't just do things
+  without talking to me first. I want us to have conversations around changes").** Bring the idea + my pick + why in a few lines,
+  agree, then build it in the preview, then ship on his OK. Ship without asking only what's clearly broken (wrong price, duplicate
+  cards, crashes, sorting bugs).
 - **Check my own work before sending anything (Bastien, Oct 17: "I shouldn't have to review everything. My time is adding up").**
   Videos/graphics: look at frames from start, middle, end (text centered in its box, nothing cut by the bands, no overlap), every
   number from today's data (store count = n_stores in sale.json, 143 on Oct 17, "140+"), no over-explaining (people know CA = CAD).
