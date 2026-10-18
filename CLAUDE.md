@@ -192,7 +192,11 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   (a coin per device and test, same group every visit; "exp|<test>|A/B" logged once per session; ?exp=<test>:B forces a group for
   previews/checks). Before it ships, write in the plan doc: the one metric, the baseline, the sample needed (two-proportion power
   calc, 80% power, 5% level) and the stop date. funnel.yml's "EXPERIMENT" lines give A vs B with p-values: keep B only at p < 0.05,
-  else remove it. Bugs/trust fixes don't need a test. Correlations from the "RETENTION DRIVERS" lines are leads, never proof
+  else remove it. Bugs/trust fixes don't need a test.
+  Live tests (Oct 18): 'drops' (B: "Dropped today in your size" row), 'welcome' (B: no welcome screen, every size + sticky
+  "Pick your size" bar), 'r100' (Rule of 100, Berger: B's card badge = "−$66" when the regular price is $100+ in the shown
+  currency, "−30%" below; homepage cards + welcome deals only, `offTag()`; metric = homepage visitors who click a deal, baseline 30%
+  of first visits, ~1,000 per group, decide ~Nov 1). Site tests check each one. Correlations from the "RETENTION DRIVERS" lines are leads, never proof
   (Oct 17: "watchers come back 33%" was 9 devices).
 - **Own the design and product calls (Bastien, Oct 17: "You're supposed to optimize this to make it look the best and cleanest...
   We're supposed to be a team, not me just telling you what to do").** Decide clutter, wording, what stays on a card, what's
@@ -522,7 +526,8 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   photo floats beside the text from 820px. Phones/tablets unchanged.
 - Phones: compact cards (photo beside the text); categories start with 4 deals and skip ones already in Top deals.
   No automatic Google pop-up (the Google button is in sign-up step 2 and Sign in).
-- Returning: calm top (sizes line + Edit, one count line with the 30-day "found this month" savings,
+- Returning: calm top (sizes line + Edit, one short line "N deals in your size today" (Oct 18; Bastien: the "found this month"
+  tally looked random, then "it feels like a lot of information"; "Updated N h ago" sits in #dealsFoot at the bottom),
   watchlist strip, swipe row of new deals), categories, search + Filters (Ships from Canada, Include full
   price, Sort). Sale items only by default.
 - EN headline "Your size. On sale. Every day."; FR « Des aubaines sur mesure. »

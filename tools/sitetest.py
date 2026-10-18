@@ -516,6 +516,23 @@ def site_flow(base, per, accented):
             return "group B: no row (nothing in men's 11 / M dropped today); group A: hidden"
         check("Test 'drops': row only for group B")(drops_test, page)
 
+        def r100_test():   # Oct 18, A/B test 'r100' (Rule of 100): group B's badge is "−$X" when the regular price is $100+, "−N%" below
+            def at(group):
+                page.goto(base + f"?exp=r100:{group}", wait_until="domcontentloaded")
+                page.wait_for_selector("section.grp .deal", timeout=20000)
+                return page.eval_on_selector_all("section.grp .deal", """e => e.filter(x => x.querySelector('.pct') && x.querySelector('.price s'))
+                    .map(x => [x.querySelector('.pct').textContent, parseFloat(x.querySelector('.price s').textContent.replace(/[^0-9.,]/g, '').replace(',', '.'))])""")
+            b, a = at("B"), at("A")
+            page.evaluate("() => localStorage.removeItem('gf-exp')")
+            page.goto(base, wait_until="domcontentloaded")
+            page.wait_for_selector("section.grp .deal", timeout=20000)
+            assert a and all(t.endswith("%") for t, _ in a), "group A shows a dollar badge"
+            bad = [f"{t} on ${r}" for t, r in b if ("$" in t) != (r >= 100)]
+            assert b and not bad, f"group B: {bad[:3]}"
+            n = sum("$" in t for t, _ in b)
+            return f"group B: {n} dollar badges ($100+), {len(b) - n} percent; group A: all percent"
+        check("Test 'r100': dollars off at $100+ for group B")(r100_test, page)
+
         def small_phone():   # Oct 11: at 320px "$100.00 CAD $229.99" made the page 24px too wide (bottom bars cut off)
             page.set_viewport_size({"width": 320, "height": 700})
             settle(page, 500)

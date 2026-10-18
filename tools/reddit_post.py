@@ -99,6 +99,12 @@ def cdn_brands():
 # Oct 17 (Bastien, r/runTO: "Put best deals around Toronto"): stores with shops in Toronto / the GTA
 TORONTO = ["runningfree.com", "runningroom.com", "blacktoerunning.com", "sportinglife.ca", "mec.ca", "sportchek.ca",
            "decathlon.ca", "footlocker.ca", "arcteryx.com"]
+# Oct 18 (Bastien: Montréal and Vancouver running subs): chains / shops with stores in each city
+CITIES = {"toronto": TORONTO,
+          "montreal": ["runningroom.com", "sportsexperts.ca", "svpsports.ca", "mec.ca", "sportchek.ca", "decathlon.ca",
+                       "footlocker.ca", "arcteryx.com"],
+          "vancouver": ["vanrunco.com", "shop.forerunners.ca", "racketsandrunners.ca", "runningroom.com", "mec.ca",
+                        "sportchek.ca", "footlocker.ca", "arcteryx.com"]}
 
 
 def store_names():
@@ -301,12 +307,15 @@ def main():
     ap.add_argument("--exclude", default="", help="comma-separated words: skip items whose brand+model contains any (items posted there recently)")
     ap.add_argument("--html", help="also write a copy page here (names as links, 'Copy post' button keeps them clickable)")
     ap.add_argument("--toronto", action="store_true", help="only deals at stores with Toronto shops (r/runTO), store named on each line")
+    ap.add_argument("--city", choices=sorted(CITIES), help="only deals at stores with shops in that city, store named on each line")
     a = ap.parse_args()
+    if a.toronto:
+        a.city = "toronto"
     sides = ["ca", "us"] if a.side == "both" else [a.side]
     n = (4, 6) if a.canadian else (6, 4)
     n = (n[0] if a.shoes is None else a.shoes, n[1] if a.gear is None else a.gear)
     picks = {s: side_picks(s, a.ref, n[0], n[1], log=lambda m: print(m, file=sys.stderr), kind=a.kind, sex=a.sex, under=a.under,
-                           canadian=a.canadian, direct=a.direct, stores=TORONTO if a.toronto else None,
+                           canadian=a.canadian, direct=a.direct, stores=CITIES[a.city] if a.city else None,
                            exclude=[fold(x.strip()) for x in a.exclude.split(",") if x.strip()]) for s in sides}
     global FOOT
     if a.direct:

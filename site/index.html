@@ -625,7 +625,7 @@ const ANA=(()=>{const ls=k=>{try{return localStorage.getItem(k)}catch(e){return 
   let over={};try{const q=new URLSearchParams(location.search).get("exp");over=JSON.parse(ls("gf-exp")||"{}");
     if(q){q.split(",").forEach(x=>{const [n,a]=x.split(":");if(n&&/^[AB]$/.test(a))over[n]=a});localStorage.setItem("gf-exp",JSON.stringify(over))}}catch(e){}
   const arm=n=>{if(over[n])return over[n];let h=2166136261;for(const c of did+"|"+n){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return (h>>>0)%2?"B":"A"};
-  const TESTS=["drops","welcome"];
+  const TESTS=["drops","welcome","r100"];
   if(fresh){TESTS.forEach(n=>add("signup-step",`exp|${n}|${arm(n)}`))}
   if(fresh)add("visit",em?"email-"+em:(matchMedia("(display-mode: standalone)").matches||navigator.standalone)?"home-screen app":document.referrer?new URL(document.referrer).hostname:"",null,location.pathname);
   return {add,nv:()=>nv,arm}})();
@@ -732,7 +732,7 @@ en:{
   watchEmpty:"Tap the ♡ on any deal to watch it. We'll email you when it drops in price or comes back in your size.",
   pricesChange:"Prices and stock change every day. The store's page has the final price.",
   newSince:n=>`<b>${n}</b> new since your last visit`,show:"Show",
-  filters:"Filters",ledeShort:(s,u,d)=>`${s} deals in your size today${d?` · <b class="saved">${d} dropped since yesterday</b>`:""}${u?` · updated ${u}`:""}`,ledeAll:(s,u,d)=>`${s} deals today${d?` · <b class="saved">${d} dropped since yesterday</b>`:""}${u?` · updated ${u}`:""}`,
+  filters:"Filters",ledeShort:s=>`${s} deals in your size today`,ledeAll:s=>`${s} deals today`,updated:u=>`Updated ${u}. `,
   watchShort:(d,b)=>"<b>Watchlist:</b> "+[d?`${d} price ${PL(d,"drop","drops")}`:"",b?`${b} back in your size`:""].filter(Boolean).join(" · "),see:"See",
   swipe:"Swipe →",seeAll:n=>`See all ${n}`,asList:"as a list",asRow:"Show as a row",
   offTally:(m,n)=>`<b>${m}</b> off in the ${n} ${PL(n,"deal","deals")} you've opened`,
@@ -832,7 +832,7 @@ fr:{
   watchEmpty:"Touchez le ♡ sur une aubaine pour l'ajouter à vos favoris. On vous écrit quand le prix baisse ou quand votre taille revient.",
   pricesChange:"Les prix et les stocks changent tous les jours. Le prix final est sur la page de la boutique.",
   newSince:n=>`<b>${n}</b> ${PL(n,"nouveauté","nouveautés")} depuis votre dernière visite`,show:"Voir",
-  filters:"Filtres",ledeShort:(s,u,d)=>`${s} aubaines à votre taille aujourd'hui${d?` · <b class="saved">${d} en baisse depuis hier</b>`:""}${u?` · mis à jour ${u}`:""}`,ledeAll:(s,u,d)=>`${s} aubaines aujourd'hui${d?` · <b class="saved">${d} en baisse depuis hier</b>`:""}${u?` · mis à jour ${u}`:""}`,
+  filters:"Filtres",ledeShort:s=>`${s} aubaines à votre taille aujourd'hui`,ledeAll:s=>`${s} aubaines aujourd'hui`,updated:u=>`Mis à jour ${u}. `,
   watchShort:(d,b)=>"<b>Favoris :</b> "+[d?`${d} ${PL(d,"baisse de prix","baisses de prix")}`:"",b?`${b} de retour dans votre taille`:""].filter(Boolean).join(" · "),see:"Voir",
   swipe:"Glissez →",seeAll:n=>`Voir les ${n}`,asList:"en liste",asRow:"Afficher en rangée",
   offTally:(m,n)=>`<b>${m}</b> de rabais sur ${PL(n,"l'aubaine que vous avez ouverte",`les ${n} aubaines que vous avez ouvertes`)}`,
@@ -1082,7 +1082,7 @@ function renderWelcome(){
       ["daily","trail","race"].includes(d.t)&&!SPIKE.test(d.n)&&runs(d)>=6).sort((a,b)=>(!a.img-!b.img)||b.pct-a.pct)){   // with a photo first
     if(seen.has(d.b.toLowerCase())||picks.some(x=>x.t===d.t))continue;seen.add(d.b.toLowerCase());picks.push(d);if(picks.length===3)break}
   picks.sort((a,b)=>["daily","trail","race"].indexOf(a.t)-["daily","trail","race"].indexOf(b.t));
-  $("wDeals").innerHTML=picks.map(d=>`<button type="button" class="wdeal">${d.img?`<img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:""}<span class="wn"><b>${esc(d.b)}</b>${esc(nm(d.n))}</span><span class="wp"><span class="pct">−${d.pct}%</span>${money(d.price)} <small class="cur">${CUR}</small><s>${money(d.reg)}</s></span></button>`).join("");
+  $("wDeals").innerHTML=picks.map(d=>`<button type="button" class="wdeal">${d.img?`<img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:""}<span class="wn"><b>${esc(d.b)}</b>${esc(nm(d.n))}</span><span class="wp"><span class="pct">${offTag({...d,best:d.price})}</span>${money(d.price)} <small class="cur">${CUR}</small><s>${money(d.reg)}</s></span></button>`).join("");
   $("wDeals").querySelectorAll(".wdeal").forEach(b=>b.addEventListener("click",()=>$("saveSizes").click()));
 }
 let lastFocus=null;
@@ -1345,6 +1345,12 @@ function money(v){
   return LANG==="fr"?n.replace(".",",")+"\u00a0$":"$"+n;
 }
 const curTag=()=>`<span class="cur">${CUR}</span>`;
+/* Test 'r100' (Oct 18, the "Rule of 100", Berger: over $100 a dollar amount feels bigger, under $100 the percent does): group B's
+   badge shows "−$66" on items whose regular price is $100+ in the shown currency, "−30%" below; group A always the percent. */
+function offTag(d){const reg=CUR==="USD"?d.reg/usdRate():d.reg;
+  if(ANA.arm("r100")!=="B"||reg<100)return `−${d.pct}%`;
+  const off=Math.floor((CUR==="USD"?(d.reg-d.best)/usdRate():d.reg-d.best)+1e-6);
+  return LANG==="fr"?`−${off}\u00a0$`:`−$${off}`}
 
 /* Shoe sizes come standardised from the refresh: "10", "M:10" / "W:11" (men's / women's from unisex labels),
    "~W" wide, "~N" narrow. */
@@ -1445,7 +1451,7 @@ function card(d,extra){
   const sp=shoePage(d);
   return `<div class="dw${sp?" hascmp":""}"><a class="deal" href="${esc(affUrl(d.url))}" data-store="${esc(storeOf(d.url))}" target="_blank" rel="noopener">
     ${d.img?`<div class="pic"><img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode&&this.parentNode.remove()">${lowDays(d)?`<span class="lostamp" aria-hidden="true"><span>${t("lowL1")}</span><span>${t("lowStampDays",lowDays(d))}</span></span>`:""}</div>`:""}
-    <div class="top"><span class="brand">${esc(d.b)}${d.fav?" ★":""}${cdnBrand(d)?`&nbsp;<span class="leaf" title="${t("cdnTip")}" aria-label="${t("cdnTip")}">🍁</span>`:""}</span>${d.pct?`<span class="pct">−${d.pct}%</span>`:""}</div>
+    <div class="top"><span class="brand">${esc(d.b)}${d.fav?" ★":""}${cdnBrand(d)?`&nbsp;<span class="leaf" title="${t("cdnTip")}" aria-label="${t("cdnTip")}">🍁</span>`:""}</span>${d.pct?`<span class="pct">${offTag(d)}</span>`:""}</div>
     <div class="name">${esc(nm(d.n))}</div>
     <div class="price"><b>${money(d.best)}</b>${curTag()}${d.pct?`<s>${money(d.reg)}</s>`:""}</div>
     ${lowDays(d)?`<span class="badge lo30" title="${esc(t("lowDaysTip"))}" aria-label="${esc(t("lowDays",lowDays(d)))}"><span class="l1">${t("lowL1")}</span> <span class="l2">${t("lowL2",lowDays(d))}</span></span>`:""}
@@ -1795,9 +1801,10 @@ function sinceBar(all){const base=LS.get("gf-base");if(!base||!base.at)return ""
 /* Calm top: "421 deals in your size today · 21 dropped since yesterday · updated 3 h ago". Oct 18 (Bastien: the "$150 off found
    this month" tally "seems like a random number": it added up the discounts of every deal opened, bought or not): a real,
    daily-changing number instead. The drops count goes with test "drops" (group B), so group A sees the plain line. */
-let saleNow=0,dropsNow=0;
+let saleNow=0;
+// Oct 18 (Bastien: "it feels like a lot of information"): one short line; the "Dropped today" row right under it speaks for itself, "updated" sits at the bottom
 function setCalmLede(){if(!DATA||(gated()&&!peeking())||view.watch)return;
-  $("lede").innerHTML=t(hasSizes()?"ledeShort":"ledeAll",num(saleNow),DATA.updated?ago(DATA.updated):"",ANA.arm("drops")==="B"&&dropsNow?num(dropsNow):"")}
+  $("lede").textContent=t(hasSizes()?"ledeShort":"ledeAll",num(saleNow))}
 function renderStats(){
   if(CALM){$("tally").classList.add("hidden");$("stats").classList.add("hidden");setCalmLede();return}
   const el=$("stats");const parts=[];
@@ -1847,7 +1854,7 @@ function renderAll(){
   if(q.length){all=all.filter(hit);if(!all.length&&!ORDER.every(g=>p.groups.includes(g))){all=matchItems({...p,groups:ORDER}).filter(d=>hit(d)&&(!cdn||cdnBrand(d)));wide=all.length>0}}
   const onSale=all.filter(d=>d.pct>0);
   const where=state.ships==="all"?t("storesAll"):t("storesCA");
-  saleNow=onSale.length;dropsNow=onSale.filter(d=>d.dp&&d.best<d.dp-0.5).length;
+  saleNow=onSale.length;
   if(CALM)setCalmLede();
   else $("lede").textContent=t("lede",num(onSale.length),num(all.length),where,DATA.updated?ago(DATA.updated):"");
   computeNew(onSale);renderStats();renderWatchButton();
@@ -1884,7 +1891,7 @@ function renderAll(){
   body.splice(Math.min(1+(view.store?1:0)+(cdn?1:0)+(!hasSizes()&&!view.store&&ANA.arm("welcome")!=="B"?1:0),body.length),0,signupHTML());   // after the first block of deals (a note on top doesn't count)   // the email card sits right after the first block of deals
   $("dealList").innerHTML=body.join("")||`<div class="empty">${t("nothing")}</div>`;
   bindSignup();
-  $("dealsFoot").textContent=(hasSizes()?"":t("addSizes"))+t("pricesChange");
+  $("dealsFoot").textContent=(hasSizes()?"":t("addSizes"))+(CALM&&DATA.updated?t("updated",ago(DATA.updated)):"")+t("pricesChange");
   $("shareCard").classList.remove("hidden");$("shareTxt").textContent=t("shareTxt");$("shareBtn").textContent=t("shareBtn");
 }
 
