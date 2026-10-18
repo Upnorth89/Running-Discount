@@ -417,6 +417,7 @@ def site_flow(base, per, accented):
             page.locator("section.grp .heart").first.click()
             page.wait_for_selector("#sheet", state="visible")
             assert page.locator("#gateEmail").is_visible(), "a heart didn't ask for the email"
+            assert not page.locator("#toast").is_visible(), "a message sits on top of the email sheet"   # Oct 18 spy-shopper pass
             page.click("#closeSheet")
             page.wait_for_selector("#sheet", state="hidden")
         check("Heart asks for the email")(heart, page)
@@ -730,6 +731,23 @@ def site_flow(base, per, accented):
             assert not bad, "'Email me when it drops' points to an email box the page doesn't have"
             return f"{n} of {len(pages_)} shoe pages show a price-history line"
         check("Shoe page price history line")(price_watch, page)
+
+        def shoe_cut_first():   # Oct 18 (spy-shopper pass): a women's visitor had to scroll past the Men's table
+            reg = site_json("shoes/pages.json") or {}
+            slug = next((k for k in list(reg)[:200] if 'class="gt" data-g="women"' in (site_get(f"shoes/{k}/") or "")
+                         and 'class="gt" data-g="men"' in (site_get(f"shoes/{k}/") or "")), None)
+            if not slug:
+                return "no shoe page with both men's and women's tables (skipped)"
+            prev = page.evaluate("() => localStorage.getItem('rd-profile')")
+            page.evaluate("() => localStorage.setItem('rd-profile', JSON.stringify({gender:'women',sizes:{shoes:{sizes:['8']}},groups:['shoes']}))")
+            page.goto(base + f"shoes/{slug}/", wait_until="domcontentloaded")
+            first = page.evaluate("() => [...document.querySelectorAll('.gt')].sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top)[0].dataset.g")
+            page.evaluate("p => p === null ? localStorage.removeItem('rd-profile') : localStorage.setItem('rd-profile', p)", prev)
+            page.goto(base, wait_until="domcontentloaded")
+            page.wait_for_selector("section.grp .deal", timeout=20000)
+            assert first == "women", f"{slug}: a women's visitor sees the {first} table first"
+            return f"{slug}: women's table first for a women's visitor"
+        check("Shoe page: your own cut's table first")(shoe_cut_first, page)
 
         def inside_links():
             seen, bad = set(), []

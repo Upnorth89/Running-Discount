@@ -401,6 +401,7 @@ td.p s{color:var(--muted);font-size:13px;margin-left:4px}
 .off{display:inline-block;background:var(--hivis);color:var(--hivis-ink);border-radius:5px;font:700 12px var(--body);padding:1px 5px;margin-left:6px}
 .us{display:block;font-size:12px;color:var(--muted)}
 .fin{display:block;font-size:12px;font-weight:600;color:var(--ink)}
+.gts{display:flex;flex-direction:column}
 .th2{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
 .watch{font:600 14px var(--body);color:var(--moss);white-space:nowrap}
 tr.yours td{background:rgba(242,106,27,.14)}
@@ -556,6 +557,10 @@ var ana=(function(){{var ls=function(k){{try{{return localStorage.getItem(k)}}ca
   return add}})();
 (function(){{var p,box=document.getElementById("mine");if(!box)return;
 try{{p=JSON.parse(localStorage.getItem("rd-profile")||"null")}}catch(e){{}}
+/* Oct 18 (spy-shopper pass): a women's visitor had to scroll past the whole Men's table; her cut goes first (CSS order only,
+   so the tables keep their place in the page and their numbers for the size picker) */
+var gq=(p&&p.gender)||"";if(!gq){{try{{gq=(JSON.parse(localStorage.getItem("gf-shoe-size")||"null")||{{}}).g||""}}catch(e){{}}}}
+if(gq==="women")document.querySelectorAll('.gt[data-g="women"]').forEach(function(x){{x.style.order="-1"}});
 var clean=function(s){{return s.replace(/\s*\(.*\)$/,"")}};
 /* highlight the rows that fit and say where the size is cheapest; ok(table, row size) decides what fits */
 function mark(ok){{var best=null;document.querySelectorAll("tr.yours").forEach(function(r){{r.classList.remove("yours");r.removeAttribute("id")}});
@@ -927,11 +932,15 @@ def price_chart(its, L, updated, prefix=""):
         elif lo < now * 0.95:                                      # it was cheaper: "don't miss the next one" + the email box
             blocks.append((lab, "was", L["pwWas"].format(low=money(lo), date=short_date(days[lo_i], L), now=money(now))))
     if not blocks:
-        return ""
-    same = len(blocks) > 1 and len({(k, t) for _, k, t in blocks}) == 1   # men's and women's say the same: one line
-    out = [f'<p class="pw {k}">{"" if same else f"<b>{esc(lab)}</b> "}{esc(t)}</p>' for lab, k, t in (blocks[:1] if same else blocks)]
+        return {}, ""
+    # Oct 18 (spy-shopper pass: a women's visitor read the men's price line under the women's table): each version's line goes
+    # under its own table; when men's and women's say the same, one line after all the tables
+    same = len(blocks) > 1 and len({(k, t) for _, k, t in blocks}) == 1
     btn = f'<a class="pwbtn" href="#alertBox">{esc(L["pwBtn"])}</a>' if any(k == "was" for _, k, _ in blocks) else ""
-    return f'<section class="pws">{"".join(out)}{btn}</section>'
+    if same or len(blocks) == 1:
+        lab, k, t = blocks[0]
+        return {}, f'<section class="pws"><p class="pw {k}">{esc(t)}</p>{btn}</section>'
+    return {lab: f'<section class="pws"><p class="pw {k}">{esc(t)}</p>{btn}</section>' for lab, k, t in blocks}, ""
 
 
 def model_page(slug, its, stores, L, updated, related, brand_models, paths=None):
@@ -996,6 +1005,8 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None)
                    f'<form novalidate><input type="email" autocomplete="email" inputmode="email" placeholder="{esc(L["emailPh"])}" aria-label="Email" required>'
                    f'<button type="submit">{L["alertBtn"]}</button></form><p class="msg" aria-live="polite"></p></section>')
     lang_q = L["q"]
+    per_pw, all_pw = price_chart(its, L, updated, "us|" if L.get("dir", "").startswith("us/") else "")
+    out.append('<div class="gts">')      # the visitor's own cut moves first (script below: CSS order, the tables keep their DOM order)
     for lab, rows in merged.items():
         d0 = first[lab]
         sx = d0.get("sx") or []
@@ -1003,7 +1014,7 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None)
         key = f'{d0["b"]}|{d0["n"]}|{d0["g"]}|{1 if d0.get("w") else 0}'.lower()          # the site's itemKey()
         watch = f'<a class="watch" href="/?watch={quote(key)}{lang_q}" rel="nofollow">♡ {L["watch"]}</a>' if d0.get("of") else ""
         rows = sorted({k: v for k, v in rows}.items(), key=lambda kv: size_sort(kv[0]))
-        out.append(f'<div class="th2"><h2>{esc(lab)}</h2>{watch}</div><table data-g="{tg}" data-w="{1 if d0.get("w") else 0}" data-key="{esc(key)}" data-b="{esc(d0["b"])}" data-n="{esc(d0["n"])}"><thead><tr><th>{L["size"]}</th><th>{L["price"]}</th><th>{L["store"]}</th></tr></thead><tbody>')
+        out.append(f'<div class="gt" data-g="{tg}"><div class="th2"><h2>{esc(lab)}</h2>{watch}</div><table data-g="{tg}" data-w="{1 if d0.get("w") else 0}" data-key="{esc(key)}" data-b="{esc(d0["b"])}" data-n="{esc(d0["n"])}"><thead><tr><th>{L["size"]}</th><th>{L["price"]}</th><th>{L["store"]}</th></tr></thead><tbody>')
         for size, (p, reg, h, u, fin) in rows:
             off = round(100 * (1 - p / reg)) if reg and p < reg * 0.99 else 0
             st = stores.get(h, [h])
@@ -1012,8 +1023,8 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None)
             fin = f'<span class="fin">{L["final"]}</span>' if fin else ""
             price = f'<b>{money(p)}</b>' + (f'<s>{money(reg)}</s><span class="off">−{off}%</span>' if off else "")
             out.append(f'<tr data-s="{esc(size)}" data-p="{p:.2f}"><td>{esc(size)}</td><td class="p">{price}</td><td><a href="{esc(u)}" rel="nofollow noopener" target="_blank" data-store="{esc(h)}">{esc(st[0])}</a>{us}{fin}</td></tr>')
-        out.append("</tbody></table>")
-    out.append(price_chart(its, L, updated, "us|" if L.get("dir", "").startswith("us/") else ""))
+        out.append("</tbody></table>" + per_pw.get(lab, "") + "</div>")
+    out.append("</div>" + all_pw)
     if sm:     # a few lines Google (and people) can read: what it is, where it's cheapest, sizes, today's answers
         about = L["about"].format(name=esc(name), type=L["typeLower"].get(sm["t"], L["typeLower"][""]), stores=sm["stores"], sizes=sm["sizes"])
         bsz = sizes_phrase(sm.get("best_sizes") or [], L)

@@ -1689,7 +1689,7 @@ function toggleWatch(k,quiet){     // quiet: the come-back bar asks for the emai
   track("watch-add",{brand:d.b,group:d.g});
   if(sub&&sub.key&&sub.active){rpc("watch_add",{p_token:sub.key,p_key:k,p_meta:watches[k]}).catch(()=>{});
     toast(t("watching"))}
-  else if(!quiet)toast(sub&&sub.pending?t("watchingPending"):t("watchingSignup"));
+  else if(!quiet&&!peeking())toast(sub&&sub.pending?t("watchingPending"):t("watchingSignup"));   // Oct 18: when the email sheet opens it says it; the toast sat on its button
   if(peeking()&&!quiet){step=2;openSheet();$("panel").scrollTop=0}
 }
 async function syncWatches(){

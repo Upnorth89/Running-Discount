@@ -1,0 +1,82 @@
+<title>Gear Fox Mystery Shop</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@700;800&display=swap">
+<style>
+/* Layout: one readable column, findings as stacked rows with a severity chip, Gear Fox brand colours */
+:root{
+  --bg:#EEF1EC; --card:#FFFFFF; --ink:#17201C; --muted:#5C6660; --line:#D5DBD6;
+  --fox:#F26A1B; --moss:#2F6B3A; --bad:#B3261E; --warn:#9A5B00;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif; --body:Barlow,"Helvetica Neue",Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#121815;--card:#1B2420;--ink:#EEF2EF;--muted:#A3ADA7;--line:#2C3430;--fox:#F2792E;--moss:#7FC58E;--bad:#FF8A80;--warn:#F2B35A;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#121815;--card:#1B2420;--ink:#EEF2EF;--muted:#A3ADA7;--line:#2C3430;--fox:#F2792E;--moss:#7FC58E;--bad:#FF8A80;--warn:#F2B35A;color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 var(--body)}
+.wrap{max-width:720px;margin:0 auto;padding-block:28px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1{font:800 40px/1.05 var(--display);margin:0 0 6px;text-wrap:balance}
+h2{font:800 26px/1.1 var(--display);margin:34px 0 10px;text-wrap:balance}
+.lede{color:var(--muted);margin:0 0 6px}
+.how{font-size:14px;color:var(--muted);margin:0}
+ul.list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
+.item{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.head{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.chip{font:700 12px/1 var(--body);letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:5px 9px;border:1.5px solid currentColor;white-space:nowrap}
+.fixed{color:var(--moss)}.high{color:var(--bad)}.med{color:var(--warn)}.low{color:var(--muted)}
+.item h3{font:700 17px/1.3 var(--body);margin:0;flex:1;min-width:0}
+.item p{margin:0}
+.fix{font-size:15px}.fix b{font-weight:700}
+.ok li{margin:4px 0}
+.note{font-size:14px;color:var(--muted);border-left:3px solid var(--fox);padding-left:12px;margin:14px 0 0}
+</style>
+<div class="wrap">
+<h1>Mystery shop: thegearfox.com</h1>
+<p class="lede">Oct 18, evening. I used the live site like a shopper on a phone (390px), a new women's size-8 visitor, then the same person coming back: welcome, sizes, deals, 11 searches, a deal click and the come-back card, hearts, menu, shoe pages, French, the Black Friday and size pages, and a computer screen.</p>
+<p class="how">Ranked by how much each one costs us. Fixed ones are already live or shipping tonight.</p>
+
+<h2>Already fixed tonight</h2>
+<ul class="list">
+<li class="item"><div class="head"><span class="chip fixed">Fixed</span><h3>A search with no results showed no message</h3></div>
+<p>Anyone who hadn't signed up and searched for something we don't carry ("lululemon") saw "0 deals in your size today" and the sign-up pitch, nothing else. The robot missed it because its pretend visitor had already tapped "No thanks".</p>
+<p class="fix"><b>Fix:</b> no results now shows "Nothing matches right now…" and no sign-up card. New robot check added.</p></li>
+<li class="item"><div class="head"><span class="chip fixed">Fixed</span><h3>A store search put the sign-up card above the results</h3></div>
+<p>Searching "altitude" showed "See every deal at Altitude Sports", then the big sign-up card, then the deals.</p>
+<p class="fix"><b>Fix:</b> the card now always comes after the first block of deals.</p></li>
+</ul>
+
+<h2>Worth fixing next</h2>
+<ul class="list">
+<li class="item"><div class="head"><span class="chip high">High</span><h3>Shoe pages show the men's table first to a women's shopper</h3></div>
+<p>On the Pegasus 41 page, a women's size-8 visitor sees "Your size 8: $107.97" at the top, then a full Men's table, and has to scroll past it to find the Women's table. The price-history line under the Women's table talks about the men's price.</p>
+<p class="fix"><b>Fix:</b> open on the visitor's own table and show each table's own price line. It's a bug-level fix, small.</p></li>
+<li class="item"><div class="head"><span class="chip high">High</span><h3>A pop-up message covers the main button after a heart</h3></div>
+<p>Tapping "Watch price" opens the email sheet and, at the same moment, a "Watching. Sign up for the Friday email…" message that sits right on top of the sheet's main button.</p>
+<p class="fix"><b>Fix:</b> no message when the sheet opens (the sheet already says it). Bug, I'll fix it with your OK on the batch.</p></li>
+<li class="item"><div class="head"><span class="chip high">High</span><h3>The first rows are crowded by one brand and by gym or lifestyle clothes</h3></div>
+<p>"Dropped today" showed Sugoi in 5 of the first 7 spots. Top deals for a women's runner opened with an adidas cover-up jacket and "Optime Training 7/8 Leggings" (gym wear), and "sneakers" found Skechers BOBS casual shoes. Real running deals are there, but the first screen makes us look like a generic discount site.</p>
+<p class="fix"><b>Fix:</b> at most 2 per brand in the first rows; rank training and lifestyle lines lower; drop Skechers BOBS like other casual shoes. The brand cap and ranking are visible changes, so they'd be a test.</p></li>
+<li class="item"><div class="head"><span class="chip med">Medium</span><h3>Store names leak into product names</h3></div>
+<p>Cards read "FuelCell SuperComp Trainer v3 Road Running Shoes - Women's" and NNormal's "Trail running shoes - Tomir 2.0 - BEIGE - Unisex". It's long and messy on a phone.</p>
+<p class="fix"><b>Fix:</b> trim "Road/Trail Running Shoes" from shoe names on cards, and clean NNormal's pattern at the source. Data fix.</p></li>
+<li class="item"><div class="head"><span class="chip med">Medium</span><h3>The welcome screen hides its third example deal</h3></div>
+<p>The welcome card's third deal (Hoka Cielo RD) sits under the sticky "Find my deals" button. On a slow connection the three examples don't show at all until the data arrives.</p>
+<p class="fix"><b>Fix:</b> room for the third card above the button, or show two.</p></li>
+<li class="item"><div class="head"><span class="chip med">Medium</span><h3>"Just browse" puts its "pick your size" note in the wrong place</h3></div>
+<p>The note "Showing every size. Pick your size and we'll hide what won't fit" sits under the swipe row, so it reads like part of the deals.</p>
+<p class="fix"><b>Fix:</b> move it right under the top line.</p></li>
+<li class="item"><div class="head"><span class="chip med">Medium</span><h3>Very long pages</h3></div>
+<p>The homepage is 16 phone screens; the shoe list page is 20. Most people never reach the bottom, so the bottom categories (gloves, hats, gear) get little attention.</p>
+<p class="fix"><b>Fix:</b> no change for now. The 'layout' test and the category buttons already let people jump. Revisit with scroll-depth data from the funnel report.</p></li>
+<li class="item"><div class="head"><span class="chip low">Low</span><h3>French pages keep English product names</h3></div>
+<p>Expected: names come from the stores. The interface itself is fully French.</p></li>
+</ul>
+
+<h2>What worked well</h2>
+<ul class="ok">
+<li>Sizes step: two taps (fit, size) and deals show.</li>
+<li>Search handles real shopper words: "alphafly", "hoka clifton", "rain jacket", "trail shoes", and "kayano 31" explains it exists only in other sizes.</li>
+<li>The "Didn't buy it?" card after a store visit is clear and asks one thing.</li>
+<li>Shoe pages answer the question fast: "Your size 8: $107.97 at Sport Chek" right at the top.</li>
+<li>Black Friday page: clear countdown, a sign-up box that asks only fit, size and email.</li>
+<li>No script errors on any page.</li>
+</ul>
+<p class="note">One thing I did not count as a problem: my sandbox's connection made a page load look like 10 seconds once. The same page loaded in 4 seconds on the next run, and the data file (~1 MB compressed) should take about 2 to 3 seconds on a normal phone signal.</p>
+</div>

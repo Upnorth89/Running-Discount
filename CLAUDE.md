@@ -233,6 +233,11 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   change: look at the WHOLE page on a phone with every live test on at once (all B) and all off (all A), as a new and a returning
   visitor. Site test "Whole page: every live test on at once stays tidy" (≤1 swipe row on top, first deal within ~2 screens, nothing
   wider than the phone) runs on every refresh; extend it whenever a change touches the top of the page.
+- **Mystery shop (Oct 18, Bastien: "act like a spy shopper paid to find issues ... keep the mystery shopper somewhere so we can work on
+  this later").** Report: https://claude.ai/artifact/D9V9KYMpdD2TygXGYJTAUR (copy in docs/mystery-shop-2026-10-18.html), open items as
+  rows in the plan doc backlog. Fixed the same night: no-result search message, sign-up card after the results, women's table first
+  on shoe pages + each table's own price line, no toast over the email sheet. Redo the walk (phone, new + returning, EN/FR) before
+  Black Friday and after any big batch.
 - **Check my own work before sending anything (Bastien, Oct 17: "I shouldn't have to review everything. My time is adding up").**
   Videos/graphics: look at frames from start, middle, end (text centered in its box, nothing cut by the bands, no overlap), every
   number from today's data (store count = n_stores in sale.json, 143 on Oct 17, "140+"), no over-explaining (people know CA = CAD).
