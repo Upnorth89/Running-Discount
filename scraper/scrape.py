@@ -3803,6 +3803,7 @@ def merge(offers):
                 it["t"] = garment_type(o["g"], f'{o["b"]} {o["n"]}' if o["g"] in ("shoes", "gear") else o["n"])
         oi = len(it["of"])
         it["of"].append(o["u"]); it["_st"].append(o["st"]); it["_ca"].append(bool(o.get("ca")))
+        it.setdefault("_im", []).append(o.get("img") or "")
         it["_fs"].append(1 if o.get("fs") else FINAL_SALE.get(o["st"], 0))
         it["ca"] = it["ca"] or bool(o.get("ca"))     # sold by any Canadian store = ships from Canada
         it["lp"] = max(it["lp"], o["lp"])
@@ -3838,6 +3839,14 @@ def merge(offers):
         # [size, price, offer, regular] plus the size's own variant id when the store has one
         it["sz"] = [[s, p, i, r] + ([v] if v else []) for s, (p, i, r, v) in it["sz"].items()]
         it.pop("_ca", None)
+        # Oct 18 (Bastien: an Arc'teryx card said "at MEC" with Sporting Life's photo; "use pictures from the actual store"):
+        # each store's own photo, kept only where it differs from the card's first one (saves space); the site picks the
+        # photo of the store that has the price in the visitor's size
+        im = it.pop("_im", [])
+        wins = {e[2] for e in it["sz"]}        # only stores that have the best price in some size can show on a card
+        oi = {str(i): u for i, u in enumerate(im) if u and u != it["img"] and i in wins}
+        if oi:
+            it["oi"] = oi
         fs = it.pop("_fs", [])
         if any(fs):
             it["fs"] = fs          # per offer, same order as "of" (FINAL_SALE codes)

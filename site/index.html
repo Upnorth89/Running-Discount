@@ -1454,7 +1454,7 @@ function matchItems(p,list){
     for(const e of ok)if(e[1]<pick[1]||(e[1]===pick[1]&&e[3]>pick[3]))pick=e;
     const best=pick[1], reg=Math.max(pick[3]||best,best);
     const pct=reg>best?Math.round(100*(1-best/reg)):0;
-    out.push({...d,best,reg,pct,ok,any,url:sizeUrl(d,pick),fin:finalSale(d,pick),fav:favs.includes(d.b.toLowerCase())});
+    out.push({...d,best,reg,pct,ok,any,url:sizeUrl(d,pick),img:(d.oi&&d.oi[pick[2]])||d.img,fin:finalSale(d,pick),fav:favs.includes(d.b.toLowerCase())});
   }
   return out;
 }
