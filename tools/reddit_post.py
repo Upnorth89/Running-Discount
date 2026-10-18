@@ -101,10 +101,10 @@ TORONTO = ["runningfree.com", "runningroom.com", "blacktoerunning.com", "sportin
            "decathlon.ca", "footlocker.ca", "arcteryx.com"]
 # Stores per place (--city): Toronto = shops in the city; Québec and BC = based in the province
 CITIES = {"toronto": TORONTO,
-          # Oct 18 (Bastien: "local means Quebec province", the Montréal-Québec City corridor): Québec-based stores and brands only
+          # Oct 18 (Bastien: "local means Quebec province", the Montréal-Québec City corridor): Québec-based stores and brands, + MEC (stores in Montréal and Québec City)
           "quebec": ["svpsports.ca", "sportsexperts.ca", "boutiqueendurance.ca", "lecoureur.com", "lecoureurnordique.ca", "sail.ca",
                      "altitude-sports.com", "thelasthunt.com", "innerselfrunning.com", "balmoralrunning.com",
-                     "krononutrition.com", "brixrechargeparlanature.com", "upika.ca"],
+                     "krononutrition.com", "brixrechargeparlanature.com", "upika.ca", "mec.ca"],
           # and the same for BC (Vancouver posts): BC-based shops and brands only
           "bc": ["vanrunco.com", "shop.forerunners.ca", "racketsandrunners.ca", "frontrunners.ca", "capra.run", "runuphill.ca",
                  "cowichanvalleyrunning.com", "sea2skynutrition.ca", "arcteryx.com", "mec.ca"]}
@@ -119,7 +119,7 @@ def host(u):
     return re.sub(r"^https?://(www\.)?", "", u).split("/")[0].lower()
 
 
-def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, under=None, canadian=False, direct=False, stores=None, exclude=()):
+def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, under=None, canadian=False, direct=False, stores=None, exclude=(), hand=()):
     d = requests.get(f"{SITE}/{'sale.json' if side == 'ca' else 'sale-us.json'}", timeout=200).json()
     fx = d["fx"]["USD"] if side == "us" else 1.0
     pre = "shoes" if side == "ca" else "us/shoes"
@@ -187,8 +187,12 @@ def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, u
                     or (kind == "gear" and nouns.get(noun(it["n"]), 0) >= 1):     # a mix of brands and of kinds of thing     # gear: a mix, at most 2 of a kind
                 continue
             if not confirm(it, at, fx, side == "us"):
-                log(f"  skipped (not confirmed on the store's page): {it['b']} {it['n']}")
-                continue
+                u0 = it["of"][min(at, key=lambda s: s[1])[2]]
+                if any(d in u0 for d in hand):     # Oct 18 (Bastien: "add MEC ones and I'll manually check them"): kept, flagged
+                    log(f"  CHECK BY HAND (store blocks our check): {it['b']} {it['n']} -> {u0}")
+                else:
+                    log(f"  skipped (not confirmed on the store's page): {it['b']} {it['n']}")
+                    continue
             name = re.sub(r"[®™]", "", f"{it['b']} {base(it['n'])}")
             m = re.search(r"(men|women)'?s", it["n"], re.I)
             label = name + (f" ({m.group(1).lower()}'s)" if m and not re.search(r"(men|women)'?s", name, re.I) else "")
@@ -310,6 +314,7 @@ def main():
     ap.add_argument("--exclude", default="", help="comma-separated words: skip items whose brand+model contains any (items posted there recently)")
     ap.add_argument("--html", help="also write a copy page here (names as links, 'Copy post' button keeps them clickable)")
     ap.add_argument("--toronto", action="store_true", help="only deals at stores with Toronto shops (r/runTO), store named on each line")
+    ap.add_argument("--hand-check", default="", help="comma-separated store domains whose deals stay in even when our check is blocked (mec.ca); listed as CHECK BY HAND")
     ap.add_argument("--city", choices=sorted(CITIES) + ["montreal", "vancouver"], help="only deals at stores with shops in that city, store named on each line")
     a = ap.parse_args()
     if a.toronto:
@@ -320,7 +325,8 @@ def main():
     n = (n[0] if a.shoes is None else a.shoes, n[1] if a.gear is None else a.gear)
     picks = {s: side_picks(s, a.ref, n[0], n[1], log=lambda m: print(m, file=sys.stderr), kind=a.kind, sex=a.sex, under=a.under,
                            canadian=a.canadian, direct=a.direct, stores=CITIES[a.city] if a.city else None,
-                           exclude=[fold(x.strip()) for x in a.exclude.split(",") if x.strip()]) for s in sides}
+                           exclude=[fold(x.strip()) for x in a.exclude.split(",") if x.strip()],
+                           hand=[x.strip() for x in a.hand_check.split(",") if x.strip()]) for s in sides}
     global FOOT
     if a.direct:
         FOOT = (f"*Found with [thegearfox.com](https://thegearfox.com/?ref={a.ref}), a free site I made that shows running deals "
