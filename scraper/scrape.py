@@ -220,8 +220,9 @@ def scrape_runningroom():
     recs = []
     for u in re.findall(r"<loc>([^<]+/products_\d+\.json)</loc>", sm.text):
         # Oct 12: asked for gzip, Running Room's server sometimes sends a file cut short (19 KB instead of 2 MB, no
-        # content-encoding) and the whole store failed; uncompressed it comes back whole. One retry on top.
-        for attempt in (1, 2):
+        # content-encoding) and the whole store failed; uncompressed it comes back whole. Oct 18: still 19 KB twice
+        # 10 s apart (the file was being rebuilt that morning; whole again later), so retries wait up to ~6 min in all.
+        for attempt, wait in enumerate((10, 60, 120, 180), 1):
             r = S.get(u, timeout=180, headers={"Accept-Encoding": "identity"})
             if r.status_code != 200:
                 raise RuntimeError(f"Running Room feed file {u.rsplit('/', 1)[-1]}: HTTP {r.status_code}")
@@ -229,9 +230,9 @@ def scrape_runningroom():
                 recs += r.json()
                 break
             except ValueError:
-                if attempt == 2:
+                if attempt == 4:
                     raise RuntimeError(f"Running Room feed file {u.rsplit('/', 1)[-1]}: not readable ({len(r.content)} bytes)")
-                time.sleep(10)
+                time.sleep(wait)
         time.sleep(2)
     offers = {}
     for p in recs:
@@ -3092,10 +3093,10 @@ NOT_FOOD = re.compile(r"headlamp|\blights?\b|luminator|reflective|\btape\b|\btow
 CAMP_BRANDS = {"big agnes", "esbit"}
 NOT_SOCK = re.compile(r"t-?shirt|\btee\b|hood|jacket|sweat|pullover|\btank\b|shorts?\b|pants?\b|tights?\b|sleeve|jogger|"
                       r"boxer|brief|underwear|legging|\btop\b|shirt|bralette|\bbra\b", re.I)
-STRONG_FOOD = re.compile(r"\bgels?\b(?!-| pockets?| force| heel| cups?)|\bchews?\b|drink mix|electrolyte|energy bar|protein|stroopwafel|(?<!wool )waffle|"
+STRONG_FOOD = re.compile(r"\bgels?\b(?!-| pockets?| force| heel| cups?| ball| insoles?| arch)|\bchews?\b|drink mix|electrolyte|energy bar|protein|stroopwafel|(?<!wool )waffle|"
                          r"caffeine|hydration mix|\bfuel\b(?! belt|\W+n\W*\s*fly|\s*cell)|\bbars?\b(?=.*\b(\d+ ?g|pack|box|bar)\b)|nut butter|honey|\bmix\b|tablets|capsules", re.I)
 EYEWEAR_BRANDS = {"ombraz", "goodr", "sunski", "tifosi", "roka", "district vision", "julbo", "suncloud", "moana sunnies", "alpinamente", "knockaround"}
-SOCK_BRANDS = {"darn tough", "balega", "feetures", "injinji", "swiftwick", "wigwam", "drymax", "rockay", "wrightsock", "thorlo", "sockwell", "os1st"}
+SOCK_BRANDS = {"darn tough", "balega", "feetures", "injinji", "swiftwick", "wigwam", "drymax", "rockay", "wrightsock", "thorlo", "sockwell", "os1st", "bridgedale"}
 CLOTH_SOCK_SHAPE = re.compile(r"\bcrew\b|no[- ]show|\bquarter\b|\bmicro\b|\bmini\b|\btab\b|over[- ]the[- ]calf|\botc\b|\bboot\b", re.I)
 BYOB = re.compile(r"build your own bundle|\bbundle\d{3,}", re.I)
 def tidy_food(offers):
@@ -3750,6 +3751,8 @@ def merge(offers):
             usual = next(g for g, _ in c.most_common() if g != "nutrition")
             o["g"] = ("bottoms" if re.search(r"\d(\.\d)?\s*(\"|''|”)", o["n"]) else usual if cloth else group_of(o["n"])) \
                 or usual      # rabbit "Fuel n' Fly 5"": shorts; Sky "Rush Waffle Quarter" (Oct 14): a quarter-zip, Sky's usual = tops
+            if o["g"] == "shoes" and not SHOE_SIZES(o):
+                o["g"] = "gear"   # Oct 18: Sof Sole "Gel Ball of Foot" (a pad, one size) took the brand's usual = shoes
         elif o["g"] in ("tops", "bottoms") and (tot >= 8 and c["socks"] / tot >= 0.8 or o["b"].lower() in SOCK_BRANDS) \
                 and not NOT_SOCK.search(o["n"]):
             o["g"] = "socks"           # a sock brand's "Franchise Crew" is a crew sock, not a crew-neck top (Stance, OS1st, Sockwell)
