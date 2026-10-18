@@ -606,13 +606,20 @@ def site_flow(base, per, accented):
                 page.wait_for_timeout(1500)
                 out[q] = page.evaluate("""() => {const kids = [...document.querySelectorAll('#dealList > *')];
                     const card = kids.findIndex(x => x.classList.contains('signup')), grp = kids.findIndex(x => x.matches('section.grp'));
-                    return {empty: !!document.querySelector('#dealList .empty'), card, grp}}""")
+                    const nh = document.querySelector('#dealList .nohave');
+                    return {empty: !!document.querySelector('#dealList .empty'), card, grp, nohave: nh ? nh.textContent : ''}}""")
+                if q == "zzqxv":   # Oct 18: "We don't have “zzqxv” yet" + a button back to today's deals
+                    assert "zzqxv" in out[q]["nohave"], f"no 'we don't have it yet' message: {out[q]}"
+                    page.click("#dealList [data-sclear]")
+                    page.wait_for_timeout(800)
+                    left = page.evaluate("() => [document.querySelector('#dSearch').value, document.querySelectorAll('#dealList section.grp').length]")
+                    assert left[0] == "" and left[1] > 0, f"'See today's deals' didn't clear the search: {left}"
             page.fill("#dSearch", "")
             page.evaluate("p => p === null ? localStorage.removeItem('gf-nosignup') : localStorage.setItem('gf-nosignup', p)", prev)
             assert out["zzqxv"]["empty"] and out["zzqxv"]["card"] < 0, f"no-result search: {out['zzqxv']}"
             r = out["running"]
             assert r["card"] < 0 or (r["grp"] >= 0 and r["card"] > r["grp"]), f"sign-up card above the results: {r}"
-            return "no results -> 'Nothing matches' and no card; with results the card comes after the first deals"
+            return "no results -> 'We don't have it yet' + a way back, no card; with results the card comes after the first deals"
         check("Search as a non-member: message when nothing matches, card after the deals")(nonmember_search, page)
 
         def small_phone():   # Oct 11: at 320px "$100.00 CAD $229.99" made the page 24px too wide (bottom bars cut off)
