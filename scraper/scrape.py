@@ -3034,7 +3034,7 @@ def shoe_width_from_name(n, sx):
     """Widths many stores put in the product name: "Bondi 9 (2E)", "880v15 (D)", "Clifton 10 Wide".
     Returns "wide", "narrow" or "". Women's D is wide; men's D is the regular width."""
     low = n.lower()
-    if re.search(r"\(\s*(2e|4e|6e|ee|eee|x-?wide|wide|extra wide)\s*\)|\b(x-?wide|extra wide|wide)\b|\blarge\b(?=.*\b(pied|chaussure)\b)|-\s*large\s*$|\(\s*large\s*\)", low):   # Québec stores: "Clifton 11 (Homme) - Large"
+    if re.search(r"\(\s*(2e|4e|6e|ee|eee|x-?wide|wide|extra wide)\s*\)|\b(x-?wide|extra wide|wide)\b|\blarge\b(?=.*\b(pied|chaussure)\b)|-\s*large\s*(?=-|$)|\(\s*large\s*\)", low):   # Québec stores: "Clifton 11 (Homme) - Large", "Speedgoat 6 GTX - Large - Women's"
         return "wide"
     if re.search(r"\(\s*(2a|aa|4a|narrow|n)\s*\)|\bnarrow\b|\b[ée]troit", low):
         return "narrow"
@@ -3580,9 +3580,11 @@ def _shoe_name(o, keep_tr):
         name = re.sub(r"^\s*(nike\s+)?air zoom\s+", "", name)       # "Air Zoom Pegasus 41" = "Pegasus 41"
     if o["b"].lower().strip() == "adidas":
         name = re.sub(r"^\s*adizero\s+", "", name)            # "Evo SL - Men's" (Endurance) = "Adizero EVO SL" (Altitude)
+    if o["b"].lower().strip() == "asics":
+        name = re.sub(r"^\s*gel\s+", "", name)               # Oct 18: "Gel-Trabuco 14 GTX" = "Trabuco 14 Gore-Tex" (5 cards for one shoe)
     name = re.sub(r"\s+", " ", name).strip()
     if o["w"]:   # width words go too ("(2E)", "Wide"): the wide flag already keeps wide and regular apart
-        name = re.sub(r"\s+", " ", re.sub(r"\b(x ?wide|extra wide|wide|2e|4e|ee|d)\b", " ", name)).strip()
+        name = re.sub(r"\s+", " ", re.sub(r"\b(x ?wide|extra wide|wide|2e|4e|ee|d|large)\b", " ", name)).strip()
     return name
 
 def mkey(o):
