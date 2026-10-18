@@ -1816,7 +1816,7 @@ function renderWatch(){
 }
 
 /* New on sale since your last visit (a visit = more than 6 hours after the previous one). */
-let NEWSET=new Set(),newReady=false;
+let NEWSET=new Set(),newReady=false,NEWROW=false;
 function computeNew(onSale){
   if(newReady)return;newReady=true;
   const now=Date.now(),keys=onSale.map(itemKey);
@@ -1838,7 +1838,7 @@ function recordClick(k){const d=RENDERED[k];if(!d||!d.pct||clicks[k])return;clic
 function sinceBar(all){const base=LS.get("gf-base");if(!base||!base.at)return "";
   const byK={};all.forEach(d=>byK[itemKey(d)]=d);
   const drops=Object.entries(clicks).filter(([k,v])=>v.p&&byK[k]&&byK[k].best<v.p-0.5).map(([k,v])=>({d:byK[k],off:v.p-byK[k].best})).sort((a,b)=>b.off-a.off);
-  const n=CALM&&NEWSTYLE==="row"&&!view.newAll?0:NEWSET.size;if(!n&&!drops.length)return "";   // the "New since your last visit" row above already counts them
+  const n=CALM&&NEWSTYLE==="row"&&!view.newAll&&NEWROW?0:NEWSET.size;if(!n&&!drops.length)return "";   // the "New since your last visit" row above already counts them
   const day=new Date(base.at).toLocaleDateString(LANG==="fr"?"fr-CA":"en-CA",{weekday:"long"});
   const bits=[];if(n)bits.push(t("sinceNew",num(n)));
   if(drops.length)bits.push(`${t("sinceDrop",drops.length)} `+drops.slice(0,3).map(x=>`<button type="button" data-sq="${esc(x.d.b+" "+nm(x.d.n).split(" - ")[0])}">${esc(nm(x.d.n).split(" - ")[0])} −${money(x.off).replace(/[.,]00/,"")}</button>`).join(", "));
@@ -1916,7 +1916,10 @@ function renderAll(){
     DROPK=new Set(drops.map(itemKey));
     const fresh=onSale.filter(d=>NEWSET.has(itemKey(d))&&!DROPK.has(itemKey(d))).sort(SORTS[view.sort]);
     const ns=section("__new",fresh.length?t("secNew"):t(hasSizes()?"secDrops":"secDropsAll"),[...drops,...fresh],"new"+(drops.length?" drops":""));
-    if(CALM&&NEWSTYLE==="row"&&!view.newAll)$("newBox").innerHTML+=ns;else parts.push(ns)}
+    // Oct 18 (Bastien saw one lone card in an empty full-width box on a computer): a row needs 3+ deals; 1-2 new ones are
+    // counted in the "Since your last visit" line instead (they're in the deals below anyway)
+    NEWROW=drops.length+fresh.length>=3;
+    if(!NEWROW);else if(CALM&&NEWSTYLE==="row"&&!view.newAll)$("newBox").innerHTML+=ns;else parts.push(ns)}
   // Oct 8: until someone picks that size, Top deals skip items left only in rare sizes (an XS-only hoodie at #2)
   const commonFit=d=>!d.any||(APPAREL_GROUPS.includes(d.g)?d.ok.some(e=>["S","M","L","XL"].includes(norm(e[0])))
     :d.g==="shoes"?d.ok.some(e=>{const k=shoeKey(e[0]);return k&&+k.n>=7&&+k.n<=12}):true);
