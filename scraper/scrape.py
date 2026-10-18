@@ -3475,6 +3475,8 @@ def tidy_name(b, n):
     toks = {b} | ({first} if len(first) >= 4 and first.lower() not in {"black", "blue", "north", "mountain", "outdoor"} else set())
     if b.lower() == "hoka":
         toks |= {"Hoka One One", "Hoka"}
+    if b and re.search(r"[^A-Za-z0-9 ]", b):
+        toks.add(re.sub(r"[^A-Za-z0-9 ]", "", b))   # Oct 18: Strides' "Arcteryx Men's Norvan LD 4 GTX" (brand without its apostrophe)
     for tok in sorted(toks if b else set(), key=len, reverse=True):
         if not tok:
             continue
@@ -3573,6 +3575,7 @@ def _shoe_name(o, keep_tr):
     # Brooks' road Ghost): the trail/road word stays when another store's name for the model has it (_TRAIL_MODELS)
     tr = r"\brunning( road| trail)?( shoes?)?\b|\bshoes?\b" if keep_tr else r"\b((trail|road) )?running( road| trail)?( shoes?)?\b|\bshoes?\b"
     name = re.sub(r"\bgore ?tex\b", "gtx", name)                     # "Ghost 18 Gore-Tex" = "Ghost 18 GTX"
+    name = re.sub(r"\b(trail|road) run\b", r"\1 running", name)        # Oct 18: MEC's "Norvan LD 4 Gore-Tex Trail Run" = "... GTX Trail Running Shoe"
     name = re.sub(r"\b(available in wide widths?|waterproof)\b", " ", name) if "gtx" in name or "available" in name else name
     name = re.sub(r"\b((trail|road) )?racing( shoes?)?\b", " ", name)    # "Zoom Fly 6 Racing Shoe" = "Zoom Fly 6 Road Racing Shoes"
     name = re.sub(tr, " ", name)
@@ -3774,7 +3777,7 @@ def merge(offers):
                     break
     _TRAIL_MODELS.clear()
     for o in tidied:          # models a store names with Trail/Road but without "running" ("Ghost Trail - Men's")
-        if o["g"] == "shoes" and re.search(r"\b(trail|road)\b", o["n"], re.I) and not re.search(r"\brunning\b", o["n"], re.I):
+        if o["g"] == "shoes" and re.search(r"\b(trail|road)\b", o["n"], re.I) and not re.search(r"\brun(ning)?\b", o["n"], re.I):
             _TRAIL_MODELS.add((o["b"].lower().strip(), _shoe_name(o, True)))
     # Oct 9: shoes listed in EU sizes only ("42", "38.5 EU": La Sportiva, Vibram, Vivobarefoot) used to be dropped. Today's
     # labels that carry both EU and US for the same brand and gender ("EU 43 (US 10)", "10.0 (43)") give that brand's chart;

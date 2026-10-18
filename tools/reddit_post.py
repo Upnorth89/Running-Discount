@@ -119,7 +119,7 @@ def host(u):
     return re.sub(r"^https?://(www\.)?", "", u).split("/")[0].lower()
 
 
-def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, under=None, canadian=False, direct=False, stores=None, exclude=(), hand=()):
+def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, under=None, canadian=False, direct=False, stores=None, exclude=(), hand=(), winter=False):
     d = requests.get(f"{SITE}/{'sale.json' if side == 'ca' else 'sale-us.json'}", timeout=200).json()
     fx = d["fx"]["USD"] if side == "us" else 1.0
     pre = "shoes" if side == "ca" else "us/shoes"
@@ -138,6 +138,13 @@ def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, u
         items = [i for i in items if fold(i["b"]) in cb]
     if sex:              # a women's or men's post (r/xxrunning…): that cut, or unisex
         items = [i for i in items if not i.get("sx") or sex in i["sx"]]
+    if winter:           # Oct 18 (Bastien: "gear for fall winter running"): waterproof/winter shoes + cold-weather layers and kit
+        W_SHOE = r"gtx|gore-?tex|waterproof|\bwp\b|winter|studded|spike ?trac|ice|snow|\bboa\b"
+        W_GEAR = (r"thermal|winter|insulat|fleece|merino|wool|down\b|puffer|jacket|shell|wind|rain|waterproof|gtx|gore|hood|"
+                  r"tight|half[- ]?zip|quarter[- ]?zip|1/2 zip|1/4 zip|long ?sleeve|\bls\b|base ?layer|glove|mitt|tuque|toque|beanie|"
+                  r"headband|ear|neck|gaiter|balaclava|buff|headlamp|light|reflective|traction|yaktrax|microspike|warm|cold")
+        items = [i for i in items if re.search(W_SHOE if i["g"] == "shoes" else W_GEAR, fold(i["n"]))
+                 and not re.search(r"\bshorts?\b|singlet|\btank\b|tee\b|t-shirt|sandal|\bcap\b|visor|sunglass", fold(i["n"]))]
     hay = [(i, fold(i["b"] + " " + i["n"])) for i in everything]
     shoes, gear = [], []
     for it in items:
@@ -314,6 +321,7 @@ def main():
     ap.add_argument("--exclude", default="", help="comma-separated words: skip items whose brand+model contains any (items posted there recently)")
     ap.add_argument("--html", help="also write a copy page here (names as links, 'Copy post' button keeps them clickable)")
     ap.add_argument("--toronto", action="store_true", help="only deals at stores with Toronto shops (r/runTO), store named on each line")
+    ap.add_argument("--winter", action="store_true", help="themed post: fall/winter running (waterproof/winter shoes, cold-weather layers, gloves, tuques, lights)")
     ap.add_argument("--hand-check", default="", help="comma-separated store domains whose deals stay in even when our check is blocked (mec.ca); listed as CHECK BY HAND")
     ap.add_argument("--city", choices=sorted(CITIES) + ["montreal", "vancouver"], help="only deals at stores with shops in that city, store named on each line")
     a = ap.parse_args()
@@ -326,7 +334,7 @@ def main():
     picks = {s: side_picks(s, a.ref, n[0], n[1], log=lambda m: print(m, file=sys.stderr), kind=a.kind, sex=a.sex, under=a.under,
                            canadian=a.canadian, direct=a.direct, stores=CITIES[a.city] if a.city else None,
                            exclude=[fold(x.strip()) for x in a.exclude.split(",") if x.strip()],
-                           hand=[x.strip() for x in a.hand_check.split(",") if x.strip()]) for s in sides}
+                           hand=[x.strip() for x in a.hand_check.split(",") if x.strip()], winter=a.winter) for s in sides}
     global FOOT
     if a.direct:
         FOOT = (f"*Found with [thegearfox.com](https://thegearfox.com/?ref={a.ref}), a free site I made that shows running deals "
