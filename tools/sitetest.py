@@ -552,6 +552,30 @@ def site_flow(base, per, accented):
             return f"group B: {b['tiles']} tiles, search on top; group A: full cards"
         check("Test 'layout': search on top, tiles in the row for group B")(layout_test, page)
 
+        def whole_page():   # Oct 18 (Bastien: "nothing should ever be silo"): two tests each added a swipe row and nobody saw them
+            # together. Every live test on at once (all B), then all off (all A): the top of the page on a phone stays tidy.
+            names = re.findall(r'"([a-z0-9]+)"', (re.search(r"const TESTS=\[([^\]]*)\]", site_get("index.html") or "") or [None, ""])[1])
+            assert names, "couldn't read the live tests (TESTS) from index.html"
+            res = {}
+            for arm in "BA":
+                page.goto(base + "?exp=" + ",".join(f"{n}:{arm}" for n in names), wait_until="domcontentloaded")
+                page.wait_for_selector("section.grp .deal", timeout=20000)
+                page.wait_for_timeout(800)
+                res[arm] = page.evaluate("""() => {const top = e => e ? e.getBoundingClientRect().top + scrollY : null;
+                    const firstDeal = [...document.querySelectorAll('#dealList section.grp .deal')][0];
+                    return {rows: document.querySelectorAll('#newBox section.grp').length, deal: top(firstDeal), h: innerHeight,
+                            wide: document.documentElement.scrollWidth > innerWidth + 1}}""")
+            page.evaluate("() => localStorage.removeItem('gf-exp')")
+            page.goto(base, wait_until="domcontentloaded")
+            page.wait_for_selector("section.grp .deal", timeout=20000)
+            for arm, r in res.items():
+                assert r["rows"] <= 1, f"all tests {arm}: {r['rows']} swipe rows at the top (one at most)"
+                assert not r["wide"], f"all tests {arm}: the page is wider than the phone"
+                assert r["deal"] is not None and r["deal"] < 2.2 * r["h"], f"all tests {arm}: the first deal starts {r['deal']:.0f}px down (over 2 screens)"
+            return (f"{len(names)} tests ({', '.join(names)}); all on: {res['B']['rows']} row, first deal at {res['B']['deal'] / res['B']['h']:.1f} screens; "
+                    f"all off: {res['A']['rows']} row, {res['A']['deal'] / res['A']['h']:.1f} screens")
+        check("Whole page: every live test on at once stays tidy")(whole_page, page)
+
         def small_phone():   # Oct 11: at 320px "$100.00 CAD $229.99" made the page 24px too wide (bottom bars cut off)
             page.set_viewport_size({"width": 320, "height": 700})
             settle(page, 500)

@@ -223,6 +223,12 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   on all fronts").** Each day: one part of the site (welcome, sizes, top of deals, cards, search, shoe pages, sign-up, watchlist,
   Friday email), looked at on a phone with that day's numbers; bring the 1-2 biggest problems + my fix + the evidence; he decides;
   fixes go through preview, goal changes as A/B tests.
+- **Nothing is a silo (Bastien, Oct 18: "This is a functioning website with many moving parts. The key to success is how everything
+  flows together"; "I can't be scrolling the website daily to catch these hiccups").** Two tests ('drops' and the new-deals row)
+  each added a swipe row and I checked them one at a time: half of returning visitors got two rows. Before showing or shipping any
+  change: look at the WHOLE page on a phone with every live test on at once (all B) and all off (all A), as a new and a returning
+  visitor. Site test "Whole page: every live test on at once stays tidy" (≤1 swipe row on top, first deal within ~2 screens, nothing
+  wider than the phone) runs on every refresh; extend it whenever a change touches the top of the page.
 - **Check my own work before sending anything (Bastien, Oct 17: "I shouldn't have to review everything. My time is adding up").**
   Videos/graphics: look at frames from start, middle, end (text centered in its box, nothing cut by the bands, no overlap), every
   number from today's data (store count = n_stores in sale.json, 143 on Oct 17, "140+"), no over-explaining (people know CA = CAD).

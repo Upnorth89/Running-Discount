@@ -151,6 +151,8 @@ html.us .seo-today .seo-en,html.us .seo-today .seo-fr,html:not(.us) .seo-today .
 @media (min-width:600px){.deal .lostamp{font-size:10px;padding:3px 7px;right:10px;bottom:10px}.deal .lostamp span+span{font-size:13px}}
 .badge.fox{background:var(--hivis);color:var(--hivis-ink);border:1.5px solid var(--ink);font-weight:700}
 .grp.drops h2::before{border-color:var(--hivis);background:var(--hivis)}
+.badge.drop{background:transparent;color:var(--moss);border:1.5px solid var(--moss);padding:2px 6px;font-size:12px;font-weight:800}
+.tile .badge{margin-top:3px}
 .badge.new{background:transparent;color:var(--moss);border:1.5px solid var(--moss);padding:2px 6px;font-size:12px}
 .watchbtn.hot .n{background:var(--hivis);color:var(--hivis-ink)}
 .watchbtn .n{background:var(--ink);color:var(--card)}
@@ -759,7 +761,7 @@ en:{
   gatedLede:"Pick your sizes to see today's deals.",unlock:"See deals in my size",
   get storesAll(){return US()?"stores in the US and abroad":"stores in Canada and abroad"},get storesCA(){return US()?"US stores":"Canadian stores"},
   lede:(s,a,w,u)=>`${s} on sale and ${a} in stock from ${w}${u?` · updated ${u}`:""}.`,
-  secNew:"New since your last visit",secSale:"Top deals",secDrops:"Dropped today in your size",secDropsAll:"Dropped today",dropTop:"Fox Find of the day",
+  secNew:"New since your last visit",dropTag:m=>`↓ ${m} today`,secSale:"Top deals",secDrops:"Dropped today in your size",secDropsAll:"Dropped today",dropTop:"Fox Find of the day",
   nothing:"Nothing matches right now. Try clearing the search or picking more categories.",
   noSize:(q,n)=>`Nothing in your size for “${q}” right now, but ${n} in other sizes.`,showAllSizes:"Show all sizes",yourSizesOnly:"Back to my sizes",
   allSizesOn:q=>`Showing “${q}” in every size.`,didYou:"Did you mean",storeGo:s=>`See every deal at ${s}`,addSizes:"Add your sizes to hide gear that won't fit. ",
@@ -859,7 +861,7 @@ fr:{
   gatedLede:"Choisissez vos tailles pour voir les aubaines du jour.",unlock:"Voir les aubaines à ma taille",
   get storesAll(){return US()?"des boutiques aux États-Unis et à l'étranger":"des boutiques au Canada et à l'étranger"},get storesCA(){return US()?"des boutiques américaines":"des boutiques canadiennes"},
   lede:(s,a,w,u)=>`${s} en solde et ${a} en stock ${w}${u?` · mis à jour ${u}`:""}.`,
-  secNew:"Nouveau depuis votre dernière visite",secSale:"Meilleures aubaines",secDrops:"En baisse aujourd'hui dans votre taille",secDropsAll:"En baisse aujourd'hui",dropTop:"Trouvaille du jour",
+  secNew:"Nouveau depuis votre dernière visite",dropTag:m=>`↓ ${m} aujourd'hui`,secSale:"Meilleures aubaines",secDrops:"En baisse aujourd'hui dans votre taille",secDropsAll:"En baisse aujourd'hui",dropTop:"Trouvaille du jour",
   nothing:"Rien ne correspond pour l'instant. Effacez la recherche ou choisissez plus de catégories.",
   noSize:(q,n)=>`Rien dans votre taille pour « ${q} » en ce moment, mais ${n} dans d'autres tailles.`,showAllSizes:"Voir toutes les tailles",yourSizesOnly:"Revenir à mes tailles",
   allSizesOn:q=>`« ${q} » dans toutes les tailles.`,didYou:"Vouliez-vous dire",storeGo:s=>`Voir toutes les aubaines chez ${s}`,addSizes:"Ajoutez vos tailles pour cacher ce qui ne vous va pas. ",
@@ -1485,20 +1487,23 @@ function card(d,extra){
 }
 /* Test 'layout' (Oct 18, Bastien: the top row is "a big row of stuff ... just the picture with price, discount, heart"):
    group B's swipe rows (new since your last visit, dropped today) are small tiles, 3 on a phone screen instead of 1 card */
-function tile(d){
+let DROPK=new Set();
+function dropTag(d){return `<span class="badge drop">${t("dropTag",money(Math.round(d.dp-d.best)).replace(/[.,]00(?=\D*$)/,""))}</span>`}
+function tile(d,tag){
   const k=itemKey(d),on=!!watches[k];RENDERED[k]=d;
   const short=nm(d.n).replace(/ - (Men's|Women's|Unisex|Homme|Femme|Unisexe)$/,"");
   return `<div class="dw tw"><a class="deal tile" href="${esc(affUrl(d.url))}" data-store="${esc(storeOf(d.url))}" target="_blank" rel="noopener" title="${esc(d.b+" "+nm(d.n))}">
     <div class="tpic">${d.img?`<img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:""}<span class="tnoimg">${esc(d.b)}</span>${d.pct?`<span class="pct">${offTag(d)}</span>`:""}</div>
     <div class="price"><b>${money(d.best)}</b>${d.pct?`<s>${money(d.reg)}</s>`:""}</div>
-    <div class="tname">${esc(d.b)} ${esc(short)}</div></a>${heartBtn(k,on,d)}</div>`;
+    <div class="tname">${esc(d.b)} ${esc(short)}</div>${tag||(NEWSET.has(k)?`<span class="badge new">${t("isNew")}</span>`:"")}</a>${heartBtn(k,on,d)}</div>`;
 }
 function section(key,title,list,cls){
   if(!list.length&&!(TYPES[key]&&view.type[key]))return "";   // keep the type buttons when a type has nothing
-  if((key==="__new"&&NEWSTYLE==="row"&&!view.newAll)||key==="__drops"){       // one swipeable row, then "See all" as a list
-    const n=list.length,row=list.slice(0,24),dr=key==="__drops";
-    return `<section class="grp ${cls||""}" id="grp-${key}"><h2>${title} <small>${num(n)}</small>${n>1?`<span class="swipe" aria-hidden="true">${t("swipe")}</span>`:""}</h2><div class="grid">${row.map((d,i)=>LAYOUT_B?tile(d):card(d,dr&&i===0&&n>1?`<span class="badge fox">🦊 ${t("dropTop")}</span>`:"")).join("")}
-      ${n>1&&!dr?`<button type="button" class="seeall" data-newall>${t("seeAll",num(n))}<small>${t("asList")}</small></button>`:""}</div>
+  if(key==="__new"&&NEWSTYLE==="row"&&!view.newAll){       // one swipeable row, then "See all" as a list
+    const n=list.length,row=list.slice(0,24);
+    return `<section class="grp ${cls||""}" id="grp-${key}"><h2>${title} <small>${num(n)}</small>${n>1?`<span class="swipe" aria-hidden="true">${t("swipe")}</span>`:""}</h2><div class="grid">${row.map((d,i)=>{const tag=DROPK.has(itemKey(d))?dropTag(d):"";
+        return LAYOUT_B?tile(d,tag):card(d,tag&&i===0&&n>1?`<span class="badge fox">🦊 ${t("dropTop")}</span>${tag}`:tag)}).join("")}
+      ${n>1?`<button type="button" class="seeall" data-newall>${t("seeAll",num(n))}<small>${t("asList")}</small></button>`:""}</div>
       ${n>1?`<button type="button" class="rowarrow prev" data-row="-1" aria-label="${LANG==="fr"?"Précédent":"Previous"}">‹</button><button type="button" class="rowarrow next" data-row="1" aria-label="${LANG==="fr"?"Suivant":"Next"}">›</button>`:""}</section>`;
   }
   const lim=view.open[key]||(key.startsWith("__")||NARROW?PAGE:PAGE_CAT);
@@ -1897,10 +1902,12 @@ function renderAll(){
   NARROW=p.groups.length===1;
   if(!q.length&&!NARROW&&!view.store){
     // Oct 17 (Bastien: be part of people's daily habit): price drops since yesterday in your size, biggest first, every morning
-    const drops=onSale.filter(d=>d.dp&&d.best<d.dp-0.5).sort((a,b)=>(b.dp-b.best)-(a.dp-a.best));
-    const ds=drops.length&&ANA.arm("drops")==="B"?section("__drops",t(hasSizes()?"secDrops":"secDropsAll"),drops,"new drops"):"";   // test: group B only
-    const ns=section("__new",t("secNew"),onSale.filter(d=>NEWSET.has(itemKey(d))).sort(SORTS[view.sort]),"new");
-    $("newBox").innerHTML+=ds;
+    // Oct 18 (Bastien: two rows, "Dropped today" + "New since your last visit", were "data overload"): ONE row. Test 'drops' B
+    // puts today's drops first in it (tagged "↓ $40 today"), then what's new (tagged "New"); group A sees only what's new
+    const drops=ANA.arm("drops")==="B"?onSale.filter(d=>d.dp&&d.best<d.dp-0.5).sort((a,b)=>(b.dp-b.best)-(a.dp-a.best)):[];
+    DROPK=new Set(drops.map(itemKey));
+    const fresh=onSale.filter(d=>NEWSET.has(itemKey(d))&&!DROPK.has(itemKey(d))).sort(SORTS[view.sort]);
+    const ns=section("__new",fresh.length?t("secNew"):t(hasSizes()?"secDrops":"secDropsAll"),[...drops,...fresh],"new"+(drops.length?" drops":""));
     if(CALM&&NEWSTYLE==="row"&&!view.newAll)$("newBox").innerHTML+=ns;else parts.push(ns)}
   // Oct 8: until someone picks that size, Top deals skip items left only in rare sizes (an XS-only hoodie at #2)
   const commonFit=d=>!d.any||(APPAREL_GROUPS.includes(d.g)?d.ok.some(e=>["S","M","L","XL"].includes(norm(e[0])))
