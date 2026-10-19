@@ -15,7 +15,7 @@ site/deals.json in the compact format the page reads:
 If one store fails, its items from the previous run are kept so the site never goes blank.
 Usage:  python scraper/scrape.py [out_path] [--remerge]
 """
-import collections, json, os, re, sys, time, datetime as dt
+import collections, json, os, re, sys, time, unicodedata, datetime as dt
 import html as html_lib
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -3064,8 +3064,8 @@ for _st in RUNFREE:
     STORES[_st] = (lambda st: lambda: scrape_runfree(st))(_st)
 
 # Casual footwear some running stores also sell; not what people come here for.
-CASUAL_BRANDS = {"ambler", "birkenstock", "wolky", "teva", "crocs", "ugg", "blundstone", "dr. martens", "clarks", "oofos", "billy footwear"}   # Ambler (Oct 8): toques, and its only "shoe" is a wool slipper
-CASUAL_SHOE = re.compile(r"\b(sandal|sandale|clog|sabot|slipper|pantoufle|mule|flip[- ]flops?|ellipse flip|loafer|slide|clearwater cnx|recovery (flip|slide)|ora recovery)s?\b", re.I)
+CASUAL_BRANDS = {"ambler", "birkenstock", "wolky", "teva", "crocs", "ugg", "blundstone", "dr. martens", "clarks", "oofos", "billy footwear", "vessi"}   # Ambler (Oct 8): toques, and its only "shoe" is a wool slipper
+CASUAL_SHOE = re.compile(r"\b(sandal|sandale|clog|sabot|slipper|pantoufle|mule|flip[- ]flops?|ellipse flip|loafer|slide|clearwater cnx|recovery (flip|slide)|ora recovery|bobs|casual sneaker|leather sneaker|chelsea)s?\b", re.I)   # Oct 19 (mystery shop): Skechers BOBS, Keen KS86 Leather, Xero "Casual Sneaker"
 # court and lifestyle shoes from running brands (ASICS tennis/pickleball lines, retro sneakers)
 COURT_SHOE = re.compile(r"pick[el]+ball|\btennis\b|\bpadel\b|\bcourt\b|gel[- ]?(resolution|dedicate|game|challenger|1130|nyc|kahana)|solution speed", re.I)
 # lifestyle lines stores file under running (brand + model; Foot Locker, Oct 4, 2026)
@@ -3408,10 +3408,22 @@ BIKE_SHOE_BRANDS = {"leatt", "five ten", "shimano", "giro", "fizik", "northwave"
 SHOE_CARE = re.compile(r"\blaces?\b|\blacets?\b|quicklace|cleaner|cleaning|repel|deodou?ri[sz]er|\bwipes\b|spike wrench|"
                        r"\bspray\b|\bpackage\b.*spikes|\bshoe ?(bag|tree|horn)\b|\binsoles?\b|quick-?clip|"
                        r"replacement spikes|\d+ count\b|roll-?on|foot shield|installation", re.I)
+LEAD_SHOE = re.compile(r"^(trail |road )?running shoes?\s*[-–,]\s*", re.I)      # Stampeak (NNormal), Decathlon: "Trail running shoes - Tomir 2.0"
+ONE_COLOUR = re.compile(r"\s+[-–]\s+(black|white|beige|blue|green|orange|red|brown|burgundy|grey|gray|pink|purple|yellow|navy)(?=\s+[-–]\s+(men|women|unisex))", re.I)
+
 def tidy_shoes(offers):
     """Drop casual footwear and narrow-only shoes; mark wide ones from the product name."""
     out = []
     for o in offers:
+        if o["g"] == "shoes" and LEAD_SHOE.search(o["n"]):       # Oct 19 (mystery shop): "Tomir 2.0 - Unisex", one card for every colour
+            lead = re.sub(r"[\s,–-]+$", "", LEAD_SHOE.search(o["n"]).group(0))      # "Trail Running Shoes" goes after the model
+            n = re.sub(r"\s+–\s+", " - ", ONE_COLOUR.sub("", LEAD_SHOE.sub("", o["n"])))  # (keeps "trail" for the road/trail type)
+            m = re.search(r"\s+-\s+(Men|Women|Unisex)\b.*$", n, re.I)
+            o["n"] = f"{n[:m.start()]} {lead}{n[m.start():]}" if m else f"{n} {lead}"
+            if re.search(r"\btrail\b", lead, re.I):
+                o["_t"] = "trail"     # later tidying may drop the words; the road/trail type stays
+        if o["g"] == "shoes":
+            o["n"] = re.sub(r"\s+-\s+(Men|Women)$", r" - \1's", o["n"])   # Stampeak: "Cadi - Men"
         if o["g"] == "shoes" and SHOE_CARE.search(o["n"]) and not re.search(r"running shoes?|\bshoes?$", o["n"], re.I):
             o["g"] = "gear"            # laces, cleaners, sprays, spike wrenches: shoe things, not shoes (Oct 7 audit)
         if o["g"] == "shoes":
@@ -3637,6 +3649,7 @@ def _shoe_name(o, keep_tr):
     return name
 
 def mkey(o):
+    o = dict(o, n="".join(c for c in unicodedata.normalize("NFD", o["n"]) if not unicodedata.combining(c)))   # Oct 19: "Cadí" = "Cadi"
     name = re.sub(r"[^a-z0-9]+", " ", o["n"].lower()).strip()
     if o["g"] == "shoes":      # "GT-2000 15 — Black/White - Men's" (Fit First lists each colour) = "GT-2000 15 - Men's"
         keep = _shoe_name(o, True)
@@ -3846,6 +3859,8 @@ def merge(offers):
                                    "_ca": [], "_fs": [], "ca": False}
             if o["g"] in TYPES:
                 it["t"] = garment_type(o["g"], f'{o["b"]} {o["n"]}' if o["g"] in ("shoes", "gear") else o["n"])
+        if o.get("_t"):
+            it["t"] = o["_t"]          # a store's "Trail Running Shoes - MT3" (tidy_shoes) says trail, whatever the other names say
         oi = len(it["of"])
         it["of"].append(o["u"]); it["_st"].append(o["st"]); it["_ca"].append(bool(o.get("ca")))
         it.setdefault("_im", []).append(o.get("img") or "")

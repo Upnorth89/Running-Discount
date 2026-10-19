@@ -1416,7 +1416,11 @@ function shoesFirst(list){
 const terrainFit=d=>d.g!=="shoes"||state.terrain==="both"||!d.t||SPIKE.test(d.n)?0:TERRAIN[state.terrain].includes(d.t)?20:-25;
 const score=d=>d.pct+(GROUP_BONUS[d.g]||0)+Math.min(15,(d.reg-d.best)/10)-(d.g==="shoes"&&SPIKE.test(d.n)?30:0)+terrainFit(d);
 /* Names come in English; show gender words in French on the French site. */
-function nm(n){return LANG!=="fr"?n:String(n).replace(/^(Men's|Women's|Unisex)\s+(.+)$/,"$2 - $1").replace(/\bMen's\b/g,"Homme").replace(/\bWomen's\b/g,"Femme").replace(/\bUnisex\b/g,"Unisexe")}
+// Oct 19 (mystery shop: "FuelCell SuperComp Trainer v3 Road Running Shoes - Women's" is long on a phone): cards drop the store's
+// "(Road) Running Shoes" words (they sit under Shoes, with road/trail buttons); "Trail Running Shoes" keeps "Trail" ("Ghost Trail").
+// Display only: search still reads the full name
+const SHOEWORDS=/\s+(?:(road)[- ])?(?:(trail)[- ])?(?:running|run)[- ]shoes?(?=\s*(?:-|\[|\(|$))/i;
+function nm(n){n=String(n).replace(SHOEWORDS,(m,r,tr)=>tr?" Trail":"");return LANG!=="fr"?n:n.replace(/^(Men's|Women's|Unisex)\s+(.+)$/,"$2 - $1").replace(/\bMen's\b/g,"Homme").replace(/\bWomen's\b/g,"Femme").replace(/\bUnisex\b/g,"Unisexe")}
 /* Every item in stock in the profile's sizes, with its best price, the regular price of that size,
    the % off, and the store link that has that price. Same rules as the weekly email. */
 function matchItems(p,list){
