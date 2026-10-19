@@ -1999,6 +1999,17 @@ def mec_item(h):
         best = gp.get("salePrice") or h.get("salePrice") or reg
     if not best:
         return None
+    # Oct 19 (Bastien: the women's norda 002 at MEC wasn't the price shown): a saved record is ONE colour + size (colour /
+    # sizeValue) but lists the sizes of every colour. When the colours' prices differ (Stealth Black on clearance $206.47,
+    # Cinder full price $294.95), the sale price is only sure for that record's own size; the other sizes show the full price
+    nows = set()
+    for v in (h.get("variants") or {}).values():
+        gp = ((v.get("prices") or {}).get("guest")) or {}
+        p_ = gp.get("price") or v.get("price")
+        if p_:
+            nows.add(round(float(gp.get("salePrice") or gp.get("effectivePrice") or p_), 2))
+    own = norm_size(h["sizeValue"]) if h.get("sizeValue") else None
+    mixed_price = (lambda x: best) if len(nows) <= 1 or not own else (lambda x: best if norm_size(x) == own else reg)
     sz = h.get("size") or {}
     g_ = h.get("gender")
     sizes = (sz.get("US Men's") if g_ != "womens" else None) or sz.get("US Women's") or sz.get("US Men's") \
@@ -2010,7 +2021,7 @@ def mec_item(h):
     return {"st": "mec", "b": h.get("brand") or "", "n": h.get("title") or "", "u": MEC_BASE + h["url"], "g": g,
             "sx": sx, "w": (h.get("shoeWidth") or "").lower() == "wide" or bool(re.search(r"\bwide\b", h.get("title", ""), re.I)),
             "img": img, "lp": round(float(reg), 2), "bb": None,
-            "sz": [[norm_size(x), round(float(best), 2), round(float(reg), 2)] for x in dict.fromkeys(sizes)]}
+            "sz": [[norm_size(x), round(float(mixed_price(x)), 2), round(float(reg), 2)] for x in dict.fromkeys(sizes)]}
 
 def scrape_mec():
     root = f"{MEC_BASE}/en/products/running"
