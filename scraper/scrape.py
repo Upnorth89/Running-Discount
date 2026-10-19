@@ -2909,12 +2909,9 @@ SHIPS_US = set()       # Canadian stores that ship to the US, shown on the USA s
        # Canadian stores that also ship to the US (shown on the USA side too)
 
 SVP_NOT_RUNNING = re.compile(r"\b(yoga|maternity|nursing|skateboarding|track (top|jacket|pant)|tricot|firebird|adicolor|fenty|"
-                             # Oct 19 (Bastien: "I thought we didn't incorporate lifestyle stuff"): its running section also holds
-                             # adidas/Nike/Puma gym and studio lines (235 of its 508 clothing cards): "Optime", "HIIT", "Designed for
-                             # Training", "Studio", "Gym+", soccer "Entrada"/"Tiro", tennis "Court"/"Match", "Stella McCartney"
-                             r"optime|hiit|studio|designed for training|training|gym\+?|farm rio|techfit|alphastrength|primelift|"
-                             r"aeroimpact|coreflow|all me|hyperglam|stadium|creator 365|entrada|tiro|tailored|lounge|essentials|"
-                             r"cover[- ]?up|court|match|stella mccartney|powerimpact|seamless|biker)\b", re.I)
+                             # Oct 19: soccer ("Entrada", "Tiro") and tennis ("Court", "Match") lines in its running section. Gym and
+                             # studio wear stays (Bastien: "It can be outdoor or workout clothes, it's fine")
+                             r"entrada|tiro|court|match)\b", re.I)
 
 def tidy_svp(items):
     """SVP Sports writes "adidas - Men's Ultradream DNA Shoes (JS0321)" with sizes "M11" / "W8": drop the brand in front,
