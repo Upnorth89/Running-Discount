@@ -2767,6 +2767,7 @@ SHOPIFY_STORES = [
     ("runnersplus",    "https://runnersplus.com",            "gear"),   # Runners Plus (Chicago area)
     ("gazelle",        "https://gazellesports.com",          "gear"),   # Gazelle Sports (Michigan)
     ("sportsbasement", "https://sportsbasement.com",         "gear"),   # Sports Basement (California)
+    ("paragon",        "https://www.paragonsports.com",      "gear"),   # Paragon Sports (Union Square, New York City): running shoes only
     # 2026 Best Running Stores (The Running Event) with a readable Shopify feed
     ("tortoisehare",   "https://www.tortoiseandharesports.com", "gear"),   # Tortoise & Hare Sports (Glendale, AZ)
     ("runflagstaff",   "https://www.runflagstaff.com",       "gear"),   # Run Flagstaff (AZ)
@@ -2898,8 +2899,8 @@ US_SHOPS = {"pacers", "portlandrun", "heartbreak", "runnersplus", "gazelle", "sp
             "runflagstaff", "runninglab", "playmakers", "millcity", "runningwell", "mountainrun", "confluence", "columbusrun",
             "scrantonrun", "trailheadrun", "prrunwalk", "performancerun", "fitnesssports", "athleticannex", "annarborrun",
             "tworivers", "xtramile", "lukeslocker", "sfrunco", "backcountry", "rei",
-            "territory", "pathprojects", "ombraz", "2xuus"} | set(RUNFREE_US)   # REI ships within the US only
-US_COLLECTIONS = {"sportsbasement": ["running"], "sail": ["outdoor-gear-running"], "svp": ["running-collection"], "humaca": ["nutrition"]}   # (Canadian stores too: SAIL)   # general stores: their running section only (Sports Basement also sells
+            "territory", "pathprojects", "ombraz", "2xuus", "paragon"} | set(RUNFREE_US)   # REI ships within the US only
+US_COLLECTIONS = {"paragon": ["running-shoes", "running"], "sportsbasement": ["running"], "sail": ["outdoor-gear-running"], "svp": ["running-collection"], "humaca": ["nutrition"]}   # (Canadian stores too: SAIL)   # general stores: their running section only (Sports Basement also sells
                                                    # snowboards, swimwear, tennis: those topped the US deals, Oct 6, 2026)
 # Shoebacca was tried and dropped (Oct 6, 2026): mostly PUMA/adidas/Diadora budget and gym shoes, no Hoka/Brooks/ASICS/Nike
 NO_CART = {"svp"}      # robots.txt forbids /cart.js: the currency comes from meta.json only (SVP: CAD)
@@ -2934,6 +2935,45 @@ def tidy_svp(items):
         out.append(o)
     return out
 
+PARAGON_FEET = {"RUN/TRAIN FOOTWEAR", "OUTDOOR FOOTWEAR"}
+def paragon_prods(prods):
+    """Paragon Sports (NYC, Oct 19, 2026; Bastien: "have we been adding stores in NYC?"). Its store system writes
+    "M GAVIOTA 6 | BWHT-BLACK" / "GHOST 18 | 058-EBONY/" with options "Size 1" (size) and "Size 2" (width), and cuts
+    clothing names at 24 letters ("DASH COOLING SHORT SLEEV"), so only its shoes are read. Gender from the name ("M ", "W ",
+    "WM ", "U ", " M", " MEN", " W") or else the width letters (B = women's regular, D/2E/4E only = men's); a shoe with neither
+    (Salomon "PULSAR", EU-only sizes) is left out rather than guessed. Kids' sizes (13, 1, 1.5…) are left out."""
+    out = []
+    for p in prods:
+        if (p.get("product_type") or "").strip().upper() not in PARAGON_FEET:
+            continue
+        name = (p.get("title") or "").split(" | ")[0].strip()
+        if len(name) >= 24:                          # cut at 24 letters: the last word may be half a word ("4 X HYRO")
+            name = name.rsplit(" ", 1)[0]
+        widths = {(v.get("option2") or "").strip().upper() for v in p.get("variants") or []} - {""}
+        sizes = {(v.get("option1") or "").strip() for v in p.get("variants") or []}
+        if sizes & {"1", "1.5", "2", "2.5", "3"} or re.search(r"\b(BUN|GS|PS|TD|KIDS?|YOUTH)\b", name):
+            continue
+        sx = None
+        m = re.match(r"^(MNS|MENS|M|WMNS|WM|W|U)\s+", name)
+        m2 = re.search(r"\s+(MEN|MENS|M|WOMEN|WOMENS|WMN|W)$", name)
+        if m:
+            sx, name = {"M": "Men's", "MNS": "Men's", "MENS": "Men's", "U": "Unisex"}.get(m.group(1), "Women's"), name[m.end():]
+        elif m2:
+            sx, name = ("Women's" if m2.group(1).startswith("W") else "Men's"), name[:m2.start()]
+        elif "B" in widths or "2A" in widths:
+            sx = "Women's"
+        elif widths and widths <= {"D", "2E", "4E"}:
+            sx = "Men's"
+        if not sx:
+            continue
+        q = dict(p)
+        name = re.sub(r"\s+NYCM?$", "", name)       # NYC Marathon colourways: the same shoe ("SUPERCOMP ELITE V6 NYC")
+        q["title"] = f"{soften_caps(name)} - {sx}"
+        q["product_type"] = "Running Shoes"       # generic_group: a name like "Ghost 18" alone doesn't say it's a shoe
+        q["options"] = [dict(o, name=("Size" if i == 0 else "Width")) for i, o in enumerate(p.get("options") or [])]
+        out.append(q)
+    return out
+
 def make_shopify_scraper(st, base, kind):
     def run():
         # quick probe so a dead / blocked / non-Shopify store costs one request, not minutes of retries
@@ -2965,12 +3005,17 @@ def make_shopify_scraper(st, base, kind):
                         prods.append(p)
         else:
             prods = shopify_products(base, max_pages=SHOPIFY_MAX_PAGES, cookies=cookies)
+        if st == "paragon":
+            prods = paragon_prods(prods)
         fx = fx_to_cad(cur)
         print(f"  {st}: {len(prods)} products, store {home}, prices in {cur}" + (f" x{fx}" if cur != "CAD" else ""), file=sys.stderr)
         items = shopify_items(st, base, prods, generic_group(kind), fx=fx, size_aware=True, collapse=True,
                               size_fn=(lambda _l: "OS") if kind == "eyewear" else generic_size)
         if st == "svp":
             items = tidy_svp(items)
+        if st == "paragon":
+            for o in items:
+                o["g"] = "shoes"       # only its footwear is read ("AERO GLIDE 4" isn't Body Glide)
         for o in items:
             o["ca"] = home == "CAD"         # a store based in CAD ships from Canada; USD/EUR/GBP stores are cross-border
             o["us"] = home == "USD"         # ships from the US (the USA side's "Ships from the US")
@@ -3283,7 +3328,7 @@ def drop_kids(offers):
 US_CASUAL_BRANDS = {"sorel", "olukai", "k-swiss", "smellwell", "dryshod", "vans", "converse", "sperry", "keen"}
 US_LIFESTYLE_BRANDS = {"beyond yoga", "fp movement", "free people", "nux", "rvca", "roark", "travismathew", "sunsets", "forum snowboards"}
 US_CASUAL = re.compile(r"\b(sneaker|leather|boot|slip-?on)s?\b", re.I)
-US_CAPS_STORES = {"runningwell", "performancerun"} | set(RUNFREE_US)     # US shops that write everything in capitals
+US_CAPS_STORES = {"runningwell", "performancerun", "paragon"} | set(RUNFREE_US)     # US shops that write everything in capitals
 US_WIDTH = re.compile(r"\s+-\s+[^-]+?\s+-\s+(Regular|Medium|Standard|Wide|Extra Wide|X-?Wide|Narrow)\s*\(\s*[A-Z0-9]+\s*\)", re.I)
 STYLE_CODE = re.compile(r"\s+((?=[A-Z0-9]*\d)(?=[A-Z0-9]*[A-Z])[A-Z0-9]{7,}|\d{6,})(?=$|\s+-\s)")
 

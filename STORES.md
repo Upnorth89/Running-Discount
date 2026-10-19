@@ -146,6 +146,7 @@ day (e.g. no catalog file). Stores on both sides: Altra, Bandit, District Vision
 | San Francisco Running Company | store.sfrunco.com | Shopify | 214 | 34 |
 | Scranton Running Company | scrantonrunning.com | Shopify | 244 | 45 |
 | Sports Basement | sportsbasement.com | Shopify | 1,285 | 577 |
+| Paragon Sports (NYC) | paragonsports.com | Shopify (running-shoes + running collections; shoes only, Oct 19) | 385 | 0 |
 | Stance | stance.com | Shopify | 937 | 440 |
 | Terra Running Company | shop.terrarunning.com | RunFree (night read) | 193 | 45 |
 | Territory Run Co. | territoryrun.co | Shopify | 48 | 10 |
