@@ -258,6 +258,7 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
 .calm #filtersBox:not(.open) .tools{display:none}
 .calm h1{margin-top:14px}
 .calm .lede{margin-bottom:12px}
+.hook{margin:-6px 0 14px;font-size:15px}.hook a{color:var(--ink);text-decoration:none}.hook b{background:var(--hivis);color:var(--hivis-ink);border-radius:6px;padding:1px 6px;font-weight:800}.hook .go{color:var(--moss);font-weight:700}
 .calm .watchnews{padding:8px 14px;font-size:14px;margin-bottom:12px}
 .calm .watchnews .btn{border:0;background:none;color:var(--moss);text-decoration:underline;padding:0;min-height:32px;font-size:15px}
 #newBox .grp{margin-bottom:18px}
@@ -495,6 +496,7 @@ body.locked #langBtn,body.locked #curBtn,body.locked #openWatch,body.locked #men
   <h1 id="pageTitle">On sale in your size</h1>
   <p class="subhead hidden" id="subhead"></p>
   <p class="lede" id="lede">Loading today's gear…</p>
+  <p class="hook hidden" id="hook"></p>
   <div class="watchnews hidden" id="watchNews"></div>
   <div class="stats hidden" id="stats"></div>
 
@@ -756,6 +758,7 @@ en:{
   watchEmpty:"Tap the ♡ on any deal to watch it. We'll email you when it drops in price or comes back in your size.",
   pricesChange:"Prices and stock change every day. The store's page has the final price.",
   newSince:n=>`<b>${n}</b> new since your last visit`,show:"Show",
+  hookDrop:"Biggest drop in your size:",hookDropAll:"Biggest drop today:",hookShoe:"Biggest shoe deal in your size:",hookShoeAll:"Biggest shoe deal today:",hookDeal:"Biggest deal in your size:",hookDealAll:"Biggest deal today:",
   filters:"Filters",ledeShort:s=>`${s} deals in your size today`,ledeAll:s=>`${s} deals today`,updated:u=>`Updated ${u}. `,
   watchShort:(d,b)=>"<b>Watchlist:</b> "+[d?`${d} price ${PL(d,"drop","drops")}`:"",b?`${b} back in your size`:""].filter(Boolean).join(" · "),see:"See",
   swipe:"Swipe →",seeAll:n=>`See all ${n}`,asList:"as a list",asRow:"Show as a row",
@@ -858,6 +861,7 @@ fr:{
   watchEmpty:"Touchez le ♡ sur une aubaine pour l'ajouter à vos favoris. On vous écrit quand le prix baisse ou quand votre taille revient.",
   pricesChange:"Les prix et les stocks changent tous les jours. Le prix final est sur la page de la boutique.",
   newSince:n=>`<b>${n}</b> ${PL(n,"nouveauté","nouveautés")} depuis votre dernière visite`,show:"Voir",
+  hookDrop:"Plus forte baisse dans votre taille :",hookDropAll:"Plus forte baisse aujourd'hui :",hookShoe:"Meilleure aubaine chaussure dans votre taille :",hookShoeAll:"Meilleure aubaine chaussure aujourd'hui :",hookDeal:"Meilleure aubaine dans votre taille :",hookDealAll:"Meilleure aubaine aujourd'hui :",
   filters:"Filtres",ledeShort:s=>`${s} aubaines à votre taille aujourd'hui`,ledeAll:s=>`${s} aubaines aujourd'hui`,updated:u=>`Mis à jour ${u}. `,
   watchShort:(d,b)=>"<b>Favoris :</b> "+[d?`${d} ${PL(d,"baisse de prix","baisses de prix")}`:"",b?`${b} de retour dans votre taille`:""].filter(Boolean).join(" · "),see:"Voir",
   swipe:"Glissez →",seeAll:n=>`Voir les ${n}`,asList:"en liste",asRow:"Afficher en rangée",
@@ -1861,6 +1865,23 @@ function sinceBar(all){const base=LS.get("gf-base");if(!base||!base.at)return ""
    daily-changing number instead. The drops count goes with test "drops" (group B), so group A sees the plain line. */
 let saleNow=0;
 // Oct 18 (Bastien: "it feels like a lot of information"): one short line; the "Dropped today" row right under it speaks for itself, "updated" sits at the bottom
+/* Oct 19 (Bastien: "we need a $$$ to hook people", but a big total "sounds way too big"): one real deal, named, with its
+   money: today's biggest price drop in your size ($10+), else today's biggest deal in dollars. Tapping opens it. */
+function setHook(list){const el=$("hook");if(!el)return;
+  const off=d=>d.reg-d.best,drop=d=>d.dp?d.dp-d.best:0;
+  // a drop under $40 doesn't hook anyone (Oct 19 preview: "Sugoi jacket, −$20"): then the biggest shoe deal in dollars
+  let d=list.filter(x=>drop(x)>=40).sort((a,b)=>drop(b)-drop(a))[0],kind="Drop";
+  if(!d){const sh=list.filter(x=>x.g==="shoes"&&off(x)>=20);d=(sh.length?sh:list.filter(x=>off(x)>=20)).sort((a,b)=>off(b)-off(a))[0];kind=sh.length?"Shoe":"Deal"}
+  if(!d){el.classList.add("hidden");return}
+  const amt=kind==="Drop"?drop(d):off(d),base=kind==="Drop"?d.dp:d.reg;
+  const tag=base>=100?"−"+money(Math.round(amt)).replace(/[.,]00(?=\D*$)/,""):"−"+Math.round(100*amt/base)+"%";
+  const name=d.b+" "+nm(d.n).replace(/ - (Men's|Women's|Unisex|Homme|Femme|Unisexe)$/,"");
+  el.innerHTML=`<a href="${esc(affUrl(d.url))}" data-store="${esc(storeOf(d.url))}" target="_blank" rel="noopener">${t("hook"+kind+(hasSizes()?"":"All"))} ${esc(name)}, <b>${tag}</b> <span class="go">→</span></a>`;
+  el.classList.remove("hidden");HOOKD=d}
+let HOOKD=null;
+document.addEventListener("click",e=>{const a=e.target.closest("#hook a");if(!a||!HOOKD)return;const d=HOOKD;
+  track("deal-click",{store:a.dataset.store,brand:d.b,group:d.g,pct:d.pct,view:"hook"});
+  ana("deal-click",[a.dataset.store,d.g,d.pct,"hook",""].join("|"),1);logEvent("click",a.dataset.store,d.g)});
 function setCalmLede(){if(!DATA||(gated()&&!peeking())||view.watch)return;
   $("lede").textContent=t(hasSizes()?"ledeShort":"ledeAll",num(saleNow))}
 function renderStats(){
@@ -1914,6 +1935,7 @@ function renderAll(){
   const where=state.ships==="all"?t("storesAll"):t("storesCA");
   saleNow=onSale.length;
   if(CALM)setCalmLede();
+  if(CALM&&!q.length&&!view.store&&!cdn)setHook(onSale);else if($("hook"))$("hook").classList.add("hidden");
   else $("lede").textContent=t("lede",num(onSale.length),num(all.length),where,DATA.updated?ago(DATA.updated):"");
   computeNew(onSale);renderStats();renderWatchButton();
   // Sale items only, unless "Include full price" is on; then everything in your size, sale items first

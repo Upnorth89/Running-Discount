@@ -553,6 +553,18 @@ def site_flow(base, per, accented):
             return f"search on top, {r['tiles']} tiles in the row{more}"
         check("Search on top, small tiles in the swipe row")(layout_test, page)
 
+        def hook_line():   # Oct 19: under "N deals in your size today", one real deal with its money ("Biggest drop in your size: X, −$120")
+            page.goto(base, wait_until="domcontentloaded")
+            page.wait_for_selector("section.grp .deal", timeout=20000)
+            r = page.evaluate("""() => {const h = document.querySelector('#hook'), a = h && h.querySelector('a');
+                return {shown: !!h && !h.classList.contains('hidden'), text: h ? h.textContent : '', href: a ? a.href : ''}}""")
+            if not r["shown"]:
+                return "no deal $10+ off in men's 11 / M today: line hidden"
+            assert re.search(r"(Biggest (drop|deal|shoe deal)).*−(\$\d|\d+%)", r["text"]), f"hook line looks wrong: {r['text']!r}"
+            assert r["href"].startswith("http") and "thegearfox" not in r["href"], f"hook line doesn't open a store: {r['href']}"
+            return r["text"].strip()
+        check("Top line: today's biggest drop or deal in your size, with its $")(hook_line, page)
+
         def whole_page():   # Oct 18 (Bastien: "nothing should ever be silo"): two tests each added a swipe row and nobody saw them
             # together. Every live test on at once (all B), then all off (all A): the top of the page on a phone stays tidy.
             names = re.findall(r'"([a-z0-9]+)"', (re.search(r"const TESTS=\[([^\]]*)\]", site_get("index.html") or "") or [None, ""])[1])
