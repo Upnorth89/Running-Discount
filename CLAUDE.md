@@ -220,6 +220,10 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   without talking to me first. I want us to have conversations around changes").** Bring the idea + my pick + why in a few lines,
   agree, then build it in the preview, then ship on his OK. Ship without asking only what's clearly broken (wrong price, duplicate
   cards, crashes, sorting bugs).
+- **Design polish is mine, growth is the priority (Bastien, Oct 19: "I'm spending lots of time on design vs growth. I shouldn't have to
+  ask will the filter button cover the other buttons").** Once a direction is agreed, I make it consistent and check it myself at
+  320/390/768/1280px (site test "Top of the page: nothing overlaps"): one shape family, nothing overlapping, nothing cut off. Bring
+  finished work, not pieces; time with him goes to growth (sign-ups, posts, stores).
 - **Be blunt, with real evidence (Bastien, Oct 18: "Use accurate consumer trends and data. If I suggest something that doesn't work,
   tell me it's stupid and the reason why. I need to stop reminding you of this").** Every recommendation cites our own numbers
   (funnel.yml) and/or established UX/consumer research (Baymard, Nielsen Norman Group…), named, never made-up stats. When his idea

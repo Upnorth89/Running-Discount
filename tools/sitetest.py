@@ -565,6 +565,29 @@ def site_flow(base, per, accented):
             return r["text"].strip()
         check("Top line: today's biggest drop or deal in your size, with its $")(hook_line, page)
 
+        def top_overlap():   # Oct 19 (Bastien: "I shouldn't have to ask will the filter button cover the other buttons"): at 320/390/768/1280px
+            out = []       # nothing in the header and the lines above the deals sits on top of something else, nothing wider than the screen
+            try:
+                for w in (320, 390, 768, 1280):
+                    page.set_viewport_size({"width": w, "height": 800})
+                    settle(page, 400)
+                    r = page.evaluate("""() => {const box = e => e.getBoundingClientRect();
+                        const els = [...document.querySelectorAll('.topbar a,.topbar button,.topbar input,#subhead,#hook a,#filtBtn,#pageTitle,#cats')].filter(e => e.offsetParent);
+                        const ov = [];
+                        for (let i = 0; i < els.length; i++) for (let j = i + 1; j < els.length; j++) {
+                            const a = box(els[i]), b = box(els[j]);
+                            if (a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1 && !els[i].contains(els[j]) && !els[j].contains(els[i]))
+                                ov.push((els[i].id || els[i].className) + ' / ' + (els[j].id || els[j].className))}
+                        return {ov, wide: document.documentElement.scrollWidth}}""")
+                    assert not r["ov"], f"{w}px: {', '.join(r['ov'][:3])} overlap"
+                    assert r["wide"] <= w + 1, f"{w}px: the page is {r['wide'] - w}px too wide"
+                    out.append(f"{w}px ok")
+            finally:
+                page.set_viewport_size({"width": 390, "height": 844})
+                settle(page, 300)
+            return ", ".join(out)
+        check("Top of the page: nothing overlaps (phone to computer)")(top_overlap, page)
+
         def whole_page():   # Oct 18 (Bastien: "nothing should ever be silo"): two tests each added a swipe row and nobody saw them
             # together. Every live test on at once (all B), then all off (all A): the top of the page on a phone stays tidy.
             names = re.findall(r'"([a-z0-9]+)"', (re.search(r"const TESTS=\[([^\]]*)\]", site_get("index.html") or "") or [None, ""])[1])
