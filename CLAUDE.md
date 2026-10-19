@@ -268,6 +268,13 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
 - **Growth calendar** (Oct 11, Bastien: "post every 3 days on running gear"): plan doc section "Growth: a post every 3 days" + send_later
   reminders at 6:30am Vancouver (C25K Oct 14, RunningShoes 17, runninglifestyle 20, BuyCanadian 23, xxrunning 26, trailrunning 29,
   FrugalMaleFashionCDN Nov 1, ultrarunning 4, RunningShoeGeeks 7 + plan the rest to Cyber Monday). A different place each time.
+- **Google first (Bastien, Oct 19: "let's focus on where we retain and Google seo").** Funnel Oct 12-19: Reddit 276 first visits,
+  1 sign-up, 3% came back; Google 26 visits, 40% came back, median 76 s. Reddit = awareness only; never judge a site change on Reddit
+  visitors. Search Console (Oct 19): ~98 clicks in 3 weeks, nearly all "the gear fox"; shoe searches sit at positions 30-70 (new site,
+  few links in). 1,226 pages indexed, 411 waiting. Shipped: homepage canonical, brand titles with today's count ("Altra Sale Canada: 31
+  running shoes on sale, up to 55% off"), On = "On Running". Next levers: links from real running sites (press pitch), pages already
+  near page 1 (on-cloudboom-max pos 3, /shoes/ 4, running-shoes-sale/ 6.5, brands/asics 7), brand+gender+size long tail (no thin pages).
+  Push notifications parked (iPhone needs the home-screen app first; visitors stay ~20 s).
 - **Reddit results (keep current):** r/RunningDeals: Oct 18 post (3 CA + 3 US, item links to thegearfox.com) stayed up. r/BuyCanadian: removed
   by the mods Oct 17 even with only 3 items: don't post there again (ask the mods first if ever). Posting in the same sub again:
   `reddit_post.py --exclude "model,model"` skips items posted there recently (ask Bastien whether the last draft was actually posted).
