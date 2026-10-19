@@ -538,7 +538,7 @@ def site_flow(base, per, accented):
             page.goto(base + "?exp=drops:B", wait_until="domcontentloaded")
             page.wait_for_selector("section.grp .deal", timeout=20000)
             r = page.evaluate("""() => {const y = s => {const e = document.querySelector(s); return e ? e.getBoundingClientRect().top : null};
-                return {search: y('.searchrow'), row: y('#newBox section.grp'), tiles: document.querySelectorAll('#newBox .tw').length,
+                return {search: y('#dSearch'), row: y('#newBox section.grp'), tiles: document.querySelectorAll('#newBox .tw').length,
                         cards: document.querySelectorAll('#newBox .dw:not(.tw)').length}}""")
             if r["row"] is None:
                 return "no swipe row today (nothing dropped / new in men's 11 / M)"

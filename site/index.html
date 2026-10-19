@@ -73,6 +73,16 @@ input:focus-visible,button:focus-visible,summary:focus-visible,select:focus-visi
 .watchbtn .n:empty{display:none}
 .langbtn{font:700 14px/1 var(--body);letter-spacing:.04em;color:var(--ink);background:transparent;border:1.5px solid var(--line);border-radius:999px;min-width:44px;min-height:44px;padding:0 10px;cursor:pointer}
 .iconbtn{margin-left:0}.topbar .spacer{flex:1}
+/* Oct 19 (Bastien: "the search bar should be in the header in the middle. On the phone it would have to collapse the logo"):
+   search sits in the sticky header (one tap away anywhere on the page; Baymard: mobile shoppers expect an open search box at
+   the top); phones show the fox icon instead of the wordmark; Filters moves beside the category chips */
+.hsearch,.logomini{display:none}
+.hdrsearch .hsearch{display:flex;flex:1;min-width:0}
+.hdrsearch .topbar .spacer{display:none}
+.hdrsearch .hsearch .search{margin:0;width:100%;min-width:0;min-height:42px}
+.catrow{display:flex;align-items:center;gap:8px}.catrow #cats{flex:1;min-width:0}.catrow .filtbtn{min-height:40px}
+@media(max-width:899px){.hdrsearch .topbar .in{gap:10px}.hdrsearch .topbar .logo picture,.hdrsearch .topbar .logo .tag{display:none}
+  .hdrsearch .logomini{display:block;width:36px;height:36px;border-radius:9px}}
 .topbar{position:sticky}.menu{position:absolute;right:max(16px,calc(50% - 324px));top:calc(100% + 6px);z-index:30;width:min(300px,calc(100vw - 32px));background:var(--card);border:1.5px solid var(--line);border-radius:18px;box-shadow:0 14px 40px rgba(0,0,0,.18);padding:8px}
 .menu[hidden]{display:none}
 .menu>a,.menu>button{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;padding:0 12px;border:0;border-radius:12px;background:none;font:600 16px/1.2 var(--body);color:var(--ink);text-decoration:none;text-align:left;cursor:pointer}
@@ -450,6 +460,7 @@ body.locked #langBtn,body.locked #curBtn,body.locked #openWatch,body.locked #men
   .wrap{padding-left:24px;padding-right:24px}.topbar .in{padding-left:24px;padding-right:24px}
   .grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
   .newrow .grp.new .dw{flex:0 0 calc((100% - 30px)/3.4);max-width:none}
+  .newrow .grp.new .dw.tw{flex:0 0 160px;max-width:160px}   /* Oct 19: tiles stay small on computers too (7 in view) */
   .menu{right:max(24px,calc(50% - 566px))}
   .lede,.subhead{max-width:760px}
   .searchrow{max-width:760px}
@@ -470,7 +481,9 @@ body.locked #langBtn,body.locked #curBtn,body.locked #openWatch,body.locked #men
       <img src="logo-mark.svg" alt="The Gear Fox" width="1534" height="664">
     </picture>
     <span class="tag" data-i18n="tagline">OUTFOX FULL PRICE</span>
+    <svg class="logomini" width="36" height="36" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#17201C"/><path d="M14 14 L25 26 L39 26 L50 14 L50 34 L32 54 L14 34 Z" fill="#F26A1B"/><path d="M19 36 L32 50 L45 36 L38 38 L32 44 L26 38 Z" fill="#FFFFFF"/><path d="M18 20 L23 26 L18 28 Z M46 20 L41 26 L46 28 Z" fill="#17201C" opacity=".55"/><circle cx="25" cy="33" r="2.3" fill="#17201C"/><circle cx="39" cy="33" r="2.3" fill="#17201C"/><path d="M29.5 46 L34.5 46 L32 49.5 Z" fill="#17201C"/></svg>
   </a>
+  <div class="hsearch" id="hSearch"></div>
   <span class="spacer"></span>
   <button class="watchbtn" id="openWatch" type="button" aria-pressed="false" aria-label="Your watchlist" data-i18n-aria="watchlist">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 6.9 4.5c2.1 0 3.6 1.2 5.1 3 1.5-1.8 3-3 5.1-3 3.5 0 5.5 3.5 4.2 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>
@@ -726,7 +739,7 @@ const PL=(n,one,many)=>n===1?one:many;
 const I18N={
 en:{
   tagline:"OUTFOX FULL PRICE",watchlist:"Your watchlist",yourSizes:"Your sizes",menu:"Menu",mDeals:"Today's deals",mShoes:"Shoe prices by model",mSizes:"My sizes",mAbout:"About The Gear Fox",mApp:"Add to your home screen",appTipH:"Get The Gear Fox on your home screen",appTipIos:"Tap the Share button {s} in Safari's bar",appTipIos2:"Scroll down and tap <b style=\"display:inline\">Add to Home Screen</b>",appTipAnd:"Tap the ⋮ menu at the top of Chrome",appTipAnd2:"Tap <b style=\"display:inline\">Add to Home screen</b>",appTipWhy:"It opens like an app, with your sizes ready.",gotIt:"Got it",mCur:"Prices in",edit:"Edit",allDeals:"← All deals",categories:"Categories",
-  sort:"Sort",sortMatch:"Best match",sortDiscount:"Biggest discount",sortPrice:"Lowest price",search:"Search brand or model",
+  sort:"Sort",sortMatch:"Best match",sortDiscount:"Biggest discount",sortPrice:"Lowest price",search:"Search brand or model",searchShort:"Search gear",
   get footer(){return 'The Gear Fox · Outfox full price · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="'+(US()?"us/shoes/":"shoes/")+'">Shoe prices by model</a> · <a href="about.html">About</a> · <a href="privacy.html">Privacy</a>'},close:"Close",fit:"Fit",
   men:"Men's",women:"Women's",both:"Both",menWomen:"Men's & women's",
   terrainH:"Where do you run? <small>for shoes</small>",terrainA:"Where do you run?",terrRoad:"Road",terrTrail:"Trail",terrBoth:"Both",
@@ -829,7 +842,7 @@ en:{
 },
 fr:{
   tagline:"FLAIREZ LES AUBAINES",watchlist:"Vos favoris",yourSizes:"Vos tailles",menu:"Menu",mDeals:"Aubaines du jour",mShoes:"Prix des chaussures par modèle",mSizes:"Mes tailles",mAbout:"À propos de The Gear Fox",mApp:"Ajouter à l'écran d'accueil",appTipH:"The Gear Fox sur votre écran d'accueil",appTipIos:"Touchez le bouton Partager {s} dans la barre de Safari",appTipIos2:"Descendez et touchez <b style=\"display:inline\">Sur l'écran d'accueil</b>",appTipAnd:"Touchez le menu ⋮ en haut de Chrome",appTipAnd2:"Touchez <b style=\"display:inline\">Ajouter à l'écran d'accueil</b>",appTipWhy:"Elle s'ouvre comme une appli, avec vos tailles prêtes.",gotIt:"Compris",mCur:"Prix en",edit:"Modifier",allDeals:"← Toutes les aubaines",categories:"Catégories",
-  sort:"Trier",sortMatch:"Meilleur choix",sortDiscount:"Plus gros rabais",sortPrice:"Prix le plus bas",search:"Chercher une marque ou un modèle",
+  sort:"Trier",sortMatch:"Meilleur choix",sortDiscount:"Plus gros rabais",sortPrice:"Prix le plus bas",search:"Chercher une marque ou un modèle",searchShort:"Chercher",
   footer:'The Gear Fox · Flairez les aubaines · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="chaussures/">Prix des chaussures par modèle</a> · <a href="about.html">À propos</a> · <a href="privacy.html">Confidentialité</a>',close:"Fermer",fit:"Coupe",
   men:"Homme",women:"Femme",both:"Les deux",menWomen:"Homme et femme",
   terrainH:"Où courez-vous? <small>pour les chaussures</small>",terrainA:"Où courez-vous?",terrRoad:"Route",terrTrail:"Sentier",terrBoth:"Les deux",
@@ -946,7 +959,7 @@ const num=n=>Number(n).toLocaleString(LANG==="fr"?"fr-CA":"en-CA");
 function applyStatic(){
   document.documentElement.lang=LANG;
   document.querySelectorAll("[data-i18n]").forEach(el=>el.innerHTML=t(el.dataset.i18n));
-  document.querySelectorAll("[data-i18n-ph]").forEach(el=>el.placeholder=t(el.dataset.i18nPh));
+  document.querySelectorAll("[data-i18n-ph]").forEach(el=>el.placeholder=t(el.dataset.i18nPh));try{hdrPh()}catch(e){}
   document.querySelectorAll("[data-i18n-aria]").forEach(el=>el.setAttribute("aria-label",t(el.dataset.i18nAria)));
   const cb=document.getElementById("curBtn");cb.textContent=CUR;
   cb.setAttribute("aria-label",LANG==="fr"?`Devise : ${CUR}. Afficher en ${CUR==="CAD"?"USD":"CAD"}`:`Currency: ${CUR}. Show in ${CUR==="CAD"?"USD":"CAD"}`);
@@ -1377,6 +1390,10 @@ const TOP_DEFAULT="calm";                                  // "calm" or "full" (
 const TOP=LS0("gf-top")||TOP_DEFAULT;
 const CALM=TOP==="calm";
 if(CALM)document.body.classList.add("calm");
+function hdrPh(){const x=$("dSearch");if(x&&document.body.classList.contains("hdrsearch")&&innerWidth<900)x.placeholder=t("searchShort")}
+if(CALM){document.body.classList.add("hdrsearch");$("hSearch").appendChild($("dSearch"));
+  const r=document.createElement("div");r.className="catrow";$("cats").before(r);r.append($("cats"),$("filtBtn"));
+  const sr=$("filtersBox").querySelector(".searchrow");if(sr)sr.remove();hdrPh()}
 function setTb(){const tb=document.querySelector(".topbar");if(tb)document.documentElement.style.setProperty("--tb",tb.offsetHeight+"px")}
 setTb();addEventListener("resize",setTb);
 /* Prices are stored in CAD. The CAD/USD switch converts for display with the day's rate from the refresh. */
