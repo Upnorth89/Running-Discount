@@ -560,7 +560,7 @@ def site_flow(base, per, accented):
                 return {shown: !!h && !h.classList.contains('hidden'), text: h ? h.textContent : '', href: a ? a.href : ''}}""")
             if not r["shown"]:
                 return "no deal $10+ off in men's 11 / M today: line hidden"
-            assert re.search(r"(Biggest drop today|Top shoe deal|Top deal today).*−(\$\d|\d+%)", r["text"]), f"hook line looks wrong: {r['text']!r}"
+            assert re.search(r"(Top drop|Top shoe|Top deal).*−(\$\d|\d+%)", r["text"]), f"hook line looks wrong: {r['text']!r}"
             assert r["href"].startswith("http") and "thegearfox" not in r["href"], f"hook line doesn't open a store: {r['href']}"
             return r["text"].strip()
         check("Top line: today's biggest drop or deal in your size, with its $")(hook_line, page)

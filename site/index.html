@@ -258,9 +258,15 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
 .calm #filtersBox:not(.open) .tools{display:none}
 .calm h1{margin-top:14px}
 .calm .lede{margin-bottom:12px}
-.ledenum{font:800 30px/1 var(--display);color:var(--ink);margin-right:2px}
-.hook{margin:-4px 0 14px}.hook a{display:inline-flex;align-items:center;gap:6px;font:600 14px/1 var(--body);color:var(--ink);text-decoration:none;border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:6px 6px 6px 12px;min-height:34px;white-space:nowrap}
-.hook b{background:var(--hivis);color:var(--hivis-ink);border-radius:999px;padding:4px 9px;font-weight:800}.hook .go{color:var(--moss);font-weight:700;margin-left:-2px}
+/* Oct 19 (Bastien: the 4 lines above search "look off"): 2 lines. The headline IS the count ("2,863 deals in your size",
+   number in orange); under it one row: sizes + Edit on the left, the $ chip on the right (wraps below on small phones) */
+.ledenum{color:var(--moss)}
+.calm h1{font-size:clamp(28px,7.4vw,38px)}
+.calm .lede{display:none}
+.toprow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;margin:2px 0 14px}
+.toprow .subhead{margin:0;font-size:14px}
+.hook{margin:0}.hook a{display:inline-flex;align-items:center;gap:5px;font:600 13px/1 var(--body);color:var(--ink);text-decoration:none;border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:4px 5px 4px 10px;min-height:32px;white-space:nowrap}
+.hook b{background:var(--hivis);color:var(--hivis-ink);border-radius:999px;padding:4px 7px;font-weight:800}.hook .go{color:var(--moss);font-weight:700;margin-left:-2px}
 .calm .watchnews{padding:8px 14px;font-size:14px;margin-bottom:12px}
 .calm .watchnews .btn{border:0;background:none;color:var(--moss);text-decoration:underline;padding:0;min-height:32px;font-size:15px}
 #newBox .grp{margin-bottom:18px}
@@ -496,9 +502,8 @@ body.locked #langBtn,body.locked #curBtn,body.locked #openWatch,body.locked #men
   <button class="sizepill" id="sizePill" type="button" aria-haspopup="dialog"><span id="sizeSummary">Tell us what fits</span><span class="edit" data-i18n="edit">Edit</span></button>
   <button class="backlink hidden" id="backToDeals" type="button" data-i18n="allDeals">← All deals</button>
   <h1 id="pageTitle">On sale in your size</h1>
-  <p class="subhead hidden" id="subhead"></p>
+  <div class="toprow"><p class="subhead hidden" id="subhead"></p><p class="hook hidden" id="hook"></p></div>
   <p class="lede" id="lede">Loading today's gear…</p>
-  <p class="hook hidden" id="hook"></p>
   <div class="watchnews hidden" id="watchNews"></div>
   <div class="stats hidden" id="stats"></div>
 
@@ -760,12 +765,12 @@ en:{
   watchEmpty:"Tap the ♡ on any deal to watch it. We'll email you when it drops in price or comes back in your size.",
   pricesChange:"Prices and stock change every day. The store's page has the final price.",
   newSince:n=>`<b>${n}</b> new since your last visit`,show:"Show",
-  hookDrop:"Biggest drop today",hookShoe:"Top shoe deal",hookDeal:"Top deal today",
+  hookDrop:"Top drop",hookShoe:"Top shoe",hookDeal:"Top deal",
   filters:"Filters",ledeShort:s=>`${s} deals in your size today`,ledeAll:s=>`${s} deals today`,updated:u=>`Updated ${u}. `,
   watchShort:(d,b)=>"<b>Watchlist:</b> "+[d?`${d} price ${PL(d,"drop","drops")}`:"",b?`${b} back in your size`:""].filter(Boolean).join(" · "),see:"See",
   swipe:"Swipe →",seeAll:n=>`See all ${n}`,asList:"as a list",asRow:"Show as a row",
   offTally:(m,n)=>`<b>${m}</b> off in the ${n} ${PL(n,"deal","deals")} you've opened`,
-  titleWatch:"Your watchlist",titleDeals:"On sale in your size",
+  titleWatch:"Your watchlist",titleDeals:"On sale in your size",headSized:n=>`${n} deals in your size`,headAll:n=>`${n} deals today`,
   gatedLede:"Pick your sizes to see today's deals.",unlock:"See deals in my size",
   get storesAll(){return US()?"stores in the US and abroad":"stores in Canada and abroad"},get storesCA(){return US()?"US stores":"Canadian stores"},
   lede:(s,a,w,u)=>`${s} on sale and ${a} in stock from ${w}${u?` · updated ${u}`:""}.`,
@@ -863,12 +868,12 @@ fr:{
   watchEmpty:"Touchez le ♡ sur une aubaine pour l'ajouter à vos favoris. On vous écrit quand le prix baisse ou quand votre taille revient.",
   pricesChange:"Les prix et les stocks changent tous les jours. Le prix final est sur la page de la boutique.",
   newSince:n=>`<b>${n}</b> ${PL(n,"nouveauté","nouveautés")} depuis votre dernière visite`,show:"Voir",
-  hookDrop:"Plus forte baisse",hookShoe:"Meilleure chaussure",hookDeal:"Meilleure aubaine",
+  hookDrop:"Top baisse",hookShoe:"Top chaussure",hookDeal:"Top aubaine",
   filters:"Filtres",ledeShort:s=>`${s} aubaines à votre taille aujourd'hui`,ledeAll:s=>`${s} aubaines aujourd'hui`,updated:u=>`Mis à jour ${u}. `,
   watchShort:(d,b)=>"<b>Favoris :</b> "+[d?`${d} ${PL(d,"baisse de prix","baisses de prix")}`:"",b?`${b} de retour dans votre taille`:""].filter(Boolean).join(" · "),see:"Voir",
   swipe:"Glissez →",seeAll:n=>`Voir les ${n}`,asList:"en liste",asRow:"Afficher en rangée",
   offTally:(m,n)=>`<b>${m}</b> de rabais sur ${PL(n,"l'aubaine que vous avez ouverte",`les ${n} aubaines que vous avez ouvertes`)}`,
-  titleWatch:"Vos favoris",titleDeals:"En solde à votre taille",
+  titleWatch:"Vos favoris",titleDeals:"En solde à votre taille",headSized:n=>`${n} aubaines à votre taille`,headAll:n=>`${n} aubaines aujourd'hui`,
   gatedLede:"Choisissez vos tailles pour voir les aubaines du jour.",unlock:"Voir les aubaines à ma taille",
   get storesAll(){return US()?"des boutiques aux États-Unis et à l'étranger":"des boutiques au Canada et à l'étranger"},get storesCA(){return US()?"des boutiques américaines":"des boutiques canadiennes"},
   lede:(s,a,w,u)=>`${s} en solde et ${a} en stock ${w}${u?` · mis à jour ${u}`:""}.`,
@@ -1886,7 +1891,9 @@ document.addEventListener("click",e=>{const a=e.target.closest("#hook a");if(!a|
   track("deal-click",{store:a.dataset.store,brand:d.b,group:d.g,pct:d.pct,view:"hook"});
   ana("deal-click",[a.dataset.store,d.g,d.pct,"hook",""].join("|"),1);logEvent("click",a.dataset.store,d.g)});
 function setCalmLede(){if(!DATA||(gated()&&!peeking())||view.watch)return;
-  $("lede").innerHTML=t(hasSizes()?"ledeShort":"ledeAll",`<b class="ledenum">${num(saleNow)}</b>`)}   // Oct 19 (Bastien): the number stands out
+  const n=`<span class="ledenum">${num(saleNow)}</span>`;
+  $("lede").innerHTML=t(hasSizes()?"ledeShort":"ledeAll",n);
+  if(CALM&&saleNow)$("pageTitle").innerHTML=t(hasSizes()?"headSized":"headAll",n)}   // Oct 19: the headline is the count
 function renderStats(){
   if(CALM){$("tally").classList.add("hidden");$("stats").classList.add("hidden");setCalmLede();return}
   const el=$("stats");const parts=[];
@@ -1914,7 +1921,7 @@ function renderAll(){
     const dirty=state.ships==="all"||view.fullPrice||view.sort!=="match"||!!view.store||(view.cdn&&!US());$("filtDot").classList.toggle("hidden",!dirty)}
   const w=!!view.watch;
   $("filtersBox").classList.toggle("hidden",w);$("backToDeals").classList.toggle("hidden",!w);
-  $("pageTitle").textContent=w?t("titleWatch"):t("titleDeals");
+  $("pageTitle").textContent=w?t("titleWatch"):t("titleDeals");if(!w)setCalmLede();
   saveWatches();
   renderFilters();
   if(!DATA){$("dealList").innerHTML=`<div class="empty">${t("loading")}</div>`;return}
