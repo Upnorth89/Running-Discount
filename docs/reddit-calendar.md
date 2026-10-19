@@ -11,8 +11,8 @@ every link opened on the live site first, the copy page + the Markdown block. Ba
 |------|--------|-----------|--------|
 | A | r/RunningDeals (`--side both --direct`) | r/runTO (`--toronto`, mod-approved) | r/trailrunning (`--kind trail`) |
 | B | r/RunningDeals | r/runninglifestyle | r/xxrunning (`--sex women`, check rules) |
-| C | r/RunningDeals | Vancouver running sub (`--city vancouver`) | r/ultrarunning (`--kind trail`, his own story first) |
-| D | r/RunningDeals | Montréal / Québec running sub (`--city montreal`, FR + EN) | r/FrugalMaleFashionCDN (`--side ca --sex men`, check rules) |
+| C | r/RunningDeals | r/RunVancouver (`--city vancouver`) | r/ultrarunning (`--kind trail`, his own story first) |
+| D | r/RunningDeals | r/runningmontreal (`--city montreal`, FR + EN) | r/FrugalMaleFashionCDN (`--side ca --sex men`, check rules) |
 
 Weeks: B = the week of Mon Oct 19, 2026, then C (Oct 26), D (Nov 2), A (Nov 9), B (Nov 16)… (week letter = A + ((Monday - Nov 9) / 7) mod 4). This week skips Monday (r/RunningDeals was posted Oct 18). Black Friday week (Nov 23-30): every post points to /black-friday/ (US /us/black-friday/).
 
@@ -23,6 +23,6 @@ Every 4 weeks: drop a sub that brought no visitors (funnel.yml first visits by ?
 | Date | Sub | Posted? | Visits from it (7 days) |
 |------|-----|---------|-------------------------|
 | Oct 18 | r/RunningDeals (3 CA + 3 US) | yes, stayed up | |
-| Oct 18 | Vancouver + Montréal/winter posts | yes | |
+| Oct 18 | r/RunVancouver + r/runningmontreal (fall/winter) | yes | |
 | Oct 17 | r/BuyCanadian | removed by mods | |
 | Oct 17 | r/runTO | yes | |
