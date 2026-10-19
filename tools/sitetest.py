@@ -545,13 +545,13 @@ def site_flow(base, per, accented):
             page.evaluate("() => localStorage.removeItem('gf-exp')")
             page.goto(base, wait_until="domcontentloaded")
             page.wait_for_selector("section.grp .deal", timeout=20000)
-            assert a["tiles"] == 0, "group A shows tiles"
             if b["row"] is None:
-                return "no swipe row today (nothing dropped / new in men's 11 / M); group A: no tiles"
-            assert b["tiles"] and not b["cards"], f"group B row: {b['tiles']} tiles, {b['cards']} full cards"
+                return "no swipe row today (nothing dropped / new in men's 11 / M)"
+            for g, r in (("A", a), ("B", b)):    # Oct 19 (Bastien): small tiles for everyone; only the search position is tested
+                assert r["tiles"] and not r["cards"], f"group {g} row: {r['tiles']} tiles, {r['cards']} full cards"
             assert b["search"] < b["row"], "group B: search is not above the row"
-            return f"group B: {b['tiles']} tiles, search on top; group A: full cards"
-        check("Test 'layout': search on top, tiles in the row for group B")(layout_test, page)
+            return f"tiles in both groups ({a['tiles']}/{b['tiles']}); group B: search on top"
+        check("Test 'layout': tiles for everyone, search on top for group B")(layout_test, page)
 
         def whole_page():   # Oct 18 (Bastien: "nothing should ever be silo"): two tests each added a swipe row and nobody saw them
             # together. Every live test on at once (all B), then all off (all A): the top of the page on a phone stays tidy.
