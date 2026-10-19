@@ -1508,13 +1508,21 @@ function tile(d,tag){
     <div class="price"><b>${money(d.best)}</b>${d.pct?`<s>${money(d.reg)}</s>`:""}</div>
     <div class="tname">${esc(d.b)} ${esc(short)}</div>${tag||(NEWSET.has(k)?`<span class="badge new">${t("isNew")}</span>`:"")}</a>${heartBtn(k,on,d)}</div>`;
 }
+let ROW={list:[],shown:0};
+function rowMore(g){   // the swipe row: near its end, the next 24 tiles
+  if(ROW.shown>=ROW.list.length||g.scrollLeft+g.clientWidth<g.scrollWidth-g.clientWidth)return;
+  const next=ROW.list.slice(ROW.shown,ROW.shown+24);ROW.shown+=next.length;
+  g.insertAdjacentHTML("beforeend",next.map(d=>tile(d,DROPK.has(itemKey(d))?dropTag(d):"")).join(""))}
+document.addEventListener("scroll",e=>{const g=e.target;if(g&&g.matches&&g.matches(".grp.new .grid"))rowMore(g)},true);
 function section(key,title,list,cls){
   if(!list.length&&!(TYPES[key]&&view.type[key]))return "";   // keep the type buttons when a type has nothing
   if(key==="__new"&&NEWSTYLE==="row"&&!view.newAll){       // one swipeable row, then "See all" as a list
-    const n=list.length,row=list.slice(0,24);
+    // Oct 19 (Bastien: "we should not have people click see more... it should be a continuous scroll"): more tiles load as
+    // the row is swiped (24 at a time, rowMore()), no "See all" button at the end
+    const n=list.length,row=list.slice(0,24);ROW={list,shown:row.length};
     return `<section class="grp ${cls||""}" id="grp-${key}"><h2>${title} <small>${num(n)}</small>${n>1?`<span class="swipe" aria-hidden="true">${t("swipe")}</span>`:""}</h2><div class="grid">${row.map((d,i)=>{const tag=DROPK.has(itemKey(d))?dropTag(d):"";
         return tile(d,tag)}).join("")}
-      ${n>1?`<button type="button" class="seeall" data-newall>${t("seeAll",num(n))}<small>${t("asList")}</small></button>`:""}</div>
+</div>
       ${n>1?`<button type="button" class="rowarrow prev" data-row="-1" aria-label="${LANG==="fr"?"Précédent":"Previous"}">‹</button><button type="button" class="rowarrow next" data-row="1" aria-label="${LANG==="fr"?"Suivant":"Next"}">›</button>`:""}</section>`;
   }
   const lim=view.open[key]||(key.startsWith("__")||NARROW?PAGE:PAGE_CAT);

@@ -550,7 +550,15 @@ def site_flow(base, per, accented):
             for g, r in (("A", a), ("B", b)):    # Oct 19 (Bastien): small tiles for everyone; only the search position is tested
                 assert r["tiles"] and not r["cards"], f"group {g} row: {r['tiles']} tiles, {r['cards']} full cards"
             assert b["search"] < b["row"], "group B: search is not above the row"
-            return f"tiles in both groups ({a['tiles']}/{b['tiles']}); group B: search on top"
+            more = ""
+            if b["tiles"] >= 24:      # Oct 19: swiping to the end of the row loads the next tiles (no "See all" button)
+                page.goto(base + "?exp=layout:B,drops:B", wait_until="domcontentloaded")
+                page.wait_for_selector("#newBox .tw", timeout=20000)
+                n2 = page.evaluate("""async () => {const g = document.querySelector('#newBox .grp.new .grid');
+                    g.scrollLeft = g.scrollWidth; await new Promise(r => setTimeout(r, 600)); return g.querySelectorAll('.tw').length}""")
+                assert n2 > b["tiles"], f"swiping to the end of the row didn't load more tiles ({n2})"
+                more = f"; swiping to the end loads more ({b['tiles']} -> {n2})"
+            return f"tiles in both groups ({a['tiles']}/{b['tiles']}); group B: search on top{more}"
         check("Test 'layout': tiles for everyone, search on top for group B")(layout_test, page)
 
         def whole_page():   # Oct 18 (Bastien: "nothing should ever be silo"): two tests each added a swipe row and nobody saw them
