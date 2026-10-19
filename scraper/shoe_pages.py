@@ -56,7 +56,7 @@ T = {
         "sizeH1": "{g} running shoes on sale in size {s}",
         "sizeIntro": "{n} running shoes on sale today in {g} size {s} at Canadian stores. Every price is the price in size {s}, biggest discount first. Checked every morning.",
         "sizeAt": "at {store}", "sizeNav": "Other sizes", "sizeOther": "{g} sizes",
-        "brandDir": "brands", "brandTitle": "{brand} Sale Canada: running shoes on sale today", "brandH1": "{brand} on sale in Canada",
+        "brandDir": "brands", "brandTitle": "{brand} Sale Canada: {n} running shoes on sale, up to {p}% off", "brandH1": "{brand} on sale in Canada",
         "brandIntro": "Every {brand} running shoe we track at Canadian stores, with today's best price. Biggest discount first; checked every morning.",
         "browse": "Browse", "brandsH": "Brands", "bfLink": "Black Friday",
         "sizesStores": "{sizes} sizes · {stores} stores", "fullPrice": "full price",
@@ -143,7 +143,7 @@ T = {
         "sizeH1": "Chaussures de course {g} en solde, pointure {s}",
         "sizeIntro": "{n} chaussures de course {g} en solde aujourd'hui en pointure {s} dans les boutiques canadiennes. Chaque prix est celui de la pointure {s}, du plus gros rabais au plus petit. Vérifié chaque matin.",
         "sizeAt": "chez {store}", "sizeNav": "Autres pointures", "sizeOther": "Pointures {g}",
-        "brandDir": "marques", "brandTitle": "{brand} en solde au Canada : chaussures de course en solde", "brandH1": "{brand} en solde au Canada",
+        "brandDir": "marques", "brandTitle": "{brand} en solde au Canada : {n} chaussures de course, jusqu'à {p} % de rabais", "brandH1": "{brand} en solde au Canada",
         "brandIntro": "Toutes les chaussures de course {brand} que nous suivons dans les boutiques canadiennes, avec le meilleur prix du jour. Plus gros rabais en premier; vérifié chaque matin.",
         "browse": "Parcourir", "brandsH": "Marques", "bfLink": "Vendredi fou",
         "sizesStores": "{sizes} pointures · {stores} boutiques", "fullPrice": "prix régulier",
@@ -219,7 +219,7 @@ US.update({
     "hubDir": "us/running-shoes-sale", "brandDir": "us/brands", "bfDir": "us/black-friday",
     "sizeTitle": "{g} Size {s} Running Shoes on Sale: {n} deals today",
     "sizeIntro": "{n} running shoes on sale today in {g} size {s} at US running stores. Every price is the price in size {s}, biggest discount first. Checked every morning.",
-    "brandTitle": "{brand} Sale: running shoes on sale today", "brandH1": "{brand} running shoes on sale",
+    "brandTitle": "{brand} Sale: {n} running shoes on sale, up to {p}% off", "brandH1": "{brand} shoes on sale",
     "brandIntro": "Every {brand} running shoe we track at US running stores, with today's best price. Biggest discount first; checked every morning.",
     "bfTitle": "Black Friday 2026 running shoe deals", "bfH1": "Black Friday 2026: running shoe deals",
     "bfIntro": "Black Friday is Friday, November 27. We check local running stores across the US every morning and show only what's in stock. Here are today's biggest running shoe deals.",
@@ -1122,6 +1122,20 @@ def bf_other(L):
     return f'<p><strong>{esc(q)}</strong> <a href="{href}">{esc(txt)}</a></p>'
 
 
+def bname(b):
+    """Oct 19 (Search Console: people search "on cloud sale", "on running sale"; our title said "On Sale Canada" and the heading
+    "On on sale in Canada"): the brand On is written "On Running" in titles and headings."""
+    return "On Running" if b == "On" else b
+
+
+def brand_title(L, b, rows):
+    """Brand page title with today's numbers, like the shoe pages: "Altra Sale Canada: 23 running shoes on sale, up to 45% off"."""
+    on = [r for r in rows if (r[2].get("top") or 0) > 0]
+    if not on:
+        return L["brandTitle"].split(":")[0].format(brand=bname(b))
+    return L["brandTitle"].format(brand=bname(b), n=len(on), p=max(r[2]["top"] for r in on))
+
+
 def list_page(L, path_en, path_fr, title, h1, intro, rows, brands, extra="", after=""):
     out = [page_head(L, title, intro, path_en, path_fr)]
     out.append(f'<h1>{esc(h1)}</h1><p class="sub">{esc(intro)}</p>{extra}')
@@ -1248,8 +1262,8 @@ def main():
             en_p, fr_p = f'/brands/{slugify(b)}/', f'/marques/{slugify(b)}/'
             p = site / L["brandDir"] / slugify(b) / "index.html"
             p.parent.mkdir(parents=True, exist_ok=True)
-            p.write_text(list_page(L, en_p, fr_p, L["brandTitle"].format(brand=b), L["brandH1"].format(brand=b),
-                                   L["brandIntro"].format(brand=b), rows, brands))
+            p.write_text(list_page(L, en_p, fr_p, brand_title(L, b, rows), L["brandH1"].format(brand=bname(b)),
+                                   L["brandIntro"].format(brand=bname(b)), rows, brands))
             extra_urls.append(f'/{L["brandDir"]}/{slugify(b)}/')
         # Black Friday: live from now on so it is known to search engines well before Nov 27
         bf_rows = [r for r in kinds["all"] if r[2]["sizes"] >= 6][:40]
@@ -1393,8 +1407,8 @@ def build_us(site, stores, ca_models, ca_brands):
         own = f'/{L["brandDir"]}/{slugify(b)}/'
         p = site / own.strip("/") / "index.html"
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(list_page(L, own, f'/brands/{slugify(b)}/' if slugify(b) in ca_brands else "", L["brandTitle"].format(brand=b),
-                               L["brandH1"].format(brand=b), L["brandIntro"].format(brand=b), rows, brands))
+        p.write_text(list_page(L, own, f'/brands/{slugify(b)}/' if slugify(b) in ca_brands else "", brand_title(L, b, rows),
+                               L["brandH1"].format(brand=bname(b)), L["brandIntro"].format(brand=bname(b)), rows, brands))
         urls.append(own)
     bf_rows = [r for r in kinds["all"] if r[2]["sizes"] >= 6][:40]
     cta = qs_box(L, L["bfCta"], "black-friday")
