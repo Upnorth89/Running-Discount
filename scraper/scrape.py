@@ -3277,6 +3277,8 @@ def tidy_clothes(offers):
     out = []
     for o in offers:
         n = o["n"]
+        if o["g"] in ("tops", "bottoms") and (o.get("b") or "").lower() in SOCK_BRANDS and not NOT_SOCK.search(n):
+            o["g"] = "socks"   # Oct 19: MEC files Bridgedale's "3/4 Crew" under tops (also caught here, before the brand counts)
         if o["g"] in ("tops", "bottoms") and CLOTH_NOT.search(n):
             continue
         if o["g"] == "tops" and CLOTH_BRA.search(n) and not re.search(r"tank|cami|top\b", n, re.I):
