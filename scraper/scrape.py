@@ -3306,7 +3306,7 @@ def garment_type(g, n):
     gear: sun / light / pole / bottle; None when the name doesn't say (shown under "All" only)."""
     if g == "shoes":
         n = re.split(r"\s+[—·]\s+", n)[0]       # "Women's GT-2000 14 — Winter Sea/White": the colour isn't the shoe
-        if re.search(r"trail runn", n, re.I) and not re.search(r"\b(hik(e|er|ing)|mid|boots?|winter)\b", n, re.I):
+        if re.search(r"trail[- ]runn", n, re.I) and not re.search(r"\b(hik(e|er|ing)|mid|boots?|winter)\b", n, re.I):
             return "trail"                       # "Lowa Amplux Trail Running Shoes": a trail runner from a hiking brand
     for k, rx in TYPES.get(g, []):
         if rx.search(n):

@@ -88,6 +88,7 @@ def check(items, store=None):
             hits["type"].append(f"{ex} typed {t}")
         if re.search(r" - .* - | - (men|women)'s$", b, re.I):
             hits["brandname"].append(ex)
+    SHOE_MAKERS = {"under armour", "adidas", "nike", "puma", "new balance", "reebok", "the north face", "columbia", "arc'teryx", "craft"}
     # the odd one out for its brand (Oct 8: a Ciele cap and goodr sunglasses under Nutrition because of the word "Bar"):
     # a brand that is mostly something else, with one item filed as food or as a shoe
     per = collections.defaultdict(collections.Counter)
@@ -97,7 +98,8 @@ def check(items, store=None):
         b, g = i.get("b") or "", i.get("g")
         tot = sum(per[b].values())
         if b and g in ("nutrition", "shoes") and tot >= 8 and per[b][g] / tot < 0.08 and not OK.search(f"{b} {i.get('n')}") \
-                and not (g == "shoes" and re.search(r"shoe|running|trail", i.get("n") or "", re.I)):
+                and not (g == "shoes" and re.search(r"shoe|running|trail", i.get("n") or "", re.I)) \
+                and not (g == "shoes" and b.lower() in SHOE_MAKERS):   # Oct 19: Under Armour makes spikes and running shoes
             hits["odd"].append(f"{b} {i.get('n')} ({g}, {host(i)}; {b} is mostly {per[b].most_common(1)[0][0]})")
     for i in items:   # a sock brand's crew sock under Tops ("Darn Tough Lifestyle | Crew")
         b, g = i.get("b") or "", i.get("g")
