@@ -3364,7 +3364,9 @@ def tidy_us_names(offers):
             continue                              # yoga and fashion labels general stores file under running (US shops)
         if re.sub(r"\s*-\s*(men|women)[’']?s$|\W", "", n.lower()) in ("", re.sub(r"\W", "", (o["b"] or "").lower())):
             continue                              # a listing named only after its brand ("Hoka | Hoka | Women's")
-        if o["g"] == "shoes" and ((o["b"] or "").lower() in US_CASUAL_BRANDS or US_CASUAL.search(n)):
+        if o["g"] == "shoes" and ((o["b"] or "").lower() in US_CASUAL_BRANDS or
+                                  (US_CASUAL.search(n) and not re.search(r"\b(hik(e|ing)|trail|fastpack|approach)\b", n, re.I))):
+            # Oct 19 (Bastien: "we're an outdoor gear provider"): hiking boots and trail shoes stay, like on the Canada side
             continue                              # general shoe stores: boots, sneakers, leather (US shops only)
         if o["g"] == "shoes":
             n = re.sub(r"\s+-\s+Size\s+[\d.]+", "", n, flags=re.I)                    # one listing per size
