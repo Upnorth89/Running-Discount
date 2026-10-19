@@ -534,32 +534,24 @@ def site_flow(base, per, accented):
             return f"group B: {n} dollar badges ($100+), {len(b) - n} percent; group A: all percent"
         check("Test 'r100': dollars off at $100+ for group B")(r100_test, page)
 
-        def layout_test():   # Oct 18, A/B test 'layout': group B has search on top and the swipe rows as small tiles
-            def at(group):
-                page.goto(base + f"?exp=layout:{group},drops:B", wait_until="domcontentloaded")
-                page.wait_for_selector("section.grp .deal", timeout=20000)
-                return page.evaluate("""() => {const y = s => {const e = document.querySelector(s); return e ? e.getBoundingClientRect().top : null};
-                    return {search: y('.searchrow'), row: y('#newBox section.grp'), tiles: document.querySelectorAll('#newBox .tw').length,
-                            cards: document.querySelectorAll('#newBox .dw:not(.tw)').length}}""")
-            b, a = at("B"), at("A")
-            page.evaluate("() => localStorage.removeItem('gf-exp')")
-            page.goto(base, wait_until="domcontentloaded")
+        def layout_test():   # Oct 18 test 'layout' -> Oct 19 for everyone: search on top, the swipe row as small tiles that keep loading
+            page.goto(base + "?exp=drops:B", wait_until="domcontentloaded")
             page.wait_for_selector("section.grp .deal", timeout=20000)
-            if b["row"] is None:
+            r = page.evaluate("""() => {const y = s => {const e = document.querySelector(s); return e ? e.getBoundingClientRect().top : null};
+                return {search: y('.searchrow'), row: y('#newBox section.grp'), tiles: document.querySelectorAll('#newBox .tw').length,
+                        cards: document.querySelectorAll('#newBox .dw:not(.tw)').length}}""")
+            if r["row"] is None:
                 return "no swipe row today (nothing dropped / new in men's 11 / M)"
-            for g, r in (("A", a), ("B", b)):    # Oct 19 (Bastien): small tiles for everyone; only the search position is tested
-                assert r["tiles"] and not r["cards"], f"group {g} row: {r['tiles']} tiles, {r['cards']} full cards"
-            assert b["search"] < b["row"], "group B: search is not above the row"
+            assert r["tiles"] and not r["cards"], f"row: {r['tiles']} tiles, {r['cards']} full cards"
+            assert r["search"] < r["row"], "search is not above the row"
             more = ""
-            if b["tiles"] >= 24:      # Oct 19: swiping to the end of the row loads the next tiles (no "See all" button)
-                page.goto(base + "?exp=layout:B,drops:B", wait_until="domcontentloaded")
-                page.wait_for_selector("#newBox .tw", timeout=20000)
+            if r["tiles"] >= 24:      # Oct 19: swiping to the end of the row loads the next tiles (no "See all" button)
                 n2 = page.evaluate("""async () => {const g = document.querySelector('#newBox .grp.new .grid');
                     g.scrollLeft = g.scrollWidth; await new Promise(r => setTimeout(r, 600)); return g.querySelectorAll('.tw').length}""")
-                assert n2 > b["tiles"], f"swiping to the end of the row didn't load more tiles ({n2})"
-                more = f"; swiping to the end loads more ({b['tiles']} -> {n2})"
-            return f"tiles in both groups ({a['tiles']}/{b['tiles']}); group B: search on top{more}"
-        check("Test 'layout': tiles for everyone, search on top for group B")(layout_test, page)
+                assert n2 > r["tiles"], f"swiping to the end of the row didn't load more tiles ({n2})"
+                more = f"; swiping to the end loads more ({r['tiles']} -> {n2})"
+            return f"search on top, {r['tiles']} tiles in the row{more}"
+        check("Search on top, small tiles in the swipe row")(layout_test, page)
 
         def whole_page():   # Oct 18 (Bastien: "nothing should ever be silo"): two tests each added a swipe row and nobody saw them
             # together. Every live test on at once (all B), then all off (all A): the top of the page on a phone stays tidy.

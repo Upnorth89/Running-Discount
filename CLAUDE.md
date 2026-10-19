@@ -202,7 +202,8 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   Live tests (Oct 18): 'drops' (B: "Dropped today in your size" row), 'welcome' (B: no welcome screen, every size + sticky
   "Pick your size" bar), 'r100' (Rule of 100, Berger: B's card badge = "−$66" when the regular price is $100+ in the shown
   currency, "−30%" below; homepage cards + welcome deals only, `offTag()`; metric = homepage visitors who click a deal, baseline 30%
-  of first visits, ~1,000 per group, decide ~Nov 1)., 'layout' (Oct 18, Bastien: the top row was "a big row of stuff":
+  of first visits, ~1,000 per group, decide ~Nov 1). 'layout' ENDED Oct 19 (Bastien chose B for everyone after 1 day, not a test result: search + Filters under the sizes line, the
+  swipe row as small tiles that keep loading as you swipe, no "See all"). Was (Oct 18, Bastien: the top row was "a big row of stuff":
   B = search + Filters right under the sizes line, categories under it, then the swipe rows as small tiles `tile()`: photo, discount,
   price, heart, one line of name (Baymard: names tell items apart); metric = homepage visitors who search or click a deal, decide
   ~Nov 1). 'runcard' (Oct 18; B = the sign-up card asks "What do you run in?": type, up to 6 suggestions under the box (`rcSuggest`, every

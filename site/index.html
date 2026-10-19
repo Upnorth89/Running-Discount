@@ -649,7 +649,7 @@ const ANA=(()=>{const ls=k=>{try{return localStorage.getItem(k)}catch(e){return 
   let over={};try{const q=new URLSearchParams(location.search).get("exp");over=JSON.parse(ls("gf-exp")||"{}");
     if(q){q.split(",").forEach(x=>{const [n,a]=x.split(":");if(n&&/^[AB]$/.test(a))over[n]=a});localStorage.setItem("gf-exp",JSON.stringify(over))}}catch(e){}
   const arm=n=>{if(over[n])return over[n];let h=2166136261;for(const c of did+"|"+n){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return (h>>>0)%2?"B":"A"};
-  const TESTS=["drops","welcome","r100","layout","runcard"];
+  const TESTS=["drops","welcome","r100","runcard"];   // 'layout' ended Oct 19: its B (search on top, tiles) is now for everyone
   if(fresh){TESTS.forEach(n=>add("signup-step",`exp|${n}|${arm(n)}`))}
   if(fresh)add("visit",em?"email-"+em:(matchMedia("(display-mode: standalone)").matches||navigator.standalone)?"home-screen app":document.referrer?new URL(document.referrer).hostname:"",null,location.pathname);
   return {add,nv:()=>nv,arm}})();
@@ -1053,8 +1053,9 @@ let BROWSE=!!LS.get("gf-browse")||(()=>{try{return !!new URLSearchParams(locatio
 /* Test "welcome" (Oct 18; 30 days: 1 in 3 homepage first visits saw the welcome screen and left in a median 9 s without a
    deal): group B skips it on a first visit and lands on the deals in every size, with the "Pick your size" bar stuck on top. */
 const WELCOME_B=ANA.arm("welcome")==="B"&&!LS.get("rd-profile")&&!LS.get("gf-peek")&&!LS.get("gf-sub");
-// Test 'layout' B: search + categories first (since Oct 19 everyone gets the small tiles in the swipe row, tile())
-const LAYOUT_B=ANA.arm("layout")==="B";
+// Search + categories first, then the swipe row as small tiles (tile()). Was test 'layout' B (Oct 18); Oct 19 Bastien chose it for
+// everyone (Baymard: shoppers who search go straight for the box; one day of our data, not a test result)
+const LAYOUT_B=true;
 if(LAYOUT_B){document.body.classList.add("lay-b");$("filtersBox").after($("newBox"))}
 if(WELCOME_B&&!BROWSE){BROWSE=true;LS.set("gf-browse",1)}
 {const tbh=()=>{const tb=document.querySelector(".topbar");if(tb)document.documentElement.style.setProperty("--tbh",tb.offsetHeight+"px")};addEventListener("load",tbh);addEventListener("resize",tbh)}
