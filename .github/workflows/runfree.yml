@@ -13,7 +13,7 @@ on:
         type: boolean
         default: false
       only:
-        description: "Run only this read (all, runfree, decathlon, thefeed, runningfree, sportsexperts, brands)"
+        description: "Run only this read (all, runfree, decathlon, thefeed, runningfree, sportsexperts, brands, linkcheck)"
         default: "all"
       brand:
         description: "With 'brands': only these brand stores, comma-separated (saucony, arcteryx, salomon); the others keep last night's copy"
@@ -165,6 +165,38 @@ jobs:
           git add sportsexperts.json
           git diff --cached --quiet && exit 0
           git commit -q -m "sportsexperts $(TZ=America/Vancouver date +%F)"
+          for i in 1 2 3 4; do git pull -q --rebase origin history && git push -q origin HEAD:history && exit 0; sleep $((i * 5)); done
+          exit 1
+
+  # Sale-link check (Oct 19, 2026): every link behind a sale price on today's site, one page a second per store;
+  # pages that answer 404 twice go to deadlinks.json, which the morning refresh leaves out (tools/link_check.py)
+  linkcheck:
+    needs: check
+    if: needs.check.outputs.skip != 'true' && (inputs.only == '' || inputs.only == null || inputs.only == 'all' || inputs.only == 'linkcheck')
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r scraper/requirements.txt
+      - uses: actions/checkout@v4
+        with:
+          ref: history
+          path: hist
+      - name: Check the sale links
+        run: python tools/link_check.py hist/deadlinks.json
+      - name: Save to the history branch
+        if: success()
+        run: |
+          cd hist
+          git config user.name "The Gear Fox"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          [ -f deadlinks.json ] || exit 0
+          git add deadlinks.json
+          git diff --cached --quiet && exit 0
+          git commit -q -m "deadlinks $(TZ=America/Vancouver date +%F)"
           for i in 1 2 3 4; do git pull -q --rebase origin history && git push -q origin HEAD:history && exit 0; sleep $((i * 5)); done
           exit 1
 

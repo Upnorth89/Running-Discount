@@ -639,6 +639,7 @@ SE_LISTS = ["running/running/running-shoes", "running/trail-running/trail-runnin
             "running/nutrition-and-electrolytes", "running/winter-running", "running/sunglasses", "running/smartwatches"]
 SE_DELAY = 3
 SPORTSEXPERTS_FILE = os.environ.get("SPORTSEXPERTS_FILE", "/tmp/sportsexperts.json")
+DEADLINKS_FILE = os.environ.get("DEADLINKS_FILE", "/tmp/deadlinks.json")   # tools/link_check.py, nightly
 SE_HEAD = {"User-Agent": "Mozilla/5.0 (compatible; TheGearFoxBot/1.0; +https://thegearfox.com/about.html)",
            "Accept-Language": "en-CA,en;q=0.8"}
 _se_last = [0.0]
@@ -3623,6 +3624,10 @@ def url_gender(u):
     last = path.rstrip("/").rsplit("/", 1)[-1]
     w = re.search(r"(?:^|[/_-])(womens?|women-s|wmns|ladies|femmes?)(?=[/_-]|$)", path) or re.match(r"w-", last)
     m = re.search(r"(?:^|[/_-])(mens?|men-s|hommes?)(?=[/_-]|$)", path) or re.match(r"m-(?!l\b)", last)
+    if not w and not m and re.search(r"(^|//)(ca|us)\.2xu\.com/", u):   # Oct 19: 2XU style codes "wr7152a" = women's, "mr7150a" = men's
+        c = re.search(r"-(w|m)[a-z](\d{4})[a-z]?(?=-)", last)                  # (Light Speed Tech Tee: the two cuts had merged)
+        if c:
+            return ["women"] if c.group(1) == "w" else ["men"]
     if w and not m:
         return ["women"]
     if m and not w:
@@ -4016,6 +4021,18 @@ def main():
         if line:
             print(line, file=sys.stderr)
         offers += got
+    # Oct 19 (Bastien hit a 2XU deal whose page said "not found"): links last night's check (tools/link_check.py, runfree.yml
+    # job "linkcheck") found dead twice are left out; the check is only trusted while it's under 36 h old
+    try:
+        dl = json.loads(Path(DEADLINKS_FILE).read_text())
+        age = (time.time() - dt.datetime.fromisoformat(dl["checked"]).timestamp()) / 3600
+        dead = set(dl.get("dead") or {}) if age < 36 else set()
+    except Exception:
+        dead = set()
+    if dead:
+        before = len(offers)
+        offers = [o for o in offers if o.get("u") not in dead]
+        print(f"dead links (last night's check): {before - len(offers)} listings left out", file=sys.stderr)
     # the USA side (Oct 6, 2026): stores that ship to the US, merged on their own (best US-shippable price per size);
     # "ca" there means "ships from the US". Copied before the Canadian merge, which tidies offers in place.
     us_offers = [dict(o, ca=bool(o.get("us")), sz=[list(e) for e in o["sz"]], sx=list(o.get("sx") or []))
