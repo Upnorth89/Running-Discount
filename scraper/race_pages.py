@@ -126,7 +126,7 @@ S = {
         "dist": "Your distance", "km": "{d} km",
         "M": "Mandatory", "R": "Recommended", "A": "Allowed",
         "have": "I have it", "progress": "You have {h} of {n} mandatory items. Tick what you already own.", "progressAll": "You have every mandatory item. See you at the start.",
-        "deals": "On sale now", "dealsSize": "On sale now in your size", "noDeals": "None in stock in your size today. We check every morning.",
+        "deals": "On sale now", "dealsSize": "On sale now in your size", "noDeals": "None in stock in your size today. We check every morning.", "few": "Only {n} in {fit} {size} today. We check every morning.",
         "notSold": "The stores we check don't sell this.", "spec": "Check the spec before you buy.",
         "more": "See more on sale →", "moreN": "See all {n}", "watch": "Watch", "watchL": "Watch the price", "sizeH": "Your size", "sizeTxt": "Pick it once to see deals that fit you.",
         "men": "Men's", "women": "Women's", "change": "Change", "off": "off",
@@ -146,7 +146,7 @@ S = {
         "dist": "Votre distance", "km": "{d} km",
         "M": "Obligatoire", "R": "Recommandé", "A": "Permis",
         "have": "Je l'ai", "progress": "Vous avez {h} des {n} articles obligatoires. Cochez ce que vous avez déjà.", "progressAll": "Vous avez tout le matériel obligatoire. On se voit au départ.",
-        "deals": "En solde maintenant", "dealsSize": "En solde dans votre taille", "noDeals": "Rien en stock dans votre taille aujourd'hui. On vérifie chaque matin.",
+        "deals": "En solde maintenant", "dealsSize": "En solde dans votre taille", "noDeals": "Rien en stock dans votre taille aujourd'hui. On vérifie chaque matin.", "few": "Seulement {n} en {size} {fit} aujourd'hui. On vérifie chaque matin.",
         "notSold": "Les boutiques que nous suivons n'en vendent pas.", "spec": "Vérifiez les caractéristiques avant d'acheter.",
         "more": "Voir plus d'aubaines →", "moreN": "Voir les {n}", "watch": "Suivre", "watchL": "Suivre le prix", "sizeH": "Votre taille", "sizeTxt": "Choisissez-la une fois pour voir les aubaines à votre taille.",
         "men": "Homme", "women": "Femme", "change": "Modifier", "off": "de rabais",
@@ -187,7 +187,7 @@ CSS = """
 .dlh{font:600 13px var(--body);color:var(--muted);margin:10px 0 0}
 .ft{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;margin:4px 0 0}.ft:empty{display:none}.spec{font-size:13px;color:var(--muted)}
 .more{display:inline-block;margin-top:6px;font:600 14px var(--body)}
-.none{font-size:14px;color:var(--muted);margin:6px 0 0}
+.none{font-size:14px;color:var(--muted);margin:6px 0 0}.few{font-size:13px;color:var(--muted)}
 .faq details{border-bottom:1px solid var(--line);padding:10px 0}.faq summary{font:700 16px/1.3 var(--body);cursor:pointer}.faq details p{margin:6px 0 0}
 .rsize{background:var(--card);border:1.5px solid var(--hivis);border-radius:12px;padding:12px 14px;margin:10px 0}
 .rsize p{margin:0 0 8px;font-size:15px}.rsize .row{display:flex;gap:6px;flex-wrap:wrap}
@@ -242,7 +242,35 @@ def pool(items, kind, stores):
     out.sort(key=lambda r: -r["_score"])
     for r in out:
         del r["_score"]
-    return out[:POOL]
+    # Oct 20 (Bastien: "always give 10 options"): past the top POOL, keep whatever a fit + size still needs to reach 10
+    # (XS and 2XL ran short: men's 2XL gloves had 1)
+    keep, need = out[:POOL], {}
+    def buckets(r):
+        fits = r["sx"] or ["men", "women"]
+        if r["g"] not in SIZED_G:
+            return [(f, "") for f in fits]
+        return [(f, norm(e[0])) for f in fits for e in r["s"]]
+    for r in keep:
+        for b in set(buckets(r)):
+            need[b] = need.get(b, 0) + 1
+    for r in out[POOL:]:
+        bs = set(buckets(r))
+        if any(need.get(b, 0) < SHOW + 2 and (b[1] in CORE or b[1] == "") for b in bs):
+            keep.append(r)
+            for b in bs:
+                need[b] = need.get(b, 0) + 1
+    return keep
+
+
+SIZED_G = {"tops", "bottoms", "gloves", "headwear"}
+CORE = {"XS", "S", "M", "L", "XL", "2XL", "OS"}
+ALIAS = {"XXS": "2XS", "XXL": "2XL", "X-SMALL": "XS", "SMALL": "S", "MEDIUM": "M", "LARGE": "L", "X-LARGE": "XL", "EXTRA LARGE": "XL", "XX-SMALL": "2XS"}
+
+
+def norm(z):
+    """Same as the page script's norm(); "S/M" counts for both S and M there, so it's a bucket of its own here (rare)."""
+    z = str(z).upper().strip()
+    return ALIAS.get(z, z)
 
 
 def spread(p):
@@ -344,7 +372,7 @@ def page(slug, race, L, items, stores):
 <div class="dists" role="group" aria-label="{s['dist']}">{"".join(f'<button type="button" data-d="{d}" aria-pressed="{str(d == race["default"]).lower()}">{s["km"].format(d=d)}</button>' for d in race["dists"])}</div>
 <p class="prog" id="prog" data-t="{esc(s['progress'])}" data-all="{esc(s['progressAll'])}"></p>
 <ul class="gl" id="gl" data-race="{slug}" data-default="{race['default']}" data-lm="{s['M']}" data-lr="{s['R']}" data-la="{s['A']}"
- data-home="{T[L]['home']}" data-watch="{esc(s['watch'])}" data-moren="{esc(s['moreN'])}" data-dh="{esc(s['deals'])}" data-dhs="{esc(s['dealsSize'])}" data-none="{esc(s['noDeals'])}" data-off="{esc(s['off'])}">{"".join(rows)}</ul>
+ data-home="{T[L]['home']}" data-watch="{esc(s['watch'])}" data-moren="{esc(s['moreN'])}" data-dh="{esc(s['deals'])}" data-dhs="{esc(s['dealsSize'])}" data-none="{esc(s['noDeals'])}" data-few="{esc(s['few'])}" data-off="{esc(s['off'])}">{"".join(rows)}</ul>
 <p class="srcb">{s['src'].format(date=race['updated'][L], link=f'<a href="{src}" rel="noopener">{s["srcLink"]}</a>')} {s['notAff']}</p>
 <section class="alert" id="raceBox" data-ref="race-{slug}" data-bad="{esc(T[L]['alertBad'])}" data-ok="{esc(T[L]['alertOk'])}" data-fail="{esc(T[L]['alertFail'])}" data-pick="{esc(s['sizeTxt'])}">
 <h2>{esc(s['boxH'])}</h2><p class="fine">{esc(s['boxTxt'])}</p><form novalidate><input type="email" autocomplete="email" inputmode="email" placeholder="{esc(T[L]['emailPh'])}" aria-label="Email" required><button type="submit">{esc(s['boxBtn'])}</button></form><p class="msg" aria-live="polite"></p></section>
@@ -392,6 +420,8 @@ function render(){
     if(!picks.slice(0,3).some(sale)&&picks.some(sale)){var j=picks.findIndex(sale);picks.splice(2,0,picks.splice(j,1)[0])}
     var ul=li.querySelector(".dl"),none=li.querySelector(".none"),mb=li.querySelector(".mored");
     ul.hidden=!picks.length;none.hidden=!!picks.length;mb.hidden=picks.length<=3;mb.textContent=mb.dataset.n.replace("{n}",picks.length);
+    var few=li.querySelector(".few");if(!few){few=document.createElement("span");few.className="few";mb.after(few)}   // Oct 20: fewer than 10 in this size = say so
+    few.hidden=!(picks.length&&picks.length<10&&SIZED[p[0].g]&&size);few.textContent=gl.dataset.few.replace("{n}",picks.length).replace("{fit}",(fit?document.getElementById("rsize").dataset[fit]:"")).replace("{size}",size);
     SHOWN[k]=picks.slice(0,3).map(function(x){return x[0].n});if(!picks.length)return;
     ul.innerHTML=picks.map(function(x){var r=x[0],e=x[1];
       var pr=e[2]>e[1]*1.01?'<b>'+money(e[1])+'</b><s>'+money(e[2])+'</s> <span class="off">−'+Math.round(100*(1-e[1]/e[2]))+'%</span>':'<b>'+money(e[1])+'</b>',h=gl.dataset.home;
