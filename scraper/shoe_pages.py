@@ -1288,7 +1288,6 @@ def main():
     reg_path.write_text(json.dumps(known, ensure_ascii=False, separators=(",", ":")))
     day = (updated or datetime.now(timezone.utc).isoformat())[:10]
     urls = ["/", "/shoes/", "/chaussures/", "/about.html", "/privacy.html"] + extra_urls
-    urls += [f"/{d.parent.name}/{d.name}/" for d in sorted(site.glob("re*/20*")) if d.parent.name in ("report", "rapport")]   # monthly reports (tools/report_page.py): no link on the site, shared by link
     urls += [f"/{d}/{s}/" for s in known_live for d in ("shoes", "chaussures")]
     us_urls, us_home = build_us(site, stores, set(known_live), {slugify(b) for b in brands})
     urls += us_urls
