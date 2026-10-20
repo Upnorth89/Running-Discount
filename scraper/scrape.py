@@ -2318,7 +2318,7 @@ def scrape_mec_saved():
     return out                      # no fresh pages -> no MEC items (never keep stale prices)
 
 def scrape_svp_saved():
-    """SVP Sports (Québec): Shopify behind a Cloudflare check, so read from the collection Bastien saves with the
+    """SVP Sports (Ontario): Shopify behind a Cloudflare check, so read from the collection Bastien saves with the
     Grab deals bookmark (svp-YYYY-MM-DD.json: Shopify products as the store serves them, in CAD)."""
     prods, seen, used = [], set(), 0
     for f in saved_pages():
@@ -2770,7 +2770,7 @@ SHOPIFY_STORES = [
     # added 2026-10-06
     ("brainsport",     "https://www.brainsport.ca",          "gear"),   # Brainsport (Saskatoon, SK)
     ("sail",           "https://www.sail.ca/en-ca",          "gear"),   # SAIL plein air (QC/ON chain): its running section only
-    ("svp",            "https://www.svpsports.ca",           "gear"),   # SVP Sports (Québec chain): its running section only. Its feed
+    ("svp",            "https://www.svpsports.ca",           "gear"),   # SVP Sports (Ontario chain): its running section only. Its feed
                                                                         # answers again (Cloudflare check gone, Oct 12, 2026); robots allow it
     # US running shops (Oct 6, 2026): the USA side of the site only (they may not ship to Canada); read in their US market
     ("pacers",         "https://pacersrunning.com",          "gear"),   # Pacers Running (Washington DC area)

@@ -367,7 +367,7 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   morning reads failed twice in 2 days): read at night by runfree.yml job "thefeed" (`scrape.py --thefeed-night hist/thefeed.json`:
   a page every 10 s, waits Retry-After up to 15 times per page, slim copy of each product); the refresh downloads it to
   /tmp/thefeed.json (`THEFEED_FILE`) and uses it when under 36 h old, else reads live. Long term: The Feed's CJ affiliate product feed.
-  SVP Sports (Québec chain, Shopify): Cloudflare blocked it Oct 4 (saved pages, parked Oct 6); since Oct 12 read LIVE (the check is
+  SVP Sports (Ontario chain, 13 stores; Shopify): Cloudflare blocked it Oct 4 (saved pages, parked Oct 6); since Oct 12 read LIVE (the check is
   gone, robots allow): SHOPIFY_STORES "svp", only /collections/running-collection (US_COLLECTIONS), no cart.js (robots forbid it:
   `NO_CART`), `tidy_svp` ("adidas - Men's X Shoes (CODE)" -> "Men's X", sizes "M11" -> 11, "(Wide)", yoga/maternity/track suits out).
 - Running Free (Oct 9; Ontario chain, own shop system, no feed): `runningfree_night` in scrape.py, runfree.yml job "runningfree"
