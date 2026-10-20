@@ -23,6 +23,11 @@ day (e.g. no catalog file). Stores on both sides: Altra, Bandit, District Vision
 | Bandit | banditrunning.com | Shopify | 561 | 0 |
 | BlackToe Running | blacktoerunning.com | Shopify | 1,340 | 378 |
 | Boutique Endurance | boutiqueendurance.ca | Shopify | 516 | 179 |
+| Boréal Running (Saint-Augustin-de-Desmaures QC) | borealrunning.com/en | Shopify (English catalogue; names tidied) | 2,125 | 1,295 |
+| La Boutique du Lac (Lac-Beauport QC) | laboutiquedulac.com | Shopify (shoes, running, nutrition collections; no ski/bike) | 1,319 | 376 |
+| Au Pied Sportif Laval (QC) | aupiedsportiflaval.com | Shopify (brand from tags) | 1,195 | 356 |
+| Faux Mouvement (Québec City) | fauxmouvement.ca | Shopify | 680 | 0 |
+| 33-Off (Sherbrooke QC outlet) | 33-off.com | Shopify (colour cut from names) | 242 | 239 |
 | Brainsport | brainsport.ca | Shopify | 1,282 | 485 |
 | Brix | brixrechargeparlanature.com | Shopify | 11 | 2 |
 | Brooks | brooksrunning.com | GPT file | 141 | 32 |
@@ -411,3 +416,8 @@ skipped. Candidate list: tools/us_candidates.txt (store finder).
 - Checked, skipped: La Cordée (insolvency, Oct 2026: recheck if it restructures and keeps selling online).
 - Next to check: Gord's Running Store (Calgary, WooCommerce Store API open). Running Free: from the GPT catalog file since Oct 8.
   More candidates: Canadian Running Magazine's list of independent running shops (runningmagazine.ca).
+
+
+Oct 20, 2026, Québec stores Bastien named: added Boréal Running, La Boutique du Lac, Au Pied Sportif Laval, Faux Mouvement, 33-Off.
+Left out by Bastien ("not worth it"): Rhéal Pitre Sports (boutiquerps.com, WooCommerce Store API readable), Chaussures Fillion
+(chaussuresfillion.ca, comfort/fashion shoes), Chlorophylle (outdoor clothing, custom site). Endurance = Boutique Endurance (already in).

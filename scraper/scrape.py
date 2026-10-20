@@ -2754,7 +2754,8 @@ SHOPIFY_STORES = [
     ("lecoureur",      "https://www.lecoureur.com",          "gear"),   # Le Coureur (Sherbrooke running)
     ("boutiquedulac",  "https://laboutiquedulac.com",        "gear"),   # La Boutique du Lac (Lac-Beauport QC: running + cross-country ski, Oct 20)
     ("fauxmouvement",  "https://fauxmouvement.ca",           "gear"),   # Faux Mouvement (Québec City running shop, Oct 20)
-    ("borealrunning",  "https://borealrunning.com/en",        "gear"),   # Boréal Running (Saint-Augustin-de-Desmaures QC; English catalogue, Oct 20)
+    ("borealrunning",  "https://borealrunning.com/en",        "gear"),
+    ("33off",          "https://33-off.com",                 "gear"),   # 33-Off (Sherbrooke QC outlet: nearly all on sale; colour in the name, Oct 20)   # Boréal Running (Saint-Augustin-de-Desmaures QC; English catalogue, Oct 20)
     ("aupiedsportif",  "https://aupiedsportiflaval.com",     "gear"),   # Au Pied Sportif Laval (QC shoes; vendor = the store, brand from the name, Oct 20)
     ("blacktoe",       "https://www.blacktoerunning.com",    "gear"),   # BlackToe Running (Toronto)
     # added 2026-10-02
@@ -2933,6 +2934,9 @@ BOREAL_DESC = {"waterproof", "road", "trail", "running", "maximal-cushion", "and
                "men's", "women's", "unisex", "lightweight", "cushioned", "winter", "hiking", "stability", "neutral", "everyday", "daily", "carbon"}
 
 
+OFF33_KEEP = {"GTX", "GORE-TEX", "WP", "WIDE", "TR", "TRAIL", "MAX", "PLUS", "PRO", "SE", "LITE", "EKIDEN", "SPIKE", "BOA"}
+
+
 def qc_prods(st, prods):
     """Québec shops added Oct 20, 2026, tidied before reading so their cards merge with other stores':
     La Boutique du Lac writes "NOVABLAST 6 H/M" / "KRAGG F/W" (homme/men, femme/women); Faux Mouvement adds " | Colour"
@@ -2962,6 +2966,24 @@ def qc_prods(st, prods):
             else:
                 t = re.sub(r"\s+(for\s+)?(wom[ae]n|m[ae]n)('?s)?\b", "", t, flags=re.I)
             t = re.sub(r"\s+(unisex|unisexe)\b", "", t, flags=re.I).strip() + gen
+        elif st == "33off":                                                        # "Men's Asics Gel-Kayano 32 Flash Red/Beet Juice"
+            t = re.sub(r"\s*[|·].*$", "", re.sub(r"\s+", " ", t)).strip()
+            t = re.sub(r"^Mens['’]s\b|^Men['’](?=\s)", "Men's", t)
+            t = re.sub(r"\s*\((large )?d\)|\s*\bsize \d+(\.5)?\b", "", t, flags=re.I)        # "(LARGE D)", "SIZE 12"
+            m = re.match(r"^(?:\S+\s+)?(Mizuno|Saucony|Salomon|Altra|Brooks|Hoka|On|Lowa|Merrell)\b", t)
+            if m and m.group(1).lower() != (p.get("vendor") or "").lower():   # filed under the wrong brand ("Asics" for a Mizuno)
+                p["vendor"] = m.group(1)
+            ws = t.split()
+            sl = next((i for i, w in enumerate(ws) if "/" in w or w in ("-", "–")), len(ws))
+            shoe = re.search(r"shoe|soulier", p.get("product_type") or "", re.I)
+            nums = [i for i, w in enumerate(ws[:sl]) if re.fullmatch(r"v?\d+(\.\d+)?\+?|[A-Za-z-]*\d+", w) and i > 1]
+            if nums and (shoe or sl < len(ws)):                                 # cut the colour after the model number
+                k = nums[-1] + 1
+                while k < sl and ws[k].upper().strip(",") in OFF33_KEEP:
+                    k += 1
+                t = " ".join(ws[:k])
+            elif sl < len(ws):
+                t = " ".join(ws[:sl])
         elif st == "aupiedsportif":
             first = t.split()[0].lower() if t.split() else ""
             brand = next((g for g in p.get("tags") or [] if g.split() and g.split()[0].lower() == first), None)
@@ -3073,7 +3095,7 @@ def make_shopify_scraper(st, base, kind):
             prods = shopify_products(base, max_pages=SHOPIFY_MAX_PAGES, cookies=cookies)
         if st == "paragon":
             prods = paragon_prods(prods)
-        if st in ("boutiquedulac", "fauxmouvement", "aupiedsportif", "borealrunning"):
+        if st in ("boutiquedulac", "fauxmouvement", "aupiedsportif", "borealrunning", "33off"):
             prods = qc_prods(st, prods)
         fx = fx_to_cad(cur)
         print(f"  {st}: {len(prods)} products, store {home}, prices in {cur}" + (f" x{fx}" if cur != "CAD" else ""), file=sys.stderr)
@@ -3570,7 +3592,7 @@ def tidy_brand(b):
         return tidy_brand(r)
     return c or b
 
-CAPS_STORES = {"lecoureur", "runnerssoul", "sportsexperts", "boutiquedulac"}
+CAPS_STORES = {"lecoureur", "runnerssoul", "sportsexperts", "boutiquedulac", "33off"}
 MODEL_TYPOS = [(re.compile(r"(?i)\bendorphine\b"), "Endorphin")]   # Running Room's "Endorphine Elite 2" (Oct 17, r/runTO list)
 OWN_BRAND = {"rabbit": "rabbit", "bandit": "Bandit Running"}
 GENDER_PREFIX_STORES = {"frontrunners",    # names start with "M " / "W " / "U " ("M Adidas Boston 13")
