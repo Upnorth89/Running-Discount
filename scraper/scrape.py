@@ -2754,6 +2754,7 @@ SHOPIFY_STORES = [
     ("lecoureur",      "https://www.lecoureur.com",          "gear"),   # Le Coureur (Sherbrooke running)
     ("boutiquedulac",  "https://laboutiquedulac.com",        "gear"),   # La Boutique du Lac (Lac-Beauport QC: running + cross-country ski, Oct 20)
     ("fauxmouvement",  "https://fauxmouvement.ca",           "gear"),   # Faux Mouvement (Québec City running shop, Oct 20)
+    ("borealrunning",  "https://borealrunning.com/en",        "gear"),   # Boréal Running (Saint-Augustin-de-Desmaures QC; English catalogue, Oct 20)
     ("aupiedsportif",  "https://aupiedsportiflaval.com",     "gear"),   # Au Pied Sportif Laval (QC shoes; vendor = the store, brand from the name, Oct 20)
     ("blacktoe",       "https://www.blacktoerunning.com",    "gear"),   # BlackToe Running (Toronto)
     # added 2026-10-02
@@ -2928,6 +2929,10 @@ SVP_NOT_RUNNING = re.compile(r"\b(yoga|maternity|nursing|skateboarding|track (to
                              # studio wear stays (Bastien: "It can be outdoor or workout clothes, it's fine")
                              r"entrada|tiro|court|match)\b", re.I)
 
+BOREAL_DESC = {"waterproof", "road", "trail", "running", "maximal-cushion", "and", "gravel", "racing", "shoes", "shoe", "for", "men", "women",
+               "men's", "women's", "unisex", "lightweight", "cushioned", "winter", "hiking", "stability", "neutral", "everyday", "daily", "carbon"}
+
+
 def qc_prods(st, prods):
     """Québec shops added Oct 20, 2026, tidied before reading so their cards merge with other stores':
     La Boutique du Lac writes "NOVABLAST 6 H/M" / "KRAGG F/W" (homme/men, femme/women); Faux Mouvement adds " | Colour"
@@ -2946,6 +2951,17 @@ def qc_prods(st, prods):
             m = re.search(rf"\b{re.escape(v)}\b", t, re.I) if v else None
             if m and m.start() > 0 and re.match(r"(chaussures?|souliers?)\b", t, re.I):
                 t = t[m.start():]
+        elif st == "borealrunning":                                                # "Brooks Ghost Max 4 running shoes for men"
+            women = re.search(r"\bwom[ae]n'?s?\b", t, re.I)
+            men = re.search(r"\bm[ae]n'?s?\b", re.sub(r"\bwom[ae]n'?s?\b", "", t, flags=re.I), re.I)
+            gen = " - Women's" if women and not men else " - Men's" if men and not women else ""
+            if re.search(r"running shoes|chaussures", p.get("product_type") or "", re.I):
+                ws = t.split()
+                k = next((i for i, w in enumerate(ws) if i > 1 and w.lower().strip(",") in BOREAL_DESC), len(ws))
+                t = " ".join(ws[:k])
+            else:
+                t = re.sub(r"\s+(for\s+)?(wom[ae]n|m[ae]n)('?s)?\b", "", t, flags=re.I)
+            t = re.sub(r"\s+(unisex|unisexe)\b", "", t, flags=re.I).strip() + gen
         elif st == "aupiedsportif":
             first = t.split()[0].lower() if t.split() else ""
             brand = next((g for g in p.get("tags") or [] if g.split() and g.split()[0].lower() == first), None)
@@ -3057,7 +3073,7 @@ def make_shopify_scraper(st, base, kind):
             prods = shopify_products(base, max_pages=SHOPIFY_MAX_PAGES, cookies=cookies)
         if st == "paragon":
             prods = paragon_prods(prods)
-        if st in ("boutiquedulac", "fauxmouvement", "aupiedsportif"):
+        if st in ("boutiquedulac", "fauxmouvement", "aupiedsportif", "borealrunning"):
             prods = qc_prods(st, prods)
         fx = fx_to_cad(cur)
         print(f"  {st}: {len(prods)} products, store {home}, prices in {cur}" + (f" x{fx}" if cur != "CAD" else ""), file=sys.stderr)
