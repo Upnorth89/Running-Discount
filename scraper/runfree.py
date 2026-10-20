@@ -263,7 +263,7 @@ def main():
         if offers:
             data["stores"][st] = {"updated": now.isoformat(timespec="seconds"), "offers": offers}
         else:
-            print(f"  {st}: FAILED ({err or 'nothing in stock online'}); kept the last good read", file=sys.stderr)
+            print(f"::warning::RunFree {st}: FAILED ({err or 'nothing in stock online'}); kept the last good read", file=sys.stderr)   # shows on the run page
             if st in data["stores"]:
                 data["stores"][st]["failed"] = err or "nothing in stock online"
     out_f.write_text(json.dumps(data, separators=(",", ":"), ensure_ascii=False))
