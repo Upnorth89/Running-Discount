@@ -1577,7 +1577,7 @@ function section(key,title,list,cls){
   const note=key==="nutrition"&&state.ships!=="all"&&!US()?`<p class="grpnote">${t("usFuel")} <button type="button" data-usfuel>${t("usFuelShow")}</button></p>`:
     APPAREL_GROUPS.includes(key)&&hasSizes()&&!state.cloth.length?`<p class="grpnote">${t("clothNote")} <button type="button" data-picksize="cloth">${t("clothPick")}</button></p>`:"";
   const types=TYPES[key]?`<div class="chips scroll types">${["",...TYPES[key]].map(v=>`<button type="button" class="chip" data-type="${key}:${v}" aria-pressed="${(view.type[key]||"")===v}">${v?t("types")[v]:t("typeAll")}</button>`).join("")}</div>`:"";
-  if(key!=="__new")list=spreadBrands(list.slice(0,60),PAGE_CAT).concat(list.slice(60));   // the first rows are what people see
+  if(key!=="__new"&&view.sort==="match")list=spreadBrands(list.slice(0,60),PAGE_CAT).concat(list.slice(60));   // Best match only: a price sort stays in price order
   return `<section class="grp ${cls||""}" id="grp-${key}"><h2>${title} <small>${num(list.length)}</small>${tail}</h2>${types}${note}<div class="grid">${list.slice(0,lim).map(d=>card(d)).join("")}</div>
     ${list.length>lim?`<button class="btn more" data-open="${key}">${t("showMore",Math.min(MORE,list.length-lim))}</button>`:""}</section>`;
 }
