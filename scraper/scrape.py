@@ -1575,11 +1575,17 @@ def dec_links(budget):
 def dec_offer(u):
     """One product page -> an offer (None when nothing in stock / not for us). Raises DecBusy on a lasting 429."""
     try:
-        skus = [x for x in dec_skus(dec_get(DEC_BASE + u).text) if x.get("isAvailable")]
+        every = dec_skus(dec_get(DEC_BASE + u).text)
     except Exception as e:
         if "429" in str(e):
             raise DecBusy(str(e))
         return None
+    # Oct 20: the page also carries its cross-sell products' sizes (the carbon poles' page: a survival blanket read as size
+    # "100" at $4.99, a folding cup at $7.99). Keep only this product: the title of the page's own model, every colour.
+    mid = re.search(r"/m(\d+)", u)
+    own = [x for x in every if mid and str(x.get("modelId")) == mid.group(1)]
+    title0 = (own[0] if own else every[0] if every else {}).get("title")
+    skus = [x for x in every if x.get("isAvailable") and x.get("title") == title0]
     if not skus:
         return None
     x0 = skus[0]
@@ -1614,7 +1620,7 @@ def dec_offer(u):
     img = (x0.get("mainImage") or {}).get("url")
     return {"st": "decathlon", "b": brand, "n": title, "u": DEC_BASE + u, "g": g, "sx": sx,
             "w": bool(re.search(r"\bwide\b", title, re.I)), "img": img + "?format=auto&f=500x0" if img else None,
-            "lp": round(lp, 2), "bb": None, "sz": [[k, p, r] for k, (p, r) in sizes.items()], "ca": True}
+            "lp": round(lp, 2), "bb": None, "sz": [[k, p, r] for k, (p, r) in sizes.items()], "ca": True, "own": 1}
 
 def scrape_decathlon():
     t0, out, stopped = time.time(), [], ""
@@ -4337,7 +4343,12 @@ def scrape_decathlon_saved():
     t = dt.datetime.fromisoformat(d["updated"])
     if dt.datetime.now(dt.timezone.utc) - t > dt.timedelta(hours=36):
         raise RuntimeError(f"Decathlon night read last worked {t:%b %d}" + (f" ({d['failed']})" if d.get("failed") else ""))
-    return d["offers"]
+    # products read before Oct 20 may carry cross-sell sizes (see dec_offer): until re-read, one whose sizes differ in price
+    # 2.5x+ is left out rather than shown at a wrong price
+    ok = [o for o in d["offers"] if o.get("own") or len(o["sz"]) < 2 or max(e[1] for e in o["sz"]) <= 2.5 * min(e[1] for e in o["sz"])]
+    if len(ok) < len(d["offers"]):
+        print(f"  decathlon: {len(d['offers']) - len(ok)} products held back until re-read (mixed-in sizes)", file=sys.stderr)
+    return ok
 
 
 def decathlon_night(out):
@@ -4364,6 +4375,20 @@ def decathlon_night(out):
         if not links or cur >= len(links) or not listed or \
                 dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(listed) > dt.timedelta(days=7):
             links, cur, listed = dec_links(40 * 60), 0, today
+        # Oct 20: products saved with cross-sell sizes mixed in (held back by scrape_decathlon_saved) are re-read first
+        redo = [o["u"] for o in offers.values() if not o.get("own") and len(o["sz"]) > 1
+                and max(e[1] for e in o["sz"]) > 2.5 * min(e[1] for e in o["sz"])]
+        for full in redo:
+            if time.time() - t0 > 85 * 60:
+                break
+            time.sleep(DEC_PACE)
+            o = dec_offer(full[len(DEC_BASE):])
+            if o:
+                offers[full] = o
+            else:
+                offers.pop(full, None)
+            seen[full] = today
+            read += 1
         while cur < len(links) and time.time() - t0 < 85 * 60:
             u = links[cur]
             time.sleep(DEC_PACE)

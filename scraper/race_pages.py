@@ -20,8 +20,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from urllib.parse import quote
 from shoe_pages import T, esc, page_head, page_foot, store_names, size_url, host  # noqa: E402
 
-POOL = 40        # deals per gear item carried in the page (the script shows the best 3 in your size)
-SHOW = 3
+POOL = 60        # picks per gear item carried in the page (the script picks the best 10 in your size)
+SHOW = 10        # Oct 20 (Bastien): 10 choices per item, a few on sale; 3 show, "See all 10" opens the rest
+FIRST = 3
+MIN_SALE = 3
 
 WATERPROOF = r"waterproof|\brain|gore|gtx|h2no|shell|storm|hydro|2\.5l|3l\b|futurelight|pertex shield|dryvent|membrane|imperm"
 # Oct 20 (Bastien: "2x 6oz bottles for a 125 km"; "tuques are mostly city tuques"): race gear, not anything with the word in it.
@@ -31,6 +33,23 @@ TRAIL = {"salomon", "hoka", "arc'teryx", "ciele", "buff", "smartwool", "icebreak
          "kari traa", "janji", "rabbit", "tracksmith", "saysky", "the north face", "mammut", "haglöfs", "brooks", "saucony", "on", "2xu",
          "nnormal", "norda", "leki", "compressport", "scott", "kiprun", "mec", "life sports gear", "fenix", "ledlenser", "silva", "biolite",
          "karpos", "gore wear", "naak", "näak", "maurten", "spring energy", "precision fuel & hydration", "neversecond", "boco", "satisfy", "district vision"}
+# Oct 20 (Bastien): the brands runners buy for each item. MAYBE brands come in only for running items ("if it's running stuff").
+BRANDS = {
+    "water": "salomon|hydrapak|nathan|ultraspire|norda|montane|life sports gear|nnormal|naked|kiprun",
+    "jacket": "salomon|arc'teryx|nnormal|patagonia|the north face|inov-8|montane|karpos|black diamond|outdoor research|mammut|brooks|craft|kiprun|scott|dynafit|la sportiva|raidlight|norrøna",
+    "tuque": "ciele|smartwool|buff|salomon|icebreaker|kari traa|arc'teryx|outdoor research|nathan|saucony|brooks|craft|patagonia|on",
+    "headlamp": "petzl|black diamond|nathan|biolite|silva|fenix|ledlenser|raidlight",
+    "gloves": "black diamond|outdoor research|smartwool|craft|salomon|brooks|nathan|arc'teryx|icebreaker|montane|the north face|saucony",
+    "midlayer": "salomon|smartwool|icebreaker|brooks|craft|patagonia|arc'teryx|outdoor research|kari traa|hoka|on|saucony|the north face|mons royale|odlo|ciele",
+    "cap": "buff|ciele|salomon|satisfy|fractel|boco|patagonia|arc'teryx|on|nnormal|nathan|smartwool",
+    "pants": "salomon|patagonia|montane|outdoor research|rab|black diamond|mammut|dynafit|scott|kiprun|brooks|craft",
+    "poles": "black diamond|leki|salomon|dynafit|norda|raidlight|ultraspire|la sportiva|scott|kiprun|komperdell",
+    "food": "maurten|näak|naak|precision fuel & hydration|gu|spring energy|neversecond|xact nutrition|skratch labs|skratch|huma|science in sport|honey stinger|clif|krono|brix|lecka",
+    "cup": "hydrapak|salomon|nathan|brix|xact nutrition|foveo running",
+}
+BRANDS = {k: set(v.split("|")) for k, v in BRANDS.items()}
+MAYBE = {"2xu", "balmoral", "nike", "under armour", "bula", "camelbak", "osprey"}
+RUN = re.compile(r"\brun|running|trail|race|racing|ultra|marathon", re.I)
 KINDS = {
     "water":    dict(g={"gear", "packs"}, need=r"soft ?flask|handheld|hand held|skyflask|ultraflask|pocketflask|speedflask", good=r".",
                      x=r"\b(150|250) ?ml|\b[5-9] ?oz|\b1[0-3] ?oz|holder|cap only|lid|valve only|bite valve|kit\b"),   # 1 L = two 500 ml flasks
@@ -109,7 +128,7 @@ S = {
         "have": "I have it", "progress": "You have {h} of {n} mandatory items. Tick what you already own.", "progressAll": "You have every mandatory item. See you at the start.",
         "deals": "On sale now", "dealsSize": "On sale now in your size", "noDeals": "None in stock in your size today. We check every morning.",
         "notSold": "The stores we check don't sell this.", "spec": "Check the spec before you buy.",
-        "more": "See more on sale →", "moreN": "{n} more picks", "moreOne": "1 more pick", "watch": "Watch", "watchL": "Watch the price", "sizeH": "Your size", "sizeTxt": "Pick it once to see deals that fit you.",
+        "more": "See more on sale →", "moreN": "See all {n}", "watch": "Watch", "watchL": "Watch the price", "sizeH": "Your size", "sizeTxt": "Pick it once to see deals that fit you.",
         "men": "Men's", "women": "Women's", "change": "Change", "off": "off",
         "src": "From the race's official list (last updated by the race {date}). Rules can change: check the {link} before race day.",
         "srcLink": "official list", "notAff": "The Gear Fox isn't affiliated with the race.",
@@ -129,7 +148,7 @@ S = {
         "have": "Je l'ai", "progress": "Vous avez {h} des {n} articles obligatoires. Cochez ce que vous avez déjà.", "progressAll": "Vous avez tout le matériel obligatoire. On se voit au départ.",
         "deals": "En solde maintenant", "dealsSize": "En solde dans votre taille", "noDeals": "Rien en stock dans votre taille aujourd'hui. On vérifie chaque matin.",
         "notSold": "Les boutiques que nous suivons n'en vendent pas.", "spec": "Vérifiez les caractéristiques avant d'acheter.",
-        "more": "Voir plus d'aubaines →", "moreN": "{n} autres choix", "moreOne": "1 autre choix", "watch": "Suivre", "watchL": "Suivre le prix", "sizeH": "Votre taille", "sizeTxt": "Choisissez-la une fois pour voir les aubaines à votre taille.",
+        "more": "Voir plus d'aubaines →", "moreN": "Voir les {n}", "watch": "Suivre", "watchL": "Suivre le prix", "sizeH": "Votre taille", "sizeTxt": "Choisissez-la une fois pour voir les aubaines à votre taille.",
         "men": "Homme", "women": "Femme", "change": "Modifier", "off": "de rabais",
         "src": "Selon la liste officielle de la course (mise à jour par la course le {date}). Les règles peuvent changer : vérifiez la {link} avant la course.",
         "srcLink": "liste officielle", "notAff": "The Gear Fox n'est pas affilié à la course.",
@@ -176,7 +195,7 @@ CSS = """
 .rsize button[aria-pressed="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
 .rsize .mine{border:0;padding:0;margin:0;background:none}
 .srcb{font-size:14px;color:var(--muted);margin:16px 0 0}
-.dl li{display:flex;align-items:stretch;gap:6px}.gi .dl li:nth-child(n+2){display:none}.gi.open .dl li{display:flex}
+.dl li{display:flex;align-items:stretch;gap:6px}.gi .dl li:nth-child(n+4){display:none}.gi.open .dl li{display:flex}
 .dl .dg{flex:1;min-width:0}.dl .wt{flex:none;display:flex;align-items:center;font:600 13px var(--body);color:var(--moss);text-decoration:none;border:1px solid var(--line);border-radius:10px;padding:0 10px;white-space:nowrap}
 @media (max-width:400px){.dl .wl{display:none}.dl .wt{font-size:18px;padding:0 9px}.dl .nm{font-size:13px;overflow-wrap:anywhere}.dl .pr s{display:block}.dl img{width:46px;height:46px}.dl a.dg{gap:8px}}
 .mored{font:600 14px var(--body);color:var(--moss);background:none;border:0;padding:4px 0;cursor:pointer;text-decoration:underline}
@@ -203,12 +222,13 @@ def pool(items, kind, stores):
         n = d["n"]
         if (k.get("t") and d.get("t") not in k["t"]) or not need.search(n) or (xx and xx.search(n)) or BAD.search(n):
             continue
-        fit, brand = bool(good.search(n)), d["b"].lower() in TRAIL
-        if not (fit or brand):
+        b = d["b"].lower()
+        if not (b in BRANDS[kind.rstrip("2")] or (b in MAYBE and (kind in ("water", "cup", "food") or RUN.search(n)))):
             continue
+        fit = bool(good.search(n))
         sz = [e for e in d["sz"] if e[1]]
-        if not sz:
-            continue
+        if not sz or (d["g"] != "nutrition" and max(e[1] for e in sz) > 2.5 * min(e[1] for e in sz)):
+            continue                                       # sizes 2.5x apart in price: another product's sizes mixed in (Decathlon, Oct 20)
         best = min(sz, key=lambda e: e[1])
         reg = max(best[3] or best[1], best[1]) if len(best) > 3 else best[1]
         pct = round(100 * (1 - best[1] / reg)) if reg > best[1] * 1.01 else 0
@@ -218,7 +238,7 @@ def pool(items, kind, stores):
                     "k": f'{d["b"]}|{n}|{d["g"]}|{1 if d.get("w") else 0}'.lower(),          # the site's itemKey(): /?watch=<k>
                     "s": [[e[0], e[1], max(e[3] or e[1], e[1]) if len(e) > 3 else e[1], size_url(d, e)] for e in sz],
                     "st": stores.get(host(u), [host(u)])[0], "h": host(u),
-                    "_score": 30 * fit + 20 * brand + min(nst, 5) * 6 + pct * 0.3 + min(len(sz), 6)})
+                    "_score": 30 * fit + min(nst, 5) * 6 + pct * 0.3 + min(len(sz), 6)})
     out.sort(key=lambda r: -r["_score"])
     for r in out:
         del r["_score"]
@@ -232,6 +252,22 @@ def spread(p):
         (rest if r["b"].lower() in seen else first).append(r)
         seen.add(r["b"].lower())
     return first + rest
+
+
+def picks(p, n=SHOW):
+    """10 choices: one per brand first; at least MIN_SALE on sale when there are that many, one of them in the first 3 shown."""
+    sale = lambda r: any(e[2] > e[1] * 1.01 for e in r["s"])
+    top = spread(p)[:n]
+    more = [r for r in spread(p)[n:] if sale(r)]
+    while sum(map(sale, top)) < MIN_SALE and more:
+        i = max(i for i, r in enumerate(top) if not sale(r)) if any(not sale(r) for r in top) else None
+        if i is None:
+            break
+        top[i] = more.pop(0)
+    if top and not any(map(sale, top[:FIRST])) and any(map(sale, top)):
+        j = next(i for i, r in enumerate(top) if sale(r))
+        top.insert(FIRST - 1, top.pop(j))
+    return top
 
 
 def money(L, v):
@@ -272,13 +308,13 @@ def page(slug, race, L, items, stores):
             pools[kind] = p
         lvs = "".join(f' data-l{d}="{lv[i].strip()}"' for i, d in enumerate(race["dists"]))
         first = lv[race["dists"].index(race["default"])].strip()
-        top = [r for r in spread(p) if not (kind == "headlamp2" and r["n"] in shown)][:SHOW]
+        top = picks([r for r in p if not (kind == "headlamp2" and r["n"] in shown)])
         if kind == "headlamp":
-            shown = {r["n"] for r in top}
+            shown = {r["n"] for r in top[:FIRST]}
         if sold:   # one deal shows, the others behind "N more deals"; the tick sits by the name (Oct 20: 7,800 px on a phone was too long)
             deals = (f'<ul class="dl"{"" if top else " hidden"}>{"".join(deal_html(L, r) for r in top)}</ul>'
                      f'<p class="none"{" hidden" if top else ""}>{s["noDeals"]}</p>'
-                     f'<p class="ft"><button type="button" class="mored" data-n="{s["moreN"]}" data-one="{s["moreOne"]}"{"" if len(top) > 1 else " hidden"}>{s["moreOne"] if len(top) == 2 else s["moreN"].format(n=len(top) - 1)}</button>'
+                     f'<p class="ft"><button type="button" class="mored" data-n="{s["moreN"]}" {"" if len(top) > FIRST else " hidden"}>{s["moreN"].format(n=len(top))}</button>'
                      + (f'<span class="spec">{s["spec"]}</span>' if spec else "") + "</p>")
         else:
             deals = ""
@@ -350,10 +386,13 @@ function render(){
       var s=SIZED[r.g]?r.s.filter(function(e){return fits(e[0])}):r.s;if(!s.length)continue;
       ok.push([r,s.reduce(function(a,b){return b[1]<a[1]?b:a})])}
     if(k==="headlamp2"){var up=(SHOWN.headlamp||[]);ok=ok.filter(function(x){return up.indexOf(x[0].n)<0})}
-    var seen={},picks=ok.filter(function(x){var b=x[0].b.toLowerCase(),n=!seen[b];seen[b]=1;return n}).concat(ok).filter(function(x,i,a){return a.indexOf(x)===i}).slice(0,3);   // one per brand first
+    var seen={},all=ok.filter(function(x){var b=x[0].b.toLowerCase(),n=!seen[b];seen[b]=1;return n}).concat(ok).filter(function(x,i,a){return a.indexOf(x)===i});   // one per brand first
+    var sale=function(x){return x[1][2]>x[1][1]*1.01},picks=all.slice(0,10),more=all.slice(10).filter(sale);   // same rule as picks() in race_pages.py
+    while(picks.filter(sale).length<3&&more.length){var i=-1;picks.forEach(function(x,j){if(!sale(x))i=j});if(i<0)break;picks[i]=more.shift()}
+    if(!picks.slice(0,3).some(sale)&&picks.some(sale)){var j=picks.findIndex(sale);picks.splice(2,0,picks.splice(j,1)[0])}
     var ul=li.querySelector(".dl"),none=li.querySelector(".none"),mb=li.querySelector(".mored");
-    ul.hidden=!picks.length;none.hidden=!!picks.length;mb.hidden=picks.length<2;mb.textContent=picks.length===2?mb.dataset.one:mb.dataset.n.replace("{n}",picks.length-1);
-    SHOWN[k]=picks.map(function(x){return x[0].n});if(!picks.length)return;
+    ul.hidden=!picks.length;none.hidden=!!picks.length;mb.hidden=picks.length<=3;mb.textContent=mb.dataset.n.replace("{n}",picks.length);
+    SHOWN[k]=picks.slice(0,3).map(function(x){return x[0].n});if(!picks.length)return;
     ul.innerHTML=picks.map(function(x){var r=x[0],e=x[1];
       var pr=e[2]>e[1]*1.01?'<b>'+money(e[1])+'</b><s>'+money(e[2])+'</s> <span class="off">−'+Math.round(100*(1-e[1]/e[2]))+'%</span>':'<b>'+money(e[1])+'</b>',h=gl.dataset.home;
       return '<li><a class="dg" href="'+esc(e[3])+'" data-store="'+esc(r.h)+'" target="_blank" rel="noopener"><img src="'+esc(r.img)+'" alt="" loading="lazy" referrerpolicy="no-referrer"><span class="nm"><b>'+esc(r.b)+'</b>'+esc(nm(r.n))+'<small>'+esc(r.st)+(SIZED[r.g]&&size?" · "+esc(e[0]):"")+'</small></span><span class="pr">'+pr+'</span></a><a class="wt" href="'+h+(h.indexOf("?")<0?"?":"&")+"watch="+encodeURIComponent(r.k)+'" aria-label="'+esc(gl.dataset.watch)+': '+esc(r.b+" "+r.n)+'">♡<span class="wl"> '+esc(gl.dataset.watch)+'</span></a></li>'}).join("")});
