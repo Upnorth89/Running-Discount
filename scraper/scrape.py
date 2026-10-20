@@ -1678,7 +1678,7 @@ def shopify_products(base, max_pages=40, cookies=None):
         save_coverage(host, len(prods), len(prods), f"stopped at {max_pages} pages ({len(prods):,} products): there may be more")
     return prods
 
-SIZE_OPT = re.compile(r"^((us|eu|uk|men'?s|women'?s|mens|womens|shoe)\s+)?(size|taille|pointure)(\s+(us|eu|uk))?( ?\([^)]*\))?$", re.I)
+SIZE_OPT = re.compile(r"^((us|eu|uk|men'?s|women'?s|mens|womens|shoe)\s+)?(size|taille|pointure|grandeur)(\s+(us|eu|uk))?( ?\([^)]*\))?$", re.I)
 # "Size (US M)" (Ski Uphill); "US Size" (The Trail Runner Store: 1,300 shoes had no readable size until Oct 9)
 WIDTH_OPT = re.compile(r"^(width|shoe width|shoe fit|fit|largeur)$", re.I)
 
@@ -2752,6 +2752,9 @@ SHOPIFY_STORES = [
     ("capra",          "https://www.capra.run",              "gear"),   # Capra Running Co. (Squamish trail running)
     # added 2026-10-01
     ("lecoureur",      "https://www.lecoureur.com",          "gear"),   # Le Coureur (Sherbrooke running)
+    ("boutiquedulac",  "https://laboutiquedulac.com",        "gear"),   # La Boutique du Lac (Lac-Beauport QC: running + cross-country ski, Oct 20)
+    ("fauxmouvement",  "https://fauxmouvement.ca",           "gear"),   # Faux Mouvement (Québec City running shop, Oct 20)
+    ("aupiedsportif",  "https://aupiedsportiflaval.com",     "gear"),   # Au Pied Sportif Laval (QC shoes; vendor = the store, brand from the name, Oct 20)
     ("blacktoe",       "https://www.blacktoerunning.com",    "gear"),   # BlackToe Running (Toronto)
     # added 2026-10-02
     ("frontrunners",   "https://www.frontrunners.ca",        "gear"),   # Frontrunners (Victoria)
@@ -2912,7 +2915,7 @@ US_SHOPS = {"pacers", "portlandrun", "heartbreak", "runnersplus", "gazelle", "sp
             "scrantonrun", "trailheadrun", "prrunwalk", "performancerun", "fitnesssports", "athleticannex", "annarborrun",
             "tworivers", "xtramile", "lukeslocker", "sfrunco", "backcountry", "rei",
             "territory", "pathprojects", "ombraz", "2xuus", "paragon"} | set(RUNFREE_US)   # REI ships within the US only
-US_COLLECTIONS = {"paragon": ["running-shoes", "running"], "sportsbasement": ["running"], "sail": ["outdoor-gear-running"], "svp": ["running-collection"], "humaca": ["nutrition"]}   # (Canadian stores too: SAIL)   # general stores: their running section only (Sports Basement also sells
+US_COLLECTIONS = {"paragon": ["running-shoes", "running"], "sportsbasement": ["running"], "sail": ["outdoor-gear-running"], "svp": ["running-collection"], "humaca": ["nutrition"], "boutiquedulac": ["chaussures", "course-a-pied", "nutrition"]}   # (Canadian stores too: SAIL)   # general stores: their running section only (Sports Basement also sells
                                                    # snowboards, swimwear, tennis: those topped the US deals, Oct 6, 2026)
 # Shoebacca was tried and dropped (Oct 6, 2026): mostly PUMA/adidas/Diadora budget and gym shoes, no Hoka/Brooks/ASICS/Nike
 NO_CART = {"svp"}      # robots.txt forbids /cart.js: the currency comes from meta.json only (SVP: CAD)
@@ -2924,6 +2927,38 @@ SVP_NOT_RUNNING = re.compile(r"\b(yoga|maternity|nursing|skateboarding|track (to
                              # Oct 19: soccer ("Entrada", "Tiro") and tennis ("Court", "Match") lines in its running section. Gym and
                              # studio wear stays (Bastien: "It can be outdoor or workout clothes, it's fine")
                              r"entrada|tiro|court|match)\b", re.I)
+
+def qc_prods(st, prods):
+    """Québec shops added Oct 20, 2026, tidied before reading so their cards merge with other stores':
+    La Boutique du Lac writes "NOVABLAST 6 H/M" / "KRAGG F/W" (homme/men, femme/women); Faux Mouvement adds " | Colour"
+    and French words before the model ("Chaussures de course à pied en sentier norda 002"); Au Pied Sportif Laval lists
+    itself as the brand ("Hoka W Arahi 9"): the brand comes from its tags, products without a known brand are left out."""
+    out = []
+    for p in prods:
+        t = p.get("title") or ""
+        if st == "boutiquedulac":
+            t = re.sub(r"\s+H/M\s*$", " - Men's", t)
+            t = re.sub(r"\s+F/W\s*$", " - Women's", t)
+            t = re.sub(r"\s+UNISEXE?\s*$", "", t, flags=re.I)
+        elif st == "fauxmouvement":
+            t = re.sub(r"\s*\|.*$", "", t)
+            v = (p.get("vendor") or "").strip()
+            m = re.search(rf"\b{re.escape(v)}\b", t, re.I) if v else None
+            if m and m.start() > 0 and re.match(r"(chaussures?|souliers?)\b", t, re.I):
+                t = t[m.start():]
+        elif st == "aupiedsportif":
+            first = t.split()[0].lower() if t.split() else ""
+            brand = next((g for g in p.get("tags") or [] if g.split() and g.split()[0].lower() == first), None)
+            if not brand:
+                continue
+            p["vendor"] = brand
+            m = re.match(r"^(\S+)\s+([MW])\s+(.*)$", t)                       # "Hoka W Arahi 9" -> "Hoka Arahi 9 - Women's"
+            if m:
+                t = f"{m.group(1)} {m.group(3)} - {'Men' if m.group(2) == 'M' else 'Women'}'s"
+        p["title"] = t
+        out.append(p)
+    return out
+
 
 def tidy_svp(items):
     """SVP Sports writes "adidas - Men's Ultradream DNA Shoes (JS0321)" with sizes "M11" / "W8": drop the brand in front,
@@ -3022,6 +3057,8 @@ def make_shopify_scraper(st, base, kind):
             prods = shopify_products(base, max_pages=SHOPIFY_MAX_PAGES, cookies=cookies)
         if st == "paragon":
             prods = paragon_prods(prods)
+        if st in ("boutiquedulac", "fauxmouvement", "aupiedsportif"):
+            prods = qc_prods(st, prods)
         fx = fx_to_cad(cur)
         print(f"  {st}: {len(prods)} products, store {home}, prices in {cur}" + (f" x{fx}" if cur != "CAD" else ""), file=sys.stderr)
         items = shopify_items(st, base, prods, generic_group(kind), fx=fx, size_aware=True, collapse=True,
@@ -3080,7 +3117,7 @@ for _st in RUNFREE:
 
 # Casual footwear some running stores also sell; not what people come here for.
 CASUAL_BRANDS = {"ambler", "birkenstock", "wolky", "teva", "crocs", "ugg", "blundstone", "dr. martens", "clarks", "oofos", "billy footwear", "vessi"}   # Ambler (Oct 8): toques, and its only "shoe" is a wool slipper
-CASUAL_SHOE = re.compile(r"\b(sandal|sandale|clog|sabot|slipper|pantoufle|mule|flip[- ]flops?|ellipse flip|loafer|slide|clearwater cnx|recovery (flip|slide)|ora recovery|bobs|casual sneaker|leather sneaker|chelsea)s?\b", re.I)   # Oct 19 (mystery shop): Skechers BOBS, Keen KS86 Leather, Xero "Casual Sneaker"
+CASUAL_SHOE = re.compile(r"\b(sandal|sandale|clog|sabot|slipper|pantoufle|mule|flip[- ]flops?|ellipse flip|loafer|slide|clearwater cnx|ks86|recovery (flip|slide)|ora recovery|bobs|casual sneaker|leather sneaker|chelsea)s?\b", re.I)   # Oct 19 (mystery shop): Skechers BOBS, Keen KS86 Leather, Xero "Casual Sneaker"
 # court and lifestyle shoes from running brands (ASICS tennis/pickleball lines, retro sneakers)
 COURT_SHOE = re.compile(r"pick[el]+ball|\btennis\b|\bpadel\b|\bcourt\b|gel[- ]?(resolution|dedicate|game|challenger|1130|nyc|kahana)|solution speed", re.I)
 # lifestyle lines stores file under running (brand + model; Foot Locker, Oct 4, 2026)
@@ -3517,7 +3554,7 @@ def tidy_brand(b):
         return tidy_brand(r)
     return c or b
 
-CAPS_STORES = {"lecoureur", "runnerssoul", "sportsexperts"}
+CAPS_STORES = {"lecoureur", "runnerssoul", "sportsexperts", "boutiquedulac"}
 MODEL_TYPOS = [(re.compile(r"(?i)\bendorphine\b"), "Endorphin")]   # Running Room's "Endorphine Elite 2" (Oct 17, r/runTO list)
 OWN_BRAND = {"rabbit": "rabbit", "bandit": "Bandit Running"}
 GENDER_PREFIX_STORES = {"frontrunners",    # names start with "M " / "W " / "U " ("M Adidas Boston 13")
