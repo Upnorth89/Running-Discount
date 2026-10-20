@@ -199,8 +199,10 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   previews/checks). Before it ships, write in the plan doc: the one metric, the baseline, the sample needed (two-proportion power
   calc, 80% power, 5% level) and the stop date. funnel.yml's "EXPERIMENT" lines give A vs B with p-values: keep B only at p < 0.05,
   else remove it. Bugs/trust fixes don't need a test.
-  Live tests (Oct 18): 'drops' (B: "Dropped today in your size" row), 'welcome' (B: no welcome screen, every size + sticky
-  "Pick your size" bar), 'r100' (Rule of 100, Berger: B's card badge = "−$66" when the regular price is $100+ in the shown
+  ENDED Oct 20 (A won, Bastien OK'd): 'drops' (B's "Dropped today in your size" row: store clicks of size-pickers 21% vs 62%,
+  p=0.019) and 'welcome' (B skipped the welcome screen: 11% picked sizes vs 29%, p=0.011); both A for everyone. 'layout' back to 50/50
+  Oct 20 (search stays in the header for all; B = the swipe row under the categories, A = above; early data sizes 14% B vs 45% A, 33 devices).
+  Live tests: 'r100' (Rule of 100, Berger: B's card badge = "−$66" when the regular price is $100+ in the shown
   currency, "−30%" below; homepage cards + welcome deals only, `offTag()`; metric = homepage visitors who click a deal, baseline 30%
   of first visits, ~1,000 per group, decide ~Nov 1). 'layout' ENDED Oct 19 (Bastien chose B for everyone after 1 day, not a test result: search + Filters under the sizes line, the
   swipe row as small tiles that keep loading as you swipe, no "See all"). Was (Oct 18, Bastien: the top row was "a big row of stuff":
