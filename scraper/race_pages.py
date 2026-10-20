@@ -17,26 +17,41 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from urllib.parse import quote
 from shoe_pages import T, esc, page_head, page_foot, store_names, size_url, host  # noqa: E402
 
 POOL = 40        # deals per gear item carried in the page (the script shows the best 3 in your size)
 SHOW = 3
 
 WATERPROOF = r"waterproof|\brain|gore|gtx|h2no|shell|storm|hydro|2\.5l|3l\b|futurelight|pertex shield|dryvent|membrane|imperm"
-# what each kind of gear matches in our data (group, type, name pattern, name pattern to leave out)
+# Oct 20 (Bastien: "2x 6oz bottles for a 125 km"; "tuques are mostly city tuques"): race gear, not anything with the word in it.
+# need = must match; good = trail/running words; an item needs a good word OR a trail brand; x = never.
+TRAIL = {"salomon", "hoka", "arc'teryx", "ciele", "buff", "smartwool", "icebreaker", "patagonia", "outdoor research", "black diamond", "petzl",
+         "nathan", "ultraspire", "hydrapak", "inov-8", "la sportiva", "dynafit", "montane", "norrøna", "raidlight", "rab", "craft", "odlo",
+         "kari traa", "janji", "rabbit", "tracksmith", "saysky", "the north face", "mammut", "haglöfs", "brooks", "saucony", "on", "2xu",
+         "nnormal", "norda", "leki", "compressport", "scott", "kiprun", "mec", "life sports gear", "fenix", "ledlenser", "silva", "biolite",
+         "karpos", "gore wear", "naak", "näak", "maurten", "spring energy", "precision fuel & hydration", "neversecond", "boco", "satisfy", "district vision"}
 KINDS = {
-    "water":    dict(g={"gear", "packs"}, n=r"flask|bottle|bladder|reservoir|bidon|gourde", x=r"\bcup\b|holder|cage|brush|cleaning|cap only|lid|roller|stella mccartney|cooler|jug|tumbler|stainless|insulated|thermos|\b\d{3}\s?oz|\bride\b|classic light|shaker|\bbike\b"),
-    "food":     dict(g={"nutrition"}, n=r"gel|bar\b|bars\b|chew|waffle|blok|stinger|gummies|jelly|bites", x=r"drink mix|electrolyte|hydration mix|capsule|tablet"),
-    "cup":      dict(g={"gear", "packs"}, n=r"\bcup\b|speedcup|tasse|gobelet", x=r"holder"),
-    "jacket":   dict(g={"tops"}, t={"jacket"}, n=WATERPROOF, x=r"vest|windbreaker|wind jacket|wind shell|insulat|down\b|puffer|softshell|soft shell|t-?shirt|\btee\b"),
-    "tuque":    dict(g={"headwear"}, n=r"beanie|tuque|toque"),
-    "headlamp": dict(g={"gear"}, n=r"headlamp|head lamp|frontale|lampe", x=r"bike|tail|clip light|band only|strap only|case|pouch"),
-    "gloves":   dict(g={"gloves"}, x=r"arm sleeve|warmers?\b|cycling|bike|fingerless|half[- ]finger|gel\b"),
-    "midlayer": dict(g={"tops"}, t={"layer", "tee"}, n=r"long sleeve|long-sleeve|\bl/s\b|\bls\b|half[- ]zip|quarter[- ]zip|1/4|1/2 zip|mid-?layer|fleece|hoodie|thermal|manches longues",
-                     x=r"vest|sleeveless|short sleeve|tank|singlet|arm sleeve|crop|tie dye|stella mccartney|bra\b|polo"),
-    "cap":      dict(g={"headwear"}, n=r"\bcap\b|buff|bandana|gaiter|casquette|visor", x=r"beanie|tuque|toque"),
-    "pants":    dict(g={"bottoms"}, t={"pant"}, n=WATERPROOF, x=r"short"),
-    "poles":    dict(g={"gear"}, n=r"\bpoles?\b|bâtons?|z-pole|trekking", x=r"basket|tip|strap|nordic|touring|\bft-?\d"),
+    "water":    dict(g={"gear", "packs"}, need=r"soft ?flask|handheld|hand held|skyflask|ultraflask|pocketflask|speedflask", good=r".",
+                     x=r"\b(150|250) ?ml|\b[5-9] ?oz|\b1[0-3] ?oz|holder|cap only|lid|valve only|bite valve|kit\b"),   # 1 L = two 500 ml flasks
+    "food":     dict(g={"nutrition"}, need=r"gel|bar\b|bars\b|chew|waffle|blok|stinger|gummies|jelly|bites", good=r".", x=r"drink mix|electrolyte|hydration mix|capsule|tablet|protein"),
+    "cup":      dict(g={"gear", "packs"}, need=r"\bcup\b|speedcup|tasse|gobelet", good=r".", x=r"holder"),
+    "jacket":   dict(g={"tops"}, t={"jacket"}, need=WATERPROOF, good=r"\brun|trail|race|ultra|light|pack|stretch|speed|active",
+                     x=r"vest|windbreaker|wind jacket|wind shell|insulat|down\b|puffer|softshell|soft shell|t-?shirt|\btee\b|\bski\b|snow|3-in-1|parka|\bbib\b"),
+    "tuque":    dict(g={"headwear"}, need=r"beanie|tuque|toque", good=r"\brun|thermal|merino|\blight|lite\b|dryflx|tech|race|trail|reflective|grid|active|fleece|wool blend",
+                     x=r"\bpom|bobble|cuff|chunky|cable|\brib\b|cashmere|cotton|cursive|bird|word head|logo|heritage|fold|slouch|fur\b|pompom|sherpa|lined knit"),
+    "headlamp": dict(g={"gear"}, need=r"headlamp|head lamp|frontale|lampe", good=r"\brun|trail|lumens|recharge|-r\b|ultra|\bswift|nao|actik|iko|spot|storm|distance",
+                     x=r"bike|tail|clip light|band only|strap only|case|pouch|kids?\b"),
+    "gloves":   dict(g={"gloves"}, need=r".", good=r"\brun|trail|merino|liner|touch|light|thermal|windstopper|fleece|tech|race|wind",
+                     x=r"arm sleeve|warmers?\b|cycling|bike|fingerless|half[- ]finger|gel\b|\bski\b|snowboard|work glove|lifting|gym"),
+    "midlayer": dict(g={"tops"}, t={"layer", "tee"}, need=r"long sleeve|long-sleeve|\bl/s\b|\bls\b|half[- ]zip|quarter[- ]zip|1/4|1/2 zip|mid-?layer|fleece|hoodie|thermal|manches longues",
+                     good=r"\brun|trail|merino|thermal|grid|tech|race|ultra|wool|zip|baselayer|base layer",
+                     x=r"vest|sleeveless|short sleeve|tank|singlet|arm sleeve|crop|tie dye|stella mccartney|bra\b|polo|cotton|plus size|graphic|logo"),
+    "cap":      dict(g={"headwear"}, need=r"\bcap\b|buff|bandana|gaiter|casquette|visor|neckwear|tube", good=r"\brun|trail|race|ultra|tech|light|panel|neck|cool|air",
+                     x=r"beanie|tuque|toque|trucker|snapback|dad hat|corduroy|cotton"),
+    "pants":    dict(g={"bottoms"}, t={"pant"}, need=WATERPROOF, good=r"\brun|trail|light|pack|stretch|race|ultra|active", x=r"short|\bski\b|snow|insulat|\bbib\b"),
+    "poles":    dict(g={"gear"}, need=r"\bpoles?\b|bâtons?|z-pole", good=r"\brun|trail|ultra|distance|\bz\b|z-pole|carbon|fold|compact|race|\bfl\b",
+                     x=r"basket|tip|strap|nordic|touring|\bft-?\d|\bski\b"),
 }
 
 # The Ultra-Trail Harricana list as the race published it (ultratrailharricana.com, "Mandatory and Suggested Gear",
@@ -61,8 +76,8 @@ RACES = {
                                   "fr": ("Couche intermédiaire à manches longues", "Les manchons ne comptent pas.")}, False),
             ("headlamp2", "MR  ", {"en": ("Second light or power bank", "Extra batteries, a second working headlamp or a charger."),
                                    "fr": ("Deuxième lampe ou batterie externe", "Piles de rechange, une deuxième lampe frontale ou un chargeur.")}, False),
-            ("water", "MMMM", {"en": ("Water: 1 litre or more", "Soft flasks, bottles or a bladder, 1 L in all."),
-                               "fr": ("Eau : 1 litre ou plus", "Flasques, bouteilles ou réservoir, 1 L en tout.")}, False),
+            ("water", "MMMM", {"en": ("Water: 1 litre or more", "Two 500 ml soft flasks = 1 L."),
+                               "fr": ("Eau : 1 litre ou plus", "Deux flasques de 500 ml = 1 L.")}, False),
             ("food", "MMMM", {"en": ("Food supply", "Energy bars, gels, other."), "fr": ("Réserve de nourriture", "Barres, gels, autres.")}, False),
             ("cup", "MMMM", {"en": ("Reusable cup (15 cl or more)", "Aid stations have no cups, dishes or cutlery."),
                              "fr": ("Gobelet réutilisable (15 cl ou plus)", "Les ravitaillements n'ont ni verres, ni vaisselle, ni ustensiles.")}, False),
@@ -87,14 +102,14 @@ RACES = {
 S = {
     "en": {
         "dir": "races", "title": "{name} mandatory gear list ({short} {dists} km)",
-        "desc": "The {name} mandatory gear list for the {dists} km, item by item, with today's best deals on each in your size at Canadian stores.",
+        "desc": "The {name} mandatory gear list for the {dists} km, item by item, with today's best prices on each in your size at Canadian stores.",
         "h1": "{name} mandatory gear list", "sub": "{short} {dists} km · {where} · {when}",
         "dist": "Your distance", "km": "{d} km",
         "M": "Mandatory", "R": "Recommended", "A": "Allowed",
         "have": "I have it", "progress": "You have {h} of {n} mandatory items. Tick what you already own.", "progressAll": "You have every mandatory item. See you at the start.",
-        "deals": "On sale now", "dealsSize": "On sale now in your size", "noDeals": "Nothing on sale in your size today. We check every morning.",
+        "deals": "On sale now", "dealsSize": "On sale now in your size", "noDeals": "None in stock in your size today. We check every morning.",
         "notSold": "The stores we check don't sell this.", "spec": "Check the spec before you buy.",
-        "more": "See more on sale →", "moreN": "{n} more deals", "moreOne": "1 more deal", "sizeH": "Your size", "sizeTxt": "Pick it once to see deals that fit you.",
+        "more": "See more on sale →", "moreN": "{n} more picks", "moreOne": "1 more pick", "watch": "Watch", "watchL": "Watch the price", "sizeH": "Your size", "sizeTxt": "Pick it once to see deals that fit you.",
         "men": "Men's", "women": "Women's", "change": "Change", "off": "off",
         "src": "From the race's official list (last updated by the race {date}). Rules can change: check the {link} before race day.",
         "srcLink": "official list", "notAff": "The Gear Fox isn't affiliated with the race.",
@@ -107,14 +122,14 @@ S = {
     },
     "fr": {
         "dir": "courses", "title": "Matériel obligatoire de l'{name} ({short} {dists} km)",
-        "desc": "Le matériel obligatoire de l'{name} pour le {dists} km, article par article, avec les meilleures aubaines du jour dans votre taille dans les boutiques canadiennes.",
+        "desc": "Le matériel obligatoire de l'{name} pour le {dists} km, article par article, avec les meilleurs prix du jour dans votre taille dans les boutiques canadiennes.",
         "h1": "Matériel obligatoire de l'{name}", "sub": "{short} {dists} km · {where} · {when}",
         "dist": "Votre distance", "km": "{d} km",
         "M": "Obligatoire", "R": "Recommandé", "A": "Permis",
         "have": "Je l'ai", "progress": "Vous avez {h} des {n} articles obligatoires. Cochez ce que vous avez déjà.", "progressAll": "Vous avez tout le matériel obligatoire. On se voit au départ.",
-        "deals": "En solde maintenant", "dealsSize": "En solde dans votre taille", "noDeals": "Rien en solde dans votre taille aujourd'hui. On vérifie chaque matin.",
+        "deals": "En solde maintenant", "dealsSize": "En solde dans votre taille", "noDeals": "Rien en stock dans votre taille aujourd'hui. On vérifie chaque matin.",
         "notSold": "Les boutiques que nous suivons n'en vendent pas.", "spec": "Vérifiez les caractéristiques avant d'acheter.",
-        "more": "Voir plus d'aubaines →", "moreN": "{n} autres aubaines", "moreOne": "1 autre aubaine", "sizeH": "Votre taille", "sizeTxt": "Choisissez-la une fois pour voir les aubaines à votre taille.",
+        "more": "Voir plus d'aubaines →", "moreN": "{n} autres choix", "moreOne": "1 autre choix", "watch": "Suivre", "watchL": "Suivre le prix", "sizeH": "Votre taille", "sizeTxt": "Choisissez-la une fois pour voir les aubaines à votre taille.",
         "men": "Homme", "women": "Femme", "change": "Modifier", "off": "de rabais",
         "src": "Selon la liste officielle de la course (mise à jour par la course le {date}). Les règles peuvent changer : vérifiez la {link} avant la course.",
         "srcLink": "liste officielle", "notAff": "The Gear Fox n'est pas affilié à la course.",
@@ -145,7 +160,7 @@ CSS = """
 .gi.got{opacity:.6}.gi.got .dl,.gi.got .ft,.gi.got .note,.gi.got .none{display:none}
 .gi.got h3{text-decoration:line-through}
 .dl{display:grid;gap:6px;margin:8px 0 0;padding:0;list-style:none}
-.dl a{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:6px 10px 6px 6px;color:var(--ink);text-decoration:none}
+.dl a.dg{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:6px 10px 6px 6px;color:var(--ink);text-decoration:none}
 .dl img{width:56px;height:56px;object-fit:contain;background:#fff;border-radius:8px;flex:none}
 .dl .nm{flex:1;min-width:0;font-size:14px;line-height:1.25}.dl .nm b{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
 .dl .nm small{display:block;color:var(--muted);font-size:12px}
@@ -161,7 +176,9 @@ CSS = """
 .rsize button[aria-pressed="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
 .rsize .mine{border:0;padding:0;margin:0;background:none}
 .srcb{font-size:14px;color:var(--muted);margin:16px 0 0}
-.gi .dl li:nth-child(n+2){display:none}.gi.open .dl li{display:block}
+.dl li{display:flex;align-items:stretch;gap:6px}.gi .dl li:nth-child(n+2){display:none}.gi.open .dl li{display:flex}
+.dl .dg{flex:1;min-width:0}.dl .wt{flex:none;display:flex;align-items:center;font:600 13px var(--body);color:var(--moss);text-decoration:none;border:1px solid var(--line);border-radius:10px;padding:0 10px;white-space:nowrap}
+@media (max-width:400px){.dl .wl{display:none}.dl .wt{font-size:18px;padding:0 9px}.dl .nm{font-size:13px;overflow-wrap:anywhere}.dl .pr s{display:block}.dl img{width:46px;height:46px}.dl a.dg{gap:8px}}
 .mored{font:600 14px var(--body);color:var(--moss);background:none;border:0;padding:4px 0;cursor:pointer;text-decoration:underline}
 .gi.open .mored{display:none}.gi.got .mored{display:none}
 .gi.mini{padding:9px 14px}.gi.mini .hd h3{font:600 16px/1.3 var(--body)}.gi.mini .note{font-size:13px;margin:2px 0 0 34px}
@@ -174,26 +191,34 @@ BAD = re.compile(r"seat ?mast|seat ?post|\bbiogel\b", re.I)   # bike parts still
 
 
 def pool(items, kind, stores):
+    """Race gear for one line of the list, full price too (people watch it for a drop): trail gear first, then how many stores
+    carry it (the best popularity signal we have), then a sale."""
     k = KINDS[kind.rstrip("2")]
-    rx, xx = re.compile(k.get("n", "."), re.I), re.compile(k["x"], re.I) if k.get("x") else None
+    need, good = re.compile(k["need"], re.I), re.compile(k["good"], re.I)
+    xx = re.compile(k["x"], re.I) if k.get("x") else None
     out = []
     for d in items:
         if d.get("ca") is False or not d.get("img") or d["g"] not in k["g"]:
             continue
-        if k.get("t") and d.get("t") not in k["t"]:
+        n = d["n"]
+        if (k.get("t") and d.get("t") not in k["t"]) or not need.search(n) or (xx and xx.search(n)) or BAD.search(n):
             continue
-        if not rx.search(d["n"]) or (xx and xx.search(d["n"])) or BAD.search(d["n"]):
+        fit, brand = bool(good.search(n)), d["b"].lower() in TRAIL
+        if not (fit or brand):
             continue
-        sz = [e for e in d["sz"] if len(e) > 3 and e[3] and e[3] > e[1] * 1.1]       # 10%+ off
+        sz = [e for e in d["sz"] if e[1]]
         if not sz:
             continue
         best = min(sz, key=lambda e: e[1])
-        pct = round(100 * (1 - best[1] / best[3]))
+        reg = max(best[3] or best[1], best[1]) if len(best) > 3 else best[1]
+        pct = round(100 * (1 - best[1] / reg)) if reg > best[1] * 1.01 else 0
         u = size_url(d, best)
-        nm = stores.get(host(u), [host(u)])[0]
-        out.append({"b": d["b"], "n": d["n"], "img": d["img"], "sx": d.get("sx") or [], "g": d["g"],
-                    "s": [[e[0], e[1], e[3], size_url(d, e)] for e in sz], "st": nm, "h": host(u),
-                    "_score": pct + min(best[3] - best[1], 150) / 5})
+        nst = len({host(x) for x in d.get("of") or [] if x})
+        out.append({"b": d["b"], "n": n, "img": d["img"], "sx": d.get("sx") or [], "g": d["g"],
+                    "k": f'{d["b"]}|{n}|{d["g"]}|{1 if d.get("w") else 0}'.lower(),          # the site's itemKey(): /?watch=<k>
+                    "s": [[e[0], e[1], max(e[3] or e[1], e[1]) if len(e) > 3 else e[1], size_url(d, e)] for e in sz],
+                    "st": stores.get(host(u), [host(u)])[0], "h": host(u),
+                    "_score": 30 * fit + 20 * brand + min(nst, 5) * 6 + pct * 0.3 + min(len(sz), 6)})
     out.sort(key=lambda r: -r["_score"])
     for r in out:
         del r["_score"]
@@ -218,12 +243,18 @@ def nm(L, n):
     return re.sub(r"Women[’']s\b", "Femme", re.sub(r"Men[’']s\b", "Homme", re.sub(r"\bUnisex\b", "Unisexe", n))) if L == "fr" else n
 
 
+def price_html(L, e):
+    sale = e[2] > e[1] * 1.01
+    return (f'<b>{money(L, e[1])}</b>' + (f'<s>{money(L, e[2])}</s> <span class="off">−{round(100 * (1 - e[1] / e[2]))}%</span>' if sale else ""))
+
+
 def deal_html(L, r):
     e = min(r["s"], key=lambda e: e[1])
-    pct = round(100 * (1 - e[1] / e[2]))
-    return (f'<li><a href="{esc(e[3])}" data-store="{esc(r["h"])}" target="_blank" rel="noopener"><img src="{esc(r["img"])}" alt="" loading="lazy" referrerpolicy="no-referrer">'
+    home = T[L]["home"]
+    return (f'<li><a class="dg" href="{esc(e[3])}" data-store="{esc(r["h"])}" target="_blank" rel="noopener"><img src="{esc(r["img"])}" alt="" loading="lazy" referrerpolicy="no-referrer">'
             f'<span class="nm"><b>{esc(r["b"])}</b>{esc(nm(L, r["n"]))}<small>{esc(r["st"])}</small></span>'
-            f'<span class="pr"><b>{money(L, e[1])}</b><s>{money(L, e[2])}</s> <span class="off">−{pct}%</span></span></a></li>')
+            f'<span class="pr">{price_html(L, e)}</span></a>'
+            f'<a class="wt" href="{home}{"&" if "?" in home else "?"}watch={quote(r["k"])}" aria-label="{esc(S[L]["watchL"])}: {esc(r["b"])} {esc(r["n"])}">♡<span class="wl"> {S[L]["watch"]}</span></a></li>')
 
 
 def page(slug, race, L, items, stores):
@@ -277,7 +308,7 @@ def page(slug, race, L, items, stores):
 <div class="dists" role="group" aria-label="{s['dist']}">{"".join(f'<button type="button" data-d="{d}" aria-pressed="{str(d == race["default"]).lower()}">{s["km"].format(d=d)}</button>' for d in race["dists"])}</div>
 <p class="prog" id="prog" data-t="{esc(s['progress'])}" data-all="{esc(s['progressAll'])}"></p>
 <ul class="gl" id="gl" data-race="{slug}" data-default="{race['default']}" data-lm="{s['M']}" data-lr="{s['R']}" data-la="{s['A']}"
- data-moren="{esc(s['moreN'])}" data-dh="{esc(s['deals'])}" data-dhs="{esc(s['dealsSize'])}" data-none="{esc(s['noDeals'])}" data-off="{esc(s['off'])}">{"".join(rows)}</ul>
+ data-home="{T[L]['home']}" data-watch="{esc(s['watch'])}" data-moren="{esc(s['moreN'])}" data-dh="{esc(s['deals'])}" data-dhs="{esc(s['dealsSize'])}" data-none="{esc(s['noDeals'])}" data-off="{esc(s['off'])}">{"".join(rows)}</ul>
 <p class="srcb">{s['src'].format(date=race['updated'][L], link=f'<a href="{src}" rel="noopener">{s["srcLink"]}</a>')} {s['notAff']}</p>
 <section class="alert" id="raceBox" data-ref="race-{slug}" data-bad="{esc(T[L]['alertBad'])}" data-ok="{esc(T[L]['alertOk'])}" data-fail="{esc(T[L]['alertFail'])}" data-pick="{esc(s['sizeTxt'])}">
 <h2>{esc(s['boxH'])}</h2><p class="fine">{esc(s['boxTxt'])}</p><form novalidate><input type="email" autocomplete="email" inputmode="email" placeholder="{esc(T[L]['emailPh'])}" aria-label="Email" required><button type="submit">{esc(s['boxBtn'])}</button></form><p class="msg" aria-live="polite"></p></section>
@@ -323,8 +354,9 @@ function render(){
     var ul=li.querySelector(".dl"),none=li.querySelector(".none"),mb=li.querySelector(".mored");
     ul.hidden=!picks.length;none.hidden=!!picks.length;mb.hidden=picks.length<2;mb.textContent=picks.length===2?mb.dataset.one:mb.dataset.n.replace("{n}",picks.length-1);
     SHOWN[k]=picks.map(function(x){return x[0].n});if(!picks.length)return;
-    ul.innerHTML=picks.map(function(x){var r=x[0],e=x[1],pc=Math.round(100*(1-e[1]/e[2]));
-      return '<li><a href="'+esc(e[3])+'" data-store="'+esc(r.h)+'" target="_blank" rel="noopener"><img src="'+esc(r.img)+'" alt="" loading="lazy" referrerpolicy="no-referrer"><span class="nm"><b>'+esc(r.b)+'</b>'+esc(nm(r.n))+'<small>'+esc(r.st)+(SIZED[r.g]&&size?" · "+esc(e[0]):"")+'</small></span><span class="pr"><b>'+money(e[1])+'</b><s>'+money(e[2])+'</s> <span class="off">−'+pc+'%</span></span></a></li>'}).join("")});
+    ul.innerHTML=picks.map(function(x){var r=x[0],e=x[1];
+      var pr=e[2]>e[1]*1.01?'<b>'+money(e[1])+'</b><s>'+money(e[2])+'</s> <span class="off">−'+Math.round(100*(1-e[1]/e[2]))+'%</span>':'<b>'+money(e[1])+'</b>',h=gl.dataset.home;
+      return '<li><a class="dg" href="'+esc(e[3])+'" data-store="'+esc(r.h)+'" target="_blank" rel="noopener"><img src="'+esc(r.img)+'" alt="" loading="lazy" referrerpolicy="no-referrer"><span class="nm"><b>'+esc(r.b)+'</b>'+esc(nm(r.n))+'<small>'+esc(r.st)+(SIZED[r.g]&&size?" · "+esc(e[0]):"")+'</small></span><span class="pr">'+pr+'</span></a><a class="wt" href="'+h+(h.indexOf("?")<0?"?":"&")+"watch="+encodeURIComponent(r.k)+'" aria-label="'+esc(gl.dataset.watch)+': '+esc(r.b+" "+r.n)+'">♡<span class="wl"> '+esc(gl.dataset.watch)+'</span></a></li>'}).join("")});
   var pg=document.getElementById("prog");pg.textContent=n&&h>=n?pg.dataset.all:pg.dataset.t.replace("{h}",h).replace("{n}",n);
   var box=document.getElementById("rsize");box.classList.toggle("set",!!(fit&&size)&&!box.dataset.open);
   box.querySelector(".cur span").textContent=(fit?box.dataset[fit]:"")+" · "+size;[].forEach.call(box.querySelectorAll("[data-g]"),function(b){b.setAttribute("aria-pressed",String(b.dataset.g===fit))});
@@ -362,7 +394,7 @@ f.addEventListener("submit",function(e){e.preventDefault();
 
 def main():
     site = Path(sys.argv[1])
-    sale = json.loads(Path(sys.argv[2] if len(sys.argv) > 2 else site / "sale.json").read_text())
+    sale = json.loads(Path(sys.argv[2] if len(sys.argv) > 2 else site / "deals.json").read_text())   # full price too
     stores = store_names((site / "index.html").read_text())
     for slug, race in RACES.items():
         for L in ("en", "fr"):
