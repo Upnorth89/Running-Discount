@@ -677,7 +677,7 @@ const ANA=(()=>{const ls=k=>{try{return localStorage.getItem(k)}catch(e){return 
   let over={};try{const q=new URLSearchParams(location.search).get("exp");over=JSON.parse(ls("gf-exp")||"{}");
     if(q){q.split(",").forEach(x=>{const [n,a]=x.split(":");if(n&&/^[AB]$/.test(a))over[n]=a});localStorage.setItem("gf-exp",JSON.stringify(over))}}catch(e){}
   const arm=n=>{if(over[n])return over[n];let h=2166136261;for(const c of did+"|"+n){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return (h>>>0)%2?"B":"A"};
-  const TESTS=["drops","welcome","r100","runcard"];   // 'layout' ended Oct 19: its B (search on top, tiles) is now for everyone
+  const TESTS=["layout","r100","runcard"];   // Oct 20: 'welcome' and 'drops' ended (A won); 'layout' back as a 50/50 test
   if(fresh){TESTS.forEach(n=>add("signup-step",`exp|${n}|${arm(n)}`))}
   if(fresh)add("visit",em?"email-"+em:(matchMedia("(display-mode: standalone)").matches||navigator.standalone)?"home-screen app":document.referrer?new URL(document.referrer).hostname:"",null,location.pathname);
   return {add,nv:()=>nv,arm}})();
@@ -1082,10 +1082,10 @@ let QLAND=(()=>{try{return !!new URLSearchParams(location.search).get("q")}catch
 let BROWSE=!!LS.get("gf-browse")||(()=>{try{return !!new URLSearchParams(location.search).get("q")}catch(e){return false}})();   // a ?q= link (posts) opens straight on the item, no welcome screen (Oct 8)
 /* Test "welcome" (Oct 18; 30 days: 1 in 3 homepage first visits saw the welcome screen and left in a median 9 s without a
    deal): group B skips it on a first visit and lands on the deals in every size, with the "Pick your size" bar stuck on top. */
-const WELCOME_B=ANA.arm("welcome")==="B"&&!LS.get("rd-profile")&&!LS.get("gf-peek")&&!LS.get("gf-sub");
+const WELCOME_B=false;   // test "welcome" ended Oct 20: without the welcome screen 11% picked sizes vs 29% with it (124 devices, p=0.011)
 // Search + categories first, then the swipe row as small tiles (tile()). Was test 'layout' B (Oct 18); Oct 19 Bastien chose it for
 // everyone (Baymard: shoppers who search go straight for the box; one day of our data, not a test result)
-const LAYOUT_B=true;
+const LAYOUT_B=ANA.arm("layout")==="B";   // Oct 20: back to a 50/50 test (early data: sizes picked 14% B vs 45% A, 33 devices)
 if(LAYOUT_B){document.body.classList.add("lay-b");$("filtersBox").after($("newBox"))}
 if(WELCOME_B&&!BROWSE){BROWSE=true;LS.set("gf-browse",1)}
 {const tbh=()=>{const tb=document.querySelector(".topbar");if(tb)document.documentElement.style.setProperty("--tbh",tb.offsetHeight+"px")};addEventListener("load",tbh);addEventListener("resize",tbh)}
@@ -1993,7 +1993,7 @@ function renderAll(){
     // Oct 17 (Bastien: be part of people's daily habit): price drops since yesterday in your size, biggest first, every morning
     // Oct 18 (Bastien: two rows, "Dropped today" + "New since your last visit", were "data overload"): ONE row. Test 'drops' B
     // puts today's drops first in it (tagged "↓ $40 today"), then what's new (tagged "New"); group A sees only what's new
-    const drops=ANA.arm("drops")==="B"?onSale.filter(d=>d.dp&&d.best<d.dp-0.5).sort((a,b)=>(b.dp-b.best)-(a.dp-a.best)):[];
+    const drops=[];   // test "drops" ended Oct 20: the "Dropped today" row cut store clicks of size-pickers (21% vs 62%, p=0.019)
     DROPK=new Set(drops.map(itemKey));
     const fresh=onSale.filter(d=>NEWSET.has(itemKey(d))&&!DROPK.has(itemKey(d))).sort(SORTS[view.sort]);
     const ns=section("__new",fresh.length?t("secNew"):t(hasSizes()?"secDrops":"secDropsAll"),[...drops,...fresh],"new"+(drops.length?" drops":""));
@@ -2010,8 +2010,8 @@ function renderAll(){
   ORDER.filter(g=>wide||p.groups.includes(g)).forEach(g=>{const ty=view.type[g];   // a type picked: every match, Top deals included
     parts.push(section(g,GL(g),shown.filter(d=>d.g===g&&(ty?d.t===ty:!inTop.has(itemKey(d))))))});
   if(wide)parts.unshift(`<div class="widen">${t("searchWide")}</div>`);
-  if(!hasSizes()&&!view.store){const bb=`<div class="browsebar${ANA.arm("welcome")==="B"?" stick":""}">${t("browseNote")} <button type="button" data-picksize>${t("browsePick")}</button>${t("browseWhy")}</div>`;
-    if(ANA.arm("welcome")==="B")$("newBox").insertAdjacentHTML("beforebegin",bb.replace('<div class="browsebar','<div id="stickPick" class="browsebar'));else parts.unshift(bb)}   // test "welcome" B: on top of everything, stuck there
+  if(!hasSizes()&&!view.store){const bb=`<div class="browsebar${WELCOME_B?" stick":""}">${t("browseNote")} <button type="button" data-picksize>${t("browsePick")}</button>${t("browseWhy")}</div>`;
+    if(WELCOME_B)$("newBox").insertAdjacentHTML("beforebegin",bb.replace('<div class="browsebar','<div id="stickPick" class="browsebar'));else parts.unshift(bb)}   // test "welcome" B: on top of everything, stuck there
   if(cdn)parts.unshift(`<div class="storebar cdnbar"><div><small>${t("cdnH")}</small><b>${t("cdnB")}</b><small>${t("storeCount",num((view.fullPrice||q.length?all:onSale).length))}. ${t("cdnNote")}</small></div><button type="button" data-cdnoff>${t("cdnBack")}</button></div>`);
   if(view.store)parts.unshift(`<div class="storebar"><div><small>${t("storeH")}</small><b>${esc((STORES[view.store]||[view.store])[0])}</b><small>${t("storeCount",num((view.fullPrice||q.length?all:onSale).length))}</small></div><button type="button" data-shop="">${t("storeBack")}</button></div>`);
   if(q.length){const hits=shoeSearch(q);if(hits.length)parts.unshift(`<div class="spcards">${hits.map(([sl,m])=>`<a class="spcard" href="${shoeUrl(sl)}" data-sp="search"><span><b>${esc(m.n)}</b><small>${t("spCardTxt")}</small></span><span class="go">${t("spCardGo")}</span></a>`).join("")}</div>`)}

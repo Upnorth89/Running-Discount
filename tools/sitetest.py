@@ -501,21 +501,14 @@ def site_flow(base, per, accented):
             return f"{len(labels)} cards"
         check("Cards have a 'Watch price' button")(watch_label, page)
 
-        def drops_test():   # Oct 17, A/B test 'drops': group B gets "Dropped today in your size" on top, group A never does
-            def at(group):
-                page.goto(base + f"?exp=drops:{group}", wait_until="domcontentloaded")
-                page.wait_for_selector("section.grp .deal", timeout=20000)
-                return page.locator(".grp.drops").count()
-            rb = at("B")
-            ra = at("A")
-            page.evaluate("() => localStorage.removeItem('gf-exp')")
-            page.goto(base, wait_until="domcontentloaded")
+        def drops_gone():   # test 'drops' ended Oct 20 (A won): nobody gets the "Dropped today in your size" row, even an old group B
+            page.goto(base + "?exp=drops:B", wait_until="domcontentloaded")
             page.wait_for_selector("section.grp .deal", timeout=20000)
-            assert ra == 0, "group A shows the 'Dropped today' row"
-            if rb:
-                return "group B: row shown; group A: hidden"
-            return "group B: no row (nothing in men's 11 / M dropped today); group A: hidden"
-        check("Test 'drops': row only for group B")(drops_test, page)
+            n = page.locator(".grp.drops").count()
+            page.evaluate("() => localStorage.removeItem('gf-exp')")
+            assert n == 0, "the 'Dropped today' row still shows"
+            return "no 'Dropped today' row"
+        check("Test 'drops' ended: no 'Dropped today' row")(drops_gone, page)
 
         def r100_test():   # Oct 18, A/B test 'r100' (Rule of 100): group B's badge is "−$X" when the regular price is $100+, "−N%" below
             def at(group):
@@ -534,12 +527,17 @@ def site_flow(base, per, accented):
             return f"group B: {n} dollar badges ($100+), {len(b) - n} percent; group A: all percent"
         check("Test 'r100': dollars off at $100+ for group B")(r100_test, page)
 
-        def layout_test():   # Oct 18 test 'layout' -> Oct 19 for everyone: search on top, the swipe row as small tiles that keep loading
-            page.goto(base + "?exp=drops:B", wait_until="domcontentloaded")
+        def layout_test():   # test 'layout' (Oct 18; for everyone Oct 19; 50/50 again Oct 20): B = the swipe row under search + categories
+            page.goto(base + "?exp=layout:A", wait_until="domcontentloaded")
+            page.wait_for_selector("section.grp .deal", timeout=20000)
+            ya = page.evaluate("() => {const r = document.querySelector('#newBox section.grp'), f = document.querySelector('#filtersBox'); return r && f ? r.getBoundingClientRect().top < f.getBoundingClientRect().top : null}")
+            assert ya in (True, None), "group A: the swipe row isn't above the categories"
+            page.goto(base + "?exp=layout:B", wait_until="domcontentloaded")
             page.wait_for_selector("section.grp .deal", timeout=20000)
             r = page.evaluate("""() => {const y = s => {const e = document.querySelector(s); return e ? e.getBoundingClientRect().top : null};
                 return {search: y('#dSearch'), row: y('#newBox section.grp'), tiles: document.querySelectorAll('#newBox .tw').length,
                         cards: document.querySelectorAll('#newBox .dw:not(.tw)').length}}""")
+            page.evaluate("() => localStorage.removeItem('gf-exp')")
             if r["row"] is None:
                 return "no swipe row today (nothing dropped / new in men's 11 / M)"
             assert r["tiles"] and not r["cards"], f"row: {r['tiles']} tiles, {r['cards']} full cards"
@@ -551,7 +549,7 @@ def site_flow(base, per, accented):
                 assert n2 > r["tiles"], f"swiping to the end of the row didn't load more tiles ({n2})"
                 more = f"; swiping to the end loads more ({r['tiles']} -> {n2})"
             return f"search on top, {r['tiles']} tiles in the row{more}"
-        check("Search on top, small tiles in the swipe row")(layout_test, page)
+        check("Test 'layout': B = swipe row under the categories, small tiles that keep loading")(layout_test, page)
 
         def hook_line():   # Oct 19: under "N deals in your size today", one real deal with its money ("Biggest drop in your size: X, −$120")
             page.goto(base, wait_until="domcontentloaded")
@@ -853,26 +851,17 @@ def site_flow(base, per, accented):
             return f"{n} deals in every size, then men's 10"
         check("Just show me deals, sizes later")(browse, pg)
 
-        def welcome_b():   # Oct 18, test "welcome" group B: no welcome screen, deals in every size, "Pick your size" stuck on top
+        def welcome_back():   # test 'welcome' ended Oct 20 (A won): an old group B gets the welcome screen like everyone
             c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
             stub(c)
             c.add_init_script("try{localStorage.setItem('gf-exp',JSON.stringify({welcome:'B'}))}catch(e){}")
             q = c.new_page()
             q.on("pageerror", lambda e: errors.append(str(e)))
             q.goto(base, wait_until="domcontentloaded")
-            q.wait_for_selector("section.grp .deal", timeout=30000)
-            settle(q, 600)
-            assert q.locator("#sheet").is_hidden(), "group B still gets the welcome screen"
-            assert q.locator("#stickPick").is_visible(), "group B has no 'Pick your size' bar on top"
-            q.mouse.wheel(0, 2500)
-            settle(q, 500)
-            y = q.locator("#stickPick").bounding_box()["y"]
-            assert 0 <= y < 160, f"the 'Pick your size' bar doesn't stay on top when scrolling (y={round(y)})"
-            q.click("#stickPick [data-picksize]")
-            q.wait_for_selector("#shoeSizes button", state="visible")
+            q.wait_for_selector("#wDeals .wdeal", state="visible", timeout=30000)
             c.close()
-            return f"deals first, bar stays at y={round(y)}, sizes step opens"
-        check("Test 'welcome' B: deals before questions")(welcome_b, pg)
+            return "welcome screen shows"
+        check("Test 'welcome' ended: everyone gets the welcome screen")(welcome_back, pg)
 
         def canadian():   # Oct 7: Canadian brands filter (Canada side): only maple-leaf brands, a box saying so, × turns it off
             pg.goto(base + "?canadian", wait_until="domcontentloaded")
