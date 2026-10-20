@@ -17,6 +17,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from shoe_pages import base_model, slugify
 from shoe_pages import T, esc, page_head, page_foot, store_names, size_url, host  # noqa: E402
 
 POOL = 60        # picks per gear item carried in the page (the script picks the best 10 in your size)
@@ -127,7 +128,7 @@ S = {
         "have": "I have it", "progress": "You have {h} of {n} mandatory items. Tick what you already own.", "progressAll": "You have every mandatory item. See you at the start.",
         "deals": "On sale now", "dealsSize": "On sale now in your size", "noDeals": "None in stock in your size today. We check every morning.", "few": "Only {n} in {fit} {size} today. We check every morning.",
         "notSold": "The stores we check don't sell this.", "spec": "Check the spec before you buy.",
-        "more": "See more on sale →", "moreN": "See all {n}", "watch": "Watch", "watchOn": "Watching", "watchL": "Watch the price", "wMember": "Watching. We'll email you when it drops in your size.", "wNew": "Watching, on this phone. Add your email and we'll tell you when it drops.", "wPending": "Watching. Confirm your email (check your inbox) to get the drop emails.", "wAdd": "Add my email", "wOff": "Removed from your watchlist.", "sizeH": "Your size", "sizeTxt": "Pick it once to see deals that fit you.",
+        "more": "See more on sale →", "moreN": "See all {n}", "shH": "What do you run in?", "shTag": "Your shoes", "shTxt": "Not on the race's list, but you'll wear them. Pick your trail shoes and we'll watch the price.", "shPh": "Type your shoe (e.g. Speedgoat)", "shPickFit": "Pick Men's or Women's above first.", "shFrom": "from {p} today", "shPage": "Every size & store", "shNone": "Not in our trail shoe list. Try the brand name.", "shRm": "Remove", "watch": "Watch", "watchOn": "Watching", "watchL": "Watch the price", "wMember": "Watching. We'll email you when it drops in your size.", "wNew": "Watching, on this phone. Add your email and we'll tell you when it drops.", "wPending": "Watching. Confirm your email (check your inbox) to get the drop emails.", "wAdd": "Add my email", "wOff": "Removed from your watchlist.", "sizeH": "Your size", "sizeTxt": "Pick it once to see deals that fit you.",
         "men": "Men's", "women": "Women's", "change": "Change", "off": "off",
         "src": "From the race's official list (last updated by the race {date}). Rules can change: check the {link} before race day.",
         "srcLink": "official list", "notAff": "The Gear Fox isn't affiliated with the race.",
@@ -147,7 +148,7 @@ S = {
         "have": "Je l'ai", "progress": "Vous avez {h} des {n} articles obligatoires. Cochez ce que vous avez déjà.", "progressAll": "Vous avez tout le matériel obligatoire. On se voit au départ.",
         "deals": "En solde maintenant", "dealsSize": "En solde dans votre taille", "noDeals": "Rien en stock dans votre taille aujourd'hui. On vérifie chaque matin.", "few": "Seulement {n} en {size} {fit} aujourd'hui. On vérifie chaque matin.",
         "notSold": "Les boutiques que nous suivons n'en vendent pas.", "spec": "Vérifiez les caractéristiques avant d'acheter.",
-        "more": "Voir plus d'aubaines →", "moreN": "Voir les {n}", "watch": "Suivre", "watchOn": "Suivi", "watchL": "Suivre le prix", "wMember": "Suivi. On vous écrit quand il baisse dans votre taille.", "wNew": "Suivi, sur ce téléphone. Ajoutez votre courriel et on vous avertira quand il baisse.", "wPending": "Suivi. Confirmez votre courriel (voyez votre boîte de réception) pour recevoir les alertes.", "wAdd": "Ajouter mon courriel", "wOff": "Retiré de vos favoris.", "sizeH": "Votre taille", "sizeTxt": "Choisissez-la une fois pour voir les aubaines à votre taille.",
+        "more": "Voir plus d'aubaines →", "moreN": "Voir les {n}", "shH": "Vous courez avec quoi ?", "shTag": "Vos chaussures", "shTxt": "Pas sur la liste de la course, mais vous les porterez. Choisissez vos chaussures de sentier et on suit le prix.", "shPh": "Tapez votre modèle (ex. Speedgoat)", "shPickFit": "Choisissez d'abord Homme ou Femme plus haut.", "shFrom": "dès {p} aujourd'hui", "shPage": "Toutes les pointures et boutiques", "shNone": "Pas dans notre liste de chaussures de sentier. Essayez le nom de la marque.", "shRm": "Retirer", "watch": "Suivre", "watchOn": "Suivi", "watchL": "Suivre le prix", "wMember": "Suivi. On vous écrit quand il baisse dans votre taille.", "wNew": "Suivi, sur ce téléphone. Ajoutez votre courriel et on vous avertira quand il baisse.", "wPending": "Suivi. Confirmez votre courriel (voyez votre boîte de réception) pour recevoir les alertes.", "wAdd": "Ajouter mon courriel", "wOff": "Retiré de vos favoris.", "sizeH": "Votre taille", "sizeTxt": "Choisissez-la une fois pour voir les aubaines à votre taille.",
         "men": "Homme", "women": "Femme", "change": "Modifier", "off": "de rabais",
         "src": "Selon la liste officielle de la course (mise à jour par la course le {date}). Les règles peuvent changer : vérifiez la {link} avant la course.",
         "srcLink": "liste officielle", "notAff": "The Gear Fox n'est pas affilié à la course.",
@@ -194,6 +195,14 @@ CSS = """
 .rsize button[aria-pressed="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
 .rsize .mine{border:0;padding:0;margin:0;background:none}
 .srcb{font-size:14px;color:var(--muted);margin:16px 0 0}
+.gi.shoe{border-color:var(--hivis);margin:0 0 12px}.gi.shoe .note{margin-left:0}
+.gi.shoe input{width:100%;margin-top:10px;font:400 16px var(--body);color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:11px 13px}
+.sugg,.mine2{list-style:none;padding:0;margin:6px 0 0;display:grid;gap:4px}.sugg:empty,.mine2:empty{display:none}
+.sugg button{width:100%;text-align:left;font:500 15px var(--body);color:var(--ink);background:var(--mist);border:0;border-radius:10px;padding:10px 12px;cursor:pointer}
+.sugg .no{font-size:14px;color:var(--muted);padding:4px 2px}
+.mine2 li{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:rgba(242,106,27,.12);border-radius:10px;padding:8px 10px;font-size:15px}
+.mine2 b{flex:1 1 auto;min-width:0}.mine2 small{color:var(--muted)}.mine2 a{font:600 14px var(--body)}
+.mine2 button{font:600 14px var(--body);color:var(--muted);background:none;border:0;padding:4px;cursor:pointer;text-decoration:underline}
 .dl li{display:flex;align-items:stretch;gap:6px}.gi .dl li:nth-child(n+4){display:none}.gi.open .dl li{display:flex}
 .dl .dg{flex:1;min-width:0}.dl .wt{flex:none;display:flex;align-items:center;font:600 13px var(--body);color:var(--moss);background:var(--card);text-decoration:none;border:1px solid var(--line);border-radius:10px;padding:0 10px;white-space:nowrap;cursor:pointer}
 .dl .wt[aria-pressed="true"]{background:var(--hivis);color:var(--hivis-ink);border-color:var(--hivis)}
@@ -301,6 +310,40 @@ def picks(p, n=SHOW):
     return top
 
 
+def trail_shoes(items, pages):
+    """Oct 20 (Bastien: "ask what they run in so we start tracking their favourite shoe"): every trail shoe model we carry in
+    Canada, one entry per model with the men's and women's item (its watch key, today's lowest price, a store link) and its
+    shoe page when there is one. Most-carried first (what people type most is what most stores sell)."""
+    by = {}
+    for d in items:
+        if d["g"] != "shoes" or d.get("t") != "trail" or d.get("ca") is False or not d["sz"]:
+            continue
+        m = re.sub(r"\s*(-\s*Large|\(Large\)|-\s*Wide)\s*$", "", base_model(d["n"]), flags=re.I)   # Québec stores' wide = same model
+        e = by.setdefault((d["b"], m), {"b": d["b"], "m": m, "n": 0})
+        nst = len({host(x) for x in d.get("of") or [] if x})
+        e["n"] = max(e["n"], nst)
+        lo = min(z[1] for z in d["sz"] if z[1])
+        for f in (d.get("sx") or ["men", "women"]):
+            old = e.get(f)
+            if d.get("w") and old:                 # the regular width is the one to watch
+                continue
+            if not old or (not d.get("w") and old.get("w")) or nst > old["c"]:
+                e[f] = {"k": f'{d["b"]}|{d["n"]}|{d["g"]}|{1 if d.get("w") else 0}'.lower(), "p": lo, "u": (d.get("of") or [""])[0], "n": d["n"],
+                        "c": nst, "w": bool(d.get("w"))}
+    out = []
+    for e in sorted(by.values(), key=lambda e: -e["n"]):
+        sl = slugify(e["b"] + " " + e["m"])
+        pg = (pages or {}).get(sl)
+        if pg and pg.get("to"):
+            sl, pg = pg["to"], pages.get(pg["to"])
+        r = {"b": e["b"], "m": e["m"], "s": sl if pg else ""}
+        for f in ("men", "women"):
+            if e.get(f):
+                r[f] = [e[f]["k"], e[f]["p"], e[f]["u"], e[f]["n"]]
+        out.append(r)
+    return out
+
+
 def money(L, v):
     return S[L]["money"](v)
 
@@ -324,7 +367,7 @@ def deal_html(L, r):
             f'<span class="hh">♡</span><span class="wl"> {S[L]["watch"]}</span></button></li>')
 
 
-def page(slug, race, L, items, stores):
+def page(slug, race, L, items, stores, pages=None):
     s, other = S[L], "fr" if L == "en" else "en"
     dists = "/".join(race["dists"])
     fmt = dict(name=race["name"], short=race["short"], dists=dists, where=race["where"][L], when=race["when"][L])
@@ -364,6 +407,7 @@ def page(slug, race, L, items, stores):
         {"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in faq]}
     src = race.get("src_fr") if L == "fr" and race.get("src_fr") else race["src"]
     pj = json.dumps(pools, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
+    sj = json.dumps(trail_shoes(items, pages), ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     body = f"""<p class="crumbs"><a href="{T[L]['home']}">The Gear Fox</a> › {s['aisle']}</p>
 <h1>{esc(s['h1'].format(**fmt))}</h1>
 <p class="sub">{esc(s['sub'].format(**fmt))}</p>
@@ -373,6 +417,10 @@ def page(slug, race, L, items, stores):
 <div class="row" data-s style="margin-top:6px">{"".join(f'<button type="button" data-s="{z}">{z}</button>' for z in ("XS", "S", "M", "L", "XL", "2XL"))}</div></section>
 <p class="lbl">{s['dist']}</p>
 <div class="dists" role="group" aria-label="{s['dist']}">{"".join(f'<button type="button" data-d="{d}" aria-pressed="{str(d == race["default"]).lower()}">{s["km"].format(d=d)}</button>' for d in race["dists"])}</div>
+<section class="gi shoe" id="shoeBox" data-root="" data-dir="{T[L]['dir']}" data-pickfit="{esc(s['shPickFit'])}" data-from="{esc(s['shFrom'])}" data-page="{esc(s['shPage'])}" data-none="{esc(s['shNone'])}" data-rm="{esc(s['shRm'])}">
+<div class="hd"><h3>{s['shH']}</h3><span class="lv R">{s['shTag']}</span></div><p class="note">{s['shTxt']}</p>
+<input type="search" id="shoeQ" autocomplete="off" enterkeyhint="search" placeholder="{esc(s['shPh'])}" aria-label="{esc(s['shH'])}">
+<ul class="sugg" id="shoeSug" role="listbox"></ul><ul class="mine2" id="shoeMine"></ul></section>
 <p class="prog" id="prog" data-t="{esc(s['progress'])}" data-all="{esc(s['progressAll'])}"></p>
 <ul class="gl" id="gl" data-race="{slug}" data-default="{race['default']}" data-lm="{s['M']}" data-lr="{s['R']}" data-la="{s['A']}"
  data-home="{T[L]['home']}" data-watch="{esc(s['watch'])}" data-won="{esc(s['watchOn'])}" data-wmember="{esc(s['wMember'])}" data-wnew="{esc(s['wNew'])}" data-wpending="{esc(s['wPending'])}" data-wadd="{esc(s['wAdd'])}" data-woff="{esc(s['wOff'])}" data-moren="{esc(s['moreN'])}" data-dh="{esc(s['deals'])}" data-dhs="{esc(s['dealsSize'])}" data-none="{esc(s['noDeals'])}" data-few="{esc(s['few'])}" data-off="{esc(s['off'])}">{"".join(rows)}</ul>
@@ -382,6 +430,7 @@ def page(slug, race, L, items, stores):
 <section class="faq"><h2>{s['faqH']}</h2>{"".join(f'<details><summary>{esc(q)}</summary><p>{esc(a)}</p></details>' for q, a in faq)}</section>
 <script type="application/ld+json">{json.dumps(ld, ensure_ascii=False)}</script>
 <script id="pools" type="application/json">{pj}</script>
+<script id="shoes" type="application/json">{sj}</script>
 """
     return head + body + SCRIPT.replace("$LANG", L).replace("$CUR", "CAD") + page_foot(T[L]).replace('"shoe-page"', '"race-page"').replace("|shoes||shoe-page", "|gear||race-page")
 
@@ -460,7 +509,31 @@ gl.addEventListener("click",function(e){var b=e.target.closest(".wt");if(!b)retu
   try{ana("watch-add",r.g)}catch(x){}try{window.umami&&umami.track("watch-add",{brand:r.b,group:r.g,from:"race-page"})}catch(x){}
   if(sub.key&&sub.active){rpc("watch_add",{p_token:sub.key,p_key:k,p_meta:w[k]}).catch(function(){});say(gl.dataset.wmember)}
   else if(sub.pending)say(gl.dataset.wpending);else say(gl.dataset.wnew,!!document.getElementById("raceBox"))});
-var render0=render;render=function(){render0();hearts()};
+/* "What do you run in?" (Oct 20): type -> up to 6 trail shoe models (every typed word starts a word of the model, like the
+   homepage's rcSuggest); a pick goes on the watchlist in the visitor's fit, same as any heart above */
+var SH=[];try{SH=JSON.parse(document.getElementById("shoes").textContent)}catch(e){}
+var sbox=document.getElementById("shoeBox"),sq=document.getElementById("shoeQ"),sug=document.getElementById("shoeSug"),mine=document.getElementById("shoeMine");
+var fold=function(t){return String(t).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g," ").trim()};
+SH.forEach(function(x){x.f=fold(x.b+" "+x.m).split(" ")});
+function shoeMine(){var w=get("gf-watch")||{},out=[];SH.forEach(function(x){["men","women"].forEach(function(f){if(x[f]&&w[x[f][0]])out.push([x,f])})});
+  mine.innerHTML="";out.forEach(function(o){var x=o[0],f=o[1],li=document.createElement("li");
+    li.innerHTML='<b>♥ '+esc(x.b+" "+x.m)+'</b><small>'+esc(sbox.dataset.from.replace("{p}",money(x[f][1])))+'</small>'+(x.s?'<a href="'+sbox.dataset.root+'/'+sbox.dataset.dir+'/'+esc(x.s)+'/">'+esc(sbox.dataset.page)+' →</a>':'')+'<button type="button" data-rm="'+esc(x[f][0])+'">'+esc(sbox.dataset.rm)+'</button>';
+    mine.appendChild(li)})}
+sq.addEventListener("input",function(){var q=fold(sq.value).split(" ").filter(Boolean);sug.innerHTML="";if(!q.length)return;
+  var hits=SH.filter(function(x){return (x.men||x.women)&&q.every(function(t){return x.f.some(function(w){return w.indexOf(t)===0})})}).slice(0,6);
+  if(!hits.length){sug.innerHTML='<li class="no">'+esc(sbox.dataset.none)+'</li>';return}
+  hits.forEach(function(x,i){var li=document.createElement("li"),b=document.createElement("button");b.type="button";b.textContent=x.b+" "+x.m;b.dataset.i=SH.indexOf(x);li.appendChild(b);sug.appendChild(li)})});
+sug.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;var x=SH[+b.dataset.i];
+  if(!fit){sug.innerHTML='<li class="no">'+esc(sbox.dataset.pickfit)+'</li>';document.getElementById("rsize").scrollIntoView({block:"center"});return}
+  var it=x[fit]||x.men||x.women,k=it[0],w=get("gf-watch")||{},sub=get("gf-sub")||{};
+  w[k]={b:x.b,n:it[3]||x.m,g:"shoes",url:it[2],price:it[1],low:it[1],seen:it[1],gone:false,saved:new Date().toISOString()};put("gf-watch",w);
+  try{ana("watch-add","shoes")}catch(z){}try{window.umami&&umami.track("watch-add",{brand:x.b,group:"shoes",from:"race-page-shoe"})}catch(z){}
+  if(sub.key&&sub.active){rpc("watch_add",{p_token:sub.key,p_key:k,p_meta:w[k]}).catch(function(){});say(gl.dataset.wmember)}
+  else if(sub.pending)say(gl.dataset.wpending);else say(gl.dataset.wnew,!!document.getElementById("raceBox"));
+  sq.value="";sug.innerHTML="";shoeMine()});
+mine.addEventListener("click",function(e){var b=e.target.closest("button[data-rm]");if(!b)return;var w=get("gf-watch")||{},sub=get("gf-sub")||{};
+  delete w[b.dataset.rm];put("gf-watch",w);if(sub.key)rpc("watch_remove",{p_token:sub.key,p_key:b.dataset.rm}).catch(function(){});shoeMine();say(gl.dataset.woff)});
+var render0=render;render=function(){render0();hearts();shoeMine()};
 render();
 (function(){var box=document.getElementById("raceBox"),f=box.querySelector("form"),msg=box.querySelector(".msg");
 var sub=get("gf-sub");if(sub&&(sub.active||sub.key)){box.remove();return}
@@ -489,11 +562,15 @@ def main():
     site = Path(sys.argv[1])
     sale = json.loads(Path(sys.argv[2] if len(sys.argv) > 2 else site / "deals.json").read_text())   # full price too
     stores = store_names((site / "index.html").read_text())
+    try:
+        pages = json.loads((site / "shoes" / "pages.json").read_text())       # written by shoe_pages.py earlier in the refresh
+    except Exception:
+        pages = {}
     for slug, race in RACES.items():
         for L in ("en", "fr"):
             out = site / S[L]["dir"] / slug / "index.html"
             out.parent.mkdir(parents=True, exist_ok=True)
-            out.write_text(page(slug, race, L, sale["items"], stores))
+            out.write_text(page(slug, race, L, sale["items"], stores, pages))
             print("wrote", out)
 
 
