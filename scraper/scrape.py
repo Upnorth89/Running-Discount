@@ -3006,7 +3006,8 @@ NOT_RUNNING = re.compile(r"gift ?card|pannier|eyeglasses|optical|reading glass|b
                          r"route protection|insurance|bunion|toe (separator|spacer)s?|\bsample\b|donation|\bknitwear\b|\bsherpa\b|\bgym bag\b|tote bag|loops & loot|test clothing|"   # Balmoral's lifestyle pieces (Oct 8)
                          # ski touring (Ski Uphill, Oct 7); trail crampons and goodr "Donkey Goggles" sunglasses stay
                          r"\bskis\b|\bhelmets?\b|airbag|avalanche|(?<!donkey )\bgoggles?\b|\b(powder|pole) baskets?\b|climbing skins?|skinalp|"
-                         r"\bbindings?\b|splitboard|glide wax|liquid wax|aenergy harness|footwear refresh", re.I)
+                         r"\bbindings?\b|splitboard|glide wax|liquid wax|aenergy harness|footwear refresh|"
+                         r"seat ?mast|seat ?post|\bbiogel\b", re.I)   # Oct 20: a Trek seatmast cap under headwear, Garneau Biogel cycling gloves
 FOOD = re.compile(r"\bgels?\b(?!-)|[ée]lectrolyte|boisson|\bbarres?\b|jujubes?|\bchews?\b|\bbars?\b|electrolyte|drink mix|hydration mix|energy|\bfuel\b|"
                   r"nutrition|recovery drink|protein|waffle|stroopwafel|salt tab|capsule", re.I)
 
