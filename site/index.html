@@ -793,7 +793,7 @@ en:{
   gatedLede:"Pick your sizes to see today's deals.",unlock:"See deals in my size",
   get storesAll(){return US()?"stores in the US and abroad":"stores in Canada and abroad"},get storesCA(){return US()?"US stores":"Canadian stores"},
   lede:(s,a,w,u)=>`${s} on sale and ${a} in stock from ${w}${u?` · updated ${u}`:""}.`,
-  secNew:"New since your last visit",dropTag:m=>`↓ ${m} today`,secSale:"Top deals",secDrops:"Dropped today in your size",secDropsAll:"Dropped today",dropTop:"Fox Find of the day",
+  secNew:"New since your last visit",dropTag:m=>`↓${m}`,secSale:"Top deals",secDrops:"Dropped today in your size",secDropsAll:"Dropped today",dropTop:"Fox Find of the day",
   nothing:"Nothing matches right now. Try clearing the search or picking more categories.",
   noHaveH:q=>`We don't have “${q}” yet.`,noHaveB:"We read every search that comes up empty to choose the next stores and brands we add.",
   noHaveGo:"See deals in my size",noHaveGoAll:"See today's deals",
@@ -896,7 +896,7 @@ fr:{
   gatedLede:"Choisissez vos tailles pour voir les aubaines du jour.",unlock:"Voir les aubaines à ma taille",
   get storesAll(){return US()?"des boutiques aux États-Unis et à l'étranger":"des boutiques au Canada et à l'étranger"},get storesCA(){return US()?"des boutiques américaines":"des boutiques canadiennes"},
   lede:(s,a,w,u)=>`${s} en solde et ${a} en stock ${w}${u?` · mis à jour ${u}`:""}.`,
-  secNew:"Nouveau depuis votre dernière visite",dropTag:m=>`↓ ${m} aujourd'hui`,secSale:"Meilleures aubaines",secDrops:"En baisse aujourd'hui dans votre taille",secDropsAll:"En baisse aujourd'hui",dropTop:"Trouvaille du jour",
+  secNew:"Nouveau depuis votre dernière visite",dropTag:m=>`↓${m}`,secSale:"Meilleures aubaines",secDrops:"En baisse aujourd'hui dans votre taille",secDropsAll:"En baisse aujourd'hui",dropTop:"Trouvaille du jour",
   nothing:"Rien ne correspond pour l'instant. Effacez la recherche ou choisissez plus de catégories.",
   noHaveH:q=>`On n'a pas encore « ${q} ».`,noHaveB:"On lit chaque recherche sans résultat pour choisir les prochaines boutiques et marques à ajouter.",
   noHaveGo:"Voir les aubaines dans ma taille",noHaveGoAll:"Voir les aubaines du jour",
@@ -1450,7 +1450,10 @@ function shoesFirst(list){
   const used=new Set(head);return head.concat(list.filter(d=>!used.has(d)));
 }
 const terrainFit=d=>d.g!=="shoes"||state.terrain==="both"||!d.t||SPIKE.test(d.n)?0:TERRAIN[state.terrain].includes(d.t)?20:-25;
-const score=d=>d.pct+(GROUP_BONUS[d.g]||0)+Math.min(15,(d.reg-d.best)/10)-(d.g==="shoes"&&SPIKE.test(d.n)?30:0)+terrainFit(d);
+// Oct 20 (design scan): with no size picked, a one-size leftover at 85% off beat deals in many sizes and whole rows were one
+// brand's last XS/2XL: those rank lower (−6 per missing size under 4)
+const score=d=>d.pct+(GROUP_BONUS[d.g]||0)+Math.min(15,(d.reg-d.best)/10)-(d.g==="shoes"&&SPIKE.test(d.n)?30:0)+terrainFit(d)
+  -(d.any&&d.ns!=null?Math.max(0,4-d.ns)*6:0);
 /* Names come in English; show gender words in French on the French site. */
 // Oct 19 (mystery shop: "FuelCell SuperComp Trainer v3 Road Running Shoes - Women's" is long on a phone): cards drop the store's
 // "(Road) Running Shoes" words (they sit under Shoes, with road/trail buttons); "Trail Running Shoes" keeps "Trail" ("Ghost Trail").
@@ -1494,7 +1497,8 @@ function matchItems(p,list){
     for(const e of ok)if(e[1]<pick[1]||(e[1]===pick[1]&&e[3]>pick[3]))pick=e;
     const best=pick[1], reg=Math.max(pick[3]||best,best);
     const pct=reg>best?Math.round(100*(1-best/reg)):0;
-    out.push({...d,best,reg,pct,ok,any,url:sizeUrl(d,pick),img:(d.oi&&d.oi[pick[2]])||d.img,fin:finalSale(d,pick),fav:favs.includes(d.b.toLowerCase())});
+    const ns=ok.filter(e=>(e[3]||0)>e[1]*1.01).length;
+    out.push({...d,best,reg,pct,ok,ns,any,url:sizeUrl(d,pick),img:(d.oi&&d.oi[pick[2]])||d.img,fin:finalSale(d,pick),fav:favs.includes(d.b.toLowerCase())});
   }
   return out;
 }
@@ -1550,6 +1554,13 @@ function rowMore(g){   // the swipe row: near its end, the next 24 tiles
   const next=ROW.list.slice(ROW.shown,ROW.shown+24);ROW.shown+=next.length;
   g.insertAdjacentHTML("beforeend",next.map(d=>tile(d,DROPK.has(itemKey(d))?dropTag(d):"")).join(""))}
 document.addEventListener("scroll",e=>{const g=e.target;if(g&&g.matches&&g.matches(".grp.new .grid"))rowMore(g)},true);
+/* Oct 20: at most 2 cards of one brand in each block of n, so a row isn't all adidas; nothing is dropped, only moved later */
+function spreadBrands(list,n){const out=[],wait=[];let blk={};
+  const put=d=>{out.push(d);if(out.length%n===0)blk={};else blk[d.b]=(blk[d.b]||0)+1};
+  for(const d of list){
+    for(let i=0;i<wait.length;i++)if((blk[wait[i].b]||0)<2){put(wait.splice(i,1)[0]);i=-1}
+    if((blk[d.b]||0)<2)put(d);else wait.push(d)}
+  return out.concat(wait)}
 function section(key,title,list,cls){
   if(!list.length&&!(TYPES[key]&&view.type[key]))return "";   // keep the type buttons when a type has nothing
   if(key==="__new"&&NEWSTYLE==="row"&&!view.newAll){       // one swipeable row, then "See all" as a list
@@ -1566,6 +1577,7 @@ function section(key,title,list,cls){
   const note=key==="nutrition"&&state.ships!=="all"&&!US()?`<p class="grpnote">${t("usFuel")} <button type="button" data-usfuel>${t("usFuelShow")}</button></p>`:
     APPAREL_GROUPS.includes(key)&&hasSizes()&&!state.cloth.length?`<p class="grpnote">${t("clothNote")} <button type="button" data-picksize="cloth">${t("clothPick")}</button></p>`:"";
   const types=TYPES[key]?`<div class="chips scroll types">${["",...TYPES[key]].map(v=>`<button type="button" class="chip" data-type="${key}:${v}" aria-pressed="${(view.type[key]||"")===v}">${v?t("types")[v]:t("typeAll")}</button>`).join("")}</div>`:"";
+  if(key!=="__new")list=spreadBrands(list.slice(0,60),PAGE_CAT).concat(list.slice(60));   // the first rows are what people see
   return `<section class="grp ${cls||""}" id="grp-${key}"><h2>${title} <small>${num(list.length)}</small>${tail}</h2>${types}${note}<div class="grid">${list.slice(0,lim).map(d=>card(d)).join("")}</div>
     ${list.length>lim?`<button class="btn more" data-open="${key}">${t("showMore",Math.min(MORE,list.length-lim))}</button>`:""}</section>`;
 }
