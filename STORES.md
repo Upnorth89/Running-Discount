@@ -434,3 +434,7 @@ Oct 20, 2026 (night), US cities + Gear Patrol "best running shops" list (Bastien
   Factory Ottawa (Shopify, feed closed), Finish Strong (Houston), Naperville Running Co, The Tech Shop (WooCommerce).
 - No answer from GitHub's servers (domain guesses may be wrong): Gord's (Calgary), Fast Trax (Edmonton), Milestone (San Diego),
   Stride Ahead (Winnipeg), Restless Runners, Sportsclub Ottawa, Runners High NJ, Flatirons, Shoes & Brews, Colorado Running Co.
+
+Oct 20 (Bastien): added Praise Endurance (Montréal apparel brand, praiseendurance.com, Shopify; Canadian brands list) and Foveō Running
+(Courtenay BC, foveo.run, Shopify; "- Men"/"- Women" names tidied). Endurance Tap: its site now forwards to The Feed (sold there, already
+read). Hettas (Vancouver women's running shoes, hettas.com): readable but its shoes are pre-order ("ships early November"): add when they ship.
