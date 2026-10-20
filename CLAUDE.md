@@ -275,6 +275,11 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   running shoes on sale, up to 55% off"), On = "On Running". Next levers: links from real running sites (press pitch), pages already
   near page 1 (on-cloudboom-max pos 3, /shoes/ 4, running-shoes-sale/ 6.5, brands/asics 7), brand+gender+size long tail (no thin pages).
   Push notifications parked (iPhone needs the home-screen app first; visitors stay ~20 s).
+- **Monthly report** (Oct 20; Bastien OK'd it "live with no one having access unless I give a link"): `tools/report_page.py DEALS PRICES site YYYY-MM
+  COMPARE-DATE` writes site/report/YYYY-MM/ + site/rapport/YYYY-MM/ (frozen, committed): share on sale, sale shoes left per size,
+  brands (25+ models), "already at that price 2 weeks ago", top 10 stores, method, "free to quote with a link". NO link anywhere on the
+  site (no footer/menu); in the sitemap so Google finds it. Shared by link only: press pitches, podcast, Reddit. ?ref=report-YYYY-MM.
+  Keep only if it earns links: none by Nov 30 -> stop making them.
 - **Reddit results (keep current):** r/RunningDeals: Oct 18 post (3 CA + 3 US, item links to thegearfox.com) stayed up. r/BuyCanadian: removed
   by the mods Oct 17 even with only 3 items: don't post there again (ask the mods first if ever). Posting in the same sub again:
   `reddit_post.py --exclude "model,model"` skips items posted there recently (ask Bastien whether the last draft was actually posted).
