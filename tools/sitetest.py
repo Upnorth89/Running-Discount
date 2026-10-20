@@ -829,7 +829,7 @@ def site_flow(base, per, accented):
             n = len(cards(pg))
             assert n >= 20, f"'just show me today's deals' shows only {n} deals"
             assert pg.locator(".browsebar").count(), "browsing without sizes doesn't offer to pick a size"
-            assert "Sizes on sale" in pg.inner_text("section.grp"), "cards don't say they show every size"
+            assert "Sizes on sale" in pg.inner_text("section.grp:not(.new)"), "cards don't say they show every size"
             pg.reload(wait_until="domcontentloaded")
             pg.wait_for_selector("section.grp .deal", timeout=20000)
             assert pg.locator("#sheet").is_hidden(), "a browsing visitor gets the welcome screen again on reload"
@@ -944,7 +944,7 @@ def site_flow(base, per, accented):
         check("Check your inbox: open my mail")(open_mail, pg)
 
         def q_landing():     # Oct 11: a ?q= link from a post: the deal first, then one short sign-up line
-            nm = pg.evaluate("() => { const a = document.querySelector('section.grp a.deal'); return a.querySelector('.brand').textContent.replace('🍁','').trim() + ' ' + a.querySelector('.name').textContent }")
+            nm = pg.evaluate("() => { const a = document.querySelector('section.grp:not(.new) a.deal'); return a.querySelector('.brand').textContent.replace('🍁','').trim() + ' ' + a.querySelector('.name').textContent }")
             q = " ".join(nm.split()[:3])
             pg.evaluate("localStorage.removeItem('gf-nosignup')")
             pg.goto(base + "?q=" + q.replace(" ", "+") + "&ref=sitetest", wait_until="domcontentloaded")
@@ -997,6 +997,7 @@ def site_flow(base, per, accented):
             pg.click("#qsBox button")
             settle(pg, 300)
             assert pg.inner_text("#qsBox .msg").strip(), "no size picked: the box says nothing"
+            pg.select_option("#qsBox .qsg", "men")     # an earlier check may have left a women's size picked
             pg.select_option("#qsBox .qss", "10")
             pg.click("#qsBox button")
             settle(pg, 900)
@@ -1030,7 +1031,7 @@ def site_flow(base, per, accented):
                 lines = pu.eval_on_selector_all("section.grp .deal .store", "e => e.map(x => x.textContent)")
                 bad = [x for x in lines if "ships from the US" in x]
                 assert not bad, f"US stores are labelled as shipping from abroad ({bad[0]})"
-                assert "USD" in pu.inner_text("section.grp"), "prices on the USA side aren't in US dollars"
+                assert "USD" in pu.inner_text("section.grp:not(.new)"), "prices on the USA side aren't in US dollars"
                 if pu.locator(".seo-us").count():          # the bottom block: the US copy, not "...in Canada"
                     assert pu.locator(".seo-us").is_visible() and not pu.locator(".seo-en").is_visible(), \
                         "the bottom of the page still shows Canadian shoe prices on the USA side"
@@ -1044,7 +1045,7 @@ def site_flow(base, per, accented):
                 pu.click('#menu [data-ctry="ca"]')
                 pu.wait_for_function("document.querySelector('#lede') && document.querySelector('#lede').textContent !== " + json.dumps(n_us), timeout=20000)
                 pu.wait_for_selector("section.grp .deal", timeout=20000)
-                assert "CAD" in pu.inner_text("section.grp"), "switching to Canada didn't switch to Canadian dollars"
+                assert "CAD" in pu.inner_text("section.grp:not(.new)"), "switching to Canada didn't switch to Canadian dollars"
                 return f"{len(cs)} deals in USD, then Canada"
             check("USA side (US time zone) and back to Canada")(usa, pu)
 
