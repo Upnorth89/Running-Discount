@@ -17,7 +17,6 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from urllib.parse import quote
 from shoe_pages import T, esc, page_head, page_foot, store_names, size_url, host  # noqa: E402
 
 POOL = 60        # picks per gear item carried in the page (the script picks the best 10 in your size)
@@ -128,7 +127,7 @@ S = {
         "have": "I have it", "progress": "You have {h} of {n} mandatory items. Tick what you already own.", "progressAll": "You have every mandatory item. See you at the start.",
         "deals": "On sale now", "dealsSize": "On sale now in your size", "noDeals": "None in stock in your size today. We check every morning.", "few": "Only {n} in {fit} {size} today. We check every morning.",
         "notSold": "The stores we check don't sell this.", "spec": "Check the spec before you buy.",
-        "more": "See more on sale →", "moreN": "See all {n}", "watch": "Watch", "watchL": "Watch the price", "sizeH": "Your size", "sizeTxt": "Pick it once to see deals that fit you.",
+        "more": "See more on sale →", "moreN": "See all {n}", "watch": "Watch", "watchOn": "Watching", "watchL": "Watch the price", "wMember": "Watching. We'll email you when it drops in your size.", "wNew": "Watching, on this phone. Add your email and we'll tell you when it drops.", "wPending": "Watching. Confirm your email (check your inbox) to get the drop emails.", "wAdd": "Add my email", "wOff": "Removed from your watchlist.", "sizeH": "Your size", "sizeTxt": "Pick it once to see deals that fit you.",
         "men": "Men's", "women": "Women's", "change": "Change", "off": "off",
         "src": "From the race's official list (last updated by the race {date}). Rules can change: check the {link} before race day.",
         "srcLink": "official list", "notAff": "The Gear Fox isn't affiliated with the race.",
@@ -148,7 +147,7 @@ S = {
         "have": "Je l'ai", "progress": "Vous avez {h} des {n} articles obligatoires. Cochez ce que vous avez déjà.", "progressAll": "Vous avez tout le matériel obligatoire. On se voit au départ.",
         "deals": "En solde maintenant", "dealsSize": "En solde dans votre taille", "noDeals": "Rien en stock dans votre taille aujourd'hui. On vérifie chaque matin.", "few": "Seulement {n} en {size} {fit} aujourd'hui. On vérifie chaque matin.",
         "notSold": "Les boutiques que nous suivons n'en vendent pas.", "spec": "Vérifiez les caractéristiques avant d'acheter.",
-        "more": "Voir plus d'aubaines →", "moreN": "Voir les {n}", "watch": "Suivre", "watchL": "Suivre le prix", "sizeH": "Votre taille", "sizeTxt": "Choisissez-la une fois pour voir les aubaines à votre taille.",
+        "more": "Voir plus d'aubaines →", "moreN": "Voir les {n}", "watch": "Suivre", "watchOn": "Suivi", "watchL": "Suivre le prix", "wMember": "Suivi. On vous écrit quand il baisse dans votre taille.", "wNew": "Suivi, sur ce téléphone. Ajoutez votre courriel et on vous avertira quand il baisse.", "wPending": "Suivi. Confirmez votre courriel (voyez votre boîte de réception) pour recevoir les alertes.", "wAdd": "Ajouter mon courriel", "wOff": "Retiré de vos favoris.", "sizeH": "Votre taille", "sizeTxt": "Choisissez-la une fois pour voir les aubaines à votre taille.",
         "men": "Homme", "women": "Femme", "change": "Modifier", "off": "de rabais",
         "src": "Selon la liste officielle de la course (mise à jour par la course le {date}). Les règles peuvent changer : vérifiez la {link} avant la course.",
         "srcLink": "liste officielle", "notAff": "The Gear Fox n'est pas affilié à la course.",
@@ -196,7 +195,11 @@ CSS = """
 .rsize .mine{border:0;padding:0;margin:0;background:none}
 .srcb{font-size:14px;color:var(--muted);margin:16px 0 0}
 .dl li{display:flex;align-items:stretch;gap:6px}.gi .dl li:nth-child(n+4){display:none}.gi.open .dl li{display:flex}
-.dl .dg{flex:1;min-width:0}.dl .wt{flex:none;display:flex;align-items:center;font:600 13px var(--body);color:var(--moss);text-decoration:none;border:1px solid var(--line);border-radius:10px;padding:0 10px;white-space:nowrap}
+.dl .dg{flex:1;min-width:0}.dl .wt{flex:none;display:flex;align-items:center;font:600 13px var(--body);color:var(--moss);background:var(--card);text-decoration:none;border:1px solid var(--line);border-radius:10px;padding:0 10px;white-space:nowrap;cursor:pointer}
+.dl .wt[aria-pressed="true"]{background:var(--hivis);color:var(--hivis-ink);border-color:var(--hivis)}
+.wtoast{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:60;max-width:520px;margin:0 auto;background:var(--card);color:var(--ink);border:1.5px solid var(--line);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.2);padding:12px 14px;font-size:15px}
+.wtoast button{font:700 15px var(--body);background:var(--hivis);color:var(--hivis-ink);border:0;border-radius:999px;padding:8px 14px;margin-top:8px;cursor:pointer}
+.wtoast[hidden]{display:none}
 @media (max-width:400px){.dl .wl{display:none}.dl .wt{font-size:18px;padding:0 9px}.dl .nm{font-size:13px;overflow-wrap:anywhere}.dl .pr s{display:block}.dl img{width:46px;height:46px}.dl a.dg{gap:8px}}
 .mored{font:600 14px var(--body);color:var(--moss);background:none;border:0;padding:4px 0;cursor:pointer;text-decoration:underline}
 .gi.open .mored{display:none}.gi.got .mored{display:none}
@@ -314,11 +317,11 @@ def price_html(L, e):
 
 def deal_html(L, r):
     e = min(r["s"], key=lambda e: e[1])
-    home = T[L]["home"]
     return (f'<li><a class="dg" href="{esc(e[3])}" data-store="{esc(r["h"])}" target="_blank" rel="noopener"><img src="{esc(r["img"])}" alt="" loading="lazy" referrerpolicy="no-referrer">'
             f'<span class="nm"><b>{esc(r["b"])}</b>{esc(nm(L, r["n"]))}<small>{esc(r["st"])}</small></span>'
             f'<span class="pr">{price_html(L, e)}</span></a>'
-            f'<a class="wt" href="{home}{"&" if "?" in home else "?"}watch={quote(r["k"])}" aria-label="{esc(S[L]["watchL"])}: {esc(r["b"])} {esc(r["n"])}">♡<span class="wl"> {S[L]["watch"]}</span></a></li>')
+            f'<button type="button" class="wt" data-k="{esc(r["k"])}" data-p="{e[1]}" data-u="{esc(e[3])}" aria-pressed="false" aria-label="{esc(S[L]["watchL"])}: {esc(r["b"])} {esc(r["n"])}">'
+            f'<span class="hh">♡</span><span class="wl"> {S[L]["watch"]}</span></button></li>')
 
 
 def page(slug, race, L, items, stores):
@@ -372,7 +375,7 @@ def page(slug, race, L, items, stores):
 <div class="dists" role="group" aria-label="{s['dist']}">{"".join(f'<button type="button" data-d="{d}" aria-pressed="{str(d == race["default"]).lower()}">{s["km"].format(d=d)}</button>' for d in race["dists"])}</div>
 <p class="prog" id="prog" data-t="{esc(s['progress'])}" data-all="{esc(s['progressAll'])}"></p>
 <ul class="gl" id="gl" data-race="{slug}" data-default="{race['default']}" data-lm="{s['M']}" data-lr="{s['R']}" data-la="{s['A']}"
- data-home="{T[L]['home']}" data-watch="{esc(s['watch'])}" data-moren="{esc(s['moreN'])}" data-dh="{esc(s['deals'])}" data-dhs="{esc(s['dealsSize'])}" data-none="{esc(s['noDeals'])}" data-few="{esc(s['few'])}" data-off="{esc(s['off'])}">{"".join(rows)}</ul>
+ data-home="{T[L]['home']}" data-watch="{esc(s['watch'])}" data-won="{esc(s['watchOn'])}" data-wmember="{esc(s['wMember'])}" data-wnew="{esc(s['wNew'])}" data-wpending="{esc(s['wPending'])}" data-wadd="{esc(s['wAdd'])}" data-woff="{esc(s['wOff'])}" data-moren="{esc(s['moreN'])}" data-dh="{esc(s['deals'])}" data-dhs="{esc(s['dealsSize'])}" data-none="{esc(s['noDeals'])}" data-few="{esc(s['few'])}" data-off="{esc(s['off'])}">{"".join(rows)}</ul>
 <p class="srcb">{s['src'].format(date=race['updated'][L], link=f'<a href="{src}" rel="noopener">{s["srcLink"]}</a>')} {s['notAff']}</p>
 <section class="alert" id="raceBox" data-ref="race-{slug}" data-bad="{esc(T[L]['alertBad'])}" data-ok="{esc(T[L]['alertOk'])}" data-fail="{esc(T[L]['alertFail'])}" data-pick="{esc(s['sizeTxt'])}">
 <h2>{esc(s['boxH'])}</h2><p class="fine">{esc(s['boxTxt'])}</p><form novalidate><input type="email" autocomplete="email" inputmode="email" placeholder="{esc(T[L]['emailPh'])}" aria-label="Email" required><button type="submit">{esc(s['boxBtn'])}</button></form><p class="msg" aria-live="polite"></p></section>
@@ -425,7 +428,7 @@ function render(){
     SHOWN[k]=picks.slice(0,3).map(function(x){return x[0].n});if(!picks.length)return;
     ul.innerHTML=picks.map(function(x){var r=x[0],e=x[1];
       var pr=e[2]>e[1]*1.01?'<b>'+money(e[1])+'</b><s>'+money(e[2])+'</s> <span class="off">−'+Math.round(100*(1-e[1]/e[2]))+'%</span>':'<b>'+money(e[1])+'</b>',h=gl.dataset.home;
-      return '<li><a class="dg" href="'+esc(e[3])+'" data-store="'+esc(r.h)+'" target="_blank" rel="noopener"><img src="'+esc(r.img)+'" alt="" loading="lazy" referrerpolicy="no-referrer"><span class="nm"><b>'+esc(r.b)+'</b>'+esc(nm(r.n))+'<small>'+esc(r.st)+(SIZED[r.g]&&size?" · "+esc(e[0]):"")+'</small></span><span class="pr">'+pr+'</span></a><a class="wt" href="'+h+(h.indexOf("?")<0?"?":"&")+"watch="+encodeURIComponent(r.k)+'" aria-label="'+esc(gl.dataset.watch)+': '+esc(r.b+" "+r.n)+'">♡<span class="wl"> '+esc(gl.dataset.watch)+'</span></a></li>'}).join("")});
+      return '<li><a class="dg" href="'+esc(e[3])+'" data-store="'+esc(r.h)+'" target="_blank" rel="noopener"><img src="'+esc(r.img)+'" alt="" loading="lazy" referrerpolicy="no-referrer"><span class="nm"><b>'+esc(r.b)+'</b>'+esc(nm(r.n))+'<small>'+esc(r.st)+(SIZED[r.g]&&size?" · "+esc(e[0]):"")+'</small></span><span class="pr">'+pr+'</span></a><button type="button" class="wt" data-k="'+esc(r.k)+'" data-p="'+e[1]+'" data-u="'+esc(e[3])+'" aria-pressed="false" aria-label="'+esc(gl.dataset.watch)+': '+esc(r.b+" "+r.n)+'"><span class="hh">♡</span><span class="wl"> '+esc(gl.dataset.watch)+'</span></button></li>'}).join("")});
   var pg=document.getElementById("prog");pg.textContent=n&&h>=n?pg.dataset.all:pg.dataset.t.replace("{h}",h).replace("{n}",n);
   var box=document.getElementById("rsize");box.classList.toggle("set",!!(fit&&size)&&!box.dataset.open);
   box.querySelector(".cur span").textContent=(fit?box.dataset[fit]:"")+" · "+size;[].forEach.call(box.querySelectorAll("[data-g]"),function(b){b.setAttribute("aria-pressed",String(b.dataset.g===fit))});
@@ -437,6 +440,27 @@ gl.addEventListener("click",function(e){var b=e.target.closest(".mored");if(b)b.
 document.getElementById("rsize").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;
   if(b.hasAttribute("data-chg")){this.dataset.open="1";render();return}if(b.dataset.s&&fit)delete this.dataset.open;
   if(b.dataset.g)fit=b.dataset.g;if(b.dataset.s)size=b.dataset.s;put("gf-race-size",{g:fit,s:size});render()});
+/* Oct 20 (Bastien: "I thought it would just heart it there"): Watch hearts right here, in the same watchlist as the homepage
+   (gf-watch); members' hearts go to their account too (watch_add, like the homepage), others are asked for an email */
+var SB="https://krwymmkauwqqxjxbvkyq.supabase.co/rest/v1/rpc/",KEY="sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2";
+var rpc=function(fn,body){return fetch(SB+fn,{method:"POST",headers:{apikey:KEY,"Content-Type":"application/json"},body:JSON.stringify(body)})};
+var byK={};Object.keys(pools).forEach(function(k){pools[k].forEach(function(r){byK[r.k]=r})});
+function hearts(){var w=get("gf-watch")||{};[].forEach.call(document.querySelectorAll(".wt"),function(b){var on=!!w[b.dataset.k];
+  b.setAttribute("aria-pressed",String(on));b.querySelector(".hh").textContent=on?"♥":"♡";b.querySelector(".wl").textContent=" "+(on?gl.dataset.won:gl.dataset.watch)})}
+var toastT=null;function say(txt,add){var t=document.getElementById("wtoast");if(!t){t=document.createElement("div");t.id="wtoast";t.className="wtoast";t.setAttribute("role","status");document.body.appendChild(t)}
+  t.innerHTML="";var p=document.createElement("div");p.textContent=txt;t.appendChild(p);
+  if(add){var b=document.createElement("button");b.type="button";b.textContent=gl.dataset.wadd;b.onclick=function(){t.hidden=true;var bx=document.getElementById("raceBox");bx.scrollIntoView({block:"center"});var i=bx.querySelector("input");if(i)i.focus()};t.appendChild(b)}
+  t.hidden=false;clearTimeout(toastT);toastT=setTimeout(function(){t.hidden=true},add?7000:3500)}
+gl.addEventListener("click",function(e){var b=e.target.closest(".wt");if(!b)return;e.preventDefault();
+  var k=b.dataset.k,w=get("gf-watch")||{},sub=get("gf-sub")||{},r=byK[k]||{};
+  if(w[k]){delete w[k];put("gf-watch",w);if(sub.key)rpc("watch_remove",{p_token:sub.key,p_key:k}).catch(function(){});hearts();say(gl.dataset.woff);
+    try{ana("watch-remove",r.g)}catch(x){}return}
+  var pr=parseFloat(b.dataset.p)||null;
+  w[k]={b:r.b,n:r.n,g:r.g,url:b.dataset.u,price:pr,low:pr,seen:pr,gone:false,saved:new Date().toISOString()};put("gf-watch",w);hearts();
+  try{ana("watch-add",r.g)}catch(x){}try{window.umami&&umami.track("watch-add",{brand:r.b,group:r.g,from:"race-page"})}catch(x){}
+  if(sub.key&&sub.active){rpc("watch_add",{p_token:sub.key,p_key:k,p_meta:w[k]}).catch(function(){});say(gl.dataset.wmember)}
+  else if(sub.pending)say(gl.dataset.wpending);else say(gl.dataset.wnew,!!document.getElementById("raceBox"))});
+var render0=render;render=function(){render0();hearts()};
 render();
 (function(){var box=document.getElementById("raceBox"),f=box.querySelector("form"),msg=box.querySelector(".msg");
 var sub=get("gf-sub");if(sub&&(sub.active||sub.key)){box.remove();return}
@@ -452,7 +476,7 @@ f.addEventListener("submit",function(e){e.preventDefault();
   ["tops","bottoms"].forEach(function(k){if(!(p.sizes[k]&&(p.sizes[k].sizes||[]).length))p.sizes[k]={sizes:[size]}});
   p.email=em;if(!p.ref)p.ref=get("gf-ref")||box.dataset.ref;var btn=f.querySelector("button");btn.disabled=true;
   fetch("https://krwymmkauwqqxjxbvkyq.supabase.co/rest/v1/rpc/subscribe",{method:"POST",headers:{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"},
-    body:JSON.stringify({p_email:em,p_profile:p})}).then(function(r){if(!r.ok)throw 0;
+    body:JSON.stringify({p_email:em,p_profile:Object.assign({},p,{watch_new:get("gf-watch")||{}})})}).then(function(r){if(!r.ok)throw 0;
     put("gf-sub",{pending:em});if(!prof)put("rd-profile",p);f.remove();msg.textContent=box.dataset.ok.replace("{email}",em);
     try{ana("signup",box.dataset.ref)}catch(x){}try{window.umami&&umami.track("signup",{method:"email",where:box.dataset.ref,lang:fr?"fr":"en"})}catch(x){}})
   .catch(function(){btn.disabled=false;msg.textContent=box.dataset.fail})})})();
