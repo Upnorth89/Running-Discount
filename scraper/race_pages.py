@@ -128,7 +128,7 @@ S = {
         "have": "I have it", "progress": "You have {h} of {n} mandatory items. Tick what you already own.", "progressAll": "You have every mandatory item. See you at the start.",
         "deals": "On sale now", "dealsSize": "On sale now in your size", "noDeals": "None in stock in your size today. We check every morning.", "few": "Only {n} in {fit} {size} today. We check every morning.",
         "notSold": "The stores we check don't sell this.", "spec": "Check the spec before you buy.",
-        "more": "See more on sale →", "moreN": "See all {n}", "shH": "Trail running shoes", "shTag": "Your pick", "shTxt": "Choose your shoe and we'll watch its price.", "shPh": "Choose your shoe (e.g. Speedgoat)", "shPickFit": "Pick Men's or Women's above first.", "shFrom": "from {p} today", "shPage": "Every size & store", "shNone": "Not in our trail shoe list. Try the brand name.", "shRm": "Remove", "watch": "Watch", "watchOn": "Watching", "watchL": "Watch the price", "wMember": "Watching. We'll email you when it drops in your size.", "wNew": "Watching, on this phone. Add your email and we'll tell you when it drops.", "wPending": "Watching. Confirm your email (check your inbox) to get the drop emails.", "wAdd": "Add my email", "wOff": "Removed from your watchlist.", "sizeH": "Your size", "sizeTxt": "Pick it once to see deals that fit you.",
+        "more": "See more on sale →", "moreN": "See all {n}", "shH": "Trail running shoes", "shTag": "Your pick", "shPh": "Pick a shoe", "shSize": "Size", "shGone": "Not in stock in size {s} today. We'll tell you when it's back.", "shPickSize": "Pick your size too.", "shPickFit": "Pick Men's or Women's above first.", "shFrom": "{p} in size {s} today", "shPage": "Every size & store", "shNone": "Not in our trail shoe list. Try the brand name.", "shRm": "Remove", "watch": "Watch", "watchOn": "Watching", "watchL": "Watch the price", "wMember": "Watching. We'll email you when it drops in your size.", "wNew": "Watching, on this phone. Add your email and we'll tell you when it drops.", "wPending": "Watching. Confirm your email (check your inbox) to get the drop emails.", "wAdd": "Add my email", "wOff": "Removed from your watchlist.", "sizeH": "Your size", "sizeTxt": "Pick it once to see deals that fit you.",
         "men": "Men's", "women": "Women's", "change": "Change", "off": "off",
         "src": "From the race's official list (last updated by the race {date}). Rules can change: check the {link} before race day.",
         "srcLink": "official list", "notAff": "The Gear Fox isn't affiliated with the race.",
@@ -148,7 +148,7 @@ S = {
         "have": "Je l'ai", "progress": "Vous avez {h} des {n} articles obligatoires. Cochez ce que vous avez déjà.", "progressAll": "Vous avez tout le matériel obligatoire. On se voit au départ.",
         "deals": "En solde maintenant", "dealsSize": "En solde dans votre taille", "noDeals": "Rien en stock dans votre taille aujourd'hui. On vérifie chaque matin.", "few": "Seulement {n} en {size} {fit} aujourd'hui. On vérifie chaque matin.",
         "notSold": "Les boutiques que nous suivons n'en vendent pas.", "spec": "Vérifiez les caractéristiques avant d'acheter.",
-        "more": "Voir plus d'aubaines →", "moreN": "Voir les {n}", "shH": "Chaussures de course en sentier", "shTag": "Votre choix", "shTxt": "Choisissez votre modèle et on suit son prix.", "shPh": "Choisissez votre modèle (ex. Speedgoat)", "shPickFit": "Choisissez d'abord Homme ou Femme plus haut.", "shFrom": "dès {p} aujourd'hui", "shPage": "Toutes les pointures et boutiques", "shNone": "Pas dans notre liste de chaussures de sentier. Essayez le nom de la marque.", "shRm": "Retirer", "watch": "Suivre", "watchOn": "Suivi", "watchL": "Suivre le prix", "wMember": "Suivi. On vous écrit quand il baisse dans votre taille.", "wNew": "Suivi, sur ce téléphone. Ajoutez votre courriel et on vous avertira quand il baisse.", "wPending": "Suivi. Confirmez votre courriel (voyez votre boîte de réception) pour recevoir les alertes.", "wAdd": "Ajouter mon courriel", "wOff": "Retiré de vos favoris.", "sizeH": "Votre taille", "sizeTxt": "Choisissez-la une fois pour voir les aubaines à votre taille.",
+        "more": "Voir plus d'aubaines →", "moreN": "Voir les {n}", "shH": "Chaussures de course en sentier", "shTag": "Votre choix", "shPh": "Choisissez un modèle", "shSize": "Pointure", "shGone": "Pas en stock en pointure {s} aujourd'hui. On vous avertit dès son retour.", "shPickSize": "Choisissez aussi votre pointure.", "shPickFit": "Choisissez d'abord Homme ou Femme plus haut.", "shFrom": "{p} en pointure {s} aujourd'hui", "shPage": "Toutes les pointures et boutiques", "shNone": "Pas dans notre liste de chaussures de sentier. Essayez le nom de la marque.", "shRm": "Retirer", "watch": "Suivre", "watchOn": "Suivi", "watchL": "Suivre le prix", "wMember": "Suivi. On vous écrit quand il baisse dans votre taille.", "wNew": "Suivi, sur ce téléphone. Ajoutez votre courriel et on vous avertira quand il baisse.", "wPending": "Suivi. Confirmez votre courriel (voyez votre boîte de réception) pour recevoir les alertes.", "wAdd": "Ajouter mon courriel", "wOff": "Retiré de vos favoris.", "sizeH": "Votre taille", "sizeTxt": "Choisissez-la une fois pour voir les aubaines à votre taille.",
         "men": "Homme", "women": "Femme", "change": "Modifier", "off": "de rabais",
         "src": "Selon la liste officielle de la course (mise à jour par la course le {date}). Les règles peuvent changer : vérifiez la {link} avant la course.",
         "srcLink": "liste officielle", "notAff": "The Gear Fox n'est pas affilié à la course.",
@@ -196,7 +196,8 @@ CSS = """
 .rsize .mine{border:0;padding:0;margin:0;background:none}
 .srcb{font-size:14px;color:var(--muted);margin:16px 0 0}
 .gi.shoe{border-color:var(--hivis)}.gi.shoe .shi{flex:none;width:24px;text-align:center;font-size:18px}.lv.Y{background:var(--ink);color:var(--card)}
-.gi.shoe input{width:100%;margin-top:10px;font:400 16px var(--body);color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:11px 13px}
+.shrow{display:flex;gap:8px;margin-top:10px}.shrow select{flex:none;width:104px;font:600 16px var(--body);color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:0 8px}
+.gi.shoe input{flex:1;min-width:0;font:400 16px var(--body);color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:11px 13px}
 .sugg,.mine2{list-style:none;padding:0;margin:6px 0 0;display:grid;gap:4px}.sugg:empty,.mine2:empty{display:none}
 .sugg button{width:100%;text-align:left;font:500 15px var(--body);color:var(--ink);background:var(--mist);border:0;border-radius:10px;padding:10px 12px;cursor:pointer}
 .sugg .no{font-size:14px;color:var(--muted);padding:4px 2px}
@@ -310,6 +311,25 @@ def picks(p, n=SHOW):
     return top
 
 
+def fit_sizes(d, f):
+    """Regular-width sizes of a shoe in one fit -> today's price: "10" on a one-gender shoe (or a unisex one, men's sizes),
+    "M:10"/"W:11" from unisex labels; wide/narrow left out (Oct 20: the price shown is the one in the visitor's size)."""
+    out = {}
+    one = d.get("sx") or []
+    for e in d["sz"]:
+        m = re.match(r"^(?:([MW]):)?(\d+(?:\.5)?)(~[WN])?$", str(e[0]))
+        if not m or m.group(3) or not e[1]:
+            continue
+        g, n = m.group(1), m.group(2)
+        if g:
+            ok = (g == "M") == (f == "men")
+        else:
+            ok = (len(one) == 1 and one[0] == f) or (len(one) != 1 and f == "men")
+        if ok and (n not in out or e[1] < out[n]):
+            out[n] = e[1]
+    return out
+
+
 def trail_shoes(items, pages):
     """Oct 20 (Bastien: "ask what they run in so we start tracking their favourite shoe"): every trail shoe model we carry in
     Canada, one entry per model with the men's and women's item (its watch key, today's lowest price, a store link) and its
@@ -329,7 +349,7 @@ def trail_shoes(items, pages):
                 continue
             if not old or (not d.get("w") and old.get("w")) or nst > old["c"]:
                 e[f] = {"k": f'{d["b"]}|{d["n"]}|{d["g"]}|{1 if d.get("w") else 0}'.lower(), "p": lo, "u": (d.get("of") or [""])[0], "n": d["n"],
-                        "c": nst, "w": bool(d.get("w"))}
+                        "c": nst, "w": bool(d.get("w")), "z": fit_sizes(d, f)}
     out = []
     for e in sorted(by.values(), key=lambda e: -e["n"]):
         sl = slugify(e["b"] + " " + e["m"])
@@ -339,7 +359,7 @@ def trail_shoes(items, pages):
         r = {"b": e["b"], "m": e["m"], "s": sl if pg else ""}
         for f in ("men", "women"):
             if e.get(f):
-                r[f] = [e[f]["k"], e[f]["p"], e[f]["u"], e[f]["n"]]
+                r[f] = [e[f]["k"], e[f]["p"], e[f]["u"], e[f]["n"], e[f]["z"]]
         out.append(r)
     return out
 
@@ -409,9 +429,10 @@ def page(slug, race, L, items, stores, pages=None):
     # Oct 20 (Bastien: "put it in the checklist as trail runners, choose your shoe"): the first line of the list, every distance
     every = "".join(f' data-l{d}="Y"' for d in race["dists"])
     shoe_row = (f'<li class="gi shoe" id="shoeBox" data-k="shoes"{every} data-root="" data-dir="{T[L]["dir"]}" '
-                f'data-pickfit="{esc(s["shPickFit"])}" data-from="{esc(s["shFrom"])}" data-page="{esc(s["shPage"])}" data-none="{esc(s["shNone"])}" data-rm="{esc(s["shRm"])}">'
-                f'<div class="hd"><span class="shi" aria-hidden="true">👟</span><h3>{s["shH"]}</h3><span class="lv Y">{s["shTag"]}</span></div><p class="note">{s["shTxt"]}</p>'
-                f'<input type="search" id="shoeQ" autocomplete="off" enterkeyhint="search" placeholder="{esc(s["shPh"])}" aria-label="{esc(s["shH"])}">'
+                f'data-pickfit="{esc(s["shPickFit"])}" data-from="{esc(s["shFrom"])}" data-page="{esc(s["shPage"])}" data-none="{esc(s["shNone"])}" data-rm="{esc(s["shRm"])}" data-gone="{esc(s["shGone"])}" data-picksize="{esc(s["shPickSize"])}">'
+                f'<div class="hd"><span class="shi" aria-hidden="true">👟</span><h3>{s["shH"]}</h3><span class="lv Y">{s["shTag"]}</span></div>'
+                f'<div class="shrow"><input type="search" id="shoeQ" autocomplete="off" enterkeyhint="search" placeholder="{esc(s["shPh"])}" aria-label="{esc(s["shH"])}">'
+                f'<select id="shoeSz" aria-label="{esc(s["shSize"])}" data-ph="{esc(s["shSize"])}"></select></div>'
                 f'<ul class="sugg" id="shoeSug" role="listbox"></ul><ul class="mine2" id="shoeMine"></ul></li>')
     pj = json.dumps(pools, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     sj = json.dumps(trail_shoes(items, pages), ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
@@ -516,12 +537,18 @@ gl.addEventListener("click",function(e){var b=e.target.closest(".wt");if(!b)retu
 /* "What do you run in?" (Oct 20): type -> up to 6 trail shoe models (every typed word starts a word of the model, like the
    homepage's rcSuggest); a pick goes on the watchlist in the visitor's fit, same as any heart above */
 var SH=[];try{SH=JSON.parse(document.getElementById("shoes").textContent)}catch(e){}
-var sbox=document.getElementById("shoeBox"),sq=document.getElementById("shoeQ"),sug=document.getElementById("shoeSug"),mine=document.getElementById("shoeMine");
+var sbox=document.getElementById("shoeBox"),sq=document.getElementById("shoeQ"),ssel=document.getElementById("shoeSz"),sug=document.getElementById("shoeSug"),mine=document.getElementById("shoeMine");
 var fold=function(t){return String(t).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g," ").trim()};
 SH.forEach(function(x){x.f=fold(x.b+" "+x.m).split(" ")});
-function shoeMine(){var w=get("gf-watch")||{},out=[];SH.forEach(function(x){["men","women"].forEach(function(f){if(x[f]&&w[x[f][0]])out.push([x,f])})});
+/* the shoe size: remembered from the profile or the shoe pages (gf-shoe-size), saved back there when picked here */
+function shoeSize(){var ss=get("gf-shoe-size");if(ss&&ss.s&&(!fit||ss.g===fit||ss.g==="any"))return String(ss.s);
+  var z=prof&&prof.sizes&&prof.sizes.shoes&&(prof.sizes.shoes.sizes||[])[0];return z&&(!fit||prof.gender===fit||prof.gender==="any")?String(z):""}
+function sizeMenu(){var v=ssel.value||shoeSize(),lo=fit==="women"?5:6,hi=fit==="women"?12:15,o='<option value="">'+esc(ssel.dataset.ph)+'</option>';
+  for(var n=lo;n<=hi;n+=0.5)o+='<option>'+n+'</option>';ssel.innerHTML=o;ssel.value=v}
+ssel.addEventListener("change",function(){if(ssel.value)put("gf-shoe-size",{g:fit||"men",s:ssel.value});shoeMine()});
+function shoeMine(){var z=ssel.value;var w=get("gf-watch")||{},out=[];SH.forEach(function(x){["men","women"].forEach(function(f){if(x[f]&&w[x[f][0]])out.push([x,f])})});
   mine.innerHTML="";out.forEach(function(o){var x=o[0],f=o[1],li=document.createElement("li");
-    li.innerHTML='<b>♥ '+esc(x.b+" "+x.m)+'</b><small>'+esc(sbox.dataset.from.replace("{p}",money(x[f][1])))+'</small>'+(x.s?'<a href="'+sbox.dataset.root+'/'+sbox.dataset.dir+'/'+esc(x.s)+'/">'+esc(sbox.dataset.page)+' →</a>':'')+'<button type="button" data-rm="'+esc(x[f][0])+'">'+esc(sbox.dataset.rm)+'</button>';
+    li.innerHTML='<b>♥ '+esc(x.b+" "+x.m)+'</b><small>'+esc(z?(x[f][4]&&x[f][4][z]!=null?sbox.dataset.from.replace("{p}",money(x[f][4][z])).replace("{s}",z):sbox.dataset.gone.replace("{s}",z)):"")+'</small>'+(x.s?'<a href="'+sbox.dataset.root+'/'+sbox.dataset.dir+'/'+esc(x.s)+'/">'+esc(sbox.dataset.page)+' →</a>':'')+'<button type="button" data-rm="'+esc(x[f][0])+'">'+esc(sbox.dataset.rm)+'</button>';
     mine.appendChild(li)})}
 sq.addEventListener("input",function(){var q=fold(sq.value).split(" ").filter(Boolean);sug.innerHTML="";if(!q.length)return;
   var hits=SH.filter(function(x){return (x.men||x.women)&&q.every(function(t){return x.f.some(function(w){return w.indexOf(t)===0})})}).slice(0,6);
@@ -529,15 +556,17 @@ sq.addEventListener("input",function(){var q=fold(sq.value).split(" ").filter(Bo
   hits.forEach(function(x,i){var li=document.createElement("li"),b=document.createElement("button");b.type="button";b.textContent=x.b+" "+x.m;b.dataset.i=SH.indexOf(x);li.appendChild(b);sug.appendChild(li)})});
 sug.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;var x=SH[+b.dataset.i];
   if(!fit){sug.innerHTML='<li class="no">'+esc(sbox.dataset.pickfit)+'</li>';document.getElementById("rsize").scrollIntoView({block:"center"});return}
-  var it=x[fit]||x.men||x.women,k=it[0],w=get("gf-watch")||{},sub=get("gf-sub")||{};
-  w[k]={b:x.b,n:it[3]||x.m,g:"shoes",url:it[2],price:it[1],low:it[1],seen:it[1],gone:false,saved:new Date().toISOString()};put("gf-watch",w);
+  if(!ssel.value){sug.innerHTML='<li class="no">'+esc(sbox.dataset.picksize)+'</li>';ssel.focus();return}
+  put("gf-shoe-size",{g:fit,s:ssel.value});
+  var it=x[fit]||x.men||x.women,k=it[0],w=get("gf-watch")||{},sub=get("gf-sub")||{},pz=(it[4]||{})[ssel.value];pz=pz==null?null:pz;
+  w[k]={b:x.b,n:it[3]||x.m,g:"shoes",url:it[2],price:pz,low:pz,seen:pz,gone:pz==null,saved:new Date().toISOString()};put("gf-watch",w);
   try{ana("watch-add","shoes")}catch(z){}try{window.umami&&umami.track("watch-add",{brand:x.b,group:"shoes",from:"race-page-shoe"})}catch(z){}
   if(sub.key&&sub.active){rpc("watch_add",{p_token:sub.key,p_key:k,p_meta:w[k]}).catch(function(){});say(gl.dataset.wmember)}
   else if(sub.pending)say(gl.dataset.wpending);else say(gl.dataset.wnew,!!document.getElementById("raceBox"));
   sq.value="";sug.innerHTML="";shoeMine()});
 mine.addEventListener("click",function(e){var b=e.target.closest("button[data-rm]");if(!b)return;var w=get("gf-watch")||{},sub=get("gf-sub")||{};
   delete w[b.dataset.rm];put("gf-watch",w);if(sub.key)rpc("watch_remove",{p_token:sub.key,p_key:b.dataset.rm}).catch(function(){});shoeMine();say(gl.dataset.woff)});
-var render0=render;render=function(){render0();hearts();shoeMine()};
+var render0=render;render=function(){render0();hearts();sizeMenu();shoeMine()};
 render();
 (function(){var box=document.getElementById("raceBox"),f=box.querySelector("form"),msg=box.querySelector(".msg");
 var sub=get("gf-sub");if(sub&&(sub.active||sub.key)){box.remove();return}
@@ -551,6 +580,7 @@ f.addEventListener("submit",function(e){e.preventDefault();
   else{var sz={shoes:{sizes:[],width:[]}};G.slice(1).forEach(function(k){sz[k]={sizes:[]}});
     p={lang:fr?"fr":"en",country:"ca",tz:tz,name:"",gender:fit,terrain:"trail",ships:"ca",groups:G,sizes:sz,brands:[],activities:[]}}
   ["tops","bottoms"].forEach(function(k){if(!(p.sizes[k]&&(p.sizes[k].sizes||[]).length))p.sizes[k]={sizes:[size]}});
+  if(ssel.value&&!(p.sizes.shoes&&(p.sizes.shoes.sizes||[]).length))p.sizes.shoes={sizes:[ssel.value],width:[]};
   p.email=em;if(!p.ref)p.ref=get("gf-ref")||box.dataset.ref;var btn=f.querySelector("button");btn.disabled=true;
   fetch("https://krwymmkauwqqxjxbvkyq.supabase.co/rest/v1/rpc/subscribe",{method:"POST",headers:{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"},
     body:JSON.stringify({p_email:em,p_profile:Object.assign({},p,{watch_new:get("gf-watch")||{}})})}).then(function(r){if(!r.ok)throw 0;
