@@ -421,3 +421,16 @@ skipped. Candidate list: tools/us_candidates.txt (store finder).
 Oct 20, 2026, Québec stores Bastien named: added Boréal Running, La Boutique du Lac, Au Pied Sportif Laval, Faux Mouvement, 33-Off.
 Left out by Bastien ("not worth it"): Rhéal Pitre Sports (boutiquerps.com, WooCommerce Store API readable), Chaussures Fillion
 (chaussuresfillion.ca, comfort/fashion shoes), Chlorophylle (outdoor clothing, custom site). Endurance = Boutique Endurance (already in).
+
+Oct 20, 2026 (night), US cities + Gear Patrol "best running shops" list (Bastien):
+- Added: The Loop Running Supply (Austin, thelooprunning.com, Shopify), Fit2Run (Florida chain, fit2run.com, Shopify; one 250-product
+  page answers 500 so it's read 100 at a time, SHOPIFY_LIMIT), Skirack (Burlington VT, skirack.com, "run" collection only),
+  Sole Sports (Phoenix, RunFree solesports.runfreeproject.com), Hanson's Running Shop (Detroit, RunFree shop.hansons-running.com),
+  Runner's Den (Hamilton ON, runnersden.com, Canadian), Fleet Feet (~280 US stores, night reader from product pages, see CLAUDE.md).
+- Not readable: Boulder Running Company (= Fleet Feet Boulder), In Motion Running (Boulder), Flatirons Running, Berkeley Park
+  Running (Denver; bprunning.com is an unrelated hat brand), A Runner's Circle, Run With Us (Squarespace), Renegade Running,
+  Highland Runners, Skinny Skis (WooCommerce), Super Jock 'n Jill / West Seattle Runner / Rogue (Squarespace), Salt Lake Running
+  (BigCommerce), Dick Pond (BigCommerce), Marathon Sports / Runner's Alley / Tracksmith / JackRabbit / Sound Runner / Running
+  Factory Ottawa (Shopify, feed closed), Finish Strong (Houston), Naperville Running Co, The Tech Shop (WooCommerce).
+- No answer from GitHub's servers (domain guesses may be wrong): Gord's (Calgary), Fast Trax (Edmonton), Milestone (San Diego),
+  Stride Ahead (Winnipeg), Restless Runners, Sportsclub Ottawa, Runners High NJ, Flatirons, Shoes & Brews, Colorado Running Co.

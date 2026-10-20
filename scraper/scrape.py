@@ -816,6 +816,168 @@ def scrape_sportsexperts():
     return out
 
 
+# ---------------------------------------------------------------- Fleet Feet (US)
+# Oct 20, 2026 (Bastien: "retry Fleet Feet"; ~280 US stores incl. Boulder, Chicago, Austin): its robots.txt allows product pages
+# (it only forbids /feeds/, /admin, /reviews/ and filter links), and each product page carries every colour in the page
+# (window.productData: colour, width, price, regular price, each size with the stores that hold it) plus JSON-LD (brand, name).
+# ~8,000 product pages from its sitemap, so read at night slice by slice like Decathlon (runfree.yml job "fleetfeet", a page
+# every FF_PACE s, a cursor through the list, sale products re-read every night first), into fleetfeet.json on the history
+# branch; the refresh downloads it to FLEETFEET_FILE. USA side only. A 403/429 or a challenge page = it said no: stop.
+FF_BASE = "https://www.fleetfeet.com"
+FF_PACE = 2.0
+FLEETFEET_FILE = os.environ.get("FLEETFEET_FILE", "/tmp/fleetfeet.json")
+FF_HEAD = {"User-Agent": "Mozilla/5.0 (compatible; TheGearFoxBot/1.0; +https://thegearfox.com/about.html)"}
+_ff_last = [0.0]
+
+
+def _ff_get(url):
+    wait = _ff_last[0] + FF_PACE - time.time()
+    if wait > 0:
+        time.sleep(wait)
+    _ff_last[0] = time.time()
+    r = S.get(url, headers=FF_HEAD, timeout=60)
+    if r.status_code in (403, 429) or "Just a moment" in r.text[:3000]:
+        raise RuntimeError(f"Fleet Feet said no (HTTP {r.status_code})")
+    return r.text if r.status_code == 200 else None
+
+
+def _ff_product(h):
+    """Product page -> {brand, title, crumbs, colours: [{name, width, price, reg, img, sizes: [..in stock..]}]} or None."""
+    m = re.search(r"window\.productData\s*=\s*", h)
+    if not m:
+        return None
+    try:
+        data, _ = json.JSONDecoder().raw_decode(h, m.end())
+    except ValueError:
+        return None
+    brand = title = ""
+    crumbs = []
+    for j in re.findall(r'<script[^>]*application/ld\+json[^>]*>(.*?)</script>', h, re.S):
+        try:
+            o = json.loads(j)
+        except ValueError:
+            continue
+        if o.get("@type") == "Product":
+            title = html_lib.unescape(o.get("name") or "")
+            brand = html_lib.unescape(((o.get("brand") or {}).get("name")) or "")
+        elif o.get("@type") == "BreadcrumbList":
+            crumbs = [html_lib.unescape(x.get("name") or "") for x in o.get("itemListElement") or []]
+    cols = []
+    for c in data if isinstance(data, list) else []:
+        sizes = [v.get("size") for v in c.get("variations") or [] if v.get("stock") and v.get("size")]
+        if not sizes:
+            continue
+        price = float(c.get("price") or 0)
+        reg = float(c.get("originalPrice") or 0) or price
+        cols.append({"name": c.get("name") or "", "width": c.get("width") or "", "price": price, "reg": max(reg, price),
+                     "img": c.get("bestPhoto") or "", "shoe": bool(c.get("isShoe")), "sizes": sizes})
+    return {"brand": brand, "title": title, "crumbs": crumbs, "colours": cols}
+
+
+def ff_links():
+    h = _ff_get(FF_BASE + "/sitemap.xml") or ""
+    return [u for u in re.findall(r"<loc>(https://www\.fleetfeet\.com/products/[^<]+)</loc>", h)]
+
+
+def fleetfeet_night(out, minutes=100):
+    """Tonight's slice: products on sale last time first (their price moves), then the cursor through the product list.
+    The list is refreshed weekly; a product not read for 14 days drops off."""
+    p = Path(out)
+    try:
+        prev = json.loads(p.read_text())
+    except Exception:
+        prev = {}
+    t0, today = time.time(), now()
+    prods, links, cur, listed = prev.get("prods") or {}, prev.get("links") or [], int(prev.get("cursor") or 0), prev.get("listed")
+    note, read = "", 0
+    try:
+        if not links or cur >= len(links) or not listed or \
+                dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(listed) > dt.timedelta(days=7):
+            links, cur, listed = ff_links(), 0, today
+        sale = [u for u, x in prods.items() if any(c["price"] < c["reg"] * 0.99 for c in x.get("colours") or [])]
+
+        def read_one(u):
+            h = _ff_get(u)
+            x = _ff_product(h) if h else None
+            if x and x["colours"]:
+                x["read"] = today
+                prods[u] = x
+            else:
+                prods.pop(u, None)                        # gone, or nothing in stock
+        for u in sale:                                    # sale prices move most: every night
+            if time.time() - t0 > minutes * 60 * 0.4:
+                break
+            read_one(u)
+            read += 1
+        while cur < len(links) and time.time() - t0 < minutes * 60:
+            if links[cur] not in sale:
+                read_one(links[cur])
+                read += 1
+            cur += 1
+    except Exception as e:
+        note = f"stopped ({str(e)[:80]}) at {cur} of {len(links)}"
+    cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=14)).isoformat()
+    prods = {u: x for u, x in prods.items() if (x.get("read") or today) >= cutoff}
+    good = read >= 20
+    d = {"updated": today if good else (prev.get("updated") or today), "prods": prods, "links": links, "cursor": cur, "listed": listed}
+    if note:
+        d["failed"] = note
+    p.write_text(json.dumps(d, separators=(",", ":"), ensure_ascii=False))
+    print(f"fleetfeet night read: {read} product pages tonight, {len(prods)} products kept, list position {cur}/{len(links)}"
+          + (f"; {note}" if note else ""), file=sys.stderr)
+    return 0
+
+
+def scrape_fleetfeet():
+    try:
+        d = json.loads(Path(FLEETFEET_FILE).read_text())
+    except Exception:
+        raise RuntimeError("no night read of Fleet Feet yet")
+    if dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(d["updated"]) > dt.timedelta(hours=36):
+        raise RuntimeError(f"Fleet Feet night read last worked {d['updated'][:10]}")
+    out, skipped, fx = [], collections.Counter(), fx_to_cad("USD")      # offers are kept in CAD, like every US store
+    for u, p in d["prods"].items():
+        gender, _, model = p["title"].partition(" | ") if " | " in p["title"] else ("", "", p["title"])
+        if SE_KIDS.search(gender) or SE_KIDS.search(model) or any(SE_KIDS.search(c) for c in p.get("crumbs") or []):
+            skipped["kids"] += 1
+            continue
+        b = p["brand"]
+        if b and model.lower().startswith(b.lower() + " "):
+            model = model[len(b) + 1:]
+        sx = ["men"] if re.match(r"(?i)men", gender) else ["women"] if re.match(r"(?i)women", gender) else ["men", "women"]
+        shoe = any(c["shoe"] for c in p["colours"])
+        g = "shoes" if shoe else generic_group("gear")({"title": model, "product_type": " ".join(p.get("crumbs") or [])})
+        if g is None:
+            skipped["not running"] += 1
+            continue
+        if g == "shoes" and len(sx) != 1:
+            skipped["shoe without one gender"] += 1
+            continue
+        for wide in (False, True):
+            sizes, img = {}, ""
+            for c in p["colours"]:
+                w = (c["width"] or "").upper()
+                if g == "shoes":
+                    narrow = w in ("B", "2A", "AA") if sx == ["men"] else w in ("2A", "AA")
+                    is_wide = w in ("2E", "4E", "EE", "6E") or (sx == ["women"] and w in ("D", "2E"))
+                    if narrow or is_wide != wide:
+                        continue
+                elif wide:
+                    continue
+                for z in c["sizes"]:
+                    if z not in sizes or c["price"] < sizes[z][0]:
+                        sizes[z] = (c["price"], c["reg"], u)
+                        img = img or c["img"]
+            if not sizes:
+                continue
+            nm = re.sub(r"\s+", " ", model).strip() + {"men": " - Men's", "women": " - Women's"}.get(sx[0] if len(sx) == 1 else "", "")
+            out.append({"st": "fleetfeet", "b": b, "n": nm, "u": u, "g": g, "sx": sx, "w": wide, "img": img,
+                        "lp": round(max(r for _, r, _ in sizes.values()) * fx, 2), "bb": None, "ca": False, "us": True, "no_ca": True,
+                        "sz": [[k, round(pr * fx, 2), round(rg * fx, 2), lk] for k, (pr, rg, lk) in sizes.items()]})
+    print(f"  fleetfeet: night copy from {d['updated']}: {len(out)} products (left out: {dict(skipped)})", file=sys.stderr)
+    return out
+
+
 # ---------------------------------------------------------------- Brand stores on Wolverine's shop system (Saucony; Merrell next)
 # Oct 16, 2026 (Bastien: "If we could build readers for the brand websites that would be great ... Return policy are always
 # better directly with the brands"). saucony.com/CA answers GitHub's servers and its robots.txt allows Claude by name; it
@@ -1651,13 +1813,15 @@ def shopify_price_currency(base, cookies=None):
 
 SHOPIFY_MAX_PAGES = 80   # 20,000 products (Oct 14: Pacers lists 17,341, Athletic Annex ~7,500; we stopped at 24 pages = 6,000)
 
+SHOPIFY_LIMIT = {"https://fit2run.com": 100}   # Fit2Run: one 250-product page answers 500, smaller pages read fine (Oct 20)
+
 def shopify_products(base, max_pages=40, cookies=None):
     # A later page that fails (usually 429 "too busy") gets one more try after a pause; if it fails again the whole read
     # fails, so the store keeps yesterday's full catalogue instead of publishing a partial one (Oct 6: Athletic Annex
     # showed 180 of ~1,830 products, Mountain Run 222 of 924).
     prods, page = [], 1
     while page <= max_pages:
-        url = f"{base}/products.json?limit=250&page={page}"
+        url = f"{base}/products.json?limit={SHOPIFY_LIMIT.get(base, 250)}&page={page}"
         try:
             batch = get(url, cookies=cookies).json()["products"]
         except Exception as e:
@@ -2806,6 +2970,10 @@ SHOPIFY_STORES = [
     ("tworivers",      "https://tworiverstreads.com",        "gear"),   # Two Rivers Treads (Asheville, NC)
     ("xtramile",       "https://www.xtramilerunning.com",    "gear"),   # Xtra Mile Running (Tennessee)
     ("lukeslocker",    "https://www.lukeslocker.com",        "gear"),   # Luke's Locker (Texas)
+    ("theloop",        "https://www.thelooprunning.com",     "gear"),   # The Loop Running Supply (Austin, Oct 20)
+    ("fit2run",        "https://fit2run.com",                "gear"),   # Fit2Run (Florida chain: Miami, Orlando, Tampa; Oct 20)
+    ("runnersden",     "https://www.runnersden.com",         "gear"),   # Runner's Den (Hamilton ON, Canadian; Oct 20)
+    ("skirack",        "https://skirack.com",                "gear"),   # Skirack (Burlington VT; Gear Patrol best shops; its "run" collection only, Oct 20)
     ("sfrunco",        "https://store.sfrunco.com",          "gear"),   # San Francisco Running Company (Mill Valley, San Anselmo CA)
     ("territory",      "https://territoryrun.co",            "gear"),   # Territory Run Co. (California trail apparel; Oct 8, USA side)
     ("pathprojects",   "https://pathprojects.com",           "gear"),   # Path Projects (Colorado running shorts/liners; Oct 8, USA side)
@@ -2833,7 +3001,7 @@ SHOPIFY_STORES = [
 
 NOT_RUNNING = re.compile(r"gift ?card|pannier|eyeglasses|optical|reading glass|blue light|prescription|e-?gift|\bbike\b|cycling|\bbib\b|swim|golf|\bski\b|snowboard|\bdog\b|\bpet\b|"
                          r"\btent\b|sleeping bag|stickers?|poster|\bmug\b|\bbundle builder\b|warranty|shipping protection|"
-                         r"route protection|insurance|\bsample\b|donation|\bknitwear\b|\bsherpa\b|\bgym bag\b|tote bag|loops & loot|test clothing|"   # Balmoral's lifestyle pieces (Oct 8)
+                         r"route protection|insurance|bunion|toe (separator|spacer)s?|\bsample\b|donation|\bknitwear\b|\bsherpa\b|\bgym bag\b|tote bag|loops & loot|test clothing|"   # Balmoral's lifestyle pieces (Oct 8)
                          # ski touring (Ski Uphill, Oct 7); trail crampons and goodr "Donkey Goggles" sunglasses stay
                          r"\bskis\b|\bhelmets?\b|airbag|avalanche|(?<!donkey )\bgoggles?\b|\b(powder|pole) baskets?\b|climbing skins?|skinalp|"
                          r"\bbindings?\b|splitboard|glide wax|liquid wax|aenergy harness|footwear refresh", re.I)
@@ -2912,12 +3080,12 @@ def scrape_runfree(st):
         o = dict(o, ca=ca, us=not ca, lp=round(o["lp"] * fx, 2), sz=[[k, round(p * fx, 2), round(r * fx, 2)] for k, p, r in o["sz"]])
         out.append(o)
     return out 
-US_SHOPS = {"pacers", "portlandrun", "heartbreak", "runnersplus", "gazelle", "sportsbasement", "tortoisehare",
+US_SHOPS = {"fleetfeet", "theloop", "fit2run", "skirack", "pacers", "portlandrun", "heartbreak", "runnersplus", "gazelle", "sportsbasement", "tortoisehare",
             "runflagstaff", "runninglab", "playmakers", "millcity", "runningwell", "mountainrun", "confluence", "columbusrun",
             "scrantonrun", "trailheadrun", "prrunwalk", "performancerun", "fitnesssports", "athleticannex", "annarborrun",
             "tworivers", "xtramile", "lukeslocker", "sfrunco", "backcountry", "rei",
             "territory", "pathprojects", "ombraz", "2xuus", "paragon"} | set(RUNFREE_US)   # REI ships within the US only
-US_COLLECTIONS = {"paragon": ["running-shoes", "running"], "sportsbasement": ["running"], "sail": ["outdoor-gear-running"], "svp": ["running-collection"], "humaca": ["nutrition"], "boutiquedulac": ["chaussures", "course-a-pied", "nutrition"]}   # (Canadian stores too: SAIL)   # general stores: their running section only (Sports Basement also sells
+US_COLLECTIONS = {"paragon": ["running-shoes", "running"], "sportsbasement": ["running"], "sail": ["outdoor-gear-running"], "svp": ["running-collection"], "humaca": ["nutrition"], "boutiquedulac": ["chaussures", "course-a-pied", "nutrition"], "skirack": ["run"]}   # (Canadian stores too: SAIL)   # general stores: their running section only (Sports Basement also sells
                                                    # snowboards, swimwear, tennis: those topped the US deals, Oct 6, 2026)
 # Shoebacca was tried and dropped (Oct 6, 2026): mostly PUMA/adidas/Diadora budget and gym shoes, no Hoka/Brooks/ASICS/Nike
 NO_CART = {"svp"}      # robots.txt forbids /cart.js: the currency comes from meta.json only (SVP: CAD)
@@ -3134,6 +3302,7 @@ STORES = {
     "footlocker": scrape_footlocker,
     "runningfree": scrape_runningfree,
     "sportsexperts": scrape_sportsexperts,
+    "fleetfeet": scrape_fleetfeet,   # night read slice by slice (runfree.yml "fleetfeet"), USA side; Oct 20
     "saucony": lambda: scrape_brand_site("saucony"),
     "arcteryx": lambda: scrape_jl_site("arcteryx"),   # brand store, night read (runfree.yml "brands"); Oct 16   # brand store, read at night from GitHub's servers (runfree.yml "brands"); Oct 16   # read at night from GitHub's servers (runfree.yml), a page every 3 s; Oct 15
     "runningroom": scrape_runningroom,   # its own public product feed (robots.txt sitemap), Oct 10   # read at night, a page every 30 s (its robots.txt); Oct 9
@@ -3231,7 +3400,7 @@ NOT_SOCK = re.compile(r"t-?shirt|\btee\b|hood|jacket|sweat|pullover|\btank\b|sho
 STRONG_FOOD = re.compile(r"\bgels?\b(?!-| pockets?| force| heel| cups?| ball| insoles?| arch)|\bchews?\b|drink mix|electrolyte|energy bar|protein|stroopwafel|(?<!wool )waffle|"
                          r"caffeine|hydration mix|\bfuel\b(?! belt|\W+n\W*\s*fly|\s*cell)|\bbars?\b(?=.*\b(\d+ ?g|pack|box|bar)\b)|nut butter|honey|\bmix\b|tablets|capsules", re.I)
 EYEWEAR_BRANDS = {"ombraz", "goodr", "sunski", "tifosi", "roka", "district vision", "julbo", "suncloud", "moana sunnies", "alpinamente", "knockaround"}
-SOCK_BRANDS = {"darn tough", "balega", "feetures", "injinji", "swiftwick", "wigwam", "drymax", "rockay", "wrightsock", "thorlo", "sockwell", "os1st", "bridgedale"}
+SOCK_BRANDS = {"darn tough", "balega", "feetures", "injinji", "swiftwick", "wigwam", "drymax", "rockay", "wrightsock", "thorlo", "sockwell", "os1st", "bridgedale", "stance"}
 CLOTH_SOCK_SHAPE = re.compile(r"\bcrew\b|no[- ]show|\bquarter\b|\bmicro\b|\bmini\b|\btab\b|over[- ]the[- ]calf|\botc\b|\bboot\b", re.I)
 BYOB = re.compile(r"build your own bundle|\bbundle\d{3,}", re.I)
 def tidy_food(offers):
@@ -3574,7 +3743,7 @@ BRAND_ALIAS = {"cure hydration": "Cure", "balmoral sports": "Balmoral", "inner s
                "puma north a": "Puma", "smith optics": "Smith", "lé bent": "Le Bent", "naak nutrition": "Näak", "smith sport optics": "Smith", "diadora us": "Diadora", "maurten us": "Maurten",
                "nathan hydration": "Nathan", "zym hydration": "ZYM", "puma north america": "Puma", "spenco medical": "Spenco", "precision fuel & hydration": "Precision Fuel & Hydration"}   # District Vision's makers
 
-DISTRIBUTORS = {"back river sport", "back river group", "territory run co", "territory run co."}   # Territory resells Tailwind, Hydrapak
+DISTRIBUTORS = {"back river sport", "back river group", "territory run co", "territory run co.", "runners den"}   # Runner's Den lists some products under its own name   # Territory resells Tailwind, Hydrapak
 def tidy_brand(b):
     b = (b or "").strip()
     if b.lower() in BRAND_CANON:
@@ -3930,6 +4099,8 @@ def merge(offers):
                 b = known.get(bkey(" ".join(ws[:k]))) if len(ws) > k else None
                 if b and b.lower() not in DISTRIBUTORS:
                     o["b"], o["n"] = b, " ".join(ws[k:])
+                    if o["g"] in ("tops", "bottoms") and b.lower() in SOCK_BRANDS and not NOT_SOCK.search(o["n"]):
+                        o["g"] = "socks"     # Runner's Den lists Stance "Light Crew" socks under its own name, filed as tops
                     break
     _TRAIL_MODELS.clear()
     for o in tidied:          # models a store names with Trail/Road but without "running" ("Ghost Trail - Men's")
@@ -4402,6 +4573,12 @@ if __name__ == "__main__" and "--brands-night" in sys.argv:
         sys.exit(brands_night(sys.argv[sys.argv.index("--brands-night") + 1]))
     except Exception as e:
         print(f"::error::Brand stores night read stopped: {type(e).__name__}: {str(e)[:300]}", file=sys.stderr)
+        sys.exit(1)
+if __name__ == "__main__" and "--fleetfeet-night" in sys.argv:
+    try:
+        sys.exit(fleetfeet_night(sys.argv[sys.argv.index("--fleetfeet-night") + 1]))
+    except Exception as e:
+        print(f"::error::Fleet Feet night read stopped: {type(e).__name__}: {str(e)[:300]}", file=sys.stderr)
         sys.exit(1)
 if __name__ == "__main__" and "--sportsexperts-night" in sys.argv:
     try:

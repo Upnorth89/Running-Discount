@@ -398,6 +398,13 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   Essent) from its sitemap (lists load by script), JSON-LD per colour+size (InStock/LimitedAvailability); one price (no sales seen),
   links open the product (no size link); "N Vest" = hydration vest -> packs. 32 cards. Salomon: reader built but it answered 403
   after ~1 h of pages, and again at a page every 20 s -> a firm no (STORES.md); left out. Hoka: 403 most visits (no). Merrell: robots.txt blocks ClaudeBot -> not read.
+- Fleet Feet (Oct 20; US chain, ~280 stores incl. Boulder, Chicago, Austin, Houston, San Diego): `fleetfeet_night` / `scrape_fleetfeet`
+  in scrape.py, runfree.yml job "fleetfeet" (`scrape.py --fleetfeet-night hist/fleetfeet.json`, a page every 2 s, ~100 min a night):
+  robots.txt allows product pages; each page's window.productData has every colour (width, price, originalPrice, sizes with the
+  stores holding them) + JSON-LD brand/name. ~8,000 products from its sitemap: sale products re-read first every night, then a
+  cursor through the list (full round ~3 nights; a product not read for 14 days drops). Refresh downloads it to FLEETFEET_FILE
+  (fresh < 36 h). USA side only, prices converted to CAD like every US store. NOT its search service: the page's Typesense key was
+  refused by my own safety check (Oct 20) and isn't needed. A 403/429/challenge = stop.
 - Running Room (Oct 10; Canada's biggest running chain, Magento at ca.shop.runningroom.com): `scrape_runningroom` reads its own public
   product feed (robots.txt sitemap media/sitemap/ai_feed_sitemap.xml -> media/ai/products_N.json, ~22 files, rebuilt ~5am daily, 2 s
   apart): one record per size with price/final_price, stock qty, photo, a link that opens that colour+size. Tax class code -> group

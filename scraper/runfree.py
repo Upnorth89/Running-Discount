@@ -24,6 +24,8 @@ import requests
 # id, shop address, name (site STORES map has the same names), state
 RUNFREE_STORES = [
     ("charlotterun", "https://shop.charlotterunning.com", "Charlotte Running Company", "NC"),
+    ("solesports", "https://solesports.runfreeproject.com", "Sole Sports", "AZ"),   # Phoenix area (Oct 20)
+    ("hansons", "https://shop.hansons-running.com", "Hanson's Running Shop", "MI"),   # Detroit area; Gear Patrol best shops (Oct 20)
     ("terrarun", "https://shop.terrarunning.com", "Terra Running Company", "TN"),
     ("johnsrunwalk", "https://shop.johnsrunwalkshop.com", "John's Run/Walk Shop", "KY"),
     ("palmettorun", "https://shop.palmettorunningcompany.com", "Palmetto Running Company", "SC"),

@@ -13,7 +13,7 @@ on:
         type: boolean
         default: false
       only:
-        description: "Run only this read (all, runfree, decathlon, thefeed, runningfree, sportsexperts, brands, linkcheck)"
+        description: "Run only this read (all, runfree, decathlon, thefeed, runningfree, sportsexperts, fleetfeet, brands, linkcheck)"
         default: "all"
       brand:
         description: "With 'brands': only these brand stores, comma-separated (saucony, arcteryx, salomon); the others keep last night's copy"
@@ -165,6 +165,38 @@ jobs:
           git add sportsexperts.json
           git diff --cached --quiet && exit 0
           git commit -q -m "sportsexperts $(TZ=America/Vancouver date +%F)"
+          for i in 1 2 3 4; do git pull -q --rebase origin history && git push -q origin HEAD:history && exit 0; sleep $((i * 5)); done
+          exit 1
+
+  # Fleet Feet (Oct 20, 2026; US chain, ~280 stores): robots.txt allows product pages, each carries its colours, prices and sizes in
+  # stock. ~8,000 pages, so a slice a night (a page every 2 s, ~100 min): sale products first, then a cursor through the list.
+  fleetfeet:
+    needs: check
+    if: needs.check.outputs.skip != 'true' && (inputs.only == '' || inputs.only == null || inputs.only == 'all' || inputs.only == 'fleetfeet')
+    runs-on: ubuntu-latest
+    timeout-minutes: 130
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r scraper/requirements.txt
+      - uses: actions/checkout@v4
+        with:
+          ref: history
+          path: hist
+      - name: Read Fleet Feet
+        run: python scraper/scrape.py --fleetfeet-night hist/fleetfeet.json
+      - name: Save to the history branch
+        if: success()
+        run: |
+          cd hist
+          git config user.name "The Gear Fox"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          [ -f fleetfeet.json ] || exit 0
+          git add fleetfeet.json
+          git diff --cached --quiet && exit 0
+          git commit -q -m "fleetfeet $(TZ=America/Vancouver date +%F)"
           for i in 1 2 3 4; do git pull -q --rebase origin history && git push -q origin HEAD:history && exit 0; sleep $((i * 5)); done
           exit 1
 

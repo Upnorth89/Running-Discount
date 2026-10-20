@@ -568,7 +568,7 @@ def site_flow(base, per, accented):
         def top_overlap():   # Oct 19 (Bastien: "I shouldn't have to ask will the filter button cover the other buttons"): at 320/390/768/1280px
             out = []       # nothing in the header and the lines above the deals sits on top of something else, nothing wider than the screen
             try:
-                for w in (320, 390, 768, 1280):
+                for w in (320, 390, 768, 900, 1280):
                     page.set_viewport_size({"width": w, "height": 800})
                     settle(page, 400)
                     r = page.evaluate("""() => {const box = e => e.getBoundingClientRect();
@@ -581,12 +581,16 @@ def site_flow(base, per, accented):
                         return {ov, wide: document.documentElement.scrollWidth}}""")
                     assert not r["ov"], f"{w}px: {', '.join(r['ov'][:3])} overlap"
                     assert r["wide"] <= w + 1, f"{w}px: the page is {r['wide'] - w}px too wide"
+                    hit = page.evaluate("""() => [...document.querySelectorAll('.dw')].filter(d => {const a = d.querySelector('.rep'), h = d.querySelector('.heart');
+                        if (!a || !h || !a.offsetParent) return false; const ra = a.getBoundingClientRect(), rh = h.getBoundingClientRect();
+                        return ra.right > rh.left - 2 && ra.bottom > rh.top && ra.top < rh.bottom}).length""")   # Oct 20: "Wrong price or size?" ran into "Watch price"
+                    assert not hit, f"{w}px: on {hit} cards 'Wrong price or size?' runs into 'Watch price'"
                     out.append(f"{w}px ok")
             finally:
                 page.set_viewport_size({"width": 390, "height": 844})
                 settle(page, 300)
             return ", ".join(out)
-        check("Top of the page: nothing overlaps (phone to computer)")(top_overlap, page)
+        check("Top of the page and cards: nothing overlaps (phone to computer)")(top_overlap, page)
 
         def whole_page():   # Oct 18 (Bastien: "nothing should ever be silo"): two tests each added a swipe row and nobody saw them
             # together. Every live test on at once (all B), then all off (all A): the top of the page on a phone stays tidy.
