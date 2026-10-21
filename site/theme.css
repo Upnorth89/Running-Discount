@@ -3,21 +3,22 @@
    pages' own stylesheets only need layout. A designer's version later = replace this one file.
    The rules: 5 colours + the green "lowest price" stamp; 2 fonts (Barlow, Barlow Condensed); 2 corner shapes (10px for
    cards, panels, inputs and big buttons; round for chips and icon buttons); 1px lines; orange only for the discount and
-   the main button (when everything is orange, nothing stands out); a white page with thin dividers, like a running store. */
+   the main button (when everything is orange, nothing stands out); white cards on a light grey page, so each deal is one
+   distinct thing (Oct 21, Bastien: "there needs to be some divide between boxes, otherwise it just looks all one page"). */
 :root{
-  --ink:#141A17; --muted:#5E6762; --mist:#F3F4F2; --card:#FFFFFF; --line:#E1E4E0;
+  --ink:#141A17; --muted:#5E6762; --mist:#EEF1EC; --card:#FFFFFF; --line:#D8DDD7;
   --moss:#141A17; --link:#141A17; --hivis:#F26A1B; --hivis-ink:#141A17;
   --r:10px; --pill:999px;
   --body:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --display:"Barlow Condensed","Arial Narrow",Impact,system-ui,sans-serif;
 }
 @media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){--ink:#ECEFEC;--muted:#A1ABA5;--mist:#1A201D;--card:#111614;--line:#2C3531;--moss:#ECEFEC;--link:#ECEFEC;--hivis-ink:#111614}
+  :root:not([data-theme="light"]){--ink:#ECEFEC;--muted:#A1ABA5;--mist:#0F1412;--card:#1A211E;--line:#2E3833;--moss:#ECEFEC;--link:#ECEFEC;--hivis-ink:#111614}
 }
-:root[data-theme="dark"]{--ink:#ECEFEC;--muted:#A1ABA5;--mist:#1A201D;--card:#111614;--line:#2C3531;--moss:#ECEFEC;--link:#ECEFEC;--hivis-ink:#111614}
+:root[data-theme="dark"]{--ink:#ECEFEC;--muted:#A1ABA5;--mist:#0F1412;--card:#1A211E;--line:#2E3833;--moss:#ECEFEC;--link:#ECEFEC;--hivis-ink:#111614}
 
 /* page + type */
-body{background:var(--card);color:var(--ink);font-family:var(--body)}
+body{background:var(--mist);color:var(--ink);font-family:var(--body)}
 a{color:var(--ink);text-decoration-thickness:1px;text-underline-offset:2px}
 h1{font-family:var(--display);font-weight:800;letter-spacing:-.2px}
 h2,h3{font-family:var(--display);font-weight:700}
@@ -38,27 +39,23 @@ h2,h3{font-family:var(--display);font-weight:700}
 .btn{border-width:1px}
 a.btn{background:var(--hivis);color:var(--hivis-ink);border:0}
 
-/* deal cards (homepage): phones = rows with a thin divider; computers = light cards */
-.deal{border:1px solid var(--line);border-radius:var(--r);box-shadow:none}
+/* deal cards (homepage): one white card per deal on the grey page */
+.deal{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:none}
 .deal .pic{border-radius:calc(var(--r) - 1px) calc(var(--r) - 1px) 0 0}
-@media(max-width:899px){
-  .compact .deal{border:0;border-bottom:1px solid var(--line);border-radius:0;padding:14px 0 12px;background:transparent}
-  .compact .deal .pic{border-radius:8px;background:#fff}
-}
+.compact .deal .pic{border-radius:8px;background:#fff}
 .deal:hover{border-color:var(--muted)}
 .deal .brand,.compact .deal .brand{color:var(--muted);font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
 .deal .pct,.compact .deal .pct,.wdeal .pct{border:0;border-radius:4px}
 .badge,.off{border:0;border-radius:4px}
-.newrow .grp.new .deal{background:transparent}
+.newrow .grp.new .deal{background:var(--card)}
 
 /* section titles: no coloured squares/dots in front, the title says it */
 .grp h2::before,.grp.sale h2::before,.grp.new h2::before,.grp.drops h2::before{display:none}
-.sticky .grp h2{background:var(--card)}
+.sticky .grp h2{background:var(--mist)}
 
 /* welcome screen */
 .wstat{background:var(--mist);border-radius:var(--r)}
-@media(max-width:899px){.wdeal{border:0;border-bottom:1px solid var(--line);border-radius:0;padding:10px 0}}
-.wdeal{border-width:1px}
+.wdeal{border-width:1px;border-radius:var(--r);background:var(--card)}
 .wdeal .wn b{color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-size:12px}
 
 /* panels, boxes, menus */
@@ -73,12 +70,10 @@ table{border-width:1px;border-radius:var(--r)}
 input,select,textarea{border-radius:var(--r)}
 .find input{border-width:1px}
 
-/* lists of shoes and races (shoe pages, list pages, race hub): rows with dividers, not a box around each */
-.cards{gap:0}
-.cards a{border:0;border-bottom:1px solid var(--line);border-radius:0;padding:12px 0;background:transparent}
-.cards li:first-child a{border-top:1px solid var(--line)}
+/* lists of shoes and races (shoe pages, list pages, race hub): one white card each, like the deals */
+.cards{gap:8px}
+.cards a{border:1px solid var(--line);border-radius:var(--r);background:var(--card)}
 .cards .nm b{font-family:var(--display)}
-.cards.rh a{padding:14px 0}
 
 /* race lists */
 .gi{border-color:var(--line)}
