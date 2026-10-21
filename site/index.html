@@ -77,7 +77,7 @@ input:focus-visible,button:focus-visible,summary:focus-visible,select:focus-visi
 /* Oct 19 (Bastien: "the search bar should be in the header in the middle. On the phone it would have to collapse the logo"):
    search sits in the sticky header (one tap away anywhere on the page; Baymard: mobile shoppers expect an open search box at
    the top); phones show the fox icon instead of the wordmark; Filters moves beside the category chips */
-.hsearch,.topbar .logo .logomini,.rdnav{display:none}   /* .rdnav: the redesign's header links (theme.css shows them) */
+.hsearch,.topbar .logo .logomini{display:none}
 .hdrsearch .hsearch{display:flex;flex:1;min-width:0}
 .hdrsearch .topbar .spacer{display:none}
 .hdrsearch .hsearch .search{margin:0;width:100%;min-width:0;min-height:42px;border-radius:999px;border:1px solid var(--line);background:var(--mist) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%235C6660' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-4-4'/%3E%3C/svg%3E") no-repeat 14px 50%;padding-left:40px;font-size:16px}
@@ -508,7 +508,6 @@ body.locked #langBtn,body.locked #curBtn,body.locked #openWatch,body.locked #men
     <img class="logomini" src="logo-app.jpg" alt="" width="36" height="36">
   </a>
   <div class="hsearch" id="hSearch"></div>
-  <nav class="rdnav" aria-label="Sections"><a id="rnShoes" href="shoes/" data-i18n="mShoes">Shoe prices by model</a><a id="rnRaces" href="races/" data-i18n="mRaces">Race gear lists</a><a href="about.html" data-i18n="aboutShort">About</a></nav>
   <span class="spacer"></span>
   <button class="watchbtn" id="openWatch" type="button" aria-pressed="false" aria-label="Your watchlist" data-i18n-aria="watchlist">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 6.9 4.5c2.1 0 3.6 1.2 5.1 3 1.5-1.8 3-3 5.1-3 3.5 0 5.5 3.5 4.2 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>
@@ -766,7 +765,16 @@ function finalSale(d,e){
 const PL=(n,one,many)=>n===1?one:many;
 const I18N={
 en:{
-  tagline:"OUTFOX FULL PRICE",watchlist:"Your watchlist",yourSizes:"Your sizes",menu:"Menu",mDeals:"Today's deals",mShoes:"Shoe prices by model",mRaces:"Race gear lists",aboutShort:"About",mSizes:"My sizes",mAbout:"About The Gear Fox",mApp:"Add to your home screen",appTipH:"Get The Gear Fox on your home screen",appTipIos:"Tap the Share button {s} in Safari's bar",appTipIos2:"Scroll down and tap <b style=\"display:inline\">Add to Home Screen</b>",appTipAnd:"Tap the ⋮ menu at the top of Chrome",appTipAnd2:"Tap <b style=\"display:inline\">Add to Home screen</b>",appTipWhy:"It opens like an app, with your sizes ready.",gotIt:"Got it",mCur:"Prices in",edit:"Edit",allDeals:"← All deals",categories:"Categories",
+  tagline:"OUTFOX FULL PRICE",
+  rd:{nav:{deals:"Deals",shoes:"Shoes",apparel:"Apparel",packs:"Packs",gear:"Gear",races:"Race lists",shoePrices:"Shoe prices"},h1:["Find running gear deals","in your ","exact size."],h1n:n=>[`${n} deals`,"in your ","exact size."],
+    sub:n=>`Every morning we check ${n} running stores in Canada and the USA and show you the best prices in stock, in your size. No more guessing.`,
+    ph:"Search shoes, apparel, packs, brands…",go:"Search",size:"Your size",cat:"Category",brand:"Brand",price:"Price",store:"Retailer",sale:"On sale only",more:"More filters",under:m=>`Under ${m}`,
+    note:["Real deals.","Real sizes.","Real retailers."],tiles:{shoes:"Shoes",apparel:"Apparel",packs:"Packs & Vests",acc:"Accessories",nutrition:"Nutrition",gear:"Gear & Watches"},n:n=>`${n} deals`,
+    top:"Today's top deals",viewAll:"View all deals",brands:"Shop by brand",viewBrands:"View all brands",inStock:"In stock",whyH:"Why use The Gear Fox?",
+    why:[["Real deals from real stores",n=>`We check ${n} stores in Canada and the USA every morning.`],["In your exact size",()=>"Only the sizes in stock right now, so every deal fits you."],["No more guessing",()=>"Every store's price for the same shoe, side by side."],["Canada & USA",()=>"Shop both sides, with local stores and local prices."]],
+    kinds:{daily:"road shoes",race:"racing shoes",trail:"trail shoes",hike:"hiking & winter shoes",spike:"track spikes",tee:"t-shirt",layer:"long sleeve",jacket:"jacket",short:"shorts",tight:"tights",pant:"pants",light:"light",pole:"poles",bottle:"bottle",sun:"sunglasses"},
+    sub2:(g,k)=>g?`${g} ${k}`:k[0].toUpperCase()+k.slice(1),cmp:"All sizes →",heroAt:(p,s)=>`${p} at ${s}`,menu:"Menu",mySizes:"My sizes"},
+  watchlist:"Your watchlist",yourSizes:"Your sizes",menu:"Menu",mDeals:"Today's deals",mShoes:"Shoe prices by model",mRaces:"Race gear lists",mSizes:"My sizes",mAbout:"About The Gear Fox",mApp:"Add to your home screen",appTipH:"Get The Gear Fox on your home screen",appTipIos:"Tap the Share button {s} in Safari's bar",appTipIos2:"Scroll down and tap <b style=\"display:inline\">Add to Home Screen</b>",appTipAnd:"Tap the ⋮ menu at the top of Chrome",appTipAnd2:"Tap <b style=\"display:inline\">Add to Home screen</b>",appTipWhy:"It opens like an app, with your sizes ready.",gotIt:"Got it",mCur:"Prices in",edit:"Edit",allDeals:"← All deals",categories:"Categories",
   sort:"Sort",sortMatch:"Best match",sortDiscount:"Biggest discount",sortPrice:"Lowest price",search:"Search brand or model",searchShort:"Search gear",
   get footer(){return 'The Gear Fox · Outfox full price · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="'+(US()?"us/shoes/":"shoes/")+'">Shoe prices by model</a> · <a href="about.html">About</a> · <a href="privacy.html">Privacy</a>'},close:"Close",fit:"Fit",
   men:"Men's",women:"Women's",both:"Both",menWomen:"Men's & women's",
@@ -869,7 +877,16 @@ en:{
     headwear:"Hats & buffs",packs:"Vests & packs",gear:"Lights, poles & bottles",watches:"Watches",nutrition:"Nutrition"}
 },
 fr:{
-  tagline:"FLAIREZ LES AUBAINES",watchlist:"Vos favoris",yourSizes:"Vos tailles",menu:"Menu",mDeals:"Aubaines du jour",mShoes:"Prix des chaussures par modèle",aboutShort:"À propos",mRaces:"Listes de matériel de course",mSizes:"Mes tailles",mAbout:"À propos de The Gear Fox",mApp:"Ajouter à l'écran d'accueil",appTipH:"The Gear Fox sur votre écran d'accueil",appTipIos:"Touchez le bouton Partager {s} dans la barre de Safari",appTipIos2:"Descendez et touchez <b style=\"display:inline\">Sur l'écran d'accueil</b>",appTipAnd:"Touchez le menu ⋮ en haut de Chrome",appTipAnd2:"Touchez <b style=\"display:inline\">Ajouter à l'écran d'accueil</b>",appTipWhy:"Elle s'ouvre comme une appli, avec vos tailles prêtes.",gotIt:"Compris",mCur:"Prix en",edit:"Modifier",allDeals:"← Toutes les aubaines",categories:"Catégories",
+  tagline:"FLAIREZ LES AUBAINES",
+  rd:{nav:{deals:"Aubaines",shoes:"Chaussures",apparel:"Vêtements",packs:"Sacs",gear:"Équipement",races:"Courses",shoePrices:"Prix des chaussures"},h1:["Les aubaines de course","dans votre ","taille exacte."],h1n:n=>[`${n} aubaines`,"dans votre ","taille exacte."],
+    sub:n=>`Chaque matin, on vérifie ${n} boutiques de course au Canada et aux États-Unis et on vous montre les meilleurs prix en stock, dans votre taille. Fini les devinettes.`,
+    ph:"Chercher chaussures, vêtements, sacs, marques…",go:"Chercher",size:"Votre taille",cat:"Catégorie",brand:"Marque",price:"Prix",store:"Boutique",sale:"En solde seulement",more:"Plus de filtres",under:m=>`Moins de ${m}`,
+    note:["Vrais rabais.","Vraies tailles.","Vraies boutiques."],tiles:{shoes:"Chaussures",apparel:"Vêtements",packs:"Sacs et vestes",acc:"Accessoires",nutrition:"Nutrition",gear:"Équipement et montres"},n:n=>`${n} aubaines`,
+    top:"Les meilleures aubaines du jour",viewAll:"Voir toutes les aubaines",brands:"Magasinez par marque",viewBrands:"Toutes les marques",inStock:"En stock",whyH:"Pourquoi The Gear Fox ?",
+    why:[["De vrais rabais, de vraies boutiques",n=>`On vérifie ${n} boutiques au Canada et aux États-Unis chaque matin.`],["Dans votre taille exacte",()=>"Seulement les tailles en stock en ce moment : chaque aubaine vous va."],["Fini les devinettes",()=>"Le prix de chaque boutique pour la même chaussure, côte à côte."],["Canada et États-Unis",()=>"Magasinez des deux côtés, avec des boutiques et des prix locaux."]],
+    kinds:{daily:"chaussures de route",race:"chaussures de compétition",trail:"chaussures de sentier",hike:"chaussures de randonnée et d'hiver",spike:"pointes",tee:"t-shirt",layer:"manches longues",jacket:"manteau",short:"short",tight:"collant",pant:"pantalon",light:"frontale",pole:"bâtons",bottle:"gourde",sun:"lunettes de soleil"},
+    sub2:(g,k)=>g?`${k[0].toUpperCase()+k.slice(1)} · ${g}`:k[0].toUpperCase()+k.slice(1),cmp:"Tailles →",heroAt:(p,s)=>`${p} chez ${s}`,menu:"Menu",mySizes:"Mes tailles"},
+  watchlist:"Vos favoris",yourSizes:"Vos tailles",menu:"Menu",mDeals:"Aubaines du jour",mShoes:"Prix des chaussures par modèle",mRaces:"Listes de matériel de course",mSizes:"Mes tailles",mAbout:"À propos de The Gear Fox",mApp:"Ajouter à l'écran d'accueil",appTipH:"The Gear Fox sur votre écran d'accueil",appTipIos:"Touchez le bouton Partager {s} dans la barre de Safari",appTipIos2:"Descendez et touchez <b style=\"display:inline\">Sur l'écran d'accueil</b>",appTipAnd:"Touchez le menu ⋮ en haut de Chrome",appTipAnd2:"Touchez <b style=\"display:inline\">Ajouter à l'écran d'accueil</b>",appTipWhy:"Elle s'ouvre comme une appli, avec vos tailles prêtes.",gotIt:"Compris",mCur:"Prix en",edit:"Modifier",allDeals:"← Toutes les aubaines",categories:"Catégories",
   sort:"Trier",sortMatch:"Meilleur choix",sortDiscount:"Plus gros rabais",sortPrice:"Prix le plus bas",search:"Chercher une marque ou un modèle",searchShort:"Chercher",
   footer:'The Gear Fox · Flairez les aubaines · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="chaussures/">Prix des chaussures par modèle</a> · <a href="about.html">À propos</a> · <a href="privacy.html">Confidentialité</a>',close:"Fermer",fit:"Coupe",
   men:"Homme",women:"Femme",both:"Les deux",menWomen:"Homme et femme",
@@ -987,7 +1004,7 @@ const num=n=>Number(n).toLocaleString(LANG==="fr"?"fr-CA":"en-CA");
 function applyStatic(){
   document.documentElement.lang=LANG;
   document.querySelectorAll("[data-i18n]").forEach(el=>el.innerHTML=t(el.dataset.i18n));
-  document.querySelectorAll("[data-i18n-ph]").forEach(el=>el.placeholder=t(el.dataset.i18nPh));try{hdrPh()}catch(e){}
+  document.querySelectorAll("[data-i18n-ph]").forEach(el=>el.placeholder=t(el.dataset.i18nPh));try{hdrPh()}catch(e){}try{if(LOOK_B&&$("rdMy"))rdText()}catch(e){}
   document.querySelectorAll("[data-i18n-aria]").forEach(el=>el.setAttribute("aria-label",t(el.dataset.i18nAria)));
   const cb=document.getElementById("curBtn");cb.textContent=CUR;
   cb.setAttribute("aria-label",LANG==="fr"?`Devise : ${CUR}. Afficher en ${CUR==="CAD"?"USD":"CAD"}`:`Currency: ${CUR}. Show in ${CUR==="CAD"?"USD":"CAD"}`);
@@ -1124,11 +1141,6 @@ const WELCOME_B=false;   // test "welcome" ended Oct 20: without the welcome scr
 // everyone (Baymard: shoppers who search go straight for the box; one day of our data, not a test result)
 const LAYOUT_B=ANA.arm("layout")==="B";
 const LOOK_B=ANA.arm("look")==="B";   // Oct 21 (Bastien's redesign mockups): the sizes row on cards, category photos + store names on the welcome screen   // Oct 20: back to a 50/50 test (early data: sizes picked 14% B vs 45% A, 33 devices)
-/* Oct 21 redesign (Bastien's approved rendering, B of test 'look'): html.rd turns on the new look in theme.css (charcoal header,
-   cream page, Inter + Barlow Condensed, photo category tiles, cards with the % on the photo). Inter loads only for B. */
-if(LOOK_B){document.documentElement.classList.add("rd");
-  const f=document.createElement("link");f.rel="stylesheet";f.href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap";document.head.appendChild(f);
-  const lg=document.querySelector(".topbar .logo picture");if(lg){const so=lg.querySelector("source");lg.querySelector("img").src=so?so.srcset:"logo-mark-dark.svg";if(so)so.remove()}}
 if(LAYOUT_B){document.body.classList.add("lay-b");$("filtersBox").after($("newBox"))}
 if(WELCOME_B&&!BROWSE){BROWSE=true;LS.set("gf-browse",1)}
 {const tbh=()=>{const tb=document.querySelector(".topbar");if(tb)document.documentElement.style.setProperty("--tbh",tb.offsetHeight+"px")};addEventListener("load",tbh);addEventListener("resize",tbh)}
@@ -1426,7 +1438,7 @@ function setCountry(c,from){if(c===COUNTRY||(c!=="us"&&c!=="ca"))return;COUNTRY=
   if(LS0("rd-profile"))saveProfile();applyStatic();renderCountry();
   if(!$("sheet").classList.contains("hidden"))openSheet();renderAll();loadCountry()}
 function renderCountry(){document.querySelectorAll("[data-ctry]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.ctry===COUNTRY)));document.documentElement.classList.toggle("us",US());
-  $("mShoes").href=US()?"us/shoes/":LANG==="fr"?"chaussures/":"shoes/";$("mRaces").href=US()?"us/races/":LANG==="fr"?"courses/":"races/";$("rnShoes").href=$("mShoes").href;$("rnRaces").href=$("mRaces").href}   // race gear lists (Oct 21; US races on the USA side)
+  $("mShoes").href=US()?"us/shoes/":LANG==="fr"?"chaussures/":"shoes/";$("mRaces").href=US()?"us/races/":LANG==="fr"?"courses/":"races/";if($("rnRaces")){$("rnRaces").href=$("mRaces").href;$("rnShoes").href=$("mShoes").href}}   // race gear lists (Oct 21; US races on the USA side)
 document.addEventListener("click",e=>{const b=e.target.closest("[data-ctry]");if(b)setCountry(b.dataset.ctry,b.closest("#menu")?"menu":"welcome")});
 renderCountry();
 const PAGE=8, MORE=24;
@@ -1457,13 +1469,145 @@ const TOP_DEFAULT="calm";                                  // "calm" or "full" (
 const TOP=LS0("gf-top")||TOP_DEFAULT;
 const CALM=TOP==="calm";
 if(CALM)document.body.classList.add("calm");
-function hdrPh(){const x=$("dSearch"),rd=document.documentElement.classList.contains("rd");if(x&&(rd||document.body.classList.contains("hdrsearch"))&&innerWidth<(rd?380:900))x.placeholder=t("searchShort")}
+function hdrPh(){const x=$("dSearch");if(x&&document.body.classList.contains("hdrsearch")&&innerWidth<900)x.placeholder=t("searchShort")}
 if(CALM){document.body.classList.add("hdrsearch");$("hSearch").appendChild($("dSearch"));
   const r=document.createElement("div");r.className="catrow";$("cats").before(r);r.append($("cats"),$("filtBtn"));
   const sr=$("filtersBox").querySelector(".searchrow");if(sr)sr.remove();hdrPh()}
-if(LOOK_B){   // the rendering: one big search bar + Filters under the headline, the category tiles under it (not in the header)
-  document.body.classList.remove("hdrsearch");const f=document.createElement("div");f.className="rdfind";
-  (document.querySelector(".catrow")||$("cats")).before(f);f.append($("dSearch"),$("filtBtn"));$("dSearch").placeholder=t("search");hdrPh()}
+/* ===== Redesign (Oct 21; B of test 'look'): Bastien's approved rendering. Charcoal header with sections, a hero with the big
+   search + dropdown filters + today's best shoe, 6 category tiles, cards (photo, % badge, heart, name, kind, orange price,
+   store + in stock, your size in orange), "Shop by brand", "Why use The Gear Fox". Every number comes from today's data. ===== */
+const RD_TILES={shoes:["shoes"],apparel:["tops","bottoms","bras"],packs:["packs"],acc:["socks","gloves","headwear"],nutrition:["nutrition"],gear:["gear","watches"]};
+const RDI={search:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>',
+  chev:'<svg class="chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>',
+  arrow:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+  why:['<path d="M3 12V4.5A1.5 1.5 0 0 1 4.5 3H12l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.4"/>',
+    '<path d="M2.5 17v-6l3.5-3 3 2.5 2.5-2.5 4.5 4.5h3a2.5 2.5 0 0 1 2.5 2.5V17z"/><path d="M2.5 20.5h19"/><path d="M9 13l1.5 1.5M12 11.5l1.5 1.5"/>',
+    '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>',
+    '<path d="M12 21v-4.5M12 16.5l-6 1 1-2.5-4-3.5 2-.5-1-3.5 3 1 .5-1.5L11 9 10 3.5l2 1.5 2-1.5L13 9l3.5-2.5.5 1.5 3-1-1 3.5 2 .5-4 3.5 1 2.5z"/>']};
+var view_rd={brand:"",max:0};
+const rdM=v=>LANG==="fr"?v+" $":"$"+v;
+const rdDisp=d=>CUR==="USD"?d.best/usdRate():d.best;
+var RDC={key:"",src:[],tiles:{},hero:null,brands:[]};
+function rdSource(p){   // today's sale deals in your sizes, every category (tiles, hero, brands don't empty when one category is picked)
+  const pr={...toProfile()};delete pr.groups;const key=JSON.stringify([pr,state.ships,view.cdn,US(),ITEMS.length]);
+  if(key===RDC.key)return RDC;
+  let src=matchItems({...p,store:"",groups:ORDER}).filter(d=>d.pct>0);if(view.cdn&&!US())src=src.filter(cdnBrand);
+  src.sort(SORTS.match);const tiles={};
+  for(const [k,gs] of Object.entries(RD_TILES)){const l=src.filter(d=>gs.includes(d.g));tiles[k]={n:l.length,img:(l.find(d=>d.img&&!SPIKE.test(d.n))||{}).img}}
+  const hero=src.find(d=>d.g==="shoes"&&d.img&&d.pct>=25&&d.pct<=60&&!SPIKE.test(d.n)&&d.t!=="hike"&&d.ok.length>=1&&(d.any||d.ok.length>=1))||null;
+  const bc={};src.forEach(d=>{bc[d.b]=(bc[d.b]||0)+1});
+  RDC={key,src,tiles,hero,brands:Object.entries(bc).sort((a,b)=>b[1]-a[1])};return RDC}
+function rdModel(d){const full=nm(d.n),m=full.match(/^(.*?) - (Men's|Women's|Unisex|Homme|Femme|Unisexe)$/);return m?[m[1],m[2]]:[full,""]}
+function rdBuild(){
+  const R=t("rd");document.documentElement.classList.add("rd");
+  const f=document.createElement("link");f.rel="stylesheet";f.href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Caveat:wght@600&display=swap";document.head.appendChild(f);
+  const lg=document.querySelector(".topbar .logo picture");if(lg){const so=lg.querySelector("source");lg.querySelector("img").src=so?so.srcset:"logo-mark-dark.svg";if(so)so.remove()}
+  document.body.classList.remove("hdrsearch");
+  // header: sections, search, country, language, My sizes
+  $("hSearch").insertAdjacentHTML("afterend",`<nav class="rdnav" aria-label="${esc(R.menu)}"><button type="button" data-rdgo="deals"></button><button type="button" data-rdgo="shoes"></button><button type="button" data-rdgo="apparel"></button><button type="button" data-rdgo="packs"></button><button type="button" data-rdgo="gear"></button><a id="rnRaces" href="races/"></a><a id="rnShoes" href="shoes/"></a></nav>
+    <button type="button" class="rdhb rdsico" id="rdSIco" aria-label="${esc(R.go)}">${RDI.search}</button>
+    <button type="button" class="rdhb rdctry" id="rdCtry"></button><button type="button" class="rdhb rdlang" id="rdLang"></button>
+    <button type="button" class="rdmy" id="rdMy"></button>`);
+  // hero
+  $("sizePill").insertAdjacentHTML("beforebegin",`<section class="rdhero" id="rdHero"><div class="rdht">
+    <h1 id="rdH1"></h1><p class="rdsub" id="rdSub"></p>
+    <form class="rdsearch" id="rdSearch" role="search"><span class="ico">${RDI.search}</span><button type="submit" class="rdgo" id="rdGo">${RDI.search}<span></span></button></form>
+    <div class="rdfilters" id="rdFilters">
+      <button type="button" class="dd" id="ddSize"><span></span>${RDI.chev}</button>
+      <label class="dd"><span class="v"></span>${RDI.chev}<select id="ddCat"></select></label>
+      <label class="dd"><span class="v"></span>${RDI.chev}<select id="ddBrand"></select></label>
+      <label class="dd"><span class="v"></span>${RDI.chev}<select id="ddPrice"></select></label>
+      <label class="dd"><span class="v"></span>${RDI.chev}<select id="ddStore"></select></label>
+      <label class="rdtog"><input type="checkbox" id="ddSale" role="switch"><span class="sw" aria-hidden="true"></span><span class="tl"></span></label>
+    </div></div>
+    <div class="rdhp" id="rdHp"></div></section>
+    <div class="rdtiles" id="rdTiles"></div>`);
+  $("rdSearch").prepend($("dSearch"));
+  $("rdFilters").append($("filtBtn"));
+  const wy=document.createElement("section");wy.className="rdwhy";wy.id="rdWhy";$("dealsFoot").before(wy);
+  rdText();
+  // actions
+  document.addEventListener("click",e=>{
+    const g=e.target.closest("[data-rdgo]");if(g){const k=g.dataset.rdgo;ana("menu","rd-"+k);if(k==="deals"){state.groups=ORDER.slice();rdGoDeals()}else rdCat(k);return}
+    const tl=e.target.closest("[data-rdtile]");if(tl){ana("category","tile|"+tl.dataset.rdtile);rdCat(tl.dataset.rdtile);return}
+    const br=e.target.closest("[data-rdbrand]");if(br){ana("filter","brand|"+br.dataset.rdbrand);view_rd.brand=br.dataset.rdbrand;view.open={};renderAll();rdGoDeals(true);return}
+    if(e.target.closest("[data-rdbrands]")){const s=$("ddBrand");s.focus();try{s.showPicker()}catch(_){};return}
+    const h=e.target.closest("#rdHp a.rdhd");if(h&&RDC.hero){const d=RDC.hero;track("deal-click",{store:h.dataset.store,brand:d.b,group:d.g,pct:d.pct,view:"hero"});
+      ana("deal-click",[h.dataset.store,d.g,d.pct,"hero",""].join("|"),1);logEvent("click",h.dataset.store,d.g)}});
+  $("rdSearch").addEventListener("submit",e=>{e.preventDefault();clearTimeout(searchT);view.q=$("dSearch").value;view.open={};view.anySize=false;view.anyFit=false;renderAll();rdGoDeals(true)});
+  $("rdSIco").addEventListener("click",()=>{scrollTo({top:0,behavior:"smooth"});$("dSearch").focus()});
+  $("rdCtry").addEventListener("click",()=>$("menuBtn").click());
+  $("rdLang").addEventListener("click",()=>$("langBtn").click());
+  $("rdMy").addEventListener("click",editSizes);$("ddSize").addEventListener("click",editSizes);
+  $("ddCat").addEventListener("change",e=>{const v=e.target.value;ana("category","dd|"+(v||"__all"));state.groups=v?[v]:ORDER.slice();view.open={};saveProfile();renderAll()});
+  $("ddBrand").addEventListener("change",e=>{view_rd.brand=e.target.value;ana("filter","brand|"+(e.target.value||"-"));view.open={};renderAll()});
+  $("ddPrice").addEventListener("change",e=>{view_rd.max=+e.target.value||0;ana("filter","price|"+view_rd.max);view.open={};renderAll()});
+  $("ddStore").addEventListener("change",e=>shopStore(e.target.value,"filter"));
+  $("ddSale").addEventListener("change",e=>{view.fullPrice=!e.target.checked;if(view.fullPrice)loadFull();ana("filter","sale|"+e.target.checked);view.open={};renderAll()});
+}
+function rdText(){   // words that change with the language
+  const R=t("rd");document.querySelectorAll(".rdnav [data-rdgo]").forEach(b=>b.textContent=R.nav[b.dataset.rdgo]);
+  $("rnRaces").textContent=R.nav.races;$("rnShoes").textContent=R.nav.shoePrices;
+  $("rdLang").innerHTML=`${LANG==="fr"?"FR":"EN"}${RDI.chev}`;$("rdLang").setAttribute("aria-label",LANG==="fr"?"English":"Français");
+  $("rdMy").textContent=R.mySizes;$("rdGo").querySelector("span").textContent=R.go;$("dSearch").placeholder=R.ph;
+  $("ddSale").parentNode.querySelector(".tl").textContent=R.sale;
+  $("filtBtn").querySelector("[data-i18n]").textContent=R.more}
+function rdCat(k){const gs=RD_TILES[k].filter(g=>!(g==="bras"&&state.gender==="men"));
+  const same=gs.length===state.groups.length&&gs.every(g=>state.groups.includes(g));state.groups=same?ORDER.slice():gs;
+  view.open={};saveProfile();renderAll();rdGoDeals()}
+function rdGoDeals(top){const el=top?$("dealList"):$("rdTiles");if(el)scrollTo({top:Math.max(0,el.getBoundingClientRect().top+scrollY-(top?140:80)),behavior:"smooth"})}
+function rdUpdate(all,p){   // hero, dropdowns, tiles, why: from today's data, every render
+  const R=t("rd"),C=rdSource(p),n=num(storesLabel());
+  $("rdCtry").innerHTML=`<span class="flag" aria-hidden="true">${US()?"🇺🇸":"🇨🇦"}</span>${US()?"US":"CA"} (${CUR})`;
+  const h=hasSizes()&&saleNow?R.h1n(num(saleNow)):R.h1;$("rdH1").innerHTML=`${esc(h[0])}<br>${esc(h[1])}<em>${esc(h[2])}</em>`;
+  $("rdSub").textContent=R.sub(n);
+  const sz=hasSizes()?({men:t("men"),women:t("women"),any:t("menWomen")}[state.gender]+" "+(state.shoe.length?state.shoe.slice(0,2).join(", "):state.cloth.join(", "))).trim():R.size;
+  $("ddSize").querySelector("span").textContent=(US()||LANG!=="fr"?"US ":"")+sz;
+  const one=state.groups.length===1?state.groups[0]:"";
+  $("ddCat").innerHTML=`<option value="">${esc(R.cat)}</option>`+ORDER.filter(g=>!(g==="bras"&&state.gender==="men")).map(g=>`<option value="${g}"${g===one?" selected":""}>${esc(GL(g))}</option>`).join("");
+  const bc={};all.filter(d=>d.pct>0).forEach(d=>{bc[d.b]=(bc[d.b]||0)+1});const bl=Object.entries(bc).sort((a,b)=>b[1]-a[1]).slice(0,80);
+  if(view_rd.brand&&!bc[view_rd.brand])bl.unshift([view_rd.brand,0]);
+  $("ddBrand").innerHTML=`<option value="">${esc(R.brand)}</option>`+bl.map(([b,c])=>`<option value="${esc(b)}"${b===view_rd.brand?" selected":""}>${esc(b)}${c?` (${num(c)})`:""}</option>`).join("");
+  $("ddPrice").innerHTML=`<option value="">${esc(R.price)}</option>`+[50,100,150,200,300].map(v=>`<option value="${v}"${v===view_rd.max?" selected":""}>${esc(R.under(rdM(v)))}</option>`).join("");
+  const sc=storeCounts(),sl=Object.entries(sc).sort((a,b)=>b[1]-a[1]).slice(0,60);
+  $("ddStore").innerHTML=`<option value="">${esc(R.store)}</option>`+sl.map(([h,c])=>`<option value="${esc(h)}"${h===view.store?" selected":""}>${esc(STORES[h][0])} (${num(c)})</option>`).join("");
+  $("ddSale").checked=!view.fullPrice;
+  ["ddCat","ddBrand","ddPrice","ddStore"].forEach(id=>{const x=$(id),o=x.options[x.selectedIndex];x.parentNode.classList.toggle("on",!!x.value);
+    x.parentNode.querySelector(".v").textContent=o?o.textContent.replace(/ \([\d\s,.\u00a0]+\)$/,""):"";x.setAttribute("aria-label",x.options[0].textContent)});
+  $("rdTiles").innerHTML=Object.keys(RD_TILES).map(k=>{const x=C.tiles[k],gs=RD_TILES[k].filter(g=>!(g==="bras"&&state.gender==="men")),on=gs.length===state.groups.length&&gs.every(g=>state.groups.includes(g));
+    return `<button type="button" class="rdtile" data-rdtile="${k}" aria-pressed="${on}"><span class="tp">${x.img?`<img src="${esc(x.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:""}</span><span class="tt"><b>${esc(R.tiles[k])}</b><small>${esc(R.n(num(x.n)))}</small></span><span class="ta">${RDI.arrow}</span></button>`}).join("");
+  const d=C.hero;
+  if(d){const [m]=rdModel(d),s=(STORES[storeOf(d.url)]||[storeOf(d.url)])[0];
+    $("rdHp").innerHTML=`<a class="rdhd" href="${esc(affUrl(d.url))}" data-store="${esc(storeOf(d.url))}" target="_blank" rel="noopener"><span class="hi"><img src="${esc(d.img)}" alt="${esc(d.b+" "+m)}" referrerpolicy="no-referrer" onerror="this.remove()"></span>
+      <span class="upto">−${d.pct}%</span><span class="cap">${esc(R.heroAt(d.b+" "+m+" · "+money(d.best),s))}</span></a><p class="note" aria-hidden="true">${R.note.map(esc).join("<br>")}</p>`}
+  else $("rdHp").innerHTML="";
+  $("rdWhy").innerHTML=`<h2>${esc(R.whyH)}</h2><div class="wl">${R.why.map(([h,b],i)=>`<div class="wi"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${RDI.why[i]}</svg><div><b>${esc(h)}</b><p>${esc(b(n))}</p></div></div>`).join("")}</div>`;
+  document.documentElement.classList.toggle("rdw",!!view.watch);
+}
+function rdLim(top){const c=innerWidth>=1000?5:innerWidth>=700?3:2;return c*(top?2:c===2?2:1)}   // full rows only: 2 rows of Top deals, 1 row (phones 2) per category
+function rdFilter(all){if(view_rd.brand)all=all.filter(d=>d.b===view_rd.brand);if(view_rd.max)all=all.filter(d=>rdDisp(d)<=view_rd.max+0.001);return all}
+function rdBrands(){const R=t("rd"),b=RDC.brands.slice(0,8);if(b.length<4)return "";
+  return `<section class="rdbrands"><div class="rdsh"><h2>${esc(R.brands)}</h2><button type="button" class="rdmore" data-rdbrands>${esc(R.viewBrands)} ${RDI.arrow}</button></div>
+    <div class="bl">${b.map(([n,c])=>`<button type="button" class="bt" data-rdbrand="${esc(n)}"><b>${esc(n)}</b><small>${esc(R.n(num(c)))}</small></button>`).join("")}</div></section>`}
+function rdCard(d,extra,real){
+  const R=t("rd"),k=itemKey(d),on=!!watches[k];RENDERED[k]=d;const sp=shoePage(d),[m,gw]=rdModel(d);
+  const kind=(d.t&&R.kinds[d.t])||GL(d.g).toLowerCase(),sub=R.sub2(gw,kind);
+  const h=storeOf(d.url),s=STORES[h]||[h],home=US()?"US":"CA",org=s[1]||(STORES[h]?"CA":d.ca===false?"XX":home),from=org===home?"":org;
+  const sized=SIZED.has(d.g)||accLetters(d);
+  return `<div class="dw rdc${sp?" hascmp":""}"><a class="deal" href="${esc(affUrl(d.url))}" data-store="${esc(h)}" target="_blank" rel="noopener">
+    <div class="pic${d.img?"":" nopic"}" data-b="${esc(d.b)}">${d.img?`<img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.add('nopic');this.remove()">`:""}${d.pct?`<span class="pct">${offTag(d)}</span>`:""}${lowDays(d)?`<span class="lostamp" aria-hidden="true"><span>${t("lowL1")}</span><span>${t("lowStampDays",lowDays(d))}</span></span>`:""}</div>
+    <div class="name"><span class="brand">${esc(d.b)}</span>${d.fav?" ★":""}${cdnBrand(d)?`&nbsp;<span class="leaf" title="${t("cdnTip")}" aria-label="${t("cdnTip")}">🍁</span>`:""} ${esc(m)}</div>
+    <div class="kind">${esc(sub)}</div>
+    <div class="price"><b>${money(d.best)}</b>${curTag()}${d.pct?`<s>${money(d.reg)}</s>`:""}</div>
+    ${lowDays(d)?`<span class="badge lo30" title="${esc(t("lowDaysTip"))}" aria-label="${esc(t("lowDays",lowDays(d)))}"><span class="l1">${t("lowL1")}</span> <span class="l2">${t("lowL2",lowDays(d))}</span></span>`:""}
+    ${extra||""}${!extra&&NEWSET.has(k)?`<span class="badge new">${t("isNew")}</span>`:""}
+    <div class="store"><b>${esc(s[0])}</b><span class="ok">${esc(R.inStock)}</span></div>
+    ${from||d.fin?`<div class="store2">${from?`<span class="abroad">${t("shipsFrom",from)}</span>`:""}${from&&d.fin?" · ":""}${d.fin?`<span class="fin" title="${esc(t("finalSaleTip"))}">${t("finalSale")}</span>`:""}</div>`:""}
+    ${sized&&real.length?sizeRow(d,real):""}
+    ${d.bb?`<div class="warn">${t("bestBy",esc(d.bb))}</div>`:""}
+  </a>${sp?`<a class="cmp" href="${shoeUrl(sp.slug)}" data-sp="card">${esc(R.cmp)}</a>`:""}<button type="button" class="rep" data-rep="${esc(k)}"><span class="rl">${t("report")}</span><span class="rs">${t("reportShort")}</span></button>${heartBtn(k,on,d)}</div>`}
+if(LOOK_B)rdBuild();
+
 function setTb(){const tb=document.querySelector(".topbar");if(tb)document.documentElement.style.setProperty("--tb",tb.offsetHeight+"px")}
 setTb();addEventListener("resize",setTb);
 /* Prices are stored in CAD. The CAD/USD switch converts for display with the day's rate from the refresh. */
@@ -1596,12 +1740,12 @@ function card(d,extra){
   const lettered=accLetters(d),real=labels.filter(x=>x!=="OS");
   const shownSz=d.any&&real.length>6?real.slice(0,6).join(", ")+"…":real.join(", ");
   let sizes=(sized||lettered)&&real.length?`<div class="sizes">${t(d.any?"sizesOnSale":"inYourSize")} <strong>${esc(shownSz)}</strong></div>`:"";   // odd labels ("T2", "115cm"): the store page explains them
-  if(LOOK_B&&sizes)sizes=sizeRow(d,real);
+  if(LOOK_B)return rdCard(d,extra,real);
   const k=itemKey(d),on=!!watches[k];RENDERED[k]=d;
   const isNew=!extra&&NEWSET.has(k);
   const sp=shoePage(d);
   return `<div class="dw${sp?" hascmp":""}"><a class="deal" href="${esc(affUrl(d.url))}" data-store="${esc(storeOf(d.url))}" target="_blank" rel="noopener">
-    ${d.img||LOOK_B?`<div class="pic${d.img?"":" nopic"}" data-b="${esc(d.b)}">${d.img?`<img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="${LOOK_B?"this.parentNode.classList.add('nopic');this.remove()":"this.parentNode&&this.parentNode.remove()"}">`:""}${lowDays(d)?`<span class="lostamp" aria-hidden="true"><span>${t("lowL1")}</span><span>${t("lowStampDays",lowDays(d))}</span></span>`:""}</div>`:""}
+    ${d.img?`<div class="pic"><img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode&&this.parentNode.remove()">${lowDays(d)?`<span class="lostamp" aria-hidden="true"><span>${t("lowL1")}</span><span>${t("lowStampDays",lowDays(d))}</span></span>`:""}</div>`:""}
     <div class="top"><span class="brand">${esc(d.b)}${d.fav?" ★":""}${cdnBrand(d)?`&nbsp;<span class="leaf" title="${t("cdnTip")}" aria-label="${t("cdnTip")}">🍁</span>`:""}</span>${d.pct?`<span class="pct">${offTag(d)}</span>`:""}</div>
     <div class="name">${esc(nm(d.n))}</div>
     <div class="price"><b>${money(d.best)}</b>${curTag()}${d.pct?`<s>${money(d.reg)}</s>`:""}</div>
@@ -1648,34 +1792,21 @@ function section(key,title,list,cls){
 </div>
       ${n>1?`<button type="button" class="rowarrow prev" data-row="-1" aria-label="${LANG==="fr"?"Précédent":"Previous"}">‹</button><button type="button" class="rowarrow next" data-row="1" aria-label="${LANG==="fr"?"Suivant":"Next"}">›</button>`:""}</section>`;
   }
-  const lim=view.open[key]||(key.startsWith("__")||NARROW?PAGE:PAGE_CAT);
+  const lim=view.open[key]||(LOOK_B?rdLim(key.startsWith("__")||NARROW):(key.startsWith("__")||NARROW?PAGE:PAGE_CAT));
   const tail=key==="__new"&&NEWSTYLE==="row"?`<button type="button" class="linkbtn" data-newrow>${t("asRow")}</button>`:"";
   const note=key==="nutrition"&&state.ships!=="all"&&!US()?`<p class="grpnote">${t("usFuel")} <button type="button" data-usfuel>${t("usFuelShow")}</button></p>`:
     APPAREL_GROUPS.includes(key)&&hasSizes()&&!clothFor(key).length?`<p class="grpnote">${t("clothNote")} <button type="button" data-picksize="cloth">${t("clothPick")}</button></p>`:"";
   const types=TYPES[key]?`<div class="chips scroll types">${["",...TYPES[key]].map(v=>`<button type="button" class="chip" data-type="${key}:${v}" aria-pressed="${(view.type[key]||"")===v}">${v?t("types")[v]:t("typeAll")}</button>`).join("")}</div>`:"";
   if(key!=="__new"&&view.sort==="match")list=spreadBrands(list.slice(0,60),PAGE_CAT).concat(list.slice(60));   // Best match only: a price sort stays in price order
-  return `<section class="grp ${cls||""}" id="grp-${key}"><h2>${title} <small>${num(list.length)}</small>${tail}</h2>${types}${note}<div class="grid">${list.slice(0,lim).map(d=>card(d)).join("")}</div>
+  const rdall=LOOK_B&&key==="__sale"&&list.length>lim?`<button type="button" class="rdmore" data-open="${key}">${esc(t("rd").viewAll)} ${RDI.arrow}</button>`:"";
+  return `<section class="grp ${cls||""}" id="grp-${key}"><h2>${title} <small>${num(list.length)}</small>${tail}${rdall}</h2>${types}${note}<div class="grid">${list.slice(0,lim).map(d=>card(d)).join("")}</div>
     ${list.length>lim?`<button class="btn more" data-open="${key}">${t("showMore",Math.min(MORE,list.length-lim))}</button>`:""}</section>`;
 }
 
-/* redesign tiles: per category, today's sale count in your sizes and the photo of its best deal. Counted over every category
-   (picking "Shoes" doesn't empty the other tiles); kept until the sizes, country or ships-from change. */
-var CATPIC={key:"",m:{}};   // var: renderFilters can run before this line
-function catTiles(p,onSale,searching){
-  const pr={...toProfile()};delete pr.groups;const key=JSON.stringify([pr,state.ships,view.cdn,US(),view.store||""]);
-  if(key===CATPIC.key)return false;
-  const every=ORDER.every(g=>p.groups.includes(g));if(searching&&!every&&CATPIC.key)return false;
-  let src=every&&!searching?onSale:matchItems({...p,groups:ORDER}).filter(d=>d.pct>0);
-  if(view.cdn&&!US())src=src.filter(cdnBrand);
-  const m={__all:{n:src.length}};
-  src.slice().sort(SORTS.match).forEach(d=>{const x=m[d.g]||(m[d.g]={n:0});x.n++;if(!x.img&&d.img&&!SPIKE.test(d.n))x.img=d.img});
-  CATPIC={key,m};return true}
 function renderFilters(){
   const all=ORDER.every(g=>state.groups.includes(g));
-  const ct=g=>LOOK_B?`<span class="ci">${g==="__all"?'<img src="logo-app.jpg" alt="">':CATPIC.m[g]&&CATPIC.m[g].img?`<img src="${esc(CATPIC.m[g].img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:""}</span>`:"";
-  const cn=g=>LOOK_B&&CATPIC.m[g]?`<span class="cn">${t("wCatN",num(CATPIC.m[g].n))}</span>`:"";
-  $("cats").innerHTML=`<button type="button" class="chip" data-v="__all" aria-pressed="${all}">${ct("__all")}<span class="cl">${t("allGear")}</span>${cn("__all")}</button>`+
-    ORDER.filter(g=>!(g==="bras"&&state.gender==="men")).map(g=>`<button type="button" class="chip" data-v="${g}" aria-pressed="${!all&&state.groups.includes(g)}">${ct(g)}<span class="cl">${GL(g)}</span>${cn(g)}</button>`).join("");
+  $("cats").innerHTML=`<button type="button" class="chip" data-v="__all" aria-pressed="${all}">${t("allGear")}</button>`+
+    ORDER.filter(g=>!(g==="bras"&&state.gender==="men")).map(g=>`<button type="button" class="chip" data-v="${g}" aria-pressed="${!all&&state.groups.includes(g)}">${GL(g)}</button>`).join("");
   $("toggles").innerHTML=`<button type="button" class="chip" data-t="ca" aria-pressed="${state.ships!=="all"}">${t("shipsCA")}</button>`+
     `<button type="button" class="chip" data-t="sale" aria-pressed="${view.fullPrice}">${t("saleOnly")}</button>`+
     (US()?"":`<button type="button" class="chip" data-t="cdn" aria-pressed="${view.cdn}">${t("cdnChip")}</button>`);
@@ -1819,7 +1950,7 @@ $("dealList").addEventListener("click",e=>{
   const ty=e.target.closest("[data-type]");
   if(ty){const [g,v]=ty.dataset.type.split(":");view.type[g]=v;view.open[g]=0;renderAll();
     const s=$("grp-"+g);if(s&&s.getBoundingClientRect().top<0)s.scrollIntoView({block:"start"});return}
-  const b=e.target.closest("[data-open]");if(!b)return;const k=b.dataset.open;view.open[k]=(view.open[k]||(k.startsWith("__")||NARROW?PAGE:PAGE_CAT))+MORE;renderAll()});
+  const b=e.target.closest("[data-open]");if(!b)return;const k=b.dataset.open;view.open[k]=(view.open[k]||(LOOK_B?rdLim(k.startsWith("__")||NARROW):k.startsWith("__")||NARROW?PAGE:PAGE_CAT))+MORE;renderAll()});
 
 /* ---------- watchlist: saved on this device, synced to the server once the email is confirmed ---------- */
 const HEART='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 6.9 4.5c2.1 0 3.6 1.2 5.1 3 1.5-1.8 3-3 5.1-3 3.5 0 5.5 3.5 4.2 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>';
@@ -2045,12 +2176,13 @@ function renderAll(){
   const sh=$("subhead");sh.classList.toggle("hidden",!CALM||!!view.watch||(gated()&&!peeking()));
   if(CALM){sh.innerHTML=`${esc(sizeSummary())} · <button type="button" class="linkbtn" id="editSz">${t("edit")}</button>`;$("editSz").addEventListener("click",editSizes);
     const dirty=state.ships==="all"||view.fullPrice||view.sort!=="match"||!!view.store||(view.cdn&&!US());$("filtDot").classList.toggle("hidden",!dirty)}
-  const w=!!view.watch;
+  const w=!!view.watch;if(LOOK_B)document.documentElement.classList.toggle("rdw",w);
   $("filtersBox").classList.toggle("hidden",w);$("backToDeals").classList.toggle("hidden",!w);
   $("pageTitle").textContent=w?t("titleWatch"):t("titleDeals");if(!w)setCalmLede();
   saveWatches();
   renderFilters();
   if(!DATA){$("dealList").innerHTML=`<div class="empty">${t("loading")}</div>`;return}
+  if(gated()&&!peeking()&&LOOK_B){const p0={...toProfile(),store:view.store};rdUpdate(matchItems(p0),p0)}   // the hero behind the welcome screen
   if(gated()&&!peeking()){$("lede").textContent=t("gatedLede");
     const tz=matchItems({...toProfile(),gender:"",sizes:{},groups:ORDER}).filter(d=>d.pct>=20&&d.pct<=60&&d.ca!==false&&["shoes","tops","bottoms","packs"].includes(d.g)&&!SPIKE.test(d.n)&&d.t!=="hike").sort(SORTS.discount).slice(0,8);
     $("dealList").innerHTML=`<div class="empty"><button class="primary" type="button" id="unlock">${t("unlock")}</button></div>`+
@@ -2066,11 +2198,11 @@ function renderAll(){
   const cdn=view.cdn&&!US();
   let all=matchItems(q.length&&view.anySize?{...p,sizes:{},...(view.anyFit?{gender:"any"}:{})}:p),wide=false;   // anyFit: a ?q= link shows its deal to anyone
   if(cdn)all=all.filter(cdnBrand);
+  if(LOOK_B){rdUpdate(all,p);all=rdFilter(all)}   // redesign: hero, dropdowns, tiles; brand + price dropdowns
   if(q.length){all=all.filter(hit);if(!all.length&&!ORDER.every(g=>p.groups.includes(g))){all=matchItems({...p,groups:ORDER}).filter(d=>hit(d)&&(!cdn||cdnBrand(d)));wide=all.length>0}}
   const onSale=all.filter(d=>d.pct>0);
   const where=state.ships==="all"?t("storesAll"):t("storesCA");
   saleNow=onSale.length;
-  if(LOOK_B&&catTiles(p,onSale,q.length>0))renderFilters();
   if(CALM)setCalmLede();
   if(CALM&&!q.length&&!view.store&&!cdn)setHook(onSale);else if($("hook"))$("hook").classList.add("hidden");
   else $("lede").textContent=t("lede",num(onSale.length),num(all.length),where,DATA.updated?ago(DATA.updated):"");
@@ -2096,8 +2228,9 @@ function renderAll(){
   const commonFit=d=>!d.any||(APPAREL_GROUPS.includes(d.g)?d.ok.some(e=>["S","M","L","XL"].includes(norm(e[0])))
     :d.g==="shoes"?d.ok.some(e=>{const k=shoeKey(e[0]);return k&&+k.n>=7&&+k.n<=12}):true);
   const top=shoesFirst(onSale.filter(commonFit).sort(SORTS[view.sort]));
-  if(!NARROW)parts.push(section("__sale",t("secSale"),top,"sale"));
-  const inTop=new Set(NARROW?[]:top.slice(0,view.open.__sale||PAGE).map(itemKey));   // don't show the same deal twice
+  if(!NARROW)parts.push(section("__sale",LOOK_B?t("rd").top:t("secSale"),top,"sale"));
+  if(LOOK_B&&!NARROW&&!q.length&&!view.store&&!view_rd.brand)parts.push(rdBrands());
+  const inTop=new Set(NARROW?[]:top.slice(0,view.open.__sale||(LOOK_B?rdLim(true):PAGE)).map(itemKey));   // don't show the same deal twice
   ORDER.filter(g=>wide||p.groups.includes(g)).forEach(g=>{const ty=view.type[g];   // a type picked: every match, Top deals included
     parts.push(section(g,GL(g),shown.filter(d=>d.g===g&&(ty?d.t===ty:!inTop.has(itemKey(d))))))});
   if(wide)parts.unshift(`<div class="widen">${t("searchWide")}</div>`);
