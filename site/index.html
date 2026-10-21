@@ -446,6 +446,7 @@ body.locked #langBtn,body.locked #curBtn,body.locked #openWatch,body.locked #men
 @media(max-width:350px){.walt button,.walt a{font-size:14px;padding:0 3px}}
 #sizesPart.short .later{display:none}
 .moresz{display:none;margin:14px 0 0}#sizesPart.short .moresz{display:block}
+.clothmore{margin:8px 0 0}#clothBy .byrow{margin:10px 0 0}#clothBy .byrow b{display:block;font:600 14px var(--body);margin:0 0 4px}
 .browsebar{background:var(--card);border:1.5px solid var(--hivis);border-radius:12px;padding:12px 14px;margin:0 0 16px;font-size:15px}
 .browsebar.stick{position:sticky;top:var(--tbh,64px);z-index:15;box-shadow:0 6px 18px rgba(0,0,0,.10);border-width:2px}
 .browsebar button,.grpnote button{font:inherit;font-weight:700;color:var(--moss);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}
@@ -604,6 +605,8 @@ body.locked #langBtn,body.locked #curBtn,body.locked #openWatch,body.locked #men
     <p class="moresz"><button type="button" class="linkbtn" id="moreSizes" data-i18n="moreSizes">+ Clothing size, road or trail, favourite brands</button></p>
     <h3 class="later" data-i18n="clothSizeH">Clothing size <small>tops, shorts, socks, gloves</small></h3>
     <div class="scale later" id="clothSizes"></div>
+    <p class="clothmore later"><button type="button" class="linkbtn" id="clothMore" data-i18n="clothMore">Different size in shorts, socks or gloves?</button></p>
+    <div id="clothBy" class="later hidden"></div>
 
     <details id="moreOpts" class="later">
       <summary data-i18n="favBrands">Favourite brands <span style="font-weight:400;color:var(--muted);margin-left:6px">optional</span></summary>
@@ -752,7 +755,7 @@ en:{
   terrainH:"Where do you run? <small>for shoes</small>",terrainA:"Where do you run?",terrRoad:"Road",terrTrail:"Trail",terrBoth:"Both",
   shoeSizeH:"Shoe size <small>US, pick one or more</small>",shoeSizeMH:"Men's shoe size <small>US, pick one or more</small>",
   wLine:(v,auto)=>`Women's sizes: <b>${v}</b>${auto?" (matched for you)":""}`,change:"Change",done:"Done",shoeWidth:"Shoe width",regularW:"Regular width",wideW:"Wide width",
-  clothSizeH:"Clothing size <small>tops, shorts, socks, gloves</small>",
+  clothSizeH:"Clothing size <small>tops, shorts, socks, gloves</small>",clothMore:"Different size in shorts, socks or gloves?",by_tops:"Tops",by_bottoms:"Shorts & tights",by_socks:"Socks",by_gloves:"Gloves",
   favBrands:'Favourite brands <span style="font-weight:400;color:var(--muted);margin-left:6px">optional</span>',favIntro:"These go to the top of your list.",
   addBrand:"Add another brand",add:"Add",emailPh:"you@example.com",
   gateEmailH:'<label for="gateEmail">Your email</label> <small>for your deals and the Friday email</small>',
@@ -855,7 +858,7 @@ fr:{
   terrainH:"Où courez-vous? <small>pour les chaussures</small>",terrainA:"Où courez-vous?",terrRoad:"Route",terrTrail:"Sentier",terrBoth:"Les deux",
   shoeSizeH:"Pointure <small>US, une ou plusieurs</small>",shoeSizeMH:"Pointure homme <small>US, une ou plusieurs</small>",
   wLine:(v,auto)=>`Pointures femme : <b>${v}</b>${auto?" (équivalent ajouté pour vous)":""}`,change:"Modifier",done:"Terminé",shoeWidth:"Largeur de chaussure",regularW:"Largeur normale",wideW:"Large",
-  clothSizeH:"Taille de vêtements <small>hauts, shorts, bas, gants</small>",
+  clothSizeH:"Taille de vêtements <small>hauts, shorts, bas, gants</small>",clothMore:"Une autre taille en shorts, bas ou gants ?",by_tops:"Hauts",by_bottoms:"Shorts et collants",by_socks:"Bas",by_gloves:"Gants",
   favBrands:'Marques préférées <span style="font-weight:400;color:var(--muted);margin-left:6px">facultatif</span>',favIntro:"Elles s'affichent en premier dans votre liste.",
   addBrand:"Ajouter une autre marque",add:"Ajouter",emailPh:"vous@exemple.com",
   gateEmailH:'<label for="gateEmail">Votre courriel</label> <small>pour vos aubaines et le courriel du vendredi</small>',
@@ -978,7 +981,12 @@ function applyStatic(){
 const BRANDS=["Hoka","Salomon","Brooks","Saucony","On","Altra","Nike","Adidas","ASICS","New Balance","Norda","La Sportiva","Arc'teryx","Patagonia","Ciele","Nathan","USWE","Maurten","Science in Sport"];
 const SHOE=[];for(let s=5;s<=15;s+=0.5)SHOE.push(String(s));
 const CLOTH=["XS","S","M","L","XL","XXL"];
-const APPAREL_GROUPS=["tops","bottoms","bras","socks","gloves","headwear"];   // all use the clothing size
+const APPAREL_GROUPS=["tops","bottoms","bras","socks","gloves","headwear"];   // all use the clothing size, unless one has its own (below)
+/* Oct 21 (a visitor: "you'll be medium in shorts, L in socks, small in t-shirts"): the clothing size stays one quick row, and
+   "Different size in shorts, socks or gloves?" gives tops (with sports bras), bottoms, socks and gloves their own size.
+   state.clothBy holds only the categories that differ; hats follow the main size. Profiles already keep a size per category. */
+const BY_GROUPS=["tops","bottoms","socks","gloves"];
+const clothFor=g=>(g==="bras"?state.clothBy.tops:state.clothBy[g])||state.cloth;
 const SIZED=new Set(["shoes",...APPAREL_GROUPS]);
 const ORDER=["shoes","tops","bottoms","bras","socks","gloves","headwear","packs","gear","watches","nutrition"];
 const GL=g=>t("groups")[g]||I18N.en.groups[g];
@@ -1000,7 +1008,7 @@ function appManifest(){try{
     background_color:"#FA5501",theme_color:"#17201C",icons:[{src:o+"/icon-192.png",sizes:"192x192",type:"image/png"},{src:o+"/icon-512.png",sizes:"512x512",type:"image/png"}]};
   el.href="data:application/manifest+json,"+encodeURIComponent(JSON.stringify(m));
 }catch(e){}}
-const state={name:"",email:"",gender:"",terrain:"both",ships:"ca",groups:ORDER.slice(),shoe:[],shoeW:[],wTouched:false,width:[],cloth:[],brands:[]};
+const state={name:"",email:"",gender:"",terrain:"both",ships:"ca",groups:ORDER.slice(),shoe:[],shoeW:[],wTouched:false,width:[],cloth:[],clothBy:{},brands:[]};
 /* "Both": the shoe grid is men's sizes and a second, women's list follows it (men's + 1.5: men's 8.5 = women's 10) until the
    person changes it. One runner who shops both sections; several runners = the Fox Pro family plan. */
 const toW=n=>{const v=parseFloat(n)+1.5;return v<=15?String(v):null};
@@ -1011,16 +1019,19 @@ let customBrands=[];
 const TZ=(()=>{try{return Intl.DateTimeFormat().resolvedOptions().timeZone||""}catch(e){return ""}})();
 function toProfile(){
   const sizes={shoes:{sizes:state.shoe,width:state.width,...(state.gender==="any"&&state.shoeW.length?{women:state.shoeW}:{})}};
-  APPAREL_GROUPS.forEach(g=>sizes[g]={sizes:state.cloth});
+  APPAREL_GROUPS.forEach(g=>sizes[g]={sizes:clothFor(g).slice()});
   return {lang:LANG,country:COUNTRY,tz:TZ,name:state.name,email:state.email,gender:state.gender,terrain:state.terrain,ships:state.ships,groups:state.groups,sizes,brands:state.brands,activities:[],...(REF?{ref:REF}:{})};
 }
 function applyProfile(p){
   if(!p)return;
   const sz=p.sizes||{};
-  const cloth=new Set();APPAREL_GROUPS.forEach(g=>((sz[g]||{}).sizes||[]).forEach(v=>{v=normSize(v);if(CLOTH.includes(v))cloth.add(v)}));
+  const per={};APPAREL_GROUPS.forEach(g=>{per[g]=CLOTH.filter(c=>((sz[g]||{}).sizes||[]).map(normSize).includes(c))});
+  const votes={};APPAREL_GROUPS.forEach(g=>{if(per[g].length){const k=per[g].join(",");votes[k]=(votes[k]||0)+1}});   // the main size = the one most categories share
+  const main=(Object.entries(votes).sort((a,b)=>b[1]-a[1])[0]||[""])[0].split(",").filter(Boolean),cloth=new Set(main),clothBy={};
+  BY_GROUPS.forEach(g=>{if(per[g].length&&per[g].join(",")!==main.join(","))clothBy[g]=per[g]});
   Object.assign(state,{name:p.name||"",email:p.email||"",gender:p.gender||"",terrain:["road","trail"].includes(p.terrain)?p.terrain:"both",ships:p.ships||"ca",
     groups:(p.groups&&p.groups.length)?p.groups.filter(g=>GL(g)):ORDER.slice(),
-    shoe:((sz.shoes||{}).sizes||[]).map(String),shoeW:((sz.shoes||{}).women||[]).map(String),wTouched:!!(sz.shoes||{}).women,width:(sz.shoes||{}).width||[],cloth:CLOTH.filter(c=>cloth.has(c)),brands:p.brands||[]});
+    shoe:((sz.shoes||{}).sizes||[]).map(String),shoeW:((sz.shoes||{}).women||[]).map(String),wTouched:!!(sz.shoes||{}).women,width:(sz.shoes||{}).width||[],cloth:CLOTH.filter(c=>cloth.has(c)),clothBy,brands:p.brands||[]});
   customBrands=state.brands.filter(b=>!BRANDS.includes(b));
   if(p.lang&&!LS0("gf-lang")&&p.lang!==LANG){LANG=p.lang;applyStatic()}
   if((p.country==="us"||p.country==="ca")&&p.country!==COUNTRY&&!LINK_C&&!LS0("gf-country")&&typeof setCountry==="function"&&DATA)setCountry(p.country,"profile");
@@ -1050,6 +1061,9 @@ function renderSheet(){
     $("shoeSizesW").innerHTML=scaleHTML(SHOE,state.shoeW)}
   $("width").innerHTML=["Regular","Wide"].map(o=>`<button type="button" class="chip" data-v="${o}" aria-pressed="${state.width.includes(o)||(o==="Regular"&&!state.width.length)}">${o==="Wide"?t("wideW"):t("regularW")}</button>`).join("");
   $("clothSizes").innerHTML=scaleHTML(CLOTH,state.cloth);
+  if(Object.keys(state.clothBy).length)$("clothBy").classList.remove("hidden");
+  $("clothMore").parentNode.hidden=!$("clothBy").classList.contains("hidden");
+  $("clothBy").innerHTML=BY_GROUPS.map(g=>`<div class="byrow"><b>${t("by_"+g)}</b><div class="scale" data-g="${g}">${scaleHTML(CLOTH,clothFor(g))}</div></div>`).join("");
   $("brands").innerHTML=[...BRANDS,...customBrands].map(b=>`<button type="button" class="chip" data-v="${esc(b)}" aria-pressed="${state.brands.includes(b)}">${esc(b)}</button>`).join("");
   renderSubLine();
 }
@@ -1064,6 +1078,10 @@ $("width").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)
   const w=state.width.length?state.width:["Regular"];toggle(w,b.dataset.v);state.width=w.length?w:["Regular"];renderSheet()});
 $("clothSizes").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;toggle(state.cloth,b.dataset.v);state.cloth=CLOTH.filter(c=>state.cloth.includes(c));renderSheet()});
 $("brands").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;toggle(state.brands,b.dataset.v);renderSheet()});
+$("clothMore").addEventListener("click",()=>{$("clothBy").classList.remove("hidden");ana("signup-step","cloth-by");renderSheet()});
+$("clothBy").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;const g=b.closest("[data-g]").dataset.g;
+  const a=clothFor(g).slice();toggle(a,b.dataset.v);const v=CLOTH.filter(c=>a.includes(c));
+  if(v.join(",")===state.cloth.join(","))delete state.clothBy[g];else state.clothBy[g]=v;renderSheet()});
 function addBrand(){const v=$("brandInput").value.trim();if(!v)return;
   const known=[...BRANDS,...customBrands].find(b=>b.toLowerCase()===v.toLowerCase());const name=known||v;
   if(!known)customBrands.push(v);if(!state.brands.includes(name))state.brands.push(name);$("brandInput").value="";renderSheet()}
@@ -1255,7 +1273,7 @@ function sizeSummary(){
   if(state.terrain!=="both")parts.push(t(state.terrain==="trail"?"terrTrail":"terrRoad"));
   const list=a=>a.length>3?a.slice(0,3).join(", ")+"…":a.join(", ");
   if(state.shoe.length)parts.push(t("shoe")+" "+(state.gender==="any"&&state.shoeW.length?`M ${list(state.shoe)} / W ${list(state.shoeW)}`:list(state.shoe)));
-  if(state.cloth.length)parts.push(t("clothing")+" "+state.cloth.join(", "));
+  if(state.cloth.length)parts.push(t("clothing")+" "+state.cloth.join(", ")+BY_GROUPS.filter(g=>state.clothBy[g]).map(g=>` (${t("by_"+g).toLowerCase()} ${state.clothBy[g].join(", ")||"—"})`).join(""));
   return parts.join(" · ");
 }
 
@@ -1576,7 +1594,7 @@ function section(key,title,list,cls){
   const lim=view.open[key]||(key.startsWith("__")||NARROW?PAGE:PAGE_CAT);
   const tail=key==="__new"&&NEWSTYLE==="row"?`<button type="button" class="linkbtn" data-newrow>${t("asRow")}</button>`:"";
   const note=key==="nutrition"&&state.ships!=="all"&&!US()?`<p class="grpnote">${t("usFuel")} <button type="button" data-usfuel>${t("usFuelShow")}</button></p>`:
-    APPAREL_GROUPS.includes(key)&&hasSizes()&&!state.cloth.length?`<p class="grpnote">${t("clothNote")} <button type="button" data-picksize="cloth">${t("clothPick")}</button></p>`:"";
+    APPAREL_GROUPS.includes(key)&&hasSizes()&&!clothFor(key).length?`<p class="grpnote">${t("clothNote")} <button type="button" data-picksize="cloth">${t("clothPick")}</button></p>`:"";
   const types=TYPES[key]?`<div class="chips scroll types">${["",...TYPES[key]].map(v=>`<button type="button" class="chip" data-type="${key}:${v}" aria-pressed="${(view.type[key]||"")===v}">${v?t("types")[v]:t("typeAll")}</button>`).join("")}</div>`:"";
   if(key!=="__new"&&view.sort==="match")list=spreadBrands(list.slice(0,60),PAGE_CAT).concat(list.slice(60));   // Best match only: a price sort stays in price order
   return `<section class="grp ${cls||""}" id="grp-${key}"><h2>${title} <small>${num(list.length)}</small>${tail}</h2>${types}${note}<div class="grid">${list.slice(0,lim).map(d=>card(d)).join("")}</div>

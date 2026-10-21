@@ -278,6 +278,7 @@ S = {
         "notSold": "The stores we check don't sell this.", "spec": "Check the spec before you buy.",
         "more": "See more on sale →", "moreN": "See all {n}", "shH": "Trail running shoes", "shTag": "Your pick", "shPh": "What do you race in?", "shSize": "Size", "shGone": "Not in stock in size {s} today. We'll tell you when it's back.", "shPickSize": "Pick your size too.", "shPickFit": "Pick Men's or Women's above first.", "shFrom": "{p} in size {s} today", "shPage": "Every size & store", "shNone": "Not in our trail shoe list. Try the brand name.", "shRm": "Remove", "watch": "Watch", "watchOn": "Watching", "watchL": "Watch the price", "wMember": "Watching. We'll email you when it drops in your size.", "wNew": "Watching, on this phone. Add your email and we'll tell you when it drops.", "wPending": "Watching. Confirm your email (check your inbox) to get the drop emails.", "wAdd": "Add my email", "wOff": "Removed from your watchlist.", "sizeH": "Your size", "sizeTxt": "Pick it once to see deals that fit you.",
         "men": "Men's", "women": "Women's", "change": "Change", "off": "off",
+        "byOpen": "Different size in shorts, socks or gloves?", "by": {"tops": "Tops", "bottoms": "Shorts & tights", "socks": "Socks", "gloves": "Gloves"},
         "src": "From the race's official list (last updated by the race {date}). Rules can change: check the {link} before race day.",
         "srcLink": "official list", "srcRead": "From the race's official list (as published when we read it, {date}). Rules can change: check the {link} before race day.", "notAff": "The Gear Fox isn't affiliated with the race.",
         "boxH": "Get gear deals in your size every Friday until race day", "boxTxt": "Free. One email on Friday mornings with the best deals in your sizes. Unsubscribe in one tap.",
@@ -298,6 +299,7 @@ S = {
         "notSold": "Les boutiques que nous suivons n'en vendent pas.", "spec": "Vérifiez les caractéristiques avant d'acheter.",
         "more": "Voir plus d'aubaines →", "moreN": "Voir les {n}", "shH": "Chaussures de course en sentier", "shTag": "Votre choix", "shPh": "Vos chaussures de course ?", "shSize": "Pointure", "shGone": "Pas en stock en pointure {s} aujourd'hui. On vous avertit dès son retour.", "shPickSize": "Choisissez aussi votre pointure.", "shPickFit": "Choisissez d'abord Homme ou Femme plus haut.", "shFrom": "{p} en pointure {s} aujourd'hui", "shPage": "Toutes les pointures et boutiques", "shNone": "Pas dans notre liste de chaussures de sentier. Essayez le nom de la marque.", "shRm": "Retirer", "watch": "Suivre", "watchOn": "Suivi", "watchL": "Suivre le prix", "wMember": "Suivi. On vous écrit quand il baisse dans votre taille.", "wNew": "Suivi, sur ce téléphone. Ajoutez votre courriel et on vous avertira quand il baisse.", "wPending": "Suivi. Confirmez votre courriel (voyez votre boîte de réception) pour recevoir les alertes.", "wAdd": "Ajouter mon courriel", "wOff": "Retiré de vos favoris.", "sizeH": "Votre taille", "sizeTxt": "Choisissez-la une fois pour voir les aubaines à votre taille.",
         "men": "Homme", "women": "Femme", "change": "Modifier", "off": "de rabais",
+        "byOpen": "Une autre taille en shorts, bas ou gants ?", "by": {"tops": "Hauts", "bottoms": "Shorts et collants", "socks": "Bas", "gloves": "Gants"},
         "src": "Selon la liste officielle de la course (mise à jour par la course le {date}). Les règles peuvent changer : vérifiez la {link} avant la course.",
         "srcLink": "liste officielle", "srcRead": "Selon la liste officielle de la course (telle que publiée quand nous l'avons lue, le {date}). Les règles peuvent changer : vérifiez la {link} avant la course.", "notAff": "The Gear Fox n'est pas affilié à la course.",
         "boxH": "Les aubaines de matériel dans votre taille, chaque vendredi jusqu'à la course", "boxTxt": "Gratuit. Un courriel le vendredi matin avec les meilleures aubaines dans vos tailles. Désabonnement en un clic.",
@@ -363,6 +365,8 @@ CSS = """
 .gi.open .mored{display:none}.gi.got .mored{display:none}
 .gi.mini{padding:9px 14px}.gi.mini .hd h3{font:600 16px/1.3 var(--body)}.gi.mini .note{font-size:13px;margin:2px 0 0 34px}
 .rsize.set .row,.rsize.set>p{display:none}.rsize .cur{display:none;margin:0;font-size:16px}.rsize.set .cur{display:block}
+.rsize .bym{margin:8px 0 0}.rsize .bym button{border:0;background:none;padding:0;min-height:0;color:var(--moss);text-decoration:underline;font:600 14px var(--body);cursor:pointer}
+.rsize .byrow{margin:8px 0 0}.rsize .byrow b{display:block;font:600 13px var(--body);margin:0 0 4px}.rsize.set .bym,.rsize.set .byrows{display:none}
 .rsize .cur button{border:0;background:none;padding:0 4px;min-height:0;color:var(--moss);text-decoration:underline;font:600 15px var(--body)}
 """
 
@@ -423,7 +427,7 @@ def pool(items, kind, stores):
     return keep
 
 
-SIZED_G = {"tops", "bottoms", "gloves", "headwear"}
+SIZED_G = {"tops", "bottoms", "gloves", "headwear", "socks"}
 CORE = {"XS", "S", "M", "L", "XL", "2XL", "OS"}
 ALIAS = {"XXS": "2XS", "XXL": "2XL", "X-SMALL": "XS", "SMALL": "S", "MEDIUM": "M", "LARGE": "L", "X-LARGE": "XL", "EXTRA LARGE": "XL", "XX-SMALL": "2XS"}
 
@@ -585,6 +589,9 @@ def page(slug, race, L, items, stores, pages=None):
                 f'<div class="shrow"><input type="search" id="shoeQ" autocomplete="off" enterkeyhint="search" placeholder="{esc(s["shPh"])}" aria-label="{esc(s["shH"])}">'
                 f'<select id="shoeSz" aria-label="{esc(s["shSize"])}" data-ph="{esc(s["shSize"])}"></select></div>'
                 f'<ul class="sugg" id="shoeSug" role="listbox"></ul><ul class="mine2" id="shoeMine"></ul></li>')
+    by_rows = "".join(f'<div class="byrow"><b>{s["by"][g]}</b><div class="row">'
+                      + "".join(f'<button type="button" data-bg="{g}" data-bs="{z}">{z}</button>' for z in ("XS", "S", "M", "L", "XL", "2XL")) + '</div></div>'
+                      for g in ("tops", "bottoms", "socks", "gloves"))
     pj = json.dumps(pools, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     sj = json.dumps(trail_shoes(items, pages), ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     body = f"""<p class="crumbs"><a href="{T[L]['home']}">The Gear Fox</a> › {s['aisle']}</p>
@@ -593,7 +600,8 @@ def page(slug, race, L, items, stores, pages=None):
 <section class="rsize" id="rsize" data-men="{s['men']}" data-women="{s['women']}" data-change="{s['change']}"><p><b>{s['sizeH']}</b> · {s['sizeTxt']}</p>
 <div class="row" data-f>{"".join(f'<button type="button" data-g="{g}">{s[g]}</button>' for g in ("men", "women"))}</div>
 <p class="cur"><b>{s['sizeH']}:</b> <span></span> <button type="button" data-chg>{s['change']}</button></p>
-<div class="row" data-s style="margin-top:6px">{"".join(f'<button type="button" data-s="{z}">{z}</button>' for z in ("XS", "S", "M", "L", "XL", "2XL"))}</div></section>
+<div class="row" data-s style="margin-top:6px">{"".join(f'<button type="button" data-s="{z}">{z}</button>' for z in ("XS", "S", "M", "L", "XL", "2XL"))}</div>
+<p class="bym"><button type="button" data-byopen>{s['byOpen']}</button></p><div class="byrows" hidden>{by_rows}</div></section>
 <p class="lbl">{s['dist']}</p>
 <div class="dists" role="group" aria-label="{s['dist']}">{"".join(f'<button type="button" data-d="{d}" aria-pressed="{str(d == race["default"]).lower()}">{s["km"].format(d=d)}</button>' for d in race["dists"])}</div>
 <p class="prog" id="prog" data-t="{esc(s['progress'])}" data-all="{esc(s['progressAll'])}"></p>
@@ -617,15 +625,19 @@ var get=function(k){try{return JSON.parse(localStorage.getItem(k)||"null")}catch
 var pools={};try{pools=JSON.parse(document.getElementById("pools").textContent)}catch(e){}
 var st=get("gf-race-"+race)||{},have=st.have||{},dist=st.d||gl.dataset.default;
 var prof=get("rd-profile"),rs=get("gf-race-size");
-var fit=(rs&&rs.g)||(prof&&prof.gender!=="any"&&prof.gender)||"",size=(rs&&rs.s)||(prof&&prof.sizes&&prof.sizes.tops&&(prof.sizes.tops.sizes||[])[0])||"";
+var fit=(rs&&rs.g)||(prof&&prof.gender!=="any"&&prof.gender)||"",size=(rs&&rs.s)||"",by=(rs&&rs.by)||{};
+/* Oct 21: a size per category (a visitor: "medium in shorts, L in socks, small in t-shirts"), like the homepage's sizes screen */
+if(!rs&&prof&&prof.sizes){var per={},votes={};["tops","bottoms","socks","gloves","headwear"].forEach(function(g){var z=((prof.sizes[g]||{}).sizes||[])[0];if(z){per[g]=String(z).toUpperCase();votes[per[g]]=(votes[per[g]]||0)+1}});
+  size=Object.keys(votes).sort(function(a,b){return votes[b]-votes[a]})[0]||"";["tops","bottoms","socks","gloves"].forEach(function(g){if(per[g]&&per[g]!==size)by[g]=per[g]})}
+var sizeFor=function(g){return (g==="bras"?by.tops:by[g])||size};
 var nm=function(n){return fr?n.replace(/Women[’']s\b/g,"Femme").replace(/Men[’']s\b/g,"Homme").replace(/\bUnisex\b/g,"Unisexe"):n};
 var money=function(v){return fr?v.toFixed(2).replace(".",",")+" $":"$"+v.toFixed(2)};
 var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})};
 var ALIAS={"XXS":"2XS","XXL":"2XL","X-SMALL":"XS","SMALL":"S","MEDIUM":"M","LARGE":"L","X-LARGE":"XL","EXTRA LARGE":"XL","XX-SMALL":"2XS"};
 var norm=function(z){z=String(z).toUpperCase().trim();return ALIAS[z]||z};
-var fits=function(lab){if(!size)return true;var l=norm(lab);if(l==="OS"||l==="OSFA"||l==="OSZ")return true;
-  return l.split(/\s*[\/|]\s*/).map(norm).indexOf(size)>=0};
-var SIZED={tops:1,bottoms:1,gloves:1,headwear:1},SHOWN={};
+var fits=function(lab,z){if(!z)return true;var l=norm(lab);if(l==="OS"||l==="OSFA"||l==="OSZ")return true;
+  return l.split(/\s*[\/|]\s*/).map(norm).indexOf(norm(z))>=0};
+var SIZED={tops:1,bottoms:1,gloves:1,headwear:1,socks:1},SHOWN={};
 function render(){
   [].forEach.call(document.querySelectorAll(".dists button"),function(b){b.setAttribute("aria-pressed",String(b.dataset.d===dist))});
   var n=0,h=0;
@@ -639,7 +651,7 @@ function render(){
     var p=pools[k];if(!p||(!fit&&!size))return;
     var ok=[];for(var i=0;i<p.length;i++){var r=p[i];
       if(fit&&r.sx.length&&r.sx.indexOf(fit)<0)continue;
-      var s=SIZED[r.g]?r.s.filter(function(e){return fits(e[0])}):r.s;if(!s.length)continue;
+      var s=SIZED[r.g]?r.s.filter(function(e){return fits(e[0],sizeFor(r.g))}):r.s;if(!s.length)continue;
       ok.push([r,s.reduce(function(a,b){return b[1]<a[1]?b:a})])}
     if(k==="headlamp2"){var up=(SHOWN.headlamp||[]);ok=ok.filter(function(x){return up.indexOf(x[0].n)<0})}
     var seen={},all=ok.filter(function(x){var b=x[0].b.toLowerCase(),n=!seen[b];seen[b]=1;return n}).concat(ok).filter(function(x,i,a){return a.indexOf(x)===i});   // one per brand first
@@ -649,14 +661,16 @@ function render(){
     var ul=li.querySelector(".dl"),none=li.querySelector(".none"),mb=li.querySelector(".mored");
     ul.hidden=!picks.length;none.hidden=!!picks.length;mb.hidden=picks.length<=3;mb.textContent=mb.dataset.n.replace("{n}",picks.length);
     var few=li.querySelector(".few");if(!few){few=document.createElement("span");few.className="few";mb.after(few)}   // Oct 20: fewer than 10 in this size = say so
-    few.hidden=!(picks.length&&picks.length<10&&SIZED[p[0].g]&&size);few.textContent=gl.dataset.few.replace("{n}",picks.length).replace("{fit}",(fit?document.getElementById("rsize").dataset[fit]:"")).replace("{size}",size);
+    few.hidden=!(picks.length&&picks.length<10&&SIZED[p[0].g]&&sizeFor(p[0].g));few.textContent=gl.dataset.few.replace("{n}",picks.length).replace("{fit}",(fit?document.getElementById("rsize").dataset[fit]:"")).replace("{size}",sizeFor(p[0].g));
     SHOWN[k]=picks.slice(0,3).map(function(x){return x[0].n});if(!picks.length)return;
     ul.innerHTML=picks.map(function(x){var r=x[0],e=x[1];
       var pr=e[2]>e[1]*1.01?'<b>'+money(e[1])+'</b><s>'+money(e[2])+'</s> <span class="off">−'+Math.round(100*(1-e[1]/e[2]))+'%</span>':'<b>'+money(e[1])+'</b>',h=gl.dataset.home;
       return '<li><a class="dg" href="'+esc(e[3])+'" data-store="'+esc(r.h)+'" target="_blank" rel="noopener"><img src="'+esc(r.img)+'" alt="" loading="lazy" referrerpolicy="no-referrer"><span class="nm"><b>'+esc(r.b)+'</b>'+esc(nm(r.n))+'<small>'+esc(r.st)+(SIZED[r.g]&&size?" · "+esc(e[0]):"")+'</small></span><span class="pr">'+pr+'</span></a><button type="button" class="wt" data-k="'+esc(r.k)+'" data-p="'+e[1]+'" data-u="'+esc(e[3])+'" aria-pressed="false" aria-label="'+esc(gl.dataset.watch)+': '+esc(r.b+" "+r.n)+'"><span class="hh">♡</span><span class="wl"> '+esc(gl.dataset.watch)+'</span></button></li>'}).join("")});
   var pg=document.getElementById("prog");pg.textContent=n&&h>=n?pg.dataset.all:pg.dataset.t.replace("{h}",h).replace("{n}",n);
   var box=document.getElementById("rsize");box.classList.toggle("set",!!(fit&&size)&&!box.dataset.open);
-  box.querySelector(".cur span").textContent=(fit?box.dataset[fit]:"")+" · "+size;[].forEach.call(box.querySelectorAll("[data-g]"),function(b){b.setAttribute("aria-pressed",String(b.dataset.g===fit))});
+  box.querySelector(".cur span").textContent=(fit?box.dataset[fit]:"")+" · "+size+Object.keys(by).map(function(g){var b0=box.querySelector('[data-bg="'+g+'"]');return " ("+b0.closest(".byrow").querySelector("b").textContent.toLowerCase()+" "+by[g]+")"}).join("");
+  if(Object.keys(by).length)box.querySelector(".byrows").hidden=false;box.querySelector(".bym").hidden=!box.querySelector(".byrows").hidden;
+  [].forEach.call(box.querySelectorAll("button[data-bg]"),function(b){b.setAttribute("aria-pressed",String(b.dataset.bs===sizeFor(b.dataset.bg)))});[].forEach.call(box.querySelectorAll("[data-g]"),function(b){b.setAttribute("aria-pressed",String(b.dataset.g===fit))});
   [].forEach.call(box.querySelectorAll("button[data-s]"),function(b){b.setAttribute("aria-pressed",String(b.dataset.s===size))});
 }
 document.querySelector(".dists").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;dist=b.dataset.d;st.d=dist;put("gf-race-"+race,st);render()});
@@ -664,7 +678,9 @@ gl.addEventListener("change",function(e){var li=e.target.closest(".gi");if(!li||
 gl.addEventListener("click",function(e){var b=e.target.closest(".mored");if(b)b.closest(".gi").classList.add("open")});
 document.getElementById("rsize").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;
   if(b.hasAttribute("data-chg")){this.dataset.open="1";render();return}if(b.dataset.s&&fit)delete this.dataset.open;
-  if(b.dataset.g)fit=b.dataset.g;if(b.dataset.s)size=b.dataset.s;put("gf-race-size",{g:fit,s:size});render()});
+  if(b.hasAttribute("data-byopen")){this.querySelector(".byrows").hidden=false;render();return}
+  if(b.dataset.bg){if(b.dataset.bs===size)delete by[b.dataset.bg];else by[b.dataset.bg]=b.dataset.bs}
+  if(b.dataset.g)fit=b.dataset.g;if(b.dataset.s)size=b.dataset.s;put("gf-race-size",{g:fit,s:size,by:by});render()});
 /* Oct 20 (Bastien: "I thought it would just heart it there"): Watch hearts right here, in the same watchlist as the homepage
    (gf-watch); members' hearts go to their account too (watch_add, like the homepage), others are asked for an email */
 var SB="https://krwymmkauwqqxjxbvkyq.supabase.co/rest/v1/rpc/",KEY="sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2";
@@ -730,7 +746,7 @@ f.addEventListener("submit",function(e){e.preventDefault();
   if(prof&&prof.sizes)p=JSON.parse(JSON.stringify(prof));
   else{var sz={shoes:{sizes:[],width:[]}};G.slice(1).forEach(function(k){sz[k]={sizes:[]}});
     p={lang:fr?"fr":"en",country:"ca",tz:tz,name:"",gender:fit,terrain:"trail",ships:"ca",groups:G,sizes:sz,brands:[],activities:[]}}
-  ["tops","bottoms"].forEach(function(k){if(!(p.sizes[k]&&(p.sizes[k].sizes||[]).length))p.sizes[k]={sizes:[size]}});
+  ["tops","bottoms","bras","socks","gloves","headwear"].forEach(function(k){if(!(p.sizes[k]&&(p.sizes[k].sizes||[]).length))p.sizes[k]={sizes:[sizeFor(k)]}});
   if(ssel.value&&!(p.sizes.shoes&&(p.sizes.shoes.sizes||[]).length))p.sizes.shoes={sizes:[ssel.value],width:[]};
   p.email=em;if(!p.ref)p.ref=get("gf-ref")||box.dataset.ref;var btn=f.querySelector("button");btn.disabled=true;
   fetch("https://krwymmkauwqqxjxbvkyq.supabase.co/rest/v1/rpc/subscribe",{method:"POST",headers:{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"},

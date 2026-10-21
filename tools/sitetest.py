@@ -714,6 +714,41 @@ def site_flow(base, per, accented):
             return f"{n} deals; no bras on sale in S"
         check("Change sizes to women's 8 / S, Sports bras + search")(women, page)
 
+        def cloth_by():         # Oct 21: a different size per category (a visitor: "medium in shorts, L in socks, small in t-shirts")
+            page.click("#menuBtn")
+            page.click('#menu [data-go="sizes"]')
+            page.wait_for_selector("#clothSizes button", state="visible")
+            if page.locator("#clothMore").is_visible():
+                page.click("#clothMore")
+            page.wait_for_selector('#clothBy [data-g="socks"] button', state="visible")
+            socks = page.locator('#clothBy [data-g="socks"]')
+            socks.locator("button[aria-pressed=true]").evaluate_all("e => e.forEach(b => b.click())")
+            socks.locator("button", has_text=re.compile(r"^L$")).first.click()
+            page.click("#saveSizes")
+            page.wait_for_selector("#sheet", state="hidden")
+            settle(page, 600)
+            p = page.evaluate("JSON.parse(localStorage.getItem('rd-profile'))")["sizes"]
+            assert p["socks"]["sizes"] == ["L"], f"socks size not saved on its own ({p['socks']})"
+            assert p["tops"]["sizes"] == ["S"], f"changing socks changed tops too ({p['tops']})"
+            all_gear()
+            if page.locator('#cats .chip[data-v="socks"]').count():
+                chip("socks")
+                labels = page.eval_on_selector_all("section.grp:not(.new) .deal .sizes strong", "e => e.map(x => x.textContent)")
+                bad = [x for x in labels if x and not re.search(r"(^|[ ,/|])L($|[ ,/|])|OS", x)]
+                assert not bad, f"socks cards show sizes other than L: {bad[:3]}"
+                chip("socks")
+            page.reload(wait_until="domcontentloaded")
+            settle(page, 1200)
+            page.click("#menuBtn")
+            page.click('#menu [data-go="sizes"]')
+            page.wait_for_selector('#clothBy [data-g="socks"] button[aria-pressed=true]', state="visible")
+            on = page.eval_on_selector_all('#clothBy [data-g="socks"] button[aria-pressed=true]', "e => e.map(x => x.textContent)")
+            assert on == ["L"], f"after a reload the socks size is {on}"
+            page.click("#closeSheet")
+            page.wait_for_selector("#sheet", state="hidden")
+            return "tops S, socks L: saved apart, socks cards in L, kept after a reload"
+        check("Clothing: a different size per category (socks L, tops S)")(cloth_by, page)
+
         # shoe pages
         def shoe_page():
             all_gear()
