@@ -240,6 +240,16 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   change: look at the WHOLE page on a phone with every live test on at once (all B) and all off (all A), as a new and a returning
   visitor. Site test "Whole page: every live test on at once stays tidy" (≤1 swipe row on top, first deal within ~2 screens, nothing
   wider than the phone) runs on every refresh; extend it whenever a change touches the top of the page.
+- **Race gear lists** (Oct 20-21, Bastien's idea; live Oct 21): `scraper/race_pages.py` (refresh step after the shoe pages; adds itself to
+  sitemap.xml; check.py builds it; site test "Race gear page…"). /races/<slug>/ + /courses/<slug>/, hub /races/ + /courses/, ☰ menu item
+  "Race gear lists" (Canada side + shoe pages; Bastien: "even if it's one, we will add more soon"). Each race in `RACES`: the race's OWN
+  mandatory list (dated, linked; "check the spec"; "not affiliated"), M/R/A per distance. Per item: 10 picks in the visitor's fit + clothing
+  size (3 shown, "See all 10"; at least 3 on sale when there are; full price included so people watch it; one per brand first), only the
+  brands in `BRANDS` (Bastien's list) + `MAYBE` brands (2XU, Balmoral, Nike, Under Armour, Bula, Camelbak, Osprey) only for running items;
+  ♡ Watch hearts in place (gf-watch, watch_add for members, hearts ride the sign-up). First line "Trail running shoes" = "What do you race
+  in?" + size (gf-shoe-size / profile, price in that size). "Only N in your size today" when the brands don't have 10. Races live:
+  Ultra-Trail Harricana. Next: Québec Mega Trail, Boréalys Tremblant (lists read Oct 20); Chic-Chocs, Gaspésia, Bromont, Fjord: lists from
+  Bastien's contacts; then 5 US races. Metric: Search Console + ref race-<slug> sign-ups; check mid-Jan + end of March (plan doc row).
 - **Mystery shop (Oct 18, Bastien: "act like a spy shopper paid to find issues ... keep the mystery shopper somewhere so we can work on
   this later").** Report: https://claude.ai/artifact/D9V9KYMpdD2TygXGYJTAUR (copy in docs/mystery-shop-2026-10-18.html), open items as
   rows in the plan doc backlog. Fixed the same night: no-result search message, sign-up card after the results, women's table first
