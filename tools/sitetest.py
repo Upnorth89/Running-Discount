@@ -129,7 +129,7 @@ def stub(ctx):
     ctx.route(re.compile(r"umami|googletagmanager|accounts\.google|gstatic"), lambda r: r.abort())
     ctx.route(re.compile(r"^https?://(?!127\.0\.0\.1).*\.(jpe?g|png|webp|gif|avif)(\?.*)?$", re.I), lambda r: r.abort())
     # A/B tests (Oct 18): the robot is group A unless a check asks otherwise (test "welcome" B skips the welcome screen)
-    ctx.add_init_script("try{if(!localStorage.getItem('gf-exp'))localStorage.setItem('gf-exp',JSON.stringify({welcome:'A',layout:'A',runcard:'A'}))}catch(e){}")
+    ctx.add_init_script("try{if(!localStorage.getItem('gf-exp'))localStorage.setItem('gf-exp',JSON.stringify({welcome:'A',layout:'A',runcard:'A',look:'A'}))}catch(e){}")
 
 
 # ---------- what today's data says we should see ----------
@@ -632,6 +632,25 @@ def site_flow(base, per, accented):
             return f"'peg' -> {', '.join(sug[:3])}…"
         check("Test 'runcard': 'What do you run in?' suggests shoes as you type")(runcard_test, page)
 
+        def look_cards():   # Oct 21, A/B test 'look' (B): the sizes in stock as a row of chips on each card, the visitor's in orange
+            page.goto(base + "?exp=look:B", wait_until="domcontentloaded")
+            page.wait_for_selector("section.grp .deal", timeout=20000)
+            page.wait_for_timeout(600)
+            rows = page.eval_on_selector_all("section.grp:not(.new) .deal .szrow", """e => e.map(r => ({you: [...r.querySelectorAll('.sz.you')].map(x => x.textContent),
+                all: [...r.querySelectorAll('.sz')].map(x => x.textContent), wide: r.scrollWidth > r.clientWidth + 1}))""")
+            wide = page.evaluate("() => document.documentElement.scrollWidth > innerWidth + 1")
+            page.evaluate("() => localStorage.removeItem('gf-exp')")
+            page.goto(base, wait_until="domcontentloaded")
+            page.wait_for_selector("section.grp .deal", timeout=20000)
+            assert rows, "group B: no sizes row on the cards"
+            nobody = [r["all"] for r in rows if not r["you"]]
+            assert len(nobody) <= len(rows) // 10, f"group B: {len(nobody)} of {len(rows)} size rows don't show the visitor's size ({nobody[:2]})"
+            assert all(len(r["all"]) <= 5 for r in rows), "group B: a size row shows more than 5 sizes"
+            assert not any(r["wide"] for r in rows), "group B: a size row runs past its card"
+            assert not wide, "group B: the page is wider than the phone"
+            return f"{len(rows)} cards with a size row, e.g. {rows[0]['all']} (yours: {rows[0]['you']})"
+        check("Test 'look': sizes row on the cards (yours in orange)")(look_cards, page)
+
         def nonmember_search():   # Oct 18: a visitor who never tapped "No thanks" searched "lululemon" and saw only the sign-up card
             prev = page.evaluate("() => localStorage.getItem('gf-nosignup')")
             page.evaluate("() => localStorage.removeItem('gf-nosignup')")
@@ -897,6 +916,25 @@ def site_flow(base, per, accented):
             c.close()
             return "welcome screen shows"
         check("Test 'welcome' ended: everyone gets the welcome screen")(welcome_back, pg)
+
+        def look_welcome():   # Oct 21, test 'look' (B): store names + 4 category photos on the welcome screen; a tap opens the sizes
+            c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+            stub(c)
+            c.add_init_script("try{localStorage.setItem('gf-exp',JSON.stringify({look:'B'}))}catch(e){}")
+            q = c.new_page()
+            q.on("pageerror", lambda e: errors.append(str(e)))
+            q.goto(base, wait_until="domcontentloaded")
+            q.wait_for_selector("#wStats .wcat", state="visible", timeout=30000)
+            tiles = q.eval_on_selector_all("#wStats .wcat", "e => e.map(x => [x.querySelector('b').textContent, !!x.dataset.img])")   # photos are blocked here: check the address
+            line = q.inner_text("#wStats .wfrom") if q.locator("#wStats .wfrom").count() else ""
+            q.locator("#wStats .wcat").first.click()
+            q.wait_for_selector("#sizesPart", state="visible", timeout=10000)
+            c.close()
+            assert len(tiles) >= 3, f"only {len(tiles)} category tiles"
+            assert all(p for _, p in tiles), f"a category tile has no photo: {tiles}"
+            assert re.search(r"Prices from .+ and \d+ more stores", line), f"store names line looks wrong: '{line}'"
+            return f"{len(tiles)} tiles; '{line[:60]}…'; a tap opens the sizes"
+        check("Test 'look': welcome screen, store names + category photos")(look_welcome, pg)
 
         def canadian():   # Oct 7: Canadian brands filter (Canada side): only maple-leaf brands, a box saying so, × turns it off
             pg.goto(base + "?canadian", wait_until="domcontentloaded")

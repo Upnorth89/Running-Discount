@@ -426,6 +426,22 @@ label.field{display:block;font-weight:600;font-size:15px;margin:0 0 6px}
 .livecount{margin:0 0 10px;font-size:15px;color:var(--ink);text-align:center}
 .livecount b{font:800 22px/1 var(--display);color:var(--moss);margin-right:2px}
 .wstats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:4px 0 16px}
+/* test 'look' B (Oct 21) */
+.wstats.look{display:block}
+.wfrom{margin:0 0 12px;font-size:14px;color:var(--muted)}
+.wcath{font:700 18px/1.1 var(--display);margin:0 0 8px}
+.wcats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.wcat{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px;cursor:pointer;min-width:0}
+.wcat .wcp{display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:16/9;background:#F3F3F3;border-radius:8px;overflow:hidden;margin-bottom:4px}
+.wcat img{width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply}
+.wcat b{font:700 16px/1.15 var(--display)}.wcat small{font-size:13px;color:var(--muted)}
+@media(min-width:560px){.wcats{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.szrow{display:flex;flex-wrap:nowrap;gap:4px;margin:2px 0 0;overflow:hidden}
+.szrow .sz{min-width:28px;padding:3px 5px;border:1px solid var(--line);border-radius:6px;font:500 13px/1.2 var(--body);text-align:center;color:var(--muted);background:var(--card)}
+.szrow .sz.you{background:var(--hivis);border-color:var(--hivis);color:var(--hivis-ink);font-weight:700}
+.szrow .szmore{align-self:center;color:var(--muted);font-size:13px}
+@media(max-width:359px){.szrow .sz.far{display:none}}   /* small phones: the 3 sizes around yours */
+@media(max-width:559px){.szrow .szmore{display:none}}   /* phones: 5 chips fit, the "…" marks don't */
 .wstat{background:var(--mist);border-radius:12px;padding:12px 8px;text-align:center}
 .wstat b{display:block;font:800 26px/1 var(--display);color:var(--ink)}
 .wstat span{display:block;font-size:13px;color:var(--muted);margin-top:4px}
@@ -682,7 +698,7 @@ const ANA=(()=>{const ls=k=>{try{return localStorage.getItem(k)}catch(e){return 
   let over={};try{const q=new URLSearchParams(location.search).get("exp");over=JSON.parse(ls("gf-exp")||"{}");
     if(q){q.split(",").forEach(x=>{const [n,a]=x.split(":");if(n&&/^[AB]$/.test(a))over[n]=a});localStorage.setItem("gf-exp",JSON.stringify(over))}}catch(e){}
   const arm=n=>{if(over[n])return over[n];let h=2166136261;for(const c of did+"|"+n){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return (h>>>0)%2?"B":"A"};
-  const TESTS=["layout","r100","runcard"];   // Oct 20: 'welcome' and 'drops' ended (A won); 'layout' back as a 50/50 test
+  const TESTS=["layout","r100","runcard","look"];   // Oct 21: 'look' = sizes on each card + category photos + store names (B)   // Oct 20: 'welcome' and 'drops' ended (A won); 'layout' back as a 50/50 test
   if(fresh){TESTS.forEach(n=>add("signup-step",`exp|${n}|${arm(n)}`))}
   if(fresh)add("visit",em?"email-"+em:(matchMedia("(display-mode: standalone)").matches||navigator.standalone)?"home-screen app":document.referrer?new URL(document.referrer).hostname:"",null,location.pathname);
   return {add,nv:()=>nv,arm}})();
@@ -834,7 +850,7 @@ en:{
   sinceH:d=>`Since your last visit${d?" ("+d+")":""}:`,sinceNew:n=>`<b>${n}</b> new ${n==="1"?"deal":"deals"} in your size`,
   sinceDrop:n=>`${n===1?"a price drop on gear you opened":"price drops on gear you opened"}:`,emailNext:"Email me next time",
   report:"Wrong price or size?",reportShort:"Wrong price?",reportWhy:"What's wrong?",repPrice:"Price",repSize:"Size not in stock",repEnded:"Sale ended",
-  reportThanks:"Thanks! We'll check it today.",storeH:"Shopping one store",storeCount:n=>`${n} ${n===1?"deal":"deals"} in your size`,storeBack:"× All stores",bsuH:"Found something?",bsuTxt:"Get deals like this in your size every Friday, and an email when a shoe you watch drops. Free.",bsuGo:"Sign me up",cdnChip:"🍁 Canadian brands",cdnH:"Canadian brands only",cdnB:"Brands based in Canada",cdnNote:"Canadian companies, not always made in Canada",cdnBack:"× All brands",cdnTip:"Canadian brand",backBar:(n,s)=>`Filling a cart at <b>${s}</b>? See their ${n} deals in your size.`,backGo:"Show",spCardTxt:"Every size, every store in Canada",spCardGo:"Prices →",wOr:"or with Google, one tap",wOnSale:"on sale today",wUpTo:p=>`up to ${p}%`,wOff:"off right now",wStores:"stores checked daily",
+  reportThanks:"Thanks! We'll check it today.",storeH:"Shopping one store",storeCount:n=>`${n} ${n===1?"deal":"deals"} in your size`,storeBack:"× All stores",bsuH:"Found something?",bsuTxt:"Get deals like this in your size every Friday, and an email when a shoe you watch drops. Free.",bsuGo:"Sign me up",cdnChip:"🍁 Canadian brands",cdnH:"Canadian brands only",cdnB:"Brands based in Canada",cdnNote:"Canadian companies, not always made in Canada",cdnBack:"× All brands",cdnTip:"Canadian brand",backBar:(n,s)=>`Filling a cart at <b>${s}</b>? See their ${n} deals in your size.`,backGo:"Show",spCardTxt:"Every size, every store in Canada",spCardGo:"Prices →",wOr:"or with Google, one tap",wOnSale:"on sale today",wFrom:(s,n)=>`Prices from ${s} and ${n} more stores`,wCatH:"Shop by category",wCat:{road:"Road shoes",trail:"Trail shoes",tops:"Tops & jackets",packs:"Vests & packs"},wCatN:n=>`${n} on sale`,szYou:"your size",wUpTo:p=>`up to ${p}%`,wOff:"off right now",wStores:"stores checked daily",
   liveAll:n=>`<b>${n}</b> deals on sale today`,liveYou:n=>`<b>${n}</b> deals on sale in your size right now`,
   seeN:n=>`See my ${n} deals`,
   orEmail:"or type your email",orLink:"or get a link by email",
@@ -937,7 +953,7 @@ fr:{
   sinceH:d=>`Depuis votre dernière visite${d?" ("+d+")":""} :`,sinceNew:n=>`<b>${n}</b> ${n==="1"?"nouvelle aubaine":"nouvelles aubaines"} dans votre taille`,
   sinceDrop:n=>`${n===1?"une baisse de prix sur un article consulté":"des baisses de prix sur des articles consultés"} :`,emailNext:"M'avertir par courriel",
   report:"Prix ou taille erronés ?",reportShort:"Prix erroné ?",reportWhy:"Qu'est-ce qui cloche ?",repPrice:"Le prix",repSize:"Taille épuisée",repEnded:"Solde terminé",
-  reportThanks:"Merci! On vérifie aujourd'hui.",storeH:"Une seule boutique",storeCount:n=>`${n} ${n===1?"aubaine":"aubaines"} à votre taille`,storeBack:"× Toutes les boutiques",bsuH:"Une trouvaille?",bsuTxt:"Recevez des aubaines comme celle-ci à votre taille chaque vendredi, et un courriel quand une chaussure suivie baisse. Gratuit.",bsuGo:"Je m'inscris",cdnChip:"🍁 Marques canadiennes",cdnH:"Marques canadiennes seulement",cdnB:"Marques d'ici",cdnNote:"Des entreprises canadiennes, pas toujours fabriqué au Canada",cdnBack:"× Toutes les marques",cdnTip:"Marque canadienne",backBar:(n,s)=>`Vous remplissez un panier chez <b>${s}</b> ? Voyez leurs ${n} aubaines à votre taille.`,backGo:"Voir",cmpLink:"Toutes les pointures et boutiques →",spCardTxt:"Chaque pointure, chaque boutique au Canada",spCardGo:"Prix →",wOr:"ou avec Google, en un clic",wOnSale:"en solde aujourd'hui",wUpTo:p=>`jusqu'à ${p} %`,wOff:"de rabais en ce moment",wStores:"boutiques vérifiées chaque jour",
+  reportThanks:"Merci! On vérifie aujourd'hui.",storeH:"Une seule boutique",storeCount:n=>`${n} ${n===1?"aubaine":"aubaines"} à votre taille`,storeBack:"× Toutes les boutiques",bsuH:"Une trouvaille?",bsuTxt:"Recevez des aubaines comme celle-ci à votre taille chaque vendredi, et un courriel quand une chaussure suivie baisse. Gratuit.",bsuGo:"Je m'inscris",cdnChip:"🍁 Marques canadiennes",cdnH:"Marques canadiennes seulement",cdnB:"Marques d'ici",cdnNote:"Des entreprises canadiennes, pas toujours fabriqué au Canada",cdnBack:"× Toutes les marques",cdnTip:"Marque canadienne",backBar:(n,s)=>`Vous remplissez un panier chez <b>${s}</b> ? Voyez leurs ${n} aubaines à votre taille.`,backGo:"Voir",cmpLink:"Toutes les pointures et boutiques →",spCardTxt:"Chaque pointure, chaque boutique au Canada",spCardGo:"Prix →",wOr:"ou avec Google, en un clic",wOnSale:"en solde aujourd'hui",wFrom:(s,n)=>`Les prix de ${s} et ${n} autres boutiques`,wCatH:"Magasinez par catégorie",wCat:{road:"Chaussures de route",trail:"Chaussures de sentier",tops:"Hauts et manteaux",packs:"Vestes et sacs"},wCatN:n=>`${n} en solde`,szYou:"votre taille",wUpTo:p=>`jusqu'à ${p} %`,wOff:"de rabais en ce moment",wStores:"boutiques vérifiées chaque jour",
   liveAll:n=>`<b>${n}</b> aubaines en solde aujourd'hui`,liveYou:n=>`<b>${n}</b> aubaines en solde dans votre taille en ce moment`,
   seeN:n=>`Voir mes ${n} aubaines`,
   orEmail:"ou entrez votre courriel",orLink:"ou recevez un lien par courriel",
@@ -1105,7 +1121,8 @@ let BROWSE=!!LS.get("gf-browse")||(()=>{try{return !!new URLSearchParams(locatio
 const WELCOME_B=false;   // test "welcome" ended Oct 20: without the welcome screen 11% picked sizes vs 29% with it (124 devices, p=0.011)
 // Search + categories first, then the swipe row as small tiles (tile()). Was test 'layout' B (Oct 18); Oct 19 Bastien chose it for
 // everyone (Baymard: shoppers who search go straight for the box; one day of our data, not a test result)
-const LAYOUT_B=ANA.arm("layout")==="B";   // Oct 20: back to a 50/50 test (early data: sizes picked 14% B vs 45% A, 33 devices)
+const LAYOUT_B=ANA.arm("layout")==="B";
+const LOOK_B=ANA.arm("look")==="B";   // Oct 21 (Bastien's redesign mockups): the sizes row on cards, category photos + store names on the welcome screen   // Oct 20: back to a 50/50 test (early data: sizes picked 14% B vs 45% A, 33 devices)
 if(LAYOUT_B){document.body.classList.add("lay-b");$("filtersBox").after($("newBox"))}
 if(WELCOME_B&&!BROWSE){BROWSE=true;LS.set("gf-browse",1)}
 {const tbh=()=>{const tb=document.querySelector(".topbar");if(tb)document.documentElement.style.setProperty("--tbh",tb.offsetHeight+"px")};addEventListener("load",tbh);addEventListener("resize",tbh)}
@@ -1156,6 +1173,7 @@ function renderWelcome(){
   $("wStats").innerHTML=`<div class="wstat"><b>${num(sale.length)}</b><span>${t("wOnSale")}</span></div>`+
     `<div class="wstat"><b>${t("wUpTo",top)}</b><span>${t("wOff")}</span></div>`+
     `<div class="wstat"><b>${storesLabel()}</b><span>${t("wStores")}</span></div>`;
+  if(LOOK_B)welcomeLook(sale);
   const known=new Set(BRANDS.map(b=>b.toLowerCase()));
   const picks=[],seen=new Set();
   const kids=/\b(junior|juniors|kids?|youth|enfants?|jr|toddler|boys?|girls?|gar[çc]ons?|filles?)\b/i;
@@ -1166,6 +1184,22 @@ function renderWelcome(){
   picks.sort((a,b)=>["daily","trail","race"].indexOf(a.t)-["daily","trail","race"].indexOf(b.t));
   $("wDeals").innerHTML=picks.map(d=>`<button type="button" class="wdeal">${d.img?`<img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:""}<span class="wn"><b>${esc(d.b)}</b>${esc(nm(d.n))}</span><span class="wp"><span class="pct">${offTag({...d,best:d.price})}</span>${money(d.price)} <small class="cur">${CUR}</small><s>${money(d.reg)}</s></span></button>`).join("");
   $("wDeals").querySelectorAll(".wdeal").forEach(b=>b.addEventListener("click",()=>$("saveSizes").click()));
+}
+/* Test 'look' B: the welcome screen names the stores people know (the 5 with the most deals on this side today, a fact) and
+   shows 4 categories with a real photo (today's best deal in each) instead of the three number boxes. A tap = "Find my deals". */
+function welcomeLook(sale){
+  const by={};for(const d of sale)for(const u of d.of||[]){const h=storeOf(u);by[h]=(by[h]||0)+1}
+  const name=h=>(STORES[h]||[])[0];
+  const top=Object.keys(by).filter(name).sort((a,b)=>by[b]-by[a]).slice(0,5).map(name);
+  const total=+storesLabel()||0;
+  const cats=[["road",d=>d.g==="shoes"&&d.t==="daily"],["trail",d=>d.g==="shoes"&&d.t==="trail"],["tops",d=>d.g==="tops"],["packs",d=>d.g==="packs"]];
+  const tiles=cats.map(([k,f])=>{const its=sale.filter(d=>f(d)&&d.img&&!SPIKE.test(d.n));if(!its.length)return "";
+    const pic=its.filter(d=>d.pct<=60&&BRANDS.some(b=>b.toLowerCase()===d.b.toLowerCase())).sort((a,b)=>b.pct-a.pct)[0]||its[0];
+    return `<button type="button" class="wcat" data-cat="${k}" data-img="${esc(pic.img)}"><span class="wcp"><img src="${esc(pic.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"></span><b>${esc(t("wCat")[k])}</b><small>${esc(t("wCatN",num(its.length)))}</small></button>`}).join("");
+  $("wStats").innerHTML=(top.length>=3&&total>top.length?`<p class="wfrom">${esc(t("wFrom",top.join(", "),total-top.length))}</p>`:"")
+    +(tiles?`<h3 class="wcath">${esc(t("wCatH"))}</h3><div class="wcats">${tiles}</div>`:"");
+  $("wStats").classList.add("look");
+  $("wStats").querySelectorAll(".wcat").forEach(b=>b.addEventListener("click",()=>{ana("signup-step","wcat|"+b.dataset.cat);$("saveSizes").click()}));
 }
 let lastFocus=null;
 function openSheet(){lastFocus=document.activeElement;renderSheet();
@@ -1534,13 +1568,26 @@ const RENDERED={};   // key -> deal as shown, for the savings tally
 const LOW_DAYS=30,LOW_WINDOW=60;
 window.gfLow=d=>lowDays(d);   // for the site test
 const lowDays=d=>(d.hd>=LOW_DAYS&&d.lo!=null&&d.pct>0&&d.best<=d.lo+0.01&&d.hi>d.best*1.02)?Math.min(d.hd,LOW_WINDOW):0;   // hi: it really dropped
+/* Test 'look' (Oct 21, from Bastien's redesign mockups): the sizes in stock as a row of chips, yours in orange, so "in your size"
+   shows at a glance. Up to 5 around yours; every one shown is in stock (we only keep sizes in stock). */
+function sizeRow(d,mine){
+  const SO=["2XS","XS","S","M","L","XL","2XL","3XL"],ix=v=>{const i=SO.indexOf(norm(v));return i<0?99:i},nv=v=>parseFloat(String(v).replace(/^[MW]/,""));
+  const other=state.gender==="men"?"W:":state.gender==="women"?"M:":null;   // unisex shoes list both cuts: keep the visitor's
+  const all=[...new Set(d.sz.filter(e=>!(d.g==="shoes"&&other&&String(e[0]).startsWith(other))&&!/~N$/.test(e[0])).map(e=>d.g==="shoes"?sizeLabel(e[0],state.gender):e[0]))].filter(x=>x&&x!=="OS");
+  if(d.g==="shoes"){const wide=mine.some(x=>/wide|large/.test(x));for(let i=all.length-1;i>=0;i--)if(/wide|large/.test(all[i])!==wide)all.splice(i,1)}
+  all.sort((a,b)=>(isNaN(nv(a))||isNaN(nv(b)))?ix(a)-ix(b):nv(a)-nv(b));
+  const you=new Set(d.any?[]:mine);let at=all.findIndex(x=>you.has(x));if(at<0)at=0;
+  const from=Math.max(0,Math.min(at-2,all.length-5)),shown=all.slice(from,from+5);   // 5 fit one line on a phone
+  const lab=x=>x.replace(/ (wide|large)$/,"");
+  return `<div class="szrow" aria-label="${esc(t(d.any?"sizesOnSale":"inYourSize"))} ${esc(mine.join(", "))}">${from>0?'<span class="szmore">…</span>':""}${shown.map((x,i)=>`<span class="sz${you.has(x)?" you":""}${Math.abs(from+i-at)>1?" far":""}"${you.has(x)?` title="${esc(t("szYou"))}"`:""}>${esc(lab(x))}</span>`).join("")}${from+5<all.length?'<span class="szmore">…</span>':""}</div>`}
 function card(d,extra){
   const sized=SIZED.has(d.g);
   const labels=[...new Set(d.ok.map(x=>d.g==="shoes"?sizeLabel(x[0],state.gender):x[0]))];
   if(sized){const SO=["2XS","XS","S","M","L","XL","2XL","3XL"],ix=v=>{const i=SO.indexOf(norm(v));return i<0?99:i};const nv=v=>parseFloat(String(v).replace(/^[MW]/,""));labels.sort((a,b)=>(isNaN(nv(a))||isNaN(nv(b)))?ix(a)-ix(b):nv(a)-nv(b))}
   const lettered=accLetters(d),real=labels.filter(x=>x!=="OS");
   const shownSz=d.any&&real.length>6?real.slice(0,6).join(", ")+"…":real.join(", ");
-  const sizes=(sized||lettered)&&real.length?`<div class="sizes">${t(d.any?"sizesOnSale":"inYourSize")} <strong>${esc(shownSz)}</strong></div>`:"";   // odd labels ("T2", "115cm"): the store page explains them
+  let sizes=(sized||lettered)&&real.length?`<div class="sizes">${t(d.any?"sizesOnSale":"inYourSize")} <strong>${esc(shownSz)}</strong></div>`:"";   // odd labels ("T2", "115cm"): the store page explains them
+  if(LOOK_B&&sizes)sizes=sizeRow(d,real);
   const k=itemKey(d),on=!!watches[k];RENDERED[k]=d;
   const isNew=!extra&&NEWSET.has(k);
   const sp=shoePage(d);
