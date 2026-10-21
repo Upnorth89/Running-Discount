@@ -92,7 +92,7 @@ KINDS = {
                      good=r"\brun|trail|light|hood|hoody|packable", x=r"vest|\bski\b|snow|parka|3-in-1|t-?shirt|\btee\b"),
     "socks":    dict(g={"socks"}, need=r".", good=r"\brun|trail|merino|toe|wool|ultra|crew|cushion", x=r"no show|liner only|compression sleeve|kids?|dress|casual|lifestyle"),
     "blanket":  dict(g={"gear", "packs"}, need=r"blanket|bivv?y|couverture de survie", good=r".", x=r"puffer|festival|picnic|stadium|throw|fleece|wool|down"),
-    "sun":      dict(g={"gear"}, t={"sun"}, need=r"sunglass|glasses|lunettes|\bshades\b|goodr|og\b|\bvrg\b|bfg|lens", good=r".", x=r"case|strap|cord|retainer|cleaning|lens only|replacement"),
+    "sun":      dict(g={"gear"}, t={"sun"}, need=r"sunglass|glasses|lunettes|\bshades\b|goodr|og\b|\bvrg\b|bfg|lens", good=r".", x=r"case|strap|cord|retainer|cleaning|cleaner|cloth|spray|lens only|replacement|^lens(es)?\b|\blens(es)?$", min=15),   # Oct 21: a $5 spare lens + a lens cleaner showed
     "wind":     dict(g={"tops"}, t={"jacket"}, need=r"wind|breaker|shell|anorak|light ?jacket|run jacket", good=r"\brun|trail|race|light|ultra|pack|dwr",
                      x=r"insulat|\bdown\b|puffer|nano|atom|alpha|primaloft|thermal|\bski\b|snow|parka|3-in-1|t-?shirt|\btee\b|vest"),
 }
@@ -409,6 +409,8 @@ def pool(items, kind, stores):
         if not sz or (d["g"] != "nutrition" and max(e[1] for e in sz) > 2.5 * min(e[1] for e in sz)):
             continue                                       # sizes 2.5x apart in price: another product's sizes mixed in (Decathlon, Oct 20)
         best = min(sz, key=lambda e: e[1])
+        if best[1] < k.get("min", 0):
+            continue
         reg = max(best[3] or best[1], best[1]) if len(best) > 3 else best[1]
         pct = round(100 * (1 - best[1] / reg)) if reg > best[1] * 1.01 else 0
         u = size_url(d, best)
@@ -794,15 +796,20 @@ HUB = {
 }
 
 
+# Oct 21: the shoe list pages' cards put the link in a right-hand column, which squeezed race names to 2-3 words a line on phones
+HUB_CSS = (".cards.rh a{flex-direction:column;align-items:flex-start;gap:4px;padding:12px 14px}.cards.rh .nm b{font-size:20px}"
+           ".cards.rh .pr{text-align:left;white-space:normal;font:600 15px var(--body);color:var(--moss)}")
+
+
 def hub(L):
     """/races/ + /courses/ (Oct 21, Bastien: a ☰ menu item "even if it's one; we will add more soon")."""
     h = HUB[L]
     rows = "".join(f'<li><a href="/{S[L]["dir"]}/{slug}/"><span class="nm"><b>{esc(r["name"])}</b>'
                    f'<small>{esc(r["where"][L])} · {esc(r["when"][L])} · {h["dists"].format(d="/".join(r["dists"]))}</small></span>'
                    f'<span class="pr">{h["go"]}</span></a></li>' for slug, r in RACES.items())
-    return (page_head(T[L], h["title"], h["desc"], "/races/", "/courses/")
+    return (page_head(T[L], h["title"], h["desc"], "/races/", "/courses/", f"<style>{HUB_CSS}</style>")
             + f'<p class="crumbs"><a href="{T[L]["home"]}">The Gear Fox</a></p><h1>{esc(h["h1"])}</h1><p class="sub">{esc(h["intro"])}</p>'
-            + f'<ul class="cards">{rows}</ul>' + page_foot(T[L]))
+            + f'<ul class="cards rh">{rows}</ul>' + page_foot(T[L]))
 
 
 def add_to_sitemap(site):
