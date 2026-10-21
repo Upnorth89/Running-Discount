@@ -448,3 +448,13 @@ html.rd[data-theme="dark"]{--ink:#ECEEEA;--muted:#A6B0B6;--mist:#0F171C;--cream:
   .rd .rdc .cmp{left:10px}
   .rd .rdbrands .bt b{font-size:14px}.rd .rdbrands .bt small{font-size:12px}
 }
+
+/* category pictures (Oct 21: a fixed set, site/img/cat): 4:3, the whole picture shown, rounded, on a soft neutral; the name is text below */
+.rd .rdtile .tp,.rd .wcat .wcp{aspect-ratio:4/3;background:#F7F5F0;border-radius:6px;margin:6px 6px 0;overflow:hidden}
+.rd .rdtile .tp img,.rd .wcat .wcp img{width:100%;height:100%;object-fit:contain;padding:0;mix-blend-mode:multiply}
+.rd .rdtile{gap:0}
+.rd .rdtile .tt b{font-family:var(--body);font-weight:600;font-size:15px}
+@media(max-width:759px){.rd .rdtile .tp{aspect-ratio:4/3;margin:5px 5px 0}.rd .rdtile .tt b{font-size:13.5px}.rd .rdtiles{gap:8px}}
+@media(max-width:379px){.rd .rdtile .tt b{font-size:12.5px}}
+@media (prefers-color-scheme:dark){html.rd:not([data-theme="light"]) .rdtile .tp,html.rd:not([data-theme="light"]) .wcat .wcp{background:#F7F5F0}}
+@media(max-width:759px){.rd .rdtile .tt b{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.15}}   /* "Gear & Watches" on two lines, never cut */
