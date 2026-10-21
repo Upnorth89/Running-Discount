@@ -250,7 +250,8 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   in?" + size (gf-shoe-size / profile, price in that size). "Only N in your size today" when the brands don't have 10. Races live
   (Oct 21): Harricana, Québec Mega Trail, Boréalys Tremblant (base + bad-weather + hot-weather kits), Bromont Ultra, Chic-Chocs (17 mandatory
   / 4 recommended, checked by rendering their Wix page), Fjord-du-Saguenay (2027 = 135/100/90/55). Each list read on the race's own site;
-  a race without its own "last updated" date says "as published when we read it". Missing: Gaspésia 100 (list only in a Canva guide: ask
+  a race without its own "last updated" date says "as published when we read it". Kits a race calls only in bad or hot weather (`kits` in RACES:
+  Tremblant) fold under the list ("Only if the race calls it, usually a few days before the start"), out of the mandatory count. Missing: Gaspésia 100 (list only in a Canva guide: ask
   Bastien's contacts). Next: 5 US races. Metric: Search Console + ref race-<slug> sign-ups; check mid-Jan + end of March (plan doc row).
 - **Clothing sizes per category** (Oct 21, a visitor: "medium in shorts, L in socks, small in t-shirts"): sizes screen keeps one quick
   "Clothing size" row + "Different size in shorts, socks or gloves?" (`#clothMore`/`#clothBy`, `state.clothBy` = only the categories that
