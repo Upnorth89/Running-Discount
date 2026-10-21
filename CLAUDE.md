@@ -247,9 +247,16 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   size (3 shown, "See all 10"; at least 3 on sale when there are; full price included so people watch it; one per brand first), only the
   brands in `BRANDS` (Bastien's list) + `MAYBE` brands (2XU, Balmoral, Nike, Under Armour, Bula, Camelbak, Osprey) only for running items;
   ♡ Watch hearts in place (gf-watch, watch_add for members, hearts ride the sign-up). First line "Trail running shoes" = "What do you race
-  in?" + size (gf-shoe-size / profile, price in that size). "Only N in your size today" when the brands don't have 10. Races live:
-  Ultra-Trail Harricana. Next: Québec Mega Trail, Boréalys Tremblant (lists read Oct 20); Chic-Chocs, Gaspésia, Bromont, Fjord: lists from
-  Bastien's contacts; then 5 US races. Metric: Search Console + ref race-<slug> sign-ups; check mid-Jan + end of March (plan doc row).
+  in?" + size (gf-shoe-size / profile, price in that size). "Only N in your size today" when the brands don't have 10. Races live
+  (Oct 21): Harricana, Québec Mega Trail, Boréalys Tremblant (base + bad-weather + hot-weather kits), Bromont Ultra, Chic-Chocs (17 mandatory
+  / 4 recommended, checked by rendering their Wix page), Fjord-du-Saguenay (2027 = 135/100/90/55). Each list read on the race's own site;
+  a race without its own "last updated" date says "as published when we read it". Missing: Gaspésia 100 (list only in a Canva guide: ask
+  Bastien's contacts). Next: 5 US races. Metric: Search Console + ref race-<slug> sign-ups; check mid-Jan + end of March (plan doc row).
+- **Clothing sizes per category** (Oct 21, a visitor: "medium in shorts, L in socks, small in t-shirts"): sizes screen keeps one quick
+  "Clothing size" row + "Different size in shorts, socks or gloves?" (`#clothMore`/`#clothBy`, `state.clothBy` = only the categories that
+  differ, `clothFor(g)`; bras follow tops, hats the main size). Profiles already kept a size per group (Friday email/alerts use them);
+  applyProfile takes the size most groups share as the main one. Race pages: same link in their size box (gf-race-size.by). Site test
+  "Clothing: a different size per category".
 - **Mystery shop (Oct 18, Bastien: "act like a spy shopper paid to find issues ... keep the mystery shopper somewhere so we can work on
   this later").** Report: https://claude.ai/artifact/D9V9KYMpdD2TygXGYJTAUR (copy in docs/mystery-shop-2026-10-18.html), open items as
   rows in the plan doc backlog. Fixed the same night: no-result search message, sign-up card after the results, women's table first
