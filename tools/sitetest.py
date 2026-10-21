@@ -936,6 +936,43 @@ def site_flow(base, per, accented):
             return f"{len(tiles)} tiles; '{line[:60]}…'; a tap opens the sizes"
         check("Test 'look': welcome screen, store names + category photos")(look_welcome, pg)
 
+        def look_mobile():   # Oct 21 (Bastien: "make it more user friendly for mobile"): the redesign on a small phone. One deal per row, the
+            # bar that stays at the top once the search scrolls away, its Filters panel (a brand picked there filters the deals), and the
+            # closed panel never covering the page (first try had it invisible on top of everything, blocking every tap)
+            c = br.new_context(viewport={"width": 320, "height": 640}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+            stub(c)
+            c.add_init_script("""try{localStorage.setItem('gf-exp',JSON.stringify({look:'B'}));localStorage.setItem('gf-peek','1');localStorage.setItem('gf-nosignup','1');
+              localStorage.setItem('rd-profile',JSON.stringify({gender:'men',terrain:'both',ships:'ca',country:'ca',groups:['shoes','tops','bottoms'],sizes:{shoes:{sizes:['11'],width:[]},tops:{sizes:['M']},bottoms:{sizes:['M']}},brands:[],lang:'en'}))}catch(e){}""")
+            q = c.new_page()
+            q.on("pageerror", lambda e: errors.append(str(e)))
+            q.goto(base, wait_until="domcontentloaded")
+            q.wait_for_selector("#dealList .rdc", timeout=30000)
+            q.wait_for_timeout(600)
+            cols = q.evaluate("() => {const c=[...document.querySelectorAll('#dealList .grp.sale .rdc')].slice(0,2).map(x=>x.getBoundingClientRect());return c.length<2?0:(c[1].top>=c[0].bottom-1?1:2)}")
+            hit = q.evaluate("() => {const e=document.elementFromPoint(160,320);return e&&e.closest('#rdFs')?'panel':'page'}")
+            q.evaluate("() => scrollTo(0, 1400)")
+            q.wait_for_timeout(400)
+            bar = q.evaluate("() => document.documentElement.classList.contains('rdpast') && getComputedStyle(document.getElementById('rdBar')).display !== 'none'")
+            q.click("#rdBarF")
+            q.wait_for_selector("#rdFs:not([hidden]) #ddBrand", timeout=5000)
+            brand = q.evaluate("() => {const s=document.getElementById('ddBrand');return s.options.length>1?s.options[1].value:''}")
+            q.select_option("#ddBrand", brand)
+            q.wait_for_timeout(700)
+            q.click("#rdFsGo")
+            q.wait_for_timeout(800)
+            after = q.evaluate("""() => ({closed: document.getElementById('rdFs').hidden, back: !!document.querySelector('#rdHero #rdFilters'),
+                brands: [...new Set([...document.querySelectorAll('#dealList .grp:not(.new) .rdc .brand')].map(x=>x.textContent))],
+                wide: document.documentElement.scrollWidth > innerWidth + 1})""")
+            c.close()
+            assert hit == "page", "the closed filter panel covers the page (taps don't reach it)"
+            assert cols == 1, f"small phone: {cols} deals per row (want 1)"
+            assert bar, "the search + Filters bar didn't stay at the top after scrolling"
+            assert after["closed"] and after["back"], f"the filter panel didn't close or the filters didn't go back to the top: {after}"
+            assert brand and after["brands"] == [brand], f"brand '{brand}' picked in the panel, deals show {after['brands'][:5]}"
+            assert not after["wide"], "page wider than a 320px phone"
+            return f"1 deal per row; bar stays on top; Filters panel: brand '{brand}' -> only {brand} deals"
+        check("Test 'look': small phone, sticky bar + Filters panel")(look_mobile, pg)
+
         def canadian():   # Oct 7: Canadian brands filter (Canada side): only maple-leaf brands, a box saying so, × turns it off
             pg.goto(base + "?canadian", wait_until="domcontentloaded")
             pg.wait_for_selector(".cdnbar", timeout=20000)

@@ -392,3 +392,59 @@ html.rd[data-theme="dark"]{--ink:#ECEEEA;--muted:#A6B0B6;--mist:#0F171C;--cream:
   .rd .grp h2,.rd .rdsh{flex-wrap:wrap}
   .rd .rdmore .l{display:none}.rd .rdmore .s{display:inline}
 }
+
+/* ===== Phones, round 2 (Oct 21, Bastien: "make it more user friendly for mobile, that's where our people are") ===== */
+/* the bar that stays under the header once the hero's search has scrolled away */
+.rdbar{display:none}
+.rd.rdpast .rdbar{display:block;background:var(--char);padding:0 0 10px}
+.rd .rdbar .in{max-width:680px;margin:0 auto;padding:0 16px;display:flex;gap:8px}
+.rd .rdbar button{display:flex;align-items:center;gap:8px;min-height:44px;border-radius:8px;font:500 15px var(--body);cursor:pointer;border:0}
+.rd .rdbar .sbs{flex:1;min-width:0;background:#fff;color:#56626A;padding:0 14px;text-align:left}
+.rd .rdbar .sbs span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rd .rdbar .sbf{flex:none;position:relative;background:var(--hivis);color:var(--hivis-ink);font-weight:700;padding:0 14px}
+.rd .rdbar .sbf .n{font-style:normal;min-width:20px;height:20px;border-radius:10px;background:var(--char);color:#fff;font:700 12px/20px var(--body);text-align:center;padding:0 5px}
+.rd .rdbar .sbf .n:empty{display:none}
+@media(min-width:760px){.rd.rdpast .rdbar{display:none}}
+/* the filter panel: slides up from the bottom, every filter full width, one big "Show N deals" */
+.rdfs[hidden],.rd .rdfs[hidden]{display:none}   /* the panel's own display:flex must never beat hidden: it would cover the page */
+.rd .rdfs{position:fixed;inset:0;z-index:60;background:rgba(10,17,21,.55);display:flex;align-items:flex-end}
+.rd .rdfsp{width:100%;max-height:88vh;display:flex;flex-direction:column;background:var(--mist);border-radius:16px 16px 0 0;padding-bottom:env(safe-area-inset-bottom,0px);box-shadow:0 -10px 30px rgba(0,0,0,.2)}
+@media (prefers-reduced-motion:no-preference){.rd .rdfsp{animation:rdup .2s ease-out}@keyframes rdup{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}}
+.rd .rdfsp .h{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 8px}
+.rd .rdfsp .h b{font:700 24px var(--display)}
+.rd .rdfsp .x{width:44px;height:44px;border:0;background:none;color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%}
+.rd .rdfsp .b{overflow-y:auto;padding:4px 16px 12px}
+.rd .rdfsp .f{padding:10px 16px 14px;border-top:1px solid var(--line);background:var(--card)}
+.rd .rdfsp .f .primary{width:100%;min-height:50px;font-size:17px}
+.rd .rdfsp .rdfilters{display:flex;flex-direction:column;align-items:stretch;gap:10px;margin:0;padding:0;overflow:visible}
+.rd .rdfsp .dd{min-height:50px;font-size:16px;padding:0 14px}
+.rd .rdfsp .rdtog{min-height:50px;font-size:16px;justify-content:space-between;flex-direction:row-reverse;padding:0 4px}
+.rd .rdfsp .rdfilters .filtbtn{display:none}
+.rd .rdfsp #filtersBox{display:block;margin:14px 0 0}
+.rd .rdfsp #filtersBox .tools{display:flex;flex-wrap:wrap;gap:8px}
+.rd .rdfsp #filtersBox .chip,.rd .rdfsp #filtersBox select{min-height:44px}
+.rd .rdfsp #filtersBox #cats{display:none}
+/* bigger tap targets on phones (Apple's minimum is 44 x 44) */
+@media(max-width:759px){
+  .rd .dd{min-height:44px}
+  .rd .rdc .heart{width:44px;height:44px;min-width:44px;top:0;right:0}
+  .rd .rdfilters .filtbtn{min-height:44px}
+}
+/* small phones (under 380px, iPhone SE): one deal per row, photo beside the details, bigger photo and price */
+@media(max-width:379px){
+  .rd .grid{grid-template-columns:minmax(0,1fr)}
+  .rd .rdc .deal,.rd .compact .rdc .deal{display:grid;grid-template-columns:120px minmax(0,1fr);column-gap:12px;row-gap:2px;align-content:start;padding:10px 10px 36px}
+  .rd .rdc .deal>*{grid-column:2}
+  .rd .rdc .pic,.rd .compact .rdc .pic{grid-column:1;grid-row:1/span 8;margin:-10px 0 0 -10px;width:130px;height:auto;aspect-ratio:1/1;border-radius:var(--r) 0 var(--r) 0;align-self:start}
+  .rd .rdc .pic img,.rd .compact .rdc .pic img{padding:24px 6px 6px}
+  .rd .rdc .price{margin-top:6px!important}
+  .rd .rdc .price b{font-size:21px}
+  .rd .rdc .store .ok{font-size:11.5px;gap:4px}
+  .rd .rdc .heart{left:86px;right:auto;top:0}
+  .rd .rdc.hascmp .deal{padding-bottom:36px}.rd .rdc.hascmp .cmp{bottom:10px}
+  .rd .rdc .cmp{left:150px}
+}
+@media(max-width:379px){
+  .rd .rdc .cmp{left:10px}
+  .rd .rdbrands .bt b{font-size:14px}.rd .rdbrands .bt small{font-size:12px}
+}
