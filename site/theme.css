@@ -1,0 +1,101 @@
+/* The Gear Fox theme (Oct 21, 2026; Bastien: "Can't we use one theme and ship it over all pages?").
+   One look for every page: homepage, shoe + list pages, race lists, About, Privacy. Each page loads this file LAST, so the
+   pages' own stylesheets only need layout. A designer's version later = replace this one file.
+   The rules: 5 colours + the green "lowest price" stamp; 2 fonts (Barlow, Barlow Condensed); 2 corner shapes (10px for
+   cards, panels, inputs and big buttons; round for chips and icon buttons); 1px lines; orange only for the discount and
+   the main button (when everything is orange, nothing stands out); a white page with thin dividers, like a running store. */
+:root{
+  --ink:#141A17; --muted:#5E6762; --mist:#F3F4F2; --card:#FFFFFF; --line:#E1E4E0;
+  --moss:#141A17; --link:#141A17; --hivis:#F26A1B; --hivis-ink:#141A17;
+  --r:10px; --pill:999px;
+  --body:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --display:"Barlow Condensed","Arial Narrow",Impact,system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--ink:#ECEFEC;--muted:#A1ABA5;--mist:#1A201D;--card:#111614;--line:#2C3531;--moss:#ECEFEC;--link:#ECEFEC;--hivis-ink:#111614}
+}
+:root[data-theme="dark"]{--ink:#ECEFEC;--muted:#A1ABA5;--mist:#1A201D;--card:#111614;--line:#2C3531;--moss:#ECEFEC;--link:#ECEFEC;--hivis-ink:#111614}
+
+/* page + type */
+body{background:var(--card);color:var(--ink);font-family:var(--body)}
+a{color:var(--ink);text-decoration-thickness:1px;text-underline-offset:2px}
+h1{font-family:var(--display);font-weight:800;letter-spacing:-.2px}
+h2,h3{font-family:var(--display);font-weight:700}
+
+/* header */
+.topbar,header.top{border-bottom:1px solid var(--line)}   /* header.top only: the deal cards have a ".top" row too */
+.topbar .logo .tag::before,.topbar .logo .tag::after,header.top .tagline::before,header.top .tagline::after{height:1px}
+
+/* round things: chips, icon buttons, small links */
+.chip,.iconbtn,.watchbtn,.langbtn,.lang,.stat,.browse a,.links a,.jump a,.langsw button,.menu summary{border-width:1px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
+#cats .chip[aria-pressed="true"],.types .chip[aria-pressed="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.scale .chip{border-radius:var(--r)}
+
+/* buttons: the main one is orange, everything else is plain */
+.primary,.btn{border-radius:var(--r)}
+.primary{border:0;background:var(--hivis);color:var(--hivis-ink)}
+.btn{border-width:1px}
+a.btn{background:var(--hivis);color:var(--hivis-ink);border:0}
+
+/* deal cards (homepage): phones = rows with a thin divider; computers = light cards */
+.deal{border:1px solid var(--line);border-radius:var(--r);box-shadow:none}
+.deal .pic{border-radius:calc(var(--r) - 1px) calc(var(--r) - 1px) 0 0}
+@media(max-width:899px){
+  .compact .deal{border:0;border-bottom:1px solid var(--line);border-radius:0;padding:14px 0 12px;background:transparent}
+  .compact .deal .pic{border-radius:8px;background:#fff}
+}
+.deal:hover{border-color:var(--muted)}
+.deal .brand,.compact .deal .brand{color:var(--muted);font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.deal .pct,.compact .deal .pct,.wdeal .pct{border:0;border-radius:4px}
+.badge,.off{border:0;border-radius:4px}
+.deal .price .cur{display:none}            /* "CAD" on every card: the currency is in the menu and on the welcome screen */
+.newrow .grp.new .deal{background:transparent}
+
+/* section titles: no coloured squares/dots in front, the title says it */
+.grp h2::before,.grp.sale h2::before,.grp.new h2::before,.grp.drops h2::before{display:none}
+.sticky .grp h2{background:var(--card)}
+
+/* welcome screen */
+.wstat{background:var(--mist);border-radius:var(--r)}
+@media(max-width:899px){.wdeal{border:0;border-bottom:1px solid var(--line);border-radius:0;padding:10px 0}}
+.wdeal{border-width:1px}
+.wdeal .wn b{color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-size:12px}
+
+/* panels, boxes, menus */
+.menu,.menu nav{border-width:1px;border-radius:var(--r)}
+.menu nav a{border-radius:8px}
+.menu nav a.sw{border-top-width:1px}
+.watchnews,.mine,.hero,.pw,.rsize,.gi,.kit{border-width:1px;border-radius:var(--r)}
+.watchnews{border-color:var(--line)}
+.mine{border-color:var(--line)}
+.alert,.cta,.side,.signup{border-radius:var(--r)}
+table{border-width:1px;border-radius:var(--r)}
+input,select,textarea{border-radius:var(--r)}
+.find input{border-width:1px}
+
+/* lists of shoes and races (shoe pages, list pages, race hub): rows with dividers, not a box around each */
+.cards{gap:0}
+.cards a{border:0;border-bottom:1px solid var(--line);border-radius:0;padding:12px 0;background:transparent}
+.cards li:first-child a{border-top:1px solid var(--line)}
+.cards .nm b{font-family:var(--display)}
+.cards.rh a{padding:14px 0}
+
+/* race lists */
+.gi{border-color:var(--line)}
+.gi.shoe{border-color:var(--ink)}
+.dl a.dg,.dl .wt{border-width:1px;border-radius:8px}
+.lv.M{background:var(--hivis);color:var(--hivis-ink)}
+.lv.R,.lv.A{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.kit{border-style:dashed}
+.dists button,.rsize button{border-width:1px}
+.rsize{border:1px solid var(--line)}
+.dists button[aria-pressed="true"],.rsize button[aria-pressed="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
+
+/* shoe page size tables on small phones (Oct 21: up to 80px wider than a 320px screen): tighter cells, the old price under the new */
+@media(max-width:360px){
+  th,td{padding:8px 6px}
+  td s{display:block;font-size:12px}
+  td .off{margin-left:0}
+  td a{overflow-wrap:anywhere}
+}

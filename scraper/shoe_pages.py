@@ -539,6 +539,7 @@ def page_head(L, title, desc, path_en, path_fr, extra=""):
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/shoe-pages.css">
 {extra}
+<link rel="stylesheet" href="/theme.css">
 <script defer src="https://cloud.umami.is/script.js" data-website-id="{UMAMI_ID}" data-domains="thegearfox.com,www.thegearfox.com"></script>
 </head>
 <body>

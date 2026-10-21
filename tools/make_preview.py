@@ -206,5 +206,7 @@ if us_blob:
 m = s.index("<script>\n(function(){")
 e = s.index("</script>", m) + len("</script>")
 s = s[:m] + s[e:] + s[m:e] + "\n"
+# the shared theme (Oct 21) goes inline, last (the preview is one file; earlier edits expect the homepage's own CSS only)
+s = re.sub(r'<link rel="stylesheet" href="/theme.css">[^\n]*', lambda m: "<style>" + (SITE / "theme.css").read_text() + "</style>", s)
 out.write_text(s)
 print(f"wrote {out} ({len(s)//1024} KB, {len(items)} products)")
