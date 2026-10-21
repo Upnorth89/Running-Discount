@@ -18,7 +18,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from shoe_pages import base_model, slugify
-from shoe_pages import T, esc, page_head, page_foot, store_names, size_url, host  # noqa: E402
+from shoe_pages import T, US, esc, page_head, page_foot, store_names, size_url, host  # noqa: E402
 
 POOL = 60        # picks per gear item carried in the page (the script picks the best 10 in your size)
 SHOW = 10        # Oct 20 (Bastien): 10 choices per item, a few on sale; 3 show, "See all 10" opens the rest
@@ -60,6 +60,7 @@ BRANDS = {k: set(v.split("|")) for k, v in BRANDS.items()}
 MAYBE = {"2xu", "balmoral", "nike", "under armour", "bula", "camelbak", "osprey"}
 RUN = re.compile(r"\brun|running|trail|race|racing|ultra|marathon", re.I)
 KINDS = {
+    # "gloves2" (Oct 21): the UTMB cold kit's "warm and waterproof gloves"; any other "<kind>2" uses its kind's rules
     "water":    dict(g={"gear", "packs"}, need=r"soft ?flask|handheld|hand held|skyflask|ultraflask|pocketflask|speedflask", good=r".",
                      x=r"\b(150|250) ?ml|\b[5-9] ?oz|\b1[0-3] ?oz|holder|cap only|lid|valve only|bite valve|kit\b"),   # 1 L = two 500 ml flasks
     "food":     dict(g={"nutrition"}, need=r"gel|bar\b|bars\b|chew|waffle|blok|stinger|gummies|jelly|bites", good=r".", x=r"drink mix|electrolyte|hydration mix|capsule|tablet|protein"),
@@ -96,6 +97,7 @@ KINDS = {
     "wind":     dict(g={"tops"}, t={"jacket"}, need=r"wind|breaker|shell|anorak|light ?jacket|run jacket", good=r"\brun|trail|race|light|ultra|pack|dwr",
                      x=r"insulat|\bdown\b|puffer|nano|atom|alpha|primaloft|thermal|\bski\b|snow|parka|3-in-1|t-?shirt|\btee\b|vest"),
 }
+KINDS["gloves2"] = dict(KINDS["gloves"], need=WATERPROOF)
 
 # The Ultra-Trail Harricana list as the race published it (ultratrailharricana.com, "Mandatory and Suggested Gear",
 # last update 2024-08-01; read Oct 20, 2026). M = mandatory, R = recommended, A = allowed, "" = not listed.
@@ -275,11 +277,147 @@ RACES = {
     },
 }
 
+# Oct 21 (Bastien: "10 more iconic races in Canada and 10 major races in the USA"): only races that publish a real mandatory list.
+# UTMB North America (2026-2027 "Mandatory and Recommended Equipment" PDF, the same file on every event's regulation page, checked
+# Oct 21, 2026): one list per category (100M, 100K, 50K, 20K = 21/25/28K), plus the hot/cold kits the race may call days before.
+UTMB_NA = "https://pdf.utmb.world/image/upload/v1786553479/whistler/PDFS/2026_and_2027_UTMB_MANDATORY_and_RECOMMENDED_EQUIPMENT_North_America_1_3375f06592.pdf.pdf"
+UTMB_CAT = {"100M": 0, "100K": 1, "50K": 2, "20K": 3}
+UTMB_ITEMS = [   # kind, levels for 100M/100K/50K/20K, en, fr, spec
+    ("vest", "MMRR", ("Running pack", "A vest, backpack or waist pack: it has to fit all the mandatory gear."),
+     ("Sac de course", "Une veste, un sac à dos ou une ceinture : tout le matériel obligatoire doit y entrer."), False),
+    ("phone", "MMMM", ("Cell phone", "With the race's safety numbers saved."), ("Téléphone cellulaire", "Avec les numéros de sécurité de la course enregistrés."), False),
+    ("cup", "MMMM", ("Collapsible cup (150 ml / 5 oz or more)", "No disposable cups at the aid stations."),
+     ("Gobelet pliable (150 ml ou plus)", "Aucun verre jetable aux ravitaillements."), False),
+    ("water", "MMMM", ("Water: 1 litre (½ litre on the {short20})", "Two 500 ml soft flasks = 1 L."),
+     ("Eau : 1 litre (½ litre au {short20})", "Deux flasques de 500 ml = 1 L."), False),
+    ("headlamp", "MMR ", ("Headlamp + spare batteries", "200 lumens or more recommended for the main light."),
+     ("Lampe frontale + piles de rechange", "200 lumens ou plus recommandés pour la lampe principale."), True),
+    ("headlamp2", "M   ", ("Second headlamp + spare batteries", "100 miles only: two working headlamps."),
+     ("2e lampe frontale + piles de rechange", "100 milles seulement : deux lampes frontales fonctionnelles."), False),
+    ("food", "MMMR", ("Food reserve", "Recommended: about 800 kcal (2 gels + 2 bars)."), ("Réserve de nourriture", "Recommandé : environ 800 kcal (2 gels + 2 barres)."), False),
+    ("jacket", "MMRR", ("Jacket with a hood for bad weather", "The hood is built in or attached the way the maker designed it."),
+     ("Manteau avec capuchon pour le mauvais temps", "Capuchon intégré ou attaché par le système d'origine du fabricant."), True),
+    ("cap", "MMRR", ("Hat: beanie, cap, bandana or Buff", ""), ("Chapeau : tuque, casquette, bandana ou Buff", ""), False),
+    ("blanket", "MMMM", ("Survival blanket", ""), ("Couverture de survie", ""), False),
+    ("whistle", "MMMM", ("Whistle", "Many race vests have one on the chest strap: check yours."),
+     ("Sifflet", "Plusieurs vestes de course en ont un sur la sangle de poitrine : vérifiez la vôtre."), False),
+    ("gloves", "RRRR", ("Gloves", ""), ("Gants", ""), False),
+    ("id", "RRRR", ("ID card or passport", ""), ("Pièce d'identité ou passeport", ""), False),
+    ("midlayer", "RRRR", ("Spare warm layer", "For cold rain, or if you get hurt and have to wait."), ("Couche chaude de rechange", "Pour la pluie froide, ou si vous êtes blessé et devez attendre."), False),
+    ("poles", "RRRR", ("Trekking poles", "If you start with them, carry them the whole race."), ("Bâtons de marche", "Si vous partez avec, portez-les toute la course."), False),
+    # the cold-weather kit (all distances), only if the race calls it
+    ("sun", "MMMM", ("Protective eyewear", "Photochromic sunglasses can count for both kits."), ("Lunettes de protection", "Des lunettes photochromiques peuvent servir aux deux kits."), False),
+    ("midlayer2", "MMMM", ("Second warm layer", "On top of the jacket."), ("Deuxième couche chaude", "En plus du manteau."), False),
+    ("tuque", "MMMM", ("Warm hat", ""), ("Tuque chaude", ""), False),
+    ("gloves2", "MMMM", ("Warm, waterproof gloves", ""), ("Gants chauds et imperméables", ""), True),
+    ("pants", "MMMM", ("Waterproof overpants", ""), ("Surpantalon imperméable", ""), True),
+    ("blanket2", "MMMM", ("Survival blanket, 1.40 × 2 m (55 × 80 in) or more", ""), ("Couverture de survie de 1,40 × 2 m ou plus", ""), False),
+    # the hot-weather kit
+    ("sun2", "MMMM", ("Sunglasses", ""), ("Lunettes de soleil", ""), False),
+    ("sunscreen", "MMMM", ("Sunscreen", "SPF 50 recommended."), ("Crème solaire", "FPS 50 recommandé."), False),
+    ("water2", "MMMM", ("Water: 2 litres instead of 1", "Four 500 ml soft flasks = 2 L."), ("Eau : 2 litres au lieu de 1", "Quatre flasques de 500 ml = 2 L."), False),
+]
+UTMB_KITS = {"bad": ["sun", "midlayer2", "tuque", "gloves2", "pants", "blanket2"], "hot": ["sun2", "sunscreen", "water2"]}
+
+
+def utmb_na(cats):
+    """The UTMB North America list for one event: cats = the UTMB category of each distance, in the race's order."""
+    short20 = [d for d, c in cats if c == "20K"]
+    out = []
+    for kind, lv, en, fr, spec in UTMB_ITEMS:
+        levels = "".join(lv[UTMB_CAT[c]] for _, c in cats)
+        if not levels.strip():
+            continue
+        if kind == "water" and not short20:
+            en, fr = ("Water: 1 litre", en[1]), ("Eau : 1 litre", fr[1])
+        sh = " and ".join(short20)
+        out.append((kind, levels, {"en": (en[0].format(short20=sh), en[1]), "fr": (fr[0].format(short20=sh.replace(" and ", " et ")), fr[1])}, spec))
+    return out
+
+
+def utmb_race(name, short, where, when, cats, src, side="ca", de="de l'", le="l'", default=None):
+    return {"name": name, "short": short, "de": de, "le": le, "where": where, "when": when, "side": side,
+            "dists": [d for d, _ in cats], "default": default or cats[0][0], "unit": "label", "src": src, "cupless": True,
+            "read": {"en": "October 21, 2026 (2026–2027 list)", "fr": "21 octobre 2026 (liste 2026-2027)"},
+            "kits": UTMB_KITS, "items": utmb_na(cats)}
+
+
+RACES.update({
+    "ultra-trail-whistler": utmb_race("Ultra-Trail Whistler by UTMB", "Whistler", {"en": "Whistler, BC", "fr": "Whistler, C.-B."},
+                                      {"en": "June 25–27, 2027", "fr": "25 au 27 juin 2027"}, [("100K", "100K"), ("50K", "50K"), ("25K", "20K")], UTMB_NA),
+    # Fat Dog 120 (2026 Racer Guide, linked from fatdog120.ca/about/race-guide.html, read Oct 21, 2026): every distance, same list
+    "fat-dog-120": {
+        "name": "Fat Dog 120", "short": "Fat Dog", "de": "du ", "le": "le ", "unit": "label",
+        "where": {"en": "Cathedral & Manning Parks, BC", "fr": "Parcs Cathedral et Manning, C.-B."},
+        "when": {"en": "August 2027 (date to come)", "fr": "Août 2027 (date à venir)"},
+        "dists": ["120M", "100K", "40M"], "default": "120M", "cupless": True,
+        "src": "https://fatdog120.ca/about/race-guide.html",
+        "read": {"en": "October 21, 2026 (2026 Racer Guide)", "fr": "21 octobre 2026 (guide du coureur 2026)"},
+        "items": [
+            ("jacket", "MMM", {"en": ("Waterproof jacket with taped seams and a hood", ""), "fr": ("Manteau imperméable à coutures scellées avec capuchon", "")}, True),
+            ("headlamp", "MMM", {"en": ("Two light sources + spare batteries", "A headlamp and a small flashlight, for example. Spare batteries don't count as the second light."),
+                                 "fr": ("Deux sources de lumière + piles de rechange", "Par exemple une frontale et une petite lampe de poche. Les piles ne comptent pas comme 2e lumière.")}, True),
+            ("water", "MMM", {"en": ("Fluid capacity: 2 litres or more", "A 3 L bladder is recommended: up to 25 km between water stops."),
+                              "fr": ("Capacité de 2 litres ou plus", "Un sac d'hydratation de 3 L est recommandé : jusqu'à 25 km entre les points d'eau.")}, False),
+            ("food", "MMM", {"en": ("Food reserve: 400 calories or more", "Only for an emergency."), "fr": ("Réserve de nourriture : 400 calories ou plus", "Seulement en cas d'urgence.")}, False),
+            ("longpants", "MMM", {"en": ("Long pants or tights that cover the legs", "Tights + long socks also count. Waterproof pants are optional."),
+                                  "fr": ("Pantalon ou collant couvrant les jambes", "Un collant + des bas longs comptent aussi. Le pantalon imperméable est facultatif.")}, False),
+            ("midlayer", "MMM", {"en": ("Insulating long-sleeve layer", "Merino or light fleece recommended. A sun shirt or arm sleeves don't count."),
+                                 "fr": ("Couche isolante à manches longues", "Mérinos ou laine polaire légère recommandés. Un chandail solaire ou des manchons ne comptent pas.")}, False),
+            ("tuque", "MMM", {"en": ("Insulating hat or Buff", ""), "fr": ("Tuque ou Buff isolant", "")}, False),
+            ("gloves", "MMM", {"en": ("Gloves", ""), "fr": ("Gants", "")}, False),
+            ("cup", "MMM", {"en": ("Collapsible cup", "A cupless race: for drinks and food at every aid station."), "fr": ("Gobelet pliable", "Course sans verres : pour boire et manger à chaque ravito.")}, False),
+            ("blanket", "MMM", {"en": ("Two survival blankets or one bivy", ""), "fr": ("Deux couvertures de survie ou un sac bivouac", "")}, False),
+            ("whistle", "MMM", {"en": ("Whistle on the outside of your pack", "Many race vests have one on the chest strap: check yours."),
+                                "fr": ("Sifflet à l'extérieur du sac", "Plusieurs vestes de course en ont un sur la sangle de poitrine : vérifiez la vôtre.")}, False),
+            ("spoon", "MMM", {"en": ("Spoon or spork", "For the backcountry aid stations."), "fr": ("Cuillère ou cuillère-fourchette", "Pour les ravitos en arrière-pays.")}, False),
+            ("gps", "MMM", {"en": ("GPS with the course loaded", "A phone or GPS watch works, charged for the whole race."),
+                            "fr": ("GPS avec le parcours chargé", "Un téléphone ou une montre GPS, chargé pour toute la course.")}, False),
+            ("tracker", "M  ", {"en": ("Race tracker on your pack", "Given by the race, 120 miles only."), "fr": ("Balise de la course sur le sac", "Fournie par la course, 120 milles seulement.")}, False),
+            ("filter", "RRR", {"en": ("Filter flask or water treatment tablets", "If you drink from streams."), "fr": ("Gourde filtrante ou pastilles", "Si vous buvez dans les ruisseaux.")}, False),
+            ("socks", "RRR", {"en": ("Extra pair of socks", ""), "fr": ("Bas de rechange", "")}, False),
+            ("sunscreen", "RRR", {"en": ("Sunscreen and lip balm", ""), "fr": ("Crème solaire et baume à lèvres", "")}, False),
+            ("bandage", "RRR", {"en": ("Compression bandage", ""), "fr": ("Bandage de compression", "")}, False),
+            ("firstaid", "RRR", {"en": ("Small first aid and foot care kit", ""), "fr": ("Petite trousse de premiers soins et soins des pieds", "")}, False),
+        ],
+    },
+})
+
+# USA side (Oct 21): /us/races/, English, prices in US$ from deals-us.json
+US_EV = {
+    "canyons": "v1787099482/canyons/2027%20PDFs/2026_and_2027_UTMB_MANDATORY_and_RECOMMENDED_EQUIPMENT_North_America_1_e562161c6e.pdf.pdf",
+    "desertrats": "v1787099336/desertrats/2027%20PDFs/2026_and_2027_UTMB_MANDATORY_and_RECOMMENDED_EQUIPMENT_North_America_1_6e26582fe1.pdf.pdf",
+    "rothrock": "v1787145639/rothrock/Race%20Regs%20and%20Man.%20Gear%20Fall%202026/2026_and_2027_UTMB_MANDATORY_and_RECOMMENDED_EQUIPMENT_North_America_1_3375f06592_pdf_83b85beef5.pdf.pdf",
+    "chattanooga": "v1785433896/chattanooga/Race%20Regs%20and%20Gear/2026_and_2027_UTMB_MANDATORY_and_RECOMMENDED_EQUIPMENT_North_America_d208f605bf.pdf.pdf",
+    "speedgoat": "v1787100011/speedgoat/2027%20PDFs/2026_and_2027_UTMB_MANDATORY_and_RECOMMENDED_EQUIPMENT_North_America_1_a09e12053b.pdf.pdf",
+    "snowbasin": "v1786541690/snowbasin/Race%20Regs%20and%20Gear/2026_and_2027_UTMB_MANDATORY_and_RECOMMENDED_EQUIPMENT_North_America_1_f772a1224d.pdf.pdf",
+    "grindstone": "v1787683381/grindstone/Race%20Regs%20and%20Man.%20Gear%20Fall%202026/2026_and_2027_UTMB_MANDATORY_and_RECOMMENDED_EQUIPMENT_North_America_1_3375f06592_pdf_b283634717.pdf.pdf",
+}
+_us = lambda ev: "https://pdf.utmb.world/image/upload/" + US_EV[ev]
+_w = lambda t: {"en": t, "fr": t}
+RACES.update({
+    "canyons-endurance-runs": utmb_race("Canyons Endurance Runs by UTMB", "Canyons", _w("Auburn, California"), _w("April 22–25, 2027"),
+                                        [("100M", "100M"), ("100K", "100K"), ("50K", "50K"), ("25K", "20K")], _us("canyons"), "us"),
+    "desert-rats": utmb_race("Desert RATS Trail Running Festival by UTMB", "Desert RATS", _w("Fruita, Colorado"), _w("April 8–11, 2027"),
+                             [("100K", "100K"), ("50K", "50K"), ("21K", "20K")], _us("desertrats"), "us"),
+    "rothrock": utmb_race("Rothrock by UTMB", "Rothrock", _w("Tussey Mountain, Pennsylvania"), _w("May 14–16, 2027"),
+                          [("50K", "50K"), ("25K", "20K")], _us("rothrock"), "us"),
+    "ultra-trail-chattanooga": utmb_race("Ultra Trail Chattanooga by UTMB", "Chattanooga", _w("Chattanooga, Tennessee"), _w("June 4–6, 2027"),
+                                         [("100K", "100K"), ("50K", "50K"), ("20K", "20K")], _us("chattanooga"), "us"),
+    "speedgoat": utmb_race("Speedgoat Mountain Races by UTMB", "Speedgoat", _w("Snowbird, Utah"), _w("July 22–24, 2027"),
+                           [("50K", "50K")], _us("speedgoat"), "us"),
+    "snowbasin": utmb_race("Snowbasin by UTMB", "Snowbasin", _w("Snowbasin Resort, Utah"), _w("September 16–18, 2027"),
+                           [("58K", "50K"), ("28K", "20K")], _us("snowbasin"), "us"),
+    "grindstone": utmb_race("Grindstone Trail Running Festival by UTMB", "Grindstone", _w("Natural Chimneys Park, Virginia"), _w("September 23–26, 2027"),
+                            [("100M", "100M"), ("100K", "100K"), ("50K", "50K"), ("21K", "20K")], _us("grindstone"), "us"),
+})
+
+
 S = {
     "en": {
-        "dir": "races", "title": "{name} mandatory gear list ({short} {dists} km)",
-        "desc": "The {name} mandatory gear list for the {dists} km, item by item, with today's best prices on each in your size at Canadian stores.",
-        "h1": "{name} mandatory gear list", "sub": "{short} {dists} km · {where} · {when}",
+        "dir": "races", "title": "{name} mandatory gear list ({short} {dists})",
+        "desc": "The {name} mandatory gear list for the {dists}, item by item, with today's best prices on each in your size at Canadian stores.",
+        "h1": "{name} mandatory gear list", "sub": "{short} {dists} · {where} · {when}",
         "dist": "Your distance", "km": "{d} km",
         "M": "Mandatory", "R": "Recommended", "A": "Allowed",
         "have": "I have it", "progress": "You have {h} of {n} mandatory items. Tick what you already own.", "progressAll": "You have every mandatory item. See you at the start.",
@@ -287,21 +425,21 @@ S = {
         "notSold": "The stores we check don't sell this.", "spec": "Check the spec before you buy.",
         "more": "See more on sale →", "moreN": "See all {n}", "shH": "Trail running shoes", "shTag": "Your pick", "shPh": "What do you race in?", "shSize": "Size", "shGone": "Not in stock in size {s} today. We'll tell you when it's back.", "shPickSize": "Pick your size too.", "shPickFit": "Pick Men's or Women's above first.", "shFrom": "{p} in size {s} today", "shPage": "Every size & store", "shNone": "Not in our trail shoe list. Try the brand name.", "shRm": "Remove", "watch": "Watch", "watchOn": "Watching", "watchL": "Watch the price", "wMember": "Watching. We'll email you when it drops in your size.", "wNew": "Watching, on this phone. Add your email and we'll tell you when it drops.", "wPending": "Watching. Confirm your email (check your inbox) to get the drop emails.", "wAdd": "Add my email", "wOff": "Removed from your watchlist.", "sizeH": "Your size", "sizeTxt": "Pick it once to see deals that fit you.",
         "men": "Men's", "women": "Women's", "change": "Change", "off": "off",
-        "kit_bad": "🌧 Bad-weather kit", "kit_hot": "☀️ Hot-weather kit", "kitWhen": "Only if the race calls it, usually a few days before the start.",
+        "kit_bad": "Bad-weather kit", "kit_hot": "Hot-weather kit", "kitWhen": "Only if the race calls it, usually a few days before the start.",
         "byOpen": "Different size in shorts, socks or gloves?", "by": {"tops": "Tops", "bottoms": "Shorts & tights", "socks": "Socks", "gloves": "Gloves"},
         "src": "From the race's official list (last updated by the race {date}). Rules can change: check the {link} before race day.",
         "srcLink": "official list", "srcRead": "From the race's official list (as published when we read it, {date}). Rules can change: check the {link} before race day.", "notAff": "The Gear Fox isn't affiliated with the race.",
         "boxH": "Get gear deals in your size every Friday until race day", "boxTxt": "Free. One email on Friday mornings with the best deals in your sizes. Unsubscribe in one tap.",
         "boxBtn": "Send me the deals", "faqH": "Quick answers",
-        "qList": "What is the mandatory gear for the {short} {d} km?", "aList": "{items}.",
-        "qJacket": "Is a windbreaker enough for the {name}?", "aJacket": "No. The race asks for a jacket with an attached hood and a waterproof, breathable membrane (on the {dists} km). Windbreakers aren't accepted.",
+        "qList": "What is the mandatory gear for the {short} {d}?", "aList": "{items}.",
+        "qJacket": "Is a windbreaker enough for the {name}?", "aJacket": "No. The race asks for a jacket with an attached hood and a waterproof, breathable membrane (on the {dists}). Windbreakers aren't accepted.",
         "qCup": "Do the {name} aid stations have cups?", "aCup": "No. The aid stations have no cups: bring your own reusable cup.",
         "aisle": "Race gear lists", "money": T["en"]["money"],
     },
     "fr": {
-        "dir": "courses", "title": "Matériel obligatoire {de}{name} ({short} {dists} km)",
-        "desc": "Le matériel obligatoire {de}{name} pour le {dists} km, article par article, avec les meilleurs prix du jour dans votre taille dans les boutiques canadiennes.",
-        "h1": "Matériel obligatoire {de}{name}", "sub": "{short} {dists} km · {where} · {when}",
+        "dir": "courses", "title": "Matériel obligatoire {de}{name} ({short} {dists})",
+        "desc": "Le matériel obligatoire {de}{name} pour le {dists}, article par article, avec les meilleurs prix du jour dans votre taille dans les boutiques canadiennes.",
+        "h1": "Matériel obligatoire {de}{name}", "sub": "{short} {dists} · {where} · {when}",
         "dist": "Votre distance", "km": "{d} km",
         "M": "Obligatoire", "R": "Recommandé", "A": "Permis",
         "have": "Je l'ai", "progress": "Vous avez {h} des {n} articles obligatoires. Cochez ce que vous avez déjà.", "progressAll": "Vous avez tout le matériel obligatoire. On se voit au départ.",
@@ -309,18 +447,37 @@ S = {
         "notSold": "Les boutiques que nous suivons n'en vendent pas.", "spec": "Vérifiez les caractéristiques avant d'acheter.",
         "more": "Voir plus d'aubaines →", "moreN": "Voir les {n}", "shH": "Chaussures de course en sentier", "shTag": "Votre choix", "shPh": "Vos chaussures de course ?", "shSize": "Pointure", "shGone": "Pas en stock en pointure {s} aujourd'hui. On vous avertit dès son retour.", "shPickSize": "Choisissez aussi votre pointure.", "shPickFit": "Choisissez d'abord Homme ou Femme plus haut.", "shFrom": "{p} en pointure {s} aujourd'hui", "shPage": "Toutes les pointures et boutiques", "shNone": "Pas dans notre liste de chaussures de sentier. Essayez le nom de la marque.", "shRm": "Retirer", "watch": "Suivre", "watchOn": "Suivi", "watchL": "Suivre le prix", "wMember": "Suivi. On vous écrit quand il baisse dans votre taille.", "wNew": "Suivi, sur ce téléphone. Ajoutez votre courriel et on vous avertira quand il baisse.", "wPending": "Suivi. Confirmez votre courriel (voyez votre boîte de réception) pour recevoir les alertes.", "wAdd": "Ajouter mon courriel", "wOff": "Retiré de vos favoris.", "sizeH": "Votre taille", "sizeTxt": "Choisissez-la une fois pour voir les aubaines à votre taille.",
         "men": "Homme", "women": "Femme", "change": "Modifier", "off": "de rabais",
-        "kit_bad": "🌧 Kit mauvais temps", "kit_hot": "☀️ Kit chaleur", "kitWhen": "Seulement si la course l'annonce, habituellement quelques jours avant le départ.",
+        "kit_bad": "Kit mauvais temps", "kit_hot": "Kit chaleur", "kitWhen": "Seulement si la course l'annonce, habituellement quelques jours avant le départ.",
         "byOpen": "Une autre taille en shorts, bas ou gants ?", "by": {"tops": "Hauts", "bottoms": "Shorts et collants", "socks": "Bas", "gloves": "Gants"},
         "src": "Selon la liste officielle de la course (mise à jour par la course le {date}). Les règles peuvent changer : vérifiez la {link} avant la course.",
         "srcLink": "liste officielle", "srcRead": "Selon la liste officielle de la course (telle que publiée quand nous l'avons lue, le {date}). Les règles peuvent changer : vérifiez la {link} avant la course.", "notAff": "The Gear Fox n'est pas affilié à la course.",
         "boxH": "Les aubaines de matériel dans votre taille, chaque vendredi jusqu'à la course", "boxTxt": "Gratuit. Un courriel le vendredi matin avec les meilleures aubaines dans vos tailles. Désabonnement en un clic.",
         "boxBtn": "Envoyez-moi les aubaines", "faqH": "Réponses rapides",
-        "qList": "Quel est le matériel obligatoire du {short} {d} km?", "aList": "{items}.",
-        "qJacket": "Un coupe-vent suffit-il pour {le}{name}?", "aJacket": "Non. La course demande un manteau avec capuchon attaché et une membrane imperméable et respirante (sur le {dists} km). Les coupe-vent ne sont pas acceptés.",
+        "qList": "Quel est le matériel obligatoire du {short} {d}?", "aList": "{items}.",
+        "qJacket": "Un coupe-vent suffit-il pour {le}{name}?", "aJacket": "Non. La course demande un manteau avec capuchon attaché et une membrane imperméable et respirante (sur le {dists}). Les coupe-vent ne sont pas acceptés.",
         "qCup": "Y a-t-il des verres aux ravitaillements {de}{name}?", "aCup": "Non. Les ravitaillements n'ont pas de verres : apportez votre gobelet réutilisable.",
         "aisle": "Listes de matériel de course", "money": T["fr"]["money"],
     },
 }
+
+S["us"] = dict(S["en"], dir="us/races", desc="The {name} mandatory gear list for the {dists}, item by item, with today's best prices on each in your size at US stores.")
+
+
+def dlab(race, d, L):
+    """A distance as people say it: "125 km" for Québec races, "100K" / "100 mi" for races named that way (UTMB, Fat Dog)."""
+    if race.get("unit") != "label":
+        return S[L]["km"].format(d=d)
+    return f'{d[:-1]} {"milles" if L == "fr" else "mi"}' if d.endswith("M") else d
+
+
+def dlabs(race, L, ds=None):
+    ds = ds or race["dists"]
+    return "/".join(dlab(race, d, L) for d in ds) if race.get("unit") == "label" else "/".join(ds) + " km"
+
+
+def tl(L):
+    return US if L == "us" else T[L]
+
 
 CSS = """
 .dists{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 12px}
@@ -359,7 +516,7 @@ CSS = """
 .kit{order:20;background:var(--card);border:1.5px dashed var(--line);border-radius:14px;padding:10px 14px}.kit[hidden]{display:none}
 .kit summary{font:700 18px/1.3 var(--display);cursor:pointer;min-height:32px;display:flex;align-items:center}.kit .kitwhen{margin:4px 0 10px}
 .gl.sub{gap:8px}.gl.sub .gi{border-color:var(--line)}
-.gi.shoe{border-color:var(--hivis)}.gi.shoe .shi{flex:none;width:24px;text-align:center;font-size:18px}.lv.Y{background:var(--ink);color:var(--card)}
+.gi.shoe{border-color:var(--hivis)}.gi.shoe .shi{flex:none;width:24px;display:flex;justify-content:center;color:var(--muted)}.lv.Y{background:var(--ink);color:var(--card)}
 .shrow{display:flex;gap:8px;margin-top:10px}.shrow select{flex:none;width:104px;font:600 16px var(--body);color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:0 8px}
 .gi.shoe input{flex:1;min-width:0;font:400 16px var(--body);color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:11px 13px}
 .sugg,.mine2{list-style:none;padding:0;margin:6px 0 0;display:grid;gap:4px}.sugg:empty,.mine2:empty{display:none}
@@ -391,7 +548,7 @@ BAD = re.compile(r"seat ?mast|seat ?post|\bbiogel\b", re.I)   # bike parts still
 def pool(items, kind, stores):
     """Race gear for one line of the list, full price too (people watch it for a drop): trail gear first, then how many stores
     carry it (the best popularity signal we have), then a sale."""
-    k = KINDS[kind.rstrip("2")]
+    k = KINDS.get(kind) or KINDS[kind.rstrip("2")]
     need, good = re.compile(k["need"], re.I), re.compile(k["good"], re.I)
     xx = re.compile(k["x"], re.I) if k.get("x") else None
     out = []
@@ -553,16 +710,17 @@ def deal_html(L, r):
             f'<span class="hh">♡</span><span class="wl"> {S[L]["watch"]}</span></button></li>')
 
 
-def page(slug, race, L, items, stores, pages=None):
-    s, other = S[L], "fr" if L == "en" else "en"
-    dists = "/".join(race["dists"])
-    fmt = dict(name=race["name"], short=race["short"], dists=dists, where=race["where"][L], when=race["when"][L],
-               de=race.get("de", "de l'"), le=race.get("le", "l'"))
-    path = {"en": f"/races/{slug}/", "fr": f"/courses/{slug}/"}
-    head = page_head(T[L], s["title"].format(**fmt), s["desc"].format(**fmt), path["en"], path["fr"], f"<style>{CSS}</style>")
+def page(slug, race, L, items, stores, pages=None, fx=1.0):
+    s, Tl = S[L], tl(L)
+    fmt = dict(name=race["name"], short=race["short"], dists=dlabs(race, L), where=race["where"][L if L != "us" else "en"],
+               when=race["when"][L if L != "us" else "en"], de=race.get("de", "de l'"), le=race.get("le", "l'"))
+    if L == "us":   # one English page, no French twin; the "Canadian stores" switch goes to the Canadian race lists
+        head = page_head(US, s["title"].format(**fmt), s["desc"].format(**fmt), f"/us/races/{slug}/", "", f"<style>{CSS}</style>").replace('class="sw" href="/shoes/"', 'class="sw" href="/races/"')
+    else:
+        head = page_head(T[L], s["title"].format(**fmt), s["desc"].format(**fmt), f"/races/{slug}/", f"/courses/{slug}/", f"<style>{CSS}</style>")
     pools, rows, shown, kits = {}, [], set(), {}
     for kind, lv, txt, spec in race["items"]:
-        title, note = txt[L]
+        title, note = txt["en" if L == "us" else L]
         sold = kind.rstrip("2") in KINDS
         p = pool(items, kind, stores) if sold else []
         if sold:
@@ -594,10 +752,10 @@ def page(slug, race, L, items, stores, pages=None):
     faq = []
     for i, d in enumerate(race["dists"]):
         inkit = {k for ks in (race.get("kits") or {}).values() for k in ks}
-        must = [txt[L][0] for kind, lv, txt, _ in race["items"] if lv[i] == "M" and kind not in inkit]
-        faq.append((s["qList"].format(d=d, **fmt), s["aList"].format(items=", ".join(must))))
+        must = [txt["en" if L == "us" else L][0] for kind, lv, txt, _ in race["items"] if lv[i] == "M" and kind not in inkit]
+        faq.append((s["qList"].format(d=dlab(race, d, L), **fmt), s["aList"].format(items=", ".join(must))))
     if race.get("faq_jacket"):        # Harricana: "windbreakers will not be accepted"
-        faq.append((s["qJacket"].format(**fmt), s["aJacket"].format(**{**fmt, "dists": "/".join(d for i, d in enumerate(race["dists"]) if dict((k, lv) for k, lv, *_ in race["items"])["jacket"][i] == "M")})))
+        faq.append((s["qJacket"].format(**fmt), s["aJacket"].format(**{**fmt, "dists": dlabs(race, L, [d for i, d in enumerate(race["dists"]) if dict((k, lv) for k, lv, *_ in race["items"])["jacket"][i] == "M"])})))
     if race.get("cupless"):           # the race says its aid stations have no cups
         faq.append((s["qCup"].format(**fmt), s["aCup"]))
     ld = {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
@@ -605,9 +763,9 @@ def page(slug, race, L, items, stores, pages=None):
     src = race.get("src_fr") if L == "fr" and race.get("src_fr") else race["src"]
     # Oct 20 (Bastien: "put it in the checklist as trail runners, choose your shoe"): the first line of the list, every distance
     every = "".join(f' data-l{d}="Y"' for d in race["dists"])
-    shoe_row = (f'<li class="gi shoe" id="shoeBox" data-k="shoes"{every} data-root="" data-dir="{T[L]["dir"]}" '
+    shoe_row = (f'<li class="gi shoe" id="shoeBox" data-k="shoes"{every} data-root="" data-dir="{Tl["dir"]}" '
                 f'data-pickfit="{esc(s["shPickFit"])}" data-from="{esc(s["shFrom"])}" data-page="{esc(s["shPage"])}" data-none="{esc(s["shNone"])}" data-rm="{esc(s["shRm"])}" data-gone="{esc(s["shGone"])}" data-picksize="{esc(s["shPickSize"])}">'
-                f'<div class="hd"><span class="shi" aria-hidden="true">👟</span><h3>{s["shH"]}</h3><span class="lv Y">{s["shTag"]}</span></div>'
+                f'<div class="hd"><span class="shi" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 17v-6l3.5-3 3 2.5 2.5-2.5 4.5 4.5h3a2.5 2.5 0 0 1 2.5 2.5V17z"/><path d="M2.5 20.5h19"/></svg></span><h3>{s["shH"]}</h3><span class="lv Y">{s["shTag"]}</span></div>'
                 f'<div class="shrow"><input type="search" id="shoeQ" autocomplete="off" enterkeyhint="search" placeholder="{esc(s["shPh"])}" aria-label="{esc(s["shH"])}">'
                 f'<select id="shoeSz" aria-label="{esc(s["shSize"])}" data-ph="{esc(s["shSize"])}"></select></div>'
                 f'<ul class="sugg" id="shoeSug" role="listbox"></ul><ul class="mine2" id="shoeMine"></ul></li>')
@@ -616,7 +774,7 @@ def page(slug, race, L, items, stores, pages=None):
                       for g in ("tops", "bottoms", "socks", "gloves"))
     pj = json.dumps(pools, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     sj = json.dumps(trail_shoes(items, pages), ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
-    body = f"""<p class="crumbs"><a href="{T[L]['home']}">The Gear Fox</a> › {s['aisle']}</p>
+    body = f"""<p class="crumbs"><a href="{Tl['home']}">The Gear Fox</a> › <a href="/{s['dir']}/">{s['aisle']}</a></p>
 <h1>{esc(s['h1'].format(**fmt))}</h1>
 <p class="sub">{esc(s['sub'].format(**fmt))}</p>
 <section class="rsize" id="rsize" data-men="{s['men']}" data-women="{s['women']}" data-change="{s['change']}"><p><b>{s['sizeH']}</b> · {s['sizeTxt']}</p>
@@ -625,19 +783,19 @@ def page(slug, race, L, items, stores, pages=None):
 <div class="row" data-s style="margin-top:6px">{"".join(f'<button type="button" data-s="{z}">{z}</button>' for z in ("XS", "S", "M", "L", "XL", "2XL"))}</div>
 <p class="bym"><button type="button" data-byopen>{s['byOpen']}</button></p><div class="byrows" hidden>{by_rows}</div></section>
 <p class="lbl">{s['dist']}</p>
-<div class="dists" role="group" aria-label="{s['dist']}">{"".join(f'<button type="button" data-d="{d}" aria-pressed="{str(d == race["default"]).lower()}">{s["km"].format(d=d)}</button>' for d in race["dists"])}</div>
+<div class="dists" role="group" aria-label="{s['dist']}">{"".join(f'<button type="button" data-d="{d}" aria-pressed="{str(d == race["default"]).lower()}">{dlab(race, d, L)}</button>' for d in race["dists"])}</div>
 <p class="prog" id="prog" data-t="{esc(s['progress'])}" data-all="{esc(s['progressAll'])}"></p>
 <ul class="gl" id="gl" data-race="{slug}" data-default="{race['default']}" data-lm="{s['M']}" data-lr="{s['R']}" data-la="{s['A']}"
- data-home="{T[L]['home']}" data-watch="{esc(s['watch'])}" data-won="{esc(s['watchOn'])}" data-wmember="{esc(s['wMember'])}" data-wnew="{esc(s['wNew'])}" data-wpending="{esc(s['wPending'])}" data-wadd="{esc(s['wAdd'])}" data-woff="{esc(s['wOff'])}" data-moren="{esc(s['moreN'])}" data-dh="{esc(s['deals'])}" data-dhs="{esc(s['dealsSize'])}" data-none="{esc(s['noDeals'])}" data-few="{esc(s['few'])}" data-off="{esc(s['off'])}" data-ly="{esc(s['shTag'])}">{shoe_row}{"".join(rows)}</ul>
-<p class="srcb">{(s['src'] if race.get('updated') else s['srcRead']).format(date=(race.get('updated') or race['read'])[L], link=f'<a href="{src}" rel="noopener">{s["srcLink"]}</a>')} {s['notAff']}</p>
-<section class="alert" id="raceBox" data-ref="race-{slug}" data-bad="{esc(T[L]['alertBad'])}" data-ok="{esc(T[L]['alertOk'])}" data-fail="{esc(T[L]['alertFail'])}" data-pick="{esc(s['sizeTxt'])}">
-<h2>{esc(s['boxH'])}</h2><p class="fine">{esc(s['boxTxt'])}</p><form novalidate><input type="email" autocomplete="email" inputmode="email" placeholder="{esc(T[L]['emailPh'])}" aria-label="Email" required><button type="submit">{esc(s['boxBtn'])}</button></form><p class="msg" aria-live="polite"></p></section>
+ data-home="{Tl['home']}" data-watch="{esc(s['watch'])}" data-won="{esc(s['watchOn'])}" data-wmember="{esc(s['wMember'])}" data-wnew="{esc(s['wNew'])}" data-wpending="{esc(s['wPending'])}" data-wadd="{esc(s['wAdd'])}" data-woff="{esc(s['wOff'])}" data-moren="{esc(s['moreN'])}" data-dh="{esc(s['deals'])}" data-dhs="{esc(s['dealsSize'])}" data-none="{esc(s['noDeals'])}" data-few="{esc(s['few'])}" data-off="{esc(s['off'])}" data-ly="{esc(s['shTag'])}">{shoe_row}{"".join(rows)}</ul>
+<p class="srcb">{(s['src'] if race.get('updated') else s['srcRead']).format(date=(race.get('updated') or race['read'])["en" if L == "us" else L], link=f'<a href="{src}" rel="noopener">{s["srcLink"]}</a>')} {s['notAff']}</p>
+<section class="alert" id="raceBox" data-ref="race-{slug}" data-bad="{esc(Tl['alertBad'])}" data-ok="{esc(Tl['alertOk'])}" data-fail="{esc(Tl['alertFail'])}" data-pick="{esc(s['sizeTxt'])}">
+<h2>{esc(s['boxH'])}</h2><p class="fine">{esc(s['boxTxt'])}</p><form novalidate><input type="email" autocomplete="email" inputmode="email" placeholder="{esc(Tl['emailPh'])}" aria-label="Email" required><button type="submit">{esc(s['boxBtn'])}</button></form><p class="msg" aria-live="polite"></p></section>
 <section class="faq"><h2>{s['faqH']}</h2>{"".join(f'<details><summary>{esc(q)}</summary><p>{esc(a)}</p></details>' for q, a in faq)}</section>
 <script type="application/ld+json">{json.dumps(ld, ensure_ascii=False)}</script>
 <script id="pools" type="application/json">{pj}</script>
 <script id="shoes" type="application/json">{sj}</script>
 """
-    return head + body + SCRIPT.replace("$LANG", L).replace("$CUR", "CAD") + page_foot(T[L]).replace('"shoe-page"', '"race-page"').replace("|shoes||shoe-page", "|gear||race-page")
+    return head + body + SCRIPT.replace("$LANG", "en" if L == "us" else L).replace("$CTRY", "us" if L == "us" else "ca").replace("$FX", str(fx)) + page_foot(Tl).replace('"shoe-page"', '"race-page"').replace("|shoes||shoe-page", "|gear||race-page")
 
 
 # picks the deals in the visitor's fit and clothing size, remembers the distance and the ticks (this browser only)
@@ -653,7 +811,7 @@ if(!rs&&prof&&prof.sizes){var per={},votes={};["tops","bottoms","socks","gloves"
   size=Object.keys(votes).sort(function(a,b){return votes[b]-votes[a]})[0]||"";["tops","bottoms","socks","gloves"].forEach(function(g){if(per[g]&&per[g]!==size)by[g]=per[g]})}
 var sizeFor=function(g){return (g==="bras"?by.tops:by[g])||size};
 var nm=function(n){return fr?n.replace(/Women[’']s\b/g,"Femme").replace(/Men[’']s\b/g,"Homme").replace(/\bUnisex\b/g,"Unisexe"):n};
-var money=function(v){return fr?v.toFixed(2).replace(".",",")+" $":"$"+v.toFixed(2)};
+var FX=$FX,money=function(v){v=v/FX;return fr?v.toFixed(2).replace(".",",")+" $":"$"+v.toFixed(2)};   // US pages: the data is in CAD, shown in US$
 var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})};
 var ALIAS={"XXS":"2XS","XXL":"2XL","X-SMALL":"XS","SMALL":"S","MEDIUM":"M","LARGE":"L","X-LARGE":"XL","EXTRA LARGE":"XL","XX-SMALL":"2XS"};
 var norm=function(z){z=String(z).toUpperCase().trim();return ALIAS[z]||z};
@@ -768,7 +926,7 @@ f.addEventListener("submit",function(e){e.preventDefault();
   var G=["shoes","tops","bottoms","bras","socks","gloves","headwear","packs","gear","watches","nutrition"],p;
   if(prof&&prof.sizes)p=JSON.parse(JSON.stringify(prof));
   else{var sz={shoes:{sizes:[],width:[]}};G.slice(1).forEach(function(k){sz[k]={sizes:[]}});
-    p={lang:fr?"fr":"en",country:"ca",tz:tz,name:"",gender:fit,terrain:"trail",ships:"ca",groups:G,sizes:sz,brands:[],activities:[]}}
+    p={lang:fr?"fr":"en",country:"$CTRY",tz:tz,name:"",gender:fit,terrain:"trail",ships:"$CTRY",groups:G,sizes:sz,brands:[],activities:[]}}
   ["tops","bottoms","bras","socks","gloves","headwear"].forEach(function(k){if(!(p.sizes[k]&&(p.sizes[k].sizes||[]).length))p.sizes[k]={sizes:[sizeFor(k)]}});
   if(ssel.value&&!(p.sizes.shoes&&(p.sizes.shoes.sizes||[]).length))p.sizes.shoes={sizes:[ssel.value],width:[]};
   p.email=em;if(!p.ref)p.ref=get("gf-ref")||box.dataset.ref;var btn=f.querySelector("button");btn.disabled=true;
@@ -792,17 +950,25 @@ HUB = {
            "intro": "Le matériel obligatoire de chaque course, tel que publié par la course, avec les meilleurs prix du jour dans votre taille. D'autres courses s'en viennent.",
            "go": "Liste du matériel obligatoire →", "dists": "{d} km"},
 }
+HUB["us"] = dict(HUB["en"], desc="Mandatory gear lists for trail and ultra races, item by item, with today's best prices in your size at US stores.")
+OTHER = {"en": ("Racing in the US?", "US race gear lists →", "/us/races/"), "fr": ("Vous courez aux États-Unis ?", "Listes des courses américaines →", "/us/races/"),
+         "us": ("Racing in Canada?", "Canadian race gear lists →", "/races/")}
+
+
+def side(L):
+    return [(slug, r) for slug, r in RACES.items() if (r.get("side") == "us") == (L == "us")]
 
 
 def hub(L):
-    """/races/ + /courses/ (Oct 21, Bastien: a ☰ menu item "even if it's one; we will add more soon")."""
-    h = HUB[L]
+    """/races/ + /courses/ (Oct 21, Bastien: a ☰ menu item "even if it's one; we will add more soon"); /us/races/ for the USA side."""
+    h, Tl, LL = HUB[L], tl(L), "en" if L == "us" else L
     rows = "".join(f'<li><a href="/{S[L]["dir"]}/{slug}/"><span class="nm"><b>{esc(r["name"])}</b>'
-                   f'<small>{esc(r["where"][L])} · {esc(r["when"][L])} · {h["dists"].format(d="/".join(r["dists"]))}</small></span>'
-                   f'<span class="pr">{h["go"]}</span></a></li>' for slug, r in RACES.items())
-    return (page_head(T[L], h["title"], h["desc"], "/races/", "/courses/")
-            + f'<p class="crumbs"><a href="{T[L]["home"]}">The Gear Fox</a></p><h1>{esc(h["h1"])}</h1><p class="sub">{esc(h["intro"])}</p>'
-            + f'<ul class="cards">{rows}</ul>' + page_foot(T[L]))
+                   f'<small>{esc(r["where"][LL])} · {esc(r["when"][LL])} · {esc(dlabs(r, L))}</small></span>'
+                   f'<span class="pr">{h["go"]}</span></a></li>' for slug, r in side(L))
+    o = OTHER[L]
+    head = page_head(US, h["title"], h["desc"], "/us/races/", "").replace('class="sw" href="/shoes/"', 'class="sw" href="/races/"') if L == "us" else page_head(T[L], h["title"], h["desc"], "/races/", "/courses/")
+    return (head + f'<p class="crumbs"><a href="{Tl["home"]}">The Gear Fox</a></p><h1>{esc(h["h1"])}</h1><p class="sub">{esc(h["intro"])}</p>'
+            + f'<ul class="cards">{rows}</ul><p class="sub">{esc(o[0])} <a href="{o[2]}">{esc(o[1])}</a></p>' + page_foot(Tl))
 
 
 def add_to_sitemap(site):
@@ -811,7 +977,7 @@ def add_to_sitemap(site):
     if not p.exists():
         return
     x = p.read_text()
-    urls = ["/races/", "/courses/"] + [f"/{S[L]['dir']}/{slug}/" for slug in RACES for L in ("en", "fr")]
+    urls = ["/races/", "/courses/", "/us/races/"] + [f"/{S[L]['dir']}/{slug}/" for L in ("en", "fr", "us") for slug, _ in side(L)]
     today = __import__("datetime").date.today().isoformat()
     new = "".join(f"<url><loc>https://thegearfox.com{u}</loc><lastmod>{today}</lastmod></url>\n" for u in urls if f"https://thegearfox.com{u}<" not in x)
     if new and "</urlset>" in x:
@@ -826,13 +992,27 @@ def main():
         pages = json.loads((site / "shoes" / "pages.json").read_text())       # written by shoe_pages.py earlier in the refresh
     except Exception:
         pages = {}
-    for slug, race in RACES.items():
+    for slug, race in side("en"):
         for L in ("en", "fr"):
             out = site / S[L]["dir"] / slug / "index.html"
             out.parent.mkdir(parents=True, exist_ok=True)
             out.write_text(page(slug, race, L, sale["items"], stores, pages))
             print("wrote", out)
-    for L in ("en", "fr"):
+    us = site / "deals-us.json"         # USA side (Oct 21): same pages from the US data, prices in US$
+    if us.exists():
+        data = json.loads(us.read_text())
+        fx = float((data.get("fx") or {}).get("USD") or 1.37)
+        S["us"]["money"] = lambda v: f"${v / fx:,.2f}"
+        try:
+            us_pages = json.loads((site / "us" / "shoes" / "pages.json").read_text())
+        except Exception:
+            us_pages = {}
+        for slug, race in side("us"):
+            out = site / S["us"]["dir"] / slug / "index.html"
+            out.parent.mkdir(parents=True, exist_ok=True)
+            out.write_text(page(slug, race, "us", data["items"], stores, us_pages, fx))
+            print("wrote", out)
+    for L in ("en", "fr", "us"):
         (site / S[L]["dir"]).mkdir(parents=True, exist_ok=True)
         (site / S[L]["dir"] / "index.html").write_text(hub(L))
     add_to_sitemap(site)

@@ -1385,7 +1385,7 @@ function setCountry(c,from){if(c===COUNTRY||(c!=="us"&&c!=="ca"))return;COUNTRY=
   if(LS0("rd-profile"))saveProfile();applyStatic();renderCountry();
   if(!$("sheet").classList.contains("hidden"))openSheet();renderAll();loadCountry()}
 function renderCountry(){document.querySelectorAll("[data-ctry]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.ctry===COUNTRY)));document.documentElement.classList.toggle("us",US());
-  $("mShoes").href=US()?"us/shoes/":LANG==="fr"?"chaussures/":"shoes/";$("mRaces").href=LANG==="fr"?"courses/":"races/";$("mRaces").hidden=US()}   // race gear lists (Oct 21): Canadian races for now
+  $("mShoes").href=US()?"us/shoes/":LANG==="fr"?"chaussures/":"shoes/";$("mRaces").href=US()?"us/races/":LANG==="fr"?"courses/":"races/"}   // race gear lists (Oct 21; US races on the USA side)
 document.addEventListener("click",e=>{const b=e.target.closest("[data-ctry]");if(b)setCountry(b.dataset.ctry,b.closest("#menu")?"menu":"welcome")});
 renderCountry();
 const PAGE=8, MORE=24;
@@ -1796,7 +1796,7 @@ $("filtersBox").addEventListener("change",e=>{const el=e.target;if(!el||el.close
   ana(el.id==="sort"?"sort":"filter",(el.id||el.name||el.value||"")+(el.type==="checkbox"?":"+el.checked:el.id==="sort"?"":":"+el.value),null)});
 /* ☰ menu: the shoe pages, watchlist, sizes, About, Instagram, language and currency */
 function menuOpen(on){$("menu").hidden=!on;$("menuBtn").setAttribute("aria-expanded",String(on));
-  if(on){$("mShoes").href=LANG==="fr"?"chaussures/":"shoes/";$("mRaces").href=LANG==="fr"?"courses/":"races/";const f=$("menu").querySelector("a,button");if(f)f.focus()}}
+  if(on){$("mShoes").href=US()?"us/shoes/":LANG==="fr"?"chaussures/":"shoes/";$("mRaces").href=US()?"us/races/":LANG==="fr"?"courses/":"races/";const f=$("menu").querySelector("a,button");if(f)f.focus()}}
 $("menuBtn").addEventListener("click",e=>{e.stopPropagation();menuOpen($("menu").hidden)});
 document.addEventListener("click",e=>{if(!$("menu").hidden&&!e.target.closest("#menu"))menuOpen(false)});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("menu").hidden){menuOpen(false);$("menuBtn").focus()}});

@@ -135,18 +135,19 @@ def main():
             raise RuntimeError(r.stderr.strip().splitlines()[-1])
         sys.path.insert(0, str(ROOT / "scraper"))
         import race_pages
-        for slug in race_pages.RACES:
-            for d in ("races", "courses"):
+        for slug, race in race_pages.RACES.items():
+            for d in (("us/races",) if race.get("side") == "us" else ("races", "courses")):
                 h = (site / d / slug / "index.html").read_text()
                 n = len(re.findall(r'<button type="button" class="wt"', h))
                 if n < 40:          # QMT has 5 items with picks (10 each); the others more
                     raise RuntimeError(f"/{d}/{slug}/ has only {n} picks")
-        for must in ["races/index.html", "courses/index.html"]:
+        for must in ["races/index.html", "courses/index.html", "us/races/index.html"]:
             if not (site / must).exists():
                 raise RuntimeError(f"{must} missing")
         if "/races/" not in (site / "sitemap.xml").read_text():
             raise RuntimeError("race pages missing from sitemap.xml")
-        return f"{len(race_pages.RACES)} race(s), EN + FR"
+        n_us = sum(r.get("side") == "us" for r in race_pages.RACES.values())
+        return f"{len(race_pages.RACES) - n_us} Canadian races EN + FR, {n_us} US races"
     step("Race gear pages", races)
 
     def same_names():   # the site links cards to shoe pages with a JS copy of base_model + slugify: they must agree (Oct 7)

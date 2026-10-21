@@ -469,8 +469,7 @@ def menu_links(L, other_path):
     items = [(home, "🔥", L["mDeals"]), (f"/{L['dir']}/", "👟", L["mShoes"]),
              (home + ("&" if "?" in home else "?") + "show=watch", "♡", L["mWatch"]), (home + ("&" if "?" in home else "?") + "show=sizes", "✏️", L["mSizes"]),
              ("/about.html" + ("?lang=fr" if fr else ""), "🦊", L["mAbout"]), ("https://www.instagram.com/thegearfox/", "📸", "Instagram")]
-    if L["lang"] != "en-US":                       # race gear lists (Oct 21): Canadian races for now
-        items.insert(2, ("/courses/" if fr else "/races/", "🏁", L["mRaces"]))
+    items.insert(2, ("/us/races/" if L["lang"] == "en-US" else "/courses/" if fr else "/races/", "🏁", L["mRaces"]))   # race gear lists (Oct 21; US races too)
     out = "".join(f'<a href="{u}">{MENU_SVG.format(MENU_ICONS[i])}{esc(t)}</a>' for u, i, t in items)
     return out + f'<a class="sw" href="{other_path}" hreflang="{L["other"]}">{L["switch"]}</a>'
 
