@@ -91,6 +91,7 @@ KINDS = {
     "warmjacket": dict(g={"tops"}, t={"jacket"}, need=r"insulat|\bdown\b|puffer|primaloft|synthetic|thermal|hybrid|alpha|octa|atom|nano|fill",
                      good=r"\brun|trail|light|hood|hoody|packable", x=r"vest|\bski\b|snow|parka|3-in-1|t-?shirt|\btee\b"),
     "socks":    dict(g={"socks"}, need=r".", good=r"\brun|trail|merino|toe|wool|ultra|crew|cushion", x=r"no show|liner only|compression sleeve|kids?|dress|casual|lifestyle"),
+    "blanket":  dict(g={"gear", "packs"}, need=r"blanket|bivv?y|couverture de survie", good=r".", x=r"puffer|festival|picnic|stadium|throw|fleece|wool|down"),
     "sun":      dict(g={"gear"}, t={"sun"}, need=r"sunglass|glasses|lunettes|\bshades\b|goodr|og\b|\bvrg\b|bfg|lens", good=r".", x=r"case|strap|cord|retainer|cleaning|lens only|replacement"),
     "wind":     dict(g={"tops"}, t={"jacket"}, need=r"wind|breaker|shell|anorak|light ?jacket|run jacket", good=r"\brun|trail|race|light|ultra|pack|dwr",
                      x=r"insulat|\bdown\b|puffer|nano|atom|alpha|primaloft|thermal|\bski\b|snow|parka|3-in-1|t-?shirt|\btee\b|vest"),
@@ -401,7 +402,7 @@ def pool(items, kind, stores):
         if (k.get("t") and d.get("t") not in k["t"]) or not need.search(n) or (xx and xx.search(n)) or BAD.search(n):
             continue
         b = d["b"].lower()
-        if not (b in BRANDS[kind.rstrip("2")] or (b in MAYBE and (kind in ("water", "cup", "food") or RUN.search(n)))):
+        if not (kind.rstrip("2") not in BRANDS or b in BRANDS[kind.rstrip("2")] or (b in MAYBE and (kind in ("water", "cup", "food") or RUN.search(n)))):
             continue
         fit = bool(good.search(n))
         sz = [e for e in d["sz"] if e[1]]

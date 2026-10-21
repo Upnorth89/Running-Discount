@@ -1465,6 +1465,8 @@ def scrape_commercetools(st, base):
 
 # ---------------------------------------------------------------- Decathlon Canada (server-rendered pages; robots.txt allows them)
 DEC_BASE = "https://www.decathlon.ca"
+# Oct 21 (Bastien: emergency blankets "are on a lot of mandatory lists"): products outside the running section, read every night
+DEC_EXTRA = ["/en/p/single-use-survival-blanket/12837/c250c249m8572360"]
 # the whole running section (full price too, Oct 5, 2026: every reader reads full price), plus running clearance
 DEC_LISTS = ["/en/clearance/running-clearance"] + [f"/en/sports/running/{c}" for c in (
     "running-shoes", "mens-running-shoes", "womens-running-shoes", "carbon-shoes", "mens-running-clothes", "womens-running-clothes",
@@ -1592,7 +1594,7 @@ def dec_offer(u):
     title = x0.get("title") or ""
     if re.search(r"\b(kids?|children|boys?|girls?|junior|baby)'?s?\b", title, re.I):
         return None
-    g = dec_group(x0)
+    g = dec_group(x0) or ("gear" if re.search(r"blanket|bivv?y", title, re.I) else None)   # survival blankets: on most race gear lists
     if not g:
         return None
     gs = {(y.get("name") or "").lower() for y in x0.get("genders") or []}
@@ -1612,6 +1614,8 @@ def dec_offer(u):
         for one in ([m2.group(1), m2.group(2)] if m2 else [lab]):
             if one not in sizes or price < sizes[one][0]:
                 sizes[one] = (price, reg)
+    if g == "gear" and re.search(r"blanket|bivv?y", title, re.I) and sizes:      # "100" on the blanket is a pack size, not a fit
+        sizes = {"OS": min(sizes.values())}
     if g in ("shoes", "tops", "bottoms", "bras", "socks", "gloves") and len(sizes) > 1:
         sizes.pop("OS", None)                             # an unlabelled size must not match everyone
     if not sizes:
@@ -3403,7 +3407,7 @@ SHOE_SIZES = lambda o: o.get("sz") and all(re.match(r"^([MW]:)?\d{1,2}([.,][05])
 
 # Not food (Oct 7 audit: ~200 gloves, socks, caps, lights filed as nutrition, mostly by stores' own product types:
 # Brainsport types Stance socks "Nutrition"; The Feed sells gear). Only when the name has no food word.
-NOT_FOOD = re.compile(r"headlamp|\blights?\b|luminator|reflective|\btape\b|\btowel|\bbag\b|\bspikes?\b|traction|massage|\bball\b|"
+NOT_FOOD = re.compile(r"matches\b|fire ?(starter|striker)|ferro ?rod|headlamp|\blights?\b|luminator|reflective|\btape\b|\btowel|\bbag\b|\bspikes?\b|traction|massage|\bball\b|"
                       r"flasques?|bidon|gourde|\bcup\b|soft ?flask|sleeves?\b|\bcover\b|sling|bite valve|\btube\b|sheaths?|reservoir", re.I)
 CAMP_BRANDS = {"big agnes", "esbit"}
 NOT_SOCK = re.compile(r"t-?shirt|\btee\b|hood|jacket|sweat|pullover|\btank\b|shorts?\b|pants?\b|tights?\b|sleeve|jogger|"
@@ -4378,6 +4382,7 @@ def decathlon_night(out):
         # Oct 20: products saved with cross-sell sizes mixed in (held back by scrape_decathlon_saved) are re-read first
         redo = [o["u"] for o in offers.values() if not o.get("own") and len(o["sz"]) > 1
                 and max(e[1] for e in o["sz"]) > 2.5 * min(e[1] for e in o["sz"])]
+        redo += [DEC_BASE + u for u in DEC_EXTRA if DEC_BASE + u not in redo]   # read every night (outside the running lists)
         for full in redo:
             if time.time() - t0 > 85 * 60:
                 break
