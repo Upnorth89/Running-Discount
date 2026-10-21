@@ -768,9 +768,9 @@ en:{
   tagline:"OUTFOX FULL PRICE",
   rd:{nav:{deals:"Deals",shoes:"Shoes",apparel:"Apparel",packs:"Packs",gear:"Gear",races:"Race lists",shoePrices:"Shoe prices"},h1:["Find running gear deals","in your ","exact size."],h1n:n=>[`${n} deals`,"in your ","exact size."],
     sub:n=>`Every morning we check ${n} running stores in Canada and the USA and show you the best prices in stock, in your size. No more guessing.`,
-    ph:"Search shoes, apparel, packs, brands…",go:"Search",size:"Your size",cat:"Category",brand:"Brand",price:"Price",store:"Retailer",sale:"On sale only",more:"More filters",under:m=>`Under ${m}`,
+    ph:"Search shoes, apparel, packs, brands…",phS:"Search shoes, brands…",go:"Search",size:"Your size",cat:"Category",brand:"Brand",price:"Price",store:"Retailer",sale:"On sale only",more:"More filters",under:m=>`Under ${m}`,
     note:["Real deals.","Real sizes.","Real retailers."],tiles:{shoes:"Shoes",apparel:"Apparel",packs:"Packs & Vests",acc:"Accessories",nutrition:"Nutrition",gear:"Gear & Watches"},n:n=>`${n} deals`,
-    top:"Today's top deals",viewAll:"View all deals",brands:"Shop by brand",viewBrands:"View all brands",inStock:"In stock",whyH:"Why use The Gear Fox?",
+    top:"Today's top deals",viewAll:"View all deals",viewAllS:"View all",brands:"Shop by brand",viewBrands:"View all brands",inStock:"In stock",whyH:"Why use The Gear Fox?",
     why:[["Real deals from real stores",n=>`We check ${n} stores in Canada and the USA every morning.`],["In your exact size",()=>"Only the sizes in stock right now, so every deal fits you."],["No more guessing",()=>"Every store's price for the same shoe, side by side."],["Canada & USA",()=>"Shop both sides, with local stores and local prices."]],
     kinds:{daily:"road shoes",race:"racing shoes",trail:"trail shoes",hike:"hiking & winter shoes",spike:"track spikes",tee:"t-shirt",layer:"long sleeve",jacket:"jacket",short:"shorts",tight:"tights",pant:"pants",light:"light",pole:"poles",bottle:"bottle",sun:"sunglasses"},
     sub2:(g,k)=>g?`${g} ${k}`:k[0].toUpperCase()+k.slice(1),cmp:"All sizes →",heroAt:(p,s)=>`${p} at ${s}`,menu:"Menu",mySizes:"My sizes"},
@@ -880,9 +880,9 @@ fr:{
   tagline:"FLAIREZ LES AUBAINES",
   rd:{nav:{deals:"Aubaines",shoes:"Chaussures",apparel:"Vêtements",packs:"Sacs",gear:"Équipement",races:"Courses",shoePrices:"Prix des chaussures"},h1:["Les aubaines de course","dans votre ","taille exacte."],h1n:n=>[`${n} aubaines`,"dans votre ","taille exacte."],
     sub:n=>`Chaque matin, on vérifie ${n} boutiques de course au Canada et aux États-Unis et on vous montre les meilleurs prix en stock, dans votre taille. Fini les devinettes.`,
-    ph:"Chercher chaussures, vêtements, sacs, marques…",go:"Chercher",size:"Votre taille",cat:"Catégorie",brand:"Marque",price:"Prix",store:"Boutique",sale:"En solde seulement",more:"Plus de filtres",under:m=>`Moins de ${m}`,
+    ph:"Chercher chaussures, vêtements, sacs, marques…",phS:"Chaussures, marques…",go:"Chercher",size:"Votre taille",cat:"Catégorie",brand:"Marque",price:"Prix",store:"Boutique",sale:"En solde seulement",more:"Plus de filtres",under:m=>`Moins de ${m}`,
     note:["Vrais rabais.","Vraies tailles.","Vraies boutiques."],tiles:{shoes:"Chaussures",apparel:"Vêtements",packs:"Sacs et vestes",acc:"Accessoires",nutrition:"Nutrition",gear:"Équipement et montres"},n:n=>`${n} aubaines`,
-    top:"Les meilleures aubaines du jour",viewAll:"Voir toutes les aubaines",brands:"Magasinez par marque",viewBrands:"Toutes les marques",inStock:"En stock",whyH:"Pourquoi The Gear Fox ?",
+    top:"Les meilleures aubaines du jour",viewAll:"Voir toutes les aubaines",viewAllS:"Tout voir",brands:"Magasinez par marque",viewBrands:"Toutes les marques",inStock:"En stock",whyH:"Pourquoi The Gear Fox ?",
     why:[["De vrais rabais, de vraies boutiques",n=>`On vérifie ${n} boutiques au Canada et aux États-Unis chaque matin.`],["Dans votre taille exacte",()=>"Seulement les tailles en stock en ce moment : chaque aubaine vous va."],["Fini les devinettes",()=>"Le prix de chaque boutique pour la même chaussure, côte à côte."],["Canada et États-Unis",()=>"Magasinez des deux côtés, avec des boutiques et des prix locaux."]],
     kinds:{daily:"chaussures de route",race:"chaussures de compétition",trail:"chaussures de sentier",hike:"chaussures de randonnée et d'hiver",spike:"pointes",tee:"t-shirt",layer:"manches longues",jacket:"manteau",short:"short",tight:"collant",pant:"pantalon",light:"frontale",pole:"bâtons",bottle:"gourde",sun:"lunettes de soleil"},
     sub2:(g,k)=>g?`${k[0].toUpperCase()+k.slice(1)} · ${g}`:k[0].toUpperCase()+k.slice(1),cmp:"Tailles →",heroAt:(p,s)=>`${p} chez ${s}`,menu:"Menu",mySizes:"Mes tailles"},
@@ -1549,7 +1549,7 @@ function rdText(){   // words that change with the language
   const R=t("rd");document.querySelectorAll(".rdnav [data-rdgo]").forEach(b=>b.textContent=R.nav[b.dataset.rdgo]);
   $("rnRaces").textContent=R.nav.races;$("rnShoes").textContent=R.nav.shoePrices;
   $("rdLang").innerHTML=`${LANG==="fr"?"FR":"EN"}${RDI.chev}`;$("rdLang").setAttribute("aria-label",LANG==="fr"?"English":"Français");
-  $("rdMy").textContent=R.mySizes;$("rdGo").querySelector("span").textContent=R.go;$("dSearch").placeholder=R.ph;
+  $("rdMy").textContent=R.mySizes;$("rdGo").querySelector("span").textContent=R.go;$("dSearch").placeholder=innerWidth<560?R.phS:R.ph;
   $("ddSale").parentNode.querySelector(".tl").textContent=R.sale;
   $("filtBtn").querySelector("[data-i18n]").textContent=R.more}
 function rdCat(k){const gs=RD_TILES[k].filter(g=>!(g==="bras"&&state.gender==="men"));
@@ -1582,12 +1582,22 @@ function rdUpdate(all,p){   // hero, dropdowns, tiles, why: from today's data, e
       <span class="upto">−${d.pct}%</span><span class="cap">${esc(R.heroAt(d.b+" "+m+" · "+money(d.best),s))}</span></a><p class="note" aria-hidden="true">${R.note.map(esc).join("<br>")}</p>`}
   else $("rdHp").innerHTML="";
   $("rdWhy").innerHTML=`<h2>${esc(R.whyH)}</h2><div class="wl">${R.why.map(([h,b],i)=>`<div class="wi"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${RDI.why[i]}</svg><div><b>${esc(h)}</b><p>${esc(b(n))}</p></div></div>`).join("")}</div>`;
-  document.documentElement.classList.toggle("rdw",!!view.watch);
+  document.documentElement.classList.toggle("rdw",!!view.watch);document.documentElement.classList.toggle("rdsized",hasSizes());
 }
 function rdLim(top){const c=innerWidth>=1000?5:innerWidth>=700?3:2;return c*(top?2:c===2?2:1)}   // full rows only: 2 rows of Top deals, 1 row (phones 2) per category
+/* the first rows of "Today's top deals" (Bastien OK'd, Oct 21): known running gear first. A shoe = a model with its own price page
+   (sold in 3+ Canadian stores); anything else = a brand carried by 4+ of our stores. Everything else follows in the same order. */
+var RDBS={n:-1,m:{}};
+function rdBrandStores(){if(RDBS.n===ITEMS.length)return RDBS.m;const m={};
+  for(const d of ITEMS){const s=m[d.b]||(m[d.b]=new Set());(d.of||[]).forEach(u=>s.add(storeOf(u)))}
+  RDBS={n:ITEMS.length,m};return m}
+function rdKnownFirst(list,mix=true){const bs=rdBrandStores();
+  const known=d=>d.g==="shoes"?!!shoePage(d):(bs[d.b]&&bs[d.b].size>=4);
+  const head=list.slice(0,200),a=head.filter(known),b=head.filter(d=>!known(d));
+  return (mix?shoesFirst(a):a).concat(b,list.slice(200))}
 function rdFilter(all){if(view_rd.brand)all=all.filter(d=>d.b===view_rd.brand);if(view_rd.max)all=all.filter(d=>rdDisp(d)<=view_rd.max+0.001);return all}
 function rdBrands(){const R=t("rd"),b=RDC.brands.slice(0,8);if(b.length<4)return "";
-  return `<section class="rdbrands"><div class="rdsh"><h2>${esc(R.brands)}</h2><button type="button" class="rdmore" data-rdbrands>${esc(R.viewBrands)} ${RDI.arrow}</button></div>
+  return `<section class="rdbrands"><div class="rdsh"><h2>${esc(R.brands)}</h2><button type="button" class="rdmore" data-rdbrands><span class="l">${esc(R.viewBrands)}</span><span class="s">${esc(R.viewAllS)}</span> ${RDI.arrow}</button></div>
     <div class="bl">${b.map(([n,c])=>`<button type="button" class="bt" data-rdbrand="${esc(n)}"><b>${esc(n)}</b><small>${esc(R.n(num(c)))}</small></button>`).join("")}</div></section>`}
 function rdCard(d,extra,real){
   const R=t("rd"),k=itemKey(d),on=!!watches[k];RENDERED[k]=d;const sp=shoePage(d),[m,gw]=rdModel(d);
@@ -1601,7 +1611,7 @@ function rdCard(d,extra,real){
     <div class="price"><b>${money(d.best)}</b>${curTag()}${d.pct?`<s>${money(d.reg)}</s>`:""}</div>
     ${lowDays(d)?`<span class="badge lo30" title="${esc(t("lowDaysTip"))}" aria-label="${esc(t("lowDays",lowDays(d)))}"><span class="l1">${t("lowL1")}</span> <span class="l2">${t("lowL2",lowDays(d))}</span></span>`:""}
     ${extra||""}${!extra&&NEWSET.has(k)?`<span class="badge new">${t("isNew")}</span>`:""}
-    <div class="store"><b>${esc(s[0])}</b><span class="ok">${esc(R.inStock)}</span></div>
+    <div class="store"><b>${esc(s[0])}</b><span class="ok" title="${esc(R.inStock)}">${esc(R.inStock)}</span></div>
     ${from||d.fin?`<div class="store2">${from?`<span class="abroad">${t("shipsFrom",from)}</span>`:""}${from&&d.fin?" · ":""}${d.fin?`<span class="fin" title="${esc(t("finalSaleTip"))}">${t("finalSale")}</span>`:""}</div>`:""}
     ${sized&&real.length?sizeRow(d,real):""}
     ${d.bb?`<div class="warn">${t("bestBy",esc(d.bb))}</div>`:""}
@@ -1797,8 +1807,9 @@ function section(key,title,list,cls){
   const note=key==="nutrition"&&state.ships!=="all"&&!US()?`<p class="grpnote">${t("usFuel")} <button type="button" data-usfuel>${t("usFuelShow")}</button></p>`:
     APPAREL_GROUPS.includes(key)&&hasSizes()&&!clothFor(key).length?`<p class="grpnote">${t("clothNote")} <button type="button" data-picksize="cloth">${t("clothPick")}</button></p>`:"";
   const types=TYPES[key]?`<div class="chips scroll types">${["",...TYPES[key]].map(v=>`<button type="button" class="chip" data-type="${key}:${v}" aria-pressed="${(view.type[key]||"")===v}">${v?t("types")[v]:t("typeAll")}</button>`).join("")}</div>`:"";
+  if(key!=="__new"&&view.sort==="match"&&LOOK_B&&!key.startsWith("__"))list=rdKnownFirst(list,false);   // categories too: known gear first
   if(key!=="__new"&&view.sort==="match")list=spreadBrands(list.slice(0,60),PAGE_CAT).concat(list.slice(60));   // Best match only: a price sort stays in price order
-  const rdall=LOOK_B&&key==="__sale"&&list.length>lim?`<button type="button" class="rdmore" data-open="${key}">${esc(t("rd").viewAll)} ${RDI.arrow}</button>`:"";
+  const rdall=LOOK_B&&key==="__sale"&&list.length>lim?`<button type="button" class="rdmore" data-open="${key}"><span class="l">${esc(t("rd").viewAll)}</span><span class="s">${esc(t("rd").viewAllS)}</span> ${RDI.arrow}</button>`:"";
   return `<section class="grp ${cls||""}" id="grp-${key}"><h2>${title} <small>${num(list.length)}</small>${tail}${rdall}</h2>${types}${note}<div class="grid">${list.slice(0,lim).map(d=>card(d)).join("")}</div>
     ${list.length>lim?`<button class="btn more" data-open="${key}">${t("showMore",Math.min(MORE,list.length-lim))}</button>`:""}</section>`;
 }
@@ -2227,7 +2238,8 @@ function renderAll(){
   // Oct 8: until someone picks that size, Top deals skip items left only in rare sizes (an XS-only hoodie at #2)
   const commonFit=d=>!d.any||(APPAREL_GROUPS.includes(d.g)?d.ok.some(e=>["S","M","L","XL"].includes(norm(e[0])))
     :d.g==="shoes"?d.ok.some(e=>{const k=shoeKey(e[0]);return k&&+k.n>=7&&+k.n<=12}):true);
-  const top=shoesFirst(onSale.filter(commonFit).sort(SORTS[view.sort]));
+  let top=shoesFirst(onSale.filter(commonFit).sort(SORTS[view.sort]));
+  if(LOOK_B&&view.sort==="match")top=rdKnownFirst(top);
   if(!NARROW)parts.push(section("__sale",LOOK_B?t("rd").top:t("secSale"),top,"sale"));
   if(LOOK_B&&!NARROW&&!q.length&&!view.store&&!view_rd.brand)parts.push(rdBrands());
   const inTop=new Set(NARROW?[]:top.slice(0,view.open.__sale||(LOOK_B?rdLim(true):PAGE)).map(itemKey));   // don't show the same deal twice

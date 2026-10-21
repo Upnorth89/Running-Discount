@@ -313,3 +313,82 @@ html.rd[data-theme="dark"]{--ink:#ECEEEA;--muted:#A6B0B6;--mist:#0F171C;--cream:
 .rd .wcat b{font:700 17px/1.15 var(--display)}
 .rd .sheet .panel h2{font-family:var(--display);font-weight:700}
 .rd .rdc .heart{color:#17232B}.rd .rdc .heart[aria-pressed="true"]{color:var(--hivis)}   /* it sits on the white photo in both themes */
+
+/* ===== Phones (Oct 21, Bastien: "it looks funky on the phone"): nothing cut off at the edge, a short top, all 6 categories at once ===== */
+@media(max-width:759px){
+  .rd .rdhero{padding:18px 16px 16px}
+  .rd .rdhero h1{font-size:clamp(30px,9vw,40px)}
+  .rd .rdsub{font-size:15px;margin:10px 0 14px}
+  .rd.rdsized .rdsub{display:none}                         /* returning with sizes: the headline says it all, the deals come up sooner */
+  .rd.rdsized .rdhero h1{margin-bottom:14px}
+  .rd .rdsearch{padding:5px 5px 5px 12px}
+  .rd .rdsearch .search{font-size:16px;padding:9px 2px}
+  .rd .rdgo{padding:0 14px;min-height:42px;font-size:15px}
+  /* filters: two even rows of boxes, every one fully visible (no half-box at the edge) */
+  .rd .rdfilters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;overflow:visible;margin:12px 0 0;padding:0}
+  .rd .dd{min-height:40px;padding:0 10px;font-size:13.5px;justify-content:space-between;min-width:0}
+  .rd .dd .v{max-width:none;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rd #ddSize{grid-column:1/2}
+  .rd .rdtog{grid-column:1/3;font-size:13.5px;padding:0;gap:8px}
+  .rd .rdtog .sw{width:40px;height:24px}.rd .rdtog .sw::after{width:18px;height:18px}.rd .rdtog input:checked+.sw::after{transform:translateX(16px)}
+  .rd .rdfilters .filtbtn{justify-self:end;font-size:13.5px;min-height:40px;padding:0}
+  /* categories: a 3 x 2 grid of small tiles, photo above, name + count below */
+  .rd .rdtiles{grid-auto-flow:row;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-columns:auto;overflow:visible;margin:14px 0 4px;padding:0;gap:8px}
+  .rd .rdtile{grid-template-columns:minmax(0,1fr)}
+  .rd .rdtile .tp{grid-column:1;aspect-ratio:3/2}
+  .rd .rdtile .tp img{padding:6px}
+  .rd .rdtile .tt{padding:6px 8px 8px;gap:0}
+  .rd .rdtile .tt b{font-size:15px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rd .rdtile .tt small{font-size:11.5px}
+  .rd .rdtile .ta{display:none}
+  /* section titles: one line */
+  .rd .grp h2,.rd .rdsh h2{font-size:24px;margin:20px 0 10px}
+  .rd .rdmore{font-size:14px}
+  /* cards: tighter on a 2-column phone */
+  .rd .grid{gap:8px}
+  .rd .rdc .deal,.rd .compact .rdc .deal{padding:10px 10px 34px}
+  .rd .rdc .pic,.rd .compact .rdc .pic{margin:-10px -10px 8px}
+  .rd .rdc .pic img,.rd .compact .rdc .pic img{padding:26px 8px 6px}
+  .rd .rdc .name{font-size:14px;min-height:2.6em}
+  .rd .rdc .kind{font-size:12.5px}
+  .rd .rdc .price{margin:6px 0 4px;gap:0 6px}
+  .rd .rdc .price b{font-size:20px}
+  .rd .rdc .price s{font-size:12.5px}
+  .rd .rdc .store b{font-size:12.5px}
+  .rd .rdc .store .ok{font-size:11.5px;gap:4px}
+  .rd .rdc .szrow{gap:5px;margin-top:8px}
+  .rd .rdc .szrow .sz{height:30px;font-size:12.5px}
+  .rd .rdc .pct{top:8px;left:8px;font-size:12px;padding:4px 6px}
+  .rd .rdc .heart{top:2px;right:2px}
+  .rd .rdc .cmp,.rd .rdc .rep{bottom:10px;font-size:11.5px}.rd .rdc .cmp{left:10px}.rd .rdc .rep{right:10px}
+  .rd .rdbrands .bl{gap:8px}
+  .rd .rdwhy{padding:20px 16px}.rd .rdwhy .wi svg{width:34px;height:34px}
+}
+@media(max-width:379px){
+  .rd .rdfilters{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .rd .rdtog{grid-column:1/2}
+  .rd .rdtile .tt b{font-size:14px}
+  .rd .rdc .store .ok{font-size:0;gap:0}.rd .rdc .store .ok::before{width:8px;height:8px}   /* 320px: the green dot alone says in stock (the words stay for screen readers via title) */
+}
+/* names of 1 or 2 lines: the price, store and sizes sit at the bottom of every card, so a row lines up (no blank line under short names) */
+.rd .rdc .name,.rd .rdc .name{min-height:0}
+.rd .rdc .kind{margin-bottom:6px}
+.rd .rdc .price{margin-top:auto!important}
+@media(max-width:759px){.rd .dd:has(#ddStore){grid-column:span 2}}
+@media(max-width:379px){.rd .dd:has(#ddStore){grid-column:span 1}}
+/* French words are longer: the bar drops the extras sooner (all of them are in the ☰ menu too) */
+@media(min-width:900px) and (max-width:999px){.rd .rdctry{display:none}}
+@media(min-width:900px) and (max-width:1599px){html.rd[lang="fr"] #rnShoes,html.rd[lang="fr"] .rdsico{display:none}}
+@media(min-width:900px) and (max-width:1199px){html.rd[lang="fr"] .rdnav>*{padding:8px 5px}}
+@media(min-width:900px) and (max-width:999px){.rd .rdmy{margin-left:auto}}
+.rd .rdtog .sw{flex:none}
+@media(max-width:379px){
+  .rd .dd:has(#ddStore){grid-column:span 2}
+  .rd .rdc.hascmp .deal{padding-bottom:54px}.rd .rdc.hascmp .cmp{bottom:30px}
+  .rd .rdtile .tt small{font-size:11px;white-space:nowrap}
+}
+.rd .rdmore .s{display:none}
+@media(max-width:559px){
+  .rd .grp h2,.rd .rdsh{flex-wrap:wrap}
+  .rd .rdmore .l{display:none}.rd .rdmore .s{display:inline}
+}
