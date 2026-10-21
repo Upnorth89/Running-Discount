@@ -168,12 +168,13 @@ RACES = {
         "where": {"en": "Mont-Tremblant, Québec", "fr": "Mont-Tremblant, Québec"},
         "when": {"en": "August 2027 (date to come)", "fr": "Août 2027 (date à venir)"},
         "dists": ["81", "46"], "default": "81",
+        "kits": {"bad": ["jacket", "longpants", "midlayer", "tuque", "gloves", "pants"], "hot": ["sunscreen", "water2", "sun", "cap"]},
         "src": "https://borealys.utmb.world/runners/equipment",
         "read": {"en": "October 20, 2026", "fr": "20 octobre 2026"},
         "items": [
             ("vest", "MM", {"en": ("Race vest or pack", "To carry the mandatory gear the whole race."), "fr": ("Veste ou sac de course", "Pour porter le matériel obligatoire toute la course.")}, False),
-            ("water", "MM", {"en": ("Water: 1 litre (2 L with the hot-weather kit)", "Sealed containers, no plastic bags. Two 500 ml soft flasks = 1 L."),
-                             "fr": ("Eau : 1 litre (2 L avec le kit chaleur)", "Contenants étanches, pas de sacs de plastique. Deux flasques de 500 ml = 1 L.")}, False),
+            ("water", "MM", {"en": ("Water: 1 litre", "Sealed containers, no plastic bags. Two 500 ml soft flasks = 1 L."),
+                             "fr": ("Eau : 1 litre", "Contenants étanches, pas de sacs de plastique. Deux flasques de 500 ml = 1 L.")}, False),
             ("cup", "MM", {"en": ("Collapsible cup (150 ml or more)", "Bottles and flasks with a lid don't count."), "fr": ("Gobelet pliable (150 ml ou plus)", "Les bouteilles et flasques avec bouchon ne comptent pas.")}, False),
             ("wind", "MM", {"en": ("Windbreaker (water-repellent)", "With durable water-repellent (DWR) protection."), "fr": ("Coupe-vent déperlant", "Avec un traitement déperlant durable (DWR).")}, True),
             ("headlamp", "M ", {"en": ("Headlamp", "200 lumens or more recommended. Phones and watches don't count."), "fr": ("Lampe frontale", "200 lumens ou plus recommandés. Téléphones et montres ne comptent pas.")}, True),
@@ -183,19 +184,20 @@ RACES = {
             ("id", "MM", {"en": ("ID document", ""), "fr": ("Pièce d'identité", "")}, False),
             ("bandage", "MR", {"en": ("Self-adhesive elastic bandage (100 × 6 cm)", ""), "fr": ("Bandage élastique adhésif (100 × 6 cm)", "")}, False),
             ("food", "RR", {"en": ("Food reserve", "Recommended: about 800 kcal (e.g. 2 gels + 2 bars)."), "fr": ("Réserve de nourriture", "Recommandé : environ 800 kcal (ex. 2 gels + 2 barres).")}, False),
-            ("jacket", "MM", {"en": ("Waterproof jacket with a hood (bad-weather kit)", "When the race calls the bad-weather kit. Sealed seams, the jacket's own hood."),
-                              "fr": ("Manteau imperméable avec capuchon (kit mauvais temps)", "Quand la course annonce le kit mauvais temps. Coutures scellées, capuchon d'origine.")}, True),
-            ("longpants", "MM", {"en": ("Pants or tights that cover the legs (bad-weather kit)", "Tights + socks that cover the legs also count."),
-                                 "fr": ("Pantalon ou collant couvrant les jambes (kit mauvais temps)", "Un collant + des bas qui couvrent les jambes comptent aussi.")}, False),
-            ("midlayer", "MR", {"en": ("Warm long-sleeve mid-layer (bad-weather kit)", "No cotton, 180 g or more in size M."), "fr": ("Couche intermédiaire chaude à manches longues (kit mauvais temps)", "Pas de coton, 180 g ou plus en taille M.")}, False),
-            ("tuque", "MR", {"en": ("Beanie or neck gaiter (bad-weather kit)", ""), "fr": ("Tuque ou cache-cou (kit mauvais temps)", "")}, False),
-            ("gloves", "MR", {"en": ("Warm, waterproof gloves (bad-weather kit)", ""), "fr": ("Gants chauds et imperméables (kit mauvais temps)", "")}, False),
-            ("pants", "R ", {"en": ("Waterproof overpants (bad-weather kit)", ""), "fr": ("Surpantalon imperméable (kit mauvais temps)", "")}, True),
+            ("jacket", "MM", {"en": ("Waterproof jacket with a hood", "Sealed seams, the jacket's own hood."),
+                              "fr": ("Manteau imperméable avec capuchon", "Coutures scellées, capuchon d'origine.")}, True),
+            ("longpants", "MM", {"en": ("Pants or tights that cover the legs", "Tights + socks that cover the legs also count."),
+                                 "fr": ("Pantalon ou collant couvrant les jambes", "Un collant + des bas qui couvrent les jambes comptent aussi.")}, False),
+            ("midlayer", "MR", {"en": ("Warm long-sleeve mid-layer", "No cotton, 180 g or more in size M."), "fr": ("Couche intermédiaire chaude à manches longues", "Pas de coton, 180 g ou plus en taille M.")}, False),
+            ("tuque", "MR", {"en": ("Beanie or neck gaiter", ""), "fr": ("Tuque ou cache-cou", "")}, False),
+            ("gloves", "MR", {"en": ("Warm, waterproof gloves", ""), "fr": ("Gants chauds et imperméables", "")}, False),
+            ("pants", "R ", {"en": ("Waterproof overpants", ""), "fr": ("Surpantalon imperméable", "")}, True),
             ("poles", "RR", {"en": ("Hiking poles", "If you use them, carry them the whole race."), "fr": ("Bâtons de marche", "Si vous les utilisez, portez-les toute la course.")}, False),
-            ("sunscreen", "MM", {"en": ("Sunscreen, 15 ml or more (hot-weather kit)", "In its original container. SPF 50 recommended."),
-                                 "fr": ("Crème solaire, 15 ml ou plus (kit chaleur)", "Dans son contenant d'origine. FPS 50 recommandé.")}, False),
-            ("sun", "RR", {"en": ("Sunglasses (hot-weather kit)", ""), "fr": ("Lunettes de soleil (kit chaleur)", "")}, False),
-            ("cap", "RR", {"en": ("Cooling bandana (hot-weather kit)", "To carry ice."), "fr": ("Bandana rafraîchissant (kit chaleur)", "Pour transporter de la glace.")}, False),
+            ("sunscreen", "MM", {"en": ("Sunscreen, 15 ml or more", "In its original container. SPF 50 recommended."),
+                                 "fr": ("Crème solaire, 15 ml ou plus", "Dans son contenant d'origine. FPS 50 recommandé.")}, False),
+            ("water2", "MM", {"en": ("Water: 2 L instead of 1 L", "Four 500 ml soft flasks = 2 L."), "fr": ("Eau : 2 L au lieu de 1 L", "Quatre flasques de 500 ml = 2 L.")}, False),
+            ("sun", "RR", {"en": ("Sunglasses", ""), "fr": ("Lunettes de soleil", "")}, False),
+            ("cap", "RR", {"en": ("Cooling bandana", "To carry ice."), "fr": ("Bandana rafraîchissant", "Pour transporter de la glace.")}, False),
         ],
     },
     "bromont-ultra": {
@@ -284,6 +286,7 @@ S = {
         "notSold": "The stores we check don't sell this.", "spec": "Check the spec before you buy.",
         "more": "See more on sale →", "moreN": "See all {n}", "shH": "Trail running shoes", "shTag": "Your pick", "shPh": "What do you race in?", "shSize": "Size", "shGone": "Not in stock in size {s} today. We'll tell you when it's back.", "shPickSize": "Pick your size too.", "shPickFit": "Pick Men's or Women's above first.", "shFrom": "{p} in size {s} today", "shPage": "Every size & store", "shNone": "Not in our trail shoe list. Try the brand name.", "shRm": "Remove", "watch": "Watch", "watchOn": "Watching", "watchL": "Watch the price", "wMember": "Watching. We'll email you when it drops in your size.", "wNew": "Watching, on this phone. Add your email and we'll tell you when it drops.", "wPending": "Watching. Confirm your email (check your inbox) to get the drop emails.", "wAdd": "Add my email", "wOff": "Removed from your watchlist.", "sizeH": "Your size", "sizeTxt": "Pick it once to see deals that fit you.",
         "men": "Men's", "women": "Women's", "change": "Change", "off": "off",
+        "kit_bad": "🌧 Bad-weather kit", "kit_hot": "☀️ Hot-weather kit", "kitWhen": "Only if the race calls it, usually a few days before the start.",
         "byOpen": "Different size in shorts, socks or gloves?", "by": {"tops": "Tops", "bottoms": "Shorts & tights", "socks": "Socks", "gloves": "Gloves"},
         "src": "From the race's official list (last updated by the race {date}). Rules can change: check the {link} before race day.",
         "srcLink": "official list", "srcRead": "From the race's official list (as published when we read it, {date}). Rules can change: check the {link} before race day.", "notAff": "The Gear Fox isn't affiliated with the race.",
@@ -305,6 +308,7 @@ S = {
         "notSold": "Les boutiques que nous suivons n'en vendent pas.", "spec": "Vérifiez les caractéristiques avant d'acheter.",
         "more": "Voir plus d'aubaines →", "moreN": "Voir les {n}", "shH": "Chaussures de course en sentier", "shTag": "Votre choix", "shPh": "Vos chaussures de course ?", "shSize": "Pointure", "shGone": "Pas en stock en pointure {s} aujourd'hui. On vous avertit dès son retour.", "shPickSize": "Choisissez aussi votre pointure.", "shPickFit": "Choisissez d'abord Homme ou Femme plus haut.", "shFrom": "{p} en pointure {s} aujourd'hui", "shPage": "Toutes les pointures et boutiques", "shNone": "Pas dans notre liste de chaussures de sentier. Essayez le nom de la marque.", "shRm": "Retirer", "watch": "Suivre", "watchOn": "Suivi", "watchL": "Suivre le prix", "wMember": "Suivi. On vous écrit quand il baisse dans votre taille.", "wNew": "Suivi, sur ce téléphone. Ajoutez votre courriel et on vous avertira quand il baisse.", "wPending": "Suivi. Confirmez votre courriel (voyez votre boîte de réception) pour recevoir les alertes.", "wAdd": "Ajouter mon courriel", "wOff": "Retiré de vos favoris.", "sizeH": "Votre taille", "sizeTxt": "Choisissez-la une fois pour voir les aubaines à votre taille.",
         "men": "Homme", "women": "Femme", "change": "Modifier", "off": "de rabais",
+        "kit_bad": "🌧 Kit mauvais temps", "kit_hot": "☀️ Kit chaleur", "kitWhen": "Seulement si la course l'annonce, habituellement quelques jours avant le départ.",
         "byOpen": "Une autre taille en shorts, bas ou gants ?", "by": {"tops": "Hauts", "bottoms": "Shorts et collants", "socks": "Bas", "gloves": "Gants"},
         "src": "Selon la liste officielle de la course (mise à jour par la course le {date}). Les règles peuvent changer : vérifiez la {link} avant la course.",
         "srcLink": "liste officielle", "srcRead": "Selon la liste officielle de la course (telle que publiée quand nous l'avons lue, le {date}). Les règles peuvent changer : vérifiez la {link} avant la course.", "notAff": "The Gear Fox n'est pas affilié à la course.",
@@ -351,6 +355,9 @@ CSS = """
 .rsize button[aria-pressed="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
 .rsize .mine{border:0;padding:0;margin:0;background:none}
 .srcb{font-size:14px;color:var(--muted);margin:16px 0 0}
+.kit{order:20;background:var(--card);border:1.5px dashed var(--line);border-radius:14px;padding:10px 14px}.kit[hidden]{display:none}
+.kit summary{font:700 18px/1.3 var(--display);cursor:pointer;min-height:32px;display:flex;align-items:center}.kit .kitwhen{margin:4px 0 10px}
+.gl.sub{gap:8px}.gl.sub .gi{border-color:var(--line)}
 .gi.shoe{border-color:var(--hivis)}.gi.shoe .shi{flex:none;width:24px;text-align:center;font-size:18px}.lv.Y{background:var(--ink);color:var(--card)}
 .shrow{display:flex;gap:8px;margin-top:10px}.shrow select{flex:none;width:104px;font:600 16px var(--body);color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:0 8px}
 .gi.shoe input{flex:1;min-width:0;font:400 16px var(--body);color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:11px 13px}
@@ -552,7 +559,7 @@ def page(slug, race, L, items, stores, pages=None):
                de=race.get("de", "de l'"), le=race.get("le", "l'"))
     path = {"en": f"/races/{slug}/", "fr": f"/courses/{slug}/"}
     head = page_head(T[L], s["title"].format(**fmt), s["desc"].format(**fmt), path["en"], path["fr"], f"<style>{CSS}</style>")
-    pools, rows, shown = {}, [], set()
+    pools, rows, shown, kits = {}, [], set(), {}
     for kind, lv, txt, spec in race["items"]:
         title, note = txt[L]
         sold = kind.rstrip("2") in KINDS
@@ -571,14 +578,22 @@ def page(slug, race, L, items, stores, pages=None):
                      + (f'<span class="spec">{s["spec"]}</span>' if spec else "") + "</p>")
         else:
             deals = ""
-        rows.append(f'<li class="gi{"" if sold else " mini"}" data-k="{kind}"{lvs}{"" if first else " hidden"}><div class="hd">'
+        kit = next((k for k, ks in (race.get("kits") or {}).items() if kind in ks), "")
+        (kits.setdefault(kit, []) if kit else rows).append(
+                    f'<li class="gi{"" if sold else " mini"}" data-k="{kind}"{" data-kit=" + chr(34) + kit + chr(34) if kit else ""}{lvs}{"" if first else " hidden"}><div class="hd">'
                     f'<input type="checkbox" class="have" aria-label="{esc(s["have"])}: {esc(title)}"><h3>{esc(title)}</h3>'
                     f'<span class="lv {first or "R"}">{s.get(first, "")}</span></div>'
                     + (f'<p class="note">{esc(note)}</p>' if note else "") + f'{deals}</li>')
+    # Oct 21 (Bastien: "the hot weather should be another drop down... it only gets activated a couple days before the race"):
+    # kits the race calls only in bad or hot weather fold under the list, out of the mandatory count
+    for kit, krows in kits.items():
+        rows.append(f'<li class="kit" data-kit="{kit}"><details><summary>{s["kit_" + kit]}</summary><p class="note kitwhen">{s["kitWhen"]}</p>'
+                    f'<ul class="gl sub">{"".join(krows)}</ul></details></li>')
     # quick answers from the race's own table
     faq = []
     for i, d in enumerate(race["dists"]):
-        must = [txt[L][0] for kind, lv, txt, _ in race["items"] if lv[i] == "M"]
+        inkit = {k for ks in (race.get("kits") or {}).values() for k in ks}
+        must = [txt[L][0] for kind, lv, txt, _ in race["items"] if lv[i] == "M" and kind not in inkit]
         faq.append((s["qList"].format(d=d, **fmt), s["aList"].format(items=", ".join(must))))
     if race.get("faq_jacket"):        # Harricana: "windbreakers will not be accepted"
         faq.append((s["qJacket"].format(**fmt), s["aJacket"].format(**{**fmt, "dists": "/".join(d for i, d in enumerate(race["dists"]) if dict((k, lv) for k, lv, *_ in race["items"])["jacket"][i] == "M")})))
@@ -648,12 +663,13 @@ function render(){
   [].forEach.call(document.querySelectorAll(".dists button"),function(b){b.setAttribute("aria-pressed",String(b.dataset.d===dist))});
   var n=0,h=0;
   var R={Y:-1,M:0,R:1,A:2};
-  [].forEach.call(gl.children,function(li){var lv=li.getAttribute("data-l"+dist)||"",k=li.dataset.k;li.hidden=!lv;
+  [].forEach.call(gl.querySelectorAll(".kit"),function(kb){kb.hidden=![].some.call(kb.querySelectorAll(".gi"),function(x){return x.getAttribute("data-l"+dist)})});
+  [].forEach.call(gl.querySelectorAll(".gi"),function(li){var lv=li.getAttribute("data-l"+dist)||"",k=li.dataset.k;li.hidden=!lv;
     li.style.order=2*(R[lv]||0)+(li.classList.contains("mini")?1:0);   // what's mandatory for this distance first; the small stuff after
     var tag=li.querySelector(".lv");tag.className="lv "+lv;tag.textContent=lv==="Y"?gl.dataset.ly:lv==="M"?gl.dataset.lm:lv==="R"?gl.dataset.lr:lv==="A"?gl.dataset.la:"";
     if(k==="shoes")return;   // the shoe line: no tick, not counted
     var got=!!have[k];li.classList.toggle("got",got);li.querySelector("input.have").checked=got;
-    if(lv==="M"){n++;if(got)h++}
+    if(lv==="M"&&!li.dataset.kit){n++;if(got)h++}
     var p=pools[k];if(!p||(!fit&&!size))return;
     var ok=[];for(var i=0;i<p.length;i++){var r=p[i];
       if(fit&&r.sx.length&&r.sx.indexOf(fit)<0)continue;
