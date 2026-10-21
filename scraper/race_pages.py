@@ -671,7 +671,7 @@ function render(){
     if(k==="shoes")return;   // the shoe line: no tick, not counted
     var got=!!have[k];li.classList.toggle("got",got);li.querySelector("input.have").checked=got;
     if(lv==="M"&&!li.dataset.kit){n++;if(got)h++}
-    var p=pools[k];if(!p||(!fit&&!size))return;
+    var p=pools[k];if(!p||!p.length||(!fit&&!size))return;   // an item no store has today (blankets, Oct 21) keeps its "none" line
     var ok=[];for(var i=0;i<p.length;i++){var r=p[i];
       if(fit&&r.sx.length&&r.sx.indexOf(fit)<0)continue;
       var s=SIZED[r.g]?r.s.filter(function(e){return fits(e[0],sizeFor(r.g))}):r.s;if(!s.length)continue;
