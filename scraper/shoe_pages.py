@@ -638,7 +638,7 @@ f.addEventListener("submit",function(e){{e.preventDefault();
 (function(){{var c=null;try{{c=JSON.parse(localStorage.getItem("gf-country")||"null")||(JSON.parse(localStorage.getItem("rd-profile")||"null")||{{}}).country||null}}catch(e){{}}
   if(!c){{try{{c=document.documentElement.lang==="fr"?"ca":/^(America\/(New_York|Detroit|Kentucky|Indiana|Chicago|Menominee|North_Dakota|Denver|Boise|Phoenix|Los_Angeles|Anchorage|Juneau|Sitka|Metlakatla|Yakutat|Nome|Adak)|Pacific\/Honolulu)/.test(Intl.DateTimeFormat().resolvedOptions().timeZone||"")?"us":"ca"}}catch(e){{}}}}   /* first visit from Reddit/Google: the device's time zone, like the homepage (Oct 6) */
   var path=location.pathname,us=/^\/us\//.test(path);if(!c||(c==="us")===us)return;
-  var to=us?path.replace(/^\/us\//,"/"):"/us"+path.replace(/^\/chaussures\//,"/shoes/").replace(/^\/chaussures-course-solde\/.*$/,"/running-shoes-sale/").replace(/^\/marques\//,"/brands/").replace(/^\/vendredi-fou\//,"/black-friday/");
+  var to=us?path.replace(/^\/us\//,"/"):"/us"+path.replace(/^\/chaussures\//,"/shoes/").replace(/^\/chaussures-course-solde\/.*$/,"/running-shoes-sale/").replace(/^\/marques\//,"/brands/").replace(/^\/vendredi-fou\//,"/black-friday/").replace(/^\/courses\//,"/races/");   /* race lists (Oct 21) */
   var fr=document.documentElement.lang==="fr";
   var show=function(u){{var b=document.createElement("p");b.className="side";
     b.innerHTML=(us?"These prices are from US stores. ":fr?"Ces prix viennent de boutiques canadiennes. ":"These prices are from Canadian stores. ")+'<a href="'+u+'">'+(us?"See Canadian stores →":fr?"Voir les boutiques américaines →":"See US stores →")+"</a>";

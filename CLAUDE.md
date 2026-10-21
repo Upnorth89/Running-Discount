@@ -252,13 +252,17 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   / 4 recommended, checked by rendering their Wix page), Fjord-du-Saguenay (2027 = 135/100/90/55). Each list read on the race's own site;
   a race without its own "last updated" date says "as published when we read it". Kits a race calls only in bad or hot weather (`kits` in RACES:
   Tremblant) fold under the list ("Only if the race calls it, usually a few days before the start"), out of the mandatory count. Missing: Gaspésia 100 (list only in a Canva guide: ask
-  Bastien's contacts). Oct 21 night, in the preview, waiting for Bastien's OK (work branch claude/github-connection-e3gddw): Ultra-Trail
-  Whistler + Fat Dog 120 (Canada) and a USA side /us/races/ (EN, US$ from deals-us.json, `side:"us"` in RACES, ☰ menu goes there on the
-  US side) with 7 UTMB races. UTMB North America publishes ONE gear PDF for all its events (same file on each event's regulation page:
-  100M/100K/50K/20K categories + hot/cold kits; `utmb_race()` builds a race from its distances' categories). Checked and left out (no real
-  mandatory list): Squamish 50 (headlamp only), Sinister 7 + Canadian Death Race ("suggested"), Lost Soul, Golden, Broken Goat, Knee
-  Knacker, Hardrock (recommended only), Cocodona, Destination Trail, Wasatch; Kodiak + Pacific Trails (kit only as images). Picks: eyewear
-  under $15 or a spare lens/cleaner never shows (`min` per kind). Metric: Search Console + ref race-<slug> sign-ups; check mid-Jan + end of March (plan doc row).
+  Bastien's contacts). Oct 21 night (Bastien OK'd, shipped): Ultra-Trail Whistler, Fat Dog 120, 7 US UTMB races, UTMB Mont-Blanc (7 races,
+  list read from its 2026 image; PTL left out). **Every race on both sides** (Bastien: "people travel to races ... people need their gear
+  locally even if the race is abroad"): /races/<slug>/ + /courses/<slug>/ (Canadian stores, CAD) AND /us/races/<slug>/ (US stores, US$,
+  English), hreflang en-CA/fr-CA/en-US between them (`twins()`), a "Shopping in the US? This list with US stores" line (hidden when the
+  wrong-side bar shows); hubs list every race grouped Canada / United States / France, the visitor's country first. `side` in RACES =
+  the race's country. UTMB North America publishes ONE gear PDF for all its events (100M/100K/50K/20K categories + hot/cold kits;
+  `utmb_race()`). Kinds can repeat with a number ("gloves3" = "gloves" rules, `kbase()`); identical pick lists are stored once per page.
+  Checked and left out (no real mandatory list): Angeles Crest 100 (2026 race book: only "headlamps needed" at the start), Squamish 50
+  (headlamp only), Sinister 7 + Canadian Death Race ("suggested"), Lost Soul, Golden, Broken Goat, Knee Knacker, Hardrock (recommended
+  only), Cocodona, Destination Trail, Wasatch; Kodiak + Pacific Trails (kit only as images). Picks: eyewear under $15 or a spare
+  lens/cleaner never shows (`min` per kind). Metric: Search Console + ref race-<slug> sign-ups; check mid-Jan + end of March (plan doc row).
 - **Clothing sizes per category** (Oct 21, a visitor: "medium in shorts, L in socks, small in t-shirts"): sizes screen keeps one quick
   "Clothing size" row + "Different size in shorts, socks or gloves?" (`#clothMore`/`#clothBy`, `state.clothBy` = only the categories that
   differ, `clothFor(g)`; bras follow tops, hats the main size). Profiles already kept a size per group (Friday email/alerts use them);

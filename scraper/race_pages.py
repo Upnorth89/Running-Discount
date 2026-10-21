@@ -98,6 +98,12 @@ KINDS = {
                      x=r"insulat|\bdown\b|puffer|nano|atom|alpha|primaloft|thermal|\bski\b|snow|parka|3-in-1|t-?shirt|\btee\b|vest"),
 }
 KINDS["gloves2"] = dict(KINDS["gloves"], need=WATERPROOF)
+KINDS["gloves3"] = KINDS["gloves2"]
+
+
+def kbase(kind):
+    """A list can name the same kind twice (a second headlamp, the weather kit's gloves): "cap3" uses the "cap" rules."""
+    return kind if kind in KINDS else re.sub(r"\d+$", "", kind)
 
 # The Ultra-Trail Harricana list as the race published it (ultratrailharricana.com, "Mandatory and Suggested Gear",
 # last update 2024-08-01; read Oct 20, 2026). M = mandatory, R = recommended, A = allowed, "" = not listed.
@@ -394,23 +400,78 @@ US_EV = {
     "grindstone": "v1787683381/grindstone/Race%20Regs%20and%20Man.%20Gear%20Fall%202026/2026_and_2027_UTMB_MANDATORY_and_RECOMMENDED_EQUIPMENT_North_America_1_3375f06592_pdf_b283634717.pdf.pdf",
 }
 _us = lambda ev: "https://pdf.utmb.world/image/upload/" + US_EV[ev]
-_w = lambda t: {"en": t, "fr": t}
+_w = lambda en, fr: {"en": en, "fr": fr}
 RACES.update({
-    "canyons-endurance-runs": utmb_race("Canyons Endurance Runs by UTMB", "Canyons", _w("Auburn, California"), _w("April 22–25, 2027"),
+    "canyons-endurance-runs": utmb_race("Canyons Endurance Runs by UTMB", "Canyons", _w("Auburn, California", "Auburn, Californie"), _w("April 22–25, 2027", "22 au 25 avril 2027"),
                                         [("100M", "100M"), ("100K", "100K"), ("50K", "50K"), ("25K", "20K")], _us("canyons"), "us"),
-    "desert-rats": utmb_race("Desert RATS Trail Running Festival by UTMB", "Desert RATS", _w("Fruita, Colorado"), _w("April 8–11, 2027"),
+    "desert-rats": utmb_race("Desert RATS Trail Running Festival by UTMB", "Desert RATS", _w("Fruita, Colorado", "Fruita, Colorado"), _w("April 8–11, 2027", "8 au 11 avril 2027"),
                              [("100K", "100K"), ("50K", "50K"), ("21K", "20K")], _us("desertrats"), "us"),
-    "rothrock": utmb_race("Rothrock by UTMB", "Rothrock", _w("Tussey Mountain, Pennsylvania"), _w("May 14–16, 2027"),
+    "rothrock": utmb_race("Rothrock by UTMB", "Rothrock", _w("Tussey Mountain, Pennsylvania", "Tussey Mountain, Pennsylvanie"), _w("May 14–16, 2027", "14 au 16 mai 2027"),
                           [("50K", "50K"), ("25K", "20K")], _us("rothrock"), "us"),
-    "ultra-trail-chattanooga": utmb_race("Ultra Trail Chattanooga by UTMB", "Chattanooga", _w("Chattanooga, Tennessee"), _w("June 4–6, 2027"),
+    "ultra-trail-chattanooga": utmb_race("Ultra Trail Chattanooga by UTMB", "Chattanooga", _w("Chattanooga, Tennessee", "Chattanooga, Tennessee"), _w("June 4–6, 2027", "4 au 6 juin 2027"),
                                          [("100K", "100K"), ("50K", "50K"), ("20K", "20K")], _us("chattanooga"), "us"),
-    "speedgoat": utmb_race("Speedgoat Mountain Races by UTMB", "Speedgoat", _w("Snowbird, Utah"), _w("July 22–24, 2027"),
+    "speedgoat": utmb_race("Speedgoat Mountain Races by UTMB", "Speedgoat", _w("Snowbird, Utah", "Snowbird, Utah"), _w("July 22–24, 2027", "22 au 24 juillet 2027"),
                            [("50K", "50K")], _us("speedgoat"), "us"),
-    "snowbasin": utmb_race("Snowbasin by UTMB", "Snowbasin", _w("Snowbasin Resort, Utah"), _w("September 16–18, 2027"),
+    "snowbasin": utmb_race("Snowbasin by UTMB", "Snowbasin", _w("Snowbasin Resort, Utah", "Snowbasin Resort, Utah"), _w("September 16–18, 2027", "16 au 18 septembre 2027"),
                            [("58K", "50K"), ("28K", "20K")], _us("snowbasin"), "us"),
-    "grindstone": utmb_race("Grindstone Trail Running Festival by UTMB", "Grindstone", _w("Natural Chimneys Park, Virginia"), _w("September 23–26, 2027"),
+    "grindstone": utmb_race("Grindstone Trail Running Festival by UTMB", "Grindstone", _w("Natural Chimneys Park, Virginia", "Natural Chimneys Park, Virginie"), _w("September 23–26, 2027", "23 au 26 septembre 2027"),
                             [("100M", "100M"), ("100K", "100K"), ("50K", "50K"), ("21K", "20K")], _us("grindstone"), "us"),
 })
+
+# UTMB Mont-Blanc (Oct 21, Bastien: "UTMB 160 the big race and all other distances in Chamonix"): the 2026 list, published as an
+# image on montblanc.utmb.world (read Oct 21, 2026). One button per race; PTL left out (a team race with its own rules).
+MB = ["UTMB", "TDS", "CCC", "OCC", "MCC", "ETC", "YCC"]
+RACES["utmb-mont-blanc"] = {
+    "name": "UTMB Mont-Blanc", "short": "Chamonix", "side": "fr", "unit": "label", "cupless": True,
+    "where": {"en": "Chamonix, France", "fr": "Chamonix, France"},
+    "when": {"en": "August 2027 (dates to come)", "fr": "Août 2027 (dates à venir)"},
+    "km": {"UTMB": 177, "TDS": 151, "CCC": 101, "OCC": 61, "MCC": 39, "ETC": 15, "YCC": 15},
+    "dists": MB, "default": "UTMB",
+    "src": "https://montblanc.utmb.world/races-runners/runners/mandatory-equipment",
+    "read": {"en": "October 21, 2026 (2026 list)", "fr": "21 octobre 2026 (liste 2026)"},
+    "kits": {"bad": ["longpants", "jacket2", "midlayer2", "sun", "cap3", "gloves3", "warmjacket", "spare"], "hot": ["sun2", "cap2", "sunscreen"]},
+    "items": [
+        ("id", "MMMMMMM", {"en": ("ID: passport or ID card", ""), "fr": ("Pièce d'identité : passeport ou carte", "")}, False),
+        ("phone", "MMMMMMM", {"en": ("Smartphone with the LiveTrail app", "With roaming for France, Italy and Switzerland. Keep it on: airplane mode isn't allowed."),
+                              "fr": ("Téléphone avec l'appli LiveTrail", "Avec l'itinérance pour la France, l'Italie et la Suisse. Toujours allumé : le mode avion est interdit.")}, False),
+        ("water", "MMMMMMM", {"en": ("Water: 1 litre or more", "1.5 L recommended on the UTMB, TDS and CCC. Sealed containers, no plastic bags."),
+                              "fr": ("Eau : 1 litre ou plus", "1,5 L recommandé sur l'UTMB, la TDS et la CCC. Contenants étanches, pas de sacs de plastique.")}, False),
+        ("cup", "MMMMMMM", {"en": ("Personal cup (150 ml or more)", "Bottles or flasks with a lid don't count."), "fr": ("Gobelet personnel (150 ml ou plus)", "Les bouteilles ou flasques avec bouchon ne comptent pas.")}, False),
+        ("blanket", "MMMMMMM", {"en": ("Survival blanket (1.40 m × 2 m or more)", ""), "fr": ("Couverture de survie (1,40 m × 2 m ou plus)", "")}, False),
+        ("whistle", "MMMMMMM", {"en": ("Whistle", "Many race vests have one on the chest strap: check yours."), "fr": ("Sifflet", "Plusieurs vestes de course en ont un sur la sangle de poitrine : vérifiez la vôtre.")}, False),
+        ("food", "MMMMMRR", {"en": ("Food reserve", "Recommended: about 800 kcal (2 gels + 2 bars)."), "fr": ("Réserve de nourriture", "Recommandé : environ 800 kcal (2 gels + 2 barres).")}, False),
+        ("jacket", "MMMMM  ", {"en": ("Waterproof jacket with a hood", "Breathable membrane (20,000 mm recommended), sealed seams, the jacket's own hood. No non-waterproof panels."),
+                               "fr": ("Manteau imperméable avec capuchon", "Membrane respirante (20 000 Schmerber recommandé), coutures scellées, capuchon d'origine. Aucun panneau non imperméable.")}, True),
+        ("vest", "MMMMM  ", {"en": ("Running pack", "Worn the whole race; it carries the timing chip."), "fr": ("Sac de course", "Porté toute la course; il porte la puce de chronométrage.")}, False),
+        ("headlamp", "MMMM   ", {"en": ("Headlamp + spare batteries", "200 lumens recommended. Phones and watches don't count. The OCC needs one."),
+                                 "fr": ("Lampe frontale + piles de rechange", "200 lumens recommandés. Téléphones et montres ne comptent pas. L'OCC en demande une.")}, True),
+        ("headlamp2", "MMM    ", {"en": ("Second headlamp", "UTMB, TDS, CCC: two working lamps, spare batteries for each (or a 5,000 mAh power bank). UTMB: one needs a forward red light."),
+                                  "fr": ("2e lampe frontale", "UTMB, TDS, CCC : deux lampes, des piles pour chacune (ou une batterie externe de 5 000 mAh). UTMB : une doit avoir une lumière rouge vers l'avant.")}, False),
+        ("bandage", "MMMMM  ", {"en": ("Self-adhesive elastic bandage (100 × 6 cm or more)", ""), "fr": ("Bandage élastique adhésif (100 × 6 cm ou plus)", "")}, False),
+        ("cap", "MMMMM  ", {"en": ("Cap, bandana or neck gaiter for the sun", ""), "fr": ("Casquette, bandana ou cache-cou pour le soleil", "")}, False),
+        ("pants", "MMMMM  ", {"en": ("Waterproof overpants", ""), "fr": ("Surpantalon imperméable", "")}, True),
+        ("midlayer", "MMM    ", {"en": ("Warm long-sleeve second layer", "No cotton, 180 g or more in men's M (or a 110 g base layer + a water-repellent windproof jacket)."),
+                                 "fr": ("Deuxième couche chaude à manches longues", "Pas de coton, 180 g ou plus en M homme (ou une couche de 110 g + un coupe-vent déperlant).")}, False),
+        ("tuque", "MMM    ", {"en": ("Beanie or neck gaiter", ""), "fr": ("Tuque ou cache-cou", "")}, False),
+        ("gloves2", "MMM    ", {"en": ("Warm, waterproof gloves", ""), "fr": ("Gants chauds et imperméables", "")}, True),
+        ("poles", "RRRRRRR", {"en": ("Trail running poles", "If you start with them, carry them the whole race."), "fr": ("Bâtons de trail", "Si vous partez avec, portez-les toute la course.")}, False),
+        ("battery", "RRRRRRR", {"en": ("Power bank", ""), "fr": ("Batterie externe", "")}, False),
+        ("bowl", "RRRRRRR", {"en": ("Reusable bowl", "No disposable dishes at the aid stations."), "fr": ("Bol réutilisable", "Aucune vaisselle jetable aux ravitaillements.")}, False),
+        # the additional list: any item can be called by the race, at the latest 24 h before the start
+        ("longpants", "MMMMMMM", {"en": ("Long running tights or pants", "Down to the ankle, opaque, technical fabric. They don't replace the waterproof overpants."),
+                                  "fr": ("Collant long ou pantalon de course", "Jusqu'à la cheville, opaque, tissu technique. Ne remplace pas le surpantalon imperméable.")}, False),
+        ("jacket2", "MMMMMMM", {"en": ("Waterproof jacket with a hood", "For the ETC and YCC, when the race calls it."), "fr": ("Manteau imperméable avec capuchon", "Pour l'ETC et la YCC, quand la course l'annonce.")}, True),
+        ("midlayer2", "MMMMMMM", {"en": ("Warm long-sleeve second layer", "For the races that don't already require it."), "fr": ("Deuxième couche chaude à manches longues", "Pour les courses qui ne l'exigent pas déjà.")}, False),
+        ("sun", "MMMMMMM", {"en": ("Protective eyewear", "Photochromic sunglasses can count for both."), "fr": ("Lunettes de protection", "Des lunettes photochromiques peuvent compter pour les deux.")}, False),
+        ("cap3", "MMMMMMM", {"en": ("A second neck gaiter", ""), "fr": ("Un deuxième cache-cou", "")}, False),
+        ("gloves3", "MMMMMMM", {"en": ("Warm, waterproof gloves", "For the races that don't already require them."), "fr": ("Gants chauds et imperméables", "Pour les courses qui ne les exigent pas déjà.")}, True),
+        ("warmjacket", "MMMMMMM", {"en": ("Third warm layer", "A softshell, down jacket or thick fleece."), "fr": ("Troisième couche chaude", "Softshell, doudoune ou laine polaire épaisse.")}, False),
+        ("spare", "MMMMMMM", {"en": ("Spare warm clothing", ""), "fr": ("Vêtements chauds de rechange", "")}, False),
+        ("sun2", "MMMMMMM", {"en": ("Sunglasses", ""), "fr": ("Lunettes de soleil", "")}, False),
+        ("cap2", "MMMMMMM", {"en": ("Sahara cap (covers the head and neck)", ""), "fr": ("Casquette saharienne (couvre la tête et la nuque)", "")}, False),
+        ("sunscreen", "MMMMMMM", {"en": ("Sunscreen, 15 ml or more", "In its original container. SPF 50 or higher recommended."), "fr": ("Crème solaire, 15 ml ou plus", "Dans son contenant d'origine. FPS 50 ou plus recommandé.")}, False),
+    ],
+}
 
 
 S = {
@@ -434,7 +495,7 @@ S = {
         "qList": "What is the mandatory gear for the {short} {d}?", "aList": "{items}.",
         "qJacket": "Is a windbreaker enough for the {name}?", "aJacket": "No. The race asks for a jacket with an attached hood and a waterproof, breathable membrane (on the {dists}). Windbreakers aren't accepted.",
         "qCup": "Do the {name} aid stations have cups?", "aCup": "No. The aid stations have no cups: bring your own reusable cup.",
-        "aisle": "Race gear lists", "money": T["en"]["money"],
+        "aisle": "Race gear lists", "money": T["en"]["money"], "otherSide": "Shopping in the US? This list with US stores →",
     },
     "fr": {
         "dir": "courses", "title": "Matériel obligatoire {de}{name} ({short} {dists})",
@@ -456,11 +517,22 @@ S = {
         "qList": "Quel est le matériel obligatoire du {short} {d}?", "aList": "{items}.",
         "qJacket": "Un coupe-vent suffit-il pour {le}{name}?", "aJacket": "Non. La course demande un manteau avec capuchon attaché et une membrane imperméable et respirante (sur le {dists}). Les coupe-vent ne sont pas acceptés.",
         "qCup": "Y a-t-il des verres aux ravitaillements {de}{name}?", "aCup": "Non. Les ravitaillements n'ont pas de verres : apportez votre gobelet réutilisable.",
-        "aisle": "Listes de matériel de course", "money": T["fr"]["money"],
+        "aisle": "Listes de matériel de course", "money": T["fr"]["money"], "otherSide": "Vous magasinez aux États-Unis ? Cette liste avec les boutiques américaines →",
     },
 }
 
-S["us"] = dict(S["en"], dir="us/races", desc="The {name} mandatory gear list for the {dists}, item by item, with today's best prices on each in your size at US stores.")
+S["us"] = dict(S["en"], dir="us/races", desc="The {name} mandatory gear list for the {dists}, item by item, with today's best prices on each in your size at US stores.",
+               otherSide="Shopping in Canada? This list with Canadian stores →")
+
+
+def twins(head, slug, race):
+    """Oct 21 (Bastien: "people travel to races ... people need their gear locally even if the race is abroad"): every race has a
+    Canadian (EN/FR) and a US page, same list, local stores. Tell search engines they're the same page for three audiences."""
+    BASE = "https://thegearfox.com"
+    alt = (f'<link rel="alternate" hreflang="en-CA" href="{BASE}/races/{slug}/">\n<link rel="alternate" hreflang="fr-CA" href="{BASE}/courses/{slug}/">\n'
+           f'<link rel="alternate" hreflang="en-US" href="{BASE}/us/races/{slug}/">\n'
+           f'<link rel="alternate" hreflang="x-default" href="{BASE}{"/us" if race.get("side") == "us" else ""}/races/{slug}/">')
+    return re.sub(r'(<link rel="alternate" hreflang="[^"]+" href="[^"]+">\n?)+', alt + "\n", head, count=1)
 
 
 def dlab(race, d, L):
@@ -512,7 +584,7 @@ CSS = """
 .rsize button{font:600 15px var(--body);color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:7px 13px;min-height:40px;cursor:pointer}
 .rsize button[aria-pressed="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
 .rsize .mine{border:0;padding:0;margin:0;background:none}
-.srcb{font-size:14px;color:var(--muted);margin:16px 0 0}
+.oside{margin:-4px 0 10px;font-size:14px;background:none;padding:0;color:var(--ink)}.side~.oside{display:none}.srcb{font-size:14px;color:var(--muted);margin:16px 0 0}
 .kit{order:20;background:var(--card);border:1.5px dashed var(--line);border-radius:14px;padding:10px 14px}.kit[hidden]{display:none}
 .kit summary{font:700 18px/1.3 var(--display);cursor:pointer;min-height:32px;display:flex;align-items:center}.kit .kitwhen{margin:4px 0 10px}
 .gl.sub{gap:8px}.gl.sub .gi{border-color:var(--line)}
@@ -548,7 +620,7 @@ BAD = re.compile(r"seat ?mast|seat ?post|\bbiogel\b", re.I)   # bike parts still
 def pool(items, kind, stores):
     """Race gear for one line of the list, full price too (people watch it for a drop): trail gear first, then how many stores
     carry it (the best popularity signal we have), then a sale."""
-    k = KINDS.get(kind) or KINDS[kind.rstrip("2")]
+    k = KINDS[kbase(kind)]
     need, good = re.compile(k["need"], re.I), re.compile(k["good"], re.I)
     xx = re.compile(k["x"], re.I) if k.get("x") else None
     out = []
@@ -559,7 +631,8 @@ def pool(items, kind, stores):
         if (k.get("t") and d.get("t") not in k["t"]) or not need.search(n) or (xx and xx.search(n)) or BAD.search(n):
             continue
         b = d["b"].lower()
-        if not (kind.rstrip("2") not in BRANDS or b in BRANDS[kind.rstrip("2")] or (b in MAYBE and (kind in ("water", "cup", "food") or RUN.search(n)))):
+        kb = re.sub(r"\d+$", "", kind)
+        if not (kb not in BRANDS or b in BRANDS[kb] or (b in MAYBE and (kb in ("water", "cup", "food") or RUN.search(n)))):
             continue
         fit = bool(good.search(n))
         sz = [e for e in d["sz"] if e[1]]
@@ -716,14 +789,15 @@ def page(slug, race, L, items, stores, pages=None, fx=1.0):
     s, Tl = S[L], tl(L)
     fmt = dict(name=race["name"], short=race["short"], dists=dlabs(race, L), where=race["where"][L if L != "us" else "en"],
                when=race["when"][L if L != "us" else "en"], de=race.get("de", "de l'"), le=race.get("le", "l'"))
-    if L == "us":   # one English page, no French twin; the "Canadian stores" switch goes to the Canadian race lists
-        head = page_head(US, s["title"].format(**fmt), s["desc"].format(**fmt), f"/us/races/{slug}/", "", f"<style>{CSS}</style>").replace('class="sw" href="/shoes/"', 'class="sw" href="/races/"')
+    if L == "us":   # English, US stores; the "Canadian stores" switch goes to the same race with Canadian stores
+        head = page_head(US, s["title"].format(**fmt), s["desc"].format(**fmt), f"/us/races/{slug}/", "", f"<style>{CSS}</style>").replace('class="sw" href="/shoes/"', f'class="sw" href="/races/{slug}/"')
     else:
         head = page_head(T[L], s["title"].format(**fmt), s["desc"].format(**fmt), f"/races/{slug}/", f"/courses/{slug}/", f"<style>{CSS}</style>")
+    head = twins(head, slug, race)
     pools, rows, shown, kits = {}, [], set(), {}
     for kind, lv, txt, spec in race["items"]:
         title, note = txt["en" if L == "us" else L]
-        sold = kind.rstrip("2") in KINDS
+        sold = kbase(kind) in KINDS
         p = pool(items, kind, stores) if sold else []
         if sold:
             pools[kind] = p
@@ -774,11 +848,19 @@ def page(slug, race, L, items, stores, pages=None, fx=1.0):
     by_rows = "".join(f'<div class="byrow"><b>{s["by"][g]}</b><div class="row">'
                       + "".join(f'<button type="button" data-bg="{g}" data-bs="{z}">{z}</button>' for z in ("XS", "S", "M", "L", "XL", "2XL")) + '</div></div>'
                       for g in ("tops", "bottoms", "socks", "gloves"))
+    same = {}                         # Oct 21: a kit line with the same picks as a list line (gloves, layers) points to it
+    for k in list(pools):
+        sig = json.dumps(pools[k], sort_keys=True)
+        if sig in same and pools[k]:
+            pools[k] = same[sig]
+        else:
+            same.setdefault(sig, k)
     pj = json.dumps(pools, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     sj = json.dumps(trail_shoes(items, pages), ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     body = f"""<p class="crumbs"><a href="{Tl['home']}">The Gear Fox</a> › <a href="/{s['dir']}/">{s['aisle']}</a></p>
 <h1>{esc(s['h1'].format(**fmt))}</h1>
-<p class="sub">{esc(s['sub'].format(**fmt))}</p>
+<p class="sub">{esc(" · ".join([f"{d} {race['km'][d]} km" for d in race["dists"]] + [fmt["where"], fmt["when"]]) if race.get("km") else s['sub'].format(**fmt))}</p>
+<p class="oside"><a href="{"/races/" if L == "us" else "/us/races/"}{slug}/">{esc(s['otherSide'])}</a></p>
 <section class="rsize" id="rsize" data-men="{s['men']}" data-women="{s['women']}" data-change="{s['change']}"><p><b>{s['sizeH']}</b> · {s['sizeTxt']}</p>
 <div class="row" data-f>{"".join(f'<button type="button" data-g="{g}">{s[g]}</button>' for g in ("men", "women"))}</div>
 <p class="cur"><b>{s['sizeH']}:</b> <span></span> <button type="button" data-chg>{s['change']}</button></p>
@@ -805,6 +887,7 @@ SCRIPT = r"""<script>
 (function(){var gl=document.getElementById("gl"),race=gl.dataset.race,fr="$LANG"==="fr";
 var get=function(k){try{return JSON.parse(localStorage.getItem(k)||"null")}catch(e){return null}},put=function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
 var pools={};try{pools=JSON.parse(document.getElementById("pools").textContent)}catch(e){}
+Object.keys(pools).forEach(function(k){if(typeof pools[k]==="string")pools[k]=pools[pools[k]]});   // a line sharing another line's picks
 var st=get("gf-race-"+race)||{},have=st.have||{},dist=st.d||gl.dataset.default;
 var prof=get("rd-profile"),rs=get("gf-race-size");
 var fit=(rs&&rs.g)||(prof&&prof.gender!=="any"&&prof.gender)||"",size=(rs&&rs.s)||"",by=(rs&&rs.by)||{};
@@ -953,12 +1036,20 @@ HUB = {
            "go": "Liste du matériel obligatoire →", "dists": "{d} km"},
 }
 HUB["us"] = dict(HUB["en"], desc="Mandatory gear lists for trail and ultra races, item by item, with today's best prices in your size at US stores.")
-OTHER = {"en": ("Racing in the US?", "US race gear lists →", "/us/races/"), "fr": ("Vous courez aux États-Unis ?", "Listes des courses américaines →", "/us/races/"),
-         "us": ("Racing in Canada?", "Canadian race gear lists →", "/races/")}
+HUB["en"]["groups"] = HUB["us"]["groups"] = {"ca": "Canada", "us": "United States", "fr": "France"}
+HUB["fr"]["groups"] = {"ca": "Canada", "us": "États-Unis", "fr": "France"}
+HUB["en"]["note"] = "Every list shows today's prices at Canadian stores, wherever the race is."
+HUB["fr"]["note"] = "Chaque liste montre les prix du jour dans les boutiques canadiennes, peu importe où a lieu la course."
+HUB["us"]["note"] = "Every list shows today's prices at US stores, wherever the race is."
+OTHER = {"en": ("Shopping in the US?", "Same lists with US stores →", "/us/races/"), "fr": ("Vous magasinez aux États-Unis ?", "Les mêmes listes avec les boutiques américaines →", "/us/races/"),
+         "us": ("Shopping in Canada?", "Same lists with Canadian stores →", "/races/")}
 
 
 def side(L):
-    return [(slug, r) for slug, r in RACES.items() if (r.get("side") == "us") == (L == "us")]
+    """Oct 21 (Bastien: "races should be available on both sides regardless"): every race on every side, the visitor's country first."""
+    first = "us" if L == "us" else "ca"
+    order = {first: 0, "ca": 1, "us": 2, "fr": 3}
+    return sorted(RACES.items(), key=lambda kv: order.get(kv[1].get("side", "ca"), 4))
 
 
 # Oct 21: the shoe list pages' cards put the link in a right-hand column, which squeezed race names to 2-3 words a line on phones
@@ -969,13 +1060,22 @@ HUB_CSS = (".cards.rh a{flex-direction:column;align-items:flex-start;gap:4px;pad
 def hub(L):
     """/races/ + /courses/ (Oct 21, Bastien: a ☰ menu item "even if it's one; we will add more soon"); /us/races/ for the USA side."""
     h, Tl, LL = HUB[L], tl(L), "en" if L == "us" else L
-    rows = "".join(f'<li><a href="/{S[L]["dir"]}/{slug}/"><span class="nm"><b>{esc(r["name"])}</b>'
-                   f'<small>{esc(r["where"][LL])} · {esc(r["when"][LL])} · {esc(dlabs(r, L))}</small></span>'
-                   f'<span class="pr">{h["go"]}</span></a></li>' for slug, r in side(L))
+    rows, grp = "", None
+    for slug, r in side(L):
+        if r.get("side", "ca") != grp:
+            grp = r.get("side", "ca")
+            rows += f'{"</ul>" if rows else ""}<h2>{esc(h["groups"][grp])}</h2><ul class="cards rh">'
+        rows += (f'<li><a href="/{S[L]["dir"]}/{slug}/"><span class="nm"><b>{esc(r["name"])}</b>'
+                 f'<small>{esc(r["where"][LL])} · {esc(r["when"][LL])} · {esc(dlabs(r, L))}</small></span>'
+                 f'<span class="pr">{h["go"]}</span></a></li>')
     o = OTHER[L]
     head = page_head(US, h["title"], h["desc"], "/us/races/", "", f"<style>{HUB_CSS}</style>").replace('class="sw" href="/shoes/"', 'class="sw" href="/races/"') if L == "us" else page_head(T[L], h["title"], h["desc"], "/races/", "/courses/", f"<style>{HUB_CSS}</style>")
+    BASE = "https://thegearfox.com"
+    head = re.sub(r'(<link rel="alternate" hreflang="[^"]+" href="[^"]+">\n?)+',
+                  f'<link rel="alternate" hreflang="en-CA" href="{BASE}/races/">\n<link rel="alternate" hreflang="fr-CA" href="{BASE}/courses/">\n'
+                  f'<link rel="alternate" hreflang="en-US" href="{BASE}/us/races/">\n<link rel="alternate" hreflang="x-default" href="{BASE}/races/">\n', head, count=1)
     return (head + f'<p class="crumbs"><a href="{Tl["home"]}">The Gear Fox</a></p><h1>{esc(h["h1"])}</h1><p class="sub">{esc(h["intro"])}</p>'
-            + f'<ul class="cards rh">{rows}</ul><p class="sub">{esc(o[0])} <a href="{o[2]}">{esc(o[1])}</a></p>' + page_foot(Tl))
+            + f'<p class="fine">{esc(h["note"])} {esc(o[0])} <a href="{o[2]}">{esc(o[1])}</a></p>{rows}</ul>' + page_foot(Tl))
 
 
 def add_to_sitemap(site):
@@ -984,7 +1084,7 @@ def add_to_sitemap(site):
     if not p.exists():
         return
     x = p.read_text()
-    urls = ["/races/", "/courses/", "/us/races/"] + [f"/{S[L]['dir']}/{slug}/" for L in ("en", "fr", "us") for slug, _ in side(L)]
+    urls = ["/races/", "/courses/", "/us/races/"] + [f"/{S[L]['dir']}/{slug}/" for L in ("en", "fr", "us") for slug in RACES]
     today = __import__("datetime").date.today().isoformat()
     new = "".join(f"<url><loc>https://thegearfox.com{u}</loc><lastmod>{today}</lastmod></url>\n" for u in urls if f"https://thegearfox.com{u}<" not in x)
     if new and "</urlset>" in x:
@@ -999,13 +1099,13 @@ def main():
         pages = json.loads((site / "shoes" / "pages.json").read_text())       # written by shoe_pages.py earlier in the refresh
     except Exception:
         pages = {}
-    for slug, race in side("en"):
+    for slug, race in RACES.items():
         for L in ("en", "fr"):
             out = site / S[L]["dir"] / slug / "index.html"
             out.parent.mkdir(parents=True, exist_ok=True)
             out.write_text(page(slug, race, L, sale["items"], stores, pages))
             print("wrote", out)
-    us = site / "deals-us.json"         # USA side (Oct 21): same pages from the US data, prices in US$
+    us = site / "deals-us.json"         # USA side (Oct 21): the same races from the US data, prices in US$
     if us.exists():
         data = json.loads(us.read_text())
         fx = float((data.get("fx") or {}).get("USD") or 1.37)
@@ -1014,7 +1114,7 @@ def main():
             us_pages = json.loads((site / "us" / "shoes" / "pages.json").read_text())
         except Exception:
             us_pages = {}
-        for slug, race in side("us"):
+        for slug, race in RACES.items():
             out = site / S["us"]["dir"] / slug / "index.html"
             out.parent.mkdir(parents=True, exist_ok=True)
             out.write_text(page(slug, race, "us", data["items"], stores, us_pages, fx))
