@@ -592,6 +592,42 @@ f.addEventListener("submit",function(e){e.preventDefault();
 """
 
 
+HUB = {
+    "en": {"title": "Race gear lists: mandatory gear, item by item", "h1": "Race gear lists",
+           "desc": "Mandatory gear lists for trail and ultra races, item by item, with today's best prices in your size at Canadian stores.",
+           "intro": "The mandatory gear for each race, as the race publishes it, with today's best prices in your size. More races coming soon.",
+           "go": "Mandatory gear list →", "dists": "{d} km"},
+    "fr": {"title": "Listes de matériel de course : le matériel obligatoire, article par article", "h1": "Listes de matériel de course",
+           "desc": "Le matériel obligatoire des courses en sentier et des ultras, article par article, avec les meilleurs prix du jour dans votre taille.",
+           "intro": "Le matériel obligatoire de chaque course, tel que publié par la course, avec les meilleurs prix du jour dans votre taille. D'autres courses s'en viennent.",
+           "go": "Liste du matériel obligatoire →", "dists": "{d} km"},
+}
+
+
+def hub(L):
+    """/races/ + /courses/ (Oct 21, Bastien: a ☰ menu item "even if it's one; we will add more soon")."""
+    h = HUB[L]
+    rows = "".join(f'<li><a href="/{S[L]["dir"]}/{slug}/"><span class="nm"><b>{esc(r["name"])}</b>'
+                   f'<small>{esc(r["where"][L])} · {esc(r["when"][L])} · {h["dists"].format(d="/".join(r["dists"]))}</small></span>'
+                   f'<span class="pr">{h["go"]}</span></a></li>' for slug, r in RACES.items())
+    return (page_head(T[L], h["title"], h["desc"], "/races/", "/courses/")
+            + f'<p class="crumbs"><a href="{T[L]["home"]}">The Gear Fox</a></p><h1>{esc(h["h1"])}</h1><p class="sub">{esc(h["intro"])}</p>'
+            + f'<ul class="cards">{rows}</ul>' + page_foot(T[L]))
+
+
+def add_to_sitemap(site):
+    """shoe_pages.py writes sitemap.xml earlier in the refresh; the race pages join it (never twice)."""
+    p = site / "sitemap.xml"
+    if not p.exists():
+        return
+    x = p.read_text()
+    urls = ["/races/", "/courses/"] + [f"/{S[L]['dir']}/{slug}/" for slug in RACES for L in ("en", "fr")]
+    today = __import__("datetime").date.today().isoformat()
+    new = "".join(f"<url><loc>https://thegearfox.com{u}</loc><lastmod>{today}</lastmod></url>\n" for u in urls if f"https://thegearfox.com{u}<" not in x)
+    if new and "</urlset>" in x:
+        p.write_text(x.replace("</urlset>", new + "</urlset>"))
+
+
 def main():
     site = Path(sys.argv[1])
     sale = json.loads(Path(sys.argv[2] if len(sys.argv) > 2 else site / "deals.json").read_text())   # full price too
@@ -606,6 +642,10 @@ def main():
             out.parent.mkdir(parents=True, exist_ok=True)
             out.write_text(page(slug, race, L, sale["items"], stores, pages))
             print("wrote", out)
+    for L in ("en", "fr"):
+        (site / S[L]["dir"]).mkdir(parents=True, exist_ok=True)
+        (site / S[L]["dir"] / "index.html").write_text(hub(L))
+    add_to_sitemap(site)
 
 
 if __name__ == "__main__":

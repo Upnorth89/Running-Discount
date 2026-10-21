@@ -17,6 +17,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import urllib.request
 from pathlib import Path
 
@@ -89,9 +90,16 @@ def main():
         return f"{len(sent)} kinds, all accepted"
     step("Analytics events are all recorded", ana_kinds)
 
-    def fetch():
+    def fetch():        # Oct 21: big files sometimes arrive cut short ("retrieval incomplete"): up to 3 tries each
         for f in ("offers.json", "deals.json"):
-            urllib.request.urlretrieve(LIVE + f, site / f)
+            for i in range(3):
+                try:
+                    urllib.request.urlretrieve(LIVE + f, site / f)
+                    break
+                except Exception:
+                    if i == 2:
+                        raise
+                    time.sleep(5)
         return "offers.json + deals.json"
     step("Download today's live data", fetch)
 
@@ -120,6 +128,26 @@ def main():
             raise RuntimeError(f"only {n} shoe pages")
         return f"{n} shoe pages"
     step("Shoe pages, list pages, sitemap", pages)
+
+    def races():        # race gear lists (Oct 21): built from the same data, after the shoe pages
+        r = subprocess.run([sys.executable, str(ROOT / "scraper" / "race_pages.py"), str(site)], capture_output=True, text=True, timeout=600)
+        if r.returncode:
+            raise RuntimeError(r.stderr.strip().splitlines()[-1])
+        sys.path.insert(0, str(ROOT / "scraper"))
+        import race_pages
+        for slug in race_pages.RACES:
+            for d in ("races", "courses"):
+                h = (site / d / slug / "index.html").read_text()
+                n = len(re.findall(r'<button type="button" class="wt"', h))
+                if n < 50:
+                    raise RuntimeError(f"/{d}/{slug}/ has only {n} picks")
+        for must in ["races/index.html", "courses/index.html"]:
+            if not (site / must).exists():
+                raise RuntimeError(f"{must} missing")
+        if "/races/" not in (site / "sitemap.xml").read_text():
+            raise RuntimeError("race pages missing from sitemap.xml")
+        return f"{len(race_pages.RACES)} race(s), EN + FR"
+    step("Race gear pages", races)
 
     def same_names():   # the site links cards to shoe pages with a JS copy of base_model + slugify: they must agree (Oct 7)
         sys.path.insert(0, str(ROOT / "scraper"))

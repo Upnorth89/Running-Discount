@@ -426,7 +426,7 @@ def site_flow(base, per, accented):
             page.click("#menuBtn")
             page.wait_for_selector("#menu", state="visible")
             gos = page.eval_on_selector_all("#menu [data-go]:not([hidden])", "e => e.map(x => x.dataset.go)")
-            for need in ["deals", "shoes", "sizes", "about"]:
+            for need in ["deals", "shoes", "races", "sizes", "about"]:
                 assert need in gos, f"the menu has no '{need}' item"
             page.click('#menu [data-go="sizes"]')
             page.wait_for_selector("#sheet", state="visible")
@@ -999,6 +999,43 @@ def site_flow(base, per, accented):
             pg.evaluate("localStorage.removeItem('gf-sub')")
             return "asked for a size, then signed up"
         check("Black Friday page: sign up right here")(bf_quick, pg)
+
+        def race_page():        # Oct 21: race gear lists: hub, size, 10 picks per item, Watch hearts in place, shoe + size picker, French
+            pg.evaluate("['gf-watch','gf-race-size','gf-shoe-size','gf-sub'].forEach(function(k){localStorage.removeItem(k)})")
+            pg.goto(base + "races/", wait_until="domcontentloaded")
+            pg.wait_for_selector("ul.cards a", timeout=8000)
+            pg.click("ul.cards a")
+            pg.wait_for_selector("#gl .gi", timeout=8000)
+            pg.click('#rsize [data-g="men"]')
+            pg.click('#rsize button[data-s="M"]')
+            settle(pg, 300)
+            n = pg.evaluate("[...document.querySelectorAll('#gl .gi:not(.mini):not(.shoe):not([hidden])')].map(l=>l.querySelectorAll('.dl li').length)")
+            assert n and sum(1 for x in n if x >= 3) >= len(n) - 2, f"items with fewer than 3 picks in men's M: {n}"
+            b = "#gl .gi:not(.mini):not(.shoe):not([hidden]) .dl li:first-child .wt"
+            pg.click(b)
+            settle(pg, 200)
+            assert pg.get_attribute(b, "aria-pressed") == "true", "Watch didn't heart the pick"
+            assert pg.evaluate("Object.keys(JSON.parse(localStorage.getItem('gf-watch')||'{}')).length") == 1, "the heart isn't in the watchlist"
+            assert "/races/" in pg.url and "watch=" not in pg.url, f"Watch left the race page ({pg.url})"
+            pg.click(b)
+            settle(pg, 200)
+            assert pg.evaluate("Object.keys(JSON.parse(localStorage.getItem('gf-watch')||'{}')).length") == 0, "a second tap didn't remove it"
+            pg.select_option("#shoeSz", "10")
+            pg.fill("#shoeQ", "speedgoat")
+            settle(pg, 200)
+            sug = pg.eval_on_selector_all("#shoeSug button", "e=>e.map(x=>x.textContent)")
+            assert sug, "the shoe box suggested nothing for 'speedgoat'"
+            pg.click("#shoeSug button")
+            settle(pg, 200)
+            mine = pg.inner_text("#shoeMine")
+            assert "10" in mine, f"the picked shoe doesn't say its size-10 price ({mine[:80]!r})"
+            pg.goto(base + "courses/", wait_until="domcontentloaded")
+            pg.click("ul.cards a")
+            pg.wait_for_selector("#gl .gi", timeout=8000)
+            assert "Matériel obligatoire" in pg.inner_text("h1"), "the French race page isn't in French"
+            pg.evaluate("['gf-watch','gf-race-size','gf-shoe-size'].forEach(function(k){localStorage.removeItem(k)})")
+            return f"{len(n)} items with picks, heart + shoe picker work, FR ok"
+        check("Race gear page: picks in your size, Watch hearts in place, shoe + size")(race_page, pg)
         ctx2.close()
 
         # an American visitor (Oct 6, 2026): a US time zone opens the USA side; the switch goes back to Canada

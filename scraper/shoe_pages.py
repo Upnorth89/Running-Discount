@@ -101,7 +101,7 @@ T = {
         "idxH1": "Shoe prices by model",
         "idxIntro": "Every popular running shoe we track, with today's best price in each size at Canadian stores. Updated every morning.",
         "idxDesc": "Today's best price in every size for {n} running shoe models at Canadian stores. Updated every morning by The Gear Fox.",
-        "onSale": "on sale", "home": "The Gear Fox", "switch": "Français", "menu": "Menu", "mDeals": "Today's deals", "mShoes": "Shoe prices by model", "mWatch": "Your watchlist", "mSizes": "My sizes", "mAbout": "About The Gear Fox", "tagline": "OUTFOX FULL PRICE",
+        "onSale": "on sale", "home": "The Gear Fox", "switch": "Français", "menu": "Menu", "mDeals": "Today's deals", "mShoes": "Shoe prices by model", "mWatch": "Your watchlist", "mSizes": "My sizes", "mAbout": "About The Gear Fox", "mRaces": "Race gear lists", "tagline": "OUTFOX FULL PRICE",
         "yourSize": "Your size", "at": "at", "see": "See it", "watch": "Watch the price", "alertH": "Email me when the {name} drops in my size",
         "alertTxt": "Free. One email when the price falls in your size, plus the Friday deals. Unsubscribe in one tap.", "alertBtn": "Email me",
         "alertPick": "Pick your size above first, so we watch the right one.", "alertBad": "That email doesn't look right.",
@@ -187,7 +187,7 @@ T = {
         "idxH1": "Prix par modèle",
         "idxIntro": "Toutes les chaussures de course populaires que nous suivons, avec le meilleur prix du jour dans chaque pointure dans les boutiques canadiennes. Mis à jour chaque matin.",
         "idxDesc": "Le meilleur prix du jour dans chaque pointure pour {n} modèles de chaussures de course dans les boutiques canadiennes. Mis à jour chaque matin par The Gear Fox.",
-        "onSale": "en solde", "home": "The Gear Fox", "switch": "English", "menu": "Menu", "mDeals": "Aubaines du jour", "mShoes": "Prix des chaussures par modèle", "mWatch": "Vos favoris", "mSizes": "Mes tailles", "mAbout": "À propos de The Gear Fox", "tagline": "FLAIREZ LES AUBAINES",
+        "onSale": "en solde", "home": "The Gear Fox", "switch": "English", "menu": "Menu", "mDeals": "Aubaines du jour", "mShoes": "Prix des chaussures par modèle", "mWatch": "Vos favoris", "mSizes": "Mes tailles", "mAbout": "À propos de The Gear Fox", "mRaces": "Listes de matériel de course", "tagline": "FLAIREZ LES AUBAINES",
         "yourSize": "Votre pointure", "at": "chez", "see": "Voir", "watch": "Suivre le prix", "alertH": "M'avertir quand {name} baisse dans ma pointure",
         "alertTxt": "Gratuit. Un courriel quand le prix baisse dans votre pointure, plus les aubaines du vendredi. Désabonnement en un clic.", "alertBtn": "M'avertir",
         "alertPick": "Choisissez d'abord votre pointure plus haut, pour qu'on suive la bonne.", "alertBad": "Ce courriel ne semble pas valide.",
@@ -459,7 +459,7 @@ tr.yours td:first-child{font-weight:700;box-shadow:inset 4px 0 0 var(--hivis)}
 
 MENU_SVG = ('<svg class="mi" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" '
             'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{}</svg>')
-MENU_ICONS = {'🔥': '<path d="M3 12V4.5A1.5 1.5 0 0 1 4.5 3H12l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.4"/>', '👟': '<path d="M2.5 17v-6l3.5-3 3 2.5 2.5-2.5 4.5 4.5h3a2.5 2.5 0 0 1 2.5 2.5V17z"/><path d="M2.5 20.5h19"/>', '♡': '<path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 6.9 4.5c2.1 0 3.6 1.2 5.1 3 1.5-1.8 3-3 5.1-3 3.5 0 5.5 3.5 4.2 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/>', '✏️': '<path d="M4 20h4L19.5 8.5l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>', '🦊': '<circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><path d="M12 7.6v.1"/>', '📸': '<rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8v.1"/>'}   # same line icons as the homepage menu
+MENU_ICONS = {'🔥': '<path d="M3 12V4.5A1.5 1.5 0 0 1 4.5 3H12l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.4"/>', '👟': '<path d="M2.5 17v-6l3.5-3 3 2.5 2.5-2.5 4.5 4.5h3a2.5 2.5 0 0 1 2.5 2.5V17z"/><path d="M2.5 20.5h19"/>', '♡': '<path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 6.9 4.5c2.1 0 3.6 1.2 5.1 3 1.5-1.8 3-3 5.1-3 3.5 0 5.5 3.5 4.2 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/>', '✏️': '<path d="M4 20h4L19.5 8.5l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>', '🦊': '<circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><path d="M12 7.6v.1"/>', '📸': '<rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8v.1"/>', '🏁': '<path d="M5 21V3.5"/><path d="M5 4h12l-2.5 4L17 12H5"/>'}   # same line icons as the homepage menu
 
 
 def menu_links(L, other_path):
@@ -469,6 +469,8 @@ def menu_links(L, other_path):
     items = [(home, "🔥", L["mDeals"]), (f"/{L['dir']}/", "👟", L["mShoes"]),
              (home + ("&" if "?" in home else "?") + "show=watch", "♡", L["mWatch"]), (home + ("&" if "?" in home else "?") + "show=sizes", "✏️", L["mSizes"]),
              ("/about.html" + ("?lang=fr" if fr else ""), "🦊", L["mAbout"]), ("https://www.instagram.com/thegearfox/", "📸", "Instagram")]
+    if L["lang"] != "en-US":                       # race gear lists (Oct 21): Canadian races for now
+        items.insert(2, ("/courses/" if fr else "/races/", "🏁", L["mRaces"]))
     out = "".join(f'<a href="{u}">{MENU_SVG.format(MENU_ICONS[i])}{esc(t)}</a>' for u, i, t in items)
     return out + f'<a class="sw" href="{other_path}" hreflang="{L["other"]}">{L["switch"]}</a>'
 
