@@ -120,7 +120,7 @@ def main():
         if r.returncode:
             raise RuntimeError(r.stderr.strip().splitlines()[-1])
         n = len(list((site / "shoes").glob("*/index.html")))
-        for must in ["sitemap.xml", "black-friday/index.html", "vendredi-fou/index.html", "running-shoes-sale/index.html",
+        for must in ["sitemap.xml", "black-friday/index.html", "vendredi-fou/index.html", "boxing-day/index.html", "soldes-apres-noel/index.html", "running-shoes-sale/index.html",
                      "chaussures/index.html", "shoes/index.html"]:
             if not (site / must).exists():
                 raise RuntimeError(f"{must} missing")

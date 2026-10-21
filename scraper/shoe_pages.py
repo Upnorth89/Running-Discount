@@ -67,6 +67,18 @@ T = {
         "bfH1Pre": "Black Friday 2026 in Canada: November {date}",
         "bfIntroPre": "{days} days to go. Black Friday deals aren't out yet. During Black Friday week this page shows the real deals from 60+ Canadian running stores, checked every morning.",
         "bfOther": ("In the US?", "See Black Friday deals at US stores →", "/us/black-friday/"),   # Oct 10: both sides link each other
+        # Boxing Day (Oct 21; asked by a Reddit user Oct 4, backlog: live by early November so search engines know it before Dec 26)
+        "bdDir": "boxing-day", "bdLink": "Boxing Day",
+        "bdTitle": "Boxing Day {y} running shoe deals in Canada", "bdH1": "Boxing Day {y}: running deals in Canada",
+        "bdIntro": "Boxing Day is {day}, December 26. We check 60+ Canadian running and outdoor stores every morning and show only what's in stock. Here are today's biggest running shoe deals in sizes people wear.",
+        "bdTitlePre": "Boxing Day {y} running shoe deals in Canada: what to expect", "bdH1Pre": "Boxing Day {y} in Canada: {day}, December 26",
+        "bdIntroPre": "{days} days to go. From December 19, this page shows the real Boxing Day deals from 60+ Canadian running stores, checked every morning. Until then: how to get ready, and today's best deals.",
+        "bdSpotH": "How to get the most out of Boxing Day",
+        "bdSpot": ["Pick your sizes now, so on Boxing Day you only see what's left in your size.",
+                   "Watch the shoes you want: we email you when one drops in your size, so you don't have to check every store.",
+                   "Check the return policy: some sale items are final sale. We label them."],
+        "bdTodayH": "Not Boxing Day yet: today's best running shoe deals ({date})", "bdCta": "Get the Boxing Day deals in your size",
+        "bdOther": ("Before that:", "Black Friday running deals →", "/black-friday/"),
         "bfTrackH": "We're tracking real prices before Black Friday",
         "bfTrackTxt": "Since October 2 we record the price of every running product we follow, every day: {n} products so far. So on Black Friday we'll know which deals are real and which prices went up in November just to come back down.",
         "bfSpotH": "How to spot a real Black Friday deal",
@@ -154,6 +166,17 @@ T = {
         "bfH1Pre": "Vendredi fou 2026 au Canada : le {date} novembre",
         "bfIntroPre": "Encore {days} jours. Les aubaines du Vendredi fou ne sont pas encore là. Pendant la semaine du Vendredi fou, cette page montre les vraies aubaines de plus de 60 boutiques de course canadiennes, vérifiées chaque matin.",
         "bfOther": ("Aux États-Unis ?", "Voir les aubaines du Black Friday dans les boutiques américaines →", "/us/black-friday/"),
+        "bdDir": "soldes-apres-noel", "bdLink": "Boxing Day",
+        "bdTitle": "Boxing Day {y} : soldes d'après-Noël en chaussures de course au Canada", "bdH1": "Boxing Day {y} : aubaines course au Canada",
+        "bdIntro": "Le Boxing Day tombe le {day} 26 décembre. Nous vérifions plus de 60 boutiques canadiennes de course et de plein air chaque matin et montrons seulement ce qui est en stock. Voici les plus gros rabais du jour dans les pointures courantes.",
+        "bdTitlePre": "Boxing Day {y} : soldes d'après-Noël en chaussures de course au Canada, à quoi s'attendre", "bdH1Pre": "Boxing Day {y} au Canada : le {day} 26 décembre",
+        "bdIntroPre": "Encore {days} jours. À partir du 19 décembre, cette page montre les vraies aubaines du Boxing Day de plus de 60 boutiques de course canadiennes, vérifiées chaque matin. D'ici là : comment vous préparer, et les meilleures aubaines du jour.",
+        "bdSpotH": "Comment profiter au maximum du Boxing Day",
+        "bdSpot": ["Choisissez vos tailles dès maintenant : au Boxing Day, vous ne verrez que ce qui reste dans votre taille.",
+                   "Suivez les chaussures que vous voulez : on vous écrit quand l'une baisse dans votre pointure, pas besoin de vérifier chaque boutique.",
+                   "Vérifiez la politique de retour : certains articles en solde sont en vente finale. On les indique."],
+        "bdTodayH": "Pas encore le Boxing Day : les meilleures aubaines du jour ({date})", "bdCta": "Recevez les aubaines du Boxing Day dans votre pointure",
+        "bdOther": ("Avant ça :", "Les aubaines course du Vendredi fou →", "/vendredi-fou/"),
         "bfTrackH": "On suit les vrais prix avant le Vendredi fou",
         "bfTrackTxt": "Depuis le 2 octobre, on note chaque jour le prix de chaque article de course qu'on suit : {n} articles jusqu'ici. Au Vendredi fou, on saura quelles aubaines sont vraies et quels prix ont monté en novembre pour mieux redescendre.",
         "bfSpotH": "Comment reconnaître une vraie aubaine du Vendredi fou",
@@ -216,7 +239,7 @@ US.update({
              "racing": ("Carbon racing shoes on sale", "Racing shoes on sale", "Carbon-plated and racing shoes on sale today at US running stores, biggest discount first."),
              "women": ("Women's running shoes on sale", "Women's running shoes on sale", "Women's running shoes on sale today at US running stores, biggest discount first."),
              "men": ("Men's running shoes on sale", "Men's running shoes on sale", "Men's running shoes on sale today at US running stores, biggest discount first.")},
-    "hubDir": "us/running-shoes-sale", "brandDir": "us/brands", "bfDir": "us/black-friday",
+    "hubDir": "us/running-shoes-sale", "brandDir": "us/brands", "bfDir": "us/black-friday", "bdDir": None,   # no Boxing Day in the US
     "sizeTitle": "{g} Size {s} Running Shoes on Sale: {n} deals today",
     "sizeIntro": "{n} running shoes on sale today in {g} size {s} at US running stores. Every price is the price in size {s}, biggest discount first. Checked every morning.",
     "brandTitle": "{brand} Sale: {n} running shoes on sale, up to {p}% off", "brandH1": "{brand} shoes on sale",
@@ -1089,7 +1112,8 @@ def browse_nav(L, brands):
     """Links between the pages: by kind, by brand, Black Friday (same order in both languages)."""
     hub = lambda k: f'/{L["hubDir"]}/' + (f'{L["hubSlugs"][k]}/' if L["hubSlugs"][k] else "")
     links = [(hub(k), L["hubs"][k][1]) for k in ("all", "road", "trail", "racing", "women", "men")]
-    links += [(f'/{L["bfDir"]}/', L["bfLink"]), (f'/{L["dir"]}/', L["all"])]
+    links += [(f'/{L["bfDir"]}/', L["bfLink"])] + ([(f'/{L["bdDir"]}/', L["bdLink"])] if L.get("bdDir") else []) + [(f'/{L["dir"]}/', L["all"])]
+    links.append(("/us/races/" if L["lang"] == "en-US" else "/courses/" if L["lang"] == "fr-CA" else "/races/", L["mRaces"]))   # Oct 21: race gear lists
     out = f'<nav class="browse" aria-label="{L["browse"]}">' + "".join(f'<a href="{u}">{esc(t)}</a>' for u, t in links) + "</nav>"
     if brands:
         out += f'<nav class="browse" aria-label="{L["brandsH"]}">' + "".join(
@@ -1283,6 +1307,24 @@ def main():
             p.write_text(list_page(L, "/black-friday/", "/vendredi-fou/", L["bfTitlePre"], L["bfH1Pre"].format(date=bf.day),
                                    L["bfIntroPre"].format(days=(bf - today).days), bf_rows[:6], brands, extra))
         extra_urls.append(f'/{L["bfDir"]}/')
+        # Boxing Day (Dec 26): same idea; the real deals from Dec 19 to Jan 3, an honest "get ready" page before that
+        y = today.year if today <= date(today.year, 12, 26) + timedelta(days=8) else today.year + 1
+        bd = date(y, 12, 26)
+        dayname = (["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] if L is T["en"]
+                   else ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"])[bd.weekday()]
+        p = site / L["bdDir"] / "index.html"
+        p.parent.mkdir(parents=True, exist_ok=True)
+        bd_other = f'<p><strong>{esc(L["bdOther"][0])}</strong> <a href="{L["bdOther"][2]}">{esc(L["bdOther"][1])}</a></p>'
+        cta = qs_box(L, L["bdCta"], "boxing-day")
+        if bd - timedelta(days=7) <= today <= bd + timedelta(days=8):
+            p.write_text(list_page(L, "/boxing-day/", "/soldes-apres-noel/", L["bdTitle"].format(y=y), L["bdH1"].format(y=y),
+                                   L["bdIntro"].format(day=dayname), bf_rows, brands, cta))
+        else:
+            extra = (cta + f'<h2>{esc(L["bdSpotH"])}</h2><ul>' + "".join(f"<li>{esc(x)}</li>" for x in L["bdSpot"]) + "</ul>" + bd_other
+                     + f'<h2>{esc(L["bdTodayH"].format(date=fmt_date(updated, L)))}</h2>')
+            p.write_text(list_page(L, "/boxing-day/", "/soldes-apres-noel/", L["bdTitlePre"].format(y=y), L["bdH1Pre"].format(y=y, day=dayname),
+                                   L["bdIntroPre"].format(days=(bd - today).days), bf_rows[:6], brands, extra))
+        extra_urls.append(f'/{L["bdDir"]}/')
     for L in T.values():
         (site / L["dir"]).mkdir(parents=True, exist_ok=True)
         (site / L["dir"] / "index.html").write_text(index_page(L, entries, updated))

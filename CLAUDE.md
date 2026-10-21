@@ -76,7 +76,9 @@ scraper/shoe_pages.py    Google pages: one per popular shoe model (3+ Canadian s
                          SEO (Oct 4): titles carry today's price ("X Sale Canada: from $Y (−Z%)"); each model page has
                          "About this shoe" + "Quick answers" from today's numbers; list pages /running-shoes-sale/{,road,
                          trail,racing,women,men}/ (FR /chaussures-course-solde/{,route,sentier,competition,femme,homme}/),
-                         brand pages /brands/<b>/ + /marques/<b>/ (brands with 3+ models), /black-friday/ + /vendredi-fou/;
+                         brand pages /brands/<b>/ + /marques/<b>/ (brands with 3+ models), /black-friday/ + /vendredi-fou/,
+                         /boxing-day/ + /soldes-apres-noel/ (Oct 21, Canada only: "get ready" page + today's top 6, real deals Dec 19-Jan 3);
+                         every list page's browse links also go to Boxing Day and the race gear lists;
                          it also fills the homepage block between <!--SEO-TODAY--> markers (keep them EMPTY in git: the
                          morning build writes today's top 12 + links there; one EN and one FR copy, CSS shows the one matching html[lang]).
                          Size pages (Oct 15): /running-shoes-sale/men/size-11/ … (FR /chaussures-course-solde/homme/pointure-10-5/, USA
