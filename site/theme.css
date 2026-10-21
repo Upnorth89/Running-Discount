@@ -103,7 +103,7 @@ input,select,textarea{border-radius:var(--r)}
 /* photos that are the element itself (no frame around them to blend with): a 4% dim turns the store's white into the tile's grey */
 .cards img,.dl img,.wdeal img,.bwi img,.hero img{background:#fff;filter:brightness(.955)}   /* the dim covers the tile too: white + dim = the photo's grey */
 .bwi img{border:0}
-@media(max-width:899px){.compact .deal{grid-template-columns:104px minmax(0,1fr)}.compact .deal .pic{width:104px;height:104px;border-radius:var(--r)}}
+@media(min-width:360px) and (max-width:899px){.compact .deal{grid-template-columns:104px minmax(0,1fr)}.compact .deal .pic{width:104px;height:104px;border-radius:var(--r)}}
 .cards img{width:80px;height:64px;padding:4px;border-radius:8px}
 .dl img{border-radius:8px}
 .wdeal img{width:72px;height:56px;border-radius:8px;padding:2px}
