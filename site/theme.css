@@ -93,3 +93,17 @@ input,select,textarea{border-radius:var(--r)}
   td .off{margin-left:0}
   td a{overflow-wrap:anywhere}
 }
+
+/* photo tile (Oct 21, from a Figma shot Bastien liked: the product photo as the hero, in its own soft square). Store photos are
+   on white; multiply makes that white take the tile's tint, so the shoe sits in the tile instead of a white box pasted on it.
+   The tile stays light in dark mode too (a store photo on a dark tile would show its white edges). */
+:root{--tile:#F3F3F3}   /* = white at 95.5%: matches the dimmed store photos exactly */
+.deal .pic,.compact .deal .pic{background:var(--tile)}
+.deal .pic img{mix-blend-mode:multiply}
+/* photos that are the element itself (no frame around them to blend with): a 4% dim turns the store's white into the tile's grey */
+.cards img,.dl img,.wdeal img,.bwi img,.hero img{background:#fff;filter:brightness(.955)}   /* the dim covers the tile too: white + dim = the photo's grey */
+.bwi img{border:0}
+@media(max-width:899px){.compact .deal{grid-template-columns:104px minmax(0,1fr)}.compact .deal .pic{width:104px;height:104px;border-radius:var(--r)}}
+.cards img{width:80px;height:64px;padding:4px;border-radius:8px}
+.dl img{border-radius:8px}
+.wdeal img{width:72px;height:56px;border-radius:8px;padding:2px}
