@@ -53,6 +53,7 @@ BRANDS.update({   # Oct 21: same idea for the new items (the brands trail runner
     "longpants": "salomon|patagonia|arc'teryx|craft|brooks|saucony|the north face|kari traa|odlo|smartwool|icebreaker|outdoor research|montane|kiprun|hoka|on|ciele|janji|rabbit|tracksmith|mec",
     "warmjacket": "arc'teryx|patagonia|salomon|the north face|montane|black diamond|outdoor research|rab|mammut|kari traa|smartwool|icebreaker|craft|norrøna|mec",
     "socks": "injinji|darn tough|smartwool|balega|feetures|swiftwick|icebreaker|salomon|drymax|compressport|rabbit|ciele|stance|mec|saucony|brooks",
+    "sun": "goodr|oakley|julbo|smith|roka|tifosi|district vision|sunski|ombraz|knockaround|ciele|bolle|100%|rudy project|scott",
     "wind": "salomon|arc'teryx|patagonia|the north face|inov-8|montane|black diamond|outdoor research|brooks|craft|kiprun|ciele|janji|rabbit|tracksmith|saucony|hoka|on|nnormal|raidlight|norrøna|mec",
 })
 BRANDS = {k: set(v.split("|")) for k, v in BRANDS.items()}
@@ -90,6 +91,7 @@ KINDS = {
     "warmjacket": dict(g={"tops"}, t={"jacket"}, need=r"insulat|\bdown\b|puffer|primaloft|synthetic|thermal|hybrid|alpha|octa|atom|nano|fill",
                      good=r"\brun|trail|light|hood|hoody|packable", x=r"vest|\bski\b|snow|parka|3-in-1|t-?shirt|\btee\b"),
     "socks":    dict(g={"socks"}, need=r".", good=r"\brun|trail|merino|toe|wool|ultra|crew|cushion", x=r"no show|liner only|compression sleeve|kids?|dress|casual|lifestyle"),
+    "sun":      dict(g={"gear"}, t={"sun"}, need=r"sunglass|glasses|lunettes|\bshades\b|goodr|og\b|\bvrg\b|bfg|lens", good=r".", x=r"case|strap|cord|retainer|cleaning|lens only|replacement"),
     "wind":     dict(g={"tops"}, t={"jacket"}, need=r"wind|breaker|shell|anorak|light ?jacket|run jacket", good=r"\brun|trail|race|light|ultra|pack|dwr",
                      x=r"insulat|\bdown\b|puffer|nano|atom|alpha|primaloft|thermal|\bski\b|snow|parka|3-in-1|t-?shirt|\btee\b|vest"),
 }
@@ -170,8 +172,8 @@ RACES = {
         "read": {"en": "October 20, 2026", "fr": "20 octobre 2026"},
         "items": [
             ("vest", "MM", {"en": ("Race vest or pack", "To carry the mandatory gear the whole race."), "fr": ("Veste ou sac de course", "Pour porter le matériel obligatoire toute la course.")}, False),
-            ("water", "MM", {"en": ("Water: 1 litre", "Sealed containers, no plastic bags. Two 500 ml soft flasks = 1 L."),
-                             "fr": ("Eau : 1 litre", "Contenants étanches, pas de sacs de plastique. Deux flasques de 500 ml = 1 L.")}, False),
+            ("water", "MM", {"en": ("Water: 1 litre (2 L with the hot-weather kit)", "Sealed containers, no plastic bags. Two 500 ml soft flasks = 1 L."),
+                             "fr": ("Eau : 1 litre (2 L avec le kit chaleur)", "Contenants étanches, pas de sacs de plastique. Deux flasques de 500 ml = 1 L.")}, False),
             ("cup", "MM", {"en": ("Collapsible cup (150 ml or more)", "Bottles and flasks with a lid don't count."), "fr": ("Gobelet pliable (150 ml ou plus)", "Les bouteilles et flasques avec bouchon ne comptent pas.")}, False),
             ("wind", "MM", {"en": ("Windbreaker (water-repellent)", "With durable water-repellent (DWR) protection."), "fr": ("Coupe-vent déperlant", "Avec un traitement déperlant durable (DWR).")}, True),
             ("headlamp", "M ", {"en": ("Headlamp", "200 lumens or more recommended. Phones and watches don't count."), "fr": ("Lampe frontale", "200 lumens ou plus recommandés. Téléphones et montres ne comptent pas.")}, True),
@@ -190,6 +192,10 @@ RACES = {
             ("gloves", "MR", {"en": ("Warm, waterproof gloves (bad-weather kit)", ""), "fr": ("Gants chauds et imperméables (kit mauvais temps)", "")}, False),
             ("pants", "R ", {"en": ("Waterproof overpants (bad-weather kit)", ""), "fr": ("Surpantalon imperméable (kit mauvais temps)", "")}, True),
             ("poles", "RR", {"en": ("Hiking poles", "If you use them, carry them the whole race."), "fr": ("Bâtons de marche", "Si vous les utilisez, portez-les toute la course.")}, False),
+            ("sunscreen", "MM", {"en": ("Sunscreen, 15 ml or more (hot-weather kit)", "In its original container. SPF 50 recommended."),
+                                 "fr": ("Crème solaire, 15 ml ou plus (kit chaleur)", "Dans son contenant d'origine. FPS 50 recommandé.")}, False),
+            ("sun", "RR", {"en": ("Sunglasses (hot-weather kit)", ""), "fr": ("Lunettes de soleil (kit chaleur)", "")}, False),
+            ("cap", "RR", {"en": ("Cooling bandana (hot-weather kit)", "To carry ice."), "fr": ("Bandana rafraîchissant (kit chaleur)", "Pour transporter de la glace.")}, False),
         ],
     },
     "bromont-ultra": {
