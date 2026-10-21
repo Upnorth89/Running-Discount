@@ -107,3 +107,135 @@ input,select,textarea{border-radius:var(--r)}
 .cards img{width:80px;height:64px;padding:4px;border-radius:8px}
 .dl img{border-radius:8px}
 .wdeal img{width:72px;height:56px;border-radius:8px;padding:2px}
+
+/* ===== Redesign (Oct 21, Bastien's approved rendering; B of test 'look', html.rd). The same tokens will carry every page once
+   the homepage is approved. Colours: orange #FF5A00, charcoal #17232B, cream #F6F3EC, white, forest green #25483D, light grey
+   #E7E9E6. Type: Barlow Condensed Bold headings, Inter body, Inter Bold prices.
+   Contrast: orange is 3.1:1 on white, so it's for big bold text (prices 20px+), fills and lines; small orange text uses
+   --moss (#C24400, 5.1:1); orange buttons carry charcoal text (5.6:1). ===== */
+html.rd{
+  --ink:#17232B; --muted:#56626A; --mist:#F6F3EC; --card:#FFFFFF; --line:#E7E9E6; --edge:#8E979D;
+  --moss:#C24400; --link:#17232B; --hivis:#FF5A00; --hivis-ink:#17232B; --forest:#25483D; --char:#17232B;
+  --band:#17232B; --tile:#F3F3F3; --price:#FF5A00;   /* 21px bold = large text: 3.1:1 passes */
+  --body:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  html.rd:not([data-theme="light"]){--ink:#ECEEEA;--muted:#A6B0B6;--mist:#0F171C;--card:#17232B;--line:#2A3842;--edge:#5E6A72;--moss:#FF8A4C;--link:#ECEEEA;--char:#0A1115;--forest:#2F5E50;--price:#FF8A4C}
+}
+html.rd[data-theme="dark"]{--ink:#ECEEEA;--muted:#A6B0B6;--mist:#0F171C;--card:#17232B;--line:#2A3842;--edge:#5E6A72;--moss:#FF8A4C;--link:#ECEEEA;--char:#0A1115;--forest:#2F5E50;--price:#FF8A4C}
+.rd body{font-size:16px;letter-spacing:-.005em}
+.rd h1,.rd h2,.rd h3{font-family:var(--display);font-weight:700;letter-spacing:0}
+
+/* header: one charcoal bar, the fox in its light version, white line icons */
+.rd .topbar{background:var(--char);border-bottom:0;color:#fff}
+.rd .topbar .logo{color:#fff}
+.rd .topbar .logo .tag{color:#fff}
+.rd .topbar .watchbtn,.rd .topbar .iconbtn{color:#fff;border-color:rgba(255,255,255,.3);background:transparent}
+.rd .topbar .watchbtn:hover,.rd .topbar .iconbtn:hover{border-color:#fff}
+.rd .topbar .watchbtn .n{border-color:var(--char)}
+.rd #menuBtn[aria-expanded="true"],.rd .topbar .watchbtn[aria-pressed="true"]{background:#fff;color:var(--char);border-color:#fff}
+.rd .menu{color:var(--ink)}
+
+/* headline + sizes line */
+.rd h1{font-size:clamp(32px,8.6vw,48px);line-height:1.02;font-weight:700;margin-top:20px}
+.rd .ledenum{color:var(--moss)}
+.rd .subhead{font-weight:500}
+
+/* the big search bar + Filters */
+.rd .rdfind{display:flex;gap:8px;margin:16px 0 14px}
+.rd .rdfind .search{flex:1;min-width:0;margin:0;min-height:54px;border-radius:var(--r);border:1.5px solid var(--edge);background:var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2356626A' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-4-4'/%3E%3C/svg%3E") no-repeat 16px 50%;padding:0 14px 0 46px;font:500 16px var(--body);color:var(--ink)}
+.rd .rdfind .search:focus{outline:2px solid var(--hivis);outline-offset:1px;border-color:var(--ink)}
+.rd .rdfind .filtbtn{display:flex;min-height:54px;border-radius:var(--r);background:var(--char);color:#fff;border:0;padding:0 16px;font:600 15px var(--body)}
+.rd .rdfind .filtbtn[aria-expanded="true"]{background:var(--hivis);color:var(--hivis-ink)}
+.rd .rdfind .filtbtn .dot{border-color:#fff}
+@media(max-width:379px){.rd .rdfind .filtbtn span:not(.dot){display:none}.rd .rdfind .filtbtn{padding:0 15px}}   /* 320px: the icon is the button */
+.rd .catrow .filtbtn{display:none}
+
+/* category tiles: product photo, name, today's count in your size */
+.rd #cats{gap:8px;padding-bottom:4px}
+.rd #cats .chip{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:5px;flex:0 0 96px;width:96px;min-height:0;height:auto;padding:6px 6px 8px;border-radius:var(--r);border:1.5px solid var(--line);background:var(--card);color:var(--ink);white-space:normal;text-align:center}
+.rd #cats .chip .ci{display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:4/3;border-radius:7px;background:var(--tile);overflow:hidden}
+.rd #cats .chip .ci img{width:100%;height:100%;object-fit:contain;padding:4px;mix-blend-mode:multiply}
+.rd #cats .chip[data-v="__all"] .ci img{width:62%;height:auto;padding:0;border-radius:50%;mix-blend-mode:normal}
+.rd #cats .chip .cl{font:600 13px/1.2 var(--body)}
+.rd #cats .chip .cn{font:500 11.5px/1.2 var(--body);color:var(--muted)}
+.rd #cats .chip[aria-pressed="true"]{border-color:var(--hivis);background:var(--card);color:var(--ink);box-shadow:inset 0 0 0 1px var(--hivis)}
+.rd #cats .chip[aria-pressed="true"] .cl{color:var(--ink)}
+@media(min-width:900px){.rd #cats{flex-wrap:wrap}.rd #cats .chip{flex-basis:98px}}
+.rd .catrow #cats{-webkit-mask-image:none;mask-image:none}
+.rd .tools .chip,.rd .types .chip{border-radius:var(--pill)}
+.rd .chip[aria-pressed="true"]{background:var(--char);border-color:var(--char);color:#fff}
+
+/* section titles */
+.rd .grp h2{font-size:28px;font-weight:700;text-transform:none}
+.rd .grp h2 small{font:500 14px var(--body);color:var(--muted)}
+
+/* buttons */
+.rd .primary{background:var(--hivis);color:var(--hivis-ink);font:700 17px var(--body);border-radius:var(--r)}
+.rd .primary:hover{filter:brightness(1.05)}
+.rd .btn.more{border:1.5px solid var(--ink);background:transparent;color:var(--ink);font:600 15px var(--body);border-radius:var(--r)}
+
+/* product cards: photo tile on top with the % and the heart on it, brand, name, orange price, store, sizes */
+.rd .grid{gap:10px}
+@media(max-width:559px){.rd .grid{grid-template-columns:1fr 1fr}}
+.rd .deal,.rd .compact .deal{display:flex;flex-direction:column;gap:3px;position:relative;padding:12px 12px 12px;border:1px solid var(--line);border-radius:var(--r);background:var(--card)}
+.rd .compact .deal>*{grid-column:auto}
+.rd .deal:hover{border-color:var(--edge);box-shadow:0 2px 10px rgba(23,35,43,.07)}
+.rd .deal .pic,.rd .compact .deal .pic{margin:-12px -12px 8px;width:auto;height:auto;aspect-ratio:1/1;border-radius:calc(var(--r) - 1px) calc(var(--r) - 1px) 0 0;background:var(--tile)}
+.rd .deal .pic img,.rd .compact .deal .pic img{padding:10px}
+.rd .deal .pic.nopic::after{content:attr(data-b);font:700 20px/1.1 var(--display);color:#56626A;text-transform:uppercase;letter-spacing:.04em;text-align:center;padding:0 12px}
+.rd .deal .top{position:static;margin:0}
+.rd .deal .pct,.rd .compact .deal .pct{position:absolute;top:10px;left:10px;z-index:1;background:var(--forest);color:#fff;font:700 14px/1 var(--body);padding:6px 8px;border:0;border-radius:6px}
+.rd .deal .brand,.rd .compact .deal .brand{font:600 12px/1.3 var(--body);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.rd .deal .name,.rd .compact .deal .name{font:600 15px/1.3 var(--body);color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rd .deal .price,.rd .compact .deal .price{margin-top:4px;gap:0 6px}
+.rd .deal .price b,.rd .compact .deal .price b{font:800 21px/1.1 var(--body);color:var(--price);letter-spacing:-.01em}
+.rd .deal .price s{font-size:13px}
+.rd .deal .price .cur{font:600 11px var(--body);margin-left:-3px}
+.rd .deal .store,.rd .compact .deal .store{font-size:13px;color:var(--muted);padding-right:0}
+.rd .deal .sizes{font-size:13px;padding-right:0}
+.rd .szrow{margin:4px 0 2px}
+.rd .szrow .sz{font:600 12px/1 var(--body);border-color:var(--line);color:var(--ink)}
+.rd .szrow .sz.you{background:var(--hivis);border-color:var(--hivis);color:var(--hivis-ink)}
+@media(max-width:559px){.rd .szrow .sz.far{display:none}}   /* two cards a row: your size and one either side */
+.rd .deal .lostamp{background:var(--forest)}
+/* the heart: a round button on the photo; the words stay for screen readers */
+.rd .dw:has(.pic) .heart{top:8px;right:8px;bottom:auto;width:38px;min-width:38px;height:38px;padding:0;border-radius:50%;border:0;background:rgba(255,255,255,.94);color:#17232B;box-shadow:0 1px 4px rgba(23,35,43,.16)}
+.rd .dw:has(.pic) .heart .hl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.rd .dw:has(.pic) .heart[aria-pressed="true"]{color:var(--hivis)}
+.rd .dw:has(.pic) .heart svg{width:19px;height:19px}
+.rd .dw:has(.pic) .deal{padding-bottom:34px}
+.rd .dw.hascmp:has(.pic) .deal{padding-bottom:58px}
+.rd .dw .rep{left:12px;bottom:10px;font-size:12px}
+.rd .dw .rep .rl{display:none}.rd .dw .rep .rs{display:inline}
+.rd .dw.hascmp .rep{bottom:34px}
+.rd .cmp{left:12px;bottom:10px;font-size:13px;color:var(--ink)}
+.rd .dw.hascmp .rep{bottom:10px;left:auto;right:12px}
+.rd .dw.hascmp .cmp{bottom:32px}
+.rd .dw.hascmp:has(.pic) .deal{padding-bottom:60px}
+
+/* swipe-row tiles and the welcome screen follow the same pieces */
+.rd .deal.tile .price b{color:var(--price);font-family:var(--body);font-weight:800}
+.rd .tw .pct{background:var(--forest);color:#fff;border:0}
+.rd .wcat{border-color:var(--line)}
+.rd .wdeal .pct{background:var(--forest);color:#fff;border:0}
+
+/* footer: a charcoal band across the page */
+.rd main>.foot[data-i18n="footer"]{margin-top:28px;padding:22px 0 26px;background:var(--char);color:#D9DEE1;box-shadow:0 0 0 100vmax var(--char);clip-path:inset(0 -100vmax -100vmax)}
+.rd main>.foot[data-i18n="footer"] a{color:#fff}
+.rd main.wrap{padding-bottom:0}
+.rd .deal .pic,.rd .compact .deal .pic{align-self:stretch;grid-row:auto}
+/* computers: the main sections as links in the bar; tiles in one even row */
+.rdnav{display:none}
+@media(min-width:900px){
+  .rd .rdnav{display:flex;gap:26px;margin:0 auto}
+  .rd .rdnav a{color:#fff;text-decoration:none;font:600 15px var(--body);padding:8px 0;border-bottom:2px solid transparent}
+  .rd .rdnav a:hover{border-bottom-color:var(--hivis)}
+  .rd .topbar .spacer{display:none}
+  .rd #cats{display:grid;grid-template-columns:repeat(auto-fit,minmax(86px,1fr));overflow:visible}
+  .rd #cats .chip{width:auto}
+}
+.rd .wdeal .wp{font:800 17px/1.15 var(--body);color:var(--moss)}
+.rd .wdeal .pct{font:700 13px/1 var(--body);padding:4px 6px;border-radius:5px}
+.rd .wcat b{font:600 15px/1.2 var(--body)}
+.rd .wcat:hover{border-color:var(--hivis)}

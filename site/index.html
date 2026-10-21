@@ -77,7 +77,7 @@ input:focus-visible,button:focus-visible,summary:focus-visible,select:focus-visi
 /* Oct 19 (Bastien: "the search bar should be in the header in the middle. On the phone it would have to collapse the logo"):
    search sits in the sticky header (one tap away anywhere on the page; Baymard: mobile shoppers expect an open search box at
    the top); phones show the fox icon instead of the wordmark; Filters moves beside the category chips */
-.hsearch,.topbar .logo .logomini{display:none}
+.hsearch,.topbar .logo .logomini,.rdnav{display:none}   /* .rdnav: the redesign's header links (theme.css shows them) */
 .hdrsearch .hsearch{display:flex;flex:1;min-width:0}
 .hdrsearch .topbar .spacer{display:none}
 .hdrsearch .hsearch .search{margin:0;width:100%;min-width:0;min-height:42px;border-radius:999px;border:1px solid var(--line);background:var(--mist) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%235C6660' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-4-4'/%3E%3C/svg%3E") no-repeat 14px 50%;padding-left:40px;font-size:16px}
@@ -508,6 +508,7 @@ body.locked #langBtn,body.locked #curBtn,body.locked #openWatch,body.locked #men
     <img class="logomini" src="logo-app.jpg" alt="" width="36" height="36">
   </a>
   <div class="hsearch" id="hSearch"></div>
+  <nav class="rdnav" aria-label="Sections"><a id="rnShoes" href="shoes/" data-i18n="mShoes">Shoe prices by model</a><a id="rnRaces" href="races/" data-i18n="mRaces">Race gear lists</a><a href="about.html" data-i18n="aboutShort">About</a></nav>
   <span class="spacer"></span>
   <button class="watchbtn" id="openWatch" type="button" aria-pressed="false" aria-label="Your watchlist" data-i18n-aria="watchlist">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 6.9 4.5c2.1 0 3.6 1.2 5.1 3 1.5-1.8 3-3 5.1-3 3.5 0 5.5 3.5 4.2 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>
@@ -765,7 +766,7 @@ function finalSale(d,e){
 const PL=(n,one,many)=>n===1?one:many;
 const I18N={
 en:{
-  tagline:"OUTFOX FULL PRICE",watchlist:"Your watchlist",yourSizes:"Your sizes",menu:"Menu",mDeals:"Today's deals",mShoes:"Shoe prices by model",mRaces:"Race gear lists",mSizes:"My sizes",mAbout:"About The Gear Fox",mApp:"Add to your home screen",appTipH:"Get The Gear Fox on your home screen",appTipIos:"Tap the Share button {s} in Safari's bar",appTipIos2:"Scroll down and tap <b style=\"display:inline\">Add to Home Screen</b>",appTipAnd:"Tap the ⋮ menu at the top of Chrome",appTipAnd2:"Tap <b style=\"display:inline\">Add to Home screen</b>",appTipWhy:"It opens like an app, with your sizes ready.",gotIt:"Got it",mCur:"Prices in",edit:"Edit",allDeals:"← All deals",categories:"Categories",
+  tagline:"OUTFOX FULL PRICE",watchlist:"Your watchlist",yourSizes:"Your sizes",menu:"Menu",mDeals:"Today's deals",mShoes:"Shoe prices by model",mRaces:"Race gear lists",aboutShort:"About",mSizes:"My sizes",mAbout:"About The Gear Fox",mApp:"Add to your home screen",appTipH:"Get The Gear Fox on your home screen",appTipIos:"Tap the Share button {s} in Safari's bar",appTipIos2:"Scroll down and tap <b style=\"display:inline\">Add to Home Screen</b>",appTipAnd:"Tap the ⋮ menu at the top of Chrome",appTipAnd2:"Tap <b style=\"display:inline\">Add to Home screen</b>",appTipWhy:"It opens like an app, with your sizes ready.",gotIt:"Got it",mCur:"Prices in",edit:"Edit",allDeals:"← All deals",categories:"Categories",
   sort:"Sort",sortMatch:"Best match",sortDiscount:"Biggest discount",sortPrice:"Lowest price",search:"Search brand or model",searchShort:"Search gear",
   get footer(){return 'The Gear Fox · Outfox full price · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="'+(US()?"us/shoes/":"shoes/")+'">Shoe prices by model</a> · <a href="about.html">About</a> · <a href="privacy.html">Privacy</a>'},close:"Close",fit:"Fit",
   men:"Men's",women:"Women's",both:"Both",menWomen:"Men's & women's",
@@ -868,7 +869,7 @@ en:{
     headwear:"Hats & buffs",packs:"Vests & packs",gear:"Lights, poles & bottles",watches:"Watches",nutrition:"Nutrition"}
 },
 fr:{
-  tagline:"FLAIREZ LES AUBAINES",watchlist:"Vos favoris",yourSizes:"Vos tailles",menu:"Menu",mDeals:"Aubaines du jour",mShoes:"Prix des chaussures par modèle",mRaces:"Listes de matériel de course",mSizes:"Mes tailles",mAbout:"À propos de The Gear Fox",mApp:"Ajouter à l'écran d'accueil",appTipH:"The Gear Fox sur votre écran d'accueil",appTipIos:"Touchez le bouton Partager {s} dans la barre de Safari",appTipIos2:"Descendez et touchez <b style=\"display:inline\">Sur l'écran d'accueil</b>",appTipAnd:"Touchez le menu ⋮ en haut de Chrome",appTipAnd2:"Touchez <b style=\"display:inline\">Ajouter à l'écran d'accueil</b>",appTipWhy:"Elle s'ouvre comme une appli, avec vos tailles prêtes.",gotIt:"Compris",mCur:"Prix en",edit:"Modifier",allDeals:"← Toutes les aubaines",categories:"Catégories",
+  tagline:"FLAIREZ LES AUBAINES",watchlist:"Vos favoris",yourSizes:"Vos tailles",menu:"Menu",mDeals:"Aubaines du jour",mShoes:"Prix des chaussures par modèle",aboutShort:"À propos",mRaces:"Listes de matériel de course",mSizes:"Mes tailles",mAbout:"À propos de The Gear Fox",mApp:"Ajouter à l'écran d'accueil",appTipH:"The Gear Fox sur votre écran d'accueil",appTipIos:"Touchez le bouton Partager {s} dans la barre de Safari",appTipIos2:"Descendez et touchez <b style=\"display:inline\">Sur l'écran d'accueil</b>",appTipAnd:"Touchez le menu ⋮ en haut de Chrome",appTipAnd2:"Touchez <b style=\"display:inline\">Ajouter à l'écran d'accueil</b>",appTipWhy:"Elle s'ouvre comme une appli, avec vos tailles prêtes.",gotIt:"Compris",mCur:"Prix en",edit:"Modifier",allDeals:"← Toutes les aubaines",categories:"Catégories",
   sort:"Trier",sortMatch:"Meilleur choix",sortDiscount:"Plus gros rabais",sortPrice:"Prix le plus bas",search:"Chercher une marque ou un modèle",searchShort:"Chercher",
   footer:'The Gear Fox · Flairez les aubaines · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="chaussures/">Prix des chaussures par modèle</a> · <a href="about.html">À propos</a> · <a href="privacy.html">Confidentialité</a>',close:"Fermer",fit:"Coupe",
   men:"Homme",women:"Femme",both:"Les deux",menWomen:"Homme et femme",
@@ -1123,6 +1124,11 @@ const WELCOME_B=false;   // test "welcome" ended Oct 20: without the welcome scr
 // everyone (Baymard: shoppers who search go straight for the box; one day of our data, not a test result)
 const LAYOUT_B=ANA.arm("layout")==="B";
 const LOOK_B=ANA.arm("look")==="B";   // Oct 21 (Bastien's redesign mockups): the sizes row on cards, category photos + store names on the welcome screen   // Oct 20: back to a 50/50 test (early data: sizes picked 14% B vs 45% A, 33 devices)
+/* Oct 21 redesign (Bastien's approved rendering, B of test 'look'): html.rd turns on the new look in theme.css (charcoal header,
+   cream page, Inter + Barlow Condensed, photo category tiles, cards with the % on the photo). Inter loads only for B. */
+if(LOOK_B){document.documentElement.classList.add("rd");
+  const f=document.createElement("link");f.rel="stylesheet";f.href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap";document.head.appendChild(f);
+  const lg=document.querySelector(".topbar .logo picture");if(lg){const so=lg.querySelector("source");lg.querySelector("img").src=so?so.srcset:"logo-mark-dark.svg";if(so)so.remove()}}
 if(LAYOUT_B){document.body.classList.add("lay-b");$("filtersBox").after($("newBox"))}
 if(WELCOME_B&&!BROWSE){BROWSE=true;LS.set("gf-browse",1)}
 {const tbh=()=>{const tb=document.querySelector(".topbar");if(tb)document.documentElement.style.setProperty("--tbh",tb.offsetHeight+"px")};addEventListener("load",tbh);addEventListener("resize",tbh)}
@@ -1420,7 +1426,7 @@ function setCountry(c,from){if(c===COUNTRY||(c!=="us"&&c!=="ca"))return;COUNTRY=
   if(LS0("rd-profile"))saveProfile();applyStatic();renderCountry();
   if(!$("sheet").classList.contains("hidden"))openSheet();renderAll();loadCountry()}
 function renderCountry(){document.querySelectorAll("[data-ctry]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.ctry===COUNTRY)));document.documentElement.classList.toggle("us",US());
-  $("mShoes").href=US()?"us/shoes/":LANG==="fr"?"chaussures/":"shoes/";$("mRaces").href=US()?"us/races/":LANG==="fr"?"courses/":"races/"}   // race gear lists (Oct 21; US races on the USA side)
+  $("mShoes").href=US()?"us/shoes/":LANG==="fr"?"chaussures/":"shoes/";$("mRaces").href=US()?"us/races/":LANG==="fr"?"courses/":"races/";$("rnShoes").href=$("mShoes").href;$("rnRaces").href=$("mRaces").href}   // race gear lists (Oct 21; US races on the USA side)
 document.addEventListener("click",e=>{const b=e.target.closest("[data-ctry]");if(b)setCountry(b.dataset.ctry,b.closest("#menu")?"menu":"welcome")});
 renderCountry();
 const PAGE=8, MORE=24;
@@ -1451,10 +1457,13 @@ const TOP_DEFAULT="calm";                                  // "calm" or "full" (
 const TOP=LS0("gf-top")||TOP_DEFAULT;
 const CALM=TOP==="calm";
 if(CALM)document.body.classList.add("calm");
-function hdrPh(){const x=$("dSearch");if(x&&document.body.classList.contains("hdrsearch")&&innerWidth<900)x.placeholder=t("searchShort")}
+function hdrPh(){const x=$("dSearch"),rd=document.documentElement.classList.contains("rd");if(x&&(rd||document.body.classList.contains("hdrsearch"))&&innerWidth<(rd?380:900))x.placeholder=t("searchShort")}
 if(CALM){document.body.classList.add("hdrsearch");$("hSearch").appendChild($("dSearch"));
   const r=document.createElement("div");r.className="catrow";$("cats").before(r);r.append($("cats"),$("filtBtn"));
   const sr=$("filtersBox").querySelector(".searchrow");if(sr)sr.remove();hdrPh()}
+if(LOOK_B){   // the rendering: one big search bar + Filters under the headline, the category tiles under it (not in the header)
+  document.body.classList.remove("hdrsearch");const f=document.createElement("div");f.className="rdfind";
+  (document.querySelector(".catrow")||$("cats")).before(f);f.append($("dSearch"),$("filtBtn"));$("dSearch").placeholder=t("search");hdrPh()}
 function setTb(){const tb=document.querySelector(".topbar");if(tb)document.documentElement.style.setProperty("--tb",tb.offsetHeight+"px")}
 setTb();addEventListener("resize",setTb);
 /* Prices are stored in CAD. The CAD/USD switch converts for display with the day's rate from the refresh. */
@@ -1592,7 +1601,7 @@ function card(d,extra){
   const isNew=!extra&&NEWSET.has(k);
   const sp=shoePage(d);
   return `<div class="dw${sp?" hascmp":""}"><a class="deal" href="${esc(affUrl(d.url))}" data-store="${esc(storeOf(d.url))}" target="_blank" rel="noopener">
-    ${d.img?`<div class="pic"><img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode&&this.parentNode.remove()">${lowDays(d)?`<span class="lostamp" aria-hidden="true"><span>${t("lowL1")}</span><span>${t("lowStampDays",lowDays(d))}</span></span>`:""}</div>`:""}
+    ${d.img||LOOK_B?`<div class="pic${d.img?"":" nopic"}" data-b="${esc(d.b)}">${d.img?`<img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="${LOOK_B?"this.parentNode.classList.add('nopic');this.remove()":"this.parentNode&&this.parentNode.remove()"}">`:""}${lowDays(d)?`<span class="lostamp" aria-hidden="true"><span>${t("lowL1")}</span><span>${t("lowStampDays",lowDays(d))}</span></span>`:""}</div>`:""}
     <div class="top"><span class="brand">${esc(d.b)}${d.fav?" ★":""}${cdnBrand(d)?`&nbsp;<span class="leaf" title="${t("cdnTip")}" aria-label="${t("cdnTip")}">🍁</span>`:""}</span>${d.pct?`<span class="pct">${offTag(d)}</span>`:""}</div>
     <div class="name">${esc(nm(d.n))}</div>
     <div class="price"><b>${money(d.best)}</b>${curTag()}${d.pct?`<s>${money(d.reg)}</s>`:""}</div>
@@ -1649,10 +1658,24 @@ function section(key,title,list,cls){
     ${list.length>lim?`<button class="btn more" data-open="${key}">${t("showMore",Math.min(MORE,list.length-lim))}</button>`:""}</section>`;
 }
 
+/* redesign tiles: per category, today's sale count in your sizes and the photo of its best deal. Counted over every category
+   (picking "Shoes" doesn't empty the other tiles); kept until the sizes, country or ships-from change. */
+var CATPIC={key:"",m:{}};   // var: renderFilters can run before this line
+function catTiles(p,onSale,searching){
+  const pr={...toProfile()};delete pr.groups;const key=JSON.stringify([pr,state.ships,view.cdn,US(),view.store||""]);
+  if(key===CATPIC.key)return false;
+  const every=ORDER.every(g=>p.groups.includes(g));if(searching&&!every&&CATPIC.key)return false;
+  let src=every&&!searching?onSale:matchItems({...p,groups:ORDER}).filter(d=>d.pct>0);
+  if(view.cdn&&!US())src=src.filter(cdnBrand);
+  const m={__all:{n:src.length}};
+  src.slice().sort(SORTS.match).forEach(d=>{const x=m[d.g]||(m[d.g]={n:0});x.n++;if(!x.img&&d.img&&!SPIKE.test(d.n))x.img=d.img});
+  CATPIC={key,m};return true}
 function renderFilters(){
   const all=ORDER.every(g=>state.groups.includes(g));
-  $("cats").innerHTML=`<button type="button" class="chip" data-v="__all" aria-pressed="${all}">${t("allGear")}</button>`+
-    ORDER.filter(g=>!(g==="bras"&&state.gender==="men")).map(g=>`<button type="button" class="chip" data-v="${g}" aria-pressed="${!all&&state.groups.includes(g)}">${GL(g)}</button>`).join("");
+  const ct=g=>LOOK_B?`<span class="ci">${g==="__all"?'<img src="logo-app.jpg" alt="">':CATPIC.m[g]&&CATPIC.m[g].img?`<img src="${esc(CATPIC.m[g].img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:""}</span>`:"";
+  const cn=g=>LOOK_B&&CATPIC.m[g]?`<span class="cn">${t("wCatN",num(CATPIC.m[g].n))}</span>`:"";
+  $("cats").innerHTML=`<button type="button" class="chip" data-v="__all" aria-pressed="${all}">${ct("__all")}<span class="cl">${t("allGear")}</span>${cn("__all")}</button>`+
+    ORDER.filter(g=>!(g==="bras"&&state.gender==="men")).map(g=>`<button type="button" class="chip" data-v="${g}" aria-pressed="${!all&&state.groups.includes(g)}">${ct(g)}<span class="cl">${GL(g)}</span>${cn(g)}</button>`).join("");
   $("toggles").innerHTML=`<button type="button" class="chip" data-t="ca" aria-pressed="${state.ships!=="all"}">${t("shipsCA")}</button>`+
     `<button type="button" class="chip" data-t="sale" aria-pressed="${view.fullPrice}">${t("saleOnly")}</button>`+
     (US()?"":`<button type="button" class="chip" data-t="cdn" aria-pressed="${view.cdn}">${t("cdnChip")}</button>`);
@@ -2047,6 +2070,7 @@ function renderAll(){
   const onSale=all.filter(d=>d.pct>0);
   const where=state.ships==="all"?t("storesAll"):t("storesCA");
   saleNow=onSale.length;
+  if(LOOK_B&&catTiles(p,onSale,q.length>0))renderFilters();
   if(CALM)setCalmLede();
   if(CALM&&!q.length&&!view.store&&!cdn)setHook(onSale);else if($("hook"))$("hook").classList.add("hidden");
   else $("lede").textContent=t("lede",num(onSale.length),num(all.length),where,DATA.updated?ago(DATA.updated):"");
