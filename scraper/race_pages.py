@@ -47,6 +47,14 @@ BRANDS = {
     "food": "maurten|näak|naak|precision fuel & hydration|gu|spring energy|neversecond|xact nutrition|skratch labs|skratch|huma|science in sport|honey stinger|clif|krono|brix|lecka",
     "cup": "hydrapak|salomon|nathan|brix|xact nutrition|foveo running",
 }
+BRANDS.update({   # Oct 21: same idea for the new items (the brands trail runners buy for each)
+    "vest": "salomon|nathan|ultraspire|raidlight|inov-8|the north face|arc'teryx|black diamond|naked|nnormal|patagonia|brooks|montane|kiprun|la sportiva|compressport|hoka|hydrapak|mec",
+    "filter": "salomon|hydrapak|katadyn|lifestraw|sawyer|platypus|grayl|aquatabs|life sports gear",
+    "longpants": "salomon|patagonia|arc'teryx|craft|brooks|saucony|the north face|kari traa|odlo|smartwool|icebreaker|outdoor research|montane|kiprun|hoka|on|ciele|janji|rabbit|tracksmith|mec",
+    "warmjacket": "arc'teryx|patagonia|salomon|the north face|montane|black diamond|outdoor research|rab|mammut|kari traa|smartwool|icebreaker|craft|norrøna|mec",
+    "socks": "injinji|darn tough|smartwool|balega|feetures|swiftwick|icebreaker|salomon|drymax|compressport|rabbit|ciele|stance|mec|saucony|brooks",
+    "wind": "salomon|arc'teryx|patagonia|the north face|inov-8|montane|black diamond|outdoor research|brooks|craft|kiprun|ciele|janji|rabbit|tracksmith|saucony|hoka|on|nnormal|raidlight|norrøna|mec",
+})
 BRANDS = {k: set(v.split("|")) for k, v in BRANDS.items()}
 MAYBE = {"2xu", "balmoral", "nike", "under armour", "bula", "camelbak", "osprey"}
 RUN = re.compile(r"\brun|running|trail|race|racing|ultra|marathon", re.I)
@@ -71,6 +79,19 @@ KINDS = {
     "pants":    dict(g={"bottoms"}, t={"pant"}, need=WATERPROOF, good=r"\brun|trail|light|pack|stretch|race|ultra|active", x=r"short|\bski\b|snow|insulat|\bbib\b"),
     "poles":    dict(g={"gear"}, need=r"\bpoles?\b|bâtons?|z-pole", good=r"\brun|trail|ultra|distance|\bz\b|z-pole|carbon|fold|compact|race|\bfl\b",
                      x=r"basket|tip|strap|nordic|touring|\bft-?\d|\bski\b"),
+    # Oct 21: the other Québec races' lists
+    "vest":     dict(g={"packs"}, need=r"hydration|race vest|trail vest|run(ning)? vest|\d+(\.\d)? ?l\b|flasks?|adv skin|skin \d|pinnacle|vapor|race pack",
+                     good=r"\brun|trail|race|ultra|adv skin|skin|speed|hydration",
+                     x=r"belt|waist|hip|bladder|reservoir|tube|replacement|strap|daypack|\b[3-9]\d ?l\b|\bski\b|bike|ride|wind|insulat|hybrid|shield|fleece|puffer|down\b"),
+    "filter":   dict(g={"gear", "packs"}, need=r"filter|purif|befree|lifestraw|sawyer|aquatab|katadyn|xa filter", good=r".",
+                     x=r"adapter|replacement|cartridge|inline|\bkit\b|\bcap\b"),
+    "longpants": dict(g={"bottoms"}, t={"pant", "tight"}, need=r"\bpants?\b|tights?\b|legging|jogger", good=r"\brun|trail|thermal|warm|merino|tech|race|ultra|light",
+                     x=r"short|capri|3/4|7/8|crop|bra\b|\bski\b|snow|insulat|\bbib\b|cotton|yoga"),
+    "warmjacket": dict(g={"tops"}, t={"jacket"}, need=r"insulat|\bdown\b|puffer|primaloft|synthetic|thermal|hybrid|alpha|octa|atom|nano|fill",
+                     good=r"\brun|trail|light|hood|hoody|packable", x=r"vest|\bski\b|snow|parka|3-in-1|t-?shirt|\btee\b"),
+    "socks":    dict(g={"socks"}, need=r".", good=r"\brun|trail|merino|toe|wool|ultra|crew|cushion", x=r"no show|liner only|compression sleeve|kids?|dress|casual|lifestyle"),
+    "wind":     dict(g={"tops"}, t={"jacket"}, need=r"wind|breaker|shell|anorak|light ?jacket|run jacket", good=r"\brun|trail|race|light|ultra|pack|dwr",
+                     x=r"insulat|\bdown\b|puffer|nano|atom|alpha|primaloft|thermal|\bski\b|snow|parka|3-in-1|t-?shirt|\btee\b|vest"),
 }
 
 # The Ultra-Trail Harricana list as the race published it (ultratrailharricana.com, "Mandatory and Suggested Gear",
@@ -83,7 +104,7 @@ RACES = {
         "dists": ["125", "80", "65", "42"], "default": "125",
         "src": "https://ultratrailharricana.com/en/mandatory-and-suggested-equipment/",
         "rules": "https://ultratrailharricana.com/en/official-rules/",
-        "updated": {"en": "August 1, 2024", "fr": "1er août 2024"},
+        "updated": {"en": "August 1, 2024", "fr": "1er août 2024"}, "faq_jacket": True, "cupless": True,
         "items": [
             ("jacket", "MMMR", {"en": ("Waterproof jacket with a hood", "Waterproof and breathable membrane, hood attached. Windbreakers aren't accepted."),
                                 "fr": ("Manteau imperméable avec capuchon", "Membrane imperméable et respirante, capuchon attaché. Les coupe-vent ne sont pas acceptés.")}, True),
@@ -116,6 +137,133 @@ RACES = {
             ("poles", "AAAA", {"en": ("Trekking poles", "Allowed, not required."), "fr": ("Bâtons de marche", "Permis, pas obligatoires.")}, False),
         ],
     },
+    # Oct 21 (Bastien: "Yes build these"): every list read on the race's own site; M/R per distance as published
+    "quebec-mega-trail": {
+        "name": "Québec Mega Trail", "short": "QMT", "de": "du ", "le": "le ",
+        "where": {"en": "Côte-de-Beaupré & Charlevoix, Québec", "fr": "Côte-de-Beaupré et Charlevoix, Québec"},
+        "when": {"en": "July 1–4, 2027 (to be confirmed by the race)", "fr": "1er au 4 juillet 2027 (à confirmer par la course)"},
+        "dists": ["135", "80", "50"], "default": "135",
+        "src": "https://ultratrailcanada.com/courses-ultra-trail/qmt-135/",
+        "read": {"en": "October 20, 2026", "fr": "20 octobre 2026"},
+        "items": [
+            ("jacket", "M  ", {"en": ("Waterproof windbreaker", "135 km only."), "fr": ("Coupe-vent imperméable", "135 km seulement.")}, True),
+            ("headlamp", "MM ", {"en": ("Headlamp", "On the 80 km: from the Saint-Tite-des-Caps aid station on."),
+                                 "fr": ("Lampe frontale", "Au 80 km : à partir du ravito de Saint-Tite-des-Caps.")}, True),
+            ("battery", "MM ", {"en": ("Spare battery for the headlamp", ""), "fr": ("Pile de rechange pour la lampe frontale", "")}, False),
+            ("water", "MMM", {"en": ("Water: 1.5 L on the 135 km, 1 L on the 80 and 50 km", "Three 500 ml soft flasks = 1.5 L."),
+                              "fr": ("Eau : 1,5 L au 135 km, 1 L aux 80 et 50 km", "Trois flasques de 500 ml = 1,5 L.")}, False),
+            ("food", "MMM", {"en": ("Food and energy supplements", ""), "fr": ("Suppléments énergétiques et nourriture", "")}, False),
+            ("cap", "MMM", {"en": ("Cap or bandana for the sun", ""), "fr": ("Casquette ou foulard pour le soleil", "")}, False),
+            ("blanket", "MMM", {"en": ("Survival blanket (1.4 m × 2 m)", ""), "fr": ("Couverture de survie (1,4 m × 2 m)", "")}, False),
+            ("phone", "MMM", {"en": ("Cell phone", ""), "fr": ("Téléphone cellulaire", "")}, False),
+            ("bandage", "MMM", {"en": ("Self-adhesive compression bandage (3 in × 48 in)", ""), "fr": ("Bandage de compression auto-adhésif (3 po × 48 po)", "")}, False),
+            ("epipen", "MMM", {"en": ("EpiPen, if you have allergies", "For wasp stings or food allergies."),
+                               "fr": ("Épipen, si vous avez des allergies", "Pour les piqûres de guêpes ou les allergies alimentaires.")}, False),
+        ],
+    },
+    "borealys-mont-tremblant": {
+        "name": "Boréalys Mont-Tremblant by UTMB", "short": "Boréalys", "de": "du ", "le": "le ",
+        "where": {"en": "Mont-Tremblant, Québec", "fr": "Mont-Tremblant, Québec"},
+        "when": {"en": "August 2027 (date to come)", "fr": "Août 2027 (date à venir)"},
+        "dists": ["81", "46"], "default": "81",
+        "src": "https://borealys.utmb.world/runners/equipment",
+        "read": {"en": "October 20, 2026", "fr": "20 octobre 2026"},
+        "items": [
+            ("vest", "MM", {"en": ("Race vest or pack", "To carry the mandatory gear the whole race."), "fr": ("Veste ou sac de course", "Pour porter le matériel obligatoire toute la course.")}, False),
+            ("water", "MM", {"en": ("Water: 1 litre", "Sealed containers, no plastic bags. Two 500 ml soft flasks = 1 L."),
+                             "fr": ("Eau : 1 litre", "Contenants étanches, pas de sacs de plastique. Deux flasques de 500 ml = 1 L.")}, False),
+            ("cup", "MM", {"en": ("Collapsible cup (150 ml or more)", "Bottles and flasks with a lid don't count."), "fr": ("Gobelet pliable (150 ml ou plus)", "Les bouteilles et flasques avec bouchon ne comptent pas.")}, False),
+            ("wind", "MM", {"en": ("Windbreaker (water-repellent)", "With durable water-repellent (DWR) protection."), "fr": ("Coupe-vent déperlant", "Avec un traitement déperlant durable (DWR).")}, True),
+            ("headlamp", "M ", {"en": ("Headlamp", "200 lumens or more recommended. Phones and watches don't count."), "fr": ("Lampe frontale", "200 lumens ou plus recommandés. Téléphones et montres ne comptent pas.")}, True),
+            ("blanket", "MM", {"en": ("Survival blanket (1.40 m × 2 m)", ""), "fr": ("Couverture de survie (1,40 m × 2 m)", "")}, False),
+            ("whistle", "MM", {"en": ("Whistle", "Many race vests have one on the chest strap: check yours."), "fr": ("Sifflet", "Plusieurs vestes de course en ont un sur la sangle de poitrine : vérifiez la vôtre.")}, False),
+            ("phone", "MM", {"en": ("Smartphone with the LiveTrail app", "On, with airplane mode off."), "fr": ("Téléphone avec l'appli LiveTrail", "Allumé, mode avion désactivé.")}, False),
+            ("id", "MM", {"en": ("ID document", ""), "fr": ("Pièce d'identité", "")}, False),
+            ("bandage", "MR", {"en": ("Self-adhesive elastic bandage (100 × 6 cm)", ""), "fr": ("Bandage élastique adhésif (100 × 6 cm)", "")}, False),
+            ("food", "RR", {"en": ("Food reserve", "Recommended: about 800 kcal (e.g. 2 gels + 2 bars)."), "fr": ("Réserve de nourriture", "Recommandé : environ 800 kcal (ex. 2 gels + 2 barres).")}, False),
+            ("jacket", "MM", {"en": ("Waterproof jacket with a hood (bad-weather kit)", "When the race calls the bad-weather kit. Sealed seams, the jacket's own hood."),
+                              "fr": ("Manteau imperméable avec capuchon (kit mauvais temps)", "Quand la course annonce le kit mauvais temps. Coutures scellées, capuchon d'origine.")}, True),
+            ("longpants", "MM", {"en": ("Pants or tights that cover the legs (bad-weather kit)", "Tights + socks that cover the legs also count."),
+                                 "fr": ("Pantalon ou collant couvrant les jambes (kit mauvais temps)", "Un collant + des bas qui couvrent les jambes comptent aussi.")}, False),
+            ("midlayer", "MR", {"en": ("Warm long-sleeve mid-layer (bad-weather kit)", "No cotton, 180 g or more in size M."), "fr": ("Couche intermédiaire chaude à manches longues (kit mauvais temps)", "Pas de coton, 180 g ou plus en taille M.")}, False),
+            ("tuque", "MR", {"en": ("Beanie or neck gaiter (bad-weather kit)", ""), "fr": ("Tuque ou cache-cou (kit mauvais temps)", "")}, False),
+            ("gloves", "MR", {"en": ("Warm, waterproof gloves (bad-weather kit)", ""), "fr": ("Gants chauds et imperméables (kit mauvais temps)", "")}, False),
+            ("pants", "R ", {"en": ("Waterproof overpants (bad-weather kit)", ""), "fr": ("Surpantalon imperméable (kit mauvais temps)", "")}, True),
+            ("poles", "RR", {"en": ("Hiking poles", "If you use them, carry them the whole race."), "fr": ("Bâtons de marche", "Si vous les utilisez, portez-les toute la course.")}, False),
+        ],
+    },
+    "bromont-ultra": {
+        "name": "Bromont Ultra", "short": "BU", "de": "du ", "le": "le ",
+        "where": {"en": "Bromont, Québec", "fr": "Bromont, Québec"},
+        "when": {"en": "October 2027 (date to come)", "fr": "Octobre 2027 (date à venir)"},
+        "dists": ["160", "80", "55"], "default": "80", "cupless": True,
+        "src": "https://www.bromontultra.com/details",
+        "read": {"en": "October 21, 2026 (2026 list)", "fr": "21 octobre 2026 (liste 2026)"},
+        "items": [
+            ("jacket", "MMM", {"en": ("Waterproof windbreaker", ""), "fr": ("Coupe-vent imperméable", "")}, True),
+            ("headlamp", "MM ", {"en": ("Headlamp", ""), "fr": ("Lampe frontale", "")}, True),
+            ("headlamp2", "MM ", {"en": ("Spare battery or a second headlamp", ""), "fr": ("Pile de rechange ou 2e lampe frontale", "")}, False),
+            ("water", "MMM", {"en": ("Water: 1 litre or more", "Two 500 ml soft flasks = 1 L."), "fr": ("Eau : 1 litre ou plus", "Deux flasques de 500 ml = 1 L.")}, False),
+            ("food", "MMM", {"en": ("Food and energy supplements", ""), "fr": ("Suppléments énergétiques et nourriture", "")}, False),
+            ("cup", "MMM", {"en": ("Reusable cup", "No cups at the aid stations."), "fr": ("Contenant à liquide réutilisable", "Aucun verre aux ravitaillements.")}, False),
+            ("cap", "MMM", {"en": ("Cap, tuque or bandana", ""), "fr": ("Casquette, tuque ou foulard", "")}, False),
+            ("blanket", "MMM", {"en": ("Survival blanket (1.4 m × 2 m)", ""), "fr": ("Couverture de survie (1,4 m × 2 m)", "")}, False),
+            ("phone", "MMM", {"en": ("Cell phone", "With the race's emergency number saved."), "fr": ("Téléphone cellulaire", "Avec le numéro d'urgence de la course enregistré.")}, False),
+            ("epipen", "MMM", {"en": ("EpiPen, if you have allergies", ""), "fr": ("Épipen, si vous avez des allergies", "")}, False),
+        ],
+    },
+    "ultra-trail-des-chic-chocs": {
+        "name": "Ultra-Trail des Chic-Chocs", "short": "UTCC",
+        "where": {"en": "Sainte-Anne-des-Monts, Gaspésie, Québec", "fr": "Sainte-Anne-des-Monts, Gaspésie, Québec"},
+        "when": {"en": "August 20–22, 2027", "fr": "20 au 22 août 2027"},
+        "dists": ["170", "88", "45"], "default": "88",
+        "src": "https://www.utchicchocs.com/88km",
+        "read": {"en": "October 21, 2026", "fr": "21 octobre 2026"},
+        "items": [
+            ("jacket", "MMM", {"en": ("Waterproof jacket", ""), "fr": ("Veste imperméable", "")}, True),
+            ("midlayer", "MM ", {"en": ("Mid-layer", ""), "fr": ("Couche intermédiaire", "")}, False),
+            ("longpants", "MM ", {"en": ("Long pants", ""), "fr": ("Pantalon long", "")}, False),
+            ("tuque", "MMM", {"en": ("Tuque", ""), "fr": ("Tuque", "")}, False),
+            ("gloves", "MMM", {"en": ("Gloves", ""), "fr": ("Gants", "")}, False),
+            ("headlamp", "MM ", {"en": ("Headlamp + spare battery", ""), "fr": ("Lampe frontale + batterie de rechange", "")}, True),
+            ("water", "MMM", {"en": ("Water: 1.5 L (1 L on the 45 km)", "Three 500 ml soft flasks = 1.5 L."), "fr": ("Eau : 1,5 L (1 L au 45 km)", "Trois flasques de 500 ml = 1,5 L.")}, False),
+            ("filter", "MMM", {"en": ("Purification tablets or a filter flask", ""), "fr": ("Pastilles de purification ou gourde avec filtre", "")}, False),
+            ("food", "MMM", {"en": ("Energy supplements", ""), "fr": ("Suppléments énergétiques", "")}, False),
+            ("cup", "MMM", {"en": ("Collapsible cup", ""), "fr": ("Verre ou gobelet rétractable", "")}, False),
+            ("cap", "MMM", {"en": ("Cap or Buff", ""), "fr": ("Casquette ou Buff", "")}, False),
+            ("blanket", "MMM", {"en": ("Survival blanket (140 × 200 cm)", ""), "fr": ("Couverture de survie (140 × 200 cm)", "")}, False),
+            ("whistle", "MMM", {"en": ("Whistle", "Many race vests have one on the chest strap: check yours."), "fr": ("Sifflet", "Plusieurs vestes de course en ont un sur la sangle de poitrine : vérifiez la vôtre.")}, False),
+            ("phone", "MMM", {"en": ("Cell phone in a waterproof bag", ""), "fr": ("Téléphone cellulaire dans un sac imperméable", "")}, False),
+            ("firstaid", "MMM", {"en": ("Basic first aid kit", ""), "fr": ("Trousse de premiers soins de base", "")}, False),
+            ("spoon", "MM ", {"en": ("Spoon and/or fork", ""), "fr": ("Cuillère et/ou fourchette", "")}, False),
+            ("socks", "RR ", {"en": ("Spare shoes and socks", ""), "fr": ("Chaussures et bas de rechange", "")}, False),
+            ("poles", "RR ", {"en": ("Hiking poles and/or crampons", ""), "fr": ("Bâtons de randonnée et/ou crampons", "")}, False),
+            ("headlamp2", "RR ", {"en": ("Second headlamp", ""), "fr": ("2e lampe frontale", "")}, False),
+            ("warmjacket", "RR ", {"en": ("Warm jacket for any weather", ""), "fr": ("Manteau chaud pour toutes conditions", "")}, False),
+        ],
+    },
+    "ultra-trail-du-fjord-du-saguenay": {
+        "name": "Ultra-Trail du Fjord-du-Saguenay", "short": "UTFS",
+        "where": {"en": "Bas-Saguenay, Québec", "fr": "Bas-Saguenay, Québec"},
+        "when": {"en": "August 6–8, 2027", "fr": "6 au 8 août 2027"},
+        "dists": ["135", "100", "90", "55"], "default": "100", "cupless": True,
+        "src": "https://www.ultratrailfjord.com/",
+        "read": {"en": "October 21, 2026", "fr": "21 octobre 2026"},
+        "items": [
+            ("jacket", "MMMM", {"en": ("Waterproof windbreaker", ""), "fr": ("Coupe-vent imperméable", "")}, True),
+            ("headlamp", "MMM ", {"en": ("Headlamp + spare batteries", ""), "fr": ("Lampe frontale + batteries de rechange", "")}, True),
+            ("water", "MMMM", {"en": ("Water: 1.5 L on the 135 and 90 km, 1 L on the 100 and 55 km", "Three 500 ml soft flasks = 1.5 L."),
+                               "fr": ("Eau : 1,5 L aux 135 et 90 km, 1 L aux 100 et 55 km", "Trois flasques de 500 ml = 1,5 L.")}, False),
+            ("filter", "MMMM", {"en": ("Purification tablets or a filter flask", ""), "fr": ("Comprimés de purification ou gourde avec filtre", "")}, False),
+            ("food", "MMMM", {"en": ("Food and energy food", ""), "fr": ("Nourriture et aliments énergétiques", "")}, False),
+            ("cup", "MMMM", {"en": ("Reusable cup", "No cups at the aid stations."), "fr": ("Verre réutilisable", "Aucun verre fourni aux ravitaillements.")}, False),
+            ("cap", "MMMM", {"en": ("Cap or bandana for the sun", ""), "fr": ("Casquette ou foulard pour le soleil", "")}, False),
+            ("blanket", "MMMM", {"en": ("Survival blanket", ""), "fr": ("Couverture de survie", "")}, False),
+            ("whistle", "MMMM", {"en": ("Whistle", "Many race vests have one on the chest strap: check yours."), "fr": ("Sifflet", "Plusieurs vestes de course en ont un sur la sangle de poitrine : vérifiez la vôtre.")}, False),
+            ("phone", "MMMM", {"en": ("Cell phone", ""), "fr": ("Téléphone cellulaire", "")}, False),
+            ("epipen", "MMMM", {"en": ("EpiPen, if you have allergies", ""), "fr": ("Épipen, si vous avez des allergies", "")}, False),
+        ],
+    },
 }
 
 S = {
@@ -131,18 +279,18 @@ S = {
         "more": "See more on sale →", "moreN": "See all {n}", "shH": "Trail running shoes", "shTag": "Your pick", "shPh": "What do you race in?", "shSize": "Size", "shGone": "Not in stock in size {s} today. We'll tell you when it's back.", "shPickSize": "Pick your size too.", "shPickFit": "Pick Men's or Women's above first.", "shFrom": "{p} in size {s} today", "shPage": "Every size & store", "shNone": "Not in our trail shoe list. Try the brand name.", "shRm": "Remove", "watch": "Watch", "watchOn": "Watching", "watchL": "Watch the price", "wMember": "Watching. We'll email you when it drops in your size.", "wNew": "Watching, on this phone. Add your email and we'll tell you when it drops.", "wPending": "Watching. Confirm your email (check your inbox) to get the drop emails.", "wAdd": "Add my email", "wOff": "Removed from your watchlist.", "sizeH": "Your size", "sizeTxt": "Pick it once to see deals that fit you.",
         "men": "Men's", "women": "Women's", "change": "Change", "off": "off",
         "src": "From the race's official list (last updated by the race {date}). Rules can change: check the {link} before race day.",
-        "srcLink": "official list", "notAff": "The Gear Fox isn't affiliated with the race.",
+        "srcLink": "official list", "srcRead": "From the race's official list (as published when we read it, {date}). Rules can change: check the {link} before race day.", "notAff": "The Gear Fox isn't affiliated with the race.",
         "boxH": "Get gear deals in your size every Friday until race day", "boxTxt": "Free. One email on Friday mornings with the best deals in your sizes. Unsubscribe in one tap.",
         "boxBtn": "Send me the deals", "faqH": "Quick answers",
         "qList": "What is the mandatory gear for the {short} {d} km?", "aList": "{items}.",
         "qJacket": "Is a windbreaker enough for the {name}?", "aJacket": "No. The race asks for a jacket with an attached hood and a waterproof, breathable membrane (on the {dists} km). Windbreakers aren't accepted.",
-        "qCup": "Do the {name} aid stations have cups?", "aCup": "No. Aid stations have no cups, dishes or cutlery: every distance must carry a reusable cup of 15 cl or more.",
+        "qCup": "Do the {name} aid stations have cups?", "aCup": "No. The aid stations have no cups: bring your own reusable cup.",
         "aisle": "Race gear lists", "money": T["en"]["money"],
     },
     "fr": {
-        "dir": "courses", "title": "Matériel obligatoire de l'{name} ({short} {dists} km)",
-        "desc": "Le matériel obligatoire de l'{name} pour le {dists} km, article par article, avec les meilleurs prix du jour dans votre taille dans les boutiques canadiennes.",
-        "h1": "Matériel obligatoire de l'{name}", "sub": "{short} {dists} km · {where} · {when}",
+        "dir": "courses", "title": "Matériel obligatoire {de}{name} ({short} {dists} km)",
+        "desc": "Le matériel obligatoire {de}{name} pour le {dists} km, article par article, avec les meilleurs prix du jour dans votre taille dans les boutiques canadiennes.",
+        "h1": "Matériel obligatoire {de}{name}", "sub": "{short} {dists} km · {where} · {when}",
         "dist": "Votre distance", "km": "{d} km",
         "M": "Obligatoire", "R": "Recommandé", "A": "Permis",
         "have": "Je l'ai", "progress": "Vous avez {h} des {n} articles obligatoires. Cochez ce que vous avez déjà.", "progressAll": "Vous avez tout le matériel obligatoire. On se voit au départ.",
@@ -151,12 +299,12 @@ S = {
         "more": "Voir plus d'aubaines →", "moreN": "Voir les {n}", "shH": "Chaussures de course en sentier", "shTag": "Votre choix", "shPh": "Vos chaussures de course ?", "shSize": "Pointure", "shGone": "Pas en stock en pointure {s} aujourd'hui. On vous avertit dès son retour.", "shPickSize": "Choisissez aussi votre pointure.", "shPickFit": "Choisissez d'abord Homme ou Femme plus haut.", "shFrom": "{p} en pointure {s} aujourd'hui", "shPage": "Toutes les pointures et boutiques", "shNone": "Pas dans notre liste de chaussures de sentier. Essayez le nom de la marque.", "shRm": "Retirer", "watch": "Suivre", "watchOn": "Suivi", "watchL": "Suivre le prix", "wMember": "Suivi. On vous écrit quand il baisse dans votre taille.", "wNew": "Suivi, sur ce téléphone. Ajoutez votre courriel et on vous avertira quand il baisse.", "wPending": "Suivi. Confirmez votre courriel (voyez votre boîte de réception) pour recevoir les alertes.", "wAdd": "Ajouter mon courriel", "wOff": "Retiré de vos favoris.", "sizeH": "Votre taille", "sizeTxt": "Choisissez-la une fois pour voir les aubaines à votre taille.",
         "men": "Homme", "women": "Femme", "change": "Modifier", "off": "de rabais",
         "src": "Selon la liste officielle de la course (mise à jour par la course le {date}). Les règles peuvent changer : vérifiez la {link} avant la course.",
-        "srcLink": "liste officielle", "notAff": "The Gear Fox n'est pas affilié à la course.",
+        "srcLink": "liste officielle", "srcRead": "Selon la liste officielle de la course (telle que publiée quand nous l'avons lue, le {date}). Les règles peuvent changer : vérifiez la {link} avant la course.", "notAff": "The Gear Fox n'est pas affilié à la course.",
         "boxH": "Les aubaines de matériel dans votre taille, chaque vendredi jusqu'à la course", "boxTxt": "Gratuit. Un courriel le vendredi matin avec les meilleures aubaines dans vos tailles. Désabonnement en un clic.",
         "boxBtn": "Envoyez-moi les aubaines", "faqH": "Réponses rapides",
         "qList": "Quel est le matériel obligatoire du {short} {d} km?", "aList": "{items}.",
-        "qJacket": "Un coupe-vent suffit-il pour l'{name}?", "aJacket": "Non. La course demande un manteau avec capuchon attaché et une membrane imperméable et respirante (sur le {dists} km). Les coupe-vent ne sont pas acceptés.",
-        "qCup": "Y a-t-il des verres aux ravitaillements de l'{name}?", "aCup": "Non. Les ravitaillements n'ont ni verres, ni vaisselle, ni ustensiles : chaque distance doit porter un gobelet réutilisable de 15 cl ou plus.",
+        "qJacket": "Un coupe-vent suffit-il pour {le}{name}?", "aJacket": "Non. La course demande un manteau avec capuchon attaché et une membrane imperméable et respirante (sur le {dists} km). Les coupe-vent ne sont pas acceptés.",
+        "qCup": "Y a-t-il des verres aux ravitaillements {de}{name}?", "aCup": "Non. Les ravitaillements n'ont pas de verres : apportez votre gobelet réutilisable.",
         "aisle": "Listes de matériel de course", "money": T["fr"]["money"],
     },
 }
@@ -390,7 +538,8 @@ def deal_html(L, r):
 def page(slug, race, L, items, stores, pages=None):
     s, other = S[L], "fr" if L == "en" else "en"
     dists = "/".join(race["dists"])
-    fmt = dict(name=race["name"], short=race["short"], dists=dists, where=race["where"][L], when=race["when"][L])
+    fmt = dict(name=race["name"], short=race["short"], dists=dists, where=race["where"][L], when=race["when"][L],
+               de=race.get("de", "de l'"), le=race.get("le", "l'"))
     path = {"en": f"/races/{slug}/", "fr": f"/courses/{slug}/"}
     head = page_head(T[L], s["title"].format(**fmt), s["desc"].format(**fmt), path["en"], path["fr"], f"<style>{CSS}</style>")
     pools, rows, shown = {}, [], set()
@@ -421,8 +570,10 @@ def page(slug, race, L, items, stores, pages=None):
     for i, d in enumerate(race["dists"]):
         must = [txt[L][0] for kind, lv, txt, _ in race["items"] if lv[i] == "M"]
         faq.append((s["qList"].format(d=d, **fmt), s["aList"].format(items=", ".join(must))))
-    faq.append((s["qJacket"].format(**fmt), s["aJacket"].format(**{**fmt, "dists": "/".join(d for i, d in enumerate(race["dists"]) if dict((k, lv) for k, lv, *_ in race["items"])["jacket"][i] == "M")})))
-    faq.append((s["qCup"].format(**fmt), s["aCup"]))
+    if race.get("faq_jacket"):        # Harricana: "windbreakers will not be accepted"
+        faq.append((s["qJacket"].format(**fmt), s["aJacket"].format(**{**fmt, "dists": "/".join(d for i, d in enumerate(race["dists"]) if dict((k, lv) for k, lv, *_ in race["items"])["jacket"][i] == "M")})))
+    if race.get("cupless"):           # the race says its aid stations have no cups
+        faq.append((s["qCup"].format(**fmt), s["aCup"]))
     ld = {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
         {"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in faq]}
     src = race.get("src_fr") if L == "fr" and race.get("src_fr") else race["src"]
@@ -448,7 +599,7 @@ def page(slug, race, L, items, stores, pages=None):
 <p class="prog" id="prog" data-t="{esc(s['progress'])}" data-all="{esc(s['progressAll'])}"></p>
 <ul class="gl" id="gl" data-race="{slug}" data-default="{race['default']}" data-lm="{s['M']}" data-lr="{s['R']}" data-la="{s['A']}"
  data-home="{T[L]['home']}" data-watch="{esc(s['watch'])}" data-won="{esc(s['watchOn'])}" data-wmember="{esc(s['wMember'])}" data-wnew="{esc(s['wNew'])}" data-wpending="{esc(s['wPending'])}" data-wadd="{esc(s['wAdd'])}" data-woff="{esc(s['wOff'])}" data-moren="{esc(s['moreN'])}" data-dh="{esc(s['deals'])}" data-dhs="{esc(s['dealsSize'])}" data-none="{esc(s['noDeals'])}" data-few="{esc(s['few'])}" data-off="{esc(s['off'])}" data-ly="{esc(s['shTag'])}">{shoe_row}{"".join(rows)}</ul>
-<p class="srcb">{s['src'].format(date=race['updated'][L], link=f'<a href="{src}" rel="noopener">{s["srcLink"]}</a>')} {s['notAff']}</p>
+<p class="srcb">{(s['src'] if race.get('updated') else s['srcRead']).format(date=(race.get('updated') or race['read'])[L], link=f'<a href="{src}" rel="noopener">{s["srcLink"]}</a>')} {s['notAff']}</p>
 <section class="alert" id="raceBox" data-ref="race-{slug}" data-bad="{esc(T[L]['alertBad'])}" data-ok="{esc(T[L]['alertOk'])}" data-fail="{esc(T[L]['alertFail'])}" data-pick="{esc(s['sizeTxt'])}">
 <h2>{esc(s['boxH'])}</h2><p class="fine">{esc(s['boxTxt'])}</p><form novalidate><input type="email" autocomplete="email" inputmode="email" placeholder="{esc(T[L]['emailPh'])}" aria-label="Email" required><button type="submit">{esc(s['boxBtn'])}</button></form><p class="msg" aria-live="polite"></p></section>
 <section class="faq"><h2>{s['faqH']}</h2>{"".join(f'<details><summary>{esc(q)}</summary><p>{esc(a)}</p></details>' for q, a in faq)}</section>
