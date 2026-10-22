@@ -770,7 +770,7 @@ en:{
     sub:n=>`Every morning we check ${n} running stores in Canada and the USA and show you the best prices in stock, in your size. No more guessing.`,
     ph:"Search shoes, apparel, packs, brands…",phS:"Search shoes, brands…",go:"Search",size:"Your size",cat:"Category",brand:"Brand",price:"Price",store:"Retailer",sale:"On sale only",more:"More filters",under:m=>`Under ${m}`,
     note:["Real deals.","Real sizes.","Real retailers."],tiles:{shoes:"Shoes",apparel:"Apparel",packs:"Packs & Vests",acc:"Accessories",nutrition:"Nutrition",gear:"Gear & Watches"},n:n=>`${n} deals`,
-    top:"Today's top deals",viewAll:"View all deals",viewAllS:"View all",filters:"Filters",showN:n=>`Show ${n} deals`,brands:"Shop by brand",viewBrands:"View all brands",whyH:"Why use The Gear Fox?",
+    top:"Today's top deals",viewAll:"View all deals",viewAllS:"View all",allCats:"× All categories",filters:"Filters",showN:n=>`Show ${n} deals`,brands:"Shop by brand",viewBrands:"View all brands",whyH:"Why use The Gear Fox?",
     why:[["Real deals from real stores",n=>`We check ${n} stores in Canada and the USA every morning.`],["In your exact size",()=>"Only the sizes in stock right now, so every deal fits you."],["No more guessing",()=>"Every store's price for the same shoe, side by side."],["Canada & USA",()=>"Shop both sides, with local stores and local prices."]],
     kinds:{daily:"road shoes",race:"racing shoes",trail:"trail shoes",hike:"hiking & winter shoes",spike:"track spikes",tee:"t-shirt",layer:"long sleeve",jacket:"jacket",short:"shorts",tight:"tights",pant:"pants",light:"light",pole:"poles",bottle:"bottle",sun:"sunglasses"},
     sub2:(g,k)=>g?`${g} ${k}`:k[0].toUpperCase()+k.slice(1),cmp:"All sizes →",heroAt:(p,s)=>`${p} at ${s}`,menu:"Menu",mySizes:"My sizes"},
@@ -882,7 +882,7 @@ fr:{
     sub:n=>`Chaque matin, on vérifie ${n} boutiques de course au Canada et aux États-Unis et on vous montre les meilleurs prix en stock, dans votre taille. Fini les devinettes.`,
     ph:"Chercher chaussures, vêtements, sacs, marques…",phS:"Chaussures, marques…",go:"Chercher",size:"Votre taille",cat:"Catégorie",brand:"Marque",price:"Prix",store:"Boutique",sale:"En solde seulement",more:"Plus de filtres",under:m=>`Moins de ${m}`,
     note:["Vrais rabais.","Vraies tailles.","Vraies boutiques."],tiles:{shoes:"Chaussures",apparel:"Vêtements",packs:"Sacs et vestes",acc:"Accessoires",nutrition:"Nutrition",gear:"Équipement et montres"},n:n=>`${n} aubaines`,
-    top:"Les meilleures aubaines du jour",viewAll:"Voir toutes les aubaines",viewAllS:"Tout voir",filters:"Filtres",showN:n=>`Voir ${n} aubaines`,brands:"Magasinez par marque",viewBrands:"Toutes les marques",whyH:"Pourquoi The Gear Fox ?",
+    top:"Les meilleures aubaines du jour",viewAll:"Voir toutes les aubaines",viewAllS:"Tout voir",allCats:"× Toutes les catégories",filters:"Filtres",showN:n=>`Voir ${n} aubaines`,brands:"Magasinez par marque",viewBrands:"Toutes les marques",whyH:"Pourquoi The Gear Fox ?",
     why:[["De vrais rabais, de vraies boutiques",n=>`On vérifie ${n} boutiques au Canada et aux États-Unis chaque matin.`],["Dans votre taille exacte",()=>"Seulement les tailles en stock en ce moment : chaque aubaine vous va."],["Fini les devinettes",()=>"Le prix de chaque boutique pour la même chaussure, côte à côte."],["Canada et États-Unis",()=>"Magasinez des deux côtés, avec des boutiques et des prix locaux."]],
     kinds:{daily:"chaussures de route",race:"chaussures de compétition",trail:"chaussures de sentier",hike:"chaussures de randonnée et d'hiver",spike:"pointes",tee:"t-shirt",layer:"manches longues",jacket:"manteau",short:"short",tight:"collant",pant:"pantalon",light:"frontale",pole:"bâtons",bottle:"gourde",sun:"lunettes de soleil"},
     sub2:(g,k)=>g?`${k[0].toUpperCase()+k.slice(1)} · ${g}`:k[0].toUpperCase()+k.slice(1),cmp:"Tailles →",heroAt:(p,s)=>`${p} chez ${s}`,menu:"Menu",mySizes:"Mes tailles"},
@@ -1549,7 +1549,7 @@ function rdBuild(){
   rdText();
   // actions
   document.addEventListener("click",e=>{
-    const g=e.target.closest("[data-rdgo]");if(g){const k=g.dataset.rdgo;ana("menu","rd-"+k);if(k==="deals"){state.groups=ORDER.slice();rdGoDeals()}else rdCat(k);return}
+    const g=e.target.closest("[data-rdgo]");if(g){const k=g.dataset.rdgo;ana("menu","rd-"+k);if(k==="deals"){state.groups=ORDER.slice();view.open={};saveProfile();renderAll();rdGoDeals()}else rdCat(k);return}
     const tl=e.target.closest("[data-rdtile]");if(tl){ana("category","tile|"+tl.dataset.rdtile);rdCat(tl.dataset.rdtile);return}
     const br=e.target.closest("[data-rdbrand]");if(br){ana("filter","brand|"+br.dataset.rdbrand);view_rd.brand=br.dataset.rdbrand;view.open={};renderAll();rdGoDeals(true);return}
     if(e.target.closest("[data-rdbrands]")){const s=$("ddBrand");s.focus();try{s.showPicker()}catch(_){};return}
@@ -1576,7 +1576,7 @@ function rdText(){   // words that change with the language
   $("filtBtn").querySelector("[data-i18n]").textContent=R.more}
 function rdCat(k){const gs=RD_TILES[k].filter(g=>!(g==="bras"&&state.gender==="men"));
   const same=gs.length===state.groups.length&&gs.every(g=>state.groups.includes(g));state.groups=same?ORDER.slice():gs;
-  view.open={};saveProfile();renderAll();rdGoDeals()}
+  view.open={};saveProfile();renderAll();rdGoDeals(!same)}   // a category picked: straight to its deals; tapped again: back to the circles
 function rdGoDeals(top){const el=top?$("dealList"):$("rdTiles");if(el)scrollTo({top:Math.max(0,el.getBoundingClientRect().top+scrollY-(top?140:80)),behavior:"smooth"})}
 function rdUpdate(all,p){   // hero, dropdowns, tiles, why: from today's data, every render
   const R=t("rd"),C=rdSource(p),n=num(storesLabel());
@@ -2212,10 +2212,13 @@ function renderAll(){
   let top=shoesFirst(onSale.filter(commonFit).sort(SORTS[view.sort]));
   if(LOOK_B&&view.sort==="match")top=rdKnownFirst(top);
   if(!NARROW)parts.push(section("__sale",LOOK_B?t("rd").top:t("secSale"),top,"sale"));
-  if(LOOK_B&&!NARROW&&!q.length&&!view.store&&!view_rd.brand)parts.push(rdBrands());
   const inTop=new Set(NARROW?[]:top.slice(0,view.open.__sale||(LOOK_B?rdLim(true):PAGE)).map(itemKey));   // don't show the same deal twice
   ORDER.filter(g=>wide||p.groups.includes(g)).forEach(g=>{const ty=view.type[g];   // a type picked: every match, Top deals included
     parts.push(section(g,GL(g),shown.filter(d=>d.g===g&&(ty?d.t===ty:!inTop.has(itemKey(d))))))});
+  if(LOOK_B&&!NARROW&&!q.length&&!view.store&&!view_rd.brand)parts.push(rdBrands());   // Oct 22 (Bastien): after the deals, not between them
+  // Oct 22: a category picked shows only it, with a clear way back (tapping the circle again also works, but nobody guesses that)
+  if(LOOK_B&&!ORDER.filter(g=>!(g==="bras"&&state.gender==="men")).every(g=>p.groups.includes(g))){const R=t("rd"),tk=Object.keys(RD_TILES).find(k=>{const gs=RD_TILES[k].filter(g=>!(g==="bras"&&state.gender==="men"));return gs.length===p.groups.length&&gs.every(g=>p.groups.includes(g))});
+    parts.unshift(`<div class="storebar rdcatbar"><div><small>${esc(R.cat)}</small><b>${esc(tk?R.tiles[tk]:p.groups.map(GL).join(", "))}</b><small>${t("storeCount",num((view.fullPrice||q.length?all:onSale).length))}</small></div><button type="button" data-rdgo="deals">${esc(R.allCats)}</button></div>`)}
   if(wide)parts.unshift(`<div class="widen">${t("searchWide")}</div>`);
   if(!hasSizes()&&!view.store){const bb=`<div class="browsebar${WELCOME_B?" stick":""}">${t("browseNote")} <button type="button" data-picksize>${t("browsePick")}</button>${t("browseWhy")}</div>`;
     if(WELCOME_B)$("newBox").insertAdjacentHTML("beforebegin",bb.replace('<div class="browsebar','<div id="stickPick" class="browsebar'));else parts.unshift(bb)}   // test "welcome" B: on top of everything, stuck there

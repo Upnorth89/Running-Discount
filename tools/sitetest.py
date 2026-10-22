@@ -956,14 +956,25 @@ def site_flow(base, per, accented):
             after = q.evaluate("""() => ({closed: document.getElementById('rdFs').hidden, back: !!document.querySelector('#rdHero #rdFilters'),
                 brands: [...new Set([...document.querySelectorAll('#dealList .grp:not(.new) .rdc .brand')].map(x=>x.textContent))],
                 wide: document.documentElement.scrollWidth > innerWidth + 1})""")
+            # Oct 22: a category circle shows only that category with a "× All categories" bar; the bar brings everything back
+            q.goto(base, wait_until="domcontentloaded")
+            q.wait_for_selector("#dealList .rdc", timeout=30000)
+            q.click('[data-rdtile="shoes"]')
+            q.wait_for_timeout(800)
+            cat = q.evaluate("() => [!!document.querySelector('.rdcatbar'), [...new Set([...document.querySelectorAll('#dealList section.grp:not(.new)')].map(x=>x.id))]]")
+            q.click(".rdcatbar button")
+            q.wait_for_timeout(800)
+            back = q.evaluate("() => [!!document.querySelector('.rdcatbar'), document.querySelectorAll('#dealList section.grp:not(.new)').length]")
             c.close()
+            assert cat[0] and cat[1] == ["grp-shoes"], f"Shoes circle: bar {cat[0]}, sections {cat[1]}"
+            assert not back[0] and back[1] >= 4, f"'× All categories' didn't bring every category back: {back}"
             assert hit == "page", "the closed filter panel covers the page (taps don't reach it)"
             assert cols == 1, f"small phone: {cols} deals per row (want 1)"
             assert bar, "the search + Filters bar didn't stay at the top after scrolling"
             assert after["closed"] and after["back"], f"the filter panel didn't close or the filters didn't go back to the top: {after}"
             assert brand and after["brands"] == [brand], f"brand '{brand}' picked in the panel, deals show {after['brands'][:5]}"
             assert not after["wide"], "page wider than a 320px phone"
-            return f"1 deal per row; bar stays on top; Filters panel: brand '{brand}' -> only {brand} deals"
+            return f"1 deal per row; bar stays on top; Filters panel: brand '{brand}' -> only {brand} deals; Shoes circle -> Shoes only, '× All' back"
         check("Test 'look': small phone, sticky bar + Filters panel")(look_mobile, pg)
 
         def canadian():   # Oct 7: Canadian brands filter (Canada side): only maple-leaf brands, a box saying so, × turns it off

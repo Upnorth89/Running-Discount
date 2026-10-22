@@ -509,3 +509,14 @@ html.rd,html:root.rd{--price:#17232B}
 }
 /* the count headline ("1,594 deals in your size.") on one line wherever it fits (Oct 22, Bastien) */
 .rd.rdsized .rdhero h1{font-size:clamp(28px,8.4vw,54px);text-wrap:wrap;white-space:normal}
+/* Oct 22: the category bar ("Shoes · × All categories") and "Why use" as a compact 2 x 2 on phones */
+.rd .rdcatbar{border-color:var(--hivis)}
+@media(max-width:759px){
+  .rd .rdwhy{padding:18px 14px;margin-top:24px}
+  .rd .rdwhy h2{font-size:22px;margin-bottom:12px}
+  .rd .rdwhy .wl{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 12px}
+  .rd .rdwhy .wi{flex-direction:column;gap:6px}
+  .rd .rdwhy .wi svg{width:26px;height:26px}
+  .rd .rdwhy .wi b{font-size:16px;margin:0 0 2px}
+  .rd .rdwhy .wi p{font-size:12.5px;line-height:1.4}
+}
