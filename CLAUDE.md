@@ -235,6 +235,10 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   tell me it's stupid and the reason why. I need to stop reminding you of this").** Every recommendation cites our own numbers
   (funnel.yml) and/or established UX/consumer research (Baymard, Nielsen Norman Group…), named, never made-up stats. When his idea
   won't work, say so plainly first, then why, then what would. Agreeing to be agreeable is the failure he keeps flagging.
+- **Design work: phone first, one complete mockup before code (Oct 22).** The redesign built Bastien's computer rendering
+  literally onto phones, then took ~2 days of rounds undoing it (hero search back to the header, 5 filter boxes -> 1 button,
+  photo tiles -> circles; Bastien: "we're really working backwards ... this is brutal"). Next time: show ONE finished phone
+  screen (and the computer one) for agreement first, push back on what doesn't fit a phone, then build. Log each call in docs/decisions.md.
 - **Daily site review (Bastien, Oct 18: "Daily lets go through the website to make it the most user friendly and increase retention
   on all fronts").** Each day: one part of the site (welcome, sizes, top of deals, cards, search, shoe pages, sign-up, watchlist,
   Friday email), looked at on a phone with that day's numbers; bring the 1-2 biggest problems + my fix + the evidence; he decides;
