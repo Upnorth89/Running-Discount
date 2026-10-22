@@ -128,9 +128,9 @@ html.us .seo-today .seo-en,html.us .seo-today .seo-fr,html:not(.us) .seo-today .
 .mailbtn{display:inline-block;margin:10px 0 2px;font:700 15px/1 var(--body);background:var(--hivis);color:#fff;border-radius:999px;padding:11px 16px;text-decoration:none}
 .backbar .mailbtn{margin:8px 0 0}
 /* Oct 11 (Bastien: the dark bar was "hard to read"): the watch offer and the email offer are light cards with an orange edge */
-.backbar.bwbar,.backbar.subar{background:var(--card);color:var(--ink);border:2px solid var(--hivis);padding:14px 16px;font-size:16px;line-height:1.4}
+.backbar.bwbar,.backbar.subar,.backbar.stbar{background:var(--card);color:var(--ink);border:2px solid var(--hivis);padding:14px 16px;font-size:16px;line-height:1.4}
 .backbar.bwbar{flex-direction:column;align-items:stretch;gap:0}
-.backbar.bwbar .x,.backbar.subar .x{position:absolute;top:4px;right:4px;color:var(--muted);opacity:1;font-size:26px;padding:6px 10px}
+.backbar.bwbar .x,.backbar.subar .x,.backbar.stbar .x{position:absolute;top:4px;right:4px;color:var(--muted);opacity:1;font-size:26px;padding:6px 10px}
 .bwh{font:800 22px/1.15 var(--display);margin:0 36px 10px 0}
 .bwi{display:flex;gap:12px;align-items:center}.bwi img{width:60px;height:60px;flex:none;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:8px}
 .bwi .n{font-weight:600;line-height:1.3}.bwi .pr{display:block;margin-top:2px}.bwi .pr b{font:800 20px var(--display)}.bwi .pr s{color:var(--muted);font-size:14px;margin-left:6px}
@@ -698,7 +698,7 @@ const ANA=(()=>{const ls=k=>{try{return localStorage.getItem(k)}catch(e){return 
   let over={};try{const q=new URLSearchParams(location.search).get("exp");over=JSON.parse(ls("gf-exp")||"{}");
     if(q){q.split(",").forEach(x=>{const [n,a]=x.split(":");if(n&&/^[AB]$/.test(a))over[n]=a});localStorage.setItem("gf-exp",JSON.stringify(over))}}catch(e){}
   const arm=n=>{if(over[n])return over[n];let h=2166136261;for(const c of did+"|"+n){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return (h>>>0)%2?"B":"A"};
-  const TESTS=["r100"];   // Oct 22: the redesign ('look' B) is the site for everyone (Bastien), 'runcard' ended (0 vs 2 sign-ups, too rare to decide), 'layout' ended Oct 19
+  const TESTS=["r100","run1st"];   // Oct 22: 'run1st' = running gear leads the first rows (B)   // Oct 22: the redesign ('look' B) is the site for everyone (Bastien), 'runcard' ended (0 vs 2 sign-ups, too rare to decide), 'layout' ended Oct 19
      // Oct 21: 'look' = sizes on each card + category photos + store names (B)   // Oct 20: 'welcome' and 'drops' ended (A won); 'layout' back as a 50/50 test
   if(fresh){TESTS.forEach(n=>add("signup-step",`exp|${n}|${arm(n)}`))}
   if(fresh)add("visit",em?"email-"+em:(matchMedia("(display-mode: standalone)").matches||navigator.standalone)?"home-screen app":document.referrer?new URL(document.referrer).hostname:"",null,location.pathname);
@@ -771,7 +771,7 @@ en:{
     sub:n=>`Every morning we check ${n} running stores in Canada and the USA and show you the best prices in stock, in your size. No more guessing.`,
     ph:"Search shoes, apparel, packs, brands…",phS:"Search shoes, brands…",go:"Search",size:"Your size",cat:"Category",brand:"Brand",price:"Price",store:"Retailer",sale:"On sale only",more:"More filters",under:m=>`Under ${m}`,
     note:["Real deals.","Real sizes.","Real retailers."],tiles:{shoes:"Shoes",apparel:"Apparel",packs:"Packs & Vests",acc:"Accessories",nutrition:"Nutrition",gear:"Gear & Watches"},n:n=>`${n} deals`,
-    top:"Today's top deals",viewAll:"View all deals",viewAllS:"View all",allCats:"× All categories",everyN:n=>`${n} deals, every size`,pickSize:"Pick your size",qShoe:"Your shoe size?",qCloth:"Your size?",qFit:"Men's or women's first",filters:"Filters",showN:n=>`Show ${n} deals`,brands:"Shop by brand",viewBrands:"View all brands",whyH:"Why use The Gear Fox?",
+    top:"Today's top deals",res:q=>`Results for “${q}”`,viewAll:"View all deals",viewAllS:"View all",allCats:"× All categories",everyN:n=>`${n} deals, every size`,pickSize:"Pick your size",qShoe:"Your shoe size?",qCloth:"Your size?",qFit:"Men's or women's first",filters:"Filters",showN:n=>`Show ${n} deals`,brands:"Shop by brand",viewBrands:"View all brands",whyH:"Why use The Gear Fox?",
     why:[["Real deals from real stores",n=>`We check ${n} stores in Canada and the USA every morning.`],["In your exact size",()=>"Only the sizes in stock right now, so every deal fits you."],["No more guessing",()=>"Every store's price for the same shoe, side by side."],["Canada & USA",()=>"Shop both sides, with local stores and local prices."]],
     kinds:{daily:"road shoes",race:"racing shoes",trail:"trail shoes",hike:"hiking & winter shoes",spike:"track spikes",tee:"t-shirt",layer:"long sleeve",jacket:"jacket",short:"shorts",tight:"tights",pant:"pants",light:"light",pole:"poles",bottle:"bottle",sun:"sunglasses"},
     sub2:(g,k)=>g?`${g} ${k}`:k[0].toUpperCase()+k.slice(1),cmp:"All sizes →",heroAt:(p,s)=>`${p} at ${s}`,menu:"Menu",mySizes:"My sizes"},
@@ -883,7 +883,7 @@ fr:{
     sub:n=>`Chaque matin, on vérifie ${n} boutiques de course au Canada et aux États-Unis et on vous montre les meilleurs prix en stock, dans votre taille. Fini les devinettes.`,
     ph:"Chercher chaussures, vêtements, sacs, marques…",phS:"Chaussures, marques…",go:"Chercher",size:"Votre taille",cat:"Catégorie",brand:"Marque",price:"Prix",store:"Boutique",sale:"En solde seulement",more:"Plus de filtres",under:m=>`Moins de ${m}`,
     note:["Vrais rabais.","Vraies tailles.","Vraies boutiques."],tiles:{shoes:"Chaussures",apparel:"Vêtements",packs:"Sacs et vestes",acc:"Accessoires",nutrition:"Nutrition",gear:"Équipement et montres"},n:n=>`${n} aubaines`,
-    top:"Les meilleures aubaines du jour",viewAll:"Voir toutes les aubaines",viewAllS:"Tout voir",allCats:"× Toutes les catégories",everyN:n=>`${n} aubaines, toutes les tailles`,pickSize:"Choisir ma taille",qShoe:"Votre pointure ?",qCloth:"Votre taille ?",qFit:"Homme ou femme d'abord",filters:"Filtres",showN:n=>`Voir ${n} aubaines`,brands:"Magasinez par marque",viewBrands:"Toutes les marques",whyH:"Pourquoi The Gear Fox ?",
+    top:"Les meilleures aubaines du jour",res:q=>`Résultats pour « ${q} »`,viewAll:"Voir toutes les aubaines",viewAllS:"Tout voir",allCats:"× Toutes les catégories",everyN:n=>`${n} aubaines, toutes les tailles`,pickSize:"Choisir ma taille",qShoe:"Votre pointure ?",qCloth:"Votre taille ?",qFit:"Homme ou femme d'abord",filters:"Filtres",showN:n=>`Voir ${n} aubaines`,brands:"Magasinez par marque",viewBrands:"Toutes les marques",whyH:"Pourquoi The Gear Fox ?",
     why:[["De vrais rabais, de vraies boutiques",n=>`On vérifie ${n} boutiques au Canada et aux États-Unis chaque matin.`],["Dans votre taille exacte",()=>"Seulement les tailles en stock en ce moment : chaque aubaine vous va."],["Fini les devinettes",()=>"Le prix de chaque boutique pour la même chaussure, côte à côte."],["Canada et États-Unis",()=>"Magasinez des deux côtés, avec des boutiques et des prix locaux."]],
     kinds:{daily:"chaussures de route",race:"chaussures de compétition",trail:"chaussures de sentier",hike:"chaussures de randonnée et d'hiver",spike:"pointes",tee:"t-shirt",layer:"manches longues",jacket:"manteau",short:"short",tight:"collant",pant:"pantalon",light:"frontale",pole:"bâtons",bottle:"gourde",sun:"lunettes de soleil"},
     sub2:(g,k)=>g?`${k[0].toUpperCase()+k.slice(1)} · ${g}`:k[0].toUpperCase()+k.slice(1),cmp:"Tailles →",heroAt:(p,s)=>`${p} chez ${s}`,menu:"Menu",mySizes:"Mes tailles"},
@@ -1631,10 +1631,17 @@ var RDBS={n:-1,m:{}};
 function rdBrandStores(){if(RDBS.n===ITEMS.length)return RDBS.m;const m={};
   for(const d of ITEMS){const s=m[d.b]||(m[d.b]=new Set());(d.of||[]).forEach(u=>s.add(storeOf(u)))}
   RDBS={n:ITEMS.length,m};return m}
+/* Test 'run1st' (Oct 22, daily walk-through: a women's 8 saw 7 gym/lifestyle pieces in the first 10, mostly one store): B ranks
+   training/studio/lifestyle lines after running gear and lets one store fill at most 2 of the first 12 */
+const RUN1=ANA.arm("run1st")==="B";
+const GYM=/\b(training|train|hiit|studio|yoga|pilates|essentials?|club fleece|fleece jogger|lounge|tailored|game and go|cover[- ]?up|sportswear|originals|golf|tennis|pwrmesh|firm[- ]support|dance|gym|lifestyle|casual|sweatpants?|tracksuit|track (jacket|pants?|top)|camo)\b/i;
 function rdKnownFirst(list,mix=true){const bs=rdBrandStores();
   const known=d=>d.best>=15&&(d.g==="shoes"?!!shoePage(d):(bs[d.b]&&bs[d.b].size>=4));   // Oct 22: under $15 never leads (a $3 headband was #2)
-  const head=list.slice(0,200),a=head.filter(known),b=head.filter(d=>!known(d));
-  return (mix?shoesFirst(a):a).concat(b,list.slice(200))}
+  const gym=d=>RUN1&&d.g!=="shoes"&&GYM.test(d.n);
+  const head=list.slice(0,200),a=head.filter(d=>known(d)&&!gym(d)),b=head.filter(d=>!known(d)&&!gym(d)),c=head.filter(gym);
+  let out=(mix?shoesFirst(a):a).concat(b,c,list.slice(200));
+  if(RUN1){const per={},first=[],later=[];out.forEach(d=>{const h=storeOf(d.url);if(first.length<12&&(per[h]||0)<2){per[h]=(per[h]||0)+1;first.push(d)}else later.push(d)});out=first.concat(later)}
+  return out}
 /* Oct 22 (Bastien: "pick your size ... it's not obvious"): no size yet + Shoes or Apparel picked = the sizes right in the category
    box. Men's / Women's, then one tap on a size narrows the list (saved like the size picker's; nothing else asked) */
 var RDQG="";
@@ -1906,7 +1913,7 @@ function offerStore(){
   if(offered.has(lastShop.h))return;
   const h=lastShop.h,n=storeCounts()[h]||0;if(n<4||!STORES[h])return;
   offered.add(h);try{sessionStorage.setItem("gf-offered",JSON.stringify([...offered]))}catch(e){}hideBackBar();
-  const b=document.createElement("div");b.id="backBar";b.className="backbar";b.setAttribute("role","status");
+  const b=document.createElement("div");b.id="backBar";b.className="backbar stbar";b.setAttribute("role","status");
   b.innerHTML=`<span>${t("backBar",num(n),esc(STORES[h][0]))}</span><button type="button" class="go">${t("backGo")}</button><button type="button" class="x" aria-label="${t("close")}">×</button>`;
   document.body.appendChild(b);ana("store-offer",h);
   b.querySelector(".go").addEventListener("click",()=>shopStore(h,"back"));b.querySelector(".x").addEventListener("click",hideBackBar)}
@@ -2241,7 +2248,7 @@ function renderAll(){
     :d.g==="shoes"?d.ok.some(e=>{const k=shoeKey(e[0]);return k&&+k.n>=7&&+k.n<=12}):true);
   let top=shoesFirst(onSale.filter(commonFit).sort(SORTS[view.sort]));
   if(LOOK_B&&view.sort==="match")top=rdKnownFirst(top);
-  if(!NARROW)parts.push(section("__sale",LOOK_B?t("rd").top:t("secSale"),top,"sale"));
+  if(!NARROW)parts.push(section("__sale",LOOK_B?(view.q.trim()?t("rd").res(esc(view.q.trim())):t("rd").top):t("secSale"),top,"sale"));   // Oct 22: a search says what it shows
   const inTop=new Set(NARROW?[]:top.slice(0,view.open.__sale||(LOOK_B?rdLim(true):PAGE)).map(itemKey));   // don't show the same deal twice
   ORDER.filter(g=>wide||p.groups.includes(g)).forEach(g=>{const ty=view.type[g];   // a type picked: every match, Top deals included
     parts.push(section(g,GL(g),shown.filter(d=>d.g===g&&(ty?d.t===ty:!inTop.has(itemKey(d))))))});
