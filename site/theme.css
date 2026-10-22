@@ -547,6 +547,7 @@ html.rd,html:root.rd{--price:#17232B}
 
 /* ===== Phones: search in the header (Oct 22, Bastien) ===== */
 .rd .rdbar .sbz{display:none}
+.hfilt{display:none}
 @media(max-width:759px){
   .rd .rdhs .topbar .logo picture,.rd .rdhs .topbar .logo .tag{display:none}
   .rd .rdhs .topbar .logo .logomini{display:block;width:40px;height:40px;border-radius:50%}
@@ -556,10 +557,22 @@ html.rd,html:root.rd{--price:#17232B}
   .rd .rdhs .topbar .watchbtn{margin-left:0}
   .rd .rdhs .rdsearch{display:none}
   .rd .rdhs .rdqf{margin-top:12px}
+  .rd .rdhs .rdqfb{display:none}   /* Filters is in the header box on phones: one button, not two */
   .rd .rdhs .rdbar .sbs{display:none}
+  .rd.rdpast .rdhs .rdbar{display:none}   /* Oct 22: no bar following the scroll on phones; Filters sits in the header search box */
+  .rd .rdhs .hsearch{position:relative}
+  .rd .rdhs .hsearch .search{padding-right:48px}
+  .rd .rdhs .hfilt{display:flex;position:absolute;right:3px;top:50%;transform:translateY(-50%);width:38px;height:38px;border:0;border-radius:50%;background:var(--hivis);color:var(--hivis-ink);align-items:center;justify-content:center;cursor:pointer}
+  .rd .rdhs .hfilt .n{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;border-radius:9px;background:var(--char);color:#fff;font:700 11px/18px var(--body);font-style:normal;text-align:center;padding:0 4px;box-shadow:0 0 0 2px #fff}
+  .rd .rdhs .hfilt .n:empty{display:none}
   .rd .rdhs .rdbar .sbz{display:flex;flex:1;min-width:0;justify-content:space-between;background:#fff;border:0;min-height:44px;border-radius:8px;padding:0 14px;font:500 15px var(--body);color:var(--ink)}
   .rd .rdhs .rdbar .sbz span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .rd .rdhs .rdbar .sbz.need{color:var(--moss);font-weight:700}
+}
+@media(max-width:359px){
+  .rd .rdhs .hsearch .search{padding:0 40px 0 30px;background-position:9px 50%;font-size:15px}
+  .rd .rdhs .hsearch .search::placeholder{font-size:14px}
+  .rd .rdhs .hfilt{width:34px;height:34px}
 }
 .rd .topbar .logo .tag{display:none}   /* Oct 22, Bastien: "let's remove the outfox full price" from the homepage */
 

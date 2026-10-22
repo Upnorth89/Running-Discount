@@ -1541,12 +1541,16 @@ function rdBuild(){
     $("rdFsB").append(F,B);B.classList.add("open");$("filtBtn").setAttribute("aria-expanded","true");$("rdFs").hidden=false;document.body.classList.add("locked");rdFsCount();ana("filter","sheet|"+from);$("rdFsX").focus()};
   const fsClose=go=>{if($("rdFs").hidden)return;const F=$("rdFilters"),B=$("filtersBox");home.f.insertBefore(F,home.fn);home.b.insertBefore(B,home.bn);
     B.classList.remove("open");$("filtBtn").setAttribute("aria-expanded","false");$("rdFs").hidden=true;document.body.classList.remove("locked");if(go)rdGoDeals(true)};
+  // Oct 22 (Bastien OK'd): phones drop the bar that followed the scroll (it repeated "Men's 11" and cost a row); Filters lives
+  // inside the header search box instead, always one tap away at no height
+  $("hSearch").insertAdjacentHTML("beforeend",`<button type="button" class="hfilt" id="hFilt"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg><i class="n" id="hFiltN"></i></button>`);
+  $("hFilt").addEventListener("click",()=>fsOpen("header"));
   $("rdBarF").addEventListener("click",()=>fsOpen("bar"));$("rdBarZ").addEventListener("click",editSizes);
   // Oct 22 (Bastien: "the search should be where it used to live, between the logo and the heart"): phones put the search box in
   // the header (always on screen, first thing seen; the hero shrinks to the headline + size/Filters); computers keep it in the hero
   const placeSearch=()=>{const ph=innerWidth<760,inp=$("dSearch");document.body.classList.toggle("rdhs",ph);
-    if(ph&&inp.parentNode!==$("hSearch"))$("hSearch").appendChild(inp);else if(!ph&&inp.parentNode!==$("rdSearch"))$("rdSearch").prepend(inp);
-    inp.placeholder=ph?t("searchShort"):innerWidth<560?t("rd").phS:t("rd").ph};
+    if(ph&&inp.parentNode!==$("hSearch"))$("hSearch").prepend(inp);else if(!ph&&inp.parentNode!==$("rdSearch"))$("rdSearch").prepend(inp);
+    inp.placeholder=ph?(innerWidth<360&&LANG!=="fr"?"Search":t("searchShort")):innerWidth<560?t("rd").phS:t("rd").ph};
   placeSearch();addEventListener("resize",placeSearch);
   $("dSearch").addEventListener("keydown",e=>{if(e.key==="Enter"&&document.body.classList.contains("rdhs")){e.preventDefault();$("dSearch").blur();clearTimeout(searchT);view.q=$("dSearch").value;view.open={};renderAll();rdGoDeals(true)}});$("rdQF").addEventListener("click",()=>fsOpen("hero"));$("rdQS").addEventListener("click",editSizes);$("rdFsX").addEventListener("click",()=>fsClose(false));$("rdFsGo").addEventListener("click",()=>fsClose(true));
   $("rdFs").addEventListener("click",e=>{if(e.target===$("rdFs"))fsClose(false)});document.addEventListener("keydown",e=>{if(e.key==="Escape")fsClose(false)});
@@ -1577,10 +1581,10 @@ function rdBuild(){
 }
 function rdFsCount(){const b=$("rdFsGo");if(b)b.textContent=t("rd").showN(num(saleNow))}
 function rdText(){   // words that change with the language
-  const R=t("rd");$("rdBarS").querySelector("span").textContent=R.phS;$("rdBarF").querySelector("span").textContent=R.filters;$("rdQF").querySelector("span").textContent=R.filters;$("rdFsH").textContent=R.filters;document.querySelectorAll(".rdnav [data-rdgo]").forEach(b=>b.textContent=R.nav[b.dataset.rdgo]);
+  const R=t("rd");$("rdBarS").querySelector("span").textContent=R.phS;$("rdBarF").querySelector("span").textContent=R.filters;$("rdQF").querySelector("span").textContent=R.filters;$("rdFsH").textContent=R.filters;$("hFilt").setAttribute("aria-label",R.filters);document.querySelectorAll(".rdnav [data-rdgo]").forEach(b=>b.textContent=R.nav[b.dataset.rdgo]);
   $("rnRaces").textContent=R.nav.races;$("rnShoes").textContent=R.nav.shoePrices;
   $("rdLang").innerHTML=`${LANG==="fr"?"FR":"EN"}${RDI.chev}`;$("rdLang").setAttribute("aria-label",LANG==="fr"?"English":"Français");
-  $("rdMy").textContent=R.mySizes;$("rdGo").querySelector("span").textContent=R.go;$("dSearch").placeholder=innerWidth<760?t("searchShort"):innerWidth<560?R.phS:R.ph;
+  $("rdMy").textContent=R.mySizes;$("rdGo").querySelector("span").textContent=R.go;$("dSearch").placeholder=innerWidth<760?(innerWidth<360&&LANG!=="fr"?"Search":t("searchShort")):innerWidth<560?R.phS:R.ph;
   $("ddSale").parentNode.querySelector(".tl").textContent=R.sale;
   $("filtBtn").querySelector("[data-i18n]").textContent=R.more}
 function rdCat(k){const gs=RD_TILES[k].filter(g=>!(g==="bras"&&state.gender==="men"));
@@ -1616,7 +1620,7 @@ function rdUpdate(all,p){   // hero, dropdowns, tiles, why: from today's data, e
   else $("rdHp").innerHTML="";
   $("rdWhy").innerHTML=`<h2>${esc(R.whyH)}</h2><div class="wl">${R.why.map(([h,b],i)=>`<div class="wi"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${RDI.why[i]}</svg><div><b>${esc(h)}</b><p>${esc(b(n))}</p></div></div>`).join("")}</div>`;
   document.documentElement.classList.toggle("rdw",!!view.watch);document.documentElement.classList.toggle("rdsized",hasSizes());
-  const nf=[view_rd.brand,view_rd.max,view.store,state.groups.length===1,view.fullPrice,state.ships==="all",view.cdn,view.sort!=="match"].filter(Boolean).length;$("rdBarN").textContent=$("rdQFN").textContent=nf||"";
+  const nf=[view_rd.brand,view_rd.max,view.store,state.groups.length===1,view.fullPrice,state.ships==="all",view.cdn,view.sort!=="match"].filter(Boolean).length;$("rdBarN").textContent=$("rdQFN").textContent=$("hFiltN").textContent=nf||"";
 }
 function rdLim(top){const c=innerWidth>=1000?5:innerWidth>=700?3:2;return c*(top?2:c===2?2:1)}   // full rows only: 2 rows of Top deals, 1 row (phones 2) per category
 /* the first rows of "Today's top deals" (Bastien OK'd, Oct 21): known running gear first. A shoe = a model with its own price page

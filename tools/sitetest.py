@@ -947,8 +947,9 @@ def site_flow(base, per, accented):
             hit = q.evaluate("() => {const e=document.elementFromPoint(160,320);return e&&e.closest('#rdFs')?'panel':'page'}")
             q.evaluate("() => scrollTo(0, 1400)")
             q.wait_for_timeout(400)
-            bar = q.evaluate("() => document.documentElement.classList.contains('rdpast') && getComputedStyle(document.getElementById('rdBar')).display !== 'none'")
-            q.click("#rdBarF")
+            # Oct 22 (Bastien OK'd): no bar following the scroll on phones; Filters is in the header search box, on screen anywhere
+            bar = q.evaluate("() => getComputedStyle(document.getElementById('rdBar')).display === 'none' && (r => r.width > 0 && r.top >= 0 && r.bottom < 80)(document.getElementById('hFilt').getBoundingClientRect())")
+            q.click("#hFilt")
             q.wait_for_selector("#rdFs:not([hidden]) #ddBrand", timeout=5000)
             brand = q.evaluate("() => {const s=document.getElementById('ddBrand');return s.options.length>1?s.options[1].value:''}")
             q.select_option("#ddBrand", brand)
@@ -972,7 +973,7 @@ def site_flow(base, per, accented):
             assert not back[0] and back[1] >= 4, f"'× All categories' didn't bring every category back: {back}"
             assert hit == "page", "the closed filter panel covers the page (taps don't reach it)"
             assert cols == 1, f"small phone: {cols} deals per row (want 1)"
-            assert bar, "the search + Filters bar didn't stay at the top after scrolling"
+            assert bar, "after scrolling: the old bar still shows, or the header's Filters button isn't on screen"
             assert after["closed"] and after["back"], f"the filter panel didn't close or the filters didn't go back to the top: {after}"
             assert brand and after["brands"] == [brand], f"brand '{brand}' picked in the panel, deals show {after['brands'][:5]}"
             assert not after["wide"], "page wider than a 320px phone"
