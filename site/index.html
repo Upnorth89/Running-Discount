@@ -1531,6 +1531,8 @@ function rdBuild(){
     <div class="rdhp" id="rdHp"></div></section>
     <div class="rdtiles" id="rdTiles"></div>`);
   $("rdSearch").prepend($("dSearch"));
+  // phones (Oct 22, Bastien OK'd): your size + one Filters button under the search; the five boxes live in the Filters panel
+  $("rdSearch").insertAdjacentHTML("afterend",`<div class="rdqf"><button type="button" class="dd" id="rdQS"><span></span>${RDI.chev}</button><button type="button" class="rdqfb" id="rdQF"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg><span></span><i class="n" id="rdQFN"></i></button></div>`);
   $("rdFilters").append($("filtBtn"));
   const wy=document.createElement("section");wy.className="rdwhy";wy.id="rdWhy";$("dealsFoot").before(wy);
   // phones (Oct 21, Bastien: "make it more user friendly for mobile"): once the hero's search scrolls away, a slim bar under the
@@ -1543,7 +1545,7 @@ function rdBuild(){
     $("rdFsB").append(F,B);B.classList.add("open");$("filtBtn").setAttribute("aria-expanded","true");$("rdFs").hidden=false;document.body.classList.add("locked");rdFsCount();ana("filter","sheet|"+from);$("rdFsX").focus()};
   const fsClose=go=>{if($("rdFs").hidden)return;const F=$("rdFilters"),B=$("filtersBox");home.f.insertBefore(F,home.fn);home.b.insertBefore(B,home.bn);
     B.classList.remove("open");$("filtBtn").setAttribute("aria-expanded","false");$("rdFs").hidden=true;document.body.classList.remove("locked");if(go)rdGoDeals(true)};
-  $("rdBarF").addEventListener("click",()=>fsOpen("bar"));$("rdFsX").addEventListener("click",()=>fsClose(false));$("rdFsGo").addEventListener("click",()=>fsClose(true));
+  $("rdBarF").addEventListener("click",()=>fsOpen("bar"));$("rdQF").addEventListener("click",()=>fsOpen("hero"));$("rdQS").addEventListener("click",editSizes);$("rdFsX").addEventListener("click",()=>fsClose(false));$("rdFsGo").addEventListener("click",()=>fsClose(true));
   $("rdFs").addEventListener("click",e=>{if(e.target===$("rdFs"))fsClose(false)});document.addEventListener("keydown",e=>{if(e.key==="Escape")fsClose(false)});
   $("rdBarS").addEventListener("click",()=>{scrollTo({top:0,behavior:"smooth"});setTimeout(()=>$("dSearch").focus(),350)});
   const past=()=>{const r=$("rdSearch").getBoundingClientRect(),on=innerWidth<760&&r.bottom<($("rdBar").parentNode.offsetHeight||60)&&!view.watch;
@@ -1571,7 +1573,7 @@ function rdBuild(){
 }
 function rdFsCount(){const b=$("rdFsGo");if(b)b.textContent=t("rd").showN(num(saleNow))}
 function rdText(){   // words that change with the language
-  const R=t("rd");$("rdBarS").querySelector("span").textContent=R.phS;$("rdBarF").querySelector("span").textContent=R.filters;$("rdFsH").textContent=R.filters;document.querySelectorAll(".rdnav [data-rdgo]").forEach(b=>b.textContent=R.nav[b.dataset.rdgo]);
+  const R=t("rd");$("rdBarS").querySelector("span").textContent=R.phS;$("rdBarF").querySelector("span").textContent=R.filters;$("rdQF").querySelector("span").textContent=R.filters;$("rdFsH").textContent=R.filters;document.querySelectorAll(".rdnav [data-rdgo]").forEach(b=>b.textContent=R.nav[b.dataset.rdgo]);
   $("rnRaces").textContent=R.nav.races;$("rnShoes").textContent=R.nav.shoePrices;
   $("rdLang").innerHTML=`${LANG==="fr"?"FR":"EN"}${RDI.chev}`;$("rdLang").setAttribute("aria-label",LANG==="fr"?"English":"Français");
   $("rdMy").textContent=R.mySizes;$("rdGo").querySelector("span").textContent=R.go;$("dSearch").placeholder=innerWidth<380?t("searchShort"):innerWidth<560?R.phS:R.ph;
@@ -1587,7 +1589,7 @@ function rdUpdate(all,p){   // hero, dropdowns, tiles, why: from today's data, e
   const h=hasSizes()&&saleNow?R.h1n(num(saleNow)):R.h1;$("rdH1").innerHTML=`${esc(h[0])}<br>${esc(h[1])}<em>${esc(h[2])}</em>`;
   $("rdSub").textContent=R.sub(n);
   const sz=hasSizes()?({men:t("men"),women:t("women"),any:t("menWomen")}[state.gender]+" "+(state.shoe.length?state.shoe.slice(0,2).join(", "):state.cloth.join(", "))).trim():R.size;
-  $("ddSize").querySelector("span").textContent=(US()||LANG!=="fr"?"US ":"")+sz;
+  $("ddSize").querySelector("span").textContent=(US()||LANG!=="fr"?"US ":"")+sz;$("rdQS").querySelector("span").textContent=$("ddSize").querySelector("span").textContent;
   const one=state.groups.length===1?state.groups[0]:"";
   $("ddCat").innerHTML=`<option value="">${esc(R.cat)}</option>`+ORDER.filter(g=>!(g==="bras"&&state.gender==="men")).map(g=>`<option value="${g}"${g===one?" selected":""}>${esc(GL(g))}</option>`).join("");
   const bc={};all.filter(d=>d.pct>0).forEach(d=>{bc[d.b]=(bc[d.b]||0)+1});const bl=Object.entries(bc).sort((a,b)=>b[1]-a[1]).slice(0,80);
@@ -1608,7 +1610,7 @@ function rdUpdate(all,p){   // hero, dropdowns, tiles, why: from today's data, e
   else $("rdHp").innerHTML="";
   $("rdWhy").innerHTML=`<h2>${esc(R.whyH)}</h2><div class="wl">${R.why.map(([h,b],i)=>`<div class="wi"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${RDI.why[i]}</svg><div><b>${esc(h)}</b><p>${esc(b(n))}</p></div></div>`).join("")}</div>`;
   document.documentElement.classList.toggle("rdw",!!view.watch);document.documentElement.classList.toggle("rdsized",hasSizes());
-  const nf=[view_rd.brand,view_rd.max,view.store,state.groups.length===1,view.fullPrice,state.ships==="all",view.cdn,view.sort!=="match"].filter(Boolean).length;$("rdBarN").textContent=nf||"";
+  const nf=[view_rd.brand,view_rd.max,view.store,state.groups.length===1,view.fullPrice,state.ships==="all",view.cdn,view.sort!=="match"].filter(Boolean).length;$("rdBarN").textContent=$("rdQFN").textContent=nf||"";
 }
 function rdLim(top){const c=innerWidth>=1000?5:innerWidth>=700?3:2;return c*(top?2:c===2?2:1)}   // full rows only: 2 rows of Top deals, 1 row (phones 2) per category
 /* the first rows of "Today's top deals" (Bastien OK'd, Oct 21): known running gear first. A shoe = a model with its own price page
@@ -1618,7 +1620,7 @@ function rdBrandStores(){if(RDBS.n===ITEMS.length)return RDBS.m;const m={};
   for(const d of ITEMS){const s=m[d.b]||(m[d.b]=new Set());(d.of||[]).forEach(u=>s.add(storeOf(u)))}
   RDBS={n:ITEMS.length,m};return m}
 function rdKnownFirst(list,mix=true){const bs=rdBrandStores();
-  const known=d=>d.g==="shoes"?!!shoePage(d):(bs[d.b]&&bs[d.b].size>=4);
+  const known=d=>d.best>=15&&(d.g==="shoes"?!!shoePage(d):(bs[d.b]&&bs[d.b].size>=4));   // Oct 22: under $15 never leads (a $3 headband was #2)
   const head=list.slice(0,200),a=head.filter(known),b=head.filter(d=>!known(d));
   return (mix?shoesFirst(a):a).concat(b,list.slice(200))}
 function rdFilter(all){if(view_rd.brand)all=all.filter(d=>d.b===view_rd.brand);if(view_rd.max)all=all.filter(d=>rdDisp(d)<=view_rd.max+0.001);return all}
@@ -1641,7 +1643,7 @@ function rdCard(d,extra,real){
     ${from||d.fin?`<div class="store2">${from?`<span class="abroad">${t("shipsFrom",from)}</span>`:""}${from&&d.fin?" · ":""}${d.fin?`<span class="fin" title="${esc(t("finalSaleTip"))}">${t("finalSale")}</span>`:""}</div>`:""}
     ${sized&&real.length?sizeRow(d,real):""}
     ${d.bb?`<div class="warn">${t("bestBy",esc(d.bb))}</div>`:""}
-  </a>${sp?`<a class="cmp" href="${shoeUrl(sp.slug)}" data-sp="card">${esc(R.cmp)}</a>`:""}<button type="button" class="rep" data-rep="${esc(k)}"><span class="rl">${t("report")}</span><span class="rs">${t("reportShort")}</span></button>${heartBtn(k,on,d)}</div>`}
+  </a>${sp?`<a class="cmp" href="${shoeUrl(sp.slug)}" data-sp="card">${esc(R.cmp)}</a>`:""}<button type="button" class="rep rdrep" data-rep="${esc(k)}" aria-label="${esc(t("report"))}" title="${esc(t("report"))}"><span aria-hidden="true">⋯</span></button>${heartBtn(k,on,d)}</div>`}
 if(LOOK_B)rdBuild();
 
 function setTb(){const tb=document.querySelector(".topbar");if(tb)document.documentElement.style.setProperty("--tb",tb.offsetHeight+"px")}

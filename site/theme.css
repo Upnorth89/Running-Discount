@@ -458,3 +458,24 @@ html.rd,html:root.rd{color-scheme:light;
 @media(max-width:759px){.rd .rdtile .tp{aspect-ratio:4/3;margin:5px 5px 0}.rd .rdtile .tt b{font-size:13.5px}.rd .rdtiles{gap:8px}}
 @media(max-width:379px){.rd .rdtile .tt b{font-size:12.5px}}
 @media(max-width:759px){.rd .rdtile .tt b{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.15}}   /* "Gear & Watches" on two lines, never cut */
+
+/* ===== Phone pass (Oct 22, Bastien OK'd) ===== */
+/* orange only for "you" and "act" (your size, main buttons, the headline accent): prices in bold charcoal, easiest to read;
+   the discount badge stays green. The isolation effect: a colour only draws the eye when it's rare. */
+html.rd,html:root.rd{--price:#17232B}
+/* phones: your size + one Filters button under the search; the five boxes are in the Filters panel */
+.rdqf{display:none}
+@media(max-width:759px){
+  .rd .rdhero #rdFilters{display:none}
+  .rd .rdqf{display:flex;gap:8px;margin-top:10px}
+  .rd .rdqf .dd{flex:1;min-width:0;justify-content:space-between;min-height:44px;font:500 15px var(--body)}
+  .rd .rdqf .dd span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rd .rdqfb{flex:none;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border:0;border-radius:8px;background:var(--char);color:#fff;font:600 15px var(--body);cursor:pointer}
+  .rd .rdqfb .n{font-style:normal;min-width:20px;height:20px;border-radius:10px;background:var(--hivis);color:var(--hivis-ink);font:700 12px/20px var(--body);text-align:center;padding:0 5px}
+  .rd .rdqfb .n:empty{display:none}
+}
+/* "Wrong price or size?" behind a small ⋯ at the card's bottom right (the reasons open as before) */
+.rd .rdc .rdrep{left:auto;right:6px;bottom:4px;width:40px;height:32px;padding:0;display:flex;align-items:center;justify-content:center;text-decoration:none;font:700 20px/1 var(--body);color:var(--muted);border-radius:6px;letter-spacing:1px}
+.rd .rdc .rdrep:hover{background:rgba(23,35,43,.06);color:var(--ink)}
+.rd .rdc .deal,.rd .compact .rdc .deal{padding-bottom:36px}
+.rd .rdc:not(.hascmp) .deal{padding-bottom:30px}
