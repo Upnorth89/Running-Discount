@@ -114,14 +114,15 @@ input,select,textarea{border-radius:var(--r)}
    white, forest green #25483D, light grey #E7E9E6. Barlow Condensed Bold headings, Inter body and prices.
    Orange text is only big and bold (prices 22px+, 3.1:1 = large text); small orange text uses --moss (5.1:1);
    orange buttons have white 16px bold text in the rendering: we keep charcoal text on them (5.6:1, readable for everyone). ===== */
-html.rd{
+/* light only, like the rendering (Oct 22): a phone in dark mode still gets the light page. html:root.rd outranks the dark-mode
+   colours in index.html and at the top of this file (NN/g: light pages read better in normal light; store photos are on white) */
+html.rd,html:root.rd{color-scheme:light;
+  --err:#B3261E;--scrim:rgba(23,32,28,.55);--band-ink:#FFFFFF;--band-muted:#C9D1CC;--snack:#17201C;--snack-ink:#FFFFFF;--lo-bg:#E2F2E6;--lo-ink:#1C6B37;--hivis-ink:#17232B;--tile:#F3F3F3;
   --ink:#17232B;--muted:#5E6870;--mist:#FDFCF9;--cream:#F6F3EC;--card:#FFFFFF;--line:#E7E9E6;--edge:#D5D8D4;
   --moss:#C24400;--link:#17232B;--hivis:#FF5A00;--hivis-ink:#17232B;--forest:#25483D;--ok:#1F7A3A;--char:#17232B;--price:#FF5A00;
   --body:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--display:"Barlow Condensed","Arial Narrow",Impact,sans-serif;
   --hand:"Caveat","Segoe Print","Bradley Hand",cursive;--r:8px;
 }
-@media (prefers-color-scheme:dark){html.rd:not([data-theme="light"]){--ink:#ECEEEA;--muted:#A6B0B6;--mist:#0F171C;--cream:#131D23;--card:#17232B;--line:#26343D;--edge:#3A4852;--moss:#FF8A4C;--link:#ECEEEA;--char:#0A1115;--forest:#2F5E50;--ok:#5FD08A;--price:#FF7A33}}
-html.rd[data-theme="dark"]{--ink:#ECEEEA;--muted:#A6B0B6;--mist:#0F171C;--cream:#131D23;--card:#17232B;--line:#26343D;--edge:#3A4852;--moss:#FF8A4C;--link:#ECEEEA;--char:#0A1115;--forest:#2F5E50;--ok:#5FD08A;--price:#FF7A33}
 .rd body{background:var(--mist);font-family:var(--body);font-size:15px}
 .rd h1,.rd h2,.rd h3{font-family:var(--display);font-weight:700;letter-spacing:0}
 
@@ -456,5 +457,4 @@ html.rd[data-theme="dark"]{--ink:#ECEEEA;--muted:#A6B0B6;--mist:#0F171C;--cream:
 .rd .rdtile .tt b{font-family:var(--body);font-weight:600;font-size:15px}
 @media(max-width:759px){.rd .rdtile .tp{aspect-ratio:4/3;margin:5px 5px 0}.rd .rdtile .tt b{font-size:13.5px}.rd .rdtiles{gap:8px}}
 @media(max-width:379px){.rd .rdtile .tt b{font-size:12.5px}}
-@media (prefers-color-scheme:dark){html.rd:not([data-theme="light"]) .rdtile .tp,html.rd:not([data-theme="light"]) .wcat .wcp{background:#F7F5F0}}
 @media(max-width:759px){.rd .rdtile .tt b{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.15}}   /* "Gear & Watches" on two lines, never cut */
