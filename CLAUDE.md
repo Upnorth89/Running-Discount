@@ -6,6 +6,9 @@ Bastien (Montréal / Vancouver, ultrarunner; "runner from Montréal and Vancouve
 plus price-drop alerts on items they heart. Goal: $500–1,000/month by March 2027 from affiliate links,
 then a paid tier (Fox Pro). The 6-month plan with weekly tasks:
 https://claude.ai/code/artifact/36e1d545-7390-44fe-b080-80f03465af61
+**Decisions log: `docs/decisions.md`** (Oct 22, Bastien: "file these changes and attempts somewhere with the data"): every
+idea tried, its numbers and the decision (kept / removed / parked / declined). Read it before building an idea; add a row after
+every decision or ended test.
 That plan (a Claude Docs doc) also holds the Fox Pro free/paid table, the Press pitch (EN/FR + outlets) and the
 **Ideas backlog** (Now / Next / Later / Parked): add every new idea there and move rows as decisions change.
 **Keep the plan current (Bastien, Oct 8: "always update the 6 month goal as we move forward")**: after anything ships or a
@@ -646,7 +649,7 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
 - Sign-up spots (Oct 8, from the funnel: 3% of first visitors signed up; 209 Google visitors on shoe pages had no way to sign up):
   shoe pages' "Email me when the X drops in my size" box (`#alertBox`, shoe_pages.py; needs a size from rd-profile or the picker;
   posts `subscribe` itself, puts the shoe in gf-watch) and the homepage come-back bar's sign-up offer (`offerSignup()`: non-members,
-  first return per visit; the store offer waits for the next return). Hearts picked before signing up ride in the profile as
+  first return per visit; the store offer waits for the next return). REMOVED Oct 22 (612 shown, 264 closed, 0 sign-ups; docs/decisions.md). Hearts picked before signing up ride in the profile as
   `watch_new` and come back with the confirm link on any device. Site tests "Sign-up bar after a deal click", "Shoe page: email me…".
   Oct 11 (Bastien: "optimize to have retention, not just a pathway to another website"; 45% of first visits land on shoe pages, 8 of
   1,160 signed up): shoe pages show a bottom bar "Didn't buy it? We'll email you when the X drops in your size" when the visitor comes
@@ -655,7 +658,7 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   Site tests "Shoe page: 'Didn't buy it?' bar", "Black Friday page: sign up right here".
   Oct 11 batch 2 (retention numbers: 11% of new visitors came back, watchers/members ~2x; 52% of sign-ups confirmed; the
   Friday email brought 7 visits): cards' heart is a "♡ Watch price" / « Suivre le prix » pill ("Watching"/« Suivi »; `setHearts()`);
-  back from a store, `offerWatch()` shows a light card "Didn't buy it?" (photo, name, price, "♡ Watch price"; once per item per visit,
+  back from a store, `offerWatch()` showed a light card "Didn't buy it?" (REMOVED Oct 22: 382 shown, 0 sign-ups) (photo, name, price, "♡ Watch price"; once per item per visit,
   before the sign-up/store offers; lastShop.k = the card's itemKey); tapping it watches quietly (`toggleWatch(k,true)`) and non-members
   get `offerSignup(true)` ("Want an email when it drops?", shown even after No thanks). Bars `.bwbar`/`.subar` are light cards (Bastien:
   the dark bar was "hard to read"). "Check your inbox" (card + bar) has `mailBtn()` "Open Gmail/Outlook/Yahoo Mail/iCloud Mail/Proton
