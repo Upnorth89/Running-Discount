@@ -1199,6 +1199,72 @@ def site_flow(base, per, accented):
             return f"{len(rows)} top deals from {len(per)} stores, max {max(per.values())} per store"
         check("Test 'run1st': running gear first, max 2 per store")(run1st, pg)
 
+        def every_button():     # Oct 22 (Bastien: "The view all brands button doesn't lead anywhere. How did you miss this"): every button and
+            # link on the homepage's own sections is pressed once on a phone, and each must give ITS result (a first version only checked that
+            # "something changed" and passed the broken button, because the page changes on its own as it loads)
+            c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+            stub(c)
+            c.add_init_script("""try{localStorage.setItem('gf-peek','1');localStorage.setItem('gf-nosignup','1');localStorage.setItem('rd-profile',JSON.stringify({gender:'men',terrain:'both',ships:'ca',country:'ca',groups:['shoes','tops','bottoms','socks','gloves','headwear','packs','gear','watches','nutrition'],sizes:{shoes:{sizes:['10'],width:[]},tops:{sizes:['M']},bottoms:{sizes:['M']}},brands:[],lang:'en'}))}catch(e){}""")
+            q = c.new_page()
+            q.route(re.compile(r"^https?://(?!127\.0\.0\.1|localhost)"), lambda r: r.abort() if r.request.resource_type == "document" else r.continue_())
+            first_more = "section.grp:not(#grp-__sale):not(.new) button.more"
+            targets = [   # (name, what to press, what must be true after, a number that must grow)
+                ("View all brands", "[data-rdbrands]", "() => document.querySelectorAll('.rdball .ba').length > 8", None),
+                ("a brand tile", ".rdbrands .bt", "() => new Set([...document.querySelectorAll('#dealList .rdc .brand')].map(x => x.textContent)).size === 1", None),
+                ("a category circle", ".rdtile", "() => !!document.querySelector('.rdcatbar')", None),
+                ("the size button", "#rdQS", "() => { const s = document.getElementById('sheet'); return !!s && !s.classList.contains('hidden') }", None),
+                ("Filters", "#hFilt", "() => !document.getElementById('rdFs').hidden", None),
+                ("the menu", "#menuBtn", "() => { const m = document.getElementById('menu'); return !!m && !m.hidden }", None),
+                ("View all deals", "#grp-__sale .rdmore", None, "() => document.querySelectorAll('#grp-__sale .rdc').length"),
+                ("Show more", first_more, None, "() => document.querySelectorAll('section.grp:not(#grp-__sale):not(.new) .rdc').length"),
+                ("Top drop", "#hook a", "TAB", None)]
+            dead, done = [], []
+            for name, sel, want, grow in targets:
+                q.goto(base, wait_until="domcontentloaded")
+                q.wait_for_selector("#dealList .rdc", timeout=30000)
+                q.wait_for_timeout(600)
+                el = q.locator(sel).first
+                if not el.count() or not el.is_visible():
+                    continue
+                el.scroll_into_view_if_needed()
+                n0 = q.evaluate(grow) if grow else 0
+                if want == "TAB":   # a link out: it must point to a real page and open in a new tab (a click can land on the sticky header)
+                    ok = el.evaluate("a => /^https?:/.test(a.href) && !/^https?:\\/\\/[^\\/]+\\/?#?$/.test(a.href) && a.target === '_blank'")
+                    (done if ok else dead).append(name)
+                    continue
+                el.click()
+                q.wait_for_timeout(900)
+                ok = q.evaluate(want) if want else q.evaluate(grow) > n0
+                (done if ok else dead).append(name)
+            c.close()
+            assert not dead, f"pressing these doesn't do what it says: {', '.join(dead)}"
+            return f"{len(done)} buttons each do their job: {', '.join(done)}"
+        check("Homepage: every button does something")(every_button, pg)
+
+        def brands_all():       # Oct 22: "View all brands" opens an A-Z list; finding and tapping a brand shows only its deals
+            c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+            stub(c)
+            c.add_init_script("""try{localStorage.setItem('gf-peek','1');localStorage.setItem('gf-nosignup','1');localStorage.setItem('rd-profile',JSON.stringify({gender:'men',terrain:'both',ships:'ca',country:'ca',groups:['shoes','tops','bottoms','socks','gloves','headwear','packs','gear','watches','nutrition'],sizes:{shoes:{sizes:['10'],width:[]},tops:{sizes:['M']},bottoms:{sizes:['M']}},brands:[],lang:'en'}))}catch(e){}""")
+            q = c.new_page()
+            q.goto(base, wait_until="domcontentloaded")
+            q.wait_for_selector(".rdbrands", timeout=30000)
+            q.click("[data-rdbrands]")
+            q.wait_for_selector(".rdball .ba", timeout=5000)
+            names = q.eval_on_selector_all(".rdball .ba span", "e => e.map(x => x.textContent)")
+            pick = names[len(names) // 2]
+            q.fill("#rdBQ", pick)
+            q.wait_for_timeout(300)
+            shown = q.eval_on_selector_all(".rdball .ba:not([hidden]) span", "e => e.map(x => x.textContent)")
+            q.locator(".rdball .ba:not([hidden])").first.click()
+            q.wait_for_timeout(1200)
+            got = q.eval_on_selector_all("#dealList .rdc .brand", "e => [...new Set(e.map(x => x.textContent))]")
+            c.close()
+            assert len(names) > 8 and all(n.strip() for n in names), f"the brand list has {len(names)} names (or an empty one)"
+            assert pick in shown, f"finding '{pick}' doesn't show it"
+            assert got and all(g == shown[0] for g in got), f"tapping {shown[0]} shows deals from {got[:4]}"
+            return f"{len(names)} brands A-Z; '{pick}' found and tapped: only its deals"
+        check("Shop by brand: View all brands, find, tap")(brands_all, pg)
+
         def shoe_backbar():     # Oct 11: back on a shoe page from a store, a non-member gets "Didn't buy it?" + email
             pg.evaluate("localStorage.removeItem('gf-sub');localStorage.removeItem('gf-backno');sessionStorage.removeItem('gf-backshown')")
             pg.reload(wait_until="domcontentloaded")

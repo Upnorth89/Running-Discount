@@ -230,6 +230,9 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   go after running gear and one store fills at most 2 of the first 12 Top deals; metric = homepage first visits that click a deal
   (35%), ~580 per group, decide ~Nov 9. Every non-homepage page uses the homepage's light look (theme.css `html:root:not(.rd)`, light
   even in dark mode, charcoal header, logo-mark-dark.svg); the store bar stays dark on purpose (contrast, Bastien Oct 22).
+  Oct 22 (Bastien: "The view all brands button doesn't lead anywhere. How did you miss this"): it opened the brand menu, which phones hide.
+  Now "View all brands" opens an A-Z list with "Find a brand" under the 8 tiles. Site test "Homepage: every button does something" presses
+  every homepage button and checks ITS result (proved: it fails on the old live page); add each new button to its list.
   Parked: test 'card' (cleaner deal cards, ⋯ menu; commit 629e4d1, backlog). Site tests check each one. Correlations from the "RETENTION DRIVERS" lines are leads, never proof
   (Oct 17: "watchers come back 33%" was 9 devices).
 - **Own the design and product calls (Bastien, Oct 17: "You're supposed to optimize this to make it look the best and cleanest...

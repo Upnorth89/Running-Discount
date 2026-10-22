@@ -4034,6 +4034,14 @@ def merge(offers):
             o["b"] = "rabbit"          # its own shop sometimes puts a product name in the brand ("EZ tee LS - women's")
         if (o["b"] or "").lower() == "precision" and o["n"].lower().startswith("fuel and hydration"):
             o["n"] = o["n"][18:].lstrip(" -") or o["n"]   # Capra: "Precision" + "Fuel and Hydration - PF30 Gels"
+        # Oct 22 (the new A-Z brand list showed "Nathan Pinnacle 12" as a brand and one with no brand): Running Room's feed sometimes puts
+        # the model in the brand ("Nathan Pinnacle 12" + "Hydration Pack") and leaves its own merch without one ("Canada Hat 2019")
+        m = re.match(r"^(nathan|salomon|camelbak|osprey|ultimate direction|petzl|black diamond|hoka|brooks|asics|saucony|new balance|garmin|coros)\s+(.*\d.*)$",
+                     (o["b"] or "").strip(), re.I)
+        if m:
+            o["b"], o["n"] = m.group(1), f"{m.group(2)} {o['n']}".strip()
+        if not (o["b"] or "").strip() and o.get("st") == "runningroom":
+            o["b"] = "Running Room"
         o["b"] = tidy_brand(o["b"])
         o["n"] = tidy_name(o["b"], o["n"])
         if o["g"] in ("shoes", "tops", "bottoms", "bras", "socks"):

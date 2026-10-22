@@ -613,3 +613,16 @@ html:not(.rd) .top .menu summary{color:#fff;border-color:rgba(255,255,255,.3)}
 html:not(.rd) .top .menu[open] summary{background:rgba(255,255,255,.16);color:#fff;border-color:transparent}
 /* Oct 22: French prices ("202,96 $ 290,00 $ −30%") made the size tables wider than a phone; on phones the old price goes under */
 @media(max-width:480px){td.p b{display:block}td.p s{margin-left:0}}
+/* Oct 22 (Bastien: "The view all brands button doesn't lead anywhere"): "View all brands" opens an A-Z list with a find box;
+   long names in the 8 big tiles get a smaller size so "NNORMAL" and "SMARTWOOL" fit */
+.rd .rdbrands .bt.ln b{font-size:15px}
+@media(max-width:559px){.rd .rdbrands .bt.ln b{font-size:12.5px}}
+.rd .rdball{margin-top:14px;display:grid;gap:10px}
+.rd .rdball .bq{width:100%;min-height:44px;border:1px solid var(--edge);border-radius:var(--r);padding:0 14px;font:16px var(--body);background:var(--card);color:var(--ink)}
+.rd .rdball .bnone{margin:0;color:var(--muted)}
+.rd .rdball .bal{columns:2;column-gap:20px}
+@media(min-width:760px){.rd .rdball .bal{columns:4}}
+.rd .rdball .ba{display:flex;width:100%;justify-content:space-between;align-items:baseline;gap:8px;break-inside:avoid;min-height:40px;padding:8px 2px;background:none;border:0;border-bottom:1px solid var(--line);color:var(--ink);font:500 15px var(--body);text-align:left;cursor:pointer}
+.rd .rdball .ba[hidden]{display:none}
+.rd .rdball .ba small{color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+.rd .rdball .ba:hover span{text-decoration:underline}
