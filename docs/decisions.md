@@ -34,6 +34,11 @@ Newest first. "Revisit" says when (or what would make us) look again.
 | Category tile pictures: today's real deals | Tried, **dropped** (Bastien, Oct 22: "looks pretty bad since all are different") | Every store shoots differently: angles, crops and backgrounds clashed side by side |
 | Category pictures: one store's photos, fixed | **Used** (Oct 22) | Six Altitude Sports studio shots (shoe, jacket, vest, gloves, gel, headlamp), cropped square on white, kept in site/img/cat (sources in SOURCES.json) until we decide to change them |
 | Category tiles as small circles | **Used** (Bastien's idea, Oct 22) | One row instead of a 3 x 2 grid: about a third of the height, so deals move up; phones swipe the row (names never touch) |
+| Category circle tapped | **Shows only that category** + a "× All categories" bar (Oct 22) | Baymard: a category narrows the list; a jump inside one long page loses people. Tapping the circle again also resets |
+| No size picked + Shoes/Apparel circle | **Sizes right in the category box** (Men's/Women's, then one tap on a size) (Oct 22, Bastien: "pick your size ... not obvious") | Not a pop-up (the 'welcome' test showed the size step costs people when forced); size-pickers click stores far more (62% vs 21%) |
+| Search box position | **Hero, full width + a bar that stays on scroll (phones and computers)** (Oct 22) | In the header it was small and squeezed the logo; Baymard: an open search box beats an icon |
+| Size shown under the search ("Men's 11 · M") | **Kept**; header "My sizes" removed on phones (Oct 22) | It says what the deals are filtered by (Baymard: show applied filters); the header button did the same thing twice |
+| Shop by brand position | **After the deals** (Oct 22) | Between Top deals and the categories it interrupted the deals |
 | Prices in orange | **Changed to charcoal** (Oct 22) | Orange on everything = nothing stands out (isolation effect); orange text is 3.1:1 on white vs ~15:1 for charcoal. Orange kept for your size, main buttons, the headline accent |
 | Sticky search + Filters bar and a Filters panel on phones (from ChatGPT's review) | Built | Baymard: keep filtering within reach on long mobile lists |
 | One deal per row on small phones (< 380px) | Built | Two columns were cramped at 320px (names cut, "In stock" squeezed) |
