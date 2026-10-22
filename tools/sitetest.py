@@ -129,7 +129,7 @@ def stub(ctx):
     ctx.route(re.compile(r"umami|googletagmanager|accounts\.google|gstatic"), lambda r: r.abort())
     ctx.route(re.compile(r"^https?://(?!127\.0\.0\.1).*\.(jpe?g|png|webp|gif|avif)(\?.*)?$", re.I), lambda r: r.abort())
     # A/B tests (Oct 18): the robot is group A unless a check asks otherwise (test "welcome" B skips the welcome screen)
-    ctx.add_init_script("try{if(!localStorage.getItem('gf-exp'))localStorage.setItem('gf-exp',JSON.stringify({welcome:'A',layout:'A',runcard:'A',look:'A'}))}catch(e){}")
+    ctx.add_init_script("try{if(!localStorage.getItem('gf-exp'))localStorage.setItem('gf-exp',JSON.stringify({welcome:'A',layout:'A'}))}catch(e){}")
 
 
 # ---------- what today's data says we should see ----------
@@ -223,8 +223,9 @@ def site_flow(base, per, accented):
             return f"rule ok; {shown} badges on the page today"
         check("Lowest-price badge rule")(low_badge_rule, page)
 
-        def chip(v):
-            page.click(f'#cats .chip[data-v="{v}"]')
+        def chip(v):     # Oct 22: the redesign hides the chip row (circles + the Filters panel instead); the chips still drive the
+            # categories, so the checks press them directly
+            page.evaluate("v => document.querySelector(`#cats .chip[data-v=\"${v}\"]`).click()", v)
             settle(page)
 
         def all_gear():
@@ -393,22 +394,37 @@ def site_flow(base, per, accented):
             all_gear()
             chip("shoes")
             n0 = int(page.inner_text("#grp-shoes h2 small").replace(",", "").replace(" ", "").replace(" ", "") or 0)
-            if not page.locator('#toggles .chip[data-t="sale"]').is_visible():
-                page.click("#filtBtn")
-                settle(page)
+            def open_f():   # Oct 22: the redesign keeps these in its Filters panel (header button on phones)
+                if page.locator('#toggles .chip[data-t="sale"]').is_visible():
+                    return
+                for b in ("#hFilt", "#rdQF", "#rdBarF", "#filtBtn"):
+                    if page.locator(b).is_visible():
+                        page.click(b)
+                        break
+                page.wait_for_selector('#toggles .chip[data-t="sale"]', state="visible", timeout=5000)
+            def close_f():
+                if page.locator("#rdFs:not([hidden])").count():
+                    page.click("#rdFsGo")
+                    settle(page)
+            open_f()
             page.click('#toggles .chip[data-t="sale"]')
             page.wait_for_timeout(2500)                   # loads the full-price list
             n1 = int(page.inner_text("#grp-shoes h2 small").replace(",", "").replace(" ", "").replace(" ", "") or 0)
             assert n1 > n0, f"'Include full price' didn't add shoes ({n0} -> {n1})"
+            open_f()
             page.click('#toggles .chip[data-t="sale"]')
             settle(page)
+            open_f()
             page.select_option("#sort", "price")
             settle(page)
+            close_f()
             ps = [float(re.sub(r"[^\d.]", "", c["price"].replace(",", ".") if "," in c["price"] and "." not in c["price"] else c["price"].replace(",", "")) or 0)
                   for c in cards(page)[:12]]
             assert ps == sorted(ps), f"'Lowest price' isn't in price order ({ps[:6]})"
+            open_f()
             page.select_option("#sort", "match")
             settle(page)
+            close_f()
             return f"full price {n0} -> {n1} shoes"
         check("Filters (full price, sort)")(filters, page)
 
@@ -567,14 +583,15 @@ def site_flow(base, per, accented):
                         const ov = [];
                         for (let i = 0; i < els.length; i++) for (let j = i + 1; j < els.length; j++) {
                             const a = box(els[i]), b = box(els[j]);
-                            if (a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1 && !els[i].contains(els[j]) && !els[j].contains(els[i]))
+                            if (a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1 && !els[i].contains(els[j]) && !els[j].contains(els[i])
+                                && !([els[i].id, els[j].id].includes('hFilt') && [els[i].id, els[j].id].includes('dSearch')))   // the Filters button sits inside the search box on purpose
                                 ov.push((els[i].id || els[i].className) + ' / ' + (els[j].id || els[j].className))}
                         return {ov, wide: document.documentElement.scrollWidth}}""")
                     assert not r["ov"], f"{w}px: {', '.join(r['ov'][:3])} overlap"
                     assert r["wide"] <= w + 1, f"{w}px: the page is {r['wide'] - w}px too wide"
                     hit = page.evaluate("""() => [...document.querySelectorAll('.dw')].filter(d => {const a = d.querySelector('.rep'), h = d.querySelector('.heart');
                         if (!a || !h || !a.offsetParent) return false; const ra = a.getBoundingClientRect(), rh = h.getBoundingClientRect();
-                        return ra.right > rh.left - 2 && ra.bottom > rh.top && ra.top < rh.bottom}).length""")   # Oct 20: "Wrong price or size?" ran into "Watch price"
+                        return ra.left < rh.right + 2 && rh.left < ra.right + 2 && ra.bottom > rh.top && ra.top < rh.bottom}).length""")   # Oct 20: "Wrong price or size?" ran into "Watch price"
                     assert not hit, f"{w}px: on {hit} cards 'Wrong price or size?' runs into 'Watch price'"
                     out.append(f"{w}px ok")
             finally:
@@ -623,7 +640,7 @@ def site_flow(base, per, accented):
             assert sug, "typing 'peg' suggests nothing"
             assert len(sug) <= 6 and all("peg" in x.lower() for x in sug), f"odd suggestions: {sug}"
             return f"'peg' -> {', '.join(sug[:3])}…"
-        check("Test 'runcard': 'What do you run in?' suggests shoes as you type")(runcard_test, page)
+        # Oct 22: test 'runcard' ended (Bastien); its check is off
 
         def look_cards():   # Oct 21, A/B test 'look' (B): the sizes in stock as a row of chips on each card, the visitor's in orange
             page.goto(base + "?exp=look:B", wait_until="domcontentloaded")
@@ -878,7 +895,8 @@ def site_flow(base, per, accented):
             n = len(cards(pg))
             assert n >= 20, f"'just show me today's deals' shows only {n} deals"
             assert pg.locator(".browsebar").count(), "browsing without sizes doesn't offer to pick a size"
-            assert "Sizes on sale" in pg.inner_text("section.grp:not(.new)"), "cards don't say they show every size"
+            assert "Sizes on sale" in pg.inner_text("section.grp:not(.new)") or "every size" in pg.inner_text(".browsebar").lower(), \
+                "nothing says the deals show every size"   # Oct 22: the redesign says it once, in the bar above the deals
             pg.reload(wait_until="domcontentloaded")
             pg.wait_for_selector("section.grp .deal", timeout=20000)
             assert pg.locator("#sheet").is_hidden(), "a browsing visitor gets the welcome screen again on reload"
@@ -893,8 +911,7 @@ def site_flow(base, per, accented):
             pg.wait_for_selector("#sheet", state="hidden")
             settle(pg, 500)
             assert not pg.locator(".browsebar").count(), "the 'pick your size' note stays after picking sizes"
-            chip_tops = pg.locator('#cats .chip[data-v="tops"]')
-            chip_tops.click()
+            pg.evaluate("() => document.querySelector('#cats .chip[data-v=\"tops\"]').click()")
             settle(pg)
             assert "Pick your clothing size" in pg.inner_text("main"), "clothing doesn't offer to pick a clothing size"
             return f"{n} deals in every size, then men's 10"
@@ -983,7 +1000,7 @@ def site_flow(base, per, accented):
         def core_things():   # Oct 22 (Bastien: "don't remove core things"): every agreed, brand-defining piece is on the page, in the
             # current design and in the new one ('look' B). CLAUDE.md lists them; a missing one = tell Bastien before shipping
             missing = {}
-            for arm in ("A", "B"):
+            for arm in ("B",):   # Oct 22: the redesign is the site for everyone
                 c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
                 stub(c)
                 c.add_init_script(f"""try{{localStorage.setItem('gf-exp',JSON.stringify({{look:'{arm}'}}));localStorage.setItem('gf-peek','1');localStorage.removeItem('gf-nosignup');
@@ -1016,7 +1033,10 @@ def site_flow(base, per, accented):
             pg.goto(base + "?canadian", wait_until="domcontentloaded")
             pg.wait_for_selector(".cdnbar", timeout=20000)
             settle(pg)
-            brands = pg.eval_on_selector_all("#dealList .deal .brand", "e => e.map(x => [x.textContent, !!x.querySelector('.leaf')])")
+            if pg.evaluate("() => !!document.querySelector('.rdcatbar')"):     # an earlier check left one category picked: all of them
+                pg.click(".rdcatbar button")
+                settle(pg)
+            brands = pg.eval_on_selector_all("#dealList .deal .brand", "e => e.map(x => [x.textContent, !!x.closest('.deal').querySelector('.leaf')])")
             assert len(brands) >= 5, f"only {len(brands)} Canadian-brand deals"
             bad = sorted({b for b, leaf in brands if not leaf})
             assert not bad, f"non-Canadian brands in the Canadian view: {', '.join(bad[:5])}"
@@ -1030,7 +1050,7 @@ def site_flow(base, per, accented):
         def ships_ca():   # Oct 7 (Bastien): "Ships from Canada" showed US stores under Nutrition (fuel skipped the filter)
             pg.goto(base, wait_until="domcontentloaded")
             pg.wait_for_selector("section.grp .deal", timeout=20000)
-            pg.locator('#cats .chip[data-v="nutrition"]').click()
+            pg.evaluate("() => document.querySelector('#cats .chip[data-v=\"nutrition\"]').click()")
             settle(pg)
             for _ in range(8):
                 more = pg.locator("#grp-nutrition .btn.more")
@@ -1048,7 +1068,7 @@ def site_flow(base, per, accented):
             m = pg.locator("#dealList .deal").count()
             pg.evaluate("() => document.querySelector('#toggles .chip[data-t=\"ca\"]').click()")   # back to Canada only for the next checks
             settle(pg)
-            pg.locator('#cats .chip[data-v="nutrition"]').click()                                  # and every category again
+            pg.evaluate("() => document.querySelector('#cats .chip[data-v=\"nutrition\"]').click()")                                  # and every category again
             settle(pg)
             return f"Nutrition: {n} deals from Canada, {m} with US stores"
         check("Ships from Canada means Canada")(ships_ca, pg)
@@ -1153,6 +1173,8 @@ def site_flow(base, per, accented):
 
         def bf_quick():         # Oct 11: Black Friday page: fit + shoe size + email, right on the page
             pg.evaluate("localStorage.removeItem('gf-sub')")
+            keep = pg.evaluate("() => [localStorage.getItem('rd-profile'), localStorage.getItem('gf-shoe-size')]")   # starts with no size saved
+            pg.evaluate("() => {localStorage.removeItem('rd-profile'); localStorage.removeItem('gf-shoe-size')}")
             pg.goto(base + "black-friday/", wait_until="domcontentloaded")
             pg.wait_for_selector("#qsBox form", timeout=8000)
             pg.fill("#qsBox input", "robot@example.com")
@@ -1166,6 +1188,7 @@ def site_flow(base, per, accented):
             msg = pg.inner_text("#qsBox .msg")
             assert "robot@example.com" in msg, f"the Black Friday box didn't sign up ({msg!r})"
             pg.evaluate("localStorage.removeItem('gf-sub')")
+            pg.evaluate("k => {if (k[0]) localStorage.setItem('rd-profile', k[0]); if (k[1]) localStorage.setItem('gf-shoe-size', k[1])}", keep)
             return "asked for a size, then signed up"
         check("Black Friday page: sign up right here")(bf_quick, pg)
 

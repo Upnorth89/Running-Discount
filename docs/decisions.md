@@ -52,6 +52,14 @@ Newest first. "Revisit" says when (or what would make us) look again.
 | Green "In stock" on every card | **Removed** (Bastien, Oct 22) | Everything we show is in stock, so a label on every card says nothing; the size row and the headline ("best prices in stock, in your size") say it once |
 | Dark mode for the redesign | **Light only** (Bastien, Oct 22) | His rendering is light; store photos are on white (bright boxes on a dark page); NN/g: dark text on light reads better in normal light |
 
+## Shipped Oct 22
+
+| What | Decision | Numbers to watch |
+|---|---|---|
+| The redesign (test 'look' B) | **For everyone, no test** (Bastien, Oct 22: "I'd redesign now ... a good direction vs the AI layout from before"); it also says yes to the 10 "Needs your yes" items as they were in the preview. I recommended 2 weeks 50/50 first ('layout' B, picked by look on Oct 19, cut size-picking 38% -> 17%, p=0.034) | Before/after, Oct 22 - Nov 5: homepage first visits that pick sizes (30% Oct 15-21), click a store (35%), come back on another day (5%). A clear drop -> tell Bastien, offer to switch back (one line) |
+| Test 'runcard' ("What do you run in?" on the sign-up card) | **Ended** (Bastien, Oct 22) | 0 sign-ups of 72 (B) vs 2 of 73 (A); sign-ups too rare at our traffic to ever decide (~2,300 per group needed) |
+| "Other shoes on sale in your size" on shoe pages | **A/B test 'alts'** (one scrolling row like Amazon, Bastien) | Metric: shoe-page first visits that go on to another of our pages; baseline 5% (homepage only); ~435 per group; decide ~Nov 8 |
+
 ## Where visitors come from (for growth calls)
 
 | Date | Fact | So |

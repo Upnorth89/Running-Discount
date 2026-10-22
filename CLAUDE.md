@@ -217,6 +217,15 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   typed word starts a word of the model; iPhones show a <datalist> as a menu to scroll), one entry per model; the pick is watched
   (watch_new rides with the sign-up); full catalogue loads 1.5 s after the card shows, typing survives the redraw; metric = sign-ups,
   ~1% of homepage first visits, ~2,300 a group, decide ~Nov 15; also read runcard-focus / runcard-pick to see if people use it).
+  Oct 22 (Bastien): the REDESIGN ('look' B: light page, category circles, new cards, phone search in the header with the
+  Filters button inside it, theme.css on every page) is the site for everyone, NO test (his call; I recommended 2 weeks 50/50
+  because 'layout' B, picked by look, cut size-picking 38% -> 17%, p=0.034). Watch before/after for 2 weeks (Oct 22 - Nov 5):
+  homepage first visits that pick sizes (30% the week before), click a store (35%), come back (5%); a clear drop = say so
+  and offer to switch back (LOOK_B in index.html). 'runcard' ENDED Oct 22 (0 vs 2 sign-ups, too rare to ever decide).
+  Test 'alts' (Oct 22, shoe pages, shoe_pages.py `alt_file()` -> /shoes/alts.json): B = one scrolling row "Other race/trail/road
+  shoes on sale in your size" (up to 12, 2 per brand max, other brands first; arrows on computers) under the size tables;
+  metric = shoe-page first visits that go on to another of our pages (funnel "went on to another of our pages"; baseline 5%
+  reached the homepage), ~435 per group, decide ~Nov 8. Site test "Shoe page: other shoes on sale in your size".
   Parked: test 'card' (cleaner deal cards, ⋯ menu; commit 629e4d1, backlog). Site tests check each one. Correlations from the "RETENTION DRIVERS" lines are leads, never proof
   (Oct 17: "watchers come back 33%" was 9 devices).
 - **Own the design and product calls (Bastien, Oct 17: "You're supposed to optimize this to make it look the best and cleanest...

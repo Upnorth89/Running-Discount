@@ -592,4 +592,7 @@ html.rd,html:root.rd{--price:#17232B}
 .rd .rdc.hascmp .deal,.rd .compact .rdc.hascmp .deal{padding-bottom:74px}
 .rd .rdc .cmp,.rd .rdc.hascmp .cmp{left:12px;bottom:48px}
 .rd .rdc .rdrep{bottom:9px;right:6px}
+/* Oct 22 (site test, 380-414px phones): on two-per-row cards the ⋯ touched "♡ Watch price" (French "Suivre le prix" is longer);
+   there it sits in the photo's top-right corner, where nothing else is */
+@media(min-width:380px) and (max-width:759px){.rd .rdc .rdrep{top:6px;bottom:auto;right:6px;width:32px;height:26px;background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:6px;font-size:17px}}
 @media(max-width:379px){.rd .rdc .heart{left:10px;bottom:8px}.rd .rdc.hascmp .cmp{left:12px;bottom:48px}.rd .rdc.hascmp .deal{padding-bottom:74px}}
