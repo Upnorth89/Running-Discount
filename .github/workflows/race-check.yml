@@ -1,0 +1,45 @@
+name: Race gear list check
+
+# Oct 22, 2026 (Bastien OK'd): once a month, reread every race's own gear list (scraper/race_pages.py RACES src) and email
+# only when one changed or stopped answering. Last month's lines live in race-check.json on the history branch (data only).
+on:
+  schedule:
+    - cron: "43 16 3 * *"   # 9:43am Vancouver, the 3rd of each month
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests pypdf
+      - name: Last month's lists
+        run: curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/history/race-check.json" -o /tmp/race-check.json || true
+      - name: Reread every race's gear list
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          HEALTH_EMAIL: ${{ secrets.HEALTH_EMAIL }}
+          FROM_EMAIL: "The Gear Fox <deals@thegearfox.com>"
+        run: python scraper/race_check.py /tmp/race-check.json
+      - uses: actions/checkout@v4
+        with:
+          ref: history
+          path: hist
+      - name: Save to the history branch
+        run: |
+          cp /tmp/race-check.json hist/race-check.json
+          cd hist
+          git config user.name "gear-fox-bot"
+          git config user.email "bot@thegearfox.com"
+          git add race-check.json
+          git diff --cached --quiet && exit 0
+          git commit -qm "Race gear lists read $(date -u +%F)"
+          for i in 1 2 3 4; do git pull -q --rebase origin history && git push -q origin HEAD:history && exit 0; sleep $((i * 5)); done
+          exit 1
