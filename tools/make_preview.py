@@ -27,6 +27,17 @@ for k, a in enumerate(sys.argv):
         NEW.append((sel.strip(), what.strip(), how.strip()))
 
 s = (SITE / "index.html").read_text()
+# Oct 22 (Bastien: "we used to have a bunch of seo links at the bottom ... where did all that go?"): the morning build fills the
+# SEO-TODAY block on the live page only; git keeps it empty. PV_SEO = a built index.html (or the live site's address) to copy it from
+if os.environ.get("PV_SEO") and "<!--SEO-TODAY--><!--/SEO-TODAY-->" in s:
+    src = os.environ["PV_SEO"]
+    try:
+        h = __import__("requests").get(src, timeout=30).text if src.startswith("http") else Path(src).read_text()
+        m = re.search(r"<!--SEO-TODAY-->.*?<!--/SEO-TODAY-->", h, re.S)
+        if m:
+            s = s.replace("<!--SEO-TODAY--><!--/SEO-TODAY-->", re.sub(r'href="/', 'target="_blank" href="https://thegearfox.com/', m.group(0)))   # its pages live on the real site
+    except Exception as e:
+        print(f"SEO block not copied ({e})")
 
 
 def rep(a, b):

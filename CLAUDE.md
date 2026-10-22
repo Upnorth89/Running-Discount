@@ -238,7 +238,7 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
 - **Core things: never remove or hide one without telling Bastien first and getting a yes (Oct 22: "you shouldn't be touching
   things without telling me if they remove things we've agreed on previously"; "that then leaves me to have to continuously
   monitor you").** The list (site test "Core things are on the page" checks each, on the current and the new design):
-  the tagline "Outfox full price" (EN/FR), "♡ Watch price" in words on every card, the "Top drop" link, your sizes shown + a way
+  "♡ Watch price" in words on every card, the "Top drop" link, your sizes shown + a way
   to change them, the sign-up card ("Free with your email"), search, Ships from Canada / Canadian brands / Include full price /
   Sort, "Wrong price or size?" on every card, "All sizes & stores" on shoe cards, the "Lowest price in N days" badge, the store and
   where it ships from on each card, the currency after prices (CAD/USD), Canada/USA and EN/FR switches, the footer links

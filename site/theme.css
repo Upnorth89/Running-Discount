@@ -561,9 +561,7 @@ html.rd,html:root.rd{--price:#17232B}
   .rd .rdhs .rdbar .sbz span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .rd .rdhs .rdbar .sbz.need{color:var(--moss);font-weight:700}
 }
-/* the tagline on phones for first-time visitors (Oct 22, Bastien: "did you remove our tagline?"): the header only has room for the fox */
-.rd .rdtag{display:none;margin:0 0 6px;font:700 12px/1 var(--body);letter-spacing:.16em;color:var(--moss)}
-@media(max-width:759px){.rd .rdhs .rdtag{display:block}}
+.rd .topbar .logo .tag{display:none}   /* Oct 22, Bastien: "let's remove the outfox full price" from the homepage */
 
 /* ===== Core things kept (Oct 22, Bastien: "I just need you to not remove core things"): "♡ Watch price" in words on every card,
    the "Top drop" link, the tagline on phones, CAD after prices, the deal count by "Top deals" ===== */
