@@ -766,7 +766,7 @@ const PL=(n,one,many)=>n===1?one:many;
 const I18N={
 en:{
   tagline:"OUTFOX FULL PRICE",
-  rd:{nav:{deals:"Deals",shoes:"Shoes",apparel:"Apparel",packs:"Packs",gear:"Gear",races:"Race lists",shoePrices:"Shoe prices"},h1:["Find running gear deals","in your ","exact size."],h1n:n=>[`${n} deals`,"in your ","exact size."],
+  rd:{nav:{deals:"Deals",shoes:"Shoes",apparel:"Apparel",packs:"Packs",gear:"Gear",races:"Race lists",shoePrices:"Shoe prices"},h1:["Find running gear deals","in your ","exact size."],h1n:n=>[`${n} deals`,"in your ","size."],
     sub:n=>`Every morning we check ${n} running stores in Canada and the USA and show you the best prices in stock, in your size. No more guessing.`,
     ph:"Search shoes, apparel, packs, brands…",phS:"Search shoes, brands…",go:"Search",size:"Your size",cat:"Category",brand:"Brand",price:"Price",store:"Retailer",sale:"On sale only",more:"More filters",under:m=>`Under ${m}`,
     note:["Real deals.","Real sizes.","Real retailers."],tiles:{shoes:"Shoes",apparel:"Apparel",packs:"Packs & Vests",acc:"Accessories",nutrition:"Nutrition",gear:"Gear & Watches"},n:n=>`${n} deals`,
@@ -878,7 +878,7 @@ en:{
 },
 fr:{
   tagline:"FLAIREZ LES AUBAINES",
-  rd:{nav:{deals:"Aubaines",shoes:"Chaussures",apparel:"Vêtements",packs:"Sacs",gear:"Équipement",races:"Courses",shoePrices:"Prix des chaussures"},h1:["Les aubaines de course","dans votre ","taille exacte."],h1n:n=>[`${n} aubaines`,"dans votre ","taille exacte."],
+  rd:{nav:{deals:"Aubaines",shoes:"Chaussures",apparel:"Vêtements",packs:"Sacs",gear:"Équipement",races:"Courses",shoePrices:"Prix des chaussures"},h1:["Les aubaines de course","dans votre ","taille exacte."],h1n:n=>[`${n} aubaines`,"à votre ","taille."],
     sub:n=>`Chaque matin, on vérifie ${n} boutiques de course au Canada et aux États-Unis et on vous montre les meilleurs prix en stock, dans votre taille. Fini les devinettes.`,
     ph:"Chercher chaussures, vêtements, sacs, marques…",phS:"Chaussures, marques…",go:"Chercher",size:"Votre taille",cat:"Catégorie",brand:"Marque",price:"Prix",store:"Boutique",sale:"En solde seulement",more:"Plus de filtres",under:m=>`Moins de ${m}`,
     note:["Vrais rabais.","Vraies tailles.","Vraies boutiques."],tiles:{shoes:"Chaussures",apparel:"Vêtements",packs:"Sacs et vestes",acc:"Accessoires",nutrition:"Nutrition",gear:"Équipement et montres"},n:n=>`${n} aubaines`,
@@ -1581,7 +1581,7 @@ function rdGoDeals(top){const el=top?$("dealList"):$("rdTiles");if(el)scrollTo({
 function rdUpdate(all,p){   // hero, dropdowns, tiles, why: from today's data, every render
   const R=t("rd"),C=rdSource(p),n=num(storesLabel());
   $("rdCtry").innerHTML=`<span class="flag" aria-hidden="true">${US()?"🇺🇸":"🇨🇦"}</span>${US()?"US":"CA"} (${CUR})`;
-  const h=hasSizes()&&saleNow?R.h1n(num(saleNow)):R.h1;$("rdH1").innerHTML=`${esc(h[0])}<br>${esc(h[1])}<em>${esc(h[2])}</em>`;
+  const h=hasSizes()&&saleNow?R.h1n(num(saleNow)):R.h1;$("rdH1").innerHTML=hasSizes()&&saleNow?`${esc(h[0])} ${esc(h[1])}<em>${esc(h[2])}</em>`:`${esc(h[0])}<br>${esc(h[1])}<em>${esc(h[2])}</em>`;   // the count line flows (one line where it fits); the welcome line keeps the rendering's break
   $("rdSub").textContent=R.sub(n);
   const sz=hasSizes()?({men:t("men"),women:t("women"),any:t("menWomen")}[state.gender]+" "+(state.shoe.length?state.shoe.slice(0,2).join(", "):state.cloth.join(", "))).trim():R.size;
   $("ddSize").querySelector("span").textContent=(US()||LANG!=="fr"?"US ":"")+sz;$("rdQS").querySelector("span").textContent=$("ddSize").querySelector("span").textContent;

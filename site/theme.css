@@ -507,3 +507,5 @@ html.rd,html:root.rd{--price:#17232B}
   .rd .rdtile .tp{width:64px;max-width:none}
   .rd .rdtile .tt b,.rd .rdtile .tt b{font-size:12px;line-height:1.2}
 }
+/* the count headline ("1,594 deals in your size.") on one line wherever it fits (Oct 22, Bastien) */
+.rd.rdsized .rdhero h1{font-size:clamp(28px,8.4vw,54px);text-wrap:wrap;white-space:normal}
