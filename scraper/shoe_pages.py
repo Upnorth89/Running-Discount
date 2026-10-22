@@ -561,7 +561,7 @@ def page_head(L, title, desc, path_en, path_fr, extra=""):
 <meta property="og:image" content="{BASE}/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/shoe-pages.css">
 {extra}
 <link rel="stylesheet" href="/theme.css">
@@ -569,7 +569,7 @@ def page_head(L, title, desc, path_en, path_fr, extra=""):
 </head>
 <body>
 <header class="top"><div class="in"><a class="logo" href="{L['home']}" aria-label="The Gear Fox">
-<picture><source srcset="/logo-mark-dark.svg" media="(prefers-color-scheme: dark)"><img src="/logo-mark.svg" alt="The Gear Fox" width="1534" height="664"></picture>
+<img src="/logo-mark-dark.svg" alt="The Gear Fox" width="1534" height="664">
 <span class="tagline">{L['tagline']}</span></a>
 <details class="menu"><summary aria-label="{L['menu']}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></summary>
 <nav>{menu_links(L, (path_fr or "/shoes/") if L['lang'] != 'fr-CA' else path_en)}</nav></details></div></header>

@@ -1153,6 +1153,33 @@ def site_flow(base, per, accented):
             return f"{slug}: A hidden, B shows {len(b['cards'])} race shoes in size 10"
         check("Shoe page: other shoes on sale in your size (test 'alts')")(shoe_alts, pg)
 
+        def one_look():         # Oct 22 (Bastien: "Only the homepage is formatted in the way we want. All others are dark and still the
+            # same"): on a phone set to dark mode, every page is light with the charcoal header, like the homepage, and fits the phone
+            c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE,
+                               locale="en-CA", color_scheme="dark")
+            stub(c)
+            q = c.new_page()
+            reg = site_json("shoes/pages.json") or {}
+            slug = next((k for k, v in reg.items() if isinstance(v, dict) and not v.get("to")), None)
+            bad = []
+            for u in [f"shoes/{slug}/", f"chaussures/{slug}/", "running-shoes-sale/", "races/", "black-friday/", "about.html", "privacy.html"]:
+                q.goto(base + u, wait_until="domcontentloaded")
+                q.wait_for_timeout(400)
+                r = q.evaluate("""() => {const lum = c => {const m = c.match(/\\d+(\\.\\d+)?/g); return m ? (+m[0] + +m[1] + +m[2]) / 3 : 0};
+                    const top = document.querySelector('.top');
+                    return {page: lum(getComputedStyle(document.body).backgroundColor), head: top ? lum(getComputedStyle(top).backgroundColor) : null,
+                            wide: document.documentElement.scrollWidth}}""")
+                if r["page"] < 200:
+                    bad.append(f"{u} has a dark page")
+                if r["head"] is not None and r["head"] > 80:
+                    bad.append(f"{u} has a light header")
+                if r["wide"] > 391:
+                    bad.append(f"{u} is {r['wide'] - 390}px wider than the phone")
+            c.close()
+            assert not bad, "; ".join(bad)
+            return "shoe (EN/FR), sale list, races, Black Friday, About, Privacy: light pages, charcoal header, fit the phone"
+        check("Every page has the homepage's look (phone in dark mode)")(one_look, pg)
+
         def shoe_backbar():     # Oct 11: back on a shoe page from a store, a non-member gets "Didn't buy it?" + email
             pg.evaluate("localStorage.removeItem('gf-sub');localStorage.removeItem('gf-backno');sessionStorage.removeItem('gf-backshown')")
             pg.reload(wait_until="domcontentloaded")

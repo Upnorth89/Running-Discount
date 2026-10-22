@@ -596,3 +596,20 @@ html.rd,html:root.rd{--price:#17232B}
    there it sits in the photo's top-right corner, where nothing else is */
 @media(min-width:380px) and (max-width:759px){.rd .rdc .rdrep{top:6px;bottom:auto;right:6px;width:32px;height:26px;background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:6px;font-size:17px}}
 @media(max-width:379px){.rd .rdc .heart{left:10px;bottom:8px}.rd .rdc.hascmp .cmp{left:12px;bottom:48px}.rd .rdc.hascmp .deal{padding-bottom:74px}}
+
+/* ===== Every other page (Oct 22, Bastien: "Only the homepage is formatted in the way we want. All others are dark and still the
+   same"): shoe/list/brand/race pages, About and Privacy get the homepage's light colours (also on a phone set to dark mode) and its
+   charcoal header with the white logo. html:root:not(.rd) outranks the dark-mode colours in each page's own stylesheet ===== */
+html:root:not(.rd){color-scheme:light;
+  --ink:#17232B;--muted:#5E6870;--mist:#FDFCF9;--cream:#F6F3EC;--card:#FFFFFF;--line:#E7E9E6;--edge:#D5D8D4;
+  --moss:#C24400;--link:#C24400;--hivis:#FF5A00;--hivis-ink:#17232B;--char:#17232B;--band:#17232B;--band-ink:#FFFFFF;--tile:#F3F3F3;
+  --body:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--display:"Barlow Condensed","Arial Narrow",Impact,sans-serif}
+html:not(.rd) body{font-family:var(--body)}
+html:not(.rd) h1,html:not(.rd) h2{font-family:var(--display);font-weight:700;letter-spacing:0}
+html:not(.rd) .top{background:var(--char);border-bottom:0}
+html:not(.rd) .top .tagline{display:none}   /* as on the homepage (Oct 22, Bastien: "let's remove the outfox full price") */
+html:not(.rd) .top .logo img,html:not(.rd) .top a img{height:38px;width:auto}
+html:not(.rd) .top .menu summary{color:#fff;border-color:rgba(255,255,255,.3)}
+html:not(.rd) .top .menu[open] summary{background:rgba(255,255,255,.16);color:#fff;border-color:transparent}
+/* Oct 22: French prices ("202,96 $ 290,00 $ −30%") made the size tables wider than a phone; on phones the old price goes under */
+@media(max-width:480px){td.p b{display:block}td.p s{margin-left:0}}
