@@ -482,7 +482,12 @@ tr.yours td:first-child{font-weight:700;box-shadow:inset 4px 0 0 var(--hivis)}
 .altrow .an{font-size:14px;line-height:1.25;margin:1px 0 4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .altrow .ap{margin-top:auto;font-size:15px}.altrow .ap b{font-size:16px}.altrow .ao{display:inline-block;margin-left:4px;background:#F26A1B;color:#111;font-weight:700;font-size:12px;border-radius:4px;padding:1px 5px}
 .altrow .az{font-size:12.5px;opacity:.75}
-@media(min-width:760px){.altrow{display:grid;grid-template-columns:repeat(3,1fr);overflow:visible}.altrow a{flex:none}}
+/* Oct 22 (Bastien: "one row that you can scroll left like on Amazon"): one row on every screen; computers get arrows when it overflows */
+.altw{position:relative}
+.altw .arr{display:none;position:absolute;top:38%;z-index:2;width:38px;height:38px;border-radius:50%;border:1px solid var(--line,#ddd);background:#fff;color:#17232B;font:700 22px/1 system-ui;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.altw .arr.l{left:-12px}.altw .arr.r{right:-12px}
+@media(hover:hover) and (pointer:fine){.altw.of .arr{display:block}.altw .arr[disabled]{opacity:0;pointer-events:none}}
+@media(min-width:760px){.altrow a{flex-basis:160px}}
 .links a{display:inline-block;background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:6px 12px;text-decoration:none;color:var(--ink);font-size:15px}
 .links small{color:var(--moss);font-weight:600}
 .brand{margin:18px 0 6px;font:700 20px var(--display);scroll-margin-top:120px}
@@ -665,15 +670,19 @@ function draw(){{if(!data)return;var list=(data[box.dataset.t]||[]).filter(funct
     else{{["m","w"].forEach(function(c){{for(var s in (x[c]||{{}})){{var v=x[c][s];if(!best||v[1]>best[1])best=[v[0],v[1],null]}}}})}}
     var n=Object.keys(x.m||{{}}).length+Object.keys(x.w||{{}}).length;rows.push({{x:x,p:best,n:n}})}});
   rows.sort(function(a,b){{return z?b.p[1]-a.p[1]:((b.n>=6)-(a.n>=6))||b.p[1]-a.p[1]}});   // no size yet: shoes on sale in 6+ sizes first
-  var out=[],per={{}};rows.forEach(function(r){{var b=r.x.b.toLowerCase();if(b===myB)return;per[b]=(per[b]||0)+1;if(per[b]<=2&&out.length<6)out.push(r)}});   // other brands, 2 at most each
-  rows.forEach(function(r){{if(out.length<6&&out.indexOf(r)<0&&r.x.b.toLowerCase()===myB)out.push(r)}});
+  var out=[],per={{}};rows.forEach(function(r){{var b=r.x.b.toLowerCase();if(b===myB)return;per[b]=(per[b]||0)+1;if(per[b]<=2&&out.length<12)out.push(r)}});   // other brands, 2 at most each
+  rows.forEach(function(r){{if(out.length<12&&out.indexOf(r)<0&&r.x.b.toLowerCase()===myB)out.push(r)}});
   if(out.length<3){{box.hidden=true;return}}
   box.querySelector("h2").textContent=z?box.dataset.h:box.dataset.h0;
   box.querySelector(".altrow").innerHTML=out.map(function(r){{var x=r.x,p=r.p;
     return '<a href="'+box.dataset.dir+x.s+'/" data-alt="'+esc(x.s)+'">'+'<img'+(x.i?' src="'+esc(x.i)+'"':"")+' alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.className=\\'x\\'">'+
       '<span class="ab">'+esc(x.b)+'</span><span class="an">'+esc(x.n)+'</span><span class="ap"><b>'+money(p[0])+'</b><span class="ao">−'+p[1]+'%</span></span>'+
       '<span class="az">'+esc(p[2]?box.dataset["in"].replace("{{s}}",p[2]):box.dataset.n.replace("{{n}}",r.n))+"</span></a>"}}).join("");
-  box.hidden=false}}
+  box.hidden=false;arrows()}}
+var row=box.querySelector(".altrow"),wrap=box.querySelector(".altw"),L=box.querySelector(".arr.l"),R=box.querySelector(".arr.r");
+function arrows(){{var of=row.scrollWidth>row.clientWidth+4;wrap.classList.toggle("of",of);L.disabled=row.scrollLeft<4;R.disabled=row.scrollLeft+row.clientWidth>=row.scrollWidth-4}}
+L.setAttribute("aria-label",fr?"Précédent":"Previous");R.setAttribute("aria-label",fr?"Suivant":"Next");row.addEventListener("scroll",arrows,{{passive:true}});addEventListener("resize",arrows);
+L.addEventListener("click",function(){{row.scrollBy({{left:-row.clientWidth*0.9,behavior:"smooth"}})}});R.addEventListener("click",function(){{row.scrollBy({{left:row.clientWidth*0.9,behavior:"smooth"}})}});
 box.addEventListener("click",function(e){{var a=e.target.closest("a[data-alt]");if(a){{try{{ana("shoe-page-link","alts|"+a.dataset.alt)}}catch(x){{}}}}}});
 window.gfAlts=draw;
 fetch(box.dataset.src).then(function(r){{return r.json()}}).then(function(d){{data=d;draw()}}).catch(function(){{}})}})();
@@ -1109,7 +1118,7 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None)
     kind = first_t if (first_t := (its[0].get("t") or "daily")) in L["altH"] else "daily"
     out.append(f'<section class="alts" id="alts" hidden data-t="{kind}" data-src="/{L["dir"]}/alts.json" data-slug="{slug}" data-b="{esc(brand)}" '
                f'data-dir="/{L["dir"]}/" data-h="{esc(L["altH"][kind])}" data-h0="{esc(L["altH0"][kind])}" data-in="{esc(L["altIn"])}" '
-               f'data-n="{esc(L["altN"])}" data-fr="{1 if L["lang"] == "fr-CA" else 0}"><h2></h2><div class="altrow"></div></section>')
+               f'data-n="{esc(L["altN"])}" data-fr="{1 if L["lang"] == "fr-CA" else 0}"><h2></h2><div class="altw"><button type="button" class="arr l" aria-label="‹" disabled>‹</button><div class="altrow"></div><button type="button" class="arr r" aria-label="›">›</button></div></section>')
     if sm:     # a few lines Google (and people) can read: what it is, where it's cheapest, sizes, today's answers
         about = L["about"].format(name=esc(name), type=L["typeLower"].get(sm["t"], L["typeLower"][""]), stores=sm["stores"], sizes=sm["sizes"])
         bsz = sizes_phrase(sm.get("best_sizes") or [], L)
