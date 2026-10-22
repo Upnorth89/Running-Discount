@@ -136,10 +136,13 @@ def main():
         sys.path.insert(0, str(ROOT / "scraper"))
         import race_pages
         for slug, race in race_pages.RACES.items():
+            # QMT has 5 items with picks (10 each); the others more. Oct 22: a short list (Chute du Diable: 4 items with picks, and US
+            # stores carry 3 folding cups and 3 poles from our brands) needs 5 a pickable item (no US blanket either), never more than 40
+            want = min(40, 5 * len({race_pages.kbase(k) for k, *_ in race["items"] if race_pages.kbase(k) in race_pages.KINDS}))
             for d in ("races", "courses", "us/races"):     # every race on both sides (Oct 21)
                 h = (site / d / slug / "index.html").read_text()
                 n = len(re.findall(r'<button type="button" class="wt"', h))
-                if n < 40:          # QMT has 5 items with picks (10 each); the others more
+                if n < want:
                     raise RuntimeError(f"/{d}/{slug}/ has only {n} picks")
         for must in ["races/index.html", "courses/index.html", "us/races/index.html"]:
             if not (site / must).exists():
