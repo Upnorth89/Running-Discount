@@ -73,3 +73,4 @@ Newest first. "Revisit" says when (or what would make us) look again.
 | Oct 17 | r/BuyCanadian removed our post (3 items) | Don't post there again without asking the mods |
 | Oct 12 | A Reddit post with 20 thegearfox.com links was removed by the spam filter | Few links per post, check each sub's rules |
 | Oct 19 | Push notifications | Parked: iPhones need the home-screen app first; visitors stay ~20 s |
+| Oct 22 | Race lists: Cocodona (was left out: no list then) now publishes required + cold-weather gear; Mammoth 200 has a mandatory list; Mammoth Trailfest 50K says "No gear requirements" | Added Cocodona (5 distances) + Mammoth 200, both sides; Trailfest 50K left out |

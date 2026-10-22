@@ -294,12 +294,16 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   `utmb_race()`). Kinds can repeat with a number ("gloves3" = "gloves" rules, `kbase()`); identical pick lists are stored once per page.
   Checked and left out (no real mandatory list): Angeles Crest 100 (2026 race book: only "headlamps needed" at the start), Squamish 50
   (headlamp only), Sinister 7 + Canadian Death Race ("suggested"), Lost Soul, Golden, Broken Goat, Knee Knacker, Hardrock (recommended
-  only), Cocodona, Destination Trail, Wasatch; Kodiak + Pacific Trails (kit only as images). Picks: eyewear under $15 or a spare
+  only), Destination Trail, Wasatch, Mammoth Trailfest 50K ("No gear requirements"); Kodiak + Pacific Trails (kit only as images). Picks: eyewear under $15 or a spare
   lens/cleaner never shows (`min` per kind). Metric: Search Console + ref race-<slug> sign-ups; check mid-Jan + end of March (plan doc row).
   Oct 22 (Bastien: "Sinister SOO 200 and divide 200"): soo-200 + divide-200. Sinister Sports' lists mix levels, so two more labels:
   P = "Provided" / « Fourni » (inReach, battery, bib + chip, bivvy, blaze orange: no tick box, no picks, not in the mandatory count) and
   L = "Ask the race" / « À confirmer » (Divide lists them unmarked under "a mix of mandatory and recommended gear"; a line on top says to ask
   the race). Never call an L item mandatory or optional. A list with no M items hides the "You have N of M" line.
+  Oct 22 (Bastien: "Add cocodona races, and mammoth ultras"): `cocodona` (all 5 distances; its 2027 Runner Guide NOW has Required Gear +
+  Cold Weather Gear carried on some sections; the hooded jacket only in rain/snow = kit) and `mammoth-200` (runners manual PDF, day + night
+  gear; puffy only if the race activates cold gear = kit). Cocodona's guide is a Google Doc: `check` in RACES = the URL race_check.py reads
+  (its text export) instead of `src`.
   **Race list check** (race-check.yml, the 3rd of each month, scraper/race_check.py): rereads every race's `src`/`src_fr` (pages + PDFs),
   keeps the gear lines + linked PDFs/list pictures, compares with race-check.json on the history branch; emails ONLY when a list changed
   (+/- lines) or a page stopped answering. Then update that race in RACES from its own list.

@@ -84,7 +84,7 @@ KINDS = {
     # Oct 21: the other Québec races' lists
     "vest":     dict(g={"packs"}, need=r"hydration|race vest|trail vest|run(ning)? vest|\d+(\.\d)? ?l\b|flasks?|adv skin|skin \d|pinnacle|vapor|race pack",
                      good=r"\brun|trail|race|ultra|adv skin|skin|speed|hydration",
-                     x=r"belt|waist|hip|bladder|reservoir|tube|replacement|strap|daypack|\b[3-9]\d ?l\b|\bski\b|bike|ride|wind|insulat|hybrid|shield|fleece|puffer|down\b"),
+                     x=r"belt|waist|hip|bladder|reservoir|tube|replacement|strap|daypack|\b[3-9]\d ?l\b|\bski\b|bike|ride|wind|insulat|hybrid|shield|fleece|puffer|down\b|primaloft|therma"),   # Oct 22: a Nike PrimaLoft Therma-FIT vest (clothing) showed
     "filter":   dict(g={"gear", "packs"}, need=r"filter|purif|befree|lifestraw|sawyer|aquatab|katadyn|xa filter", good=r".",
                      x=r"adapter|replacement|cartridge|inline|\bkit\b|\bcap\b"),
     "longpants": dict(g={"bottoms"}, t={"pant", "tight"}, need=r"\bpants?\b|tights?\b|legging|jogger", good=r"\brun|trail|thermal|warm|merino|tech|race|ultra|light",
@@ -482,6 +482,110 @@ RACES.update({
                            [("58K", "50K"), ("28K", "20K")], _us("snowbasin"), "us"),
     "grindstone": utmb_race("Grindstone Trail Running Festival by UTMB", "Grindstone", _w("Natural Chimneys Park, Virginia", "Natural Chimneys Park, Virginie"), _w("September 23–26, 2027", "23 au 26 septembre 2027"),
                             [("100M", "100M"), ("100K", "100K"), ("50K", "50K"), ("21K", "20K")], _us("grindstone"), "us"),
+})
+
+# Oct 22 (Bastien: "Add cocodona races, and mammoth ultras"). Cocodona (Aravaipa): the 2027 Runner Guide's "Gear Requirements (Applies
+# to ALL DISTANCES)": Required Gear the whole course, Cold Weather Gear carried on some sections (checked at set aid stations), the
+# hooded jacket only in rain or snow, then "Additional Recommended Gear". The guide is a Google Doc: race_check reads its text
+# export (`check`). Mammoth Trailfest's 50K says "No gear requirements" (recommended only): left out, like Hardrock.
+_C = lambda en, fr: {"en": en, "fr": fr}
+_COLD = ("Cold-weather gear: carried on some sections, checked at set aid stations (80 mi: if you leave Fain Ranch after 11 am; "
+         "40 mi: if you leave Woody Mountain after 2:30 pm).",
+         "Matériel pour le froid : à porter sur certaines sections, vérifié à des ravitos précis (80 mi : si vous quittez Fain Ranch "
+         "après 11 h; 40 mi : si vous quittez Woody Mountain après 14 h 30).")
+_CC = ("Cold-weather gear (see gloves).", "Matériel pour le froid (voir les gants).")
+RACES.update({
+    "cocodona": {
+        "name": "Cocodona", "short": "Cocodona", "de": "de la ", "le": "la ", "unit": "label", "side": "us", "cupless": True,
+        "where": _C("Black Canyon City to Flagstaff, Arizona", "De Black Canyon City à Flagstaff, Arizona"),
+        "when": _C("May 2–7, 2027", "2 au 7 mai 2027"),
+        "dists": ["250M", "125M", "100M", "80M", "40M"], "default": "250M",
+        "src": "https://docs.google.com/document/d/1mG-qAY3yvHnL9oUCd5c1-ZEWwxvkgfpYxHcU9ppfjlQ/edit",
+        "check": "https://docs.google.com/document/d/1mG-qAY3yvHnL9oUCd5c1-ZEWwxvkgfpYxHcU9ppfjlQ/export?format=txt",
+        "read": _C("October 22, 2026 (2027 Runner Guide)", "22 octobre 2026 (guide du coureur 2027)"),
+        "kits": {"bad": ["jacket"]},
+        "items": [(k, lv, t, sp) for (k, t), lv, sp in [
+            (_SIN("phone", "Cell phone", "Téléphone cellulaire", "Runners and pacers alike.", "Coureurs et accompagnateurs."), "MMMMM", False),
+            (_SIN("gps", "GPS device with the course file loaded", "Appareil GPS avec le tracé chargé",
+                  "Watch, handheld GPS or a phone in airplane mode, plus a way to charge it.",
+                  "Montre, GPS de poche ou téléphone en mode avion, et de quoi le recharger."), "MMMMM", False),
+            (_SIN("headlamp", "Headlamp + spare batteries or a way to charge it", "Lampe frontale + piles de rechange ou de quoi la recharger"), "MMMMM", True),
+            (_SIN("cup", "Collapsible cup", "Gobelet pliable", "No cups for cold drinks at aid stations (they have cups for hot ones).",
+                  "Pas de verres pour les boissons froides aux ravitos (il y en a pour les boissons chaudes)."), "MMMMM", False),
+            (_SIN("blanket", "Space blanket", "Couverture de survie"), "MMMMM", False),
+            (_SIN("whistle", "Whistle", "Sifflet"), "MMMMM", False),
+            (_SIN("vest", "Room for 4 L of water", "De quoi porter 4 L d'eau",
+                  "250 and 100 mi: checked at the start, and you must leave Cottonwood Creek with 4 L (25 hot miles to the next aid).",
+                  "250 et 100 mi : vérifié au départ, et il faut quitter Cottonwood Creek avec 4 L (40 km chauds jusqu'au prochain ravito)."), "M M  ", False),
+            (_SIN("gloves", "Gloves", "Gants", *_COLD), "MMMMM", False),
+            (_SIN("tuque", "Warm hat (a neck gaiter counts)", "Tuque (un cache-cou compte)", *_CC), "MMMMM", False),
+            (_SIN("midlayer", "Long-sleeve top", "Haut à manches longues", *_CC), "MMMMM", False),
+            (_SIN("warmjacket", "Insulating layer: fleece, puffy or mid-weight", "Couche isolante : polaire, doudoune ou mi-saison", *_CC), "MMMMM", False),
+            (_SIN("jacket", "Waterproof jacket with a hood", "Manteau imperméable avec capuchon",
+                  "Only required in rain or snow.", "Obligatoire seulement en cas de pluie ou de neige."), "MMMMM", True),
+            (_SIN("socks", "Plenty of sock changes + wipes", "Plusieurs paires de bas + lingettes",
+                  "Every 20 to 30 miles, from your crew or drop bags.", "Aux 30 à 50 km, par votre équipe ou vos sacs de ravito."), "RRRRR", False),
+            (_SIN("poles", "Trekking poles", "Bâtons de marche"), "RRRRR", False),
+            (_SIN("wind", "Lightweight jacket", "Manteau léger"), "RRRRR", False),
+            (_SIN("longpants", "Long pants", "Pantalon long"), "RRRRR", False),
+            (_SIN("sunscreen", "Sunscreen", "Crème solaire"), "RRRRR", False),
+            (_SIN("cap", "Sun hat", "Chapeau de soleil"), "RRRRR", False),
+            (_SIN("midlayer2", "Long-sleeve sun layer", "Haut à manches longues contre le soleil"), "RRRRR", False),
+            (_SIN("sun", "Sunglasses", "Lunettes de soleil"), "RRRRR", False),
+            (_SIN("gloves4", "Sun gloves", "Gants contre le soleil"), "RRRRR", False),
+            (_SIN("gaiters", "Gaiters", "Guêtres"), "RRRRR", False),
+        ]],
+    },
+    # themammoth200.com/runnersmanual -> runners manual PDF ("updated 9/29/26"), "Gear Requirements": Mandatory at All Times,
+    # Mandatory Night Gear (the puffy only if the race activates cold-weather gear), "Recommended, but not Required"
+    "mammoth-200": {
+        "name": "Mammoth 200", "short": "Mammoth", "de": "du ", "le": "le ", "unit": "label", "side": "us",
+        "where": _C("Mammoth Lakes, California", "Mammoth Lakes, Californie"),
+        "when": _C("Early October 2027 (date to come; 2026: Oct. 2–6)", "Début octobre 2027 (date à venir; 2026 : 2 au 6 oct.)"),
+        "dists": ["200M"], "default": "200M",
+        "src": "https://www.themammoth200.com/s/theMAMMOTH-runners-manual-2.pdf",
+        "read": _C("October 22, 2026 (manual updated Sept. 29, 2026)", "22 octobre 2026 (guide mis à jour le 29 sept. 2026)"),
+        "kits": {"bad": ["warmjacket"]},
+        "items": [(k, lv, t, sp) for (k, t), lv, sp in [
+            (_SIN("jacket", "Waterproof jacket with taped seams", "Manteau imperméable à coutures scellées", "Mandatory at all times.", "Obligatoire en tout temps."), "M", True),
+            (_SIN("headlamp", "Headlamp + spare batteries or battery pack", "Lampe frontale + piles de rechange ou batterie"), "M", True),
+            (_SIN("headlamp2", "Second headlamp", "Deuxième lampe frontale", "Required at night.", "Obligatoire la nuit."), "M", True),
+            (_SIN("vest", "Room for 3 L of water", "De quoi porter 3 L d'eau", "It doesn't have to be full all the time.",
+                  "Pas besoin d'être plein en tout temps."), "M", False),
+            (_SIN("gloves", "Gloves (light or liner is fine)", "Gants (légers ou sous-gants, ça va)"), "M", False),
+            (_SIN("tuque", "Warm hat or Buff", "Tuque ou Buff"), "M", False),
+            (_SIN("pants", "Waterproof pants", "Pantalon imperméable", "Night gear, checked leaving the early-evening aid station. In the day too if weather is forecast.",
+                  "Matériel de nuit, vérifié en quittant le ravito de début de soirée. Le jour aussi si la météo l'annonce."), "M", True),
+            (_SIN("midlayer", "Spare long-sleeve layer", "Haut à manches longues de rechange", "Night gear: a dry base layer to change into.",
+                  "Matériel de nuit : une couche de base sèche pour se changer."), "M", False),
+            (_SIN("warmjacket", "Insulated or puffy layer", "Couche isolante ou doudoune", "At night, only if the race activates cold-weather gear (said at the briefing).",
+                  "La nuit, seulement si la course l'exige (annoncé au briefing)."), "M", False),
+            (_SIN("phone", "Cell phone", "Téléphone cellulaire"), "M", False),
+            (_SIN("battery", "Power bank (10,000 mAh or more)", "Batterie externe (10 000 mAh ou plus)"), "M", False),
+            (_SIN("gps", "GPS device with the course map, and a way to recharge it", "Appareil GPS avec le tracé, et de quoi le recharger",
+                  "Phone or watch; the battery has to last 50 to 110 hours.", "Téléphone ou montre; la pile doit tenir de 50 à 110 heures."), "M", False),
+            (_SIN("cup", "Collapsible cup", "Gobelet pliable"), "M", False),
+            (_SIN("blanket", "Emergency bivvy", "Sac bivouac d'urgence"), "M", False),
+            (_SIN("whistle", "Whistle", "Sifflet"), "M", False),
+            (_SIN("food", "Extra food: what you plan to eat + 400 calories", "Nourriture : ce que vous prévoyez + 400 calories"), "M", False),
+            (_SIN("electrolytes", "Electrolytes", "Électrolytes"), "M", False),
+            (_SIN("tp", "Toilet paper + 2 ziplock bags", "Papier de toilette + 2 sacs ziplock", "To pack used paper out.", "Pour rapporter le papier utilisé."), "M", False),
+            (_SIN("inreach", "Satellite messenger (inReach)", "Communicateur satellite (inReach)", "Many sections have no cell service.",
+                  "Plusieurs sections n'ont pas de réseau."), "R", False),
+            (_SIN("filter", "Water filter for a bottle", "Filtre à eau pour gourde"), "R", False),
+            (_SIN("longpants", "Tights or pants", "Collant ou pantalon"), "R", False),
+            (_SIN("poles", "Trekking poles", "Bâtons de marche"), "R", False),
+            (_SIN("gaiters", "Gaiters", "Guêtres", "For the eastern Sierra pumice.", "Pour la pierre ponce de la Sierra Est."), "R", False),
+            (_SIN("cap", "Sun hat or Buff", "Chapeau de soleil ou Buff"), "R", False),
+            (_SIN("sun", "Sunglasses", "Lunettes de soleil"), "R", False),
+            (_SIN("sunscreen", "Sunscreen + lip balm", "Crème solaire + baume à lèvres"), "R", False),
+            (_SIN("xshoes", "Extra shoes (a different model helps)", "Souliers de rechange (un autre modèle aide)"), "R", False),
+            (_SIN("firstaid", "Anti-chafe, KT tape, bandages, duct tape, wipes", "Anti-frottement, ruban KT, pansements, ruban adhésif, lingettes"), "R", False),
+            (_SIN("sleep", "Earplugs + eye mask", "Bouchons + masque pour dormir"), "R", False),
+            (_SIN("card", "Credit card", "Carte de crédit"), "R", False),
+            (_SIN("meds", "Medications, toiletries, contact lenses", "Médicaments, articles de toilette, verres de contact"), "R", False),
+        ]],
+    },
 })
 
 # UTMB Mont-Blanc (Oct 21, Bastien: "UTMB 160 the big race and all other distances in Chamonix"): the 2026 list, published as an
