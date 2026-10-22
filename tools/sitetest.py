@@ -1108,6 +1108,31 @@ def site_flow(base, per, accented):
             return f"{slug}: {msg[:60]}"
         check("Shoe page: email me when it drops")(shoe_alert, pg)
 
+        def shoe_alts():        # Oct 22, test 'alts': B shows other shoes of the same kind on sale in your size under the size tables
+            alts = site_json("shoes/alts.json") or {}
+            assert alts and all(len(v) >= 3 for k, v in alts.items() if k != "hike"), f"shoes/alts.json is empty or thin: { {k: len(v) for k, v in alts.items()} }"
+            reg = site_json("shoes/pages.json") or {}
+            slug = next((k for k, v in reg.items() if isinstance(v, dict) and not v.get("to") and v.get("t") == "race"
+                         and 'id="alts"' in (site_get(f"shoes/{k}/") or "")), None)
+            assert slug, "no race shoe page has the 'other shoes' section"
+            prev = pg.evaluate("() => localStorage.getItem('rd-profile')")
+            pg.evaluate("() => localStorage.setItem('rd-profile', JSON.stringify({gender:'men',sizes:{shoes:{sizes:['10']}},groups:['shoes']}))")
+            got = {}
+            for arm in ("A", "B"):
+                pg.goto(base + f"shoes/{slug}/?exp=alts:{arm}", wait_until="domcontentloaded")
+                settle(pg, 1200)
+                got[arm] = pg.evaluate("""() => {const a = document.getElementById('alts'); return {hidden: a.hidden,
+                    cards: [...a.querySelectorAll('.altrow a')].map(x => [x.getAttribute('href'), x.querySelector('.az').textContent])}}""")
+            pg.evaluate("p => p === null ? localStorage.removeItem('rd-profile') : localStorage.setItem('rd-profile', p)", prev)
+            pg.evaluate("() => { const o = JSON.parse(localStorage.getItem('gf-exp') || '{}'); delete o.alts; localStorage.setItem('gf-exp', JSON.stringify(o)) }")
+            assert got["A"]["hidden"], "group A (as before) shows the 'other shoes' row"
+            b = got["B"]
+            assert not b["hidden"] and len(b["cards"]) >= 3, f"{slug}: group B shows {len(b['cards'])} other shoes"
+            assert all(h != f"/shoes/{slug}/" for h, _ in b["cards"]), "the row shows the page's own shoe"
+            assert all("10" in z for _, z in b["cards"]), f"cards not in the visitor's size: {[z for _, z in b['cards']]}"
+            return f"{slug}: A hidden, B shows {len(b['cards'])} race shoes in size 10"
+        check("Shoe page: other shoes on sale in your size (test 'alts')")(shoe_alts, pg)
+
         def shoe_backbar():     # Oct 11: back on a shoe page from a store, a non-member gets "Didn't buy it?" + email
             pg.evaluate("localStorage.removeItem('gf-sub');localStorage.removeItem('gf-backno');sessionStorage.removeItem('gf-backshown')")
             pg.reload(wait_until="domcontentloaded")

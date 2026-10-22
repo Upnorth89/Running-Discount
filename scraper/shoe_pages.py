@@ -108,6 +108,11 @@ T = {
         "qsMen": "Men's", "qsWomen": "Women's", "qsSize": "Shoe size", "qsBtn": "Send me the deals", "qsPick": "Pick your shoe size first.",
         "qsMore": "Or pick all your sizes on the site →",
         "more": "More {brand} shoes", "all": "All shoe models",
+        "altH": {"daily": "Other road shoes on sale in your size", "race": "Other race shoes on sale in your size",
+                 "trail": "Other trail shoes on sale in your size", "hike": "Other hiking & winter shoes on sale in your size"},
+        "altH0": {"daily": "Other road shoes on sale today", "race": "Other race shoes on sale today",
+                  "trail": "Other trail shoes on sale today", "hike": "Other hiking & winter shoes on sale today"},
+        "altIn": "in size {s}", "altN": "{n} sizes on sale",
         "types": {"daily": "Road running shoe", "race": "Racing shoe (plated)", "trail": "Trail running shoe", "hike": "Hiking & winter shoe"},
         "idxTitle": "Running shoe prices by model in Canada",
         "idxH1": "Shoe prices by model",
@@ -205,6 +210,11 @@ T = {
         "qsMen": "Homme", "qsWomen": "Femme", "qsSize": "Pointure", "qsBtn": "Envoyez-moi les aubaines", "qsPick": "Choisissez d'abord votre pointure.",
         "qsMore": "Ou choisissez toutes vos tailles sur le site →",
         "more": "Autres chaussures {brand}", "all": "Tous les modèles",
+        "altH": {"daily": "Autres chaussures de route en solde dans votre pointure", "race": "Autres chaussures de compétition en solde dans votre pointure",
+                 "trail": "Autres chaussures de sentier en solde dans votre pointure", "hike": "Autres chaussures de randonnée et d'hiver en solde dans votre pointure"},
+        "altH0": {"daily": "Autres chaussures de route en solde aujourd'hui", "race": "Autres chaussures de compétition en solde aujourd'hui",
+                  "trail": "Autres chaussures de sentier en solde aujourd'hui", "hike": "Autres chaussures de randonnée et d'hiver en solde aujourd'hui"},
+        "altIn": "en pointure {s}", "altN": "{n} pointures en solde",
         "types": {"daily": "Chaussure de course sur route", "race": "Chaussure de compétition (plaque)", "trail": "Chaussure de course en sentier", "hike": "Chaussure de randonnée et d'hiver"},
         "idxTitle": "Prix des chaussures de course par modèle au Canada",
         "idxH1": "Prix par modèle",
@@ -463,6 +473,15 @@ tr.yours td:first-child{font-weight:700;box-shadow:inset 4px 0 0 var(--hivis)}
 .cta p{margin:0 0 12px;color:var(--band-ink);opacity:.85}
 .btn{display:inline-block;background:var(--hivis);color:#17201C;border:2px solid #17201C;border-radius:10px;font:700 18px var(--display);padding:10px 18px;text-decoration:none}
 .links{display:flex;flex-wrap:wrap;gap:8px;padding:0;list-style:none;margin:0}
+.alts{margin:22px 0 6px}.alts h2{margin:0 0 10px}
+.altrow{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px;scrollbar-width:none}.altrow::-webkit-scrollbar{display:none}
+.altrow a{flex:0 0 150px;scroll-snap-align:start;display:flex;flex-direction:column;background:var(--card,#fff);border:1px solid var(--line,#ddd);border-radius:10px;padding:8px;text-decoration:none;color:inherit}
+.altrow img{width:100%;aspect-ratio:1;object-fit:contain;background:#fff;border-radius:6px}
+.altrow .ab{display:block;margin-top:6px;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;opacity:.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.altrow .an{font-size:14px;line-height:1.25;margin:1px 0 4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.altrow .ap{margin-top:auto;font-size:15px}.altrow .ap b{font-size:16px}.altrow .ao{display:inline-block;margin-left:4px;background:#F26A1B;color:#111;font-weight:700;font-size:12px;border-radius:4px;padding:1px 5px}
+.altrow .az{font-size:12.5px;opacity:.75}
+@media(min-width:760px){.altrow{display:grid;grid-template-columns:repeat(3,1fr);overflow:visible}.altrow a{flex:none}}
 .links a{display:inline-block;background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:6px 12px;text-decoration:none;color:var(--ink);font-size:15px}
 .links small{color:var(--moss);font-weight:600}
 .brand{margin:18px 0 6px;font:700 20px var(--display);scroll-margin-top:120px}
@@ -614,7 +633,7 @@ var pickRow=function(){{box.hidden=false;box.innerHTML='<label class="pickl">'+b
 var choose=function(v,save){{if(!v){{pickRow();return}}var ti=+v.split("|")[0],s=v.slice(v.indexOf("|")+1),t=tables[ti];if(!t){{pickRow();return}}
   var best=mark(function(tt,tti,rs){{return tti===ti&&rs===s}});
   if(save){{var n=clean(s),gg=t.dataset.g;if(/^W /.test(n)){{gg="women";n=n.slice(2)}}else if(gg==="unisex")gg="men";
-    try{{localStorage.setItem("gf-shoe-size",JSON.stringify({{g:gg,s:n,v:v}}))}}catch(e){{}}try{{ana("shoe-page-size",gg+"|"+n)}}catch(e){{}}try{{window.umami&&umami.track("shoe-page-size",{{}})}}catch(e){{}}}}
+    try{{localStorage.setItem("gf-shoe-size",JSON.stringify({{g:gg,s:n,v:v}}))}}catch(e){{}}try{{ana("shoe-page-size",gg+"|"+n)}}catch(e){{}}try{{window.gfAlts&&gfAlts()}}catch(e){{}}try{{window.umami&&umami.track("shoe-page-size",{{}})}}catch(e){{}}}}
   say(best,' · <button type="button" class="chg">'+box.dataset.chg+"</button>"+'<span class="all"><a href="'+box.dataset.home+'">'+box.dataset.all+"</a></span>");
   box.querySelector(".chg").addEventListener("click",function(){{sel.value="";pickRow();sel.focus()}})}};
 sel.addEventListener("change",function(){{choose(sel.value,true)}});
@@ -623,6 +642,40 @@ if(prev&&prev.v&&sel.querySelector('option[value="'+prev.v.replace(/"/g,"")+'"]'
 else if(prev&&prev.s){{var o=[].slice.call(sel.options).filter(function(o){{var x=o.value.slice(o.value.indexOf("|")+1);return o.value&&clean(x).replace(/^W /,"")===prev.s&&(tables[+o.value.split("|")[0]].dataset.g===prev.g||(tables[+o.value.split("|")[0]].dataset.g==="unisex"&&(prev.g==="women")===/^W /.test(x)))}})[0];
   if(o){{sel.value=o.value;choose(o.value,false)}}else pickRow()}}
 else pickRow()}})();
+/* test 'alts' (Oct 22): B = other shoes of the same kind on sale in your size, under the size tables. Same coin as the homepage
+   (device id + test name), so a device stays in its group; ?exp=alts:B forces it (previews, checks) */
+(function(){{var box=document.getElementById("alts");if(!box)return;
+var ls=function(k){{try{{return JSON.parse(localStorage.getItem(k)||"null")}}catch(e){{return null}}}};
+var over=ls("gf-exp")||{{}};try{{var q=new URLSearchParams(location.search).get("exp");if(q){{q.split(",").forEach(function(x){{var a=x.split(":");if(a[0]&&/^[AB]$/.test(a[1]))over[a[0]]=a[1]}});localStorage.setItem("gf-exp",JSON.stringify(over))}}}}catch(e){{}}
+var did="";try{{did=localStorage.getItem("gf-did")||""}}catch(e){{}}
+var arm=over.alts||(function(){{var h=2166136261,s=did+"|alts";for(var i=0;i<s.length;i++){{h^=s.charCodeAt(i);h=Math.imul(h,16777619)}}return (h>>>0)%2?"B":"A"}})();
+try{{if(!sessionStorage.getItem("gf-exp-alts")){{sessionStorage.setItem("gf-exp-alts","1");ana("signup-step","exp|alts|"+arm)}}}}catch(e){{}}
+if(arm!=="B")return;
+var fr=box.dataset.fr==="1",esc=function(s){{return String(s).replace(/[&<>"]/g,function(c){{return {{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}}[c]}})}};
+var money=function(v){{var s=v.toFixed(2);return fr?s.replace(".",",")+" $":"$"+s}};
+var data=null,me=box.dataset.slug,myB=box.dataset.b.toLowerCase();
+function size(){{var p=ls("rd-profile");if(p&&p.sizes&&p.sizes.shoes&&(p.sizes.shoes.sizes||[]).length){{var g=p.gender||"any";
+    return {{g:g,m:p.sizes.shoes.sizes.map(String),w:(p.sizes.shoes.women&&p.sizes.shoes.women.length?p.sizes.shoes.women:g==="women"?p.sizes.shoes.sizes:[]).map(String)}}}}
+  var s=ls("gf-shoe-size");if(s&&s.s)return s.g==="women"?{{g:"women",m:[],w:[String(s.s)]}}:{{g:"men",m:[String(s.s)],w:[]}};return null}}
+function draw(){{if(!data)return;var list=(data[box.dataset.t]||[]).filter(function(x){{return x.s!==me}}),z=size(),rows=[];
+  list.forEach(function(x){{var best=null;
+    if(z){{["m","w"].forEach(function(c){{if((c==="m"&&z.g==="women")||(c==="w"&&z.g==="men"))return;var sz=c==="m"?z.m:z.w;
+      sz.forEach(function(s){{var v=(x[c]||{{}})[s];if(v&&(!best||v[0]<best[0]))best=[v[0],v[1],s]}})}});if(!best)return}}
+    else{{["m","w"].forEach(function(c){{for(var s in (x[c]||{{}})){{var v=x[c][s];if(!best||v[1]>best[1])best=[v[0],v[1],null]}}}})}}
+    var n=Object.keys(x.m||{{}}).length+Object.keys(x.w||{{}}).length;rows.push({{x:x,p:best,n:n}})}});
+  rows.sort(function(a,b){{return z?b.p[1]-a.p[1]:((b.n>=6)-(a.n>=6))||b.p[1]-a.p[1]}});   // no size yet: shoes on sale in 6+ sizes first
+  var out=[],per={{}};rows.forEach(function(r){{var b=r.x.b.toLowerCase();if(b===myB)return;per[b]=(per[b]||0)+1;if(per[b]<=2&&out.length<6)out.push(r)}});   // other brands, 2 at most each
+  rows.forEach(function(r){{if(out.length<6&&out.indexOf(r)<0&&r.x.b.toLowerCase()===myB)out.push(r)}});
+  if(out.length<3){{box.hidden=true;return}}
+  box.querySelector("h2").textContent=z?box.dataset.h:box.dataset.h0;
+  box.querySelector(".altrow").innerHTML=out.map(function(r){{var x=r.x,p=r.p;
+    return '<a href="'+box.dataset.dir+x.s+'/" data-alt="'+esc(x.s)+'">'+(x.i?'<img src="'+esc(x.i)+'" alt="" loading="lazy" referrerpolicy="no-referrer">':"")+
+      '<span class="ab">'+esc(x.b)+'</span><span class="an">'+esc(x.n)+'</span><span class="ap"><b>'+money(p[0])+'</b><span class="ao">−'+p[1]+'%</span></span>'+
+      '<span class="az">'+esc(p[2]?box.dataset["in"].replace("{{s}}",p[2]):box.dataset.n.replace("{{n}}",r.n))+"</span></a>"}}).join("");
+  box.hidden=false}}
+box.addEventListener("click",function(e){{var a=e.target.closest("a[data-alt]");if(a){{try{{ana("shoe-page-link","alts|"+a.dataset.alt)}}catch(x){{}}}}}});
+window.gfAlts=draw;
+fetch(box.dataset.src).then(function(r){{return r.json()}}).then(function(d){{data=d;draw()}}).catch(function(){{}})}})();
 /* "Email me when it drops in my size" (Oct 8): sign up right on the shoe page. The shoe goes on the watchlist (this phone and,
    through watch_new in the sign-up, any device that opens the confirm link); sizes come from the main site or the picker above */
 (function(){{var box=document.getElementById("alertBox");if(!box)return;var f=box.querySelector("form"),msg=box.querySelector(".msg");
@@ -1050,6 +1103,12 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None)
             out.append(f'<tr data-s="{esc(size)}" data-p="{p:.2f}"><td>{esc(size)}</td><td class="p">{price}</td><td><a href="{esc(u)}" rel="nofollow noopener" target="_blank" data-store="{esc(h)}">{esc(st[0])}</a>{us}{fin}</td></tr>')
         out.append("</tbody></table>" + per_pw.get(lab, "") + "</div>")
     out.append("</div>" + all_pw)
+    # Oct 22 (daily review: 42% of first visits land here, 5% go on to another page, 3% come back): test 'alts' (B) shows other
+    # shoes of the same kind on sale in the visitor's size, from the file alt_file() writes; the script below fills it
+    kind = first_t if (first_t := (its[0].get("t") or "daily")) in L["altH"] else "daily"
+    out.append(f'<section class="alts" id="alts" hidden data-t="{kind}" data-src="/{L["dir"]}/alts.json" data-slug="{slug}" data-b="{esc(brand)}" '
+               f'data-dir="/{L["dir"]}/" data-h="{esc(L["altH"][kind])}" data-h0="{esc(L["altH0"][kind])}" data-in="{esc(L["altIn"])}" '
+               f'data-n="{esc(L["altN"])}" data-fr="{1 if L["lang"] == "fr-CA" else 0}"><h2></h2><div class="altrow"></div></section>')
     if sm:     # a few lines Google (and people) can read: what it is, where it's cheapest, sizes, today's answers
         about = L["about"].format(name=esc(name), type=L["typeLower"].get(sm["t"], L["typeLower"][""]), stores=sm["stores"], sizes=sm["sizes"])
         bsz = sizes_phrase(sm.get("best_sizes") or [], L)
@@ -1094,6 +1153,45 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None)
                    "".join(f'<li><a href="/{L["dir"]}/{s}/">{esc(brand_models[s])}</a></li>' for s in related) + "</ul>")
     out.append(page_foot(L))
     return "".join(out)
+
+
+def alt_file(models, live, fx=1.0):
+    """Oct 22: /shoes/alts.json (and /us/shoes/alts.json): for each kind of shoe, the 40 models with the deepest sale, each with
+    its sale sizes per cut ("m" men's / unisex, "w" women's): size -> [price, % off]. Shoe pages pick 6 in the visitor's size."""
+    out = defaultdict(list)
+    for slug in live:
+        its = models.get(slug)
+        if not its:
+            continue
+        cuts = {"m": {}, "w": {}}
+        for d in its:
+            if d.get("w"):
+                continue
+            sx = d.get("sx") or []
+            for e in d["sz"]:
+                sz = str(e[0])
+                reg = e[3] if len(e) > 3 and e[3] else e[1]
+                if sz.endswith(("~N", "~W")) or sz == "OS" or not e[1] < reg * 0.99:
+                    continue
+                g = "w" if sx == ["women"] or sz.startswith("W:") else "m"
+                sz = sz.replace("M:", "").replace("W:", "")
+                if not re.fullmatch(r"\d+(\.5)?", sz):
+                    continue
+                pct = round(100 * (1 - e[1] / reg))
+                if sz not in cuts[g] or e[1] / fx < cuts[g][sz][0]:
+                    cuts[g][sz] = [round(e[1] / fx, 2), pct]
+        n = len(cuts["m"]) + len(cuts["w"])
+        if not n:
+            continue
+        top = max(v[1] for c in cuts.values() for v in c.values())
+        if top < 10:
+            continue
+        t = its[0].get("t") or "daily"
+        img = next((d["img"] for d in its if d.get("img")), "")
+        out[t].append((top, n, {"s": slug, "b": its[0]["b"], "n": base_model(its[0]["n"]), "i": img,
+                                **{g: c for g, c in cuts.items() if c}}))
+    # shoes on sale in 4+ sizes first (a 71% deal left in one women's 5 helps almost nobody), then the deepest discount
+    return {t: [x[2] for x in sorted(rows, key=lambda r: (r[1] < 4, -r[0], -r[1]))[:40]] for t, rows in out.items()}
 
 
 def card_list(L, rows):
@@ -1254,6 +1352,9 @@ def main():
             p.parent.mkdir(parents=True, exist_ok=True)
             p.write_text(model_page(slug, its, stores, L, updated, related, names))
     (site / "shoe-pages.css").write_text(HEAD_CSS.strip() + "\n")
+    (site / "shoes" / "alts.json").write_text(json.dumps(alt_file(models, known_live), ensure_ascii=False, separators=(",", ":")))
+    (site / "chaussures").mkdir(exist_ok=True)
+    (site / "chaussures" / "alts.json").write_text((site / "shoes" / "alts.json").read_text())
     # today's numbers per model (and per gender) for the list pages
     summ = {sl: summary(models[sl], stores) for sl in known_live if models.get(sl)}
     summ = {k: v for k, v in summ.items() if v}
@@ -1423,6 +1524,7 @@ def build_us(site, stores, ca_models, ca_brands):
         p.write_text(model_page(slug, its, stores, L, updated, related, names,
                                 paths=(f"/{L['dir']}/{slug}/", f"/shoes/{slug}/" if slug in ca_models else "")))
         urls.append(f"/{L['dir']}/{slug}/")
+    (site / L["dir"] / "alts.json").write_text(json.dumps(alt_file(models, live, fx), ensure_ascii=False, separators=(",", ":")))
     summ = {sl: summary(models[sl], stores) for sl in live if models.get(sl)}
     summ = {k: v for k, v in summ.items() if v}
     gsumm = {g: {sl: summary(models[sl], stores, g) for sl in summ} for g in ("women", "men")}

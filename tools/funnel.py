@@ -32,7 +32,7 @@ while True:
         break
 
 S = defaultdict(lambda: {"kinds": set(), "entry": None, "nv": None, "dev": None, "ref": None, "secs": None, "scroll": None,
-                         "steps": set(), "n": 0})
+                         "steps": set(), "n": 0, "pages": set()})
 for e in rows:
     s = S[e["sid"]]
     s["n"] += 1
@@ -49,6 +49,10 @@ for e in rows:
         s["scroll"] = max(s["scroll"] or 0, e["num"])
     if e["kind"] == "signup-step":
         s["steps"].add(e["detail"])
+    if e["kind"] == "shoe-page-view":
+        s["pages"].add(e["detail"])
+    if e["kind"] in ("welcome-view", "sizes-saved", "load"):
+        s["pages"].add("/")             # the homepage
 
 new = [s for s in S.values() if s["nv"] == 1]
 out = [f"Last {DAYS} days: {len(rows)} events, {len(S)} sessions, {len(new)} first visits"]
@@ -100,7 +104,8 @@ shoe = [s for s in new if land(s) == "shoe pages"]
 if shoe:
     out.append(f"SHOE PAGE first visits {len(shoe)}: picked a size {pct(sum(1 for s in shoe if 'shoe-page-size' in s['kinds']), len(shoe))}, "
                f"clicked a store {pct(sum(1 for s in shoe if 'deal-click' in s['kinds']), len(shoe))}, "
-               f"went on to the homepage {pct(sum(1 for s in shoe if 'welcome-view' in s['kinds'] or 'sizes-saved' in s['kinds']), len(shoe))}")
+               f"went on to the homepage {pct(sum(1 for s in shoe if 'welcome-view' in s['kinds'] or 'sizes-saved' in s['kinds']), len(shoe))}, "
+               f"went on to another of our pages {pct(sum(1 for s in shoe if len(s['pages']) >= 2), len(shoe))}")   # Oct 22: test 'alts' metric
 # come-back bar (Oct 5) and where sign-ups happen (Oct 8): is the store offer used, and does a sign-up follow a deal click?
 alls = list(S.values())
 off = [s for s in alls if "store-offer" in s["kinds"]]
@@ -318,7 +323,8 @@ try:
             if a_ in g:
                 g[a_].append((s_, b))
         out.append(f"EXPERIMENT '{tname}' (A = as before, B = new): A {len(g['A'])} devices, B {len(g['B'])} devices")
-        for mname, f in (("came back on another day", lambda s_, b: b), ("signed up", lambda s_, b: "signup" in s_["kinds"]),
+        for mname, f in (("came back on another day", lambda s_, b: b),
+                         ("went on to another of our pages", lambda s_, b: len(s_["pages"]) >= 2), ("signed up", lambda s_, b: "signup" in s_["kinds"]),
                          ("picked sizes", lambda s_, b: "sizes-saved" in s_["kinds"]),
                          ("clicked a store or picked sizes", lambda s_, b: "deal-click" in s_["kinds"] or "sizes-saved" in s_["kinds"]),
                          ("clicked a store", lambda s_, b: "deal-click" in s_["kinds"])):
