@@ -977,6 +977,39 @@ def site_flow(base, per, accented):
             return f"1 deal per row; bar stays on top; Filters panel: brand '{brand}' -> only {brand} deals; Shoes circle -> Shoes only, '× All' back"
         check("Test 'look': small phone, sticky bar + Filters panel")(look_mobile, pg)
 
+        def core_things():   # Oct 22 (Bastien: "don't remove core things"): every agreed, brand-defining piece is on the page, in the
+            # current design and in the new one ('look' B). CLAUDE.md lists them; a missing one = tell Bastien before shipping
+            missing = {}
+            for arm in ("A", "B"):
+                c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+                stub(c)
+                c.add_init_script(f"""try{{localStorage.setItem('gf-exp',JSON.stringify({{look:'{arm}'}}));localStorage.setItem('gf-peek','1');localStorage.removeItem('gf-nosignup');
+                  localStorage.setItem('rd-profile',JSON.stringify({{gender:'men',terrain:'both',ships:'ca',country:'ca',groups:['shoes','tops','bottoms','socks','gloves','headwear','packs','gear','watches','nutrition'],sizes:{{shoes:{{sizes:['11'],width:[]}},tops:{{sizes:['M']}},bottoms:{{sizes:['M']}}}},brands:[],lang:'en'}}))}}catch(e){{}}""")
+                q = c.new_page()
+                q.goto(base, wait_until="domcontentloaded")
+                q.wait_for_selector("#dealList .deal", timeout=30000)
+                q.wait_for_timeout(1200)
+                got = q.evaluate("""() => {const vis = el => !!el && el.getClientRects().length > 0, txt = s => [...document.querySelectorAll(s)].filter(vis).map(x => x.textContent).join(' ');
+                  const cards = [...document.querySelectorAll('#dealList section.grp:not(.new) .dw')].slice(0, 6);
+                  return {
+                    'tagline "Outfox full price"': /outfox full price/i.test(txt('.tag,.rdtag,[data-i18n="tagline"]')),
+                    '"Watch price" in words on cards': cards.length > 0 && cards.every(w => /watch price|watching/i.test(w.querySelector('.heart')?.innerText || '')),
+                    '"Top drop" link': vis(document.querySelector('#hook:not(.hidden)')) || !document.querySelector('#hook a'),
+                    'your sizes shown': /11/.test(txt('#subhead,#sizeSummary,#ddSize,#rdQS,#rdBarZ')),
+                    'sign-up card': !!document.querySelector('#dealList .signup'),
+                    'search box': vis(document.getElementById('dSearch')),
+                    '"Wrong price or size?" on cards': cards.every(w => !!w.querySelector('.rep')),
+                    'store on cards': cards.every(w => !!w.querySelector('.store')),
+                    'currency after prices': cards.every(w => /CAD|USD/.test(w.querySelector('.price')?.innerText || '')),
+                    'footer links': ['shoes/','about.html','privacy.html','instagram'].every(h => [...document.querySelectorAll('.foot a')].some(a => a.href.includes(h)))}}""")
+                c.close()
+                bad = [k for k, ok in got.items() if not ok]
+                if bad:
+                    missing[arm] = bad
+            assert not missing, f"core things missing: {missing}"
+            return "tagline, Watch price, Top drop, sizes, sign-up card, search, Wrong price, store, currency, footer: all there (A and B)"
+        check("Core things are on the page")(core_things, pg)
+
         def canadian():   # Oct 7: Canadian brands filter (Canada side): only maple-leaf brands, a box saying so, × turns it off
             pg.goto(base + "?canadian", wait_until="domcontentloaded")
             pg.wait_for_selector(".cdnbar", timeout=20000)

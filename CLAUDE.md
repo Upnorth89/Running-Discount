@@ -235,6 +235,14 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   tell me it's stupid and the reason why. I need to stop reminding you of this").** Every recommendation cites our own numbers
   (funnel.yml) and/or established UX/consumer research (Baymard, Nielsen Norman Group…), named, never made-up stats. When his idea
   won't work, say so plainly first, then why, then what would. Agreeing to be agreeable is the failure he keeps flagging.
+- **Core things: never remove or hide one without telling Bastien first and getting a yes (Oct 22: "you shouldn't be touching
+  things without telling me if they remove things we've agreed on previously"; "that then leaves me to have to continuously
+  monitor you").** The list (site test "Core things are on the page" checks each, on the current and the new design):
+  the tagline "Outfox full price" (EN/FR), "♡ Watch price" in words on every card, the "Top drop" link, your sizes shown + a way
+  to change them, the sign-up card ("Free with your email"), search, Ships from Canada / Canadian brands / Include full price /
+  Sort, "Wrong price or size?" on every card, "All sizes & stores" on shoe cards, the "Lowest price in N days" badge, the store and
+  where it ships from on each card, the currency after prices (CAD/USD), Canada/USA and EN/FR switches, the footer links
+  (Instagram, Shoe prices, About, Privacy). Adding to it: when Bastien agrees a feature, it goes on this list.
 - **Design work: phone first, one complete mockup before code (Oct 22).** The redesign built Bastien's computer rendering
   literally onto phones, then took ~2 days of rounds undoing it (hero search back to the header, 5 filter boxes -> 1 button,
   photo tiles -> circles; Bastien: "we're really working backwards ... this is brutal"). Next time: show ONE finished phone

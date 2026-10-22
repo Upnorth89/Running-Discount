@@ -222,7 +222,6 @@ html.rd,html:root.rd{color-scheme:light;
 .rd .grp h2 small{font:400 14px var(--body);color:var(--muted)}
 .rd .rdmore{margin-left:auto;display:inline-flex;align-items:center;gap:6px;background:none;border:0;padding:4px 0;color:var(--moss);font:500 15px var(--body);cursor:pointer;white-space:nowrap}
 .rd .rdmore svg{flex:none}
-.rd .grp.sale h2 small{display:none}
 
 /* deal cards */
 .rd .grid{gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -242,7 +241,6 @@ html.rd,html:root.rd{color-scheme:light;
 .rd .rdc .price{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 8px;margin:10px 0 6px}
 .rd .rdc .price b{font:700 23px/1.1 var(--body);color:var(--price);letter-spacing:-.01em}
 .rd .rdc .price .cur{font:600 11px var(--body);color:var(--muted);margin-left:-5px}
-.rd:not(.us) .rdc .price .cur{display:none}   /* Canada side: prices are CAD, as in the rendering; the USA side keeps "USD" */
 .rd .rdc .price s{font:400 14px var(--body);color:var(--muted)}
 .rd .rdc .store{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;color:var(--ink);padding:0;margin-top:2px}
 .rd .rdc .store b{font:700 13px/1.2 var(--body);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -565,4 +563,22 @@ html.rd,html:root.rd{--price:#17232B}
 }
 /* the tagline on phones for first-time visitors (Oct 22, Bastien: "did you remove our tagline?"): the header only has room for the fox */
 .rd .rdtag{display:none;margin:0 0 6px;font:700 12px/1 var(--body);letter-spacing:.16em;color:var(--moss)}
-@media(max-width:759px){.rd .rdhs .rdtag{display:block}.rd.rdsized .rdhs .rdtag{display:none}}
+@media(max-width:759px){.rd .rdhs .rdtag{display:block}}
+
+/* ===== Core things kept (Oct 22, Bastien: "I just need you to not remove core things"): "♡ Watch price" in words on every card,
+   the "Top drop" link, the tagline on phones, CAD after prices, the deal count by "Top deals" ===== */
+.rd .rdc .heart{top:8px;right:8px;width:auto;min-width:0;height:34px;padding:0 11px 0 9px;gap:5px;border-radius:999px;background:rgba(255,255,255,.95);border:1px solid var(--line);color:#17232B;font:600 12.5px var(--body)}
+.rd .rdc .heart .hl{position:static;width:auto;height:auto;overflow:visible;clip:auto;white-space:nowrap}
+.rd .rdc .heart svg{width:16px;height:16px}
+.rd .rdc .heart[aria-pressed="true"]{border-color:var(--hivis);color:var(--moss)}
+@media(max-width:379px){.rd .rdc .heart{left:auto;right:auto;top:auto;bottom:6px;left:10px}}   /* small phones, one deal per row: the pill under the photo */
+.rd .rdhero .hook{display:inline-flex;margin:10px 0 0}
+.rd .rdhero .hook.hidden{display:none}
+/* "♡ Watch price" as the card's bottom-left button (as on the live site), ⋯ bottom-right, "All sizes →" just above: nothing overlaps
+   the % badge or the photo on any phone */
+.rd .rdc .heart,.rd .rdc .heart{top:auto;right:auto;left:10px;bottom:8px}
+.rd .rdc .deal,.rd .compact .rdc .deal{padding-bottom:50px}
+.rd .rdc.hascmp .deal,.rd .compact .rdc.hascmp .deal{padding-bottom:74px}
+.rd .rdc .cmp,.rd .rdc.hascmp .cmp{left:12px;bottom:48px}
+.rd .rdc .rdrep{bottom:9px;right:6px}
+@media(max-width:379px){.rd .rdc .heart{left:10px;bottom:8px}.rd .rdc.hascmp .cmp{left:12px;bottom:48px}.rd .rdc.hascmp .deal{padding-bottom:74px}}
