@@ -1633,63 +1633,11 @@ function shopStore(h,from){view.store=h;view.open={};view.q="";$("dSearch").valu
 let lastShop=(()=>{try{return JSON.parse(sessionStorage.getItem("gf-lastshop")||"null")}catch(e){return null}})();
 const offered=new Set((()=>{try{return JSON.parse(sessionStorage.getItem("gf-offered")||"[]")}catch(e){return []}})());
 function hideBackBar(){const b=$("backBar");if(b)b.remove()}
-/* Oct 8 (funnel: 129 first visitors clicked a deal, 16 signed up): back from a store, a visitor who isn't a member and hasn't
-   said "No thanks" gets the Friday email offer in the bar, once per visit; the store offer waits for the next return */
-function offerSignup(watched){
-  if((sub&&(sub.active||sub.pending||sub.key))||(LS.get("gf-nosignup")&&!watched))return false;
-  try{if(sessionStorage.getItem("gf-bsu")&&!watched)return false;sessionStorage.setItem("gf-bsu","1")}catch(e){return false}
-  const H=watched?t("bwSuH"):t("bsuH"),TX=watched?t("bwSuTxt"):t("bsuTxt");
-  hideBackBar();lastShop=null;try{sessionStorage.removeItem("gf-lastshop")}catch(e){}   // this return's offer; the store offer waits for the next click
-  const b=document.createElement("div");b.id="backBar";b.className="backbar subar";b.setAttribute("role","dialog");b.setAttribute("aria-label",H);
-  b.innerHTML=`<form novalidate><p><b>${H}</b> ${TX}</p><div class="row"><input type="email" autocomplete="email" inputmode="email" placeholder="${t("emailPh")}" aria-label="${t("email")}" value="${esc(state.email||"")}"><button type="submit" class="go">${t("bsuGo")}</button></div><p class="msg" aria-live="polite"></p></form><button type="button" class="x" aria-label="${t("close")}">×</button>`;
-  document.body.appendChild(b);ana("signup-step",watched?"watchbar-view":"backbar-view");
-  const f=b.querySelector("form"),msg=b.querySelector(".msg");
-  f.addEventListener("submit",async e=>{e.preventDefault();const email=cleanMail(f.querySelector("input").value);
-    if(!okMail(email)){msg.textContent=t("badEmail");return}
-    const btn=f.querySelector("button");btn.disabled=true;btn.textContent="…";
-    state.email=email;const p=toProfile();LS.set("rd-profile",p);
-    try{await rpc("subscribe",{p_email:email,p_profile:subProfile(p)});setSub({pending:email});track("signup",{method:"email",lang:LANG,where:watched?"watchbar":"backbar",ref:REF||"none"});
-      f.innerHTML=`<p><b>${t("checkInbox")}</b> ${t("checkInboxTxt",esc(email))}</p>${mailBtn(email)}`;renderAll();setTimeout(hideBackBar,20000)}
-    catch(err){btn.disabled=false;btn.textContent=t("bsuGo");msg.textContent=t("signupFail",err.message)}});
-  b.querySelector(".x").addEventListener("click",()=>{ana("signup-step","backbar-close");hideBackBar()});
-  return true}
-/* Oct 11 (3 weeks: 5 devices hearted, and they came back twice as often as the rest): back from a store without the deal,
-   offer to watch its price, once per item per visit; non-members then get the email offer in the same bar */
-function offerWatch(){
-  const k=lastShop&&lastShop.k;if(!k||watches[k]||!byKey[k])return false;
-  let seen=[];try{seen=JSON.parse(sessionStorage.getItem("gf-bw")||"[]");if(seen.includes(k))return false;seen.push(k);sessionStorage.setItem("gf-bw",JSON.stringify(seen))}catch(e){return false}
-  lastShop.k=null;try{sessionStorage.setItem("gf-lastshop",JSON.stringify(lastShop))}catch(e){}
-  const d=byKey[k][0];hideBackBar();
-  const b=document.createElement("div");b.id="backBar";b.className="backbar bwbar";b.setAttribute("role","dialog");b.setAttribute("aria-label",t("bwH"));
-  const r=RENDERED[k],nmx=esc(d.b+" "+nm(d.n).replace(/ - (Men's|Women's|Unisex|Homme|Femme|Unisexe)$/,""));
-  // Oct 17: one step for non-members (the email box is in the card; watching + signing up happen together). Members, and
-  // anyone already waiting on a confirm link, keep the one-tap "Watch price".
-  const ask=!(sub&&(sub.active||sub.pending||sub.key));
-  const item=`<div class="bwi">${d.img?`<img src="${esc(d.img)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">`:""}<span><span class="n">${nmx}</span>${r&&r.best?`<span class="pr"><b>${money(r.best)}</b>${r.pct?`<s>${money(r.reg)}</s>`:""}</span>`:""}</span></div>`;
-  b.innerHTML=ask?`<form novalidate><p class="bwh">${t("bwH")}</p>${item}<p class="why">${t("bwMail")}</p><div class="row"><input type="email" autocomplete="email" inputmode="email" placeholder="${t("emailPh")}" aria-label="${t("email")}" value="${esc(state.email||"")}"><button type="submit" class="go">${t("bwNotify")}</button></div><p class="fine">${t("bwFine")}</p><p class="msg" aria-live="polite"></p></form><button type="button" class="x" aria-label="${t("close")}">×</button>`
-    :`<p class="bwh">${t("bwH")}</p>${item}<p class="why">${t("bwTxt")}</p><button type="button" class="go">${t("bwGo")}</button><button type="button" class="x" aria-label="${t("close")}">×</button>`;
-  document.body.appendChild(b);ana("signup-step",ask?"watch-offer-mail":"watch-offer");
-  if(ask){const f=b.querySelector("form"),msg=b.querySelector(".msg");
-    f.addEventListener("submit",async e=>{e.preventDefault();const email=cleanMail(f.querySelector("input").value);
-      if(!okMail(email)){msg.textContent=t("badEmail");return}
-      const btn=f.querySelector(".go");btn.disabled=true;btn.textContent="…";
-      if(!watches[k])toggleWatch(k,true);setHearts(k);      // the watch rides in the sign-up (watch_new) and comes back with the confirm link
-      state.email=email;const p=toProfile();LS.set("rd-profile",p);
-      try{await rpc("subscribe",{p_email:email,p_profile:subProfile(p)});setSub({pending:email});track("signup",{method:"email",lang:LANG,where:"watchoffer",ref:REF||"none"});
-        f.innerHTML=`<p><b>${t("checkInbox")}</b> ${t("checkInboxTxt",esc(email))}</p>${mailBtn(email)}`;renderAll();setTimeout(hideBackBar,20000)}
-      catch(err){btn.disabled=false;btn.textContent=t("bwNotify");msg.textContent=t("signupFail",err.message)}});
-    b.querySelector(".x").addEventListener("click",()=>{ana("signup-step","watch-offer-close");hideBackBar()});
-    return true}
-  b.querySelector(".go").addEventListener("click",()=>{ana("signup-step","watch-offer-yes");toggleWatch(k,true);setHearts(k);hideBackBar();
-    if(!offerSignup(true))toast(sub&&sub.active?t("watching"):sub&&sub.pending?t("watchingPending"):t("watchingSignup"))});
-  b.querySelector(".x").addEventListener("click",()=>{ana("signup-step","watch-offer-close");hideBackBar()});
-  return true}
+/* Removed Oct 22 (Bastien OK'd; docs/decisions.md): the "Didn't buy it? Watch price" card (382 shown, 0 sign-ups) and the
+   come-back sign-up bar (612 shown, 264 closed, 0 sign-ups traced to it). Back from a store, only the store offer below remains. */
 function offerStore(){
-  if(document.querySelector("#backBar.subar,#backBar.bwbar"))return;     // the sign-up / watch offer stays until it's answered or closed
   if(!lastShop||view.store||Date.now()-lastShop.t>45*60e3)return;
-  if(offerWatch())return;
   if(offered.has(lastShop.h))return;
-  if(offerSignup())return;
   const h=lastShop.h,n=storeCounts()[h]||0;if(n<4||!STORES[h])return;
   offered.add(h);try{sessionStorage.setItem("gf-offered",JSON.stringify([...offered]))}catch(e){}hideBackBar();
   const b=document.createElement("div");b.id="backBar";b.className="backbar";b.setAttribute("role","status");

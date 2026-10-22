@@ -463,17 +463,10 @@ def site_flow(base, per, accented):
             tap = """() => { const a = [...document.querySelectorAll('section.grp a.deal')]
                 .find(a => /altitude|lasthunt|sportinglife|thefeed|bushtukah/.test(a.dataset.store)) || document.querySelector('section.grp a.deal');
                 a.addEventListener('click', e => e.preventDefault(), {once: true}); a.click(); return a.parentNode.querySelector('.heart').dataset.key; }"""
-            key = page.evaluate(tap)
-            # Oct 11: the first return offers to watch that deal's price ("Didn't buy it?")
-            page.wait_for_selector("#backBar.bwbar", timeout=6000)
-            # Oct 17: non-members get it in one step (email box + "Notify me" in the card); not sent here, so the next checks
-            # still see a visitor without an email
-            assert page.locator("#backBar.bwbar input[type=email]").count(), "the 'Didn't buy it?' card has no email box"
-            assert "Notify me" in page.inner_text("#backBar .go"), f"the card's button says {page.inner_text('#backBar .go')!r}"
-            page.click("#backBar .x")
-            settle(page, 300)
-            page.evaluate(tap)                                   # second return: that store's other deals
-            page.wait_for_selector("#backBar:not(.bwbar):not(.subar)", timeout=6000)
+            page.evaluate(tap)
+            # Oct 22: the "Didn't buy it?" card is gone (382 shown, 0 sign-ups): the first return offers that store's other deals
+            page.wait_for_selector("#backBar", timeout=6000)
+            assert not page.locator("#backBar.bwbar,#backBar.subar").count(), "a removed bar ('Didn't buy it?' / sign-up) came back"
             bar = page.inner_text("#backBar")
             page.click("#backBar .go")
             page.wait_for_selector(".storebar")
@@ -939,23 +932,18 @@ def site_flow(base, per, accented):
             return f"Nutrition: {n} deals from Canada, {m} with US stores"
         check("Ships from Canada means Canada")(ships_ca, pg)
 
-        def backbar_signup():   # Oct 8: back from a store, a visitor who isn't a member is offered the Friday email
+        def backbar_none():   # Oct 22: the come-back sign-up bar was removed (612 shown, 264 closed, 0 sign-ups); a non-member coming
+            # back from a store gets the store's other deals or nothing, never the email bar
             pg.goto(base, wait_until="domcontentloaded")
             pg.wait_for_selector("section.grp .deal", timeout=20000)
-            pg.evaluate("sessionStorage.removeItem('gf-bsu');sessionStorage.setItem('gf-lastshop',JSON.stringify({h:'sportinglife.ca',t:Date.now()}))")
+            pg.evaluate("localStorage.removeItem('gf-sub');sessionStorage.removeItem('gf-offered');sessionStorage.setItem('gf-lastshop',JSON.stringify({h:'sportinglife.ca',t:Date.now()}))")
             pg.reload(wait_until="domcontentloaded")
-            pg.wait_for_selector("#backBar.subar", timeout=8000)
-            pg.fill("#backBar input", "not-an-email")
-            pg.click("#backBar button.go")
-            settle(pg)
-            assert pg.inner_text("#backBar .msg").strip(), "a bad email gives no message in the come-back bar"
-            pg.fill("#backBar input", "robot@example.com")
-            pg.click("#backBar button.go")
-            settle(pg, 600)
-            assert "robot@example.com" in pg.inner_text("#backBar"), "the come-back bar doesn't confirm the sign-up"
-            pg.evaluate("localStorage.removeItem('gf-sub')")
-            return "offered, refused a bad email, signed up"
-        check("Sign-up bar after a deal click")(backbar_signup, pg)
+            pg.wait_for_selector("section.grp .deal", timeout=20000)
+            settle(pg, 3000)
+            assert not pg.locator("#backBar.subar,#backBar.bwbar").count(), "the removed sign-up bar still shows after a deal click"
+            pg.evaluate("sessionStorage.removeItem('gf-lastshop')")
+            return "no sign-up bar; the store offer only"
+        check("Back from a store: no sign-up bar (removed Oct 22)")(backbar_none, pg)
 
         def open_mail():     # Oct 11 (52% confirmed): "Check your inbox" opens their mail app
             pg.evaluate("localStorage.setItem('gf-sub',JSON.stringify({pending:'robot@gmail.com'}))")
