@@ -884,7 +884,9 @@ def site_flow(base, per, accented):
             assert pg.locator("#sheet").is_hidden(), "a browsing visitor gets the welcome screen again on reload"
             pg.click(".browsebar [data-picksize]")
             pg.wait_for_selector("#shoeSizes button", state="visible")
-            assert pg.locator("#moreSizes").is_visible() and pg.locator("#clothSizes").is_hidden(), "the short sizes step isn't short"
+            # Oct 22 (Bastien): fit, shoe size and the general clothing size show right away; road/trail + brands stay behind "+ Road or trail"
+            assert pg.locator("#moreSizes").is_visible() and pg.locator("#clothSizes").is_visible() and pg.locator("#terrain").is_hidden(), \
+                "the sizes step should show fit, shoe and clothing size, with road/trail behind '+ Road or trail'"
             pg.click('#fit button[data-v="men"]')
             pg.locator("#shoeSizes button", has_text=re.compile(r"^10$")).first.click()
             pg.click("#saveSizes")
@@ -1003,6 +1005,8 @@ def site_flow(base, per, accented):
                     'currency after prices': cards.every(w => /CAD|USD/.test(w.querySelector('.price')?.innerText || '')),
                     'footer links': ['shoes/','about.html','privacy.html','instagram'].every(h => [...document.querySelectorAll('.foot a')].some(a => a.href.includes(h)))}}""")
                 c.close()
+                if arm == "A":   # the live phone header has hidden the tagline since Oct 19 (search took its place); the redesign brings it back
+                    got.pop('tagline "Outfox full price"', None)
                 bad = [k for k, ok in got.items() if not ok]
                 if bad:
                     missing[arm] = bad
