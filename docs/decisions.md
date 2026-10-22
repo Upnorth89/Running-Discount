@@ -40,6 +40,7 @@ Newest first. "Revisit" says when (or what would make us) look again.
 | Tagline "Outfox full price" on phones | **Above the headline for first-time visitors** (Oct 22, Bastien asked where it went) | The header has room only for the fox; returning visitors know us, so their top stays calm |
 | Size shown under the search ("Men's 11 · M") | **Kept**; header "My sizes" removed on phones (Oct 22) | It says what the deals are filtered by (Baymard: show applied filters); the header button did the same thing twice |
 | Shop by brand position | **After the deals** (Oct 22) | Between Top deals and the categories it interrupted the deals |
+| Size step: clothing size behind "+ Clothing size" (short step since Oct 6) | **Changed** (Bastien, Oct 22): Men's / Women's / Both, shoe size, clothing size all shown right away; "Different size in shorts, socks or gloves?" for more; "+ Road or trail, favourite brands" kept at the bottom | One clothing row costs little; people who wear one size everywhere don't open anything |
 | Prices in orange | **Changed to charcoal** (Oct 22) | Orange on everything = nothing stands out (isolation effect); orange text is 3.1:1 on white vs ~15:1 for charcoal. Orange kept for your size, main buttons, the headline accent |
 | Sticky search + Filters bar and a Filters panel on phones (from ChatGPT's review) | Built | Baymard: keep filtering within reach on long mobile lists |
 | One deal per row on small phones (< 380px) | Built | Two columns were cramped at 320px (names cut, "In stock" squeezed) |
