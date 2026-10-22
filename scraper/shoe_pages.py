@@ -477,6 +477,7 @@ tr.yours td:first-child{font-weight:700;box-shadow:inset 4px 0 0 var(--hivis)}
 .altrow{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px;scrollbar-width:none}.altrow::-webkit-scrollbar{display:none}
 .altrow a{flex:0 0 150px;scroll-snap-align:start;display:flex;flex-direction:column;background:var(--card,#fff);border:1px solid var(--line,#ddd);border-radius:10px;padding:8px;text-decoration:none;color:inherit}
 .altrow img{width:100%;aspect-ratio:1;object-fit:contain;background:#fff;border-radius:6px}
+.altrow img.x,.altrow img:not([src]){visibility:hidden}   /* a photo that fails keeps its square, the card its shape */
 .altrow .ab{display:block;margin-top:6px;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;opacity:.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .altrow .an{font-size:14px;line-height:1.25;margin:1px 0 4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .altrow .ap{margin-top:auto;font-size:15px}.altrow .ap b{font-size:16px}.altrow .ao{display:inline-block;margin-left:4px;background:#F26A1B;color:#111;font-weight:700;font-size:12px;border-radius:4px;padding:1px 5px}
@@ -669,7 +670,7 @@ function draw(){{if(!data)return;var list=(data[box.dataset.t]||[]).filter(funct
   if(out.length<3){{box.hidden=true;return}}
   box.querySelector("h2").textContent=z?box.dataset.h:box.dataset.h0;
   box.querySelector(".altrow").innerHTML=out.map(function(r){{var x=r.x,p=r.p;
-    return '<a href="'+box.dataset.dir+x.s+'/" data-alt="'+esc(x.s)+'">'+(x.i?'<img src="'+esc(x.i)+'" alt="" loading="lazy" referrerpolicy="no-referrer">':"")+
+    return '<a href="'+box.dataset.dir+x.s+'/" data-alt="'+esc(x.s)+'">'+'<img'+(x.i?' src="'+esc(x.i)+'"':"")+' alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.className=\\'x\\'">'+
       '<span class="ab">'+esc(x.b)+'</span><span class="an">'+esc(x.n)+'</span><span class="ap"><b>'+money(p[0])+'</b><span class="ao">−'+p[1]+'%</span></span>'+
       '<span class="az">'+esc(p[2]?box.dataset["in"].replace("{{s}}",p[2]):box.dataset.n.replace("{{n}}",r.n))+"</span></a>"}}).join("");
   box.hidden=false}}
