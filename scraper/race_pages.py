@@ -389,6 +389,72 @@ RACES.update({
     },
 })
 
+# Oct 22 (Bastien: "Sinister SOO 200 and divide 200"): Sinister Sports' 200s. Their lists mix three things, labelled as the race does:
+# P = mandatory but the race hands it out (inReach, bivvy, bib), M = mandatory you bring, R = recommended, L = listed by the race as
+# "a mix of mandatory and recommended" without saying which (Divide 200): never shown as mandatory, never as optional
+_SIN = lambda t, en, fr, enn="", frn="": (t, {"en": (en, enn), "fr": (fr, frn)})
+RACES.update({
+    # sinistersports.ca/soo200/rules_gear, "Mandatory (Provided by Sinister Sports)" + "Recommended" (read Oct 22, 2026); one list for every distance
+    "soo-200": {
+        "name": "SOO 200", "short": "SOO", "de": "du ", "le": "le ", "unit": "label",
+        "where": {"en": "Sault Ste. Marie, ON", "fr": "Sault-Sainte-Marie, Ont."},
+        "when": {"en": "September 2027 (date to come; 2026: Sept. 11–15)", "fr": "Septembre 2027 (date à venir; 2026 : 11 au 15 sept.)"},
+        "dists": ["200M", "100K", "50K"], "default": "200M", "cupless": True,
+        "src": "https://www.sinistersports.ca/soo200/rules_gear",
+        "read": {"en": "October 22, 2026", "fr": "22 octobre 2026"},
+        "items": [(k, lv, t, sp) for (k, t), lv, sp in [
+            (_SIN("inreach", "Garmin inReach", "Garmin inReach", "Provided by the race.", "Fourni par la course."), "PPP", False),
+            (_SIN("battery", "Battery backup", "Batterie de secours", "Provided at Stokely; the race swaps it at major aid stations.",
+                  "Fournie à Stokely; la course l'échange aux gros ravitos."), "PPP", False),
+            (_SIN("bib", "Race bib and timing chip", "Dossard et puce", "Provided by the race.", "Fournis par la course."), "PPP", False),
+            (_SIN("bivy", "Emergency bivvy", "Sac bivouac d'urgence", "Provided by the race.", "Fourni par la course."), "PPP", False),
+            (_SIN("headlamp", "Headlamp", "Lampe frontale"), "RRR", True),
+            (_SIN("water", "2 L of fluid: bottles or a hydration pack", "2 L de liquide : gourdes ou sac d'hydratation",
+                  "Checkpoints can be 20 to 42 km apart. No cups at aid stations: bring something to drink from.",
+                  "Les points de contrôle peuvent être à 20-42 km. Pas de verres aux ravitos : apportez de quoi boire."), "RRR", False),
+            (_SIN("filter", "Water filter", "Filtre à eau"), "RRR", False),
+            (_SIN("jacket", "Wind and water resistant jacket", "Manteau coupe-vent et déperlant"), "RRR", True),
+            (_SIN("tuque", "Toque or warm hat", "Tuque ou chapeau chaud"), "RRR", False),
+            (_SIN("cap", "Sun hat", "Chapeau de soleil"), "RRR", False),
+            (_SIN("gloves", "Full-finger gloves", "Gants à doigts complets"), "RRR", False),
+            (_SIN("poles", "Running or trekking poles", "Bâtons de course ou de randonnée"), "RRR", False),
+            (_SIN("whistle", "Whistle", "Sifflet"), "RRR", False),
+            (_SIN("bear", "Bear spray or bear banger", "Chasse-ours en aérosol ou pétard", "Only if you know how to use it.",
+                  "Seulement si vous savez vous en servir."), "RRR", False),
+        ]],
+    },
+    # sinistersports.ca/divide200/racer_information_package, "Mandatory / Recommended Gear" (read Oct 22, 2026): items marked
+    # "mandatory - provided" or "mandatory after 5:00pm"; the rest unmarked under "a mix of mandatory and recommended gear"
+    "divide-200": {
+        "name": "Divide 200", "short": "Divide", "de": "de la ", "le": "la ", "unit": "label",
+        "where": {"en": "Crowsnest Pass, AB", "fr": "Crowsnest Pass, Alb."},
+        "when": {"en": "August 16–20, 2027", "fr": "16 au 20 août 2027"},
+        "dists": ["200M", "100K"], "default": "200M", "cupless": True,
+        "src": "https://www.sinistersports.ca/divide200/racer_information_package",
+        "read": {"en": "October 22, 2026", "fr": "22 octobre 2026"},
+        "items": [(k, lv, t, sp) for (k, t), lv, sp in [
+            (_SIN("headlamp", "Headlamp", "Lampe frontale", "Mandatory after 5:00 pm.", "Obligatoire après 17 h."), "MM", True),
+            (_SIN("inreach", "Garmin inReach + Spotwalla tracking", "Garmin inReach + suivi Spotwalla",
+                  "Provided by the race, returned at the end.", "Fourni par la course, rendu à la fin."), "PP", False),
+            (_SIN("battery", "Battery backup", "Batterie de secours", "Provided; more at major aid stations.", "Fournie; d'autres aux gros ravitos."), "PP", False),
+            (_SIN("bib", "Race bib and timing chip", "Dossard et puce", "Provided by the race.", "Fournis par la course."), "PP", False),
+            (_SIN("bivy", "Emergency bivvy", "Sac bivouac d'urgence", "Provided by the race.", "Fourni par la course."), "PP", False),
+            (_SIN("orange", "Blaze orange clothing item", "Vêtement orange vif", "The race gives a neck gaiter (hunting season). Extra bright clothing welcome.",
+                  "La course donne un cache-cou (saison de chasse). Des vêtements voyants en plus sont bienvenus."), "PP", False),
+            (_SIN("water", "2 L of fluid: bottles or a hydration pack", "2 L de liquide : gourdes ou sac d'hydratation",
+                  "No cups at aid stations: bring something to drink from.", "Pas de verres aux ravitos : apportez de quoi boire."), "LL", False),
+            (_SIN("jacket", "Wind and water resistant jacket", "Manteau coupe-vent et déperlant"), "LL", True),
+            (_SIN("tuque", "Toque or warm hat", "Tuque ou chapeau chaud"), "LL", False),
+            (_SIN("cap", "Sun hat", "Chapeau de soleil"), "LL", False),
+            (_SIN("gloves", "Full-finger gloves", "Gants à doigts complets"), "LL", False),
+            (_SIN("poles", "Running or trekking poles", "Bâtons de course ou de randonnée"), "LL", False),
+            (_SIN("whistle", "Whistle", "Sifflet"), "LL", False),
+            (_SIN("bear", "Bear spray or bear banger", "Chasse-ours en aérosol ou pétard", "Only if you know how to use it.",
+                  "Seulement si vous savez vous en servir."), "LL", False),
+        ]],
+    },
+})
+
 # USA side (Oct 21): /us/races/, English, prices in US$ from deals-us.json
 US_EV = {
     "canyons": "v1787099482/canyons/2027%20PDFs/2026_and_2027_UTMB_MANDATORY_and_RECOMMENDED_EQUIPMENT_North_America_1_e562161c6e.pdf.pdf",
@@ -480,7 +546,8 @@ S = {
         "desc": "The {name} mandatory gear list for the {dists}, item by item, with today's best prices on each in your size at Canadian stores.",
         "h1": "{name} mandatory gear list", "sub": "{short} {dists} · {where} · {when}",
         "dist": "Your distance", "km": "{d} km",
-        "M": "Mandatory", "R": "Recommended", "A": "Allowed",
+        "M": "Mandatory", "R": "Recommended", "A": "Allowed", "P": "Provided", "L": "Ask the race",
+        "lNote": "The race lists these as \"a mix of mandatory and recommended\" without saying which. Ask the race before you count on skipping one.", "aProv": "The race provides: {items}.",
         "have": "I have it", "progress": "You have {h} of {n} mandatory items. Tick what you already own.", "progressAll": "You have every mandatory item. See you at the start.",
         "deals": "On sale now", "dealsSize": "On sale now in your size", "noDeals": "None in stock in your size today. We check every morning.", "few": "Only {n} in {fit} {size} today. We check every morning.",
         "notSold": "The stores we check don't sell this.", "spec": "Check the spec before you buy.",
@@ -502,7 +569,8 @@ S = {
         "desc": "Le matériel obligatoire {de}{name} pour le {dists}, article par article, avec les meilleurs prix du jour dans votre taille dans les boutiques canadiennes.",
         "h1": "Matériel obligatoire {de}{name}", "sub": "{short} {dists} · {where} · {when}",
         "dist": "Votre distance", "km": "{d} km",
-        "M": "Obligatoire", "R": "Recommandé", "A": "Permis",
+        "M": "Obligatoire", "R": "Recommandé", "A": "Permis", "P": "Fourni", "L": "À confirmer",
+        "lNote": "La course présente ces articles comme « un mélange d'obligatoire et de recommandé » sans préciser lesquels. Vérifiez auprès de la course avant d'en laisser un.", "aProv": "La course fournit : {items}.",
         "have": "Je l'ai", "progress": "Vous avez {h} des {n} articles obligatoires. Cochez ce que vous avez déjà.", "progressAll": "Vous avez tout le matériel obligatoire. On se voit au départ.",
         "deals": "En solde maintenant", "dealsSize": "En solde dans votre taille", "noDeals": "Rien en stock dans votre taille aujourd'hui. On vérifie chaque matin.", "few": "Seulement {n} en {size} {fit} aujourd'hui. On vérifie chaque matin.",
         "notSold": "Les boutiques que nous suivons n'en vendent pas.", "spec": "Vérifiez les caractéristiques avant d'acheter.",
@@ -564,7 +632,7 @@ CSS = """
 .gi .hd h3{flex:1;min-width:0;margin:0;font:700 19px/1.2 var(--display)}
 .gi .note{margin:4px 0 0 34px;font-size:14px;color:var(--muted)}
 .gi .lv{flex:none;font:700 11px var(--body);text-transform:uppercase;letter-spacing:.05em;border-radius:6px;padding:3px 7px;margin-top:2px}
-.lv.M{background:var(--hivis);color:var(--hivis-ink)}.lv.R{background:var(--mist);color:var(--ink);border:1px solid var(--line)}.lv.A{color:var(--muted);border:1px solid var(--line)}
+.lv.M{background:var(--hivis);color:var(--hivis-ink)}.lv.R{background:var(--mist);color:var(--ink);border:1px solid var(--line)}.lv.A,.lv.P{color:var(--muted);border:1px solid var(--line)}.lv.L{background:var(--mist);color:var(--ink);border:1px dashed var(--ink)}.lnote{font-size:14px;color:var(--muted);margin:0 0 10px}
 .gi .have{flex:none;width:24px;height:24px;margin:0;accent-color:var(--hivis);cursor:pointer}
 .gi.got{opacity:.6}.gi.got .dl,.gi.got .ft,.gi.got .note,.gi.got .none{display:none}
 .gi.got h3{text-decoration:line-through}
@@ -829,7 +897,9 @@ def page(slug, race, L, items, stores, pages=None, fx=1.0):
     for i, d in enumerate(race["dists"]):
         inkit = {k for ks in (race.get("kits") or {}).values() for k in ks}
         must = [txt["en" if L == "us" else L][0] for kind, lv, txt, _ in race["items"] if lv[i] == "M" and kind not in inkit]
-        faq.append((s["qList"].format(d=dlab(race, d, L), **fmt), s["aList"].format(items=", ".join(must))))
+        prov = [txt["en" if L == "us" else L][0] for kind, lv, txt, _ in race["items"] if lv[i] == "P"]
+        ans = (s["aList"].format(items=", ".join(must)) if must else "") + (" " if must and prov else "") + (s["aProv"].format(items=", ".join(prov)) if prov else "")
+        faq.append((s["qList"].format(d=dlab(race, d, L), **fmt), ans))
     if race.get("faq_jacket"):        # Harricana: "windbreakers will not be accepted"
         faq.append((s["qJacket"].format(**fmt), s["aJacket"].format(**{**fmt, "dists": dlabs(race, L, [d for i, d in enumerate(race["dists"]) if dict((k, lv) for k, lv, *_ in race["items"])["jacket"][i] == "M"])})))
     if race.get("cupless"):           # the race says its aid stations have no cups
@@ -868,8 +938,8 @@ def page(slug, race, L, items, stores, pages=None, fx=1.0):
 <p class="bym"><button type="button" data-byopen>{s['byOpen']}</button></p><div class="byrows" hidden>{by_rows}</div></section>
 <p class="lbl">{s['dist']}</p>
 <div class="dists" role="group" aria-label="{s['dist']}">{"".join(f'<button type="button" data-d="{d}" aria-pressed="{str(d == race["default"]).lower()}">{dlab(race, d, L)}</button>' for d in race["dists"])}</div>
-<p class="prog" id="prog" data-t="{esc(s['progress'])}" data-all="{esc(s['progressAll'])}"></p>
-<ul class="gl" id="gl" data-race="{slug}" data-default="{race['default']}" data-lm="{s['M']}" data-lr="{s['R']}" data-la="{s['A']}"
+<p class="prog" id="prog" data-t="{esc(s['progress'])}" data-all="{esc(s['progressAll'])}"></p>{f'<p class="lnote">{esc(s["lNote"])}</p>' if any("L" in lv for _, lv, *_ in race["items"]) else ""}
+<ul class="gl" id="gl" data-race="{slug}" data-default="{race['default']}" data-lm="{s['M']}" data-lr="{s['R']}" data-la="{s['A']}" data-lp="{s['P']}" data-ll="{s['L']}"
  data-home="{Tl['home']}" data-watch="{esc(s['watch'])}" data-won="{esc(s['watchOn'])}" data-wmember="{esc(s['wMember'])}" data-wnew="{esc(s['wNew'])}" data-wpending="{esc(s['wPending'])}" data-wadd="{esc(s['wAdd'])}" data-woff="{esc(s['wOff'])}" data-moren="{esc(s['moreN'])}" data-dh="{esc(s['deals'])}" data-dhs="{esc(s['dealsSize'])}" data-none="{esc(s['noDeals'])}" data-few="{esc(s['few'])}" data-off="{esc(s['off'])}" data-ly="{esc(s['shTag'])}">{shoe_row}{"".join(rows)}</ul>
 <p class="srcb">{(s['src'] if race.get('updated') else s['srcRead']).format(date=(race.get('updated') or race['read'])["en" if L == "us" else L], link=f'<a href="{src}" rel="noopener">{s["srcLink"]}</a>')} {s['notAff']}</p>
 <section class="alert" id="raceBox" data-ref="race-{slug}" data-bad="{esc(Tl['alertBad'])}" data-ok="{esc(Tl['alertOk'])}" data-fail="{esc(Tl['alertFail'])}" data-pick="{esc(s['sizeTxt'])}">
@@ -906,13 +976,13 @@ var SIZED={tops:1,bottoms:1,gloves:1,headwear:1,socks:1},SHOWN={};
 function render(){
   [].forEach.call(document.querySelectorAll(".dists button"),function(b){b.setAttribute("aria-pressed",String(b.dataset.d===dist))});
   var n=0,h=0;
-  var R={Y:-1,M:0,R:1,A:2};
+  var R={Y:-1,M:0,L:1,R:2,A:3,P:4};
   [].forEach.call(gl.querySelectorAll(".kit"),function(kb){kb.hidden=![].some.call(kb.querySelectorAll(".gi"),function(x){return x.getAttribute("data-l"+dist)})});
   [].forEach.call(gl.querySelectorAll(".gi"),function(li){var lv=li.getAttribute("data-l"+dist)||"",k=li.dataset.k;li.hidden=!lv;
     li.style.order=2*(R[lv]||0)+(li.classList.contains("mini")?1:0);   // what's mandatory for this distance first; the small stuff after
-    var tag=li.querySelector(".lv");tag.className="lv "+lv;tag.textContent=lv==="Y"?gl.dataset.ly:lv==="M"?gl.dataset.lm:lv==="R"?gl.dataset.lr:lv==="A"?gl.dataset.la:"";
+    var tag=li.querySelector(".lv");tag.className="lv "+lv;tag.textContent=lv==="Y"?gl.dataset.ly:lv==="M"?gl.dataset.lm:lv==="R"?gl.dataset.lr:lv==="A"?gl.dataset.la:lv==="P"?gl.dataset.lp:lv==="L"?gl.dataset.ll:"";
     if(k==="shoes")return;   // the shoe line: no tick, not counted
-    var got=!!have[k];li.classList.toggle("got",got);li.querySelector("input.have").checked=got;
+    var got=!!have[k]&&lv!=="P";li.classList.toggle("got",got);li.querySelector("input.have").checked=got;li.querySelector("input.have").hidden=lv==="P";   // provided by the race: nothing to tick
     if(lv==="M"&&!li.dataset.kit){n++;if(got)h++}
     var p=pools[k];if(!p||!p.length||(!fit&&!size))return;   // an item no store has today (blankets, Oct 21) keeps its "none" line
     var ok=[];for(var i=0;i<p.length;i++){var r=p[i];
@@ -932,7 +1002,7 @@ function render(){
     ul.innerHTML=picks.map(function(x){var r=x[0],e=x[1];
       var pr=e[2]>e[1]*1.01?'<b>'+money(e[1])+'</b><s>'+money(e[2])+'</s> <span class="off">−'+Math.round(100*(1-e[1]/e[2]))+'%</span>':'<b>'+money(e[1])+'</b>',h=gl.dataset.home;
       return '<li><a class="dg" href="'+esc(e[3])+'" data-store="'+esc(r.h)+'" target="_blank" rel="noopener"><img src="'+esc(r.img)+'" alt="" loading="lazy" referrerpolicy="no-referrer"><span class="nm"><b>'+esc(r.b)+'</b>'+esc(nm(r.n))+'<small>'+esc(r.st)+(SIZED[r.g]&&size?" · "+esc(e[0]):"")+'</small></span><span class="pr">'+pr+'</span></a><button type="button" class="wt" data-k="'+esc(r.k)+'" data-p="'+e[1]+'" data-u="'+esc(e[3])+'" aria-pressed="false" aria-label="'+esc(gl.dataset.watch)+': '+esc(r.b+" "+r.n)+'"><span class="hh">♡</span><span class="wl"> '+esc(gl.dataset.watch)+'</span></button></li>'}).join("")});
-  var pg=document.getElementById("prog");pg.textContent=n&&h>=n?pg.dataset.all:pg.dataset.t.replace("{h}",h).replace("{n}",n);
+  var pg=document.getElementById("prog");pg.hidden=!n;pg.textContent=n&&h>=n?pg.dataset.all:pg.dataset.t.replace("{h}",h).replace("{n}",n);
   var box=document.getElementById("rsize");box.classList.toggle("set",!!(fit&&size)&&!box.dataset.open);
   box.querySelector(".cur span").textContent=(fit?box.dataset[fit]:"")+" · "+size+Object.keys(by).map(function(g){var b0=box.querySelector('[data-bg="'+g+'"]');return " ("+b0.closest(".byrow").querySelector("b").textContent.toLowerCase()+" "+by[g]+")"}).join("");
   if(Object.keys(by).length)box.querySelector(".byrows").hidden=false;box.querySelector(".bym").hidden=!box.querySelector(".byrows").hidden;
