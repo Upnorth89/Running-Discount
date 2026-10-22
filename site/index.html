@@ -619,11 +619,11 @@ body.locked #langBtn,body.locked #curBtn,body.locked #openWatch,body.locked #men
     <div id="shoeWBox" class="hidden"><p class="wline" id="wLine"></p><div class="scale hidden" id="shoeSizesW"></div></div>
     <div class="chips" id="width" style="margin-top:8px" role="group" aria-label="Shoe width" data-i18n-aria="shoeWidth"></div>
 
-    <p class="moresz"><button type="button" class="linkbtn" id="moreSizes" data-i18n="moreSizes">+ Clothing size, road or trail, favourite brands</button></p>
-    <h3 class="later" data-i18n="clothSizeH">Clothing size <small>tops, shorts, socks, gloves</small></h3>
-    <div class="scale later" id="clothSizes"></div>
-    <p class="clothmore later"><button type="button" class="linkbtn" id="clothMore" data-i18n="clothMore">Different size in shorts, socks or gloves?</button></p>
-    <div id="clothBy" class="later hidden"></div>
+    <h3 data-i18n="clothSizeH">Clothing size <small>tops, shorts, socks, gloves</small></h3>
+    <div class="scale" id="clothSizes"></div>   <!-- Oct 22 (Bastien): clothing sizes show right away, not behind "+ Clothing size" -->
+    <p class="clothmore"><button type="button" class="linkbtn" id="clothMore" data-i18n="clothMore">Different size in shorts, socks or gloves?</button></p>
+    <div id="clothBy" class="hidden"></div>
+    <p class="moresz"><button type="button" class="linkbtn" id="moreSizes" data-i18n="moreSizes">+ Road or trail, favourite brands</button></p>
 
     <details id="moreOpts" class="later">
       <summary data-i18n="favBrands">Favourite brands <span style="font-weight:400;color:var(--muted);margin-left:6px">optional</span></summary>
@@ -855,7 +855,7 @@ en:{
   ctryLabel:"Shopping from",ctryA:"Country",usa:"USA",where:()=>US()?"across the US":"across Canada",
   wGo:"Find my deals",wShoes:"or look up a specific shoe →",wBrowseShort:"Just browse",wShoeShort:"Find a shoe",sizesOnSale:"Sizes on sale:",
   browseNote:"Showing every size.",browsePick:"Pick your size",browseWhy:" and we'll hide what won't fit.",clothNote:"Every clothing size shown.",clothPick:"Pick your clothing size",
-  moreSizes:"+ Clothing size, road or trail, favourite brands",cmpLink:"All sizes & stores →",
+  moreSizes:"+ Road or trail, favourite brands",cmpLink:"All sizes & stores →",
   sinceH:d=>`Since your last visit${d?" ("+d+")":""}:`,sinceNew:n=>`<b>${n}</b> new ${n==="1"?"deal":"deals"} in your size`,
   sinceDrop:n=>`${n===1?"a price drop on gear you opened":"price drops on gear you opened"}:`,emailNext:"Email me next time",
   report:"Wrong price or size?",reportShort:"Wrong price?",reportWhy:"What's wrong?",repPrice:"Price",repSize:"Size not in stock",repEnded:"Sale ended",
@@ -967,7 +967,7 @@ fr:{
   ctryLabel:"Je magasine",ctryA:"Pays",usa:"É.-U.",where:()=>US()?"partout aux États-Unis":"partout au Canada",
   wGo:"Trouver mes aubaines",wShoes:"ou cherchez une chaussure précise →",wBrowseShort:"Tout voir",wShoeShort:"Chercher un modèle",sizesOnSale:"Tailles en solde :",
   browseNote:"Toutes les tailles sont affichées.",browsePick:"Choisissez votre taille",browseWhy:" et on cache ce qui ne vous va pas.",clothNote:"Toutes les tailles de vêtements sont affichées.",clothPick:"Choisissez votre taille de vêtements",
-  moreSizes:"+ Taille de vêtements, route ou sentier, marques préférées",
+  moreSizes:"+ Route ou sentier, marques préférées",
   sinceH:d=>`Depuis votre dernière visite${d?" ("+d+")":""} :`,sinceNew:n=>`<b>${n}</b> ${n==="1"?"nouvelle aubaine":"nouvelles aubaines"} dans votre taille`,
   sinceDrop:n=>`${n===1?"une baisse de prix sur un article consulté":"des baisses de prix sur des articles consultés"} :`,emailNext:"M'avertir par courriel",
   report:"Prix ou taille erronés ?",reportShort:"Prix erroné ?",reportWhy:"Qu'est-ce qui cloche ?",repPrice:"Le prix",repSize:"Taille épuisée",repEnded:"Solde terminé",
@@ -1551,7 +1551,8 @@ function rdBuild(){
   $("dSearch").addEventListener("keydown",e=>{if(e.key==="Enter"&&document.body.classList.contains("rdhs")){e.preventDefault();$("dSearch").blur();clearTimeout(searchT);view.q=$("dSearch").value;view.open={};renderAll();rdGoDeals(true)}});$("rdQF").addEventListener("click",()=>fsOpen("hero"));$("rdQS").addEventListener("click",editSizes);$("rdFsX").addEventListener("click",()=>fsClose(false));$("rdFsGo").addEventListener("click",()=>fsClose(true));
   $("rdFs").addEventListener("click",e=>{if(e.target===$("rdFs"))fsClose(false)});document.addEventListener("keydown",e=>{if(e.key==="Escape")fsClose(false)});
   $("rdBarS").addEventListener("click",()=>{scrollTo({top:0,behavior:"smooth"});setTimeout(()=>$("dSearch").focus(),350)});
-  const past=()=>{const r=$("rdSearch").getBoundingClientRect(),on=r.bottom<($("rdBar").parentNode.offsetHeight||60)&&!view.watch;
+  // Oct 22 (Bastien saw "Men's 11" twice): the bar shows only once the page's own search / size row has scrolled out of sight
+  const past=()=>{const r=(document.body.classList.contains("rdhs")?document.querySelector(".rdqf"):$("rdSearch")).getBoundingClientRect(),on=r.height>0&&r.bottom<(document.querySelector(".topbar .in").offsetHeight||60)&&!view.watch;
     document.documentElement.classList.toggle("rdpast",on);$("rdBar").setAttribute("aria-hidden",String(!on));$("rdBarS").tabIndex=$("rdBarF").tabIndex=on?0:-1};
   addEventListener("scroll",past,{passive:true});addEventListener("resize",past);
   rdText();
