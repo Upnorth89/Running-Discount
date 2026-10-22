@@ -588,6 +588,139 @@ RACES.update({
     },
 })
 
+# Oct 22 (Bastien: "add other Quebec races and more like Tahoe 200 and destination races. Also look into races in salt lake area").
+# Destination Trail: each race's 2027 Runner Manual (a Google Doc linked from destinationtrailrun.com/<race>), "Required (Mandatory)
+# Gear ... to Carry at ALL Times" + "Recommended Gear ... at ALL Times". The SPOT tracker, the bivy/blanket and one wag bag come in the
+# runner bag = P. Bigfoot 20M ("There is no mandatory gear") left out. Salt Lake area: Speedgoat + Snowbasin are already in; Wasatch 100,
+# Bear 100 (its site answers 403), Kat'cina Mosa, Goat Rattler and Salt and Sulfur publish no gear list: left out.
+_gdoc = lambda d: {"src": f"https://docs.google.com/document/d/{d}/edit", "check": f"https://docs.google.com/document/d/{d}/export?format=txt"}
+_DT_READ = _C("October 22, 2026 (2027 Runner Manual)", "22 octobre 2026 (guide du coureur 2027)")
+_PROV = ("In your runner bag; pacers bring their own.", "Dans votre sac de coureur; les accompagnateurs apportent le leur.")
+_DTM = {   # mandatory lines shared by the 200s, by key
+    "spot": _SIN("tracker", "SPOT tracker", "Balise SPOT", "Provided by the race.", "Fournie par la course."),
+    "bivy": _SIN("bivy", "Emergency bivy", "Sac bivouac d'urgence", *_PROV),
+    "blanket": _SIN("bivy", "Emergency blanket", "Couverture de survie", *_PROV),
+    "wag": _SIN("wag", "Wag bag (packing out human waste)", "Sac hygiénique (wag bag)", "One in your runner bag; bring spares in drop bags.",
+                "Un dans votre sac de coureur; mettez-en d'autres dans vos sacs de ravito."),
+    "jacket": _SIN("jacket", "Jacket with a hood", "Manteau avec capuchon"),
+    "wjacket": _SIN("jacket", "Waterproof jacket with a hood", "Manteau imperméable avec capuchon"),
+    "gloves": _SIN("gloves", "Gloves", "Gants"),
+    "hat": _SIN("tuque", "Hat or Buff", "Tuque ou Buff"),
+    "pants": _SIN("longpants", "Pants or tights covering the whole leg", "Pantalon ou collant qui couvre toute la jambe"),
+    "layer": _SIN("midlayer", "Long-sleeve insulating layer", "Couche isolante à manches longues"),
+    "lamp": _SIN("headlamp", "Headlamp or waist light", "Lampe frontale ou lampe de taille"),
+    "batt": _SIN("battery", "Extra batteries", "Piles de rechange"),
+    "phone": _SIN("phone", "Cell phone", "Téléphone cellulaire"),
+    "gps": _SIN("gps", "Device with the course GPX", "Appareil avec le tracé GPX du parcours"),
+    "food": _SIN("food", "500 extra calories, for emergencies only", "500 calories de plus, pour les urgences seulement"),
+    "whistle": _SIN("whistle", "Whistle", "Sifflet"),
+    "filter": _SIN("filter", "Water filter", "Filtre à eau"),
+    "vest3": _SIN("vest", "Room for 3 L of water", "De quoi porter 3 L d'eau"),
+}
+_DTR = [   # "Recommended Gear ... to Carry at ALL Times", same on every 200
+    _SIN("gaiters", "Gaiters", "Guêtres"),
+    _SIN("headlamp2", "Extra headlamp", "Deuxième lampe frontale"),
+    _SIN("vest", "Room for 3 L of water", "De quoi porter 3 L d'eau"),
+    _SIN("cap", "Sun hat", "Chapeau de soleil"),
+    _SIN("filter", "Water filter", "Filtre à eau"),
+    _SIN("warmjacket", "Puffy jacket with a hood", "Doudoune avec capuchon"),
+    _SIN("battery2", "Battery pack", "Batterie externe"),
+    _SIN("cap2", "Neck gaiter", "Cache-cou"),
+    _SIN("firstaid", "First aid kit", "Trousse de premiers soins"),
+    _SIN("sunscreen", "Sunscreen", "Crème solaire"),
+    _SIN("tp", "Toilet paper, wipes, zip locks", "Papier de toilette, lingettes, sacs ziplock"),
+    _SIN("id", "ID, emergency contacts, allergies and meds card", "Pièce d'identité, contacts d'urgence, fiche allergies et médicaments"),
+]
+def _dt(name, short, where, when, dist, doc, mand, rec_skip=(), rec_add=(), le="le "):
+    """A Destination Trail 200: P for what the race hands out, M for the rest of its mandatory table, R for its recommended table."""
+    prov = {"spot", "bivy", "blanket", "wag"}
+    items = [(t, "P" if k in prov else "M", False) for k, t in ((k, _DTM[k]) for k in mand)]
+    items += [(t, "R", False) for t in _DTR if t[0] not in rec_skip] + [(t, "R", False) for t in rec_add]
+    return dict(name=name, short=short, de="du " if le == "le " else "de la ", le=le, unit="label", side="us", where=where, when=when,
+                dists=[dist], default=dist, read=_DT_READ, cupless=False,
+                items=[(k, lv, t, sp) for (k, t), lv, sp in items], **_gdoc(doc))
+_200 = ["spot", "jacket", "gloves", "hat", "pants", "layer", "lamp", "batt", "phone", "gps", "food", "whistle"]
+RACES.update({
+    "tahoe-200": _dt("Tahoe 200", "Tahoe", _C("Lake Tahoe loop, Stateline, Nevada", "Tour du lac Tahoe, Stateline, Nevada"),
+                     _C("June 21–25, 2027", "21 au 25 juin 2027"), "200M", "1fPMytqObJhMBSZwAqsCoFgySWXIA5BMzQnfwLsqof6E", _200 + ["blanket", "wag"]),
+    "bigfoot-200": _dt("Bigfoot 200", "Bigfoot", _C("Mount St. Helens to Randle, Washington", "Du mont St. Helens à Randle, Washington"),
+                       _C("August 13–17, 2027", "13 au 17 août 2027"), "200M", "1BsbZPVf0kX86cAcaPgjOLOGV5OXOZB9b6RX0969x9ew",
+                       _200 + ["filter", "bivy", "wag"], rec_skip={"filter"}),
+    "moab-240": _dt("Moab 240", "Moab", _C("Moab, Utah", "Moab, Utah"), _C("October 8–12, 2027", "8 au 12 octobre 2027"), "240M",
+                    "1fyxqaoYl-PRDkYE9OGvRt6JHHDx0npV58nEuS1cY4X8", _200 + ["bivy", "wag"]),
+    "arizona-monster-300": _dt("Arizona Monster 300", "AZ Monster", _C("Patagonia to Superior, Arizona", "De Patagonia à Superior, Arizona"),
+                               _C("March 29 – April 4, 2027", "29 mars au 4 avril 2027"), "300M", "1atspiqj84qFRVoZFN7M4PqIGheark3LQI9dOBh_3EM0",
+                               ["wjacket" if k == "jacket" else k for k in _200] + ["bivy"]),
+    "el-jefe-100": _dt("El Jefe 100", "El Jefe", _C("Superior, Arizona", "Superior, Arizona"), _C("April 3–4, 2027", "3 et 4 avril 2027"), "100M",
+                       "12zIokTrSctB1pSTCOOWJWvK8gw_wJ7lwsqJuY6tdRUY",
+                       ["spot", "wjacket", "lamp", "batt", "phone", "gps", "food", "whistle", "vest3", "filter", "bivy"],
+                       rec_skip={"vest", "filter"},
+                       rec_add=[_SIN("vest2", "Room for 5 L if you drink a lot", "De quoi porter 5 L si vous buvez beaucoup",
+                                     "From Gila to Picketpost.", "De Gila à Picketpost.")]),
+    # destinationtrailrun.com/tahoe-100k -> 2027 Runner Manual, "Required Gear to Carry at ALL Times" + "Recommended Gear"
+    "tahoe-100k": dict(name="Tahoe 100K", short="Tahoe 100K", de="du ", le="le ", unit="label", side="us",
+                       where=_C("Heavenly Stagecoach Lodge, Stateline, Nevada", "Heavenly Stagecoach Lodge, Stateline, Nevada"),
+                       when=_C("June 19–20, 2027", "19 et 20 juin 2027"), dists=["100K"], default="100K", read=_DT_READ,
+                       items=[(k, lv, t, sp) for (k, t), lv, sp in [
+                           (_DTM["spot"], "P", False),
+                           (_SIN("headlamp", "Headlamp + spare batteries", "Lampe frontale + piles de rechange"), "M", True),
+                           (_SIN("jacket", "Jacket", "Manteau", "The race may add or change gear with the forecast.",
+                                 "La course peut ajouter ou changer du matériel selon la météo."), "M", False),
+                           (_DTM["gloves"], "M", False), (_DTM["hat"], "M", False),
+                           (_SIN("blanket", "Emergency blanket", "Couverture de survie"), "M", False),
+                           (_SIN("food", "500 extra calories", "500 calories de plus"), "M", False),
+                           (_SIN("wag", "Wag bag", "Sac hygiénique (wag bag)"), "M", False),
+                           (_SIN("longpants", "Light pants or tights", "Pantalon léger ou collant"), "R", False),
+                           (_SIN("midlayer", "Insulating layer", "Couche isolante"), "R", False),
+                           (_SIN("inreach", "SPOT or emergency beacon", "SPOT ou balise d'urgence"), "R", False),
+                           (_SIN("headlamp2", "Second light", "Deuxième lampe"), "R", False),
+                       ]], **_gdoc("1HbRW1yDNXnqX7JFrYoR7PQet5RK5a3wXBLAdrJP88PY")),
+    # Québec. ultratrailsayam.com -> "Guide du coureur 2026" (PDF), "Matériel obligatoire" per distance (5 km left out)
+    "ultra-trail-sayam": {
+        "name": "Ultra-Trail Sayam", "short": "Sayam", "de": "de l'", "le": "l'",
+        "where": _C("Val-Brillant (Matapédia), Québec", "Val-Brillant (Matapédia), Québec"),
+        "when": _C("June 2027 (date to come; 2026: June 26–28)", "Juin 2027 (date à venir; 2026 : 26 au 28 juin)"),
+        "dists": ["100", "50", "25", "15"], "default": "100", "cupless": True,
+        "src": "https://cdn.shopify.com/s/files/1/0781/5774/2321/files/Guide_du_coureur_2026_8f36215b-4f31-42be-a353-9727fea44462.pdf",
+        "read": _C("October 22, 2026 (2026 runner guide)", "22 octobre 2026 (guide du coureur 2026)"),
+        "items": [(k, lv, t, sp) for (k, t), lv, sp in [
+            (_SIN("headlamp", "Headlamp + spare batteries or power bank", "Lampe frontale + piles ou batterie de rechange"), "M   ", True),
+            (_SIN("jacket", "Waterproof jacket", "Veste imperméable"), "M   ", True),
+            (_SIN("water", "Water: 1.5 L on the 100 km, 1 L on the others", "Eau : 1,5 L au 100 km, 1 L aux autres",
+                  "Three 500 ml soft flasks = 1.5 L.", "Trois flasques de 500 ml = 1,5 L."), "MMMM", False),
+            (_SIN("blanket", "Survival blanket", "Couverture de survie"), "MMM ", False),
+            (_SIN("whistle", "Whistle", "Sifflet"), "MMM ", False),
+            (_SIN("cap", "Buff or cap", "Buff ou casquette"), "MMMM", False),
+            (_SIN("phone", "Charged cell phone", "Téléphone cellulaire chargé"), "MMMM", False),
+            (_SIN("food", "Energy food", "Nourriture énergétique"), "MMMM", False),
+            (_SIN("cup", "Your own cup", "Gobelet personnel", "No cups at aid stations.", "Aucun gobelet aux ravitos."), "MMMM", False),
+            (_SIN("firstaid", "Basic first aid kit (gloves, compress, bandage…)", "Trousse de premiers soins de base (gants, compresse, bandage…)"), "MM  ", False),
+        ]],
+    },
+    # lachutedudiable.ca/guide.html, "Matériel obligatoire" (2026 guide; the 1 km has none)
+    "la-chute-du-diable": {
+        "name": "La Chute du Diable", "short": "Chute du Diable", "de": "de la ", "le": "la ",
+        "where": _C("Saint-Alexis-des-Monts (Mauricie), Québec", "Saint-Alexis-des-Monts (Mauricie), Québec"),
+        "when": _C("September 2027 (date to come; 2026: Sept. 5)", "Septembre 2027 (date à venir; 2026 : 5 sept.)"),
+        "dists": ["75", "50", "35", "22", "10"], "default": "75", "cupless": True,
+        "src": "https://www.lachutedudiable.ca/guide.html",
+        "read": _C("October 22, 2026 (2026 runner guide)", "22 octobre 2026 (guide des coureurs 2026)"),
+        "items": [(k, lv, t, sp) for (k, t), lv, sp in [
+            (_SIN("headlamp", "Headlamp (not your phone)", "Lampe frontale (pas votre cellulaire)",
+                  "After 4 pm you can't leave the Lac en Croix aid station without one (random checks).",
+                  "Après 16 h, pas de sortie du ravito du Lac en Croix sans lampe (vérifications aléatoires)."), "MMM  ", True),
+            (_SIN("water", "1 L of liquid", "1 litre de liquide", "Water or another drink.", "Eau ou autre boisson."), "MMM  ", False),
+            (_SIN("cup", "Something to drink from: bottle, flask, hydration pack or folding cup", "De quoi boire : bouteille, flasque, sac d'hydratation ou gobelet pliable",
+                  "No cups at aid stations.", "Pas de gobelets aux ravitos."), "MMMMM", False),
+            (_SIN("phone", "Charged cell phone", "Téléphone cellulaire chargé"), "MMM  ", False),
+            (_SIN("whistle", "Whistle", "Sifflet"), "MMMMM", False),
+            (_SIN("blanket", "Survival blanket", "Couverture de survie"), "MMMMM", False),
+            (_SIN("poles", "Poles", "Bâtons", "Allowed on the 35, 50 and 75 km only (any distance at 70+).",
+                  "Permis aux 35, 50 et 75 km seulement (toutes distances à 70 ans et plus)."), "AAA  ", False),
+        ]],
+    },
+})
+
 # UTMB Mont-Blanc (Oct 21, Bastien: "UTMB 160 the big race and all other distances in Chamonix"): the 2026 list, published as an
 # image on montblanc.utmb.world (read Oct 21, 2026). One button per race; PTL left out (a team race with its own rules).
 MB = ["UTMB", "TDS", "CCC", "OCC", "MCC", "ETC", "YCC"]
