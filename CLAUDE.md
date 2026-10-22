@@ -226,6 +226,10 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   shoes on sale in your size" (up to 12, 2 per brand max, other brands first; arrows on computers) under the size tables;
   metric = shoe-page first visits that go on to another of our pages (funnel "went on to another of our pages"; baseline 5%
   reached the homepage), ~435 per group, decide ~Nov 8. Site test "Shoe page: other shoes on sale in your size".
+  Test 'run1st' (Oct 22, Bastien OK'd): B = in rdKnownFirst, names matching GYM (training, HIIT, studio, yoga, lifestyle…; never shoes)
+  go after running gear and one store fills at most 2 of the first 12 Top deals; metric = homepage first visits that click a deal
+  (35%), ~580 per group, decide ~Nov 9. Every non-homepage page uses the homepage's light look (theme.css `html:root:not(.rd)`, light
+  even in dark mode, charcoal header, logo-mark-dark.svg); the store bar stays dark on purpose (contrast, Bastien Oct 22).
   Parked: test 'card' (cleaner deal cards, ⋯ menu; commit 629e4d1, backlog). Site tests check each one. Correlations from the "RETENTION DRIVERS" lines are leads, never proof
   (Oct 17: "watchers come back 33%" was 9 devices).
 - **Own the design and product calls (Bastien, Oct 17: "You're supposed to optimize this to make it look the best and cleanest...

@@ -128,9 +128,9 @@ html.us .seo-today .seo-en,html.us .seo-today .seo-fr,html:not(.us) .seo-today .
 .mailbtn{display:inline-block;margin:10px 0 2px;font:700 15px/1 var(--body);background:var(--hivis);color:#fff;border-radius:999px;padding:11px 16px;text-decoration:none}
 .backbar .mailbtn{margin:8px 0 0}
 /* Oct 11 (Bastien: the dark bar was "hard to read"): the watch offer and the email offer are light cards with an orange edge */
-.backbar.bwbar,.backbar.subar,.backbar.stbar{background:var(--card);color:var(--ink);border:2px solid var(--hivis);padding:14px 16px;font-size:16px;line-height:1.4}
+.backbar.bwbar,.backbar.subar{background:var(--card);color:var(--ink);border:2px solid var(--hivis);padding:14px 16px;font-size:16px;line-height:1.4}
 .backbar.bwbar{flex-direction:column;align-items:stretch;gap:0}
-.backbar.bwbar .x,.backbar.subar .x,.backbar.stbar .x{position:absolute;top:4px;right:4px;color:var(--muted);opacity:1;font-size:26px;padding:6px 10px}
+.backbar.bwbar .x,.backbar.subar .x{position:absolute;top:4px;right:4px;color:var(--muted);opacity:1;font-size:26px;padding:6px 10px}
 .bwh{font:800 22px/1.15 var(--display);margin:0 36px 10px 0}
 .bwi{display:flex;gap:12px;align-items:center}.bwi img{width:60px;height:60px;flex:none;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:8px}
 .bwi .n{font-weight:600;line-height:1.3}.bwi .pr{display:block;margin-top:2px}.bwi .pr b{font:800 20px var(--display)}.bwi .pr s{color:var(--muted);font-size:14px;margin-left:6px}
@@ -1913,7 +1913,7 @@ function offerStore(){
   if(offered.has(lastShop.h))return;
   const h=lastShop.h,n=storeCounts()[h]||0;if(n<4||!STORES[h])return;
   offered.add(h);try{sessionStorage.setItem("gf-offered",JSON.stringify([...offered]))}catch(e){}hideBackBar();
-  const b=document.createElement("div");b.id="backBar";b.className="backbar stbar";b.setAttribute("role","status");
+  const b=document.createElement("div");b.id="backBar";b.className="backbar";b.setAttribute("role","status");
   b.innerHTML=`<span>${t("backBar",num(n),esc(STORES[h][0]))}</span><button type="button" class="go">${t("backGo")}</button><button type="button" class="x" aria-label="${t("close")}">×</button>`;
   document.body.appendChild(b);ana("store-offer",h);
   b.querySelector(".go").addEventListener("click",()=>shopStore(h,"back"));b.querySelector(".x").addEventListener("click",hideBackBar)}

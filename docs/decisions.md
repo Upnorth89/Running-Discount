@@ -60,6 +60,11 @@ Newest first. "Revisit" says when (or what would make us) look again.
 | Test 'runcard' ("What do you run in?" on the sign-up card) | **Ended** (Bastien, Oct 22) | 0 sign-ups of 72 (B) vs 2 of 73 (A); sign-ups too rare at our traffic to ever decide (~2,300 per group needed) |
 | "Other shoes on sale in your size" on shoe pages | **A/B test 'alts'** (one scrolling row like Amazon, Bastien) | Metric: shoe-page first visits that go on to another of our pages; baseline 5% (homepage only); ~435 per group; decide ~Nov 8 |
 
+| Test 'run1st': running gear first in Today's top deals | **A/B test** (Bastien OK'd, Oct 22). B: training/studio/yoga/lifestyle lines after running gear; one store at most 2 of the first 12 | Daily walk-through: a women's 8 / S saw 6 gym/lifestyle pieces in the first 10, 9 of 10 from SVP Sports. Metric: homepage first visits that click a deal (35% Oct 15-21); ~580 per group for 35% -> 43%; decide ~Nov 9. Cost seen: an adidas trail shoe at SVP left the first 10 |
+| Search heading "Results for “…”" | **Shipped** (Oct 22, a wording fix) | It said "Today's top deals" over search results |
+| "Filling a cart?" store bar in the light style | **Declined** (Bastien, Oct 22: the contrast makes sense) | On the now-light page the dark bar stands out, the snackbar convention; 14% tap Show (11 of 76); the light bars it would have matched were removed |
+| Every page in the homepage's look | **Shipped** (Oct 22, Bastien: "All others are dark and still the same") | Shoe/list/brand/race pages, About, Privacy: light even on phones in dark mode, charcoal header, white logo, no tagline. French shoe tables were wider than the phone (fixed). Site check "Every page has the homepage's look" |
+
 ## Where visitors come from (for growth calls)
 
 | Date | Fact | So |
