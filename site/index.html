@@ -770,7 +770,7 @@ en:{
     sub:n=>`Every morning we check ${n} running stores in Canada and the USA and show you the best prices in stock, in your size. No more guessing.`,
     ph:"Search shoes, apparel, packs, brands…",phS:"Search shoes, brands…",go:"Search",size:"Your size",cat:"Category",brand:"Brand",price:"Price",store:"Retailer",sale:"On sale only",more:"More filters",under:m=>`Under ${m}`,
     note:["Real deals.","Real sizes.","Real retailers."],tiles:{shoes:"Shoes",apparel:"Apparel",packs:"Packs & Vests",acc:"Accessories",nutrition:"Nutrition",gear:"Gear & Watches"},n:n=>`${n} deals`,
-    top:"Today's top deals",viewAll:"View all deals",viewAllS:"View all",filters:"Filters",showN:n=>`Show ${n} deals`,brands:"Shop by brand",viewBrands:"View all brands",inStock:"In stock",whyH:"Why use The Gear Fox?",
+    top:"Today's top deals",viewAll:"View all deals",viewAllS:"View all",filters:"Filters",showN:n=>`Show ${n} deals`,brands:"Shop by brand",viewBrands:"View all brands",whyH:"Why use The Gear Fox?",
     why:[["Real deals from real stores",n=>`We check ${n} stores in Canada and the USA every morning.`],["In your exact size",()=>"Only the sizes in stock right now, so every deal fits you."],["No more guessing",()=>"Every store's price for the same shoe, side by side."],["Canada & USA",()=>"Shop both sides, with local stores and local prices."]],
     kinds:{daily:"road shoes",race:"racing shoes",trail:"trail shoes",hike:"hiking & winter shoes",spike:"track spikes",tee:"t-shirt",layer:"long sleeve",jacket:"jacket",short:"shorts",tight:"tights",pant:"pants",light:"light",pole:"poles",bottle:"bottle",sun:"sunglasses"},
     sub2:(g,k)=>g?`${g} ${k}`:k[0].toUpperCase()+k.slice(1),cmp:"All sizes →",heroAt:(p,s)=>`${p} at ${s}`,menu:"Menu",mySizes:"My sizes"},
@@ -882,7 +882,7 @@ fr:{
     sub:n=>`Chaque matin, on vérifie ${n} boutiques de course au Canada et aux États-Unis et on vous montre les meilleurs prix en stock, dans votre taille. Fini les devinettes.`,
     ph:"Chercher chaussures, vêtements, sacs, marques…",phS:"Chaussures, marques…",go:"Chercher",size:"Votre taille",cat:"Catégorie",brand:"Marque",price:"Prix",store:"Boutique",sale:"En solde seulement",more:"Plus de filtres",under:m=>`Moins de ${m}`,
     note:["Vrais rabais.","Vraies tailles.","Vraies boutiques."],tiles:{shoes:"Chaussures",apparel:"Vêtements",packs:"Sacs et vestes",acc:"Accessoires",nutrition:"Nutrition",gear:"Équipement et montres"},n:n=>`${n} aubaines`,
-    top:"Les meilleures aubaines du jour",viewAll:"Voir toutes les aubaines",viewAllS:"Tout voir",filters:"Filtres",showN:n=>`Voir ${n} aubaines`,brands:"Magasinez par marque",viewBrands:"Toutes les marques",inStock:"En stock",whyH:"Pourquoi The Gear Fox ?",
+    top:"Les meilleures aubaines du jour",viewAll:"Voir toutes les aubaines",viewAllS:"Tout voir",filters:"Filtres",showN:n=>`Voir ${n} aubaines`,brands:"Magasinez par marque",viewBrands:"Toutes les marques",whyH:"Pourquoi The Gear Fox ?",
     why:[["De vrais rabais, de vraies boutiques",n=>`On vérifie ${n} boutiques au Canada et aux États-Unis chaque matin.`],["Dans votre taille exacte",()=>"Seulement les tailles en stock en ce moment : chaque aubaine vous va."],["Fini les devinettes",()=>"Le prix de chaque boutique pour la même chaussure, côte à côte."],["Canada et États-Unis",()=>"Magasinez des deux côtés, avec des boutiques et des prix locaux."]],
     kinds:{daily:"chaussures de route",race:"chaussures de compétition",trail:"chaussures de sentier",hike:"chaussures de randonnée et d'hiver",spike:"pointes",tee:"t-shirt",layer:"manches longues",jacket:"manteau",short:"short",tight:"collant",pant:"pantalon",light:"frontale",pole:"bâtons",bottle:"gourde",sun:"lunettes de soleil"},
     sub2:(g,k)=>g?`${k[0].toUpperCase()+k.slice(1)} · ${g}`:k[0].toUpperCase()+k.slice(1),cmp:"Tailles →",heroAt:(p,s)=>`${p} chez ${s}`,menu:"Menu",mySizes:"Mes tailles"},
@@ -1637,7 +1637,7 @@ function rdCard(d,extra,real){
     <div class="price"><b>${money(d.best)}</b>${curTag()}${d.pct?`<s>${money(d.reg)}</s>`:""}</div>
     ${lowDays(d)?`<span class="badge lo30" title="${esc(t("lowDaysTip"))}" aria-label="${esc(t("lowDays",lowDays(d)))}"><span class="l1">${t("lowL1")}</span> <span class="l2">${t("lowL2",lowDays(d))}</span></span>`:""}
     ${extra||""}${!extra&&NEWSET.has(k)?`<span class="badge new">${t("isNew")}</span>`:""}
-    <div class="store"><b>${esc(s[0])}</b><span class="ok" title="${esc(R.inStock)}">${esc(R.inStock)}</span></div>
+    <div class="store"><b>${esc(s[0])}</b></div>
     ${from||d.fin?`<div class="store2">${from?`<span class="abroad">${t("shipsFrom",from)}</span>`:""}${from&&d.fin?" · ":""}${d.fin?`<span class="fin" title="${esc(t("finalSaleTip"))}">${t("finalSale")}</span>`:""}</div>`:""}
     ${sized&&real.length?sizeRow(d,real):""}
     ${d.bb?`<div class="warn">${t("bestBy",esc(d.bb))}</div>`:""}
