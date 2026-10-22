@@ -123,11 +123,63 @@ def pretend_history(xs):
 
 
 items = pretend_history([{**{k: v for k, v in x.items() if k != "img"}, **({"img": "x"} if x.get("img") else {})} for x in data["items"] if x.get("ca") is not False or on_sale(x)])
+# PV_PHOTOS=N (Oct 22, 2026; the redesign is built around photos and an artifact can't load the stores' pictures): sale items only,
+# with N product photos copied into the page as small JPEGs (known brands and the biggest discounts first; the rest show the brand
+# name). PV_LOOK=B shows test 'look' B (the redesign) to everyone.
+NPH = int(os.environ.get("PV_PHOTOS", "0") or 0)
+if NPH:
+    import io
+    import ssl
+    import urllib.request
+    from concurrent.futures import ThreadPoolExecutor
+    from urllib.parse import urlparse
+    from PIL import Image
+    src = [x for x in data["items"] if (x.get("ca") is not False or on_sale(x)) and on_sale(x)]
+    shops = {}
+    for x in data["items"]:
+        shops.setdefault(x["b"], set()).update(urlparse(u).netloc for u in x.get("of", []))
+    def pct(x):
+        return max((1 - z[1] / z[3]) for z in x["sz"] if len(z) > 3 and z[3])
+    # PV_PHOTO_KEYS=file: item keys seen on screen (a robot opened the page in common sizes) get their photos first
+    first = set()
+    if os.environ.get("PV_PHOTO_KEYS"):
+        first = set(Path(os.environ["PV_PHOTO_KEYS"]).read_text().split("\n"))
+    ikey = lambda x: f"{x['b']}|{x['n']}|{x['g']}|{1 if x.get('w') else 0}".lower()
+    want = sorted((x for x in src if x.get("img")), key=lambda x: (-(ikey(x) in first), -(len(shops.get(x["b"], ())) >= 4), -pct(x)))
+    per, chosen = {}, []
+    for x in want:
+        if (ikey(x) in first or per.get(x["g"], 0) < max(40, NPH // 8)) and len(chosen) < NPH:
+            per[x["g"]] = per.get(x["g"], 0) + 1
+            chosen.append(x)
+    ctx = ssl.create_default_context(cafile=os.environ.get("SSL_CERT_FILE") or ("/root/.ccr/ca-bundle.crt" if os.path.exists("/root/.ccr/ca-bundle.crt") else None))
+    def thumb(x):
+        try:
+            req = urllib.request.Request(x["img"], headers={"User-Agent": "Mozilla/5.0 (preview builder)"})
+            im = Image.open(io.BytesIO(urllib.request.urlopen(req, timeout=15, context=ctx).read())).convert("RGB")
+            im.thumbnail((200, 200))
+            b = io.BytesIO()
+            im.save(b, "JPEG", quality=58, optimize=True)
+            return "data:image/jpeg;base64," + base64.b64encode(b.getvalue()).decode()
+        except Exception:
+            return None
+    with ThreadPoolExecutor(24) as ex:
+        got = dict(zip((f"{x['b']}|{x['n']}" for x in chosen), ex.map(thumb, chosen)))
+    keep = {f"{x['b']}|{x['n']}" for x in src}
+    items = [x for x in items if f"{x['b']}|{x['n']}" in keep]
+    for x in items:
+        x["img"] = got.get(f"{x['b']}|{x['n']}") or ("x" if x.get("img") else None)
+        if not x["img"]:
+            del x["img"]
+    print(f"preview photos: {sum(1 for v in got.values() if v)} of {len(chosen)} copied in", file=sys.stderr)
+if os.environ.get("PV_LOOK") == "B":
+    rep('const LOOK_B=ANA.arm("look")==="B";', 'const LOOK_B=true;   /* preview: the redesign for everyone */')
 blob = json.dumps({"updated": data["updated"], "stores": data.get("stores", {}), "n_stores": data.get("n_stores"), "fx": data.get("fx", {}), "items": items}, separators=(",", ":")).replace("</", "<\\/")
 # shoe price pages list (links on shoe cards and in search): embedded too, when the site folder has one
 sp_path = SITE / "shoes" / "pages.json"
-if sp_path.exists():
-    rep('fetch("shoes/pages.json").then(r=>r.ok?r.json():{})', 'Promise.resolve(' + sp_path.read_text().replace("</", "<\\/") + ')')
+if sp_path.exists():   # the homepage picks the Canada or USA list (Oct 22: this line still matched the old Canada-only fetch)
+    us_sp = SITE / "us" / "shoes" / "pages.json"
+    rep('fetch(US()?"us/shoes/pages.json":"shoes/pages.json").then(r=>r.ok?r.json():{})',
+        'Promise.resolve(US()?' + (us_sp.read_text() if us_sp.exists() else "{}").replace("</", "<\\/") + ':' + sp_path.read_text().replace("</", "<\\/") + ')')
 rep('const loadData=f=>fetch(f,{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error(f);return r.json()});',
     'const loadData=f=>Promise.resolve(JSON.parse(document.getElementById(/-us/.test(f)&&document.getElementById("gfdata-us")?"gfdata-us":"gfdata").textContent));')
 # the USA side (Oct 6, 2026): its items on sale, when the site folder has deals-us.json (kept small: sale items, no photos)
