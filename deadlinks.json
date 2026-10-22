@@ -1,41 +1,51 @@
 {
-"checked": "2026-10-21T09:34:23+00:00",
+"checked": "2026-10-22T09:55:24+00:00",
 "dead": {
-"https://ca.2xu.com/products/aero-5-inch-unlined-shorts-mr7703b-hunter-greenblack-reflective?variant=46877411213490": "ca.2xu.com",
-"https://ca.2xu.com/products/motion-7-inch-unlined-shorts-mr7530b-jupiterjupiter?variant=46877413834930": "ca.2xu.com",
-"https://ca.2xu.com/products/aero-7-inch-shorts-mr6904b-midnight-marblesilver-reflect?variant=46877408166066": "ca.2xu.com",
-"https://ca.2xu.com/products/aero-mesh-tee-wr7419a-mint-dustmint-reflective?variant=46877408657586": "ca.2xu.com",
-"https://ca.2xu.com/products/light-speed-tech-tee-wr7152a-lemon-icelemon-reflective?variant=46877408460978": "ca.2xu.com",
-"https://ca.2xu.com/products/light-speed-tech-singlet-mr7151a-cool-matchablack-reflective?variant=46877410132146": "ca.2xu.com",
-"https://ca.2xu.com/products/relight-racerback-singlet-wr7581a-halogenwhite?variant=46877402890418": "ca.2xu.com",
-"https://ca.shop.runningroom.com/en_ca/brooks-women-s-hyperion-running-shoe.html#93=35&137=9847": "ca.shop.runningroom.com",
-"https://ca.shop.runningroom.com/en_ca/buff-coolnet-uv-reflective-buff-1.html#93=23&137=31": "ca.shop.runningroom.com",
-"https://ca.shop.runningroom.com/en_ca/catalog/product/view/id/181211/s/hoka-men-s-clifton-9-d-width-running-shoe-hok-1127895-1531250-8-grey/": "ca.shop.runningroom.com",
-"https://ca.shop.runningroom.com/en_ca/ronhil-mens-core-ss-tee.html#93=12606&137=9866": "ca.shop.runningroom.com",
-"https://www.lecoureur.com/products/altra-w-experience-wild?variant=46437081776360": "www.lecoureur.com",
-"https://smartwool.com/products/mens-classic-thermal-merino-base-layer-1-4-zip-boxed-sw002822?variant=64161684914545": "smartwool.com",
-"https://smartwool.com/products/womens-classic-all-season-merino-base-layer-crew-boxed-sw016913?variant=64161681506673": "smartwool.com",
-"https://smartwool.com/products/second-cut-fleece-slipper-sw003051?variant=63206667059569": "smartwool.com",
-"https://smartwool.com/products/womens-classic-all-season-merino-base-layer-1-4-zip-boxed-sw002827?variant=63206617252209": "smartwool.com",
-"https://smartwool.com/products/womens-classic-all-season-merino-base-layer-bottom-boxed-sw016909?variant=64161693991281": "smartwool.com",
-"https://smartwool.com/products/mens-merino-print-boxer-brief-boxed-sw017005?variant=63208537424241": "smartwool.com",
-"https://smartwool.com/products/womens-classic-thermal-merino-base-layer-crew-boxed-sw016370?variant=64161702969713": "smartwool.com",
-"https://smartwool.com/products/mens-classic-thermal-merino-base-layer-crew-boxed-sw016350?variant=64161697038705": "smartwool.com",
-"https://smartwool.com/products/womens-classic-thermal-merino-base-layer-1-4-zip-boxed-sw002829?variant=64161687437681": "smartwool.com",
-"https://smartwool.com/products/mens-classic-all-season-merino-base-layer-crew-boxed-sw016953?variant=64161682162033": "smartwool.com",
-"https://smartwool.com/products/womens-classic-all-season-merino-base-layer-crew-plus-boxed-sw016915?variant=63206840303985": "smartwool.com",
-"https://smartwool.com/products/womens-classic-thermal-merino-base-layer-bottom-boxed-sw018809?variant=64161693008241": "smartwool.com",
-"https://smartwool.com/products/womens-classic-thermal-merino-base-layer-crew-plus-boxed-sw016803?variant=64161686028657": "smartwool.com",
-"https://smartwool.com/products/mens-classic-thermal-merino-base-layer-colorblock-crew-boxed-sw002570?variant=64161682948465": "smartwool.com"
+"https://ca.shop.runningroom.com/en_ca/ronhil-mens-core-ss-tee.html#93=12595&137=9866": "ca.shop.runningroom.com",
+"https://fit2run.com/products/asics-metaspeed-edge-tokyo-unisex?variant=50415668396341": "fit2run.com",
+"https://fit2run.com/products/f2r_performance_skort_womens?variant=49670279201077": "fit2run.com",
+"https://fit2run.com/products/thule_urban_glide_2_double_stroller_unisex?variant=49667156443445": "fit2run.com",
+"https://fit2run.com/products/lululemon-energy-bra-medium-support-b-d-cups-evolve-womens-2?variant=53409877721397": "fit2run.com",
+"https://fit2run.com/products/pit_viper_2000s_polarized_sunglasses_unisex?variant=49898220290357": "fit2run.com",
+"https://fit2run.com/products/f2r_elite_5_short_iii_mens?variant=49670305087797": "fit2run.com",
+"https://fit2run.com/products/thule_urban_glide_2_single_stroller_unisex?variant=49668950262069": "fit2run.com",
+"https://fit2run.com/products/pit_viper_2000s_sunglasses_unisex?variant=49898227204405": "fit2run.com",
+"https://fit2run.com/products/f2r_elite_7_short_iii_mens?variant=49670308364597": "fit2run.com",
+"https://fit2run.com/products/lululemon-fast-and-free-lined-running-short-5-mens?variant=51767597400373": "fit2run.com"
 },
 "stores": {
-"lecoureurnordique.ca": {
-"ok": 569,
+"www.thelasthunt.com": {
+"ok": 1168,
+"dead": 0,
+"unsure": 0
+},
+"www.brainsport.ca": {
+"ok": 332,
 "dead": 0,
 "unsure": 0
 },
 "gazellesports.com": {
-"ok": 615,
+"ok": 605,
+"dead": 0,
+"unsure": 0
+},
+"ca.shop.runningroom.com": {
+"ok": 829,
+"dead": 1,
+"unsure": 0
+},
+"ca.2xu.com": {
+"ok": 132,
+"dead": 0,
+"unsure": 0
+},
+"pacersrunning.com": {
+"ok": 191,
+"dead": 0,
+"unsure": 0
+},
+"www.prrunandwalk.com": {
+"ok": 391,
 "dead": 0,
 "unsure": 0
 },
@@ -44,248 +54,38 @@
 "dead": 0,
 "unsure": 0
 },
-"www.thelasthunt.com": {
-"ok": 1168,
+"borealrunning.com": {
+"ok": 1063,
 "dead": 0,
-"unsure": 0
+"unsure": 1
 },
 "www.svpsports.ca": {
-"ok": 840,
-"dead": 0,
-"unsure": 0
-},
-"www.aerobicsfirst.com": {
-"ok": 168,
-"dead": 0,
-"unsure": 0
-},
-"www.confluencerunning.com": {
-"ok": 622,
-"dead": 0,
-"unsure": 0
-},
-"www.capra.run": {
-"ok": 29,
-"dead": 0,
-"unsure": 0
-},
-"shop.philadelphiarunner.com": {
-"ok": 22,
-"dead": 0,
-"unsure": 0
-},
-"fit2run.com": {
-"ok": 360,
-"dead": 0,
-"unsure": 0
-},
-"trailrunnerstore.com": {
-"ok": 279,
-"dead": 0,
-"unsure": 0
-},
-"borealrunning.com": {
-"ok": 1067,
-"dead": 0,
-"unsure": 0
-},
-"ca.2xu.com": {
-"ok": 129,
-"dead": 7,
-"unsure": 0
-},
-"www.therunnersshop.com": {
-"ok": 178,
-"dead": 0,
-"unsure": 0
-},
-"sportsbasement.com": {
-"ok": 455,
-"dead": 0,
-"unsure": 0
-},
-"foveo.run": {
-"ok": 114,
-"dead": 0,
-"unsure": 0
-},
-"www.performancerunning.com": {
-"ok": 263,
-"dead": 0,
-"unsure": 0
-},
-"therunningwellstore.com": {
-"ok": 144,
-"dead": 0,
-"unsure": 0
-},
-"ca.shop.runningroom.com": {
-"ok": 830,
-"dead": 4,
-"unsure": 0
-},
-"stance.ca": {
-"ok": 198,
-"dead": 0,
-"unsure": 0
-},
-"laboutiquedulac.com": {
-"ok": 47,
-"dead": 0,
-"unsure": 0
-},
-"33-off.com": {
-"ok": 182,
-"dead": 0,
-"unsure": 0
-},
-"www.blacktoerunning.com": {
-"ok": 179,
-"dead": 0,
-"unsure": 0
-},
-"bushtukah.com": {
-"ok": 162,
-"dead": 0,
-"unsure": 0
-},
-"www.sail.ca": {
-"ok": 177,
-"dead": 0,
-"unsure": 0
-},
-"www.millcityrunning.com": {
-"ok": 91,
-"dead": 0,
-"unsure": 0
-},
-"www.feetures.com": {
-"ok": 102,
-"dead": 0,
-"unsure": 0
-},
-"www.frontrunners.ca": {
-"ok": 221,
-"dead": 0,
-"unsure": 0
-},
-"thefeed.com": {
-"ok": 360,
-"dead": 0,
-"unsure": 0
-},
-"www.stampeak.com": {
-"ok": 171,
-"dead": 0,
-"unsure": 0
-},
-"www.athleticannex.com": {
-"ok": 173,
+"ok": 838,
 "dead": 0,
 "unsure": 0
 },
 "stance.com": {
-"ok": 384,
+"ok": 383,
 "dead": 0,
 "unsure": 0
 },
-"www.brainsport.ca": {
-"ok": 325,
+"www.therunnersshop.com": {
+"ok": 175,
 "dead": 0,
 "unsure": 0
 },
-"runuphill.ca": {
-"ok": 190,
+"bushtukah.com": {
+"ok": 188,
 "dead": 0,
 "unsure": 0
 },
-"www.playmakers.com": {
-"ok": 236,
-"dead": 0,
-"unsure": 0
-},
-"www.lecoureur.com": {
-"ok": 303,
-"dead": 1,
-"unsure": 0
-},
-"wigwam.com": {
-"ok": 13,
-"dead": 0,
-"unsure": 0
-},
-"store.sfrunco.com": {
-"ok": 19,
-"dead": 0,
-"unsure": 0
-},
-"www.runinrabbit.com": {
-"ok": 240,
-"dead": 0,
-"unsure": 0
-},
-"www.fitfirst.ca": {
-"ok": 49,
-"dead": 0,
-"unsure": 0
-},
-"www.runninglabstore.com": {
-"ok": 83,
-"dead": 0,
-"unsure": 0
-},
-"shop.hansons-running.com": {
-"ok": 93,
-"dead": 0,
-"unsure": 0
-},
-"www.saucony.com": {
-"ok": 49,
-"dead": 0,
-"unsure": 0
-},
-"pacersrunning.com": {
-"ok": 204,
-"dead": 0,
-"unsure": 0
-},
-"territoryrun.co": {
-"ok": 10,
-"dead": 0,
-"unsure": 0
-},
-"rnnr.com": {
-"ok": 16,
-"dead": 0,
-"unsure": 0
-},
-"www.stridesrunning.com": {
-"ok": 98,
+"lecoureurnordique.ca": {
+"ok": 592,
 "dead": 0,
 "unsure": 0
 },
 "runnersplus.com": {
-"ok": 268,
-"dead": 0,
-"unsure": 0
-},
-"www.prrunandwalk.com": {
-"ok": 386,
-"dead": 0,
-"unsure": 0
-},
-"us.2xu.com": {
-"ok": 110,
-"dead": 0,
-"unsure": 0
-},
-"racketsandrunners.ca": {
-"ok": 58,
-"dead": 0,
-"unsure": 0
-},
-"saysky.com": {
-"ok": 92,
+"ok": 260,
 "dead": 0,
 "unsure": 0
 },
@@ -294,148 +94,28 @@
 "dead": 0,
 "unsure": 0
 },
-"smartwool.com": {
-"ok": 128,
-"dead": 14,
-"unsure": 0
-},
-"www.tortoiseandharesports.com": {
-"ok": 41,
+"www.confluencerunning.com": {
+"ok": 620,
 "dead": 0,
 "unsure": 0
 },
-"heartbreakhillrunningcompany.com": {
-"ok": 97,
+"thefeed.com": {
+"ok": 360,
 "dead": 0,
 "unsure": 0
 },
-"www.cityparkrunners.com": {
-"ok": 62,
+"trailrunnerstore.com": {
+"ok": 278,
 "dead": 0,
 "unsure": 0
 },
-"www.footlocker.ca": {
-"ok": 28,
+"www.athleticannex.com": {
+"ok": 178,
 "dead": 0,
 "unsure": 0
 },
-"skirack.com": {
-"ok": 31,
-"dead": 0,
-"unsure": 0
-},
-"shop.runpoint2.com": {
-"ok": 19,
-"dead": 0,
-"unsure": 0
-},
-"www.columbusrunning.com": {
-"ok": 42,
-"dead": 0,
-"unsure": 0
-},
-"shop.redcoyoterunning.com": {
-"ok": 40,
-"dead": 0,
-"unsure": 0
-},
-"www.soarrunning.com": {
-"ok": 1,
-"dead": 0,
-"unsure": 0
-},
-"shop.goodtimesrunningco.com": {
-"ok": 17,
-"dead": 0,
-"unsure": 0
-},
-"www.fleetfeet.com": {
-"ok": 96,
-"dead": 0,
-"unsure": 0
-},
-"praiseendurance.com": {
-"ok": 41,
-"dead": 0,
-"unsure": 0
-},
-"www.thelooprunning.com": {
-"ok": 64,
-"dead": 0,
-"unsure": 0
-},
-"naak.com": {
-"ok": 5,
-"dead": 0,
-"unsure": 0
-},
-"portlandrunningcompany.com": {
-"ok": 52,
-"dead": 0,
-"unsure": 0
-},
-"aupiedsportiflaval.com": {
-"ok": 116,
-"dead": 0,
-"unsure": 0
-},
-"shop.charlotterunning.com": {
-"ok": 15,
-"dead": 0,
-"unsure": 0
-},
-"swiftwick.com": {
-"ok": 23,
-"dead": 0,
-"unsure": 0
-},
-"www.fitnesssports.com": {
-"ok": 45,
-"dead": 0,
-"unsure": 0
-},
-"scrantonrunning.com": {
-"ok": 6,
-"dead": 0,
-"unsure": 0
-},
-"altrarunning.com": {
-"ok": 0,
-"dead": 0,
-"unsure": 0
-},
-"www.mountainrunningcompany.com": {
-"ok": 120,
-"dead": 0,
-"unsure": 0
-},
-"vanrunco.com": {
-"ok": 100,
-"dead": 0,
-"unsure": 0
-},
-"www.trailheadrunningsupply.com": {
-"ok": 47,
-"dead": 0,
-"unsure": 0
-},
-"shop.charmcityrun.com": {
-"ok": 53,
-"dead": 0,
-"unsure": 0
-},
-"www.boutiqueendurance.ca": {
-"ok": 37,
-"dead": 0,
-"unsure": 0
-},
-"ombraz.com": {
-"ok": 18,
-"dead": 0,
-"unsure": 0
-},
-"www.altitude-sports.com": {
-"ok": 64,
+"www.runinrabbit.com": {
+"ok": 237,
 "dead": 0,
 "unsure": 0
 },
@@ -444,38 +124,168 @@
 "dead": 0,
 "unsure": 0
 },
+"shop.redcoyoterunning.com": {
+"ok": 50,
+"dead": 0,
+"unsure": 0
+},
+"foveo.run": {
+"ok": 112,
+"dead": 0,
+"unsure": 0
+},
+"vanrunco.com": {
+"ok": 100,
+"dead": 0,
+"unsure": 0
+},
+"shop.runnersoul.com": {
+"ok": 13,
+"dead": 0,
+"unsure": 0
+},
+"saysky.com": {
+"ok": 92,
+"dead": 0,
+"unsure": 0
+},
+"www.fleetfeet.com": {
+"ok": 228,
+"dead": 0,
+"unsure": 35
+},
+"smartwool.com": {
+"ok": 129,
+"dead": 0,
+"unsure": 0
+},
+"www.sail.ca": {
+"ok": 176,
+"dead": 0,
+"unsure": 0
+},
+"shop.forerunners.ca": {
+"ok": 11,
+"dead": 0,
+"unsure": 0
+},
+"shop.palmettorunningcompany.com": {
+"ok": 5,
+"dead": 0,
+"unsure": 0
+},
+"www.blacktoerunning.com": {
+"ok": 177,
+"dead": 0,
+"unsure": 0
+},
+"territoryrun.co": {
+"ok": 10,
+"dead": 0,
+"unsure": 0
+},
+"www.playmakers.com": {
+"ok": 240,
+"dead": 0,
+"unsure": 0
+},
+"www.feetures.com": {
+"ok": 102,
+"dead": 0,
+"unsure": 0
+},
+"www.stridesrunning.com": {
+"ok": 98,
+"dead": 0,
+"unsure": 0
+},
+"www.runninglabstore.com": {
+"ok": 84,
+"dead": 0,
+"unsure": 0
+},
+"www.frontrunners.ca": {
+"ok": 219,
+"dead": 0,
+"unsure": 0
+},
+"shop.runningniche.com": {
+"ok": 13,
+"dead": 0,
+"unsure": 0
+},
+"sportsbasement.com": {
+"ok": 451,
+"dead": 0,
+"unsure": 0
+},
+"heartbreakhillrunningcompany.com": {
+"ok": 96,
+"dead": 0,
+"unsure": 0
+},
+"runuphill.ca": {
+"ok": 191,
+"dead": 0,
+"unsure": 0
+},
+"www.thelooprunning.com": {
+"ok": 63,
+"dead": 0,
+"unsure": 0
+},
+"therunningwellstore.com": {
+"ok": 137,
+"dead": 0,
+"unsure": 0
+},
+"shop.hansons-running.com": {
+"ok": 101,
+"dead": 0,
+"unsure": 0
+},
 "www.runnersden.com": {
 "ok": 20,
 "dead": 0,
 "unsure": 0
 },
-"shop.terrarunning.com": {
-"ok": 6,
+"altrarunning.com": {
+"ok": 0,
 "dead": 0,
 "unsure": 0
 },
-"sea2skynutrition.ca": {
+"aupiedsportiflaval.com": {
+"ok": 115,
+"dead": 0,
+"unsure": 0
+},
+"www.footlocker.ca": {
+"ok": 30,
+"dead": 0,
+"unsure": 0
+},
+"www.tortoiseandharesports.com": {
+"ok": 45,
+"dead": 0,
+"unsure": 0
+},
+"portlandrunningcompany.com": {
+"ok": 50,
+"dead": 0,
+"unsure": 0
+},
+"rnnr.com": {
+"ok": 16,
+"dead": 0,
+"unsure": 0
+},
+"shop.philadelphiarunner.com": {
+"ok": 28,
+"dead": 0,
+"unsure": 0
+},
+"wigwam.com": {
 "ok": 13,
-"dead": 0,
-"unsure": 0
-},
-"www.nathansports.com": {
-"ok": 26,
-"dead": 0,
-"unsure": 0
-},
-"shop.moruncocape.com": {
-"ok": 23,
-"dead": 0,
-"unsure": 0
-},
-"shop.pyrunco.com": {
-"ok": 10,
-"dead": 0,
-"unsure": 0
-},
-"shop.runnersoul.com": {
-"ok": 15,
 "dead": 0,
 "unsure": 0
 },
@@ -484,48 +294,73 @@
 "dead": 0,
 "unsure": 0
 },
-"www.tifosioptics.com": {
-"ok": 13,
+"www.fitfirst.ca": {
+"ok": 38,
 "dead": 0,
 "unsure": 0
 },
-"shop.iruntexas.net": {
-"ok": 8,
+"www.altitude-sports.com": {
+"ok": 63,
 "dead": 0,
 "unsure": 0
 },
-"shop.runningzone.com": {
-"ok": 5,
+"33-off.com": {
+"ok": 184,
 "dead": 0,
 "unsure": 0
 },
-"shop.weststride.com": {
-"ok": 15,
-"dead": 0,
+"fit2run.com": {
+"ok": 350,
+"dead": 10,
 "unsure": 0
 },
-"www.skratchlabs.com": {
+"shop.goodtimesrunningco.com": {
 "ok": 16,
 "dead": 0,
 "unsure": 0
 },
-"shop.runnersroost.com": {
-"ok": 13,
+"www.aerobicsfirst.com": {
+"ok": 167,
 "dead": 0,
 "unsure": 0
 },
-"shop.forerunners.ca": {
-"ok": 9,
+"www.lecoureur.com": {
+"ok": 302,
 "dead": 0,
 "unsure": 0
 },
-"nuun.com": {
-"ok": 7,
+"www.millcityrunning.com": {
+"ok": 89,
 "dead": 0,
 "unsure": 0
 },
-"www.runflagstaff.com": {
-"ok": 5,
+"www.stampeak.com": {
+"ok": 171,
+"dead": 0,
+"unsure": 0
+},
+"skirack.com": {
+"ok": 30,
+"dead": 0,
+"unsure": 0
+},
+"www.darntough.com": {
+"ok": 2,
+"dead": 0,
+"unsure": 0
+},
+"www.fitnesssports.com": {
+"ok": 46,
+"dead": 0,
+"unsure": 0
+},
+"sea2skynutrition.ca": {
+"ok": 16,
+"dead": 0,
+"unsure": 0
+},
+"ombraz.com": {
+"ok": 18,
 "dead": 0,
 "unsure": 0
 },
@@ -534,28 +369,103 @@
 "dead": 0,
 "unsure": 0
 },
-"www.balega.com": {
-"ok": 7,
+"us.2xu.com": {
+"ok": 111,
 "dead": 0,
 "unsure": 0
 },
-"upika.ca": {
-"ok": 1,
+"www.performancerunning.com": {
+"ok": 263,
 "dead": 0,
 "unsure": 0
 },
-"shop.aardvarksportsshop.com": {
-"ok": 10,
+"store.sfrunco.com": {
+"ok": 19,
 "dead": 0,
 "unsure": 0
 },
-"cowichanvalleyrunning.com": {
-"ok": 14,
+"www.mountainrunningcompany.com": {
+"ok": 118,
 "dead": 0,
 "unsure": 0
 },
-"shop.millenniumrunning.com": {
-"ok": 14,
+"shop.runningzone.com": {
+"ok": 6,
+"dead": 0,
+"unsure": 0
+},
+"stance.ca": {
+"ok": 200,
+"dead": 0,
+"unsure": 0
+},
+"racketsandrunners.ca": {
+"ok": 57,
+"dead": 0,
+"unsure": 0
+},
+"www.columbusrunning.com": {
+"ok": 43,
+"dead": 0,
+"unsure": 0
+},
+"www.tifosioptics.com": {
+"ok": 13,
+"dead": 0,
+"unsure": 0
+},
+"www.boutiqueendurance.ca": {
+"ok": 35,
+"dead": 0,
+"unsure": 0
+},
+"www.cityparkrunners.com": {
+"ok": 62,
+"dead": 0,
+"unsure": 0
+},
+"www.saucony.com": {
+"ok": 50,
+"dead": 0,
+"unsure": 0
+},
+"www.capra.run": {
+"ok": 29,
+"dead": 0,
+"unsure": 0
+},
+"feetures.ca": {
+"ok": 16,
+"dead": 0,
+"unsure": 0
+},
+"www.nakedsportsinnovations.com": {
+"ok": 3,
+"dead": 0,
+"unsure": 0
+},
+"www.trailheadrunningsupply.com": {
+"ok": 48,
+"dead": 0,
+"unsure": 0
+},
+"brixrechargeparlanature.com": {
+"ok": 2,
+"dead": 0,
+"unsure": 0
+},
+"laboutiquedulac.com": {
+"ok": 46,
+"dead": 0,
+"unsure": 0
+},
+"shop.manhattanrunningco.com": {
+"ok": 5,
+"dead": 0,
+"unsure": 0
+},
+"nuun.com": {
+"ok": 8,
 "dead": 0,
 "unsure": 0
 },
@@ -564,23 +474,43 @@
 "dead": 0,
 "unsure": 0
 },
-"squirrelsnutbutter.com": {
-"ok": 6,
-"dead": 0,
-"unsure": 0
-},
 "solesports.runfreeproject.com": {
-"ok": 5,
+"ok": 4,
 "dead": 0,
 "unsure": 0
 },
-"shop.runningniche.com": {
-"ok": 19,
+"shop.charmcityrun.com": {
+"ok": 48,
 "dead": 0,
 "unsure": 0
 },
-"shop.palmettorunningcompany.com": {
-"ok": 6,
+"www.nathansports.com": {
+"ok": 26,
+"dead": 0,
+"unsure": 0
+},
+"shop.runnersroost.com": {
+"ok": 14,
+"dead": 0,
+"unsure": 0
+},
+"shop.aardvarksportsshop.com": {
+"ok": 17,
+"dead": 0,
+"unsure": 0
+},
+"cowichanvalleyrunning.com": {
+"ok": 14,
+"dead": 0,
+"unsure": 0
+},
+"www.skratchlabs.com": {
+"ok": 16,
+"dead": 0,
+"unsure": 0
+},
+"shop.run605.com": {
+"ok": 1,
 "dead": 0,
 "unsure": 0
 },
@@ -589,7 +519,42 @@
 "dead": 0,
 "unsure": 0
 },
-"www.darntough.com": {
+"shop.pyrunco.com": {
+"ok": 11,
+"dead": 0,
+"unsure": 0
+},
+"shop.charlotterunning.com": {
+"ok": 9,
+"dead": 0,
+"unsure": 0
+},
+"swiftwick.com": {
+"ok": 23,
+"dead": 0,
+"unsure": 0
+},
+"shop.moruncocape.com": {
+"ok": 21,
+"dead": 0,
+"unsure": 0
+},
+"squirrelsnutbutter.com": {
+"ok": 6,
+"dead": 0,
+"unsure": 0
+},
+"nordarun.com": {
+"ok": 2,
+"dead": 0,
+"unsure": 0
+},
+"shop.weststride.com": {
+"ok": 13,
+"dead": 0,
+"unsure": 0
+},
+"shop.bigpeachrunningco.com": {
 "ok": 2,
 "dead": 0,
 "unsure": 0
@@ -599,8 +564,8 @@
 "dead": 0,
 "unsure": 1
 },
-"feetures.ca": {
-"ok": 16,
+"praiseendurance.com": {
+"ok": 41,
 "dead": 0,
 "unsure": 0
 },
@@ -609,28 +574,48 @@
 "dead": 0,
 "unsure": 0
 },
-"brixrechargeparlanature.com": {
-"ok": 2,
+"shop.millenniumrunning.com": {
+"ok": 15,
 "dead": 0,
 "unsure": 0
 },
-"shop.manhattanrunningco.com": {
-"ok": 4,
+"www.balega.com": {
+"ok": 7,
 "dead": 0,
 "unsure": 0
 },
-"shop.bigpeachrunningco.com": {
+"naak.com": {
+"ok": 5,
+"dead": 0,
+"unsure": 0
+},
+"shop.runpoint2.com": {
+"ok": 7,
+"dead": 0,
+"unsure": 0
+},
+"shop.iruntexas.net": {
+"ok": 5,
+"dead": 0,
+"unsure": 0
+},
+"upika.ca": {
 "ok": 1,
 "dead": 0,
 "unsure": 0
 },
-"www.nakedsportsinnovations.com": {
-"ok": 3,
+"www.runflagstaff.com": {
+"ok": 4,
 "dead": 0,
 "unsure": 0
 },
-"nordarun.com": {
-"ok": 2,
+"scrantonrunning.com": {
+"ok": 7,
+"dead": 0,
+"unsure": 0
+},
+"shop.terrarunning.com": {
+"ok": 7,
 "dead": 0,
 "unsure": 0
 },
@@ -639,13 +624,13 @@
 "dead": 0,
 "unsure": 0
 },
-"www.humagel.com": {
+"www.soarrunning.com": {
 "ok": 1,
 "dead": 0,
 "unsure": 0
 },
-"shop.run605.com": {
-"ok": 2,
+"www.humagel.com": {
+"ok": 1,
 "dead": 0,
 "unsure": 0
 }
