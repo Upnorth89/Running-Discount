@@ -31,7 +31,10 @@ Newest first. "Revisit" says when (or what would make us) look again.
 |---|---|---|
 | Category tile pictures: AI-generated set from Bastien (12 images) | **Dropped** (Bastien, Oct 22: "Let's not use AI generated pics") | Real brands' logos (Hoka, Salomon, Maurten, The North Face…) on products those brands never made; garbled labels ("Solid C160"); looks AI-made, the problem the redesign fixes |
 | Category tile pictures: free stock photos | Not used | Bastien's spec bans lifestyle photos; stock shots of branded products suggest deals we may not have |
-| Category tile pictures: today's real deals | **Used** | A known brand's item of the kind the tile names (shoe, jacket, vest, cap/gloves, watch); changes with the deals, always real |
+| Category tile pictures: today's real deals | Tried, **dropped** (Bastien, Oct 22: "looks pretty bad since all are different") | Every store shoots differently: angles, crops and backgrounds clashed side by side |
+| Category pictures: one store's photos, fixed | **Used** (Oct 22) | Six Altitude Sports studio shots (shoe, jacket, vest, gloves, gel, headlamp), cropped square on white, kept in site/img/cat (sources in SOURCES.json) until we decide to change them |
+| Category tiles as small circles | **Used** (Bastien's idea, Oct 22) | One row instead of a 3 x 2 grid: about a third of the height, so deals move up; phones swipe the row (names never touch) |
+| Prices in orange | **Changed to charcoal** (Oct 22) | Orange on everything = nothing stands out (isolation effect); orange text is 3.1:1 on white vs ~15:1 for charcoal. Orange kept for your size, main buttons, the headline accent |
 | Sticky search + Filters bar and a Filters panel on phones (from ChatGPT's review) | Built | Baymard: keep filtering within reach on long mobile lists |
 | One deal per row on small phones (< 380px) | Built | Two columns were cramped at 320px (names cut, "In stock" squeezed) |
 | Fixed bottom bar (Home, Deals, Categories, My Sizes) (ChatGPT) | Declined | We're one page: 3 of 4 buttons go where you already are; ~60px of every screen; clashes with Safari's bar and our bottom offers |

@@ -1,0 +1,8 @@
+{
+ "shoes": "https://s3.amazonaws.com/syncpigeon/alti_prod/images/adi-nkl80_ftwr-white-lucid-orange-lucid-red.jpg",
+ "apparel": "https://s3.amazonaws.com/syncpigeon/alti_prod/images/adi-jz7717_black.jpg",
+ "packs": "https://s3.amazonaws.com/syncpigeon/alti_prod/images/nat-ns30730_electric-blue-reflective-silver.jpg",
+ "acc": "https://s3.amazonaws.com/syncpigeon/alti_prod/images/hoo-1151232_papaya.jpg",
+ "nutrition": "https://s3.amazonaws.com/syncpigeon/alti_prod/images/nak-bgne-1b-ca_no-color.jpg",
+ "gear": "https://s3.amazonaws.com/syncpigeon/alti_prod/images/bdd-bd620678_azul.jpg"
+}

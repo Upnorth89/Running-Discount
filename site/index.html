@@ -1212,8 +1212,7 @@ function welcomeLook(sale){
   const total=+storesLabel()||0;
   // the same 4 categories as the homepage tiles, the same photo rule (Oct 21)
   const tiles=["shoes","apparel","packs","acc"].map(k=>{const its=sale.filter(d=>RD_TILES[k].includes(d.g));if(!its.length)return "";
-    const pic=rdPick(its.slice().sort(SORTS.match),k);
-    return `<button type="button" class="wcat" data-cat="${k}" data-img="${esc(pic)}"><span class="wcp">${pic?`<img src="${esc(pic)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:""}</span><b>${esc(t("rd").tiles[k])}</b><small>${esc(t("wCatN",num(its.length)))}</small></button>`}).join("");
+    return `<button type="button" class="wcat" data-cat="${k}" data-img="${rdImg(k)}"><span class="wcp"><img src="${rdImg(k)}" alt="" width="240" height="240"></span><b>${esc(t("rd").tiles[k])}</b><small>${esc(t("wCatN",num(its.length)))}</small></button>`}).join("");
   $("wStats").innerHTML=(top.length>=3&&total>top.length?`<p class="wfrom">${esc(t("wFrom",top.join(", "),total-top.length))}</p>`:"")
     +(tiles?`<h3 class="wcath">${esc(t("wCatH"))}</h3><div class="wcats">${tiles}</div>`:"");
   $("wStats").classList.add("look");
@@ -1476,14 +1475,10 @@ if(CALM){document.body.classList.add("hdrsearch");$("hSearch").appendChild($("dS
 /* ===== Redesign (Oct 21; B of test 'look'): Bastien's approved rendering. Charcoal header with sections, a hero with the big
    search + dropdown filters + today's best shoe, 6 category tiles, cards (photo, % badge, heart, name, kind, orange price,
    store + in stock, your size in orange), "Shop by brand", "Why use The Gear Fox". Every number comes from today's data. ===== */
-/* the photo on each category tile (Oct 21): a real deal from today, a known brand's item of the kind the tile names (a road or
-   trail shoe for Shoes, a jacket for Apparel...), never a shoelace or a race belt. Bastien tried a fixed set of pictures the same
-   day and dropped it: they were AI-made, with real brands' logos on products those brands never made. */
-var RD_PIC={shoes:d=>d.t==="daily"||d.t==="trail",apparel:d=>d.g==="tops"&&(d.t==="jacket"||d.t==="layer"),packs:d=>/vest|veste|pack/i.test(d.n),
-  acc:d=>(d.g==="headwear"||d.g==="gloves")&&/\b(cap|hat|casquette|tuque|toque|beanie|glove|gant|mitt)/i.test(d.n),nutrition:()=>true,gear:d=>d.g==="watches"};
-function rdPick(list,k){const bs=rdBrandStores(),known=d=>d.g==="shoes"?!!shoePage(d):(bs[d.b]&&bs[d.b].size>=4),
-  ok=d=>d.img&&!SPIKE.test(d.n)&&!/mystery|gift ?card|bundle|sample/i.test(d.n),want=RD_PIC[k];
-  return (list.find(d=>ok(d)&&known(d)&&want(d))||list.find(d=>ok(d)&&want(d))||list.find(d=>ok(d)&&known(d))||list.find(ok)||{}).img||""}
+/* category pictures (Oct 22, Bastien: "use the same retailer for all pictures and simply keep those pictures until we decide to
+   change them"): six Altitude Sports product photos, cropped square on white, in site/img/cat (sources in SOURCES.json), shown
+   as small circles. Earlier the same day: today's deal photos (all different, "looks pretty bad") and AI pictures (dropped). */
+function rdImg(k){return "img/cat/"+k+".webp"}   // a function: the welcome screen can draw before this line runs
 var RD_TILES={shoes:["shoes"],apparel:["tops","bottoms","bras"],packs:["packs"],acc:["socks","gloves","headwear"],nutrition:["nutrition"],gear:["gear","watches"]};
 const RDI={search:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>',
   chev:'<svg class="chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>',
@@ -1501,7 +1496,7 @@ function rdSource(p){   // today's sale deals in your sizes, every category (til
   if(key===RDC.key)return RDC;
   let src=matchItems({...p,store:"",groups:ORDER}).filter(d=>d.pct>0);if(view.cdn&&!US())src=src.filter(cdnBrand);
   src.sort(SORTS.match);const tiles={};
-  for(const [k,gs] of Object.entries(RD_TILES)){const l=src.filter(d=>gs.includes(d.g));tiles[k]={n:l.length,img:rdPick(l,k)}}
+  for(const [k,gs] of Object.entries(RD_TILES))tiles[k]={n:src.filter(d=>gs.includes(d.g)).length};
   const hero=src.find(d=>d.g==="shoes"&&d.img&&d.pct>=25&&d.pct<=60&&!SPIKE.test(d.n)&&d.t!=="hike"&&d.ok.length>=1&&(d.any||d.ok.length>=1))||null;
   const bc={};src.forEach(d=>{bc[d.b]=(bc[d.b]||0)+1});
   RDC={key,src,tiles,hero,brands:Object.entries(bc).sort((a,b)=>b[1]-a[1])};return RDC}
@@ -1602,7 +1597,7 @@ function rdUpdate(all,p){   // hero, dropdowns, tiles, why: from today's data, e
   ["ddCat","ddBrand","ddPrice","ddStore"].forEach(id=>{const x=$(id),o=x.options[x.selectedIndex];x.parentNode.classList.toggle("on",!!x.value);
     x.parentNode.querySelector(".v").textContent=o?o.textContent.replace(/ \([\d\s,.\u00a0]+\)$/,""):"";x.setAttribute("aria-label",x.options[0].textContent)});
   $("rdTiles").innerHTML=Object.keys(RD_TILES).map(k=>{const x=C.tiles[k],gs=RD_TILES[k].filter(g=>!(g==="bras"&&state.gender==="men")),on=gs.length===state.groups.length&&gs.every(g=>state.groups.includes(g));
-    return `<button type="button" class="rdtile" data-rdtile="${k}" aria-pressed="${on}"><span class="tp">${x.img?`<img src="${esc(x.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:""}</span><span class="tt"><b>${esc(R.tiles[k])}</b><small>${esc(R.n(num(x.n)))}</small></span><span class="ta">${RDI.arrow}</span></button>`}).join("");
+    return `<button type="button" class="rdtile" data-rdtile="${k}" aria-pressed="${on}"><span class="tp"><img src="${rdImg(k)}" alt="" width="240" height="240"></span><span class="tt"><b>${esc(R.tiles[k])}</b><small>${esc(R.n(num(x.n)))}</small></span><span class="ta">${RDI.arrow}</span></button>`}).join("");
   const d=C.hero;
   if(d){const [m]=rdModel(d),s=(STORES[storeOf(d.url)]||[storeOf(d.url)])[0];
     $("rdHp").innerHTML=`<a class="rdhd" href="${esc(affUrl(d.url))}" data-store="${esc(storeOf(d.url))}" target="_blank" rel="noopener"><span class="hi"><img src="${esc(d.img)}" alt="${esc(d.b+" "+m)}" referrerpolicy="no-referrer" onerror="this.remove()"></span>

@@ -171,6 +171,11 @@ if NPH:
         if not x["img"]:
             del x["img"]
     print(f"preview photos: {sum(1 for v in got.values() if v)} of {len(chosen)} copied in", file=sys.stderr)
+# the category pictures (site/img/cat, Oct 22): inside the page, since an artifact can't fetch the site's files
+cat_dir = SITE / "img" / "cat"
+if cat_dir.exists() and 'function rdImg(k){return "img/cat/"+k+".webp"}' in s:
+    pics = {f.stem: "data:image/webp;base64," + base64.b64encode(f.read_bytes()).decode() for f in cat_dir.glob("*.webp")}
+    rep('function rdImg(k){return "img/cat/"+k+".webp"}', "function rdImg(k){return (" + json.dumps(pics) + ")[k]||\"\"}")
 if os.environ.get("PV_LOOK") == "B":
     rep('const LOOK_B=ANA.arm("look")==="B";', 'const LOOK_B=true;   /* preview: the redesign for everyone */')
 blob = json.dumps({"updated": data["updated"], "stores": data.get("stores", {}), "n_stores": data.get("n_stores"), "fx": data.get("fx", {}), "items": items}, separators=(",", ":")).replace("</", "<\\/")
