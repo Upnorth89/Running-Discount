@@ -94,3 +94,4 @@ Newest first. "Revisit" says when (or what would make us) look again.
 | Oct 23 | Hearts came back after removing (Bastien) | Bug: a second device re-uploaded removed items. Fixed + site test. Watch taps are rare anyway: 41 sessions in 14 days of 2,402 with a deal click |
 | Oct 23 | Race organizer outreach | Bastien emailed Sinister Sports (SOO 200 / Divide 200). Waiting on reply; a link from their gear page = our first backlink |
 | Oct 23 | "The Gear Fox" breadcrumb on race pages repeated the logo (Bastien) | Removed; race pages keep "Race gear lists" (the way back to the list), the race list page has no breadcrumb |
+| Oct 23 | Black Friday "is this deal real?" labels (Bastien: yes) | Shipped: green "Lowest price we've seen in N days" on list/BF cards (homepage badge rule, good news only), BF week lists real drops first + a count line. Shows from ~Nov 1 (30 days of history) |

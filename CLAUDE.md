@@ -86,6 +86,10 @@ scraper/shoe_pages.py    Google pages: one per popular shoe model (3+ Canadian s
                          morning build writes today's top 12 + links there; one EN and one FR copy, CSS shows the one matching html[lang]).
                          Size pages (Oct 15): /running-shoes-sale/men/size-11/ … (FR /chaussures-course-solde/homme/pointure-10-5/, USA
                          /us/…): men 7-13 + 14, women 5-11, sale only, regular width; size menu on the men/women pages, qs_box after cards.
+                         Black Friday labels (Oct 23, Bastien OK'd): `low_days()` = the homepage badge rule (30+ days of history, today <= lo,
+                         hi 2%+ above) per model at its best price -> summary `lowd` -> green "✓ Lowest price we've seen in N days" on every
+                         list card (`card_list`); BF week (Nov 20-Dec 1) lists real drops first (`real_first`) + count line `bfReal`. check.py
+                         step "Black Friday real-drop labels: the rule". Shows from ~Nov 1.
                          Price line (Oct 15, Bastien dropped the chart: "not make people feel like they missed a sale"): `price_chart()` under
                          the size tables, per version, from hist/prices.jsonl: 5%+ cheaper in 60 days -> "It was $X on <date> ($Y today). Sales
                          come back: don't miss the next one." + [Email me when it drops] (#alertBox); today lowest -> green line only with 30+
