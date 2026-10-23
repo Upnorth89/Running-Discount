@@ -2006,7 +2006,7 @@ function saveWatches(){LS.set("gf-watch",watches);const n=Object.keys(watches).l
 let toastT;function toast(t){const e=$("toast");e.textContent=t;e.classList.remove("hidden");clearTimeout(toastT);toastT=setTimeout(()=>e.classList.add("hidden"),3200)}
 function toggleWatch(k,quiet){     // quiet: the come-back bar asks for the email itself (no sheet, no toast)
   if(watches[k]){ana("watch-remove",watches[k].g);delete watches[k];saveWatches();
-    if(sub&&sub.key)rpc("watch_remove",{p_token:sub.key,p_key:k}).catch(()=>{});
+    if(sub&&sub.key){goneW(k,true);rpc("watch_remove",{p_token:sub.key,p_key:k}).then(()=>goneW(k,false)).catch(()=>{})}   // kept until the server says done
     toast(t("removed"));return}
   const d=(byKey[k]||[])[0];if(!d)return;
   const m=matchItems({...toProfile(),groups:ORDER},byKey[k]);let best=m.length?Math.min(...m.map(x=>x.best)):null;
@@ -2014,18 +2014,34 @@ function toggleWatch(k,quiet){     // quiet: the come-back bar asks for the emai
   const url=m.length?m.sort((a,b)=>a.best-b.best)[0].url:(d.of||[])[0];
   watches[k]={b:d.b,n:d.n,g:d.g,url,price:best,low:best,seen:best,gone:best==null,saved:new Date().toISOString()};saveWatches();
   track("watch-add",{brand:d.b,group:d.g});
-  if(sub&&sub.key&&sub.active){rpc("watch_add",{p_token:sub.key,p_key:k,p_meta:watches[k]}).catch(()=>{});
+  goneW(k,false);
+  if(sub&&sub.key&&sub.active){rpc("watch_add",{p_token:sub.key,p_key:k,p_meta:watches[k]}).then(()=>{if(watches[k]){watches[k].sv=1;saveWatches()}}).catch(()=>{});
     toast(t("watching"))}
   else if(!quiet&&!peeking())toast(sub&&sub.pending?t("watchingPending"):t("watchingSignup"));   // Oct 18: when the email sheet opens it says it; the toast sat on its button
   if(peeking()&&!quiet){step=2;openSheet();$("panel").scrollTop=0}
 }
+/* Oct 23 (Bastien: "I keep taking 2 items off the list and it inputs them back"): a member's list lives on the server AND on each
+   device (phone browser, home-screen app, computer). Sync used to upload every item this device had and the server didn't, so a
+   device that still held an item removed elsewhere put it right back. Now: an item this device has seen on the server (sv) and
+   that's gone from it was removed elsewhere -> it leaves here too; only hearts never sent (picked before signing up, or offline)
+   go up; a removal the server didn't confirm yet (gf-watch-gone) is sent again instead of the item coming back. */
+function goneW(k,on){const g=LS.get("gf-watch-gone")||{};if(on)g[k]=1;else delete g[k];LS.set("gf-watch-gone",g)}
 async function syncWatches(){
   if(!(sub&&sub.key))return;
   try{
     const list=await rpc("watch_list",{p_token:sub.key})||[];
-    const server=new Set(list.map(w=>w.key));
-    list.forEach(w=>{if(!watches[w.key])watches[w.key]=w.meta||{}});
-    if(sub.active)for(const [k,m] of Object.entries(watches))if(!server.has(k))await rpc("watch_add",{p_token:sub.key,p_key:k,p_meta:m}).catch(()=>{});
+    const server=new Set(list.map(w=>w.key)),gone=LS.get("gf-watch-gone")||{};
+    for(const w of list){
+      if(gone[w.key]){await rpc("watch_remove",{p_token:sub.key,p_key:w.key}).then(()=>goneW(w.key,false)).catch(()=>{});continue}
+      if(!watches[w.key])watches[w.key]=w.meta||{};
+      watches[w.key].sv=1}
+    for(const k of Object.keys(gone))if(!server.has(k))goneW(k,false);
+    const old=Date.now()-864e5;
+    for(const [k,m] of Object.entries(watches)){
+      if(server.has(k))continue;
+      // removed on another device: it was on the server before (sv), or (lists from before this fix) saved over a day ago
+      if(m.sv||(sub.active&&m.saved&&Date.parse(m.saved)<old)){delete watches[k];continue}
+      if(sub.active)await rpc("watch_add",{p_token:sub.key,p_key:k,p_meta:m}).then(()=>{m.sv=1}).catch(()=>{})}
     saveWatches();renderAll();
   }catch(e){}
 }

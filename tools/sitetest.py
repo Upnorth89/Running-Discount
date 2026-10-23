@@ -1205,17 +1205,16 @@ def site_flow(base, per, accented):
             return f"{slug}: A hidden, B shows {len(b['cards'])} race shoes in size 10"
         check("Shoe page: other shoes on sale in your size (test 'alts')")(shoe_alts, pg)
 
-        def shoe_hdr():     # Oct 23, test 'hdr' (Bastien: "you get lost scrolling"): B's header comes back on scroll-up + search; A unchanged
+        def shoe_hdr():     # Oct 23 (Bastien: "you get lost scrolling"): the header comes back on scroll-up + search, every shoe/list/race page
             reg = site_json("shoes/pages.json") or {}
             slug = next((k for k, v in reg.items() if isinstance(v, dict) and not v.get("to")), None)
-            out = []
-            for arm in ("B", "A"):
-                c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
-                stub(c)
-                q = c.new_page()
-                q.goto(base + f"shoes/{slug}/?exp=hdr:{arm}", wait_until="load")
+            c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+            stub(c)
+            q = c.new_page()
+            try:
+                q.goto(base + f"shoes/{slug}/", wait_until="load")
                 q.wait_for_timeout(500)
-                btn = q.locator("#hsb").is_visible()
+                assert q.locator("#hsb").is_visible(), "no search icon in the header"
                 q.evaluate("scrollTo(0, 1600)")
                 q.wait_for_timeout(200)
                 q.mouse.wheel(0, 300)
@@ -1224,22 +1223,80 @@ def site_flow(base, per, accented):
                 q.mouse.wheel(0, -250)
                 q.wait_for_timeout(600)
                 up = q.evaluate("Math.round(document.querySelector('header.top').getBoundingClientRect().top)")
-                if arm == "B":
-                    assert btn, "test 'hdr' B: no search icon in the header"
-                    assert down <= 1, f"test 'hdr' B: the header didn't slide away while scrolling down (bottom at {down}px)"
-                    assert up == 0, f"test 'hdr' B: the header didn't come back on scroll-up (top at {up}px)"
-                    q.click("#hsb")
-                    q.fill("#hsf input", "pegasus")
-                    with q.expect_navigation():
-                        q.press("#hsf input", "Enter")
-                    assert "q=pegasus" in q.url, f"test 'hdr' B: search went to {q.url}"
-                    out.append("B: hides on scroll down, back on scroll up, search opens the deals")
-                else:
-                    assert not btn, "test 'hdr' A: the search icon shows in group A"
-                    out.append("A: unchanged")
+                assert down <= 1, f"the header didn't slide away while scrolling down (bottom at {down}px)"
+                assert up == 0, f"the header didn't come back on scroll-up (top at {up}px)"
+                q.click("#hsb")
+                q.fill("#hsf input", "pegasus")
+                with q.expect_navigation():
+                    q.press("#hsf input", "Enter")
+                assert "q=pegasus" in q.url, f"search went to {q.url}"
+                return "hides on scroll down, back on scroll up, search opens the deals"
+            finally:
                 c.close()
-            return "; ".join(out)
-        check("Shoe page: header comes back on scroll-up + search (test 'hdr')")(shoe_hdr, pg)
+        check("Shoe page: header comes back on scroll-up + search")(shoe_hdr, pg)
+
+        def hearts_two_devices():   # Oct 23 (Bastien: "I keep taking 2 items off the list and it inputs them back"): one account, two
+            # devices (phone browser + home-screen app keep separate storage); removing on one must not come back from the other
+            srv = {}
+
+            def rpc(route):
+                name = route.request.url.split("/rpc/")[-1].split("?")[0]
+                try:
+                    body = json.loads(route.request.post_data or "{}")
+                except Exception:
+                    body = {}
+                res = None
+                if name == "watch_list":
+                    res = [{"key": k, "meta": m} for k, m in srv.items()]
+                elif name == "watch_add":
+                    srv[body["p_key"].lower()] = body["p_meta"]
+                    res = True
+                elif name == "watch_remove":
+                    res = srv.pop(body["p_key"].lower(), None) is not None
+                route.fulfill(status=200, content_type="application/json", body=json.dumps(res))
+            init = ("try{if(!localStorage.getItem('rd-profile')){localStorage.setItem('gf-peek','1');localStorage.setItem('gf-nosignup','1');"
+                    "localStorage.setItem('gf-sub',JSON.stringify({key:'11111111-1111-4111-8111-111111111111',email:'t@example.com',active:true}));"
+                    "localStorage.setItem('rd-profile',JSON.stringify({gender:'men',terrain:'both',ships:'ca',country:'ca',groups:['shoes','tops','bottoms'],"
+                    "sizes:{shoes:{sizes:['11'],width:[]},tops:{sizes:['M']},bottoms:{sizes:['M']}},brands:[],lang:'en'}))}}catch(e){}")
+            ctxs = []
+
+            def device():
+                c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+                stub(c)
+                c.route("**/rest/v1/rpc/watch_*", rpc)
+                c.add_init_script(init)
+                ctxs.append(c)
+                q = c.new_page()
+                q.goto(base, wait_until="domcontentloaded")
+                q.wait_for_selector("#dealList .heart", state="attached", timeout=30000)
+                q.wait_for_timeout(1500)
+                return q
+            local = lambda q: set(json.loads(q.evaluate("localStorage.getItem('gf-watch')") or "{}"))
+            try:
+                a = device()
+                hs = a.locator("#dealList .heart")
+                for i in range(3):
+                    hs.nth(i * 2).evaluate("e => e.click()")
+                    a.wait_for_timeout(300)
+                assert len(srv) == 3, f"3 hearts, but the account has {len(srv)}"
+                b = device()
+                keys = sorted(local(b))[:2]
+                assert len(keys) == 2, "the second device didn't get the hearts"
+                b.evaluate("document.getElementById('openWatch').click()")
+                b.wait_for_timeout(1500)
+                for k in keys:
+                    b.locator(f'#dealList .heart[data-key="{k}"]').first.evaluate("e => e.click()")
+                    b.wait_for_timeout(500)
+                a.reload(wait_until="domcontentloaded")
+                a.wait_for_selector("#dealList .heart", state="attached", timeout=30000)
+                a.wait_for_timeout(2000)
+                back = [k for k in keys if k in srv or k in local(a)]
+                assert not back, f"removed on one device, back after the other opened: {back}"
+                return "removed on one device stays removed on the other (1 left of 3)"
+            finally:
+                for c in ctxs:
+                    c.close()
+        check("Watchlist: removed on one device stays removed on the other")(hearts_two_devices, pg)
 
         def one_look():         # Oct 22 (Bastien: "Only the homepage is formatted in the way we want. All others are dark and still the
             # same"): on a phone set to dark mode, every page is light with the charcoal header, like the homepage, and fits the phone

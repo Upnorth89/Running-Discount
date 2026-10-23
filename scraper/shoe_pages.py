@@ -506,7 +506,7 @@ tr.yours td:first-child{font-weight:700;box-shadow:inset 4px 0 0 var(--hivis)}
 .links small{color:var(--moss);font-weight:600}
 .brand{margin:18px 0 6px;font:700 20px var(--display);scroll-margin-top:120px}
 .find{position:sticky;top:0;z-index:5;background:var(--mist);padding:10px 0 8px;margin:0 -2px}
-/* test 'hdr' B (Oct 23): the header comes back on scroll-up (phones), stays on computers; search icon + box under it */
+/* Oct 23: the header comes back on scroll-up (phones), stays on computers; search icon + box under it (class hdrb on every page) */
 .hdrb header.top{position:sticky;top:0;z-index:30;transition:transform .22s ease}
 .hdrb header.top.hide{transform:translateY(-100%)}
 .hdrb .find{top:var(--hh,0px);transition:top .22s ease}
@@ -606,16 +606,7 @@ def page_head(L, title, desc, path_en, path_fr, extra=""):
 <details class="menu"><summary aria-label="{L['menu']}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></summary>
 <nav>{menu_links(L, (path_fr or "/shoes/") if L['lang'] != 'fr-CA' else path_en)}</nav></details></div>
 <form class="hsf" id="hsf" role="search" action="/" hidden data-home="{L['home']}"><input type="search" name="q" placeholder="{L['hdrSearchPh']}" aria-label="{L['hdrSearch']}" autocomplete="off" enterkeyhint="search"><button type="submit">{L['hdrSearchGo']}</button></form></header>
-<script>
-/* test 'hdr' (Oct 23, Bastien: "On some pages you get lost scrolling ... keep the header on all pages? So people can search and toggle
-   menu or click the logo"): B = the header comes back when you scroll up (stays put on computers) + a search icon that searches the
-   homepage in your size. Same coin as the homepage (device id + test name); ?exp=hdr:B forces it */
-(function(){{var over={{}};try{{over=JSON.parse(localStorage.getItem("gf-exp")||"{{}}")||{{}};var q=new URLSearchParams(location.search).get("exp");
-  if(q){{q.split(",").forEach(function(x){{var a=x.split(":");if(a[0]&&/^[AB]$/.test(a[1]))over[a[0]]=a[1]}});localStorage.setItem("gf-exp",JSON.stringify(over))}}}}catch(e){{}}
-  var did="";try{{did=localStorage.getItem("gf-did")||""}}catch(e){{}}
-  var arm=over.hdr||(function(){{var h=2166136261,s=did+"|hdr";for(var i=0;i<s.length;i++){{h^=s.charCodeAt(i);h=Math.imul(h,16777619)}}return (h>>>0)%2?"B":"A"}})();
-  window.gfHdr=arm;if(arm==="B")document.documentElement.classList.add("hdrb")}})();
-</script>
+<script>document.documentElement.classList.add("hdrb")</script>
 <main class="wrap">
 """
 
@@ -648,8 +639,11 @@ var ana=(function(){{var ls=function(k){{try{{return localStorage.getItem(k)}}ca
   if(fresh)add("visit",em?"email-"+em:document.referrer?new URL(document.referrer).hostname:"",null,location.pathname);
   var m=location.pathname.match(/^\/(?:us\/)?(?:shoes|chaussures)\/([^\/]+)\/$/);add("shoe-page-view",m?m[1]:location.pathname);
   return add}})();
-(function(){{var arm=window.gfHdr||"A";try{{if(!sessionStorage.getItem("gf-exp-hdr")){{sessionStorage.setItem("gf-exp-hdr","1");ana("signup-step","exp|hdr|"+arm)}}}}catch(e){{}}
-  if(arm!=="B")return;var top=document.querySelector("header.top"),b=document.getElementById("hsb"),f=document.getElementById("hsf");if(!top||!b||!f)return;
+/* Oct 23 (Bastien: "On some pages you get lost scrolling ... keep the header on all pages? So people can search and toggle menu or
+   click the logo"; then "we don't need to test this. It helps the flow"): on phones the header slides away while you read down and
+   comes back as soon as you scroll up (NN/g: partially persistent header); on computers it stays; the search icon opens a box that
+   searches the homepage in your size */
+(function(){{var top=document.querySelector("header.top"),b=document.getElementById("hsb"),f=document.getElementById("hsf");if(!top||!b||!f)return;
   b.hidden=false;var inp=f.querySelector("input"),root=document.documentElement;
   var open=function(on){{f.hidden=!on;b.setAttribute("aria-expanded",String(on));if(on){{show();inp.focus()}}}};
   b.addEventListener("click",function(){{open(f.hidden)}});

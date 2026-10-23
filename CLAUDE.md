@@ -342,6 +342,17 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   differ, `clothFor(g)`; bras follow tops, hats the main size). Profiles already kept a size per group (Friday email/alerts use them);
   applyProfile takes the size most groups share as the main one. Race pages: same link in their size box (gf-race-size.by). Site test
   "Clothing: a different size per category".
+- **Header + menu + language (Oct 23, Bastien OK'd; header "we don't need to test this. It helps the flow")**: shoe/list/race pages
+  (shoe_pages.py page_head, class `hdrb` on every page): the charcoal header slides away while reading down on phones and comes back on
+  scroll-up (NN/g partially persistent header), stays on computers; 🔍 `#hsb` opens `#hsf` (search box -> homepage `?q=`, `--hh` keeps
+  the shoe list's sticky `.find` under it). Homepage ☰: computers hide what the header shows (My sizes 760px+, deals/races 900px+,
+  shoe prices 1400px+, theme.css); language = a choice row `#langPick` (`renderLangs()`, one line per language in LANGS), header
+  🇨🇦/EN buttons open the menu. Shoe/race pages' menu: a "Language: English | Français" row (`.lsw`). Site tests "Shoe page: header
+  comes back on scroll-up + search", "Computer: the ☰ menu doesn't repeat the header".
+- **Watchlist across devices (Oct 23 bug, Bastien: "I keep taking 2 items off the list and it inputs them back")**: syncWatches used to
+  upload every local item missing on the server, so a second device (phone browser vs home-screen app vs computer) put removed items
+  back. Now `sv` marks items seen on the server (gone from it = removed elsewhere, removed here too; lists from before: items saved 1+
+  day ago), `gf-watch-gone` keeps unconfirmed removals and resends them. Site test "Watchlist: removed on one device stays removed on the other".
 - **Mystery shop (Oct 18, Bastien: "act like a spy shopper paid to find issues ... keep the mystery shopper somewhere so we can work on
   this later").** Report: https://claude.ai/artifact/D9V9KYMpdD2TygXGYJTAUR (copy in docs/mystery-shop-2026-10-18.html), open items as
   rows in the plan doc backlog. Fixed the same night: no-result search message, sign-up card after the results, women's table first
