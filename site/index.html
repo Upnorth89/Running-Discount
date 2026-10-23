@@ -1580,7 +1580,7 @@ function rdBuild(){
       ana("deal-click",[h.dataset.store,d.g,d.pct,"hero",""].join("|"),1);logEvent("click",h.dataset.store,d.g)}});
   $("rdSearch").addEventListener("submit",e=>{e.preventDefault();clearTimeout(searchT);view.q=$("dSearch").value;view.open={};view.anySize=false;view.anyFit=false;renderAll();rdGoDeals(true)});
   $("rdSIco").addEventListener("click",()=>{scrollTo({top:0,behavior:"smooth"});$("dSearch").focus()});
-  $("rdCtry").addEventListener("click",()=>$("menuBtn").click());
+  $("rdCtry").addEventListener("click",e=>{e.stopPropagation();menuOpen($("menu").hidden)});   // Oct 23 fix: the click reached the page and closed the menu it opened
   $("rdLang").addEventListener("click",()=>$("langBtn").click());
   $("rdMy").addEventListener("click",editSizes);$("ddSize").addEventListener("click",editSizes);
   $("ddCat").addEventListener("change",e=>{const v=e.target.value;ana("category","dd|"+(v||"__all"));state.groups=v?[v]:ORDER.slice();view.open={};saveProfile();renderAll()});

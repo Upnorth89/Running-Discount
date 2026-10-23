@@ -326,10 +326,10 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   MANDATORY EQUIPMENT 1 = M; MANDATORY EQUIPMENT 2 (may stay in the TORX bag, race can require it) = kit "bag" (`kitWhen_<kit>` text).
   Oct 23 night (Bastien: "expand to international races as well. all around the world"): UTMB World Series events abroad via `_intl()`,
   each from the event's own mandatory gear page (<event>.utmb.world, robots allow; the gear page slug is in the page's simpleMenu):
-  lavaredo (it), zugspitz (de), eiger (ch), tarawera (nz), ultra-trail-australia (au), mozart-100 (at). Hub groups per country
+  lavaredo (it), zugspitz (de), eiger (ch), tarawera (nz), ultra-trail-australia (au), mozart-100 (at), julian-alps (si). Hub groups per country
   (HUB groups + `side()` order). Tarawera/UTA "weather dependent" items stay M with a note saying which distances the race confirms
   later (`_WX`); a whole-race weather kit (UTA pants + fleece, mozart cold/warm kit) uses `kits`. Fetched but not built yet (scratch
-  notes): istria, kosciuszko (its table has 5 ticks for 4 races: recheck), chiangmai, eryri, julianalps, restonica, nice, andorra,
+  notes): istria + eryri (lists behind per-race tabs/PDFs), kosciuszko (its table has 5 ticks for 4 races: recheck), chiangmai, restonica, nice, andorra,
   mallorca, tenerife.
   **Race list check** (race-check.yml, the 3rd of each month, scraper/race_check.py): rereads every race's `src`/`src_fr` (pages + PDFs),
   keeps the gear lines + linked PDFs/list pictures, compares with race-check.json on the history branch; emails ONLY when a list changed

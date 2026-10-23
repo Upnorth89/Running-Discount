@@ -1167,7 +1167,10 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None)
             {"@type": "ListItem", "position": 1, "name": "The Gear Fox", "item": BASE + "/"},
             {"@type": "ListItem", "position": 2, "name": L["all"], "item": f"{BASE}/{L['dir']}/"},
             {"@type": "ListItem", "position": 3, "name": name}]}
-        out.append("".join(f'<script type="application/ld+json">{json.dumps(x, ensure_ascii=False)}</script>' for x in (faq_ld, crumbs_ld)))
+        # the date the prices were checked: answer engines favour pages they can see are fresh
+        page_ld = {"@context": "https://schema.org", "@type": "WebPage", "name": name, "dateModified": date.today().isoformat(),
+                   "inLanguage": L["lang"], "publisher": {"@type": "Organization", "name": "The Gear Fox", "url": BASE + "/"}}
+        out.append("".join(f'<script type="application/ld+json">{json.dumps(x, ensure_ascii=False)}</script>' for x in (faq_ld, crumbs_ld, page_ld)))
     home = "/?ref=shoe-page" + L["q"]
     out.append(f'<section class="cta"><h2>{L["cta"]}</h2><p>{L["ctaTxt"]}</p><a class="btn" href="{home}">{L["ctaBtn"]}</a></section>')
     if related:
@@ -1580,7 +1583,7 @@ def build_us(site, stores, ca_models, ca_brands):
         urls.append(own)
     bf_rows = [r for r in kinds["all"] if r[2]["sizes"] >= 6][:40]
     cta = qs_box(L, L["bfCta"], "black-friday")
-    today = datetime.fromisoformat(updated.replace("Z", "+00:00")).date() if updated else datetime.now(timezone.utc).date()
+    today = (datetime.fromisoformat(updated.replace("Z", "+00:00")) if updated else datetime.now(timezone.utc)).astimezone(HOME_TZ).date()   # Oct 23: was UTC (US page said 35 days to go, Canada 36)
     bf = black_friday(today.year if today <= black_friday(today.year) + timedelta(days=4) else today.year + 1)
     own = f'/{L["bfDir"]}/'
     p = site / own.strip("/") / "index.html"

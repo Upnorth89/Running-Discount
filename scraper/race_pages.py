@@ -1055,6 +1055,41 @@ RACES.update({
         (_SIN("tuque", "Beanie (or neck gaiter)", "Tuque (ou cache-cou)"), "MM  ", False),
         (_SIN("pants", "Waterproof overpants", "Surpantalon imperméable"), "MM  ", True),
     ], kits={"hot": ["sun", "sunscreen"], "bad": ["longpants", "midlayer", "warmjacket", "tuque", "pants"]}),
+    "julian-alps": _intl("Julian Alps Trail Run by UTMB", "Julian Alps", "du ", "le ", "si", _C("Kranjska Gora, Slovenia", "Kranjska Gora, Slovénie"),
+        _C("September 17–19, 2027", "17 au 19 septembre 2027"), ["120K", "80K", "50K", "25K", "15K", "10K"],
+        "https://julianalps.utmb.world/races-runners/runners/equipment", [
+        (_SIN("vest", "Running pack for the mandatory gear", "Sac de course pour le matériel obligatoire"), "MMMM  ", False),
+        (_SIN("phone", "Smartphone with the LiveTrail app", "Téléphone avec l'appli LiveTrail",
+              "Roaming for Slovenia, the race's safety numbers saved, always on: airplane mode isn't allowed.",
+              "Itinérance pour la Slovénie, numéros de sécurité de la course enregistrés, toujours allumé : mode avion interdit."), "MMMMMM", False),
+        (_SIN("cup", "Collapsible cup (15 cl or more)", "Gobelet pliable (15 cl ou plus)", "Bottles or flasks with a lid don't count.",
+              "Les bouteilles et flasques avec bouchon ne comptent pas."), "MMMMMM", False),
+        (_SIN("water", "Water: 1 litre or more", "Eau : 1 litre ou plus", "0.5 L on the 25K.", "0,5 L sur le 25K."), "MMMM  ", False),
+        (_SIN("headlamp", "Two headlamps + spare batteries", "Deux lampes frontales + piles de rechange",
+              "50K: one headlamp + spare batteries. 200 lumens or more recommended for the main one.",
+              "50K : une frontale + piles de rechange. 200 lumens ou plus recommandés pour la principale."), "MMM   ", True),
+        (_SIN("whistle", "Whistle", "Sifflet"), "MMMMM ", False),
+        (_SIN("blanket", "Survival blanket or bag (1.40 m × 2 m or more)", "Couverture ou sac de survie (1,40 m × 2 m ou plus)"), "MMMMM ", False),
+        (_SIN("food", "Food reserve", "Réserve de nourriture", "About 800 kcal recommended (2 gels + 2 bars).", "Environ 800 kcal recommandés (2 gels + 2 barres)."), "MMM   ", False),
+        (_SIN("jacket", "Waterproof jacket with a hood, taped seams", "Manteau imperméable avec capuchon, coutures scellées",
+              "10,000 mm or more recommended; hood built in or attached by the maker.", "10 000 mm ou plus recommandés; capuchon intégré ou attaché par le fabricant."), "MMM   ", True),
+        (_SIN("bandage", "Self-adhesive elastic bandage (100 × 6 cm or more)", "Bandage élastique adhésif (100 × 6 cm ou plus)"), "MMM   ", False),
+        (_SIN("longpants", "Long pants, or tights that cover the legs fully", "Pantalon long, ou collant qui couvre toute la jambe"), "MMM   ", False),
+        (_SIN("cap", "Cap, bandana or neck gaiter", "Casquette, bandana ou cache-cou"), "MMM   ", False),
+        (_SIN("midlayer", "Warm long-sleeve top (180 g or more, no cotton)", "Haut chaud à manches longues (180 g ou plus, pas de coton)",
+              "Or a lighter long-sleeve (110 g+) + a windproof jacket.", "Ou un manches longues plus léger (110 g+) + un coupe-vent."), "MM    ", False),
+        (_SIN("gloves", "Warm gloves", "Gants chauds"), "MM    ", False),
+        (_SIN("tracker", "GPS tracker", "Balise GPS", "Provided by the race.", "Fournie par la course."), "PP    ", False),
+        (_SIN("jacket2", "Waterproof jacket with a hood", "Manteau imperméable avec capuchon"), "   MMM", True),
+        (_SIN("cap2", "Cap or bandana", "Casquette ou bandana"), "   MMM", False),
+        (_SIN("gloves2", "Warm, waterproof gloves", "Gants chauds et imperméables"), "MMMMMM", False),
+        (_SIN("wind", "Windproof jacket (water-repellent)", "Coupe-vent (déperlant)"), "MMM   ", False),
+        (_SIN("tuque", "Hat", "Tuque"), "MMM   ", False),
+        (_SIN("pants", "Waterproof overpants", "Surpantalon imperméable"), "MMM   ", True),
+        (_SIN("warmjacket", "Third warm layer (under the waterproof jacket)", "Troisième couche chaude (sous le manteau imperméable)"), "MMM   ", False),
+        (_SIN("midlayer2", "Warm long-sleeve top (180 g or more, no cotton)", "Haut chaud à manches longues (180 g ou plus, pas de coton)"), "  M   ", False),
+        (_SIN("gaiters", "Light running gaiters", "Guêtres de course légères"), "MMM   ", False),
+    ], kits={"bad": ["jacket2", "cap2", "gloves2", "wind", "tuque", "pants", "warmjacket", "midlayer2", "gaiters"]}),
 })
 
 S = {
@@ -1627,8 +1662,8 @@ HUB = {
 }
 HUB["us"] = dict(HUB["en"], desc="Mandatory gear lists for trail and ultra races, item by item, with today's best prices in your size at US stores.")
 HUB["en"]["groups"] = HUB["us"]["groups"] = {"ca": "Canada", "us": "United States", "fr": "France", "it": "Italy", "ch": "Switzerland",
-                                             "de": "Germany", "at": "Austria", "au": "Australia", "nz": "New Zealand"}
-HUB["fr"]["groups"] = {"ca": "Canada", "us": "États-Unis", "fr": "France", "it": "Italie", "ch": "Suisse", "de": "Allemagne", "at": "Autriche",
+                                             "de": "Germany", "at": "Austria", "si": "Slovenia", "au": "Australia", "nz": "New Zealand"}
+HUB["fr"]["groups"] = {"ca": "Canada", "us": "États-Unis", "fr": "France", "it": "Italie", "ch": "Suisse", "de": "Allemagne", "at": "Autriche", "si": "Slovénie",
                        "au": "Australie", "nz": "Nouvelle-Zélande"}
 HUB["en"]["note"] = "Every list shows today's prices at Canadian stores, wherever the race is."
 HUB["fr"]["note"] = "Chaque liste montre les prix du jour dans les boutiques canadiennes, peu importe où a lieu la course."
@@ -1640,8 +1675,8 @@ OTHER = {"en": ("Shopping in the US?", "Same lists with US stores →", "/us/rac
 def side(L):
     """Oct 21 (Bastien: "races should be available on both sides regardless"): every race on every side, the visitor's country first."""
     first = "us" if L == "us" else "ca"
-    order = {first: 0, "ca": 1, "us": 2, "fr": 3, "it": 4, "ch": 5, "de": 6, "at": 7, "au": 8, "nz": 9}
-    return sorted(RACES.items(), key=lambda kv: order.get(kv[1].get("side", "ca"), 10))
+    order = {first: 0, "ca": 1, "us": 2, "fr": 3, "it": 4, "ch": 5, "de": 6, "at": 7, "si": 8, "au": 9, "nz": 10}
+    return sorted(RACES.items(), key=lambda kv: order.get(kv[1].get("side", "ca"), 11))
 
 
 # Oct 21: the shoe list pages' cards put the link in a right-hand column, which squeezed race names to 2-3 words a line on phones

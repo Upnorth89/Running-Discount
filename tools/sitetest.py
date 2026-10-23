@@ -1260,6 +1260,19 @@ def site_flow(base, per, accented):
                 q.wait_for_timeout(900)
                 ok = q.evaluate(want) if want else q.evaluate(grow) > n0
                 (done if ok else dead).append(name)
+            # Oct 23: the computer header's buttons too (the country button opened the menu and the same click closed it)
+            q.set_viewport_size({"width": 1366, "height": 768})
+            for name, sel, want in [("the header's country button", "#rdCtry", "() => !document.getElementById('menu').hidden"),
+                                    ("the header's My sizes", "#rdMy", "() => { const s = document.getElementById('sheet'); return !!s && !s.classList.contains('hidden') }")]:
+                q.goto(base, wait_until="domcontentloaded")
+                q.wait_for_selector("#dealList .rdc", timeout=30000)
+                q.wait_for_timeout(600)
+                el = q.locator(sel).first
+                if not el.count() or not el.is_visible():
+                    continue
+                el.click()
+                q.wait_for_timeout(700)
+                (done if q.evaluate(want) else dead).append(name)
             c.close()
             assert not dead, f"pressing these doesn't do what it says: {', '.join(dead)}"
             return f"{len(done)} buttons each do their job: {', '.join(done)}"
