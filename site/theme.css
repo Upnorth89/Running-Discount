@@ -639,3 +639,9 @@ html:not(.rd) .top .menu[open] summary{background:rgba(255,255,255,.16);color:#f
 }
 .fullwait{margin:6px 0 12px;font:600 14px var(--body);color:var(--muted)}
 .rd .yoursz{margin:6px 0 2px;font:600 13px var(--body);color:var(--ok,#1F7A3A)}
+/* Oct 23 (Bastien: "the outfox full price should be on each page"): About + Privacy have their own small header; the tagline under the
+   logo like every other page (computers; phones hide it, as everywhere) */
+html:not(.rd) .top a:has(.pgtag){display:inline-flex;flex-direction:column;align-items:center;text-decoration:none}
+.top .pgtag{display:flex;align-items:center;gap:5px;margin-top:3px;font:600 8.5px/1 var(--body);letter-spacing:.16em;white-space:nowrap;color:#fff}
+.top .pgtag::before,.top .pgtag::after{content:"";width:10px;height:1px;background:var(--hivis);border-radius:1px}
+html[lang="fr"] .pgtag .t-en,html:not([lang="fr"]) .pgtag .t-fr{display:none}
