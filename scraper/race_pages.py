@@ -1174,7 +1174,7 @@ def tl(L):
 
 
 CSS = """
-.sub{overflow-wrap:anywhere}
+p.sub{overflow-wrap:anywhere}   /* Oct 23: only the subtitle (".gl.sub" is the kit list: it squeezed the pick names) */
 .dists{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 12px}
 .dists button{font:700 15px var(--body);color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:8px 12px;min-height:44px;cursor:pointer;white-space:nowrap}
 .dists button[aria-pressed="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
@@ -1211,6 +1211,7 @@ CSS = """
 .kit{order:20;background:var(--card);border:1.5px dashed var(--line);border-radius:14px;padding:10px 14px}.kit[hidden]{display:none}
 .kit summary{font:700 18px/1.3 var(--display);cursor:pointer;min-height:32px;display:flex;align-items:center}.kit .kitwhen{margin:4px 0 10px}
 .gl.sub{gap:8px}.gl.sub .gi{border-color:var(--line)}
+.kit .dl .wl{display:none}.kit .dl .wt{font-size:18px;padding:0 9px}.kit .dl .pr s{display:block}.kit .dl img{width:46px;height:46px}.kit .dl a.dg{gap:8px}   /* Oct 23: the fold is narrower (inner border): small-phone layout so names stay readable */
 .gi.shoe{border-color:var(--hivis)}.gi.shoe .shi{flex:none;width:24px;display:flex;justify-content:center;color:var(--muted)}.lv.Y{background:var(--ink);color:var(--card)}
 .shrow{display:flex;gap:8px;margin-top:10px}.shrow select{flex:none;width:104px;font:600 16px var(--body);color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:0 8px}
 .gi.shoe input{flex:1;min-width:0;font:400 16px var(--body);color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:11px 13px}

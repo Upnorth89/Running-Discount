@@ -1200,6 +1200,16 @@ def site_flow(base, per, accented):
                     bad.append(f"{u} has a light header")
                 if r["wide"] > 391:
                     bad.append(f"{u} is {r['wide'] - 390}px wider than the phone")
+            # Oct 23 (Bastien's screenshot): a page-wide rule squeezed the pick names inside the TOR bag fold to a few letters a line;
+            # every race page with a weather/bag fold: open it, each pick's name keeps a readable width
+            for slug, kit in (("tor-des-geants", "bag"), ("borealys-mont-tremblant", "bad"), ("ultra-trail-australia", "bad")):
+                q.goto(base + f"races/{slug}/", wait_until="domcontentloaded")
+                q.wait_for_timeout(400)
+                w = q.evaluate("""() => {document.querySelectorAll('li.kit details').forEach(d => d.open = true);
+                    const n = [...document.querySelectorAll('li.kit .dl .nm, .gl > li .dl .nm')].filter(x => x.offsetParent).map(x => x.getBoundingClientRect().width);
+                    return n.length ? Math.round(Math.min(...n)) : null}""")
+                if w is not None and w < 90:
+                    bad.append(f"races/{slug}/: product names squeezed to {w}px")
             c.close()
             assert not bad, "; ".join(bad)
             return "shoe (EN/FR), sale list, races, Black Friday, About, Privacy: light pages, charcoal header, fit the phone"
