@@ -97,7 +97,7 @@ T = {
         "none": "Not in stock at the stores we check right now. Prices change every day: we'll show it here as soon as it's back.",
         "low": "Lowest price we've seen in {d} days",
         "size": "Size", "price": "Price", "store": "Store", "was": "was",
-        "men": "Men's", "women": "Women's", "unisex": "Unisex (men's sizes)", "wide": "wide",
+        "men": "Men's", "women": "Women's", "unisex": "Unisex (men's sizes)", "unisexMW": "Unisex (men's and women's sizes)", "wide": "wide",
         "us": "ships from the US", "final": "Final sale",
         "cta": "Get it in your size", "ctaTxt": "Pick your sizes once. Every Friday we email the best deals in them, and you can get a price-drop alert on this shoe.",
         "ctaBtn": "See deals in my size",
@@ -200,7 +200,7 @@ T = {
         "none": "Pas en stock dans les boutiques que nous suivons en ce moment. Les prix changent chaque jour : on l'affichera ici dès son retour.",
         "low": "Le plus bas prix vu en {d} jours",
         "size": "Pointure", "price": "Prix", "store": "Boutique", "was": "avant",
-        "men": "Homme", "women": "Femme", "unisex": "Unisexe (pointures homme)", "wide": "large",
+        "men": "Homme", "women": "Femme", "unisex": "Unisexe (pointures homme)", "unisexMW": "Unisexe (pointures homme et femme)", "wide": "large",
         "us": "expédié des États-Unis", "final": "Vente finale",
         "cta": "Trouvez-la dans votre pointure", "ctaTxt": "Choisissez vos tailles une fois. Chaque vendredi, on vous envoie les meilleures aubaines dans vos tailles, et vous pouvez suivre le prix de cette chaussure.",
         "ctaBtn": "Voir les aubaines à ma taille",
@@ -329,8 +329,11 @@ def size_url(item, e):
 
 
 def size_sort(s):
-    m = re.match(r"(\d+(?:\.\d)?)", s)
-    return (float(m.group(1)) if m else 99, s)
+    # Oct 23 (Prime X3 Strung's unisex table read 6, 7.5 … 12, W 10, W 12, W 8.5): men's/plain sizes first, then women's ("W 8.5"
+    # / "F 8,5"), each by number
+    w = bool(re.match(r"[WF] ", s))
+    m = re.search(r"(\d+(?:[.,]\d)?)", s)
+    return (w, float(m.group(1).replace(",", ".")) if m else 99, s)
 
 
 def build_models(items):
@@ -354,6 +357,8 @@ def variant_label(d, L):
     lab = L["men"] if sx == ["men"] else L["women"] if sx == ["women"] else L["unisex"]
     if any(str(e[0]).startswith(("M:", "W:")) for e in d["sz"]):
         lab = L["unisex"]
+    if any(str(e[0]).startswith("W:") for e in d["sz"]):   # Oct 23: it lists women's sizes too, so not "(men's sizes)"
+        lab = L["unisexMW"]
     return lab + (f" · {L['wide']}" if d.get("w") else "")
 
 
@@ -364,7 +369,10 @@ def rows_for(d, stores, L):
         if s.endswith("~N") or s == "OS":
             continue
         wide = s.endswith("~W")
-        s = s.replace("~W", "").replace("M:", "").replace("W:", "W ")
+        mw = any(str(x[0]).startswith("W:") for x in d["sz"])   # both cuts in one table: men's rows say "M 9" (as the summary does)
+        s = s.replace("~W", "").replace("M:", "M " if mw else "").replace("W:", "W ")
+        if mw and not s.startswith(("M ", "W ")):     # a store's plain "8" in that table is the men's 8: one row with "M 8"
+            s = "M " + s
         key = s + (f" ({L['wide']})" if wide and not d.get("w") else "")
         if key not in out or e[1] < out[key][0]:
             u = size_url(d, e)
@@ -611,7 +619,7 @@ try{{p=JSON.parse(localStorage.getItem("rd-profile")||"null")}}catch(e){{}}
    so the tables keep their place in the page and their numbers for the size picker) */
 var gq=(p&&p.gender)||"";if(!gq){{try{{gq=(JSON.parse(localStorage.getItem("gf-shoe-size")||"null")||{{}}).g||""}}catch(e){{}}}}
 if(gq==="women")document.querySelectorAll('.gt[data-g="women"]').forEach(function(x){{x.style.order="-1"}});
-var clean=function(s){{return s.replace(/\s*\(.*\)$/,"")}};
+var clean=function(s){{return s.replace(/\s*\(.*\)$/,"").replace(/^M /,"")}};   // "M 9" rows (unisex tables with women's sizes too) = men's 9
 /* highlight the rows that fit and say where the size is cheapest; ok(table, row size) decides what fits */
 function mark(ok){{var best=null;document.querySelectorAll("tr.yours").forEach(function(r){{r.classList.remove("yours");r.removeAttribute("id")}});
   document.querySelectorAll("table[data-g]").forEach(function(t,ti){{t.querySelectorAll("tr[data-s]").forEach(function(r){{
@@ -835,12 +843,14 @@ def sizes_phrase(keys, L):
 def summary(its, stores, gender=None):
     """Today's numbers for one model (optionally one gender): best price, its discount, store, sizes, stores."""
     sizes, by_store, best = 0, defaultdict(set), None
+    # Oct 23 (Evo SL ATR's women's line said "sizes M 7 and M 13"): a unisex shoe's men's sizes ("M:7") never count for women, nor "W:" for men
+    cut = lambda e: not gender or not str(e[0]).startswith({"women": "M:", "men": "W:"}.get(gender, "\0"))
     for d in its:
         sx = d.get("sx") or []
         if gender and sx and gender not in sx:
             continue
         for e in d["sz"]:
-            if str(e[0]).endswith("~N"):
+            if str(e[0]).endswith("~N") or not cut(e):
                 continue
             u = size_url(d, e)
             h = host(u)
@@ -853,14 +863,14 @@ def summary(its, stores, gender=None):
     sizes = len({x for v in by_store.values() for x in v})
     carriers = {host(u) for d in its if not (gender and d.get("sx") and gender not in d["sx"]) for u in d["of"]}   # every store that carries it
     off = round(100 * (1 - best[0] / best[1])) if best[1] and best[0] < best[1] * 0.99 else 0
-    top = max((round(100 * (1 - e[1] / e[3])) for d in its for e in d["sz"] if len(e) > 3 and e[1] < e[3] * 0.99
+    top = max((round(100 * (1 - e[1] / e[3])) for d in its for e in d["sz"] if len(e) > 3 and e[1] < e[3] * 0.99 and cut(e)
                and (not gender or not d.get("sx") or gender in d["sx"])), default=0)
     most = max(by_store.items(), key=lambda kv: len(kv[1]))
     sale_sizes = len({(tuple(d.get("sx") or []), str(e[0]), bool(d.get("w"))) for d in its for e in d["sz"] if len(e) > 3 and e[1] < e[3] * 0.99
-                      and (not gender or not d.get("sx") or gender in d["sx"])})
+                      and cut(e) and (not gender or not d.get("sx") or gender in d["sx"])})
     # Oct 16 (Bastien couldn't find the $99 Kjerag: it was only in sizes 4.5 and 5): the sizes at that lowest price
     at_best = list(dict.fromkeys(str(e[0]) for d in its for e in d["sz"] if abs(e[1] - best[0]) < 0.005
-                                 and not str(e[0]).endswith("~N") and host(size_url(d, e)) == best[2]
+                                 and not str(e[0]).endswith("~N") and cut(e) and host(size_url(d, e)) == best[2]
                                  and (not gender or not d.get("sx") or gender in d["sx"])
                                  and (len(best[4]) != 1 or (d.get("sx") or []) == list(best[4]))))   # that cut's sizes only
     return {"price": best[0], "reg": best[1], "off": off, "top": top, "store": stores.get(best[2], [best[2]])[0], "url": best[3],
