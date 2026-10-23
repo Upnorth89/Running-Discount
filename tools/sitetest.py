@@ -687,24 +687,15 @@ def site_flow(base, per, accented):
             return f"'peg' -> {', '.join(sug[:3])}…"
         # Oct 22: test 'runcard' ended (Bastien); its check is off
 
-        def look_cards():   # Oct 21, A/B test 'look' (B): the sizes in stock as a row of chips on each card, the visitor's in orange
-            page.goto(base + "?exp=look:B", wait_until="domcontentloaded")
-            page.wait_for_selector("section.grp .deal", timeout=20000)
-            page.wait_for_timeout(600)
-            rows = page.eval_on_selector_all("section.grp:not(.new) .deal .szrow", """e => e.map(r => ({you: [...r.querySelectorAll('.sz.you')].map(x => x.textContent),
-                all: [...r.querySelectorAll('.sz')].map(x => x.textContent), wide: r.scrollWidth > r.clientWidth + 1}))""")
-            wide = page.evaluate("() => document.documentElement.scrollWidth > innerWidth + 1")
-            page.evaluate("() => localStorage.removeItem('gf-exp')")
-            page.goto(base, wait_until="domcontentloaded")
-            page.wait_for_selector("section.grp .deal", timeout=20000)
-            assert rows, "group B: no sizes row on the cards"
-            nobody = [r["all"] for r in rows if not r["you"]]
-            assert len(nobody) <= len(rows) // 10, f"group B: {len(nobody)} of {len(rows)} size rows don't show the visitor's size ({nobody[:2]})"
-            assert all(len(r["all"]) <= 5 for r in rows), "group B: a size row shows more than 5 sizes"
-            assert not any(r["wide"] for r in rows), "group B: a size row runs past its card"
-            assert not wide, "group B: the page is wider than the phone"
-            return f"{len(rows)} cards with a size row, e.g. {rows[0]['all']} (yours: {rows[0]['you']})"
-        check("Test 'look': sizes row on the cards (yours in orange)")(look_cards, page)
+        def your_size_line():   # Oct 23 (Bastien OK'd): cards say "✓ Size 11 in stock" instead of a row of size chips
+            lines = page.eval_on_selector_all("section.grp:not(.new) .deal .yoursz", "e => e.map(x => x.textContent)")
+            rows = page.eval_on_selector_all("section.grp:not(.new) .deal .szrow", "e => e.length")
+            assert lines, "no 'Size … in stock' line on the cards"
+            assert not rows, f"{rows} cards still show the size chips row"
+            bad = [x for x in lines if not re.search(r"\b(11|M)\b", x)]
+            assert len(bad) <= len(lines) // 10, f"{len(bad)} of {len(lines)} lines don't name the visitor's size (e.g. {bad[:2]})"
+            return f"{len(lines)} cards, e.g. '{lines[0]}'"
+        check("Cards: one 'Size … in stock' line (no size chips)")(your_size_line, page)
 
         def nonmember_search():   # Oct 18: a visitor who never tapped "No thanks" searched "lululemon" and saw only the sign-up card
             prev = page.evaluate("() => localStorage.getItem('gf-nosignup')")
