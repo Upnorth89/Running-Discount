@@ -721,6 +721,33 @@ RACES.update({
     },
 })
 
+# Oct 23 (Bastien sent the guide: "this is for twisted forks"): Massif Running's Twisted Fork 2026 Runners Guide (Google Doc), "Gear
+# Requirements/Weather", shown at check-in. Its change log says "Removed Ice carrying capacity from required gear" (May 27) but the 68K
+# list still names it: L (ask the race), never M.
+RACES["twisted-fork"] = {
+    "name": "Twisted Fork", "short": "Twisted Fork", "de": "de la ", "le": "la ", "unit": "label", "side": "us", "cupless": True,
+    "where": _C("Park City, Utah", "Park City, Utah"),
+    "when": _C("Late May 2027 (date to come; 2026: May 30)", "Fin mai 2027 (date à venir; 2026 : 30 mai)"),
+    "dists": ["68K", "30K", "15K"], "default": "68K",
+    "read": _C("October 23, 2026 (2026 runners guide, updated May 27, 2026)", "23 octobre 2026 (guide 2026, mis à jour le 27 mai 2026)"),
+    "items": [(k, lv, t, sp) for (k, t), lv, sp in [
+        (_SIN("water", "Water: 2 L on the 68K, 1.5 L on the 30K and 15K", "Eau : 2 L au 68K, 1,5 L aux 30K et 15K",
+              "Three 500 ml soft flasks = 1.5 L. 68K: 2 to 3 L leaving Jeremy Ranch the first time is strongly encouraged.",
+              "Trois flasques de 500 ml = 1,5 L. 68K : de 2 à 3 L en quittant Jeremy Ranch la première fois, fortement conseillé."), "MMM", False),
+        (_SIN("cup", "Bottle, flask or reusable cup", "Gourde, flasque ou gobelet réutilisable", "No cups for cold drinks at aid stations.",
+              "Pas de verres pour les boissons froides aux ravitos."), "MMM", False),
+        (_SIN("food", "600 calories or more of food", "Au moins 600 calories de nourriture"), "MMM", False),
+        (_SIN("gps", "GPS device or phone with the course downloaded", "Appareil GPS ou téléphone avec le tracé téléchargé",
+              "People sometimes remove course markings on these busy trails.", "Des gens enlèvent parfois le balisage sur ces sentiers achalandés."), "MMM", False),
+        (_SIN("whistle", "Whistle", "Sifflet"), "M  ", False),
+        (_SIN("cap", "A way to carry ice: ice bandana, sun sleeves or a hat with room for ice",
+              "De quoi porter de la glace : bandana à glace, manchons solaires ou casquette qui en contient",
+              "Strongly recommended on the 30K and 15K. The 68K list names it, but the guide's May 27 update says it was removed: ask the race.",
+              "Fortement conseillé aux 30K et 15K. La liste du 68K le nomme, mais la mise à jour du 27 mai dit qu'il a été retiré : demandez à la course."), "LRR", False),
+    ]],
+    **_gdoc("1TTP2WVIHe9VGxwYtOJrBZM5_UspsdDklFuLI_Tn5wFk"),
+}
+
 # UTMB Mont-Blanc (Oct 21, Bastien: "UTMB 160 the big race and all other distances in Chamonix"): the 2026 list, published as an
 # image on montblanc.utmb.world (read Oct 21, 2026). One button per race; PTL left out (a team race with its own rules).
 MB = ["UTMB", "TDS", "CCC", "OCC", "MCC", "ETC", "YCC"]

@@ -309,6 +309,8 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   arizona-monster-300, el-jefe-100 (`_dt()`; SPOT/bivy/1 wag bag = P), tahoe-100k; Québec: ultra-trail-sayam (guide PDF), la-chute-du-diable.
   Left out (no list): Bigfoot 20M, Wasatch 100, Bear 100 (403), Kat'cina Mosa, Goat Rattler, Salt and Sulfur 420, Ultra Obscura,
   Relentless Ark, Trail LCDC (EpiPen only); Gaspésia 100 still only a Canva guide.
+  Oct 23 (Bastien sent its Google Doc): `twisted-fork` (Park City UT, Massif Running; 68K/30K/15K; the 68K's ice item = L: the guide's
+  May 27 change log says it was removed from required gear, the list still names it).
   **Race list check** (race-check.yml, the 3rd of each month, scraper/race_check.py): rereads every race's `src`/`src_fr` (pages + PDFs),
   keeps the gear lines + linked PDFs/list pictures, compares with race-check.json on the history branch; emails ONLY when a list changed
   (+/- lines) or a page stopped answering. Then update that race in RACES from its own list.

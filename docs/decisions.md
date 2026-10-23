@@ -75,3 +75,4 @@ Newest first. "Revisit" says when (or what would make us) look again.
 | Oct 19 | Push notifications | Parked: iPhones need the home-screen app first; visitors stay ~20 s |
 | Oct 22 | Race lists: Cocodona (was left out: no list then) now publishes required + cold-weather gear; Mammoth 200 has a mandatory list; Mammoth Trailfest 50K says "No gear requirements" | Added Cocodona (5 distances) + Mammoth 200, both sides; Trailfest 50K left out |
 | Oct 22 | Race lists round 3: Destination Trail manuals now have mandatory tables (was left out); Québec: Sayam + Chute du Diable publish lists; Salt Lake races (Wasatch, Bear, Kat'cina Mosa, Goat Rattler) have none | Added 8 races (6 Destination Trail + 2 Québec), both sides; the rest left out |
+| Oct 23 | Twisted Fork (Park City) runners guide sent by Bastien: real check-in gear list | Added (68K/30K/15K), ice item marked "Ask the race" (guide contradicts itself) |
