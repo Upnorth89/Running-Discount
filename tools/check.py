@@ -129,6 +129,20 @@ def main():
         return f"{n} shoe pages"
     step("Shoe pages, list pages, sitemap", pages)
 
+    def real_drop_rule():   # Oct 23: Black Friday "is this deal real?" labels = the homepage badge's rule, good news only
+        sys.path.insert(0, str(ROOT / "scraper"))
+        import shoe_pages as sp
+        it = lambda price, lo, hi, hd: {"sz": [["10", price, 0, 200]], "lo": lo, "hi": hi, "hd": hd}
+        cases = [(it(100, 100, 130, 40), 40), (it(100, 100, 130, 90), 60),   # a real drop; capped at 60 days
+                 (it(100, 100, 101, 40), 0),                                   # never moved (under 2%): no label
+                 (it(110, 100, 130, 40), 0),                                   # above its 60-day low: no label
+                 (it(100, 100, 130, 20), 0)]                                   # under 30 days of history: no label
+        for item, want in cases:
+            got = sp.low_days([item])
+            assert got == want, f"low_days({item}) = {got}, want {want}"
+        return f"{len(cases)} cases"
+    step("Black Friday real-drop labels: the rule", real_drop_rule)
+
     def races():        # race gear lists (Oct 21): built from the same data, after the shoe pages
         r = subprocess.run([sys.executable, str(ROOT / "scraper" / "race_pages.py"), str(site)], capture_output=True, text=True, timeout=600)
         if r.returncode:

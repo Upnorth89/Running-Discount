@@ -96,6 +96,7 @@ T = {
         "facts": "{sizes} sizes in stock · {stores} stores · checked {date}",
         "none": "Not in stock at the stores we check right now. Prices change every day: we'll show it here as soon as it's back.",
         "low": "Lowest price we've seen in {d} days",
+        "bfReal": "{n} of these {t} deals are at their lowest price in 30+ days of our own price checks: real drops, not a price raised first. They're listed first.",
         "size": "Size", "price": "Price", "store": "Store", "was": "was",
         "men": "Men's", "women": "Women's", "unisex": "Unisex (men's sizes)", "unisexMW": "Unisex (men's and women's sizes)", "wide": "wide",
         "us": "ships from the US", "final": "Final sale",
@@ -200,6 +201,7 @@ T = {
         "facts": "{sizes} pointures en stock · {stores} boutiques · vérifié le {date}",
         "none": "Pas en stock dans les boutiques que nous suivons en ce moment. Les prix changent chaque jour : on l'affichera ici dès son retour.",
         "low": "Le plus bas prix vu en {d} jours",
+        "bfReal": "{n} de ces {t} aubaines sont à leur plus bas prix en 30 jours ou plus selon nos relevés quotidiens : de vraies baisses, pas un prix gonflé avant. Elles sont en premier.",
         "size": "Pointure", "price": "Prix", "store": "Boutique", "was": "avant",
         "men": "Homme", "women": "Femme", "unisex": "Unisexe (pointures homme)", "unisexMW": "Unisexe (pointures homme et femme)", "wide": "large",
         "us": "expédié des États-Unis", "final": "Vente finale",
@@ -507,6 +509,8 @@ tr.yours td:first-child{font-weight:700;box-shadow:inset 4px 0 0 var(--hivis)}
 .brand{margin:18px 0 6px;font:700 20px var(--display);scroll-margin-top:120px}
 .find{position:sticky;top:0;z-index:5;background:var(--mist);padding:10px 0 8px;margin:0 -2px}
 /* Oct 23: the header comes back on scroll-up (phones), stays on computers; search icon + box under it (class hdrb on every page) */
+.cards a .nm small.lowl{display:block;color:#1f7a46;font-weight:700}
+.realn{background:#e8f5ec;color:#1f5f38;border-radius:12px;padding:10px 14px;font-weight:600;margin:12px 0}
 .hdrb header.top{position:sticky;top:0;z-index:30;transition:transform .22s ease}
 .hdrb header.top.hide{transform:translateY(-100%)}
 .hdrb .find{top:var(--hh,0px);transition:top .22s ease}
@@ -885,6 +889,15 @@ def sizes_phrase(keys, L):
     return f"{one} {labs[0]}" if len(labs) == 1 else f"{many} " + ", ".join(labs[:-1]) + and_ + labs[-1]
 
 
+def low_days(its):
+    """Oct 23 (Black Friday "is this deal real?"; Bastien OK'd): the homepage badge's rule for a list of versions: today's best
+    price is the lowest in 30+ days of our own history AND the price was at least 2% higher in that window (a real drop, not a
+    price that never moved). Returns the days (max 60) or 0. Good news only: nothing is ever labelled "fake"."""
+    lows = [d for d in its if d.get("hd", 0) >= HISTORY_DAYS and d.get("lo") is not None and d.get("sz")
+            and min(e[1] for e in d["sz"]) <= d["lo"] + 0.01 and (d.get("hi") or 0) > min(e[1] for e in d["sz"]) * 1.02]
+    return min(60, max(d["hd"] for d in lows)) if lows else 0
+
+
 def summary(its, stores, gender=None):
     """Today's numbers for one model (optionally one gender): best price, its discount, store, sizes, stores."""
     sizes, by_store, best = 0, defaultdict(set), None
@@ -920,6 +933,8 @@ def summary(its, stores, gender=None):
                                  and (len(best[4]) != 1 or (d.get("sx") or []) == list(best[4]))))   # that cut's sizes only
     return {"price": best[0], "reg": best[1], "off": off, "top": top, "store": stores.get(best[2], [best[2]])[0], "url": best[3],
             "sizes": sizes, "stores": len(carriers), "sale_sizes": sale_sizes, "best_sizes": at_best,
+            "lowd": low_days([d for d in its if (not gender or not d.get("sx") or gender in d["sx"]) and d.get("sz")
+                              and abs(min(e[1] for e in d["sz"]) - best[0]) < 0.01]) if off >= 10 else 0,   # the version at that price
             "best_sx": best[4][0] if len(best[4]) == 1 else None,
             "most": stores.get(most[0], [most[0]])[0], "most_n": len(most[1]),
             "img": next((d["img"] for d in its if d.get("img")), None), "t": its[0].get("t") or ""}
@@ -1283,7 +1298,9 @@ def card_list(L, rows):
         price = (f'<b>{money(sm["price"])}</b><span class="off">−{sm["top"]}%</span>' if sm["top"] >= 10
                  else f'<b>{money(sm["price"])}</b><small>{L["fullPrice"]}</small>')
         out.append(f'<li><a href="/{L["dir"]}/{slug}/">{img}<span class="nm"><b>{esc(name)}</b>'
-                   f'<small>{esc(sm["note"]) if sm.get("note") else L["sizesStores"].format(sizes=sm["sizes"], stores=sm["stores"])}</small></span><span class="pr">{price}</span></a></li>')
+                   f'<small>{esc(sm["note"]) if sm.get("note") else L["sizesStores"].format(sizes=sm["sizes"], stores=sm["stores"])}</small>'
+                   + (f'<small class="lowl">✓ {esc(L["low"].format(d=sm["lowd"]))}</small>' if sm.get("lowd") else "")
+                   + f'</span><span class="pr">{price}</span></a></li>')
     return '<ul class="cards">' + "".join(out) + "</ul>"
 
 
@@ -1298,6 +1315,16 @@ def browse_nav(L, brands):
         out += f'<nav class="browse" aria-label="{L["brandsH"]}">' + "".join(
             f'<a href="/{L["brandDir"]}/{slugify(b)}/">{esc(b)}</a>' for b in brands) + "</nav>"
     return out
+
+
+def real_first(rows):
+    """Black Friday week: deals at their lowest price in 30+ days first (stable: biggest discount first within each group)."""
+    return sorted(rows, key=lambda r: 0 if r[2].get("lowd") else 1)
+
+
+def real_line(L, rows):
+    n = sum(1 for r in rows if r[2].get("lowd"))
+    return f'<p class="realn">✓ {esc(L["bfReal"].format(n=n, t=len(rows)))}</p>' if n else ""
 
 
 def black_friday(year):
@@ -1480,7 +1507,8 @@ def main():
         today = (datetime.fromisoformat(updated.replace("Z", "+00:00")) if updated else datetime.now(timezone.utc)).astimezone(HOME_TZ).date()
         bf = black_friday(today.year if today <= black_friday(today.year) + timedelta(days=4) else today.year + 1)
         if bf - timedelta(days=7) <= today <= bf + timedelta(days=4):     # Black Friday week to Cyber Monday: the real deals
-            p.write_text(list_page(L, "/black-friday/", "/vendredi-fou/", L["bfTitle"], L["bfH1"], L["bfIntro"], bf_rows, brands, bf_other(L) + cta))
+            p.write_text(list_page(L, "/black-friday/", "/vendredi-fou/", L["bfTitle"], L["bfH1"], L["bfIntro"], real_first(bf_rows), brands,
+                                   bf_other(L) + real_line(L, bf_rows) + cta))
         else:   # before: honest page, the price tracking + tips, and today's deals clearly labelled as today's (Bastien, Oct 4)
             tracked = sum(1 for i in items if i.get("hd"))
             extra = (bf_other(L) + cta + f'<h2>{esc(L["bfTrackH"])}</h2><p>{esc(L["bfTrackTxt"].format(n=f"{tracked:,}".replace(",", " " if L is T["fr"] else ",")))}</p>'
@@ -1644,7 +1672,8 @@ def build_us(site, stores, ca_models, ca_brands):
     p = site / own.strip("/") / "index.html"
     p.parent.mkdir(parents=True, exist_ok=True)
     if bf - timedelta(days=7) <= today <= bf + timedelta(days=4):
-        p.write_text(list_page(L, own, "/black-friday/", L["bfTitle"], L["bfH1"], L["bfIntro"], bf_rows, brands, bf_other(L) + cta))
+        p.write_text(list_page(L, own, "/black-friday/", L["bfTitle"], L["bfH1"], L["bfIntro"], real_first(bf_rows), brands,
+                               bf_other(L) + real_line(L, bf_rows) + cta))
     else:
         tracked = sum(1 for i in items if i.get("hd"))
         extra = (bf_other(L) + cta + f'<h2>{esc(L["bfTrackH"])}</h2><p>{esc(L["bfTrackTxt"].format(n=f"{tracked:,}"))}</p>'
