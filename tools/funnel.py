@@ -239,6 +239,13 @@ out.append(f"  sessions that landed on a shoe page and signed up: {shoe_signup}"
 # so far from our own click table (the monthly report's numbers)
 dc = Counter((e["detail"] or "?").split("|")[0] for e in rows if e["kind"] == "deal-click")
 out.append(f"DEAL CLICKS BY STORE (last {DAYS} days, {sum(dc.values())} clicks): " + ", ".join(f"{k} {v}" for k, v in dc.most_common(20)))
+# Oct 23 (Bastien: "maybe the top drop can be removed"): clicks by the spot on the page they came from ("hook" = the Top drop link,
+# "hero" = the big shoe photo), and how many sessions used each spot
+spot = lambda e: ((e["detail"] or "").split("|") + [""] * 4)[3] or "card"
+sc = Counter(spot(e) for e in rows if e["kind"] == "deal-click")
+ss = Counter(sp for sid, sp in {(e["sid"], spot(e)) for e in rows if e["kind"] == "deal-click"})
+out.append(f"DEAL CLICKS BY SPOT (clicks / sessions): " + ", ".join(f"{k} {v}/{ss[k]}" for k, v in sc.most_common(12))
+           + f"; homepage sessions with sizes {sum(1 for x in S.values() if 'sizes-saved' in x['kinds'] or 'load' in x['kinds'])}")
 try:
     now = datetime.now(timezone.utc)
     m0 = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
