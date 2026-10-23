@@ -645,3 +645,5 @@ html:not(.rd) .top a:has(.pgtag){display:inline-flex;flex-direction:column;align
 .top .pgtag{display:flex;align-items:center;gap:5px;margin-top:3px;font:600 8.5px/1 var(--body);letter-spacing:.16em;white-space:nowrap;color:#fff}
 .top .pgtag::before,.top .pgtag::after{content:"";width:10px;height:1px;background:var(--hivis);border-radius:1px}
 html[lang="fr"] .pgtag .t-en,html:not([lang="fr"]) .pgtag .t-fr{display:none}
+/* Oct 23 (Bastien: "only brackets under the logo with no outfox full price"): on the charcoal header the tagline kept the page ink (dark on dark) */
+html:not(.rd) header.top .tagline{color:#fff}
