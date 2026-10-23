@@ -253,6 +253,9 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   without talking to me first. I want us to have conversations around changes").** Bring the idea + my pick + why in a few lines,
   agree, then build it in the preview, then ship on his OK. Ship without asking only what's clearly broken (wrong price, duplicate
   cards, crashes, sorting bugs).
+- **Keep things moving (Bastien, Oct 23: "if I forget to say okay you can prompt me so things keep moving. You're a teammate not a
+  bot").** Anything waiting on his OK gets brought back up by me (at the end of my next reply, or on the next check-in), with a
+  one-line yes/no ask. Never let a finished preview sit silently. Start the preview work for an idea he's warm on without waiting.
 - **Design polish is mine, growth is the priority (Bastien, Oct 19: "I'm spending lots of time on design vs growth. I shouldn't have to
   ask will the filter button cover the other buttons").** Once a direction is agreed, I make it consistent and check it myself at
   320/390/768/1280px (site test "Top of the page: nothing overlaps"): one shape family, nothing overlapping, nothing cut off. Bring
