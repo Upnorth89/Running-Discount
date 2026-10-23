@@ -560,17 +560,7 @@ def site_flow(base, per, accented):
             return f"search on top, {r['tiles']} tiles in the row{more}"
         check("Test 'layout': B = swipe row under the categories, small tiles that keep loading")(layout_test, page)
 
-        def hook_line():   # Oct 19: under "N deals in your size today", one real deal with its money ("Biggest drop in your size: X, −$120")
-            page.goto(base, wait_until="domcontentloaded")
-            page.wait_for_selector("section.grp .deal", timeout=20000)
-            r = page.evaluate("""() => {const h = document.querySelector('#hook'), a = h && h.querySelector('a');
-                return {shown: !!h && !h.classList.contains('hidden'), text: h ? h.textContent : '', href: a ? a.href : ''}}""")
-            if not r["shown"]:
-                return "no deal $10+ off in men's 11 / M today: line hidden"
-            assert re.search(r"(Top drop|Top shoe|Top deal).*−(\$\d|\d+%)", r["text"]), f"hook line looks wrong: {r['text']!r}"
-            assert r["href"].startswith("http") and "thegearfox" not in r["href"], f"hook line doesn't open a store: {r['href']}"
-            return r["text"].strip()
-        check("Top line: today's biggest drop or deal in your size, with its $")(hook_line, page)
+        # Oct 23: the "Top drop" link was removed (Bastien), its check with it
 
         def top_overlap():   # Oct 19 (Bastien: "I shouldn't have to ask will the filter button cover the other buttons"): at 320/390/768/1280px
             out = []       # nothing in the header and the lines above the deals sits on top of something else, nothing wider than the screen
@@ -1049,7 +1039,6 @@ def site_flow(base, per, accented):
                   const cards = [...document.querySelectorAll('#dealList section.grp:not(.new) .dw')].slice(0, 6);
                   return {
                     '"Watch price" in words on cards': cards.length > 0 && cards.every(w => /watch price|watching/i.test(w.querySelector('.heart')?.innerText || '')),
-                    '"Top drop" link': vis(document.querySelector('#hook:not(.hidden)')) || !document.querySelector('#hook a'),
                     'your sizes shown': /11/.test(txt('#subhead,#sizeSummary,#ddSize,#rdQS,#rdBarZ')),
                     'sign-up card': !!document.querySelector('#dealList .signup'),
                     'search box': vis(document.getElementById('dSearch')),
@@ -1062,7 +1051,7 @@ def site_flow(base, per, accented):
                 if bad:
                     missing[arm] = bad
             assert not missing, f"core things missing: {missing}"
-            return "Watch price, Top drop, sizes, sign-up card, search, Wrong price, store, currency, footer: all there (A and B)"
+            return "Watch price, sizes, sign-up card, search, Wrong price, store, currency, footer: all there (A and B)"
         check("Core things are on the page")(core_things, pg)
 
         def canadian():   # Oct 7: Canadian brands filter (Canada side): only maple-leaf brands, a box saying so, × turns it off
@@ -1252,8 +1241,7 @@ def site_flow(base, per, accented):
                 ("Filters", "#hFilt", "() => !document.getElementById('rdFs').hidden", None),
                 ("the menu", "#menuBtn", "() => { const m = document.getElementById('menu'); return !!m && !m.hidden }", None),
                 ("View all deals", "#grp-__sale .rdmore", None, "() => document.querySelectorAll('#grp-__sale .rdc').length"),
-                ("Show more", first_more, None, "() => document.querySelectorAll('section.grp:not(#grp-__sale):not(.new) .rdc').length"),
-                ("Top drop", "#hook a", "TAB", None)]
+                ("Show more", first_more, None, "() => document.querySelectorAll('section.grp:not(#grp-__sale):not(.new) .rdc').length")]
             dead, done = [], []
             for name, sel, want, grow in targets:
                 q.goto(base, wait_until="domcontentloaded")

@@ -1534,7 +1534,6 @@ function rdBuild(){
   // phones (Oct 22, Bastien OK'd): your size + one Filters button under the search; the five boxes live in the Filters panel
   $("rdSearch").insertAdjacentHTML("afterend",`<div class="rdqf"><button type="button" class="dd" id="rdQS"><span></span>${RDI.chev}</button><button type="button" class="rdqfb" id="rdQF"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg><span></span><i class="n" id="rdQFN"></i></button></div>`);
   $("rdFilters").append($("filtBtn"));
-  $("rdH1").after($("hook"));   // Oct 22 (Bastien: "don't remove core things"): the "Top drop" link stays, under the headline
   const wy=document.createElement("section");wy.className="rdwhy";wy.id="rdWhy";$("dealsFoot").before(wy);
   // phones (Oct 21, Bastien: "make it more user friendly for mobile"): once the hero's search scrolls away, a slim bar under the
   // header keeps search + Filters one tap away; Filters opens a panel from the bottom with every filter (Baymard: keep filtering
@@ -2167,24 +2166,8 @@ function sinceBar(all){const base=LS.get("gf-base");if(!base||!base.at)return ""
    daily-changing number instead. The drops count goes with test "drops" (group B), so group A sees the plain line. */
 let saleNow=0;
 // Oct 18 (Bastien: "it feels like a lot of information"): one short line; the "Dropped today" row right under it speaks for itself, "updated" sits at the bottom
-/* Oct 19 (Bastien: "we need a $$$ to hook people", but a big total "sounds way too big"): one real deal, named, with its
-   money: today's biggest price drop in your size ($10+), else today's biggest deal in dollars. Tapping opens it. */
-function setHook(list){const el=$("hook");if(!el)return;
-  const off=d=>d.reg-d.best,drop=d=>d.dp?d.dp-d.best:0;
-  // a drop under $40 doesn't hook anyone (Oct 19 preview: "Sugoi jacket, −$20"): then the biggest shoe deal in dollars
-  let d=list.filter(x=>drop(x)>=40).sort((a,b)=>drop(b)-drop(a))[0],kind="Drop";
-  if(!d){const sh=list.filter(x=>x.g==="shoes"&&off(x)>=20);d=(sh.length?sh:list.filter(x=>off(x)>=20)).sort((a,b)=>off(b)-off(a))[0];kind=sh.length?"Shoe":"Deal"}
-  if(!d){el.classList.add("hidden");return}
-  const amt=kind==="Drop"?drop(d):off(d),base=kind==="Drop"?d.dp:d.reg;
-  const tag=base>=100?"−"+money(Math.round(amt)).replace(/[.,]00(?=\D*$)/,""):"−"+Math.round(100*amt/base)+"%";
-  const name=d.b+" "+nm(d.n).replace(/ - (Men's|Women's|Unisex|Homme|Femme|Unisexe)$/,"");
-  // Oct 19 (Bastien: the sentence with the product name was "a little too detailed up there"): a short chip, the name on hover/long-press
-  el.innerHTML=`<a href="${esc(affUrl(d.url))}" data-store="${esc(storeOf(d.url))}" target="_blank" rel="noopener" title="${esc(name)}" aria-label="${esc(t("hook"+kind)+": "+name+", "+tag)}">${t("hook"+kind)} <b>${tag}</b><span class="go">→</span></a>`;
-  el.classList.remove("hidden");HOOKD=d}
-let HOOKD=null;
-document.addEventListener("click",e=>{const a=e.target.closest("#hook a");if(!a||!HOOKD)return;const d=HOOKD;
-  track("deal-click",{store:a.dataset.store,brand:d.b,group:d.g,pct:d.pct,view:"hook"});
-  ana("deal-click",[a.dataset.store,d.g,d.pct,"hook",""].join("|"),1);logEvent("click",a.dataset.store,d.g)});
+/* Oct 23 (Bastien: "yes remove it"): the "Top drop" link is gone: under 18 of 4,644 deal clicks in 14 days came from it (funnel
+   "DEAL CLICKS BY SPOT"), and it sat between the headline and the search like a stray button. #hook stays empty and hidden. */
 function setCalmLede(){if(!DATA||(gated()&&!peeking())||view.watch)return;
   const n=`<span class="ledenum">${num(saleNow)}</span>`;
   $("lede").innerHTML=t(hasSizes()?"ledeShort":"ledeAll",n);
@@ -2242,7 +2225,6 @@ function renderAll(){
   const where=state.ships==="all"?t("storesAll"):t("storesCA");
   saleNow=onSale.length;if(LOOK_B)setTimeout(rdFsCount,0);
   if(CALM)setCalmLede();
-  if(CALM&&!q.length&&!view.store&&!cdn)setHook(onSale);else if($("hook"))$("hook").classList.add("hidden");
   else $("lede").textContent=t("lede",num(onSale.length),num(all.length),where,DATA.updated?ago(DATA.updated):"");
   computeNew(onSale);renderStats();renderWatchButton();
   // Sale items only, unless "Include full price" is on; then everything in your size, sale items first
