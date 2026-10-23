@@ -366,6 +366,11 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   personal), since Umami's free plan has no API. Countries/pages stay in the Umami dashboard.
 - **IndexNow** (Oct 11): refresh.yml job `indexnow` (morning runs, after deploy) sends every sitemap URL to api.indexnow.org (Bing,
   DuckDuckGo, ChatGPT search, Yandex); key file site/d5b591bd5a0f92826eeb50008110fb99.txt (public by design). First submit Oct 11: 1,856 URLs, HTTP 200.
+  Oct 23 (Bastien OK'd): only CHANGED pages are sent (it was all ~2,400 daily: 24,200 in 12 days; IndexNow asks for changed pages only).
+  tools/indexnow.py reads each sitemap page live, fingerprints its visible text minus date stamps/countdowns, compares with yesterday's
+  (actions/cache "indexnow-*", /tmp/indexnow-state.json); new + changed are sent, cache lost = all. INDEXNOW_DRY=1 = count only.
+  Bing Webmaster Tools (Oct 23, Bastien signed in): sitemap OK (2.3K URLs discovered) but only 5 pages indexed, Backlinks "-":
+  Bing waits for links from other sites (race organizer emails). He requested indexing for /, /shoes/, /running-shoes-sale/.
 - **Growth calendar** (Oct 11, Bastien: "post every 3 days on running gear"): plan doc section "Growth: a post every 3 days" + send_later
   reminders at 6:30am Vancouver (C25K Oct 14, RunningShoes 17, runninglifestyle 20, BuyCanadian 23, xxrunning 26, trailrunning 29,
   FrugalMaleFashionCDN Nov 1, ultrarunning 4, RunningShoeGeeks 7 + plan the rest to Cyber Monday). A different place each time.
