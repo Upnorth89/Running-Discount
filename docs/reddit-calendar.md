@@ -23,7 +23,7 @@ Every 4 weeks: drop a sub that brought no visitors (funnel.yml first visits by ?
 | Date | Sub | Posted? | Visits from it (7 days) |
 |------|-----|---------|-------------------------|
 | Oct 23 | r/trailrunning (race gear lists hub, link /us/races/?ref=reddit-trailrunning) | yes | |
-| Oct 23 | r/xxrunning (6 shoes + 4 gear, women's, CA + US; ?ref=reddit-xxrunning; rules not readable from here: Bastien checks the sidebar) | waiting | |
+| Oct 23 | r/xxrunning (6 shoes + 4 gear, women's, CA + US; ?ref=reddit-xxrunning) | yes | |
 | Oct 21 | r/runninglifestyle (6 shoes + 4 gear, CA + US; ?ref=reddit-runninglifestyle) | waiting | |
 | Oct 18 | r/RunningDeals (3 CA + 3 US) | yes, stayed up | |
 | Oct 18 | r/RunVancouver + r/runningmontreal (fall/winter) | yes | |
