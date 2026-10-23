@@ -1,0 +1,29 @@
+name: Night scan
+
+# Oct 23, 2026 (Bastien: "scan website as a user to find any glitches: this should be done nightly"): every page in the
+# sitemap + the links and pictures they use, and a phone opening the hubs + 40 random pages (scraper/night_scan.py).
+# An email goes out only when something is wrong.
+on:
+  schedule:
+    - cron: "41 9 * * *"    # 2:41am Vancouver (PDT), 5:41am Montréal: before the morning refresh
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r scraper/requirements.txt playwright && python -m playwright install --with-deps chromium > /dev/null
+      - name: Night scan
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          HEALTH_EMAIL: ${{ secrets.HEALTH_EMAIL }}
+          FROM_EMAIL: "The Gear Fox <deals@thegearfox.com>"
+        run: python scraper/night_scan.py https://thegearfox.com/ /tmp/night-scan.json

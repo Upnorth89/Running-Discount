@@ -864,6 +864,199 @@ RACES["utmb-mont-blanc"] = {
 }
 
 
+# Oct 23 (Bastien: "you can expand to international races as well. all around the world"): UTMB World Series events abroad,
+# each list read on the event's own mandatory gear page (read Oct 23, 2026). Shoes are the page's first line, so not repeated here.
+_READ23 = _C("October 23, 2026", "23 octobre 2026")
+def _intl(name, short, de, le, side, where, when, dists, src, items, kits=None):
+    r = {"name": name, "short": short, "de": de, "le": le, "side": side, "unit": "label", "cupless": True,
+         "where": where, "when": when, "dists": dists, "default": dists[0], "src": src, "read": _READ23,
+         "items": [(k, lv, t, sp) for (k, t), lv, sp in items]}
+    if kits:
+        r["kits"] = kits
+    return r
+_WX = ("Weather item on the {d}: the race confirms a few days before.", "Selon la météo sur le {d} : la course confirme quelques jours avant.")
+RACES.update({
+    "lavaredo": _intl("Lavaredo Ultra Trail by UTMB", "Lavaredo", "du ", "le ", "it", _C("Cortina d'Ampezzo, Italy", "Cortina d'Ampezzo, Italie"),
+        _C("June 23–27, 2027", "23 au 27 juin 2027"), ["120K", "80K", "50K", "20K", "10K"],
+        "https://lavaredo.utmb.world/races-runners/info/mandatory-equipment", [
+        (_SIN("vest", "Race pack for the mandatory gear", "Sac de course pour le matériel obligatoire"), "MMM  ", False),
+        (_SIN("phone", "Phone, on, with the emergency numbers saved", "Téléphone allumé, numéros d'urgence enregistrés"), "MMMMM", False),
+        (_SIN("jacket", "Waterproof jacket with a built-in hood", "Manteau imperméable avec capuchon intégré",
+              "A Gore-Tex-type membrane, 10,000 mm or more (not asked on the 20K). The race's judges decide if yours passes.",
+              "Membrane de type Gore-Tex, 10 000 mm ou plus (pas exigé sur le 20K). Les juges de la course décident si le vôtre passe."), "MMMM ", True),
+        (_SIN("headlamp", "Headlamp + spare batteries (or two headlamps)", "Lampe frontale + piles de rechange (ou deux frontales)"), "MM   ", True),
+        (_SIN("midlayer", "Long-sleeve top", "Chandail à manches longues", "Recommended on the 10K.", "Recommandé sur le 10K."), "MMM R", False),
+        (_SIN("longpants", "Long pants or tights", "Pantalon long ou collant"), "MMM  ", False),
+        (_SIN("cap", "Hat or bandana", "Chapeau ou bandana"), "MMM  ", False),
+        (_SIN("gloves2", "Warm, waterproof gloves", "Gants chauds et imperméables"), "MMM  ", False),
+        (_SIN("water", "Water: 1 litre or more", "Eau : 1 litre ou plus", "½ litre on the 20K; ½ litre recommended on the 10K (no aid station on the way).",
+              "½ litre sur le 20K; ½ litre recommandé sur le 10K (aucun ravito en chemin)."), "MMMMR", False),
+        (_SIN("cup", "Cup, 15 cl or more", "Gobelet de 15 cl ou plus", "No cups at the aid stations.", "Aucun verre aux ravitos."), "MMMM ", False),
+        (_SIN("blanket", "Survival blanket (2 m × 1.40 m or more)", "Couverture de survie (2 m × 1,40 m ou plus)"), "MMMMR", False),
+        (_SIN("whistle", "Whistle", "Sifflet"), "MMMMR", False),
+        (_SIN("food", "Energy bars or solid food", "Barres énergétiques ou nourriture solide"), "MMM  ", False),
+        (_SIN("spoon", "Your own cutlery and container", "Vos ustensiles et un contenant",
+              "No disposable dishes at the aid stations or life bases, for hot or cold food.", "Aucune vaisselle jetable aux ravitos ni aux bases de vie."), "MMM  ", False),
+        (_SIN("cash", "€20 or more in cash", "20 € ou plus en argent comptant", "To buy food in the mountain huts if needed.", "Pour acheter à manger dans les refuges au besoin."), "MMM  ", False),
+        (_SIN("bandage", "Elastic bandage", "Bandage élastique"), "MMM  ", False),
+        (_SIN("pants", "Waterproof pants", "Pantalon imperméable"), "RRR  ", True),
+        (_SIN("warmjacket", "Third layer (fleece or puffy) for very cold weather", "Troisième couche (polaire ou doudoune) par grand froid"), "RRR  ", False),
+        (_SIN("sun", "Sunglasses", "Lunettes de soleil"), "RRR  ", False),
+        (_SIN("sunscreen", "Sunscreen", "Crème solaire"), "RRR  ", False),
+        (_SIN("salts", "Mineral salts", "Sels minéraux"), "RRR  ", False),
+        (_SIN("poles", "Trekking poles", "Bâtons de marche", "Allowed on the 120K, 80K and 50K. Not allowed on the 20K.",
+              "Permis sur le 120K, le 80K et le 50K. Interdits sur le 20K."), "AAA  ", False),
+    ]),
+    "zugspitz": _intl("Zugspitz Ultratrail by UTMB", "Zugspitz", "du ", "le ", "de", _C("Garmisch-Partenkirchen, Germany", "Garmisch-Partenkirchen, Allemagne"),
+        _C("June 17–20, 2027", "17 au 20 juin 2027"), ["ZUT100", "Ultratrail", "Ehrwald", "Leutasch", "Mittenwald", "Garmisch", "Grainau"],
+        "https://zugspitz.utmb.world/runners/mandatory-gear", [
+        (_SIN("vest", "Running pack or running belt", "Sac ou ceinture de course"), "MMMMMMM", False),
+        (_SIN("jacket", "Waterproof jacket, taped seams, 10,000 mm or more", "Manteau imperméable, coutures scellées, 10 000 mm ou plus"), "MMMMMMM", True),
+        (_SIN("midlayer", "Warm long-sleeve top (or a shirt + arm warmers)", "Haut chaud à manches longues (ou chandail + manchons)",
+              "The rule: no skin may show.", "La règle : aucune peau visible."), "MMMM M ", False),
+        (_SIN("longpants", "Running pants or leg warmers", "Pantalon de course ou jambières", "No skin may show.", "Aucune peau visible."), "MMMMMM ", False),
+        (_SIN("gloves", "Gloves", "Gants"), "MMMMMM ", False),
+        (_SIN("tuque", "Beanie or Buff that covers head and ears", "Tuque ou Buff qui couvre la tête et les oreilles"), "MMMMMM ", False),
+        (_SIN("headlamp", "Headlamp + spare batteries (or a spare lamp)", "Lampe frontale + piles de rechange (ou une 2e lampe)",
+              "ZUT100: two working headlamps. Grainau: recommended if you'll be out more than 3 hours.",
+              "ZUT100 : deux frontales fonctionnelles. Grainau : recommandée si vous prévoyez plus de 3 heures."), "MMMM  R", True),
+        (_SIN("water", "Sealable bottles: 1.5 litres or more", "Gourdes fermées : 1,5 litre ou plus", "1 litre on the Mittenwald, Garmisch and Grainau trails.",
+              "1 litre sur Mittenwald, Garmisch et Grainau."), "MMMMMMM", False),
+        (_SIN("cup", "Cup for drinks at the aid stations", "Gobelet pour boire aux ravitos"), "MMMMMMM", False),
+        (_SIN("firstaid", "Emergency kit: a 10 × 10 cm compress, 2 bandage packs, 2 pairs of sterile gloves", "Trousse d'urgence : une compresse 10 × 10 cm, 2 bandages, 2 paires de gants stériles"), "MMMMMMM", False),
+        (_SIN("whistle", "Whistle", "Sifflet"), "MMMMMMM", False),
+        (_SIN("blanket", "Rescue blanket", "Couverture de survie"), "MMMMMMM", False),
+        (_SIN("gps", "GPS watch with the route saved (or the route in a phone map app)", "Montre GPS avec le tracé (ou le tracé dans une appli de cartes)"), "MMMMMMM", False),
+        (_SIN("phone", "Phone with the Alpine Medics number saved", "Téléphone avec le numéro des secours alpins enregistré",
+              "+49 8324 933 550. It must also make calls from Austria.", "+49 8324 933 550. Il doit aussi pouvoir appeler depuis l'Autriche."), "MMMMMMM", False),
+        (_SIN("helmet", "Helmet", "Casque", "Leave it in your Biberwier drop bag: worn on a 2 km section after it, handed back at Pestkapelle. Any helmet works.",
+              "Dans votre sac de dépôt à Biberwier : porté sur 2 km après ce ravito, rendu à Pestkapelle. N'importe quel casque."), "M      ", False),
+        (_SIN("poles", "Poles", "Bâtons", "Recommended.", "Recommandés."), "RRRRRRR", False),
+    ]),
+    "eiger": _intl("Eiger Ultra Trail by UTMB", "Eiger", "de l'", "l'", "ch", _C("Grindelwald, Switzerland", "Grindelwald, Suisse"),
+        _C("July 14–18, 2027", "14 au 18 juillet 2027"), ["E250", "E101", "E51", "E35", "E16"],
+        "https://eiger.utmb.world/races-runners/runners/mandatory-equipment", [
+        (_SIN("vest", "Running pack for the mandatory gear", "Sac de course pour le matériel obligatoire"), "MMMM ", False),
+        (_SIN("phone", "Smartphone, on the whole race", "Téléphone intelligent, allumé toute la course",
+              "Roaming for Switzerland, the LiveRun app, the race's safety numbers saved. Airplane mode isn't allowed.",
+              "Itinérance pour la Suisse, appli LiveRun, numéros de sécurité de la course enregistrés. Mode avion interdit."), "MMMMM", False),
+        (_SIN("cup", "Collapsible cup (15 cl or more)", "Gobelet pliable (15 cl ou plus)", "Bottles or flasks with a lid don't count. E250: tableware and cutlery too.",
+              "Les bouteilles et flasques avec bouchon ne comptent pas. E250 : vaisselle et ustensiles aussi."), "MMMMM", False),
+        (_SIN("water", "Water: 1 litre or more", "Eau : 1 litre ou plus", "E250: 1.5 L. E16: 0.5 L.", "E250 : 1,5 L. E16 : 0,5 L."), "MMMMM", False),
+        (_SIN("headlamp", "Two headlamps + spare batteries", "Deux lampes frontales + piles de rechange",
+              "200 lumens or more recommended for the main one. A power bank can replace the spare battery.",
+              "200 lumens ou plus recommandés pour la principale. Une batterie externe peut remplacer les piles."), "MM   ", True),
+        (_SIN("jacket", "Waterproof jacket with a hood, taped seams", "Manteau imperméable avec capuchon, coutures scellées",
+              "20,000 mm recommended (E250: 10,000 mm or more). The hood is built in or attached by the maker's system.",
+              "20 000 mm recommandés (E250 : 10 000 mm ou plus). Capuchon intégré ou attaché par le système du fabricant."), "MMMM ", True),
+        (_SIN("midlayer", "Warm long-sleeve top (180 g or more, no cotton)", "Haut chaud à manches longues (180 g ou plus, pas de coton)",
+              "Or a lighter long-sleeve (110 g+) + a windproof jacket. A t-shirt + arm warmers don't count.",
+              "Ou un manches longues plus léger (110 g+) + un coupe-vent. Un t-shirt + manchons ne comptent pas."), "MM   ", False),
+        (_SIN("longpants", "Long pants, or tights that cover the legs fully", "Pantalon long, ou collant qui couvre toute la jambe"), "MMMM ", False),
+        (_SIN("cap", "Cap, bandana or Buff", "Casquette, bandana ou Buff"), "MMMM ", False),
+        (_SIN("sun", "Sunglasses", "Lunettes de soleil"), "MMMM ", False),
+        (_SIN("blanket", "Survival blanket (1.40 m × 2 m or more)", "Couverture de survie (1,40 m × 2 m ou plus)"), "MMMM ", False),
+        (_SIN("whistle", "Whistle", "Sifflet"), "MMMMM", False),
+        (_SIN("bandage", "Self-adhesive elastic bandage (100 × 6 cm or more)", "Bandage élastique adhésif (100 × 6 cm ou plus)"), "MMMM ", False),
+        (_SIN("food", "Food reserve", "Réserve de nourriture", "About 800 kcal recommended (2 gels + 2 bars).", "Environ 800 kcal recommandés (2 gels + 2 barres)."), "MMMM ", False),
+        (_SIN("pants", "Waterproof overpants", "Surpantalon imperméable", "E101: the cold kit.", "E101 : le kit froid."), "MM   ", True),
+        (_SIN("warmjacket", "Insulated jacket (down or PrimaLoft)", "Manteau isolé (duvet ou PrimaLoft)", "E101: the cold kit.", "E101 : le kit froid."), "MM   ", False),
+        (_SIN("gloves", "Gloves", "Gants"), "M    ", False),
+        (_SIN("spare", "Spare t-shirt", "T-shirt de rechange"), "M    ", False),
+        (_SIN("liner", "Silk sleeping bag liner", "Sac à viande en soie", "For the overnight stops at the life bases.", "Pour dormir aux bases de vie."), "M    ", False),
+        (_SIN("reflect", "Reflective band", "Bande réfléchissante", "Worn from 9 pm. A reflector on the pack or clothes counts.",
+              "Portée dès 21 h. Un réflecteur sur le sac ou les vêtements compte."), "M    ", False),
+        (_SIN("gps", "GPS device with the route (one per team)", "Appareil GPS avec le tracé (un par équipe)", "A phone works; a GPS watch alone doesn't.",
+              "Un téléphone fonctionne; une montre GPS seule, non."), "M    ", False),
+        (_SIN("battery", "Power bank + phone charger (per team)", "Batterie externe + chargeur (par équipe)"), "M    ", False),
+        (_SIN("firstaid", "First aid kit (per team)", "Trousse de premiers soins (par équipe)",
+              "Elastic bandage 200 × 4 cm, 2 sterile compresses, 2 gloves, 5 alcohol wipes, plasters.",
+              "Bandage élastique 200 × 4 cm, 2 compresses stériles, 2 gants, 5 lingettes d'alcool, pansements."), "M    ", False),
+        (_SIN("cash", "Swiss francs in cash", "Francs suisses en argent comptant", "Not every hut takes cards.", "Les refuges ne prennent pas tous les cartes."), "M    ", False),
+        (_SIN("tracker", "GPS tracker", "Balise GPS", "Provided by the race.", "Fournie par la course."), "P    ", False),
+    ]),
+    "tarawera": _intl("Tarawera Ultramarathon by UTMB", "Tarawera", "du ", "le ", "nz", _C("Rotorua, New Zealand", "Rotorua, Nouvelle-Zélande"),
+        _C("February 13–14, 2027", "13 et 14 février 2027"), ["TMiler", "T102", "T50", "T21", "T14"],
+        "https://tarawera.utmb.world/runners/mandatory-gear", [
+        (_SIN("midlayer", "Long-sleeve thermal top (polypropylene or wool)", "Haut thermique à manches longues (polypropylène ou laine)",
+              "No cotton, compression or Coolmax tops. " + _WX[0].format(d="T102, T50 and T21"), "Pas de coton, de compression ni de Coolmax. " + _WX[1].format(d="T102, le T50 et le T21")), "MMMMR", False),
+        (_SIN("jacket", "Waterproof, breathable jacket with a hood", "Manteau imperméable et respirant avec capuchon",
+              "Fully taped seams. " + _WX[0].format(d="T102, T50 and T21"), "Coutures entièrement scellées. " + _WX[1].format(d="T102, le T50 et le T21")), "MMMMR", True),
+        (_SIN("tuque", "Beanie, balaclava or Buff", "Tuque, cagoule ou Buff", _WX[0].format(d="T102, T50 and T21"), _WX[1].format(d="T102, le T50 et le T21")), "MMMMR", False),
+        (_SIN("longpants", "Long thermal pants (polypropylene or wool)", "Pantalon thermique long (polypropylène ou laine)", _WX[0].format(d="T102, T50 and T21"), _WX[1].format(d="T102, le T50 et le T21")), "MMMMR", False),
+        (_SIN("gloves", "Full-finger light thermal gloves", "Gants thermiques légers à doigts complets", _WX[0].format(d="T102, T50 and T21"), _WX[1].format(d="T102, le T50 et le T21")), "MMMMR", False),
+        (_SIN("headlamp", "Headlamp", "Lampe frontale"), "MMM  ", True),
+        (_SIN("headlamp2", "Spare batteries, a second headlamp or a USB power bank", "Piles de rechange, 2e frontale ou batterie USB"), "MMM  ", False),
+        (_SIN("phone", "Phone that can call in New Zealand, fully charged", "Téléphone qui peut appeler en Nouvelle-Zélande, chargé"), "MMMRR", False),
+        (_SIN("water", "Bottle, collapsible cup or hydration vest", "Gourde, gobelet pliable ou veste d'hydratation", "A cupless race: no cups at the aid stations.",
+              "Course sans verres : aucun verre aux ravitos."), "MMMRR", False),
+        (_SIN("bivy", "Emergency survival bag (not a blanket)", "Sac de survie d'urgence (pas une couverture)",
+              "Sealed except the top, big enough to climb into; a single-use foil bag must be new.",
+              "Fermé sauf en haut, assez grand pour y entrer; un sac d'aluminium à usage unique doit être neuf."), "MMMM ", False),
+        (_SIN("hivis", "High-visibility safety vest (AS/NZS 4602, day/night)", "Dossard haute visibilité (norme AS/NZS 4602, jour/nuit)",
+              "Worn on Tarawera Road. " + _WX[0].format(d="T102"), "Porté sur Tarawera Road. " + _WX[1].format(d="T102")), "MM   ", False),
+        (_SIN("bandage", "Self-adhesive bandage (40 mm × 2 m or more)", "Bandage auto-adhésif (40 mm × 2 m ou plus)"), "MRRRR", False),
+        (_SIN("drybag", "Light dry sack or zip-lock bags", "Sac étanche léger ou sacs à glissière", "To keep your gear dry.", "Pour garder le matériel au sec."), "MMMMR", False),
+    ]),
+    "ultra-trail-australia": _intl("Ultra-Trail Australia by UTMB", "UTA", "de l'", "l'", "au", _C("Katoomba, Blue Mountains, Australia", "Katoomba, Montagnes Bleues, Australie"),
+        _C("May 13–16, 2027", "13 au 16 mai 2027"), ["UTAMiler", "UTA100", "UTA50", "UTA22", "UTA11"],
+        "https://uta.utmb.world/runners/mandatory-gear", [
+        (_SIN("midlayer", "Long-sleeve thermal top (polypropylene or wool)", "Haut thermique à manches longues (polypropylène ou laine)",
+              "No cotton, compression or Coolmax tops. " + _WX[0].format(d="UTA22 and UTA11"), "Pas de coton, de compression ni de Coolmax. " + _WX[1].format(d="UTA22 et le UTA11")), "MMMMM", False),
+        (_SIN("jacket", "Waterproof, breathable jacket with a hood", "Manteau imperméable et respirant avec capuchon",
+              "Fully taped seams. " + _WX[0].format(d="UTA22 and UTA11"), "Coutures entièrement scellées. " + _WX[1].format(d="UTA22 et le UTA11")), "MMMMM", True),
+        (_SIN("tuque", "Beanie, balaclava or Buff", "Tuque, cagoule ou Buff"), "MMMMM", False),
+        (_SIN("phone", "Phone, fully charged, with a working SIM", "Téléphone chargé avec une carte SIM qui fonctionne"), "MMMMM", False),
+        (_SIN("whistle", "Whistle", "Sifflet"), "MMMMM", False),
+        (_SIN("blanket", "Space blanket or light bivvy sack", "Couverture de survie ou sac bivouac léger"), "MMMMM", False),
+        (_SIN("bandage", "Compression bandage (7.5 cm × 2.3 m or more)", "Bandage de compression (7,5 cm × 2,3 m ou plus)"), "MMMMM", False),
+        (_SIN("water", "Bottles or bladder for 2 litres of water", "Gourdes ou réservoir pour 2 litres d'eau", "1 litre on the UTA11. A cupless race.",
+              "1 litre sur le UTA11. Course sans verres."), "MMMMM", False),
+        (_SIN("food", "2 food bars or portions", "2 barres ou portions de nourriture", "Leave every checkpoint with 2. Gels count.",
+              "Quittez chaque point de contrôle avec 2. Les gels comptent."), "MMMMM", False),
+        (_SIN("trash", "Zip-lock bag for your rubbish", "Sac à glissière pour vos déchets"), "MMMMM", False),
+        (_SIN("drybag", "Light dry sack or zip-lock bags", "Sac étanche léger ou sacs à glissière", "To keep your gear dry. " + _WX[0].format(d="UTA22 and UTA11"),
+              "Pour garder le matériel au sec. " + _WX[1].format(d="UTA22 et le UTA11")), "MMMMM", False),
+        (_SIN("hivis", "High-visibility safety vest (AS/NZS 4602, day/night)", "Dossard haute visibilité (norme AS/NZS 4602, jour/nuit)",
+              "Worn at night, 8 pm to 6 am.", "Porté la nuit, de 20 h à 6 h."), "MMM  ", False),
+        (_SIN("headlamp", "Headlamp", "Lampe frontale"), "MMM  ", True),
+        (_SIN("headlamp2", "Small backup light", "Petite lampe de secours"), "MM   ", False),
+        (_SIN("longpants", "Long thermal pants (polypropylene or wool)", "Pantalon thermique long (polypropylène ou laine)"), "MM   ", False),
+        (_SIN("gloves", "Full-finger light thermal gloves", "Gants thermiques légers à doigts complets"), "MM   ", False),
+        (_SIN("pants", "Long waterproof pants", "Pantalon imperméable long"), "MM   ", True),
+        (_SIN("midlayer2", "Long-sleeve fleece top (100-weight or more)", "Polaire à manches longues (100 ou plus)"), "MM   ", False),
+    ], kits={"bad": ["pants", "midlayer2"]}),
+    "mozart-100": _intl("mozart 100 by UTMB", "mozart", "du ", "le ", "at", _C("Salzburg, Austria", "Salzbourg, Autriche"),
+        _C("June 5, 2027", "5 juin 2027"), ["100", "Ultra", "Marathon", "Half"],
+        "https://mozart.utmb.world/races-runners/runners/equipment", [
+        (_SIN("vest", "Running pack for the mandatory gear", "Sac de course pour le matériel obligatoire", "A running belt is allowed on the Marathon and Half.",
+              "Une ceinture de course est permise sur le Marathon et le Demi."), "MMMM", False),
+        (_SIN("phone", "Smartphone with the LiveTrail app", "Téléphone avec l'appli LiveTrail",
+              "Roaming for Austria, emergency numbers saved, always on: airplane mode isn't allowed.",
+              "Itinérance pour l'Autriche, numéros d'urgence enregistrés, toujours allumé : mode avion interdit."), "MMMM", False),
+        (_SIN("water", "Water: 0.5 litre or more, in sealed containers", "Eau : 0,5 litre ou plus, contenants fermés", "No plastic bags.", "Pas de sacs de plastique."), "MMMM", False),
+        (_SIN("headlamp", "Two headlamps, or one + a spare battery", "Deux frontales, ou une + une pile de rechange",
+              "200 lumens recommended. Phones and watches don't count.", "200 lumens recommandés. Téléphones et montres ne comptent pas."), "MM  ", True),
+        (_SIN("jacket", "Waterproof, breathable jacket with a hood, taped seams", "Manteau imperméable et respirant avec capuchon, coutures scellées",
+              "20,000 mm recommended.", "20 000 mm recommandés."), "MMMM", True),
+        (_SIN("whistle", "Whistle", "Sifflet"), "MMMM", False),
+        (_SIN("blanket", "Survival blanket (1.40 m × 2 m or more)", "Couverture de survie (1,40 m × 2 m ou plus)"), "MMM ", False),
+        (_SIN("bandage", "Self-adhesive elastic bandage (100 × 6 cm or more)", "Bandage élastique adhésif (100 × 6 cm ou plus)"), "MMM ", False),
+        (_SIN("food", "Food reserve", "Réserve de nourriture", "About 400 kcal recommended (2 gels or 2 bars).", "Environ 400 kcal recommandés (2 gels ou 2 barres)."), "MM  ", False),
+        (_SIN("cap", "Cap, bandana or neck gaiter for the sun", "Casquette, bandana ou cache-cou pour le soleil"), "MMM ", False),
+        (_SIN("gloves", "Warm gloves", "Gants chauds"), "MM  ", False),
+        (_SIN("sun", "Sunglasses", "Lunettes de soleil", "Photochromic lenses work for sun and bad weather.", "Des verres photochromiques servent au soleil comme au mauvais temps."), "MM  ", False),
+        (_SIN("sunscreen", "Sunscreen, 15 ml or more", "Crème solaire, 15 ml ou plus", "In its original container. SPF 50 or higher recommended.",
+              "Dans son contenant d'origine. FPS 50 ou plus recommandé."), "MM  ", False),
+        (_SIN("longpants", "Long pants or tights (knees can show)", "Pantalon long ou collant (genoux à découvert permis)"), "MM  ", False),
+        (_SIN("midlayer", "Warm long-sleeve second layer (no cotton)", "Deuxième couche chaude à manches longues (pas de coton)",
+              "Or a long-sleeve base layer + a windproof jacket.", "Ou un haut de base à manches longues + un coupe-vent."), "MM  ", False),
+        (_SIN("warmjacket", "Third layer (fleece or puffy)", "Troisième couche (polaire ou doudoune)"), "MM  ", False),
+        (_SIN("tuque", "Beanie (or neck gaiter)", "Tuque (ou cache-cou)"), "MM  ", False),
+        (_SIN("pants", "Waterproof overpants", "Surpantalon imperméable"), "MM  ", True),
+    ], kits={"hot": ["sun", "sunscreen"], "bad": ["longpants", "midlayer", "warmjacket", "tuque", "pants"]}),
+})
+
 S = {
     "en": {
         "dir": "races", "title": "{name} mandatory gear list ({short} {dists})",
@@ -946,6 +1139,7 @@ def tl(L):
 
 
 CSS = """
+.sub{overflow-wrap:anywhere}
 .dists{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 12px}
 .dists button{font:700 15px var(--body);color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:8px 12px;min-height:44px;cursor:pointer;white-space:nowrap}
 .dists button[aria-pressed="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
@@ -1432,8 +1626,10 @@ HUB = {
            "go": "Liste du matériel obligatoire →", "dists": "{d} km"},
 }
 HUB["us"] = dict(HUB["en"], desc="Mandatory gear lists for trail and ultra races, item by item, with today's best prices in your size at US stores.")
-HUB["en"]["groups"] = HUB["us"]["groups"] = {"ca": "Canada", "us": "United States", "fr": "France", "it": "Italy"}
-HUB["fr"]["groups"] = {"ca": "Canada", "us": "États-Unis", "fr": "France", "it": "Italie"}
+HUB["en"]["groups"] = HUB["us"]["groups"] = {"ca": "Canada", "us": "United States", "fr": "France", "it": "Italy", "ch": "Switzerland",
+                                             "de": "Germany", "at": "Austria", "au": "Australia", "nz": "New Zealand"}
+HUB["fr"]["groups"] = {"ca": "Canada", "us": "États-Unis", "fr": "France", "it": "Italie", "ch": "Suisse", "de": "Allemagne", "at": "Autriche",
+                       "au": "Australie", "nz": "Nouvelle-Zélande"}
 HUB["en"]["note"] = "Every list shows today's prices at Canadian stores, wherever the race is."
 HUB["fr"]["note"] = "Chaque liste montre les prix du jour dans les boutiques canadiennes, peu importe où a lieu la course."
 HUB["us"]["note"] = "Every list shows today's prices at US stores, wherever the race is."
@@ -1444,12 +1640,13 @@ OTHER = {"en": ("Shopping in the US?", "Same lists with US stores →", "/us/rac
 def side(L):
     """Oct 21 (Bastien: "races should be available on both sides regardless"): every race on every side, the visitor's country first."""
     first = "us" if L == "us" else "ca"
-    order = {first: 0, "ca": 1, "us": 2, "fr": 3, "it": 4}
-    return sorted(RACES.items(), key=lambda kv: order.get(kv[1].get("side", "ca"), 5))
+    order = {first: 0, "ca": 1, "us": 2, "fr": 3, "it": 4, "ch": 5, "de": 6, "at": 7, "au": 8, "nz": 9}
+    return sorted(RACES.items(), key=lambda kv: order.get(kv[1].get("side", "ca"), 10))
 
 
 # Oct 21: the shoe list pages' cards put the link in a right-hand column, which squeezed race names to 2-3 words a line on phones
-HUB_CSS = (".cards.rh a{flex-direction:column;align-items:flex-start;gap:4px;padding:12px 14px}.cards.rh .nm b{font-size:20px}"
+HUB_CSS = (".cards.rh .nm{min-width:0;max-width:100%}.cards.rh small{overflow-wrap:anywhere}"   # Oct 23: Zugspitz's 7 distance names in one word overflowed a phone
+           ".cards.rh a{flex-direction:column;align-items:flex-start;gap:4px;padding:12px 14px}.cards.rh .nm b{font-size:20px}"
            ".cards.rh .pr{text-align:left;white-space:normal;font:600 15px var(--body);color:var(--moss)}")
 
 
