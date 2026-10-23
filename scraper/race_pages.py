@@ -1483,7 +1483,7 @@ def page(slug, race, L, items, stores, pages=None, fx=1.0):
             same.setdefault(sig, k)
     pj = json.dumps(pools, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     sj = json.dumps(trail_shoes(items, pages), ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
-    body = f"""<p class="crumbs"><a href="{Tl['home']}">The Gear Fox</a> › <a href="/{s['dir']}/">{s['aisle']}</a></p>
+    body = f"""<p class="crumbs"><a href="/{s['dir']}/">{s['aisle']}</a></p>
 <h1>{esc(s['h1'].format(**fmt))}</h1>
 <p class="sub">{esc(" · ".join([f"{d} {race['km'][d]} km" for d in race["dists"]] + [fmt["where"], fmt["when"]]) if race.get("km") else s['sub'].format(**fmt))}</p>
 <p class="oside"><a href="{"/races/" if L == "us" else "/us/races/"}{slug}/">{esc(s['otherSide'])}</a></p>
@@ -1689,7 +1689,7 @@ def side(L):
 
 
 # Oct 21: the shoe list pages' cards put the link in a right-hand column, which squeezed race names to 2-3 words a line on phones
-HUB_CSS = (".cards.rh .nm{min-width:0;max-width:100%}.cards.rh small{overflow-wrap:anywhere}"   # Oct 23: Zugspitz's 7 distance names in one word overflowed a phone
+HUB_CSS = (".hubh{margin-top:26px}.cards.rh .nm{min-width:0;max-width:100%}.cards.rh small{overflow-wrap:anywhere}"   # Oct 23: Zugspitz's 7 distance names in one word overflowed a phone
            ".cards.rh a{flex-direction:column;align-items:flex-start;gap:4px;padding:12px 14px}.cards.rh .nm b{font-size:20px}"
            ".cards.rh .pr{text-align:left;white-space:normal;font:600 15px var(--body);color:var(--moss)}")
 
@@ -1711,7 +1711,7 @@ def hub(L):
     head = re.sub(r'(<link rel="alternate" hreflang="[^"]+" href="[^"]+">\n?)+',
                   f'<link rel="alternate" hreflang="en-CA" href="{BASE}/races/">\n<link rel="alternate" hreflang="fr-CA" href="{BASE}/courses/">\n'
                   f'<link rel="alternate" hreflang="en-US" href="{BASE}/us/races/">\n<link rel="alternate" hreflang="x-default" href="{BASE}/races/">\n', head, count=1)
-    return (head + f'<p class="crumbs"><a href="{Tl["home"]}">The Gear Fox</a></p><h1>{esc(h["h1"])}</h1><p class="sub">{esc(h["intro"])}</p>'
+    return (head + f'<h1 class="hubh">{esc(h["h1"])}</h1><p class="sub">{esc(h["intro"])}</p>'
             + f'<p class="fine">{esc(h["note"])} {esc(o[0])} <a href="{o[2]}">{esc(o[1])}</a></p>{rows}</ul>' + page_foot(Tl))
 
 

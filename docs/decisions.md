@@ -93,3 +93,4 @@ Newest first. "Revisit" says when (or what would make us) look again.
 | Oct 23 | Menu repeats the header on computers + language as a choice | Shipped (Bastien: yes) |
 | Oct 23 | Hearts came back after removing (Bastien) | Bug: a second device re-uploaded removed items. Fixed + site test. Watch taps are rare anyway: 41 sessions in 14 days of 2,402 with a deal click |
 | Oct 23 | Race organizer outreach | Bastien emailed Sinister Sports (SOO 200 / Divide 200). Waiting on reply; a link from their gear page = our first backlink |
+| Oct 23 | "The Gear Fox" breadcrumb on race pages repeated the logo (Bastien) | Removed; race pages keep "Race gear lists" (the way back to the list), the race list page has no breadcrumb |
