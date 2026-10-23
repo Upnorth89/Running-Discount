@@ -582,6 +582,10 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   spelling (the rank otherwise prefers non-capitals: "Asics Corp." beat "ASICS"). Shoe names lose a " - Colour/Colour" segment
   (Gazelle "Shoe- Black/White", Tortoise & Hare "Men's--Black/White"); `GOALIE` drops soccer goalkeeper gloves/jerseys (numbered
   sizes made tidy_gear file them as shoes). Shoe pages remember `?ref=` in gf-ref like the homepage (first link wins).
+- Colourway duplicates (Oct 23, Bastien: norda showed "001A Abyss / Almond / Astral" as separate shoes): `drop_colour(p)` in the Shopify
+  reader takes the colour out of the title when the product has exactly ONE colour option value that sits at the end / before "- …",
+  "(Men's)", "|" or "Shoes" (Run Uphill, Foveo, Brainsport, Soar…; values with digits ignored: Le Coureur codes). mkey: "001-A" = "001A",
+  "Spikes" = "Spike". Tested on 31 stores' live products.json before shipping.
 - `CAPS_STORES` (Le Coureur writes in capitals: softened), `OWN_BRAND` (rabbit/Bandit leave the brand "0").
 - Shoe size keys: `"10"`, `"M:10"`/`"W:11"` (from unisex labels), suffix `~W` wide, `~N` narrow (hidden).
 - Accessories (packs, gear) in letter sizes follow the clothing size; odd labels are hidden on cards.

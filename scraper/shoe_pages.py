@@ -1156,6 +1156,18 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None)
                    f'<h3>{L["qSale"].format(name=esc(name))}</h3><p>{ans_sale}</p>'
                    f'<h3>{L["qSizes"]}</h3><p>{esc("; ".join(ranges))}.</p>'
                    f'<h3>{L["qWhere"].format(name=esc(name))}</h3><p>{L["aWhere"].format(store=esc(sm["store"]), price=money(sm["price"]), bsizes=bsz).replace(" ()", "")}</p></div>')
+        # Oct 23 (Bastien: "become the best at seo and aeo so that we even show up on AI searches"): the same quick answers as
+        # FAQPage data (Google and answer engines lift question/answer pairs), plus breadcrumbs; nothing visible changes
+        plain = lambda x: re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", "", x))).strip()
+        qa = [(plain(L["qSale"].format(name=esc(name))), plain(ans_sale)), (plain(L["qSizes"]), plain("; ".join(ranges)) + "."),
+              (plain(L["qWhere"].format(name=esc(name))), plain(L["aWhere"].format(store=esc(sm["store"]), price=money(sm["price"]), bsizes=bsz).replace(" ()", "")))]
+        faq_ld = {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
+            {"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in qa if q and len(a) > 2]}
+        crumbs_ld = {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "The Gear Fox", "item": BASE + "/"},
+            {"@type": "ListItem", "position": 2, "name": L["all"], "item": f"{BASE}/{L['dir']}/"},
+            {"@type": "ListItem", "position": 3, "name": name}]}
+        out.append("".join(f'<script type="application/ld+json">{json.dumps(x, ensure_ascii=False)}</script>' for x in (faq_ld, crumbs_ld)))
     home = "/?ref=shoe-page" + L["q"]
     out.append(f'<section class="cta"><h2>{L["cta"]}</h2><p>{L["ctaTxt"]}</p><a class="btn" href="{home}">{L["ctaBtn"]}</a></section>')
     if related:

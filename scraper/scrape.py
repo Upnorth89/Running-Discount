@@ -1869,6 +1869,32 @@ def width_word(w, title):
 SUBSCRIBE = re.compile(r"\b(picky club|subscri\w*|auto[- ]?ship)\b|\(\d+% off\)", re.I)
 
 
+COLOPT = re.compile(r"^(colou?rs?|couleurs?|colorway|color ?name)$", re.I)
+def drop_colour(p):
+    """Oct 23 (Bastien: norda showed '001A Abyss', '001A Almond', '001A Astral' as separate shoes): stores that make one product per
+    colourway (Run Uphill, Foveo...) put that colour in the title and give the product ONE colour option. Take the colour back out of
+    the name so the colourways merge into one card. Only when: exactly one colour value, it's in the title (not as the first word, not part
+    of the brand), and something real is left."""
+    t = p.get("title") or ""
+    cols = [o for o in p.get("options") or [] if COLOPT.match((o.get("name") or "").strip())]
+    if len(cols) != 1 or len(cols[0].get("values") or []) != 1:
+        return t
+    cv = (cols[0]["values"][0] or "").strip()
+    if len(cv) < 3 or re.search(r"\d", cv) or cv.lower() in (p.get("vendor") or "").lower() or cv.lower() in ("default title", "default", "n/a", "one size"):
+        return t
+    ms = list(re.finditer(r"(?<![\w'])" + re.escape(cv) + r"(?![\w'])", t, re.I))
+    if not ms or ms[-1].start() == 0:
+        return t
+    m = ms[-1]
+    if not re.match(r"\s*($|[-–·(|]|shoes?\b|chaussures?\b|souliers?\b)", t[m.end():], re.I):
+        return t                                         # "Tracer Arctic Sleeping Bag", "XTD Carbon 115": the word is part of the name
+    t2 = t[:m.start()] + " " + t[m.end():]
+    t2 = re.sub(r"\s*[-|]\s*(?=[-|]|\(|$)", " ", t2)          # "Shoes - (Women's)", "002 -  - Men", a trailing " -"
+    t2 = re.sub(r"\(\s*\)|\s*/\s*$", " ", t2)
+    t2 = re.sub(r"\s{2,}", " ", t2).strip(" -/|")
+    return t2 if re.search(r"[A-Za-z0-9]{2}", t2) else t
+
+
 def shopify_items(st, base, prods, group_fn, fx=1.0, size_aware=False, size_fn=None, collapse=False):
     """One card per first option (pack size / colour) when a product has several options;
     flavours or sizes become the card's "sizes". Every in-stock variant is included."""
@@ -1925,7 +1951,7 @@ def shopify_items(st, base, prods, group_fn, fx=1.0, size_aware=False, size_fn=N
                     b["sz"][one] = (cad, reg, v["id"])
             b["bb"] = b["bb"] or bb
         for key, b in buckets.items():
-            out.append({"st": st, "b": p.get("vendor") or "", "n": p["title"] + (f" · {key}" if key else ""),
+            out.append({"st": st, "b": p.get("vendor") or "", "n": drop_colour(p) + (f" · {key}" if key else ""),
                         "u": f"{base}/products/{p['handle']}?variant={b['vid']}", "g": g, "sx": tag_gender(p) if g in ("tops", "bottoms", "bras") else [], "w": False,
                         "img": img, "lp": round(b["lp"] * fx, 2), "bb": b["bb"],
                         "sz": [[k, pr, rg, vid] for k, (pr, rg, vid) in b["sz"].items()]}
@@ -3936,6 +3962,9 @@ def mkey(o):
     if o["g"] == "shoes":      # "GT-2000 15 — Black/White - Men's" (Fit First lists each colour) = "GT-2000 15 - Men's"
         keep = _shoe_name(o, True)
         name = keep if (o["b"].lower().strip(), keep) in _TRAIL_MODELS else _shoe_name(o, False)
+        # Oct 23 (norda): "001-A" (Bushtukah) = "001A", "001 G+ Spikes" = "001 G+ Spike" (never a width or gender letter: m/w/d/b/e)
+        name = re.sub(r"\b(\d+) ([ac])\b", r"\1\2", name)
+        name = re.sub(r"\bspikes\b", "spike", name)
     # Canadian and cross-border offers stay separate, so "Canadian stores only" never hides a cheaper US price inside a card
     return (o["b"].lower().strip(), name, o["w"], o["g"], bool(o.get("ca")))
 

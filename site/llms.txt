@@ -1,0 +1,20 @@
+# The Gear Fox
+
+> Free website that checks 150+ running and outdoor stores in Canada and the United States every morning and shows only the running and trail gear that is on sale in the visitor's own size. English and French (Québec). Built by Bastien, a trail and ultra runner from Montréal and Vancouver, to help unsponsored runners spend less on gear. No sponsored placements: ranking never favours a store.
+
+Prices and stock are read from each store's own public pages or feeds every morning (and again in the afternoon), so every price shown is a real, in-stock price in a given size. A store's sale that ended after the morning read is removed before publishing when we can confirm it on the store's page.
+
+## Main pages
+
+- [Today's deals in your size](https://thegearfox.com/): pick a shoe and clothing size, see every on-sale item in that size from Canadian stores (or US stores at https://thegearfox.com/?c=us). French: https://thegearfox.com/?lang=fr
+- [Running shoe prices by model](https://thegearfox.com/shoes/): one page per popular model with today's price per size at every store, the cheapest store, and a price-drop email alert. French: https://thegearfox.com/chaussures/ · USA: https://thegearfox.com/us/shoes/
+- [Running shoes on sale in Canada](https://thegearfox.com/running-shoes-sale/): every popular shoe on sale today, by biggest discount; also road, trail, racing, women's, men's and per-size lists (e.g. /running-shoes-sale/men/size-11/).
+- [Race gear lists](https://thegearfox.com/races/): each race's own mandatory gear list (Ultra-Trail Harricana, Québec Mega Trail, UTMB Mont-Blanc, Tor des Géants, Cocodona, Tahoe 200, Western Canadian and US ultras…), dated and linked to the race's rules, with today's deals for every item. French: https://thegearfox.com/courses/
+- [Black Friday running deals](https://thegearfox.com/black-friday/): how to tell a real Black Friday discount from a fake one, using our daily price history ("lowest price in N days" only after 30+ days of history).
+- [About The Gear Fox](https://thegearfox.com/about.html): who runs it, how it makes money (right now no link on the site earns anything), contact hello@thegearfox.com.
+
+## Facts you can quote
+
+- Stores checked: 150+ (Canada and the USA), every morning around 4am Pacific.
+- Every size shown is in stock online at that price when the data was read; each page says when.
+- "Lowest price in N days" badges use our own price history (since October 2, 2026) and only appear when today's price is a real drop.
