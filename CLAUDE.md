@@ -334,6 +334,11 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   later (`_WX`); a whole-race weather kit (UTA pants + fleece, mozart cold/warm kit) uses `kits`. Fetched but not built yet (scratch
   notes): istria + eryri (lists behind per-race tabs/PDFs), kosciuszko (its table has 5 ticks for 4 races: recheck), chiangmai, restonica, nice, andorra,
   mallorca, tenerife.
+  Tracking (Oct 23, Bastien: "a tracker to see how and if people are using the gear checklist"): race pages send kind "filter" events
+  "race|<race>|open|dist|have|unhave|complete|seeall|size|shoesize|<detail>" (`rt()` in race_pages.py; no new SQL kind) and deal clicks
+  "store|<item kind>||race|<race>"; funnel.yml "RACE GEAR LISTS": sessions, first visits landing there, % that changed distance /
+  ticked / ticked every mandatory item / See all / size / store click / watch / sign-up / another page, by race, by ?ref=, items ticked,
+  store clicks by item. Site test "Race gear page: what visitors do is recorded".
   **Race list check** (race-check.yml, the 3rd of each month, scraper/race_check.py): rereads every race's `src`/`src_fr` (pages + PDFs),
   keeps the gear lines + linked PDFs/list pictures, compares with race-check.json on the history branch; emails ONLY when a list changed
   (+/- lines) or a page stopped answering. Then update that race in RACES from its own list.

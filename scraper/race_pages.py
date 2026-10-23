@@ -1565,14 +1565,22 @@ function render(){
   [].forEach.call(box.querySelectorAll("button[data-bg]"),function(b){b.setAttribute("aria-pressed",String(b.dataset.bs===sizeFor(b.dataset.bg)))});[].forEach.call(box.querySelectorAll("[data-g]"),function(b){b.setAttribute("aria-pressed",String(b.dataset.g===fit))});
   [].forEach.call(box.querySelectorAll("button[data-s]"),function(b){b.setAttribute("aria-pressed",String(b.dataset.s===size))});
 }
-document.querySelector(".dists").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;dist=b.dataset.d;st.d=dist;put("gf-race-"+race,st);render()});
-gl.addEventListener("change",function(e){var li=e.target.closest(".gi");if(!li||!e.target.classList.contains("have"))return;have[li.dataset.k]=e.target.checked;st.have=have;put("gf-race-"+race,st);render()});
-gl.addEventListener("click",function(e){var b=e.target.closest(".mored");if(b)b.closest(".gi").classList.add("open")});
+/* Oct 23 (Bastien: "add a tracker to see how and if people are using the gear checklist"): what people do on a race list, as
+   "filter" events "race|<race>|<what>|<detail>" (a kind the database already takes; funnel.yml "RACE GEAR LISTS" reads them) */
+var rt=function(what,x){try{ana("filter",["race",race,what,x==null?"":x].join("|"))}catch(e){}};
+var doneSent=false,checkDone=function(){if(doneSent)return;var m=[].filter.call(gl.querySelectorAll(".gi:not([hidden])"),function(li){return li.getAttribute("data-l"+dist)==="M"&&!li.closest(".kit")});   // the "You have N of M" items (kits apart)
+  if(m.length&&m.every(function(li){return have[li.dataset.k]})){doneSent=true;rt("complete",dist+"|"+m.length)}};
+document.addEventListener("DOMContentLoaded",function(){rt("open",dist)});   // ana() is defined further down the page
+document.querySelector(".dists").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;dist=b.dataset.d;st.d=dist;put("gf-race-"+race,st);render();rt("dist",dist)});
+gl.addEventListener("change",function(e){var li=e.target.closest(".gi");if(!li||!e.target.classList.contains("have"))return;have[li.dataset.k]=e.target.checked;st.have=have;put("gf-race-"+race,st);render();
+  rt(e.target.checked?"have":"unhave",li.dataset.k);if(e.target.checked)checkDone()});
+gl.addEventListener("click",function(e){var b=e.target.closest(".mored");if(b){b.closest(".gi").classList.add("open");rt("seeall",b.closest(".gi").dataset.k)}});
 document.getElementById("rsize").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;
   if(b.hasAttribute("data-chg")){this.dataset.open="1";render();return}if(b.dataset.s&&fit)delete this.dataset.open;
   if(b.hasAttribute("data-byopen")){this.querySelector(".byrows").hidden=false;render();return}
   if(b.dataset.bg){if(b.dataset.bs===size)delete by[b.dataset.bg];else by[b.dataset.bg]=b.dataset.bs}
-  if(b.dataset.g)fit=b.dataset.g;if(b.dataset.s)size=b.dataset.s;put("gf-race-size",{g:fit,s:size,by:by});render()});
+  if(b.dataset.g)fit=b.dataset.g;if(b.dataset.s)size=b.dataset.s;put("gf-race-size",{g:fit,s:size,by:by});render();
+  if(b.dataset.s||b.dataset.bg)rt("size",(fit||"")+"|"+(b.dataset.bs||b.dataset.s))});
 /* Oct 20 (Bastien: "I thought it would just heart it there"): Watch hearts right here, in the same watchlist as the homepage
    (gf-watch); members' hearts go to their account too (watch_add, like the homepage), others are asked for an email */
 var SB="https://krwymmkauwqqxjxbvkyq.supabase.co/rest/v1/rpc/",KEY="sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2";
@@ -1604,7 +1612,7 @@ function shoeSize(){var ss=get("gf-shoe-size");if(ss&&ss.s&&(!fit||ss.g===fit||s
   var z=prof&&prof.sizes&&prof.sizes.shoes&&(prof.sizes.shoes.sizes||[])[0];return z&&(!fit||prof.gender===fit||prof.gender==="any")?String(z):""}
 function sizeMenu(){var v=ssel.value||shoeSize(),lo=fit==="women"?5:6,hi=fit==="women"?12:15,o='<option value="">'+esc(ssel.dataset.ph)+'</option>';
   for(var n=lo;n<=hi;n+=0.5)o+='<option>'+n+'</option>';ssel.innerHTML=o;ssel.value=v}
-ssel.addEventListener("change",function(){if(ssel.value)put("gf-shoe-size",{g:fit||"men",s:ssel.value});shoeMine()});
+ssel.addEventListener("change",function(){if(ssel.value){put("gf-shoe-size",{g:fit||"men",s:ssel.value});rt("shoesize",ssel.value)}shoeMine()});
 function shoeMine(){var z=ssel.value;var w=get("gf-watch")||{},out=[];SH.forEach(function(x){["men","women"].forEach(function(f){if(x[f]&&w[x[f][0]])out.push([x,f])})});
   mine.innerHTML="";out.forEach(function(o){var x=o[0],f=o[1],li=document.createElement("li");
     li.innerHTML='<b>♥ '+esc(x.b+" "+x.m)+'</b><small>'+esc(z?(x[f][4]&&x[f][4][z]!=null?sbox.dataset.from.replace("{p}",money(x[f][4][z])).replace("{s}",z):sbox.dataset.gone.replace("{s}",z)):"")+'</small>'+(x.s?'<a href="'+sbox.dataset.root+'/'+sbox.dataset.dir+'/'+esc(x.s)+'/">'+esc(sbox.dataset.page)+' →</a>':'')+'<button type="button" data-rm="'+esc(x[f][0])+'">'+esc(sbox.dataset.rm)+'</button>';

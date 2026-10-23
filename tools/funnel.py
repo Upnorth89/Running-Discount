@@ -32,7 +32,7 @@ while True:
         break
 
 S = defaultdict(lambda: {"kinds": set(), "entry": None, "nv": None, "dev": None, "ref": None, "secs": None, "scroll": None,
-                         "steps": set(), "n": 0, "pages": set()})
+                         "steps": set(), "n": 0, "pages": set(), "race": [], "dclick": []})
 for e in rows:
     s = S[e["sid"]]
     s["n"] += 1
@@ -51,6 +51,10 @@ for e in rows:
         s["steps"].add(e["detail"])
     if e["kind"] == "shoe-page-view":
         s["pages"].add(e["detail"])
+    if e["kind"] == "filter" and (e["detail"] or "").startswith("race|"):   # race gear lists (Oct 23): race|<race>|<what>|<detail>
+        s["race"].append(e["detail"].split("|", 3)[1:])
+    if e["kind"] == "deal-click":
+        s["dclick"].append(e["detail"] or "")
     if e["kind"] in ("welcome-view", "sizes-saved", "load"):
         s["pages"].add("/")             # the homepage
 
@@ -399,6 +403,37 @@ try:
                f"active subscribers now {live}; unsubscribed ever {unsub}")
 except Exception as e:
     out.append(f"Email numbers: couldn't read ({str(e)[:80]})")
+
+# Race gear lists (Oct 23, Bastien: "a tracker to see how and if people are using the gear checklist")
+try:
+    RP = ("/races/", "/courses/", "/us/races/")
+    isrp = lambda pth: any(pth.startswith(x) for x in RP)
+    rs = [s for s in S.values() if any(isrp(pth or "") for pth in s["pages"])]
+    rland = [s for s in new if isrp(s["entry"] or "")]
+    if rs:
+        did = lambda s, w: any(x[1] == w for x in s["race"])
+        rclick = [s for s in rs if any("||race|" in d for d in s["dclick"])]
+        other = [s for s in rs if any(not isrp(pth or "") for pth in s["pages"])]
+        n = len(rs)
+        out.append(f"RACE GEAR LISTS: {n} sessions opened one ({len(rland)} first visits landed on one); of the {n}: "
+                   f"changed distance {pct(sum(did(s, 'dist') for s in rs), n)}, ticked an item {pct(sum(did(s, 'have') for s in rs), n)}, "
+                   f"ticked every mandatory item {pct(sum(did(s, 'complete') for s in rs), n)}, 'See all' {pct(sum(did(s, 'seeall') for s in rs), n)}, "
+                   f"picked a size {pct(sum(did(s, 'size') or did(s, 'shoesize') for s in rs), n)}, clicked a store {pct(len(rclick), n)}, "
+                   f"watched an item {pct(sum('watch-add' in s['kinds'] for s in rs), n)}, signed up {pct(sum('signup' in s['kinds'] for s in rs), n)}, "
+                   f"went on to another of our pages {pct(len(other), n)}")
+        per = Counter(pth.strip("/").split("/")[-1] for s in rs for pth in s["pages"] if isrp(pth or ""))
+        out.append("  by race (sessions): " + ", ".join(f"{k} {v}" for k, v in per.most_common(12)))
+        refs = Counter(s["ref"] for s in rs if s["ref"])
+        if refs:
+            out.append("  by link (?ref=): " + ", ".join(f"{k} {v}" for k, v in refs.most_common(8)))
+        ticks = Counter(x[2] for s in rs for x in s["race"] if x[1] == "have")
+        if ticks:
+            out.append("  items ticked 'I have it': " + ", ".join(f"{k} {v}" for k, v in ticks.most_common(10)))
+        clicks = Counter(d.split("|")[1] or "?" for s in rs for d in s["dclick"] if "||race|" in d)
+        if clicks:
+            out.append("  store clicks by item: " + ", ".join(f"{k} {v}" for k, v in clicks.most_common(10)))
+except Exception as e:
+    out.append(f"Race gear lists: couldn't read ({str(e)[:80]})")
 
 text = "\n".join(out)
 print(text)

@@ -1298,6 +1298,35 @@ def site_flow(base, per, accented):
                     c.close()
         check("Watchlist: removed on one device stays removed on the other")(hearts_two_devices, pg)
 
+        def race_tracking():   # Oct 23 (Bastien: "a tracker to see how and if people are using the gear checklist")
+            got = []
+
+            def grab(route):
+                try:
+                    got.extend(e.get("d") or "" for e in json.loads(route.request.post_data or "{}").get("p_events", []))
+                except Exception:
+                    pass
+                route.fulfill(status=200, content_type="application/json", body="null")
+            c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+            stub(c)
+            c.route("**/rest/v1/rpc/ana_track", grab)
+            q = c.new_page()
+            try:
+                q.goto(base + "races/ultra-trail-harricana/", wait_until="load")
+                q.wait_for_timeout(600)
+                q.locator(".dists button").nth(1).click()
+                q.locator(".gi:not([hidden]) input.have").first.check()
+                q.wait_for_timeout(300)
+                q.evaluate("document.dispatchEvent(new Event('visibilitychange'))")   # not enough on its own: wait for the 6 s send
+                q.wait_for_timeout(7000)
+                race = [d for d in got if d.startswith("race|")]
+                for w in ("open", "dist", "have"):
+                    assert any(d.split("|")[2] == w for d in race), f"the race page didn't send '{w}' ({race[:4]})"
+                return f"{len(race)} race events sent ({', '.join(sorted({d.split('|')[2] for d in race}))})"
+            finally:
+                c.close()
+        check("Race gear page: what visitors do is recorded")(race_tracking, pg)
+
         def one_look():         # Oct 22 (Bastien: "Only the homepage is formatted in the way we want. All others are dark and still the
             # same"): on a phone set to dark mode, every page is light with the charcoal header, like the homepage, and fits the phone
             c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE,

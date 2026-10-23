@@ -843,7 +843,8 @@ document.addEventListener("click",function(e){{var a=e.target.closest("a[data-st
 try{{fetch("{SB_URL}/rest/v1/rpc/log_event",{{method:"POST",keepalive:true,headers:{{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"}},
 body:JSON.stringify({{p_kind:"click",p_store:a.dataset.store,p_group:"shoes",p_ref:"shoe-page",p_lang:"{L['lang'][:2]}"}})}})}}catch(x){{}}
 try{{window.umami&&umami.track("deal-click",{{store:a.dataset.store,from:"shoe-page"}})}}catch(x){{}}
-try{{var tr=a.closest("tr");ana("deal-click",a.dataset.store+"|shoes||shoe-page",tr?[].indexOf.call(tr.parentNode.children,tr)+1:null)}}catch(x){{}}}});
+try{{var tr=a.closest("tr"),rp=location.pathname.match(/^\/(?:us\/)?(?:races|courses)\/([^\/]+)\//),gi=a.closest(".gi");   /* race lists: "race|<race>|<item>" */
+  ana("deal-click",rp?a.dataset.store+"|"+(gi?gi.dataset.k:"")+"||race|"+rp[1]:a.dataset.store+"|shoes||shoe-page",tr?[].indexOf.call(tr.parentNode.children,tr)+1:null)}}catch(x){{}}}});
 </script>
 </body>
 </html>
