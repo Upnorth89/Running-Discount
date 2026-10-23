@@ -600,6 +600,51 @@ def site_flow(base, per, accented):
             return ", ".join(out)
         check("Top of the page and cards: nothing overlaps (phone to computer)")(top_overlap, page)
 
+        def laptop_top():   # Oct 23 (Bastien: the hero "cuts off the categories"; "when you click more filters on a laptop, you don't see what it changes")
+            try:
+                page.set_viewport_size({"width": 1366, "height": 650})   # a 1366x768 laptop minus the browser bars
+                page.evaluate("scrollTo(0,0)")
+                settle(page, 500)
+                r = page.evaluate("""() => {const t = document.getElementById('rdTiles'), f = document.getElementById('filtersBox'), b = document.getElementById('filtBtn');
+                    return {tiles: t && t.offsetParent ? Math.round(t.getBoundingClientRect().bottom) : null, btn: !!(b && b.offsetParent), open: !!(f && f.classList.contains('open'))}}""")
+                if r["tiles"] is not None:
+                    assert r["tiles"] <= 650, f"the category circles end at {r['tiles']}px, below a laptop screen (650px tall in the browser)"
+                if r["btn"] and not r["open"]:
+                    page.click("#filtBtn")
+                    settle(page, 900)
+                    top = page.evaluate("Math.round(document.getElementById('filtersBox').getBoundingClientRect().top)")
+                    page.click("#filtBtn")   # close it again
+                    assert 0 <= top <= 650 - 160, f"after More filters the filter row is at {top}px, off a laptop screen"
+                return f"circles end at {r['tiles']}px; More filters shows its row" if r["btn"] else f"circles end at {r['tiles']}px"
+            finally:
+                page.set_viewport_size({"width": 390, "height": 844})
+                page.evaluate("scrollTo(0,0)")
+                settle(page, 300)
+        check("Laptop (1366x650 in the browser): categories on screen, More filters in view")(laptop_top, page)
+
+        def brand_full():   # Oct 23 (Bastien: "it shows only 1 norda even though I clicked full price"): brand counts counted sale items only
+            if not page.locator("#ddSale").count():
+                return "no sale switch on this page"
+            cnt = """() => {const o = {}; [...document.querySelectorAll('#ddBrand option')].forEach(x => {const m = x.textContent.match(/^(.*) \\(([\\d,\\s]+)\\)$/); if (m) o[m[1]] = +m[2].replace(/\\D/g, '')}); return o}"""
+            before = page.evaluate(cnt)
+            page.evaluate("() => {const c = document.getElementById('ddSale'); c.checked = false; c.dispatchEvent(new Event('change'))}")
+            try:
+                after, t0 = {}, time.time()
+                while time.time() - t0 < 45:          # the full catalogue is a bigger file: wait until the counts move
+                    settle(page, 1000)
+                    after = page.evaluate(cnt)
+                    if any(after[b] > before.get(b, 0) for b in after):
+                        break
+                cards = page.evaluate("document.querySelectorAll('#dealList .dw').length")
+                grew = [b for b in after if after[b] > before.get(b, 0)]
+                assert grew, f"with full price on, no brand count went up ({len(after)} brands in the Brand menu)"
+                top = max(after, key=after.get)
+                return f"{len(grew)} brands count full-price items too (e.g. {top} {before.get(top, 0)} -> {after[top]}); {cards} cards"
+            finally:
+                page.evaluate("() => {const c = document.getElementById('ddSale'); c.checked = true; c.dispatchEvent(new Event('change'))}")
+                settle(page, 500)
+        check("Include full price: brand counts include full-price items")(brand_full, page)
+
         def whole_page():   # Oct 18 (Bastien: "nothing should ever be silo"): two tests each added a swipe row and nobody saw them
             # together. Every live test on at once (all B), then all off (all A): the top of the page on a phone stays tidy.
             names = re.findall(r'"([a-z0-9]+)"', (re.search(r"const TESTS=\[([^\]]*)\]", site_get("index.html") or "") or [None, ""])[1])

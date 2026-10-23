@@ -233,6 +233,10 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   Oct 22 (Bastien: "The view all brands button doesn't lead anywhere. How did you miss this"): it opened the brand menu, which phones hide.
   Now "View all brands" opens an A-Z list with "Find a brand" under the 8 tiles. Site test "Homepage: every button does something" presses
   every homepage button and checks ITS result (proved: it fails on the old live page); add each new button to its list.
+  Oct 23 (Bastien): tagline "Outfox full price" back under the logo on computers (only the phone line under the header was to go);
+  computers' hero shorter (photo 230px, one-line headline, sub hidden once sized) so the category circles fit a 1366x650 browser;
+  More filters scrolls its row into view; Brand menu + brand circles/A-Z count full-price items when Include full price is on ("only 1
+  norda"), `.fullwait` line while deals.json (21 MB, 3.4 MB sent) loads, toast if it fails.
   Parked: test 'card' (cleaner deal cards, ⋯ menu; commit 629e4d1, backlog). Site tests check each one. Correlations from the "RETENTION DRIVERS" lines are leads, never proof
   (Oct 17: "watchers come back 33%" was 9 devices).
 - **Own the design and product calls (Bastien, Oct 17: "You're supposed to optimize this to make it look the best and cleanest...

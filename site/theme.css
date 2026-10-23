@@ -574,7 +574,7 @@ html.rd,html:root.rd{--price:#17232B}
   .rd .rdhs .hsearch .search::placeholder{font-size:14px}
   .rd .rdhs .hfilt{width:34px;height:34px}
 }
-.rd .topbar .logo .tag{display:none}   /* Oct 22, Bastien: "let's remove the outfox full price" from the homepage */
+/* Oct 23 (Bastien): the tagline was only to go on phones ("I wanted it removed when it was on mobile under the header"): under the logo from 900px */
 
 /* ===== Core things kept (Oct 22, Bastien: "I just need you to not remove core things"): "♡ Watch price" in words on every card,
    the "Top drop" link, the tagline on phones, CAD after prices, the deal count by "Top deals" ===== */
@@ -607,7 +607,7 @@ html:root:not(.rd){color-scheme:light;
 html:not(.rd) body{font-family:var(--body)}
 html:not(.rd) h1,html:not(.rd) h2{font-family:var(--display);font-weight:700;letter-spacing:0}
 html:not(.rd) .top{background:var(--char);border-bottom:0}
-html:not(.rd) .top .tagline{display:none}   /* as on the homepage (Oct 22, Bastien: "let's remove the outfox full price") */
+@media(max-width:899px){html:not(.rd) .top .tagline{display:none}}   /* phones only, like the homepage (Oct 23) */
 html:not(.rd) .top .logo img,html:not(.rd) .top a img{height:38px;width:auto}
 html:not(.rd) .top .menu summary{color:#fff;border-color:rgba(255,255,255,.3)}
 html:not(.rd) .top .menu[open] summary{background:rgba(255,255,255,.16);color:#fff;border-color:transparent}
@@ -626,3 +626,15 @@ html:not(.rd) .top .menu[open] summary{background:rgba(255,255,255,.16);color:#f
 .rd .rdball .ba[hidden]{display:none}
 .rd .rdball .ba small{color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
 .rd .rdball .ba:hover span{text-decoration:underline}
+/* Oct 23 (Bastien: "the section with the discounted shoe and the search is too big. it cuts off the categories"): on computers the
+   hero's shoe photo set its height (4:3 of the column, ~360px), pushing the category circles below a 768px laptop screen */
+@media(min-width:900px){
+  .rd .rdhero{padding:22px 0 20px}
+  .rd .rdhero h1,.rd.rdsized .rdhero h1{font-size:clamp(32px,3.3vw,44px);text-wrap:nowrap}   /* "2,092 deals in your size." on one line */
+  .rd.rdsized .rdsub{display:none}   /* as on phones: once sizes are picked, the headline says it all */
+  .rd .rdsub{margin:10px 0 14px}
+  .rd .rdfilters{margin-top:12px}
+  .rd .rdhd .hi{aspect-ratio:auto;height:230px}
+  .rd .rdhd .upto{font-size:36px;padding:10px 13px}
+}
+.fullwait{margin:6px 0 12px;font:600 14px var(--body);color:var(--muted)}
