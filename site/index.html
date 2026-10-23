@@ -452,7 +452,7 @@ label.field{display:block;font-weight:600;font-size:15px;margin:0 0 6px}
 .wdeal{display:flex;align-items:center;gap:12px;border:1.5px solid var(--line);border-radius:12px;padding:8px 12px 8px 8px;background:var(--card,#fff);color:inherit;font:inherit;text-align:left;width:100%;cursor:pointer}
 .wdeal img{width:64px;height:48px;object-fit:contain;flex:none;background:#fff;border-radius:8px}
 .wdeal .wp .pct{display:inline-block;font-size:13px;margin-bottom:4px}
-body.locked #langBtn,body.locked #curBtn,body.locked #openWatch,body.locked #menuBtn{visibility:hidden}
+body.locked #langPick,body.locked #curBtn,body.locked #openWatch,body.locked #menuBtn{visibility:hidden}
 .wdeal .wn{flex:1;min-width:0;font-size:14px;line-height:1.3}
 .wdeal .wn b{display:block;color:var(--moss);font-size:13px}
 .wdeal .wp{text-align:right;white-space:nowrap;font:800 18px/1.1 var(--display);display:flex;flex-direction:column;align-items:flex-end}
@@ -533,8 +533,8 @@ body.locked #langBtn,body.locked #curBtn,body.locked #openWatch,body.locked #men
   <a href="about.html" data-go="about"><svg class="mi" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><path d="M12 7.6v.1"/></svg><span data-i18n="mAbout">About The Gear Fox</span></a>
   <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener" data-go="instagram"><svg class="mi" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8v.1"/></svg><span>Instagram</span></a>
   <div class="msw ctryrow"><span data-i18n="ctryLabel">Shopping from</span><span class="ctry"><button type="button" data-ctry="ca">Canada</button><button type="button" data-ctry="us" data-i18n="usa">USA</button></span></div>
-  <div class="msw"><button class="langbtn" id="langBtn" type="button" lang="fr">Français</button>
-    <span class="pair"><span data-i18n="mCur">Prices in</span><button class="langbtn" id="curBtn" type="button" aria-label="Currency">CAD</button></span></div>
+  <div class="msw ctryrow langrow"><span data-i18n="langLabel">Language</span><span class="ctry" id="langPick" role="group"></span></div>
+  <div class="msw"><span data-i18n="mCur">Prices in</span><button class="langbtn" id="curBtn" type="button" aria-label="Currency">CAD</button></div>
 </nav></header>
 
 <main class="wrap">
@@ -778,7 +778,7 @@ en:{
     why:[["Real deals from real stores",n=>`We check ${n} stores in Canada and the USA every morning.`],["In your exact size",()=>"Only the sizes in stock right now, so every deal fits you."],["No more guessing",()=>"Every store's price for the same shoe, side by side."],["Canada & USA",()=>"Shop both sides, with local stores and local prices."]],
     kinds:{daily:"road shoes",race:"racing shoes",trail:"trail shoes",hike:"hiking & winter shoes",spike:"track spikes",tee:"t-shirt",layer:"long sleeve",jacket:"jacket",short:"shorts",tight:"tights",pant:"pants",light:"light",pole:"poles",bottle:"bottle",sun:"sunglasses"},
     sub2:(g,k)=>g?`${g} ${k}`:k[0].toUpperCase()+k.slice(1),cmp:"All sizes →",heroAt:(p,s)=>`${p} at ${s}`,menu:"Menu",mySizes:"My sizes"},
-  watchlist:"Your watchlist",yourSizes:"Your sizes",menu:"Menu",mDeals:"Today's deals",mShoes:"Shoe prices by model",mRaces:"Race gear lists",mSizes:"My sizes",mAbout:"About The Gear Fox",mApp:"Add to your home screen",appTipH:"Get The Gear Fox on your home screen",appTipIos:"Tap the Share button {s} in Safari's bar",appTipIos2:"Scroll down and tap <b style=\"display:inline\">Add to Home Screen</b>",appTipAnd:"Tap the ⋮ menu at the top of Chrome",appTipAnd2:"Tap <b style=\"display:inline\">Add to Home screen</b>",appTipWhy:"It opens like an app, with your sizes ready.",gotIt:"Got it",mCur:"Prices in",edit:"Edit",allDeals:"← All deals",categories:"Categories",
+  watchlist:"Your watchlist",yourSizes:"Your sizes",menu:"Menu",mDeals:"Today's deals",mShoes:"Shoe prices by model",mRaces:"Race gear lists",mSizes:"My sizes",mAbout:"About The Gear Fox",mApp:"Add to your home screen",appTipH:"Get The Gear Fox on your home screen",appTipIos:"Tap the Share button {s} in Safari's bar",appTipIos2:"Scroll down and tap <b style=\"display:inline\">Add to Home Screen</b>",appTipAnd:"Tap the ⋮ menu at the top of Chrome",appTipAnd2:"Tap <b style=\"display:inline\">Add to Home screen</b>",appTipWhy:"It opens like an app, with your sizes ready.",gotIt:"Got it",mCur:"Prices in",langLabel:"Language",edit:"Edit",allDeals:"← All deals",categories:"Categories",
   sort:"Sort",sortMatch:"Best match",sortDiscount:"Biggest discount",sortPrice:"Lowest price",search:"Search brand or model",searchShort:"Search gear",
   get footer(){return 'The Gear Fox · Outfox full price · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="'+(US()?"us/shoes/":"shoes/")+'">Shoe prices by model</a> · <a href="about.html">About</a> · <a href="privacy.html">Privacy</a>'},close:"Close",fit:"Fit",
   men:"Men's",women:"Women's",both:"Both",menWomen:"Men's & women's",
@@ -891,7 +891,7 @@ fr:{
     why:[["De vrais rabais, de vraies boutiques",n=>`On vérifie ${n} boutiques au Canada et aux États-Unis chaque matin.`],["Dans votre taille exacte",()=>"Seulement les tailles en stock en ce moment : chaque aubaine vous va."],["Fini les devinettes",()=>"Le prix de chaque boutique pour la même chaussure, côte à côte."],["Canada et États-Unis",()=>"Magasinez des deux côtés, avec des boutiques et des prix locaux."]],
     kinds:{daily:"chaussures de route",race:"chaussures de compétition",trail:"chaussures de sentier",hike:"chaussures de randonnée et d'hiver",spike:"pointes",tee:"t-shirt",layer:"manches longues",jacket:"manteau",short:"short",tight:"collant",pant:"pantalon",light:"frontale",pole:"bâtons",bottle:"gourde",sun:"lunettes de soleil"},
     sub2:(g,k)=>g?`${k[0].toUpperCase()+k.slice(1)} · ${g}`:k[0].toUpperCase()+k.slice(1),cmp:"Tailles →",heroAt:(p,s)=>`${p} chez ${s}`,menu:"Menu",mySizes:"Mes tailles"},
-  watchlist:"Vos favoris",yourSizes:"Vos tailles",menu:"Menu",mDeals:"Aubaines du jour",mShoes:"Prix des chaussures par modèle",mRaces:"Listes de matériel de course",mSizes:"Mes tailles",mAbout:"À propos de The Gear Fox",mApp:"Ajouter à l'écran d'accueil",appTipH:"The Gear Fox sur votre écran d'accueil",appTipIos:"Touchez le bouton Partager {s} dans la barre de Safari",appTipIos2:"Descendez et touchez <b style=\"display:inline\">Sur l'écran d'accueil</b>",appTipAnd:"Touchez le menu ⋮ en haut de Chrome",appTipAnd2:"Touchez <b style=\"display:inline\">Ajouter à l'écran d'accueil</b>",appTipWhy:"Elle s'ouvre comme une appli, avec vos tailles prêtes.",gotIt:"Compris",mCur:"Prix en",edit:"Modifier",allDeals:"← Toutes les aubaines",categories:"Catégories",
+  watchlist:"Vos favoris",yourSizes:"Vos tailles",menu:"Menu",mDeals:"Aubaines du jour",mShoes:"Prix des chaussures par modèle",mRaces:"Listes de matériel de course",mSizes:"Mes tailles",mAbout:"À propos de The Gear Fox",mApp:"Ajouter à l'écran d'accueil",appTipH:"The Gear Fox sur votre écran d'accueil",appTipIos:"Touchez le bouton Partager {s} dans la barre de Safari",appTipIos2:"Descendez et touchez <b style=\"display:inline\">Sur l'écran d'accueil</b>",appTipAnd:"Touchez le menu ⋮ en haut de Chrome",appTipAnd2:"Touchez <b style=\"display:inline\">Ajouter à l'écran d'accueil</b>",appTipWhy:"Elle s'ouvre comme une appli, avec vos tailles prêtes.",gotIt:"Compris",mCur:"Prix en",langLabel:"Langue",edit:"Modifier",allDeals:"← Toutes les aubaines",categories:"Catégories",
   sort:"Trier",sortMatch:"Meilleur choix",sortDiscount:"Plus gros rabais",sortPrice:"Prix le plus bas",search:"Chercher une marque ou un modèle",searchShort:"Chercher",
   footer:'The Gear Fox · Flairez les aubaines · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="chaussures/">Prix des chaussures par modèle</a> · <a href="about.html">À propos</a> · <a href="privacy.html">Confidentialité</a>',close:"Fermer",fit:"Coupe",
   men:"Homme",women:"Femme",both:"Les deux",menWomen:"Homme et femme",
@@ -1014,8 +1014,8 @@ function applyStatic(){
   document.querySelectorAll("[data-i18n-aria]").forEach(el=>el.setAttribute("aria-label",t(el.dataset.i18nAria)));
   const cb=document.getElementById("curBtn");cb.textContent=CUR;
   cb.setAttribute("aria-label",LANG==="fr"?`Devise : ${CUR}. Afficher en ${CUR==="CAD"?"USD":"CAD"}`:`Currency: ${CUR}. Show in ${CUR==="CAD"?"USD":"CAD"}`);
-  ["langBtn","langBtn2"].forEach(id=>{const b=document.getElementById(id);b.textContent=t("langSwitch");b.lang=LANG==="fr"?"en":"fr";b.setAttribute("aria-label",t("langName"))});
-  $("langBtn").textContent=LANG==="fr"?"English":"Français";
+  {const b=$("langBtn2");b.textContent=t("langSwitch");b.lang=LANG==="fr"?"en":"fr";b.setAttribute("aria-label",t("langName"))}
+  renderLangs();
 }
 
 /* ---------- options ---------- */
@@ -1580,8 +1580,8 @@ function rdBuild(){
       ana("deal-click",[h.dataset.store,d.g,d.pct,"hero",""].join("|"),1);logEvent("click",h.dataset.store,d.g)}});
   $("rdSearch").addEventListener("submit",e=>{e.preventDefault();clearTimeout(searchT);view.q=$("dSearch").value;view.open={};view.anySize=false;view.anyFit=false;renderAll();rdGoDeals(true)});
   $("rdSIco").addEventListener("click",()=>{scrollTo({top:0,behavior:"smooth"});$("dSearch").focus()});
-  $("rdCtry").addEventListener("click",()=>$("menuBtn").click());
-  $("rdLang").addEventListener("click",()=>$("langBtn").click());
+  $("rdCtry").addEventListener("click",e=>{e.stopPropagation();menuOpen($("menu").hidden)});   // Oct 23 fix: the click reached the page and closed the menu it opened
+  $("rdLang").addEventListener("click",e=>{e.stopPropagation();menuOpen($("menu").hidden)});   // Oct 23: the language list in the menu, like the country
   $("rdMy").addEventListener("click",editSizes);$("ddSize").addEventListener("click",editSizes);
   $("ddCat").addEventListener("change",e=>{const v=e.target.value;ana("category","dd|"+(v||"__all"));state.groups=v?[v]:ORDER.slice();view.open={};saveProfile();renderAll()});
   $("ddBrand").addEventListener("change",e=>{view_rd.brand=e.target.value;ana("filter","brand|"+(e.target.value||"-"));view.open={};renderAll()});
@@ -2430,17 +2430,22 @@ async function linkFromEmail(){
   }catch(e){notice(t("offline"));return false}
 }
 
-function switchLang(){
+// Oct 23 (Bastien: "French to english should give people the choice not just click and changes language"): the menu lists every
+// language (LANGS in renderLangs, each in its own name) and the visitor picks one; a new language = one more line here + its I18N dictionary
+function renderLangs(){const LANGS=[["en","English"],["fr","Français"]];const box=$("langPick");if(!box)return;box.setAttribute("aria-label",t("langLabel"));
+  box.innerHTML=LANGS.map(([c,n])=>`<button type="button" data-lang="${c}" lang="${c}" aria-pressed="${c===LANG}">${n}</button>`).join("")}
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-lang]");if(b)switchLang(b.dataset.lang)});
+function switchLang(to){
+  to=typeof to==="string"?to:(LANG==="fr"?"en":"fr");if(to===LANG)return;
   setTimeout(()=>track("language",{to:LANG}),0);
   if(G.ready)setTimeout(()=>G.render(),0);
-  LANG=LANG==="fr"?"en":"fr";LS.set("gf-lang",LANG);applyStatic();saveProfile();
+  LANG=to;LS.set("gf-lang",LANG);applyStatic();saveProfile();
   $("notice").classList.add("hidden");
   if(!$("sheet").classList.contains("hidden"))openSheet();renderSheet();renderAll();
 }
-$("langBtn").addEventListener("click",switchLang);
 document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest("a[data-sp]");if(a)track("shoe-page-link",{from:a.dataset.sp})});
 $("curBtn").addEventListener("click",()=>{CUR=CUR==="CAD"?"USD":"CAD";LS.set("gf-cur",CUR);track("currency",{to:CUR});applyStatic();renderAll();
-  toast(CUR==="USD"?(LANG==="fr"?"Prix affichés en dollars américains (taux du jour).":"Showing prices in US dollars (today's rate)."):(LANG==="fr"?"Prix affichés en dollars canadiens.":"Showing prices in Canadian dollars."))});$("langBtn2").addEventListener("click",switchLang);
+  toast(CUR==="USD"?(LANG==="fr"?"Prix affichés en dollars américains (taux du jour).":"Showing prices in US dollars (today's rate)."):(LANG==="fr"?"Prix affichés en dollars canadiens.":"Showing prices in Canadian dollars."))});$("langBtn2").addEventListener("click",()=>switchLang());
 
 /* ---------- Sign in with Google (Google Identity Services + Supabase Auth) ---------- */
 const GOOGLE_CLIENT_ID="628549321119-s7ofaqkuu3v3s7su0oschoshd1bcu2jm.apps.googleusercontent.com";     // paste the Web client ID from Google Cloud here; empty = Google sign-in hidden

@@ -454,7 +454,9 @@ def site_flow(base, per, accented):
 
         def french():
             page.click("#menuBtn")
-            page.click("#langBtn")
+            langs = page.eval_on_selector_all("#langPick [data-lang]", "e => e.map(x => x.dataset.lang + (x.getAttribute('aria-pressed') === 'true' ? '*' : ''))")
+            assert langs == ["en*", "fr"], f"the menu's language list is {langs} (want English picked, Français to pick)"   # Oct 23: a choice, not a toggle
+            page.click('#langPick [data-lang="fr"]')
             settle(page, 600)
             assert page.evaluate("document.documentElement.lang") == "fr", "the page didn't switch to French"
             t = page.inner_text("#pageTitle")
@@ -466,7 +468,12 @@ def site_flow(base, per, accented):
             if page.locator("#menu").is_visible():
                 page.click("#menuBtn")
             page.click("#menuBtn")
-            page.click("#langBtn")
+            page.click('#langPick [data-lang="fr"]')   # picking the language already on stays put
+            settle(page, 300)
+            assert page.evaluate("document.documentElement.lang") == "fr", "picking Français again switched the language"
+            if not page.locator("#menu").is_visible():
+                page.click("#menuBtn")
+            page.click('#langPick [data-lang="en"]')
             settle(page, 600)
             return t
         check("French version")(french, page)
@@ -611,6 +618,26 @@ def site_flow(base, per, accented):
                 page.evaluate("scrollTo(0,0)")
                 settle(page, 300)
         check("Laptop (1366x650 in the browser): categories on screen, More filters in view")(laptop_top, page)
+
+        def menu_computer():   # Oct 23 (Bastien: "the drop down menu gives us all the duplicates of the header menu")
+            try:
+                page.set_viewport_size({"width": 1440, "height": 900})
+                settle(page, 400)
+                page.click("#menuBtn")
+                page.wait_for_selector("#menu", state="visible")
+                shown = page.eval_on_selector_all("#menu [data-go]", "e => e.filter(x => x.offsetParent).map(x => x.dataset.go)")
+                head = page.eval_on_selector_all(".rdnav [data-rdgo], .rdnav a, #rdMy", "e => e.filter(x => x.offsetParent).length")
+                if head:
+                    for dup in ("deals", "races", "sizes", "shoes"):
+                        assert dup not in shown, f"the ☰ menu repeats '{dup}', already in the header on a computer"
+                assert "about" in shown, "the ☰ menu lost About on a computer"
+                assert page.locator("#langPick [data-lang]").count() >= 2 and page.locator("#menu [data-ctry]").count() == 2, "language or country choice missing from the menu"
+                page.click("#menuBtn")
+                return "menu: " + ", ".join(shown) + " + country, language, currency"
+            finally:
+                page.set_viewport_size({"width": 390, "height": 844})
+                settle(page, 300)
+        check("Computer: the ☰ menu doesn't repeat the header")(menu_computer, page)
 
         def brand_full():   # Oct 23 (Bastien: "it shows only 1 norda even though I clicked full price"): brand counts counted sale items only
             if not page.locator("#ddSale").count():

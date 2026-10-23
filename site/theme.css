@@ -647,3 +647,10 @@ html:not(.rd) .top a:has(.pgtag){display:inline-flex;flex-direction:column;align
 html[lang="fr"] .pgtag .t-en,html:not([lang="fr"]) .pgtag .t-fr{display:none}
 /* Oct 23 (Bastien: "only brackets under the logo with no outfox full price"): on the charcoal header the tagline kept the page ink (dark on dark) */
 html:not(.rd) header.top .tagline{color:#fff}
+
+/* Oct 23 (Bastien: "the drop down menu gives us all the duplicates of the header menu"): on computers the ☰ menu keeps only what
+   the header doesn't show at that width (My sizes from 760px, Today's deals + Race gear lists from 900px, Shoe prices from 1400px) */
+@media(min-width:760px){.rd .menu [data-go="sizes"]{display:none}}
+@media(min-width:900px){.rd .menu [data-go="deals"],.rd .menu [data-go="races"]{display:none}}
+@media(min-width:1400px){.rd .menu [data-go="shoes"]{display:none}}
+.menu .langrow{border-top:1.5px solid var(--line)}

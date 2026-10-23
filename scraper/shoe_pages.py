@@ -412,6 +412,10 @@ a{color:var(--moss)}
 .menu nav a{display:flex;align-items:center;gap:12px;min-height:48px;padding:0 12px;border-radius:12px;font:600 16px/1.2 var(--body);color:var(--ink);text-decoration:none}
 .menu nav a:hover{background:var(--mist)}.menu nav .mi{flex:0 0 auto;color:var(--muted)}
 .menu nav a.sw{border-top:1.5px solid var(--line);border-radius:0;margin-top:6px;font-size:15px;color:var(--moss)}
+.menu nav .lsw{display:flex;align-items:center;gap:6px;flex-wrap:wrap;border-top:1.5px solid var(--line);margin-top:6px;padding:10px 8px 4px;font-size:14px;color:var(--muted)}
+.menu nav .lsw .k{flex:1 1 auto}
+.menu nav .lsw a,.menu nav .lsw .on{display:inline-flex;align-items:center;min-height:36px;padding:6px 12px;border:1.5px solid var(--line);border-radius:999px;font:600 14px var(--body);color:var(--ink);text-decoration:none}
+.menu nav .lsw .on{background:var(--hivis,#C9F24D);border-color:var(--hivis,#C9F24D);color:#17201C}
 .crumbs{font-size:14px;color:var(--muted);margin:14px 0 0}
 h1{font:800 clamp(30px,7vw,44px)/1.05 var(--display);margin:6px 0 4px;letter-spacing:-.01em}
 .sub{margin:0 0 14px;color:var(--muted);font-size:16px}
@@ -519,7 +523,14 @@ def menu_links(L, other_path):
              ("/about.html" + ("?lang=fr" if fr else ""), "🦊", L["mAbout"]), ("https://www.instagram.com/thegearfox/", "📸", "Instagram")]
     items.insert(2, ("/us/races/" if L["lang"] == "en-US" else "/courses/" if fr else "/races/", "🏁", L["mRaces"]))   # race gear lists (Oct 21; US races too)
     out = "".join(f'<a href="{u}">{MENU_SVG.format(MENU_ICONS[i])}{esc(t)}</a>' for u, i, t in items)
-    return out + f'<a class="sw" href="{other_path}" hreflang="{L["other"]}">{L["switch"]}</a>'
+    if L["lang"] == "en-US":
+        return out + f'<a class="sw" href="{other_path}" hreflang="{L["other"]}">{L["switch"]}</a>'
+    # Oct 23 (Bastien: "French to english should give people the choice"): every language listed in its own name, this one marked
+    here = '<span class="on" aria-current="true" lang="{0}">{1}</span>'
+    there = f'<a href="{other_path}" hreflang="{L["other"]}" lang="{{0}}">{{1}}</a>'
+    langs = [("en", "English", not fr), ("fr", "Français", fr)]
+    return out + (f'<div class="lsw"><span class="k">{"Langue" if fr else "Language"}</span>'
+                  + "".join((here if cur else there).format(c, n) for c, n, cur in langs) + "</div>")
 
 
 def alternates(L, path_en, path_fr):
