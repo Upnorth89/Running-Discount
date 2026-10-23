@@ -315,6 +315,9 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   Relentless Ark, Trail LCDC (EpiPen only); Gaspésia 100 still only a Canva guide.
   Oct 23 (Bastien sent its Google Doc): `twisted-fork` (Park City UT, Massif Running; 68K/30K/15K; the 68K's ice item = L: the guide's
   May 27 change log says it was removed from required gear, the list still names it).
+  Oct 23 (Bastien uploaded ENG-REGULATIONS-TORX-2026.pdf; torxtrail.com puts a Cloudflare challenge in front of robots, so `nocheck`: race_check
+  skips it, recheck by hand each spring): `tor-des-geants` (TOR330) + `tor-des-glaciers` (TOR450), side "it" (hub group Italy). Article 14
+  MANDATORY EQUIPMENT 1 = M; MANDATORY EQUIPMENT 2 (may stay in the TORX bag, race can require it) = kit "bag" (`kitWhen_<kit>` text).
   **Race list check** (race-check.yml, the 3rd of each month, scraper/race_check.py): rereads every race's `src`/`src_fr` (pages + PDFs),
   keeps the gear lines + linked PDFs/list pictures, compares with race-check.json on the history branch; emails ONLY when a list changed
   (+/- lines) or a page stopped answering. Then update that race in RACES from its own list.

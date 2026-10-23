@@ -748,6 +748,66 @@ RACES["twisted-fork"] = {
     **_gdoc("1TTP2WVIHe9VGxwYtOJrBZM5_UspsdDklFuLI_Tn5wFk"),
 }
 
+# Oct 23 (Bastien sent "ENG-REGULATIONS-TORX-2026.pdf"; torxtrail.com answers robots with a Cloudflare challenge, so race_check can't
+# reread it: `nocheck`, recheck by hand each spring). Article 14: "MANDATORY EQUIPMENT - 1" (carried the whole race; TOR450 adds a GPS
+# navigator, route maps, altimeter + compass) and "MANDATORY EQUIPMENT - 2" (compulsory, may stay in the TORX bag; the Race Direction can
+# require it) = kit "bag". Article 12: TOR450's GPS tracker is provided (EUR 100 deposit); TOR330's is an optional rental.
+_TORX = "https://torxtrail.com/en/"
+_TREAD = _C("October 23, 2026 (2026 regulations)", "23 octobre 2026 (règlement 2026)")
+_T1 = [
+    (_SIN("cup", "A cup or other container to drink at aid stations", "Un gobelet ou autre contenant pour boire aux ravitos"), "M", False),
+    (_SIN("phone", "Mobile phone, always on with the ringer on", "Téléphone cellulaire, toujours allumé avec la sonnerie",
+          "Save the race's emergency number, don't hide your number, start fully charged.",
+          "Enregistrez le numéro d'urgence de la course, ne masquez pas votre numéro, partez avec la pile pleine."), "M", False),
+    (_SIN("id", "ID or health insurance card", "Pièce d'identité ou carte d'assurance maladie",
+          "Medical care in Italy isn't free: from outside Europe, carry your insurer's guarantee of payment letter.",
+          "Les soins en Italie ne sont pas gratuits : hors Europe, apportez la lettre de garantie de paiement de votre assureur."), "M", False),
+    (_SIN("blanket", "Two survival blankets", "Deux couvertures de survie"), "M", False),
+    (_SIN("food", "Food supply", "Réserve de nourriture"), "M", False),
+    (_SIN("water", "Water supply", "Réserve d'eau"), "M", False),
+    (_SIN("headlamp", "Two working headlamps + spare batteries", "Deux lampes frontales fonctionnelles + piles de rechange"), "M", True),
+]
+_T450 = [
+    (_SIN("gps", "Handheld GPS navigator with the course track", "GPS de poche avec le tracé du parcours",
+          "A smartphone is accepted but not recommended; a smartwatch alone isn't enough.",
+          "Un téléphone est accepté mais déconseillé; une montre seule ne suffit pas."), "M", False),
+    (_SIN("map", "Route maps", "Cartes du parcours", "Downloadable from torxtrail.com.", "À télécharger sur torxtrail.com."), "M", False),
+    (_SIN("alti", "Altimeter and compass", "Altimètre et boussole", "Phone apps are accepted.", "Les applis de téléphone sont acceptées."), "M", False),
+    (_SIN("tracker", "GPS tracker", "Balise GPS", "Provided by the race (EUR 100 deposit, returned with the tracker).",
+          "Fournie par la course (dépôt de 100 €, remis au retour de la balise)."), "P", False),
+]
+def _tbag(full):
+    b = [
+        (_SIN("a5", "Trail running shoes (category A5) or trekking shoes", "Chaussures de trail (catégorie A5) ou de randonnée", "For rough, uneven ground.", "Pour terrain accidenté."), "M", False),
+        (_SIN("spikes", "Crampons with 8 mm spikes or more (front and heel)", "Crampons à pointes de 8 mm ou plus (avant et talon)"), "M", False),
+        (_SIN("warmjacket", "Hooded thermal jacket for freezing temperatures", "Manteau thermique avec capuchon pour le gel",
+              "Temperatures can drop several degrees below zero.", "Il peut faire plusieurs degrés sous zéro."), "M", False),
+        (_SIN("jacket", "Hooded waterproof jacket, breathable, taped seams", "Manteau imperméable avec capuchon, respirant, coutures scellées"), "M", True),
+        (_SIN("longpants", "Running leggings or pants", "Collant ou pantalon de course"), "M", False),
+        (_SIN("pants", "Long waterproof over-trousers", "Surpantalon imperméable long"), "M", True),
+        (_SIN("midlayer", "Warm layer: long-sleeved technical top and long trousers", "Couche chaude : haut technique à manches longues et pantalon long"), "M", False),
+        (_SIN("tuque", "Hat that covers the ears", "Tuque qui couvre les oreilles"), "M", False),
+        (_SIN("gloves2", "Warm, waterproof gloves", "Gants chauds et imperméables"), "M", False),
+        (_SIN("spare", "Change of clothes", "Vêtements de rechange"), "M", False),
+        (_SIN("whistle", "Whistle", "Sifflet"), "M", False),
+        (_SIN("firstaid", "First aid kit for treating yourself", "Trousse de premiers soins pour vous soigner"), "M", False),
+        (_SIN("battery", "Power bank for your phone and devices", "Batterie externe pour le téléphone et les appareils"), "M", False),
+        (_SIN("knife", "Knife", "Couteau"), "M", False),
+    ]
+    if not full:    # already carried the whole race on the TOR450
+        b[13:13] = [(_SIN("alti2", "Altimeter", "Altimètre"), "M", False),
+                    (_SIN("gps2", "GPS device with the race route loaded", "Appareil GPS avec le tracé de la course"), "M", False)]
+    return b
+def _tor(name, short, dist, km, items):
+    return {"name": name, "short": short, "de": "du ", "le": "le ", "unit": "label", "side": "it", "nocheck": True, "cupless": True,
+            "where": _C("Courmayeur, Aosta Valley, Italy", "Courmayeur, Vallée d'Aoste, Italie"),
+            "when": _C("September 2027 (dates to come)", "Septembre 2027 (dates à venir)"),
+            "dists": [dist], "default": dist, "km": {dist: km}, "src": _TORX, "read": _TREAD,
+            "kits": {"bag": [k for (k, _), _, _ in _tbag(dist == "TOR450")]},
+            "items": [(k, lv, t, sp) for (k, t), lv, sp in items]}
+RACES["tor-des-geants"] = _tor("Tor des Géants", "Courmayeur", "TOR330", 330, _T1 + _tbag(False))
+RACES["tor-des-glaciers"] = _tor("Tor des Glaciers", "Courmayeur", "TOR450", 450, _T1 + _T450 + _tbag(True))
+
 # UTMB Mont-Blanc (Oct 21, Bastien: "UTMB 160 the big race and all other distances in Chamonix"): the 2026 list, published as an
 # image on montblanc.utmb.world (read Oct 21, 2026). One button per race; PTL left out (a team race with its own rules).
 MB = ["UTMB", "TDS", "CCC", "OCC", "MCC", "ETC", "YCC"]
@@ -818,6 +878,7 @@ S = {
         "more": "See more on sale →", "moreN": "See all {n}", "shH": "Trail running shoes", "shTag": "Your pick", "shPh": "What do you race in?", "shSize": "Size", "shGone": "Not in stock in size {s} today. We'll tell you when it's back.", "shPickSize": "Pick your size too.", "shPickFit": "Pick Men's or Women's above first.", "shFrom": "{p} in size {s} today", "shPage": "Every size & store", "shNone": "Not in our trail shoe list. Try the brand name.", "shRm": "Remove", "watch": "Watch", "watchOn": "Watching", "watchL": "Watch the price", "wMember": "Watching. We'll email you when it drops in your size.", "wNew": "Watching, on this phone. Add your email and we'll tell you when it drops.", "wPending": "Watching. Confirm your email (check your inbox) to get the drop emails.", "wAdd": "Add my email", "wOff": "Removed from your watchlist.", "sizeH": "Your size", "sizeTxt": "Pick it once to see deals that fit you.",
         "men": "Men's", "women": "Women's", "change": "Change", "off": "off",
         "kit_bad": "Bad-weather kit", "kit_hot": "Hot-weather kit", "kitWhen": "Only if the race calls it, usually a few days before the start.",
+        "kit_bag": "Compulsory, can stay in your TORX bag", "kitWhen_bag": "You may leave these in your TORX bag at the Life Bases, but the race can make you carry or wear them when conditions get tough (bad weather, snow, ice). Pack for the time between Life Bases, the altitude and the forecast.",
         "byOpen": "Different size in shorts, socks or gloves?", "by": {"tops": "Tops", "bottoms": "Shorts & tights", "socks": "Socks", "gloves": "Gloves"},
         "src": "From the race's official list (last updated by the race {date}). Rules can change: check the {link} before race day.",
         "srcLink": "official list", "srcRead": "From the race's official list (as published when we read it, {date}). Rules can change: check the {link} before race day.", "notAff": "The Gear Fox isn't affiliated with the race.",
@@ -841,6 +902,7 @@ S = {
         "more": "Voir plus d'aubaines →", "moreN": "Voir les {n}", "shH": "Chaussures de course en sentier", "shTag": "Votre choix", "shPh": "Vos chaussures de course ?", "shSize": "Pointure", "shGone": "Pas en stock en pointure {s} aujourd'hui. On vous avertit dès son retour.", "shPickSize": "Choisissez aussi votre pointure.", "shPickFit": "Choisissez d'abord Homme ou Femme plus haut.", "shFrom": "{p} en pointure {s} aujourd'hui", "shPage": "Toutes les pointures et boutiques", "shNone": "Pas dans notre liste de chaussures de sentier. Essayez le nom de la marque.", "shRm": "Retirer", "watch": "Suivre", "watchOn": "Suivi", "watchL": "Suivre le prix", "wMember": "Suivi. On vous écrit quand il baisse dans votre taille.", "wNew": "Suivi, sur ce téléphone. Ajoutez votre courriel et on vous avertira quand il baisse.", "wPending": "Suivi. Confirmez votre courriel (voyez votre boîte de réception) pour recevoir les alertes.", "wAdd": "Ajouter mon courriel", "wOff": "Retiré de vos favoris.", "sizeH": "Votre taille", "sizeTxt": "Choisissez-la une fois pour voir les aubaines à votre taille.",
         "men": "Homme", "women": "Femme", "change": "Modifier", "off": "de rabais",
         "kit_bad": "Kit mauvais temps", "kit_hot": "Kit chaleur", "kitWhen": "Seulement si la course l'annonce, habituellement quelques jours avant le départ.",
+        "kit_bag": "Obligatoire, peut rester dans votre sac TORX", "kitWhen_bag": "Vous pouvez les laisser dans votre sac TORX aux bases de vie, mais la course peut vous obliger à les porter ou les transporter quand les conditions se corsent (mauvais temps, neige, glace). Prévoyez selon le temps entre les bases de vie, l'altitude et la météo.",
         "byOpen": "Une autre taille en shorts, bas ou gants ?", "by": {"tops": "Hauts", "bottoms": "Shorts et collants", "socks": "Bas", "gloves": "Gants"},
         "src": "Selon la liste officielle de la course (mise à jour par la course le {date}). Les règles peuvent changer : vérifiez la {link} avant la course.",
         "srcLink": "liste officielle", "srcRead": "Selon la liste officielle de la course (telle que publiée quand nous l'avons lue, le {date}). Les règles peuvent changer : vérifiez la {link} avant la course.", "notAff": "The Gear Fox n'est pas affilié à la course.",
@@ -1154,7 +1216,7 @@ def page(slug, race, L, items, stores, pages=None, fx=1.0):
     # Oct 21 (Bastien: "the hot weather should be another drop down... it only gets activated a couple days before the race"):
     # kits the race calls only in bad or hot weather fold under the list, out of the mandatory count
     for kit, krows in kits.items():
-        rows.append(f'<li class="kit" data-kit="{kit}"><details><summary>{s["kit_" + kit]}</summary><p class="note kitwhen">{s["kitWhen"]}</p>'
+        rows.append(f'<li class="kit" data-kit="{kit}"><details><summary>{s["kit_" + kit]}</summary><p class="note kitwhen">{s.get("kitWhen_" + kit, s["kitWhen"])}</p>'
                     f'<ul class="gl sub">{"".join(krows)}</ul></details></li>')
     # quick answers from the race's own table
     faq = []
@@ -1370,8 +1432,8 @@ HUB = {
            "go": "Liste du matériel obligatoire →", "dists": "{d} km"},
 }
 HUB["us"] = dict(HUB["en"], desc="Mandatory gear lists for trail and ultra races, item by item, with today's best prices in your size at US stores.")
-HUB["en"]["groups"] = HUB["us"]["groups"] = {"ca": "Canada", "us": "United States", "fr": "France"}
-HUB["fr"]["groups"] = {"ca": "Canada", "us": "États-Unis", "fr": "France"}
+HUB["en"]["groups"] = HUB["us"]["groups"] = {"ca": "Canada", "us": "United States", "fr": "France", "it": "Italy"}
+HUB["fr"]["groups"] = {"ca": "Canada", "us": "États-Unis", "fr": "France", "it": "Italie"}
 HUB["en"]["note"] = "Every list shows today's prices at Canadian stores, wherever the race is."
 HUB["fr"]["note"] = "Chaque liste montre les prix du jour dans les boutiques canadiennes, peu importe où a lieu la course."
 HUB["us"]["note"] = "Every list shows today's prices at US stores, wherever the race is."
@@ -1382,8 +1444,8 @@ OTHER = {"en": ("Shopping in the US?", "Same lists with US stores →", "/us/rac
 def side(L):
     """Oct 21 (Bastien: "races should be available on both sides regardless"): every race on every side, the visitor's country first."""
     first = "us" if L == "us" else "ca"
-    order = {first: 0, "ca": 1, "us": 2, "fr": 3}
-    return sorted(RACES.items(), key=lambda kv: order.get(kv[1].get("side", "ca"), 4))
+    order = {first: 0, "ca": 1, "us": 2, "fr": 3, "it": 4}
+    return sorted(RACES.items(), key=lambda kv: order.get(kv[1].get("side", "ca"), 5))
 
 
 # Oct 21: the shoe list pages' cards put the link in a right-hand column, which squeezed race names to 2-3 words a line on phones

@@ -62,6 +62,8 @@ def main():
     new, changed, broken, first = {}, [], [], []
     today = dt.date.today().isoformat()
     for slug, race in RACES.items():
+        if race.get("nocheck"):    # Oct 23: the race site answers robots with a challenge (TORX): checked by hand
+            continue
         for url in dict.fromkeys(u for u in (race.get("check") or race.get("src"), race.get("src_fr")) if u):
             key = f"{slug} {url}"
             prev = old.get(key)
