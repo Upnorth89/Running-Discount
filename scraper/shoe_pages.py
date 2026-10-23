@@ -97,7 +97,7 @@ T = {
         "none": "Not in stock at the stores we check right now. Prices change every day: we'll show it here as soon as it's back.",
         "low": "Lowest price we've seen in {d} days",
         "size": "Size", "price": "Price", "store": "Store", "was": "was",
-        "men": "Men's", "women": "Women's", "unisex": "Unisex (men's sizes)", "wide": "wide",
+        "men": "Men's", "women": "Women's", "unisex": "Unisex (men's sizes)", "unisexMW": "Unisex (men's and women's sizes)", "wide": "wide",
         "us": "ships from the US", "final": "Final sale",
         "cta": "Get it in your size", "ctaTxt": "Pick your sizes once. Every Friday we email the best deals in them, and you can get a price-drop alert on this shoe.",
         "ctaBtn": "See deals in my size",
@@ -119,6 +119,7 @@ T = {
         "idxIntro": "Every popular running shoe we track, with today's best price in each size at Canadian stores. Updated every morning.",
         "idxDesc": "Today's best price in every size for {n} running shoe models at Canadian stores. Updated every morning by The Gear Fox.",
         "onSale": "on sale", "home": "The Gear Fox", "switch": "Français", "menu": "Menu", "mDeals": "Today's deals", "mShoes": "Shoe prices by model", "mWatch": "Your watchlist", "mSizes": "My sizes", "mAbout": "About The Gear Fox", "mRaces": "Race gear lists", "tagline": "OUTFOX FULL PRICE",
+        "hdrSearch": "Search deals", "hdrSearchPh": "Shoes, brands, gear", "hdrSearchGo": "Search",
         "yourSize": "Your size", "at": "at", "see": "See it", "watch": "Watch the price", "alertH": "Email me when the {name} drops in my size",
         "alertTxt": "Free. One email when the price falls in your size, plus the Friday deals. Unsubscribe in one tap.", "alertBtn": "Email me",
         "alertPick": "Pick your size above first, so we watch the right one.", "alertBad": "That email doesn't look right.",
@@ -200,7 +201,7 @@ T = {
         "none": "Pas en stock dans les boutiques que nous suivons en ce moment. Les prix changent chaque jour : on l'affichera ici dès son retour.",
         "low": "Le plus bas prix vu en {d} jours",
         "size": "Pointure", "price": "Prix", "store": "Boutique", "was": "avant",
-        "men": "Homme", "women": "Femme", "unisex": "Unisexe (pointures homme)", "wide": "large",
+        "men": "Homme", "women": "Femme", "unisex": "Unisexe (pointures homme)", "unisexMW": "Unisexe (pointures homme et femme)", "wide": "large",
         "us": "expédié des États-Unis", "final": "Vente finale",
         "cta": "Trouvez-la dans votre pointure", "ctaTxt": "Choisissez vos tailles une fois. Chaque vendredi, on vous envoie les meilleures aubaines dans vos tailles, et vous pouvez suivre le prix de cette chaussure.",
         "ctaBtn": "Voir les aubaines à ma taille",
@@ -221,6 +222,7 @@ T = {
         "idxIntro": "Toutes les chaussures de course populaires que nous suivons, avec le meilleur prix du jour dans chaque pointure dans les boutiques canadiennes. Mis à jour chaque matin.",
         "idxDesc": "Le meilleur prix du jour dans chaque pointure pour {n} modèles de chaussures de course dans les boutiques canadiennes. Mis à jour chaque matin par The Gear Fox.",
         "onSale": "en solde", "home": "The Gear Fox", "switch": "English", "menu": "Menu", "mDeals": "Aubaines du jour", "mShoes": "Prix des chaussures par modèle", "mWatch": "Vos favoris", "mSizes": "Mes tailles", "mAbout": "À propos de The Gear Fox", "mRaces": "Listes de matériel de course", "tagline": "FLAIREZ LES AUBAINES",
+        "hdrSearch": "Chercher des aubaines", "hdrSearchPh": "Chaussures, marques…", "hdrSearchGo": "Chercher",
         "yourSize": "Votre pointure", "at": "chez", "see": "Voir", "watch": "Suivre le prix", "alertH": "M'avertir quand {name} baisse dans ma pointure",
         "alertTxt": "Gratuit. Un courriel quand le prix baisse dans votre pointure, plus les aubaines du vendredi. Désabonnement en un clic.", "alertBtn": "M'avertir",
         "alertPick": "Choisissez d'abord votre pointure plus haut, pour qu'on suive la bonne.", "alertBad": "Ce courriel ne semble pas valide.",
@@ -329,8 +331,11 @@ def size_url(item, e):
 
 
 def size_sort(s):
-    m = re.match(r"(\d+(?:\.\d)?)", s)
-    return (float(m.group(1)) if m else 99, s)
+    # Oct 23 (Prime X3 Strung's unisex table read 6, 7.5 … 12, W 10, W 12, W 8.5): men's/plain sizes first, then women's ("W 8.5"
+    # / "F 8,5"), each by number
+    w = bool(re.match(r"[WF] ", s))
+    m = re.search(r"(\d+(?:[.,]\d)?)", s)
+    return (w, float(m.group(1).replace(",", ".")) if m else 99, s)
 
 
 def build_models(items):
@@ -354,6 +359,8 @@ def variant_label(d, L):
     lab = L["men"] if sx == ["men"] else L["women"] if sx == ["women"] else L["unisex"]
     if any(str(e[0]).startswith(("M:", "W:")) for e in d["sz"]):
         lab = L["unisex"]
+    if any(str(e[0]).startswith("W:") for e in d["sz"]):   # Oct 23: it lists women's sizes too, so not "(men's sizes)"
+        lab = L["unisexMW"]
     return lab + (f" · {L['wide']}" if d.get("w") else "")
 
 
@@ -364,7 +371,10 @@ def rows_for(d, stores, L):
         if s.endswith("~N") or s == "OS":
             continue
         wide = s.endswith("~W")
-        s = s.replace("~W", "").replace("M:", "").replace("W:", "W ")
+        mw = any(str(x[0]).startswith("W:") for x in d["sz"])   # both cuts in one table: men's rows say "M 9" (as the summary does)
+        s = s.replace("~W", "").replace("M:", "M " if mw else "").replace("W:", "W ")
+        if mw and not s.startswith(("M ", "W ")):     # a store's plain "8" in that table is the men's 8: one row with "M 8"
+            s = "M " + s
         key = s + (f" ({L['wide']})" if wide and not d.get("w") else "")
         if key not in out or e[1] < out[key][0]:
             u = size_url(d, e)
@@ -496,6 +506,16 @@ tr.yours td:first-child{font-weight:700;box-shadow:inset 4px 0 0 var(--hivis)}
 .links small{color:var(--moss);font-weight:600}
 .brand{margin:18px 0 6px;font:700 20px var(--display);scroll-margin-top:120px}
 .find{position:sticky;top:0;z-index:5;background:var(--mist);padding:10px 0 8px;margin:0 -2px}
+/* test 'hdr' B (Oct 23): the header comes back on scroll-up (phones), stays on computers; search icon + box under it */
+.hdrb header.top{position:sticky;top:0;z-index:30;transition:transform .22s ease}
+.hdrb header.top.hide{transform:translateY(-100%)}
+.hdrb .find{top:var(--hh,0px);transition:top .22s ease}
+.hsb{display:inline-flex;align-items:center;justify-content:center;flex:none;width:44px;height:44px;margin-left:auto;margin-right:-4px;border-radius:50%;background:none;border:1px solid rgba(255,255,255,.3);color:#fff;cursor:pointer}
+.hsb[aria-expanded="true"]{background:rgba(255,255,255,.16)}
+.hsb[hidden],.hsf[hidden]{display:none}
+.hsf{display:flex;gap:8px;max-width:720px;margin:0 auto;padding:0 16px 12px}
+.hsf input{flex:1;min-width:0;min-height:44px;font:400 16px var(--body);color:#17201C;background:#fff;border:0;border-radius:999px;padding:0 16px}
+.hsf button{flex:none;min-height:44px;font:700 15px var(--body);color:#17201C;background:var(--hivis,#FF5A1F);border:0;border-radius:999px;padding:0 16px;cursor:pointer}
 .find input{width:100%;font:400 17px var(--body);color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px}
 .find input:focus{outline:3px solid var(--moss);outline-offset:1px}
 .jump{display:flex;gap:6px;overflow-x:auto;padding:2px 0 4px;scrollbar-width:none}
@@ -582,8 +602,20 @@ def page_head(L, title, desc, path_en, path_fr, extra=""):
 <header class="top"><div class="in"><a class="logo" href="{L['home']}" aria-label="The Gear Fox">
 <img src="/logo-mark-dark.svg" alt="The Gear Fox" width="1534" height="664">
 <span class="tagline">{L['tagline']}</span></a>
+<button type="button" class="hsb" id="hsb" aria-label="{L['hdrSearch']}" aria-expanded="false" hidden><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
 <details class="menu"><summary aria-label="{L['menu']}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></summary>
-<nav>{menu_links(L, (path_fr or "/shoes/") if L['lang'] != 'fr-CA' else path_en)}</nav></details></div></header>
+<nav>{menu_links(L, (path_fr or "/shoes/") if L['lang'] != 'fr-CA' else path_en)}</nav></details></div>
+<form class="hsf" id="hsf" role="search" action="/" hidden data-home="{L['home']}"><input type="search" name="q" placeholder="{L['hdrSearchPh']}" aria-label="{L['hdrSearch']}" autocomplete="off" enterkeyhint="search"><button type="submit">{L['hdrSearchGo']}</button></form></header>
+<script>
+/* test 'hdr' (Oct 23, Bastien: "On some pages you get lost scrolling ... keep the header on all pages? So people can search and toggle
+   menu or click the logo"): B = the header comes back when you scroll up (stays put on computers) + a search icon that searches the
+   homepage in your size. Same coin as the homepage (device id + test name); ?exp=hdr:B forces it */
+(function(){{var over={{}};try{{over=JSON.parse(localStorage.getItem("gf-exp")||"{{}}")||{{}};var q=new URLSearchParams(location.search).get("exp");
+  if(q){{q.split(",").forEach(function(x){{var a=x.split(":");if(a[0]&&/^[AB]$/.test(a[1]))over[a[0]]=a[1]}});localStorage.setItem("gf-exp",JSON.stringify(over))}}}}catch(e){{}}
+  var did="";try{{did=localStorage.getItem("gf-did")||""}}catch(e){{}}
+  var arm=over.hdr||(function(){{var h=2166136261,s=did+"|hdr";for(var i=0;i<s.length;i++){{h^=s.charCodeAt(i);h=Math.imul(h,16777619)}}return (h>>>0)%2?"B":"A"}})();
+  window.gfHdr=arm;if(arm==="B")document.documentElement.classList.add("hdrb")}})();
+</script>
 <main class="wrap">
 """
 
@@ -616,13 +648,28 @@ var ana=(function(){{var ls=function(k){{try{{return localStorage.getItem(k)}}ca
   if(fresh)add("visit",em?"email-"+em:document.referrer?new URL(document.referrer).hostname:"",null,location.pathname);
   var m=location.pathname.match(/^\/(?:us\/)?(?:shoes|chaussures)\/([^\/]+)\/$/);add("shoe-page-view",m?m[1]:location.pathname);
   return add}})();
+(function(){{var arm=window.gfHdr||"A";try{{if(!sessionStorage.getItem("gf-exp-hdr")){{sessionStorage.setItem("gf-exp-hdr","1");ana("signup-step","exp|hdr|"+arm)}}}}catch(e){{}}
+  if(arm!=="B")return;var top=document.querySelector("header.top"),b=document.getElementById("hsb"),f=document.getElementById("hsf");if(!top||!b||!f)return;
+  b.hidden=false;var inp=f.querySelector("input"),root=document.documentElement;
+  var open=function(on){{f.hidden=!on;b.setAttribute("aria-expanded",String(on));if(on){{show();inp.focus()}}}};
+  b.addEventListener("click",function(){{open(f.hidden)}});
+  f.addEventListener("submit",function(e){{e.preventDefault();var v=inp.value.trim();if(!v)return;try{{ana("signup-step","hdr-search")}}catch(x){{}}
+    var h=f.dataset.home;location.href=h+(h.indexOf("?")>=0?"&":"?")+"q="+encodeURIComponent(v)}});
+  /* phones: slides away while you read down, back as soon as you scroll up (NN/g: partially persistent header); computers: always there */
+  var last=scrollY,hid=false,menu=top.querySelector("details.menu");
+  var hh=function(){{root.style.setProperty("--hh",hid?"0px":top.offsetHeight+"px")}};
+  var show=function(){{if(hid){{hid=false;top.classList.remove("hide");hh()}}}};
+  var hide=function(){{if(!hid&&f.hidden&&!(menu&&menu.open)){{hid=true;top.classList.add("hide");hh()}}}};
+  hh();addEventListener("resize",hh);
+  addEventListener("scroll",function(){{var y=scrollY,d=y-last;if(Math.abs(d)<6)return;last=y;
+    if(innerWidth>=900||y<top.offsetHeight*2){{show();return}}if(d>0)hide();else show()}},{{passive:true}})}})();
 (function(){{var p,box=document.getElementById("mine");if(!box)return;
 try{{p=JSON.parse(localStorage.getItem("rd-profile")||"null")}}catch(e){{}}
 /* Oct 18 (spy-shopper pass): a women's visitor had to scroll past the whole Men's table; her cut goes first (CSS order only,
    so the tables keep their place in the page and their numbers for the size picker) */
 var gq=(p&&p.gender)||"";if(!gq){{try{{gq=(JSON.parse(localStorage.getItem("gf-shoe-size")||"null")||{{}}).g||""}}catch(e){{}}}}
 if(gq==="women")document.querySelectorAll('.gt[data-g="women"]').forEach(function(x){{x.style.order="-1"}});
-var clean=function(s){{return s.replace(/\s*\(.*\)$/,"")}};
+var clean=function(s){{return s.replace(/\s*\(.*\)$/,"").replace(/^M /,"")}};   // "M 9" rows (unisex tables with women's sizes too) = men's 9
 /* highlight the rows that fit and say where the size is cheapest; ok(table, row size) decides what fits */
 function mark(ok){{var best=null;document.querySelectorAll("tr.yours").forEach(function(r){{r.classList.remove("yours");r.removeAttribute("id")}});
   document.querySelectorAll("table[data-g]").forEach(function(t,ti){{t.querySelectorAll("tr[data-s]").forEach(function(r){{
@@ -846,12 +893,14 @@ def sizes_phrase(keys, L):
 def summary(its, stores, gender=None):
     """Today's numbers for one model (optionally one gender): best price, its discount, store, sizes, stores."""
     sizes, by_store, best = 0, defaultdict(set), None
+    # Oct 23 (Evo SL ATR's women's line said "sizes M 7 and M 13"): a unisex shoe's men's sizes ("M:7") never count for women, nor "W:" for men
+    cut = lambda e: not gender or not str(e[0]).startswith({"women": "M:", "men": "W:"}.get(gender, "\0"))
     for d in its:
         sx = d.get("sx") or []
         if gender and sx and gender not in sx:
             continue
         for e in d["sz"]:
-            if str(e[0]).endswith("~N"):
+            if str(e[0]).endswith("~N") or not cut(e):
                 continue
             u = size_url(d, e)
             h = host(u)
@@ -864,14 +913,14 @@ def summary(its, stores, gender=None):
     sizes = len({x for v in by_store.values() for x in v})
     carriers = {host(u) for d in its if not (gender and d.get("sx") and gender not in d["sx"]) for u in d["of"]}   # every store that carries it
     off = round(100 * (1 - best[0] / best[1])) if best[1] and best[0] < best[1] * 0.99 else 0
-    top = max((round(100 * (1 - e[1] / e[3])) for d in its for e in d["sz"] if len(e) > 3 and e[1] < e[3] * 0.99
+    top = max((round(100 * (1 - e[1] / e[3])) for d in its for e in d["sz"] if len(e) > 3 and e[1] < e[3] * 0.99 and cut(e)
                and (not gender or not d.get("sx") or gender in d["sx"])), default=0)
     most = max(by_store.items(), key=lambda kv: len(kv[1]))
     sale_sizes = len({(tuple(d.get("sx") or []), str(e[0]), bool(d.get("w"))) for d in its for e in d["sz"] if len(e) > 3 and e[1] < e[3] * 0.99
-                      and (not gender or not d.get("sx") or gender in d["sx"])})
+                      and cut(e) and (not gender or not d.get("sx") or gender in d["sx"])})
     # Oct 16 (Bastien couldn't find the $99 Kjerag: it was only in sizes 4.5 and 5): the sizes at that lowest price
     at_best = list(dict.fromkeys(str(e[0]) for d in its for e in d["sz"] if abs(e[1] - best[0]) < 0.005
-                                 and not str(e[0]).endswith("~N") and host(size_url(d, e)) == best[2]
+                                 and not str(e[0]).endswith("~N") and cut(e) and host(size_url(d, e)) == best[2]
                                  and (not gender or not d.get("sx") or gender in d["sx"])
                                  and (len(best[4]) != 1 or (d.get("sx") or []) == list(best[4]))))   # that cut's sizes only
     return {"price": best[0], "reg": best[1], "off": off, "top": top, "store": stores.get(best[2], [best[2]])[0], "url": best[3],
@@ -1178,7 +1227,10 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None)
             {"@type": "ListItem", "position": 1, "name": "The Gear Fox", "item": BASE + "/"},
             {"@type": "ListItem", "position": 2, "name": L["all"], "item": f"{BASE}/{L['dir']}/"},
             {"@type": "ListItem", "position": 3, "name": name}]}
-        out.append("".join(f'<script type="application/ld+json">{json.dumps(x, ensure_ascii=False)}</script>' for x in (faq_ld, crumbs_ld)))
+        # the date the prices were checked: answer engines favour pages they can see are fresh
+        page_ld = {"@context": "https://schema.org", "@type": "WebPage", "name": name, "dateModified": date.today().isoformat(),
+                   "inLanguage": L["lang"], "publisher": {"@type": "Organization", "name": "The Gear Fox", "url": BASE + "/"}}
+        out.append("".join(f'<script type="application/ld+json">{json.dumps(x, ensure_ascii=False)}</script>' for x in (faq_ld, crumbs_ld, page_ld)))
     home = "/?ref=shoe-page" + L["q"]
     out.append(f'<section class="cta"><h2>{L["cta"]}</h2><p>{L["ctaTxt"]}</p><a class="btn" href="{home}">{L["ctaBtn"]}</a></section>')
     if related:
@@ -1591,7 +1643,7 @@ def build_us(site, stores, ca_models, ca_brands):
         urls.append(own)
     bf_rows = [r for r in kinds["all"] if r[2]["sizes"] >= 6][:40]
     cta = qs_box(L, L["bfCta"], "black-friday")
-    today = datetime.fromisoformat(updated.replace("Z", "+00:00")).date() if updated else datetime.now(timezone.utc).date()
+    today = (datetime.fromisoformat(updated.replace("Z", "+00:00")) if updated else datetime.now(timezone.utc)).astimezone(HOME_TZ).date()   # Oct 23: was UTC (US page said 35 days to go, Canada 36)
     bf = black_friday(today.year if today <= black_friday(today.year) + timedelta(days=4) else today.year + 1)
     own = f'/{L["bfDir"]}/'
     p = site / own.strip("/") / "index.html"

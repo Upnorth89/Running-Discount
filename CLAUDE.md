@@ -161,6 +161,12 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   (11:53am Vancouver), no store re-read: tools/sitetest.py in live mode (`sitetest.py https://thegearfox.com/ OUT`; files fetched over
   the web; failures re-run once, only twice-failed checks count) + featured_check.py on the live JSON. Emails ONLY when something is
   wrong ("Gear Fox noon check: N things to look at"); an ended featured sale also starts refresh.yml. SITETEST_INSECURE=1 = Claude's sandbox only.
+- **Night scan** (`night-scan.yml`, `scraper/night_scan.py`, Oct 23; Bastien: "scan website as a user to find any glitches: this should
+  be done nightly"): 09:41 UTC (2:41am Vancouver), every sitemap page (200, a title, no "undefined"/"NaN"/"{name}"/"$0.00" a visitor
+  would read, shoe/list/race pages show a price or the "Not in stock" line), every other link/picture they use (200), and a 390px
+  phone opening the hubs + 40 random pages (our script errors, wider than the screen, leftovers after scripts). Emails only when
+  something is wrong ("Gear Fox night scan: N pages to look at"). First run Oct 23 (live): 2,369 pages, nothing broken; 114 shoe pages
+  say "Not in stock" (pages never disappear: by design, but thin for Google).
 - **Weekly deals email** (`weekly-email.yml`): every hour on Friday 9:07–18:07 UTC. Each run sends to
   subscribers for whom it is now Friday 7am or later in their own time zone (profile `tz` from the browser;
   default: French = Eastern, English = Pacific) and records `weekly_sent_at` so nobody gets two.
@@ -247,6 +253,9 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   without talking to me first. I want us to have conversations around changes").** Bring the idea + my pick + why in a few lines,
   agree, then build it in the preview, then ship on his OK. Ship without asking only what's clearly broken (wrong price, duplicate
   cards, crashes, sorting bugs).
+- **Keep things moving (Bastien, Oct 23: "if I forget to say okay you can prompt me so things keep moving. You're a teammate not a
+  bot").** Anything waiting on his OK gets brought back up by me (at the end of my next reply, or on the next check-in), with a
+  one-line yes/no ask. Never let a finished preview sit silently. Start the preview work for an idea he's warm on without waiting.
 - **Design polish is mine, growth is the priority (Bastien, Oct 19: "I'm spending lots of time on design vs growth. I shouldn't have to
   ask will the filter button cover the other buttons").** Once a direction is agreed, I make it consistent and check it myself at
   320/390/768/1280px (site test "Top of the page: nothing overlaps"): one shape family, nothing overlapping, nothing cut off. Bring
@@ -318,6 +327,13 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   Oct 23 (Bastien uploaded ENG-REGULATIONS-TORX-2026.pdf; torxtrail.com puts a Cloudflare challenge in front of robots, so `nocheck`: race_check
   skips it, recheck by hand each spring): `tor-des-geants` (TOR330) + `tor-des-glaciers` (TOR450), side "it" (hub group Italy). Article 14
   MANDATORY EQUIPMENT 1 = M; MANDATORY EQUIPMENT 2 (may stay in the TORX bag, race can require it) = kit "bag" (`kitWhen_<kit>` text).
+  Oct 23 night (Bastien: "expand to international races as well. all around the world"): UTMB World Series events abroad via `_intl()`,
+  each from the event's own mandatory gear page (<event>.utmb.world, robots allow; the gear page slug is in the page's simpleMenu):
+  lavaredo (it), zugspitz (de), eiger (ch), tarawera (nz), ultra-trail-australia (au), mozart-100 (at), julian-alps (si). Hub groups per country
+  (HUB groups + `side()` order). Tarawera/UTA "weather dependent" items stay M with a note saying which distances the race confirms
+  later (`_WX`); a whole-race weather kit (UTA pants + fleece, mozart cold/warm kit) uses `kits`. Fetched but not built yet (scratch
+  notes): istria + eryri (lists behind per-race tabs/PDFs), kosciuszko (its table has 5 ticks for 4 races: recheck), chiangmai, restonica, nice, andorra,
+  mallorca, tenerife.
   **Race list check** (race-check.yml, the 3rd of each month, scraper/race_check.py): rereads every race's `src`/`src_fr` (pages + PDFs),
   keeps the gear lines + linked PDFs/list pictures, compares with race-check.json on the history branch; emails ONLY when a list changed
   (+/- lines) or a page stopped answering. Then update that race in RACES from its own list.
@@ -353,6 +369,11 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   personal), since Umami's free plan has no API. Countries/pages stay in the Umami dashboard.
 - **IndexNow** (Oct 11): refresh.yml job `indexnow` (morning runs, after deploy) sends every sitemap URL to api.indexnow.org (Bing,
   DuckDuckGo, ChatGPT search, Yandex); key file site/d5b591bd5a0f92826eeb50008110fb99.txt (public by design). First submit Oct 11: 1,856 URLs, HTTP 200.
+  Oct 23 (Bastien OK'd): only CHANGED pages are sent (it was all ~2,400 daily: 24,200 in 12 days; IndexNow asks for changed pages only).
+  tools/indexnow.py reads each sitemap page live, fingerprints its visible text minus date stamps/countdowns, compares with yesterday's
+  (actions/cache "indexnow-*", /tmp/indexnow-state.json); new + changed are sent, cache lost = all. INDEXNOW_DRY=1 = count only.
+  Bing Webmaster Tools (Oct 23, Bastien signed in): sitemap OK (2.3K URLs discovered) but only 5 pages indexed, Backlinks "-":
+  Bing waits for links from other sites (race organizer emails). He requested indexing for /, /shoes/, /running-shoes-sale/.
 - **Growth calendar** (Oct 11, Bastien: "post every 3 days on running gear"): plan doc section "Growth: a post every 3 days" + send_later
   reminders at 6:30am Vancouver (C25K Oct 14, RunningShoes 17, runninglifestyle 20, BuyCanadian 23, xxrunning 26, trailrunning 29,
   FrugalMaleFashionCDN Nov 1, ultrarunning 4, RunningShoeGeeks 7 + plan the rest to Cyber Monday). A different place each time.

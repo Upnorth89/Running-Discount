@@ -229,7 +229,18 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install requests
-      - run: python tools/indexnow.py
+      # Oct 23: yesterday's page fingerprints, so only pages that changed are sent (tools/indexnow.py)
+      - uses: actions/cache/restore@v4
+        with:
+          path: /tmp/indexnow-state.json
+          key: indexnow-${{ github.run_id }}
+          restore-keys: indexnow-
+      - run: python tools/indexnow.py /tmp/indexnow-state.json
+      - uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: /tmp/indexnow-state.json
+          key: indexnow-${{ github.run_id }}
 
   # Wednesdays (Oct 7, 2026): the Instagram kit starts right after the morning deploy, so it's built from this
   # morning's prices (GitHub ran its own Wednesday schedule 6 h late, after a store had ended its sale)

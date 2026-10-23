@@ -861,7 +861,7 @@ def site_flow(base, per, accented):
                 assert re.search(needs, page.inner_text("body")), f"{path} opens but looks empty"
                 out.append(path)
             page.goto(base + "shoes/", wait_until="domcontentloaded")
-            box = page.locator("input[type=search]")
+            box = page.locator(".find input")   # the list's own box (the header has a search box too, test 'hdr')
             if box.count():
                 box.first.fill("clifton")
                 settle(page, 500)
@@ -1205,6 +1205,42 @@ def site_flow(base, per, accented):
             return f"{slug}: A hidden, B shows {len(b['cards'])} race shoes in size 10"
         check("Shoe page: other shoes on sale in your size (test 'alts')")(shoe_alts, pg)
 
+        def shoe_hdr():     # Oct 23, test 'hdr' (Bastien: "you get lost scrolling"): B's header comes back on scroll-up + search; A unchanged
+            reg = site_json("shoes/pages.json") or {}
+            slug = next((k for k, v in reg.items() if isinstance(v, dict) and not v.get("to")), None)
+            out = []
+            for arm in ("B", "A"):
+                c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+                stub(c)
+                q = c.new_page()
+                q.goto(base + f"shoes/{slug}/?exp=hdr:{arm}", wait_until="load")
+                q.wait_for_timeout(500)
+                btn = q.locator("#hsb").is_visible()
+                q.evaluate("scrollTo(0, 1600)")
+                q.wait_for_timeout(200)
+                q.mouse.wheel(0, 300)
+                q.wait_for_timeout(500)
+                down = q.evaluate("Math.round(document.querySelector('header.top').getBoundingClientRect().bottom)")
+                q.mouse.wheel(0, -250)
+                q.wait_for_timeout(600)
+                up = q.evaluate("Math.round(document.querySelector('header.top').getBoundingClientRect().top)")
+                if arm == "B":
+                    assert btn, "test 'hdr' B: no search icon in the header"
+                    assert down <= 1, f"test 'hdr' B: the header didn't slide away while scrolling down (bottom at {down}px)"
+                    assert up == 0, f"test 'hdr' B: the header didn't come back on scroll-up (top at {up}px)"
+                    q.click("#hsb")
+                    q.fill("#hsf input", "pegasus")
+                    with q.expect_navigation():
+                        q.press("#hsf input", "Enter")
+                    assert "q=pegasus" in q.url, f"test 'hdr' B: search went to {q.url}"
+                    out.append("B: hides on scroll down, back on scroll up, search opens the deals")
+                else:
+                    assert not btn, "test 'hdr' A: the search icon shows in group A"
+                    out.append("A: unchanged")
+                c.close()
+            return "; ".join(out)
+        check("Shoe page: header comes back on scroll-up + search (test 'hdr')")(shoe_hdr, pg)
+
         def one_look():         # Oct 22 (Bastien: "Only the homepage is formatted in the way we want. All others are dark and still the
             # same"): on a phone set to dark mode, every page is light with the charcoal header, like the homepage, and fits the phone
             c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE,
@@ -1227,6 +1263,16 @@ def site_flow(base, per, accented):
                     bad.append(f"{u} has a light header")
                 if r["wide"] > 391:
                     bad.append(f"{u} is {r['wide'] - 390}px wider than the phone")
+            # Oct 23 (Bastien's screenshot): a page-wide rule squeezed the pick names inside the TOR bag fold to a few letters a line;
+            # every race page with a weather/bag fold: open it, each pick's name keeps a readable width
+            for slug, kit in (("tor-des-geants", "bag"), ("borealys-mont-tremblant", "bad"), ("ultra-trail-australia", "bad")):
+                q.goto(base + f"races/{slug}/", wait_until="domcontentloaded")
+                q.wait_for_timeout(400)
+                w = q.evaluate("""() => {document.querySelectorAll('li.kit details').forEach(d => d.open = true);
+                    const n = [...document.querySelectorAll('li.kit .dl .nm, .gl > li .dl .nm')].filter(x => x.offsetParent).map(x => x.getBoundingClientRect().width);
+                    return n.length ? Math.round(Math.min(...n)) : null}""")
+                if w is not None and w < 90:
+                    bad.append(f"races/{slug}/: product names squeezed to {w}px")
             c.close()
             assert not bad, "; ".join(bad)
             return "shoe (EN/FR), sale list, races, Black Friday, About, Privacy: light pages, charcoal header, fit the phone"
@@ -1287,6 +1333,19 @@ def site_flow(base, per, accented):
                 q.wait_for_timeout(900)
                 ok = q.evaluate(want) if want else q.evaluate(grow) > n0
                 (done if ok else dead).append(name)
+            # Oct 23: the computer header's buttons too (the country button opened the menu and the same click closed it)
+            q.set_viewport_size({"width": 1366, "height": 768})
+            for name, sel, want in [("the header's country button", "#rdCtry", "() => !document.getElementById('menu').hidden"),
+                                    ("the header's My sizes", "#rdMy", "() => { const s = document.getElementById('sheet'); return !!s && !s.classList.contains('hidden') }")]:
+                q.goto(base, wait_until="domcontentloaded")
+                q.wait_for_selector("#dealList .rdc", timeout=30000)
+                q.wait_for_timeout(600)
+                el = q.locator(sel).first
+                if not el.count() or not el.is_visible():
+                    continue
+                el.click()
+                q.wait_for_timeout(700)
+                (done if q.evaluate(want) else dead).append(name)
             c.close()
             assert not dead, f"pressing these doesn't do what it says: {', '.join(dead)}"
             return f"{len(done)} buttons each do their job: {', '.join(done)}"
