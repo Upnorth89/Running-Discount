@@ -272,6 +272,10 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   tell me it's stupid and the reason why. I need to stop reminding you of this").** Every recommendation cites our own numbers
   (funnel.yml) and/or established UX/consumer research (Baymard, Nielsen Norman Group…), named, never made-up stats. When his idea
   won't work, say so plainly first, then why, then what would. Agreeing to be agreeable is the failure he keeps flagging.
+- **Answer, don't flip (Oct 24, Bastien: "You gave me advice, I then ask for clarification and then you just tell me the opposite").**
+  I recommended brand+size pages, then reversed twice when he only asked questions. Before recommending: weigh costs/risks myself
+  (near-copies, clutter, upkeep, real reach). A question from him = explain, not reverse. Change a recommendation only for a new
+  fact, and name that fact.
 - **Core things: never remove or hide one without telling Bastien first and getting a yes (Oct 22: "you shouldn't be touching
   things without telling me if they remove things we've agreed on previously"; "that then leaves me to have to continuously
   monitor you").** The list (site test "Core things are on the page" checks each, on the current and the new design):
