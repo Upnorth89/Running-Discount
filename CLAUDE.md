@@ -251,6 +251,11 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   computers' hero shorter (photo 230px, one-line headline, sub hidden once sized) so the category circles fit a 1366x650 browser;
   More filters scrolls its row into view; Brand menu + brand circles/A-Z count full-price items when Include full price is on ("only 1
   norda"), `.fullwait` line while deals.json (21 MB, 3.4 MB sent) loads, toast if it fails.
+  Test 'pro' (Oct 25, Bastien OK'd; Fox Pro step 1 of 2): `proOn()`/`proHTML()` in index.html, Nov 2-16 (PRO_FROM/PRO_TO), visits 2+
+  (`ANA.nv()`), takes the sign-up card's slot (members: one tap, saves `pro_wait` in the profile; others: email = subscribe + Friday email),
+  A $3/$29, B $5/$49; gf-pro / gf-nopro; analytics signup-step pro-view|pro-join|pro-no; funnel "FOX PRO PRICE TEST"; `?pro=1` shows it any
+  day (previews). A tap overstates paying: <5% at both prices = stop; else step 2 in early Dec = real founding payment (Stripe, 30-day refund).
+  Site test "Fox Pro waitlist card (price test)".
   Parked: test 'card' (cleaner deal cards, ⋯ menu; commit 629e4d1, backlog). Site tests check each one. Correlations from the "RETENTION DRIVERS" lines are leads, never proof
   (Oct 17: "watchers come back 33%" was 9 devices).
 - **Own the design and product calls (Bastien, Oct 17: "You're supposed to optimize this to make it look the best and cleanest...

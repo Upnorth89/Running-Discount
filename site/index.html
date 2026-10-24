@@ -366,6 +366,7 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
 
 /* Friday email card */
 .signup{background:var(--band);color:var(--band-ink);border-radius:14px;padding:18px;margin:0 0 30px}
+.procard .proprice{margin:10px 0 12px;font-size:15px;line-height:1.4}.procard .proprice b{font-size:20px}.procard #proJoin{width:100%}.procard #proForm{display:flex;flex-direction:column;gap:8px}.procard #proForm input,.procard #proForm button{width:100%;margin:0}
 .rcwrap{position:relative}.rcsug{display:flex;flex-direction:column;background:var(--card);border-radius:10px;overflow:hidden;margin-top:4px}.rcsug:empty{display:none}.rcsug button{all:unset;cursor:pointer;padding:11px 14px;font:500 15px/1.25 var(--body);color:var(--ink);border-top:1px solid var(--line)}.rcsug button:first-child{border-top:0}.rcsug button:active,.rcsug button:hover{background:var(--mist)}
 .runcard #suForm{flex-direction:column}.runcard #suForm input,.runcard #suForm .primary{flex:none;width:100%}.runcard #suForm .primary{min-height:48px;line-height:1.15;padding:8px 16px}
 .signup h3{font:800 24px/1.1 var(--display);margin:0 0 4px}
@@ -838,7 +839,7 @@ en:{
   junkHint:"Not there after a minute? Check Junk or Promotions (Outlook and Hotmail often file us there) and mark it \"Not junk\".",
   resend:"Send it again",resendFail:"Couldn't send just now. Try again in a minute.",resent:"Sent again. Give it a minute.",resendWait:"Just sent. Give it a minute, then check Junk.",
   otherEmail:"Use a different email",getDeals:"Get deals like these every Friday",
-  getDealsTxt:"One email, Friday morning, only gear on sale in your sizes.",perksTitle:"Free with your email",rcH:"What do you run in?",rcTxt:"Pick your shoe: we'll email you when it drops in your size. Plus your best deals every Friday.",rcPh:"Your shoe, e.g. Pegasus 41",rcGo:"Email me when it drops",perk1:"An alert when gear you heart drops in price",perk2:"Your best deals every Friday morning",perk3:"Your sizes and hearts on all your devices",noThanks:"No thanks",peekTitle:n=>`${n} deals in your size today`,peekTxt:"Add your email to see them all, get price-drop alerts on deals you heart, and the best ones every Friday.",peekG:"or continue with Google",email:"Email",signUp:"Sign up",
+  getDealsTxt:"One email, Friday morning, only gear on sale in your sizes.",perksTitle:"Free with your email",proH:"Fox Pro is coming",pro1:"Phone app alerts the moment we see a watched item drop in your size",pro2:"No limit on your watchlist: follow whole models and brands",pro3:"Early alerts for Black Friday and Boxing Day",proPrice:(m,y)=>`$${m}/month or $${y}/year`,proFound:"Founding price, yours for as long as you stay.",proJoin:"Join the waitlist",proFine:"No payment now. We'll email you when it opens.",proFineNew:"No payment now. We'll email you when it opens, plus the Friday deals in your size (unsubscribe in one tap).",proThanks:"You're on the Fox Pro waitlist. We'll email you when it opens.",rcH:"What do you run in?",rcTxt:"Pick your shoe: we'll email you when it drops in your size. Plus your best deals every Friday.",rcPh:"Your shoe, e.g. Pegasus 41",rcGo:"Email me when it drops",perk1:"An alert when gear you heart drops in price",perk2:"Your best deals every Friday morning",perk3:"Your sizes and hearts on all your devices",noThanks:"No thanks",peekTitle:n=>`${n} deals in your size today`,peekTxt:"Add your email to see them all, get price-drop alerts on deals you heart, and the best ones every Friday.",peekG:"or continue with Google",email:"Email",signUp:"Sign up",
   signupFine:'We\'ll email you to confirm. Unsubscribe with one tap. <a href="privacy.html">Privacy</a>',
   badEmail:"That email doesn't look right.",signupFail:m=>`Couldn't sign you up just now: ${m}`,
   emailOn:e=>`Friday email on for ${e} · <button type="button" id="stopEmail">Stop it</button>`,
@@ -951,7 +952,7 @@ fr:{
   junkHint:"Pas reçu après une minute? Vérifiez les courriels indésirables ou Promotions (Outlook et Hotmail nous y classent souvent) et indiquez « Pas un courriel indésirable ».",
   resend:"Renvoyer",resendFail:"Envoi impossible pour l'instant. Réessayez dans une minute.",resent:"Renvoyé. Laissez-lui une minute.",resendWait:"Tout juste envoyé. Donnez-lui une minute, puis vérifiez les indésirables.",
   otherEmail:"Utiliser un autre courriel",getDeals:"Recevez des aubaines comme celles-ci chaque vendredi",
-  getDealsTxt:"Un courriel le vendredi matin, seulement des articles en solde dans vos tailles.",perksTitle:"Gratuit avec votre courriel",rcH:"Vous courez avec quoi?",rcTxt:"Choisissez votre chaussure : on vous écrit quand elle baisse à votre taille. En prime, vos meilleures aubaines chaque vendredi.",rcPh:"Votre chaussure (ex. Pegasus 41)",rcGo:"M'avertir d'une baisse",perk1:"Une alerte quand un coup de cœur baisse de prix",perk2:"Vos meilleures aubaines chaque vendredi matin",perk3:"Vos tailles et vos coups de cœur sur tous vos appareils",noThanks:"Non merci",peekTitle:n=>`${n} aubaines dans vos tailles aujourd'hui`,peekTxt:"Entrez votre courriel pour toutes les voir, être averti des baisses de prix sur vos coups de cœur et recevoir les meilleures chaque vendredi.",peekG:"ou continuer avec Google",email:"Courriel",signUp:"M'abonner",
+  getDealsTxt:"Un courriel le vendredi matin, seulement des articles en solde dans vos tailles.",perksTitle:"Gratuit avec votre courriel",proH:"Fox Pro arrive bientôt",pro1:"Alertes dans l'appli sur votre téléphone dès qu'on voit baisser un article suivi dans votre taille",pro2:"Liste de suivi sans limite : suivez des modèles et des marques entiers",pro3:"Des alertes en avance pour le Vendredi fou et les soldes d'après Noël",proPrice:(m,y)=>`${m} $/mois ou ${y} $/an`,proFound:"Prix fondateur, garanti tant que vous restez.",proJoin:"Rejoindre la liste d'attente",proFine:"Aucun paiement maintenant. On vous écrit à l'ouverture.",proFineNew:"Aucun paiement maintenant. On vous écrit à l'ouverture, avec les aubaines du vendredi dans votre taille (désabonnement en un clic).",proThanks:"Vous êtes sur la liste d'attente de Fox Pro. On vous écrit à l'ouverture.",rcH:"Vous courez avec quoi?",rcTxt:"Choisissez votre chaussure : on vous écrit quand elle baisse à votre taille. En prime, vos meilleures aubaines chaque vendredi.",rcPh:"Votre chaussure (ex. Pegasus 41)",rcGo:"M'avertir d'une baisse",perk1:"Une alerte quand un coup de cœur baisse de prix",perk2:"Vos meilleures aubaines chaque vendredi matin",perk3:"Vos tailles et vos coups de cœur sur tous vos appareils",noThanks:"Non merci",peekTitle:n=>`${n} aubaines dans vos tailles aujourd'hui`,peekTxt:"Entrez votre courriel pour toutes les voir, être averti des baisses de prix sur vos coups de cœur et recevoir les meilleures chaque vendredi.",peekG:"ou continuer avec Google",email:"Courriel",signUp:"M'abonner",
   signupFine:'On vous écrit pour confirmer. Désabonnement en un clic. <a href="privacy.html">Confidentialité</a>',
   badEmail:"Ce courriel ne semble pas valide.",signupFail:m=>`Impossible de vous abonner pour l'instant : ${m}`,
   emailOn:e=>`Courriel du vendredi activé pour ${e} · <button type="button" id="stopEmail">L'arrêter</button>`,
@@ -1061,7 +1062,7 @@ const TZ=(()=>{try{return Intl.DateTimeFormat().resolvedOptions().timeZone||""}c
 function toProfile(){
   const sizes={shoes:{sizes:state.shoe,width:state.width,...(state.gender==="any"&&state.shoeW.length?{women:state.shoeW}:{})}};
   APPAREL_GROUPS.forEach(g=>sizes[g]={sizes:clothFor(g).slice()});
-  return {lang:LANG,country:COUNTRY,tz:TZ,name:state.name,email:state.email,gender:state.gender,terrain:state.terrain,ships:state.ships,groups:state.groups,sizes,brands:state.brands,activities:[],...(REF?{ref:REF}:{})};
+  return {lang:LANG,country:COUNTRY,tz:TZ,name:state.name,email:state.email,gender:state.gender,terrain:state.terrain,ships:state.ships,groups:state.groups,sizes,brands:state.brands,activities:[],...(REF?{ref:REF}:{}),...(LS.get("gf-pro")?{pro_wait:LS.get("gf-pro")}:{})};
 }
 function applyProfile(p){
   if(!p)return;
@@ -2320,11 +2321,35 @@ function setSub(v){sub=v;LS.set("gf-sub",v)}
    it's opened on another device (Oct 8: shoe pages and the come-back bar sign people up before they ever reach the homepage) */
 function subProfile(p){const w=Object.entries(watches).slice(0,10);return w.length?{...p,watch_new:Object.fromEntries(w)}:p}
 let signupErr="",resentAt=0;
+/* Fox Pro price test (Oct 25, Bastien: "yes run the Pro price test from Nov 2"): from Nov 2 to Nov 16, returning visitors see a
+   waitlist card in the sign-up slot. Half the devices see $3/month or $29/year (A), half $5/month or $49/year (B): ANA.arm("pro").
+   No payment, no wall. Members join in one tap (saved in their profile: pro_wait); others leave their email (that's a normal
+   sign-up, said on the card). Analytics signup-step pro-view|A, pro-join|A, pro-no|A; funnel.py "FOX PRO PRICE TEST".
+   Decision rule (plan doc): build Pro if 5%+ of the visitors who saw the card join at a price. ?pro=1 shows it any day (previews). */
+const PRO_FROM="2026-11-02",PRO_TO="2026-11-16";
+let proSeen=false,proErr="";
+function proOn(){const q=/[?&]pro=1\b/.test(location.search),d=new Date().toISOString().slice(0,10);
+  return (q||(d>=PRO_FROM&&d<=PRO_TO&&ANA.nv()>=2))&&!LS.get("gf-pro")&&!LS.get("gf-nopro")}
+const proArm=()=>ANA.arm("pro"),proPrices=()=>proArm()==="B"?[5,49]:[3,29];
+function proHTML(member){
+  if(!proOn())return "";const [m,y]=proPrices();
+  if(!proSeen){proSeen=true;ana("signup-step",`pro-view|${proArm()}`)}
+  return `<div class="signup procard"><h3>${t("proH")}</h3>
+    <ul class="perks"><li>${t("pro1")}</li><li>${t("pro2")}</li><li>${t("pro3")}</li></ul>
+    <p class="proprice"><b>${t("proPrice",m,y)}</b><br>${t("proFound")}</p>
+    ${member?`<button class="primary" type="button" id="proJoin">${t("proJoin")}</button>`
+      :`<form id="proForm" novalidate><label for="proEmail" class="hidden">${t("email")}</label>
+      <input id="proEmail" type="email" autocomplete="email" inputmode="email" placeholder="${t("emailPh")}" value="${esc(state.email)}" required>
+      <button class="primary" type="submit">${t("proJoin")}</button></form>`}
+    ${proErr?`<p class="err">${esc(proErr)}</p>`:""}
+    <p class="fine">${t(member?"proFine":"proFineNew")} · <button type="button" id="proNo" class="linkbtn">${t("noThanks")}</button></p></div>`;
+}
 function signupHTML(){
-  if(sub&&sub.active)return "";
+  if(sub&&sub.active)return proHTML(true);
   if(sub&&sub.pending)return `<div class="signup"><h3>${t("checkInbox")}</h3><p style="margin:0">${sub.signin?t("signinCard",esc(sub.pending)):t("checkInboxTxt",esc(sub.pending))}</p>
     ${mailBtn(sub.pending)}<p class="fine">${t("junkHint")}</p>
     <p class="fine"><button type="button" id="suResend" style="font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;cursor:pointer">${t("resend")}</button> · <button type="button" id="suRetry" style="font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;cursor:pointer">${t("otherEmail")}</button></p></div>`;
+  const pro=proHTML(false);if(pro)return pro;          // Nov 2-16: returning visitors see the Fox Pro waitlist card in this slot
   if(LS.get("gf-nosignup"))return "";                  // "No thanks" on this device: hearts still ask
   if(QLAND&&view.q)return `<div class="signup qsline"><p><b>${t("qsH")}</b> ${t("qsTxt")}</p>
     <form id="suForm" novalidate><label for="suEmail" class="hidden">${t("email")}</label>
@@ -2375,6 +2400,17 @@ function runCardHTML(){
     <p class="fine">${t("signupFine")} · <button type="button" id="suNo" class="linkbtn">${t("noThanks")}</button></p></div>`;
 }
 function bindSignup(){
+  const pj=()=>{const [m,y]=proPrices();LS.set("gf-pro",{m,y,arm:proArm(),at:new Date().toISOString().slice(0,10)});ana("signup-step",`pro-join|${proArm()}`)};
+  const pb=$("proJoin");if(pb)pb.addEventListener("click",()=>{pj();saveProfile();toast(t("proThanks"));renderAll()});
+  const pf=$("proForm");if(pf)pf.addEventListener("submit",async e=>{
+    e.preventDefault();const email=cleanMail($("proEmail").value);
+    if(!okMail(email)){proErr=t("badEmail");renderAll();$("proEmail").focus();return}
+    const btn=pf.querySelector("button");btn.disabled=true;btn.textContent="…";
+    pj();state.email=email;const p=toProfile();LS.set("rd-profile",p);
+    try{await rpc("subscribe",{p_email:email,p_profile:subProfile(p)});proErr="";setSub({pending:email});track("signup",{method:"email",lang:LANG,where:"pro",ref:REF||"none"})}
+    catch(err){LS.set("gf-pro",null);proErr=t("signupFail",err.message)}
+    renderAll()});
+  const pn=$("proNo");if(pn)pn.addEventListener("click",()=>{LS.set("gf-nopro",1);ana("signup-step",`pro-no|${proArm()}`);renderAll()});
   const f=$("suForm");
   if(f)f.addEventListener("submit",async e=>{
     e.preventDefault();const email=cleanMail($("suEmail").value);

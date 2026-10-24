@@ -723,6 +723,31 @@ def site_flow(base, per, accented):
             return f"'peg' -> {', '.join(sug[:3])}…"
         # Oct 22: test 'runcard' ended (Bastien); its check is off
 
+        def pro_card():   # Oct 25 (Bastien: "yes run the Pro price test from Nov 2"): the waitlist card, $3/$29 (A) vs $5/$49 (B)
+            seen = {}
+            for arm in ("B", "A"):
+                page.goto(base + f"?pro=1&exp=pro:{arm}", wait_until="domcontentloaded")
+                page.wait_for_selector("section.grp .deal", timeout=20000)
+                if not page.locator(".procard").count():
+                    page.evaluate("() => localStorage.removeItem('gf-exp')")
+                    return "no card slot on this visit (waiting for an email confirmation): skipped"
+                seen[arm] = page.inner_text(".procard .proprice")
+            assert "$5/month or $49/year" in seen["B"], f"group B shows {seen['B']!r}"
+            assert "$3/month or $29/year" in seen["A"], f"group A shows {seen['A']!r}"
+            assert page.locator("#proForm, #proJoin").count(), "no way to join the waitlist"
+            page.click("#proNo")
+            page.wait_for_timeout(400)
+            gone = not page.locator(".procard").count()
+            page.evaluate("() => {localStorage.removeItem('gf-nopro'); localStorage.removeItem('gf-exp')}")
+            page.goto(base, wait_until="domcontentloaded")
+            page.wait_for_selector("section.grp .deal", timeout=20000)
+            assert gone, "'No thanks' didn't hide the card"
+            import datetime as _dt
+            if not ("2026-11-02" <= _dt.date.today().isoformat() <= "2026-11-16"):
+                assert not page.locator(".procard").count(), "the card shows outside the test window (Nov 2-16) without ?pro=1"
+            return "B $5/$49, A $3/$29, 'No thanks' hides it, nothing outside the test window"
+        check("Fox Pro waitlist card (price test)")(pro_card, page)
+
         def your_size_line():   # Oct 23 (Bastien OK'd): cards say "✓ Size 11 in stock" instead of a row of size chips
             lines = page.eval_on_selector_all("section.grp:not(.new) .deal .yoursz", "e => e.map(x => x.textContent)")
             rows = page.eval_on_selector_all("section.grp:not(.new) .deal .szrow", "e => e.length")
