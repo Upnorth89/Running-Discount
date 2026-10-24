@@ -418,6 +418,29 @@ try:
 except Exception as e:
     out.append(f"Email numbers: couldn't read ({str(e)[:80]})")
 
+# SEARCHES (Oct 24, Bastien: "the Google of the outdoor space"): what people look for, and what found nothing. A search counts
+# once per session (the site sends it after 1.5 s of no typing; the last word typed is the one kept)
+try:
+    norm = lambda q: " ".join((q or "").lower().split())[:40]
+    last = {}
+    for e in rows:
+        if e["kind"] in ("search", "search-none") and e["detail"] and ":" not in (e["detail"] or "")[:14]:
+            last[(e["sid"], norm(e["detail"])[:3])] = (e["kind"], norm(e["detail"]))
+    found = Counter(q for k, q in last.values() if k == "search")
+    none = Counter(q for k, q in last.values() if k == "search-none")
+    nses = len({sid for sid, _ in last})
+    if last:
+        out.append(f"SEARCHES: {nses} sessions searched, {sum(found.values()) + sum(none.values())} searches, "
+                   f"{sum(none.values())} found nothing ({round(100 * sum(none.values()) / max(1, sum(found.values()) + sum(none.values())))}%)")
+        out.append("  top searches: " + ", ".join(f"{q} {n}" for q, n in found.most_common(20)))
+        if none:
+            out.append("  found nothing: " + ", ".join(f"{q} {n}" for q, n in none.most_common(25)))
+        dym = Counter((e["detail"] or "")[14:] for e in rows if e["kind"] == "search" and (e["detail"] or "").startswith("did-you-mean: "))
+        if dym:
+            out.append("  'Did you mean' taps: " + ", ".join(f"{q} {n}" for q, n in dym.most_common(10)))
+except Exception as e:
+    out.append(f"Searches: couldn't read ({str(e)[:80]})")
+
 # Race gear lists (Oct 23, Bastien: "a tracker to see how and if people are using the gear checklist")
 try:
     RP = ("/races/", "/courses/", "/us/races/")
