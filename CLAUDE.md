@@ -453,6 +453,9 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   (TORONTO: Running Free, Running Room, BlackToe, Sporting Life, MEC, Sport Chek, Decathlon, Foot Locker, Arc'teryx), "at <store>"
   on each line; an item whose ?q= link would find other models too is skipped. Put the Markdown inside ONE code block (copying rendered chat links loses them; Oct 13: "It doesn't
   work"); he pastes it in Reddit's Markdown mode.
+  **Reddit = shoes only with shoe page links (Oct 24, Bastien: "Reddit is great for clicks but no sign ups"; 705 Reddit first visits in
+  14 days, <1% signed up, 8 of 361 homepage landings picked sizes; shoe pages bring 24 of 61 sign-ups via "Email me when it drops"):
+  `reddit_post.py --pages-only` (no ?q= searches, no gear). Compare sign-ups per post by ?ref.**
   **Rule (Oct 17, Bastien: "the shoe name should be a clickable link. It makes it look cleaner"): item names are ALWAYS the
   link, never a bare address under the line.** His Markdown paste in Reddit's normal editor showed raw [..](..), so every post
   also gets `--html FILE` (a copy page: names as links + "Copy post" button that copies rich text, links survive a paste in

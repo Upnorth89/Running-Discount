@@ -119,7 +119,7 @@ def host(u):
     return re.sub(r"^https?://(www\.)?", "", u).split("/")[0].lower()
 
 
-def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, under=None, canadian=False, direct=False, stores=None, exclude=(), hand=(), winter=False):
+def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, under=None, canadian=False, direct=False, stores=None, exclude=(), hand=(), winter=False, pages_only=False):
     d = requests.get(f"{SITE}/{'sale.json' if side == 'ca' else 'sale-us.json'}", timeout=200).json()
     fx = d["fx"]["USD"] if side == "us" else 1.0
     pre = "shoes" if side == "ca" else "us/shoes"
@@ -206,6 +206,9 @@ def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, u
             sl = slug(name)
             if kind == "shoes" and sl in pages and not (pages[sl] or {}).get("to"):
                 link = f"{SITE}/{pre}/{sl}/?ref={ref}"
+            elif pages_only:   # Oct 24 (Bastien): Reddit visitors bounce on the homepage search; a shoe page has "Email me when it drops"
+                log(f"  skipped (no shoe page, --pages-only): {it['b']} {it['n']}")
+                continue
             else:          # a search that finds this item: the shortest run of name words that matches nothing else
                 words = re.sub(r"[^a-z0-9' ]+", " ", fold(name)).split()
                 q = None
@@ -323,6 +326,7 @@ def main():
     ap.add_argument("--toronto", action="store_true", help="only deals at stores with Toronto shops (r/runTO), store named on each line")
     ap.add_argument("--winter", action="store_true", help="themed post: fall/winter running (waterproof/winter shoes, cold-weather layers, gloves, tuques, lights)")
     ap.add_argument("--hand-check", default="", help="comma-separated store domains whose deals stay in even when our check is blocked (mec.ca); listed as CHECK BY HAND")
+    ap.add_argument("--pages-only", action="store_true", help="shoes only, each linked to its shoe page (no ?q= searches): the default for Reddit since Oct 24")
     ap.add_argument("--city", choices=sorted(CITIES) + ["montreal", "vancouver"], help="only deals at stores with shops in that city, store named on each line")
     a = ap.parse_args()
     if a.toronto:
@@ -331,10 +335,12 @@ def main():
     sides = ["ca", "us"] if a.side == "both" else [a.side]
     n = (4, 6) if a.canadian else (6, 4)
     n = (n[0] if a.shoes is None else a.shoes, n[1] if a.gear is None else a.gear)
+    if a.pages_only:
+        n = (a.shoes or n[0] + n[1], 0)
     picks = {s: side_picks(s, a.ref, n[0], n[1], log=lambda m: print(m, file=sys.stderr), kind=a.kind, sex=a.sex, under=a.under,
                            canadian=a.canadian, direct=a.direct, stores=CITIES[a.city] if a.city else None,
                            exclude=[fold(x.strip()) for x in a.exclude.split(",") if x.strip()],
-                           hand=[x.strip() for x in a.hand_check.split(",") if x.strip()], winter=a.winter) for s in sides}
+                           hand=[x.strip() for x in a.hand_check.split(",") if x.strip()], winter=a.winter, pages_only=a.pages_only) for s in sides}
     global FOOT
     if a.direct:
         FOOT = (f"*Found with [thegearfox.com](https://thegearfox.com/?ref={a.ref}), a free site I made that shows running deals "
