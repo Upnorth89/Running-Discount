@@ -138,7 +138,7 @@ def canon_shoe(label, women=False):
         narrow = w in ("2a", "aa") or (not women and w == "b")
         t = m.group(2) + (" Wide" if wide else " Narrow" if narrow else "")
     # "9 M / 10.5 W", "4.5 M / 6W" (Lems), "US 7M / 9W"
-    m = re.match(r"(?i)^(?:us\s*)?(\d+(?:\.\d)?)\s*m\s*/\s*(\d+(?:\.\d)?)\s*w$", t)
+    m = re.match(r"(?i)^(?:us\s*)?(\d+(?:\.\d)?)\s*m(?:en'?s)?\s*/\s*(\d+(?:\.\d)?)\s*w(?:omen'?s)?$", t)   # Oct 24: REI "5 Mens/6.5 Womens"
     if m:
         return [k for k in ("M:" + (_us(m.group(1)) or ""), "W:" + (_us(m.group(2)) or "")) if len(k) > 2]
     low = t.lower()
