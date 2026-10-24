@@ -63,6 +63,11 @@ def lev(a, b):
     return p[len(b)]
 
 
+def qhas(t, w):
+    """index.html qhas() (Oct 24): a word also matches without a trailing s or e ("endorphins", "glycerine")."""
+    return w in t or (len(w) > 4 and w[-1] in "se" and w[:-1] in t)
+
+
 class Side:
     def __init__(self, items):
         self.items = items
@@ -82,13 +87,13 @@ class Side:
             self.squash.append(("".join(ws), starts))
 
     def hits(self, q):
-        return sum(1 for h in self.hays if all(w in h for w in q))
+        return sum(1 for h in self.hays if all(qhas(h, w) for w in q))
 
     def suggest(self, q):
         """Same as suggest() + the "longest part that exists" fallback in index.html."""
         changed, out = False, []
         for w in q:
-            if any(w in k for k in self.vocab):
+            if any(qhas(k, w) for k in self.vocab):
                 out.append(w)
                 continue
             m = re.fullmatch(r"([a-z]{3,})(\d+)", w)

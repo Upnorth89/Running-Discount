@@ -272,6 +272,14 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   tell me it's stupid and the reason why. I need to stop reminding you of this").** Every recommendation cites our own numbers
   (funnel.yml) and/or established UX/consumer research (Baymard, Nielsen Norman Group…), named, never made-up stats. When his idea
   won't work, say so plainly first, then why, then what would. Agreeing to be agreeable is the failure he keeps flagging.
+- **Weekly data check-in (Oct 24, Bastien: "weekly checkins ... where people drop off")**: scheduled task Mondays 7:47am Vancouver
+  (trigger "Weekly data check-in (Monday)"): funnel.yml -> ONE page: Path to $300K scorecard, drop-offs this week vs last, the 3
+  search-quality numbers ("Google of the outdoor space", one sector at a time: % searches finding nothing, duplicate cards, readable
+  shoe sizes), data gaps, live tests, ONE decision. tools/funnel.py prints a SCORECARD (top) + SEARCHES section for it.
+  Oct 24 baseline: 10% of searches found nothing (80/798; most = not on sale in their size, which the site already explains);
+  46 duplicate shoe-card groups in Canada (fix parked on the side branch a5424a7: it changes ~40 shoe page slugs per side,
+  needs a slug-stable display name first); 97.3% of shoe listings with readable sizes (REI "5 Mens/6.5 Womens" fixed).
+  Search forgives a trailing s/e (`qhas()` in index.html + search_check.py; site test "Search forgives a plural or an extra e").
 - **Answer, don't flip (Oct 24, Bastien: "You gave me advice, I then ask for clarification and then you just tell me the opposite").**
   I recommended brand+size pages, then reversed twice when he only asked questions. Before recommending: weigh costs/risks myself
   (near-copies, clutter, upkeep, real reach). A question from him = explain, not reverse. Change a recommendation only for a new
