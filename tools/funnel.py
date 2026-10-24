@@ -36,6 +36,7 @@ S = defaultdict(lambda: {"kinds": set(), "entry": None, "nv": None, "dev": None,
 for e in rows:
     s = S[e["sid"]]
     s["n"] += 1
+    s["d"] = s.get("d") or e["at"][:10]          # the session's day (events come in time order)
     s["kinds"].add(e["kind"])
     s["nv"] = s["nv"] or e["nv"]
     s["dev"] = s["dev"] or e["dev"]
@@ -60,6 +61,7 @@ for e in rows:
 
 new = [s for s in S.values() if s["nv"] == 1]
 out = [f"Last {DAYS} days: {len(rows)} events, {len(S)} sessions, {len(new)} first visits"]
+SC = {}       # the scorecard's numbers, filled as each section computes them (printed second, after this line)
 
 
 def land(s):
@@ -79,6 +81,13 @@ c = [s for s in home if "deal-click" in s["kinds"]]
 su = [s for s in home if "signup" in s["kinds"]]
 out.append(f"HOMEPAGE first visits {len(home)} -> saw welcome {pct(len(w), len(home))} -> picked sizes {pct(len(z), len(home))}"
            f" -> clicked a deal {pct(len(c), len(home))} -> signed up {pct(len(su), len(home))}")
+# Oct 22 redesign (light look for everyone, no test): watch the homepage first visits before vs after until Nov 5
+RD = "2026-10-22"
+for nm, g in (("before Oct 22", [s for s in home if s.get("d", "") < RD]), ("from Oct 22", [s for s in home if s.get("d", "") >= RD])):
+    if g:
+        SC["redesign " + nm] = (f"redesign watch, homepage first visits {nm}: {len(g)} -> sizes {pct(sum(1 for s in g if 'sizes-saved' in s['kinds']), len(g))}, "
+                                f"store {pct(sum(1 for s in g if 'deal-click' in s['kinds']), len(g))}")
+SC["home"] = f"homepage first visits {len(home)}: sizes {pct(len(z), len(home))}, store {pct(len(c), len(home))}, sign-up {pct(len(su), len(home))}"
 only = [s for s in home if s["kinds"] <= {"visit", "ref-visit"}]
 out.append(f"Homepage first visits with nothing but the visit (no welcome, no leave/scroll: bots, link previews or gone at once): "
            f"{pct(len(only), len(home))}")
@@ -110,6 +119,8 @@ if shoe:
                f"clicked a store {pct(sum(1 for s in shoe if 'deal-click' in s['kinds']), len(shoe))}, "
                f"went on to the homepage {pct(sum(1 for s in shoe if 'welcome-view' in s['kinds'] or 'sizes-saved' in s['kinds']), len(shoe))}, "
                f"went on to another of our pages {pct(sum(1 for s in shoe if len(s['pages']) >= 2), len(shoe))}")   # Oct 22: test 'alts' metric
+    SC["shoe"] = (f"shoe-page first visits {len(shoe)}: size {pct(sum(1 for s in shoe if 'shoe-page-size' in s['kinds']), len(shoe))}, "
+                  f"store {pct(sum(1 for s in shoe if 'deal-click' in s['kinds']), len(shoe))}, another page {pct(sum(1 for s in shoe if len(s['pages']) >= 2), len(shoe))}")
 # come-back bar (Oct 5) and where sign-ups happen (Oct 8): is the store offer used, and does a sign-up follow a deal click?
 alls = list(S.values())
 off = [s for s in alls if "store-offer" in s["kinds"]]
@@ -257,6 +268,7 @@ try:
     r.raise_for_status()
     c = r.json()
     bs = Counter(c.get("by_store") or {})
+    SC["clicks"] = (int(c.get("clicks") or 0), now.day)
     out.append(f"THIS MONTH SO FAR (own click table): {int(c.get('visits') or 0)} visits, {int(c.get('clicks') or 0)} clicks; by store: "
                + ", ".join(f"{k} {v}" for k, v in bs.most_common(20)))
 except Exception as e:
@@ -378,6 +390,7 @@ try:
         sess = lambda f: len({e["sid"] for e in ev if f(e)})
         made = cnt2({"and": f"(created_at.gte.{a0},created_at.lt.{a1 + timedelta(days=1)})"})
         conf = cnt2({"and": f"(created_at.gte.{a0},created_at.lt.{a1 + timedelta(days=1)})", "confirmed_at": "not.is.null"})
+        SC["week"] = f"{a0:%b %d}-{a1:%b %d}: {len(g)} new devices, came back within 7 days {pct(b7, len(g))}, sign-ups {made}"
         out.append(f"  {a0:%b %d}-{a1:%b %d}: {len(g)} new devices, came back {pct(sum(1 for d in g if (d['days'] or 1) > 1), len(g))} (within 7 days: {pct(b7, len(g))}); "
                    f"sign-ups {made}, confirmed {conf} ({round(100 * conf / max(1, made))}%)")
         out.append(f"    Watch price taps {sess(lambda e: e['kind'] == 'watch-add')} sessions | 'Didn't buy it?' card shown "
@@ -399,6 +412,7 @@ try:
     conf = cnt({"created_at": f"gte.{since}", "confirmed_at": "not.is.null"})
     live = cnt({"confirmed_at": "not.is.null", "unsubscribed_at": "is.null"})
     unsub = cnt({"unsubscribed_at": "not.is.null"})
+    SC["members"] = live
     out.append(f"EMAIL: sign-ups in this window {made}, confirmed {conf} ({round(100 * conf / max(1, made))}%); "
                f"active subscribers now {live}; unsubscribed ever {unsub}")
 except Exception as e:
@@ -434,6 +448,24 @@ try:
             out.append("  store clicks by item: " + ", ".join(f"{k} {v}" for k, v in clicks.most_common(10)))
 except Exception as e:
     out.append(f"Race gear lists: couldn't read ({str(e)[:80]})")
+
+# SCORECARD (Oct 24, Bastien: "weekly checkins ... to ensure we are optimizing the data we collect and where people drop off"):
+# the few numbers the Monday check-in starts from, against the Path to $300K milestones (plan doc). The store-commission line
+# is an estimate: $0.05-0.15 a click (Sovrn's quoted earnings per click ranged $0.04-0.33), and only stores in a program earn.
+try:
+    srcs = Counter(src(s) for s in new)
+    sc = ["SCORECARD (milestone Mar 2027: 2,000 members, $1,000/month)",
+          f"  first visits {len(new)}: " + ", ".join(f"{k} {v}" for k, v in srcs.most_common(5))]
+    sc += [f"  {SC[k]}" for k in ("home", "redesign before Oct 22", "redesign from Oct 22", "shoe", "week") if k in SC]
+    if "members" in SC:
+        sc.append(f"  active subscribers {SC['members']} (milestone 2,000)")
+    if "clicks" in SC:
+        n, d = SC["clicks"]
+        pace = round(n * 30 / max(1, d))
+        sc.append(f"  store clicks this month {n} (pace ~{pace:,}/month); if every store paid: ~${round(pace * 0.05):,}-{round(pace * 0.15):,}/month (estimate)")
+    out[1:1] = sc
+except Exception as e:
+    out.insert(1, f"Scorecard: couldn't build ({str(e)[:80]})")
 
 text = "\n".join(out)
 print(text)
