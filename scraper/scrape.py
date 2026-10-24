@@ -3938,7 +3938,7 @@ def _shoe_name(o, keep_tr):
     # "Triumph 23 Running Shoe - Women's" (Sporting Life) = "Triumph 23 Running Shoes - Women's" (Last Hunt) =
     # "Speedgoat 7 GTX Trail Running [Wide]"; but "Ghost Trail Running Shoes" (Altitude) = "Ghost Trail" (a model, not
     # Brooks' road Ghost): the trail/road word stays when another store's name for the model has it (_TRAIL_MODELS)
-    tr = r"\brunning( road| trail)?( shoes?)?\b|\bshoes?\b" if keep_tr else r"\b((trail|road) )?running( road| trail)?( shoes?)?\b|\bshoes?\b"
+    tr = r"\brunning( road| trail)?( shoes?)?\b|\bshoes?\b|\bsneakers?\b" if keep_tr else r"\b((trail|road) )?running( road| trail)?( shoes?)?\b|\bshoes?\b|\bsneakers?\b"   # Sport Chek: "Boston 13 Sneakers"
     name = re.sub(r"\bgore ?tex\b", "gtx", name)                     # "Ghost 18 Gore-Tex" = "Ghost 18 GTX"
     name = re.sub(r"\b(trail|road) run\b", r"\1 running", name)        # Oct 18: MEC's "Norvan LD 4 Gore-Tex Trail Run" = "... GTX Trail Running Shoe"
     name = re.sub(r"\b(available in wide widths?|waterproof)\b", " ", name) if "gtx" in name or "available" in name else name
@@ -4157,7 +4157,17 @@ def merge(offers):
     _TRAIL_MODELS.clear()
     for o in tidied:          # models a store names with Trail/Road but without "running" ("Ghost Trail - Men's")
         if o["g"] == "shoes" and re.search(r"\b(trail|road)\b", o["n"], re.I) and not re.search(r"\brun(ning)?\b", o["n"], re.I):
-            _TRAIL_MODELS.add((o["b"].lower().strip(), _shoe_name(o, True)))
+            k = _shoe_name(o, True)
+            w = re.search(r"\b(trail|road)\b", k)
+            # Oct 24 (34 shoes had two cards from Canadian stores: "Cascadia 19 - Men's" + "Cascadia 19 Trail Running Shoe - Men's"):
+            # the word is part of the model only when it changes the kind of shoe (Brooks' road Ghost vs "Ghost Trail"); on a
+            # model that is already that kind ("Cascadia 19 Trail", "Torin 8 Road") it adds nothing and must not split the card
+            if w:
+                base = re.sub(r"\b(trail|road)\b", " ", k)
+                kind = garment_type("shoes", f'{o["b"]} {base}')
+                if (w.group(1) == "trail" and kind in ("trail", "hike")) or (w.group(1) == "road" and kind in ("daily", "race")):
+                    continue
+            _TRAIL_MODELS.add((o["b"].lower().strip(), k))
     # Oct 9: shoes listed in EU sizes only ("42", "38.5 EU": La Sportiva, Vibram, Vivobarefoot) used to be dropped. Today's
     # labels that carry both EU and US for the same brand and gender ("EU 43 (US 10)", "10.0 (43)") give that brand's chart;
     # an EU-only size takes it when every store agrees on one US size, otherwise it stays unread (no guessing).
@@ -4180,6 +4190,10 @@ def merge(offers):
                                    "_ca": [], "_fs": [], "ca": False}
             if o["g"] in TYPES:
                 it["t"] = garment_type(o["g"], f'{o["b"]} {o["n"]}' if o["g"] in ("shoes", "gear") else o["n"])
+        elif o["g"] == "shoes" and re.search(r"\b(trail|road)\b", it["n"], re.I) and not re.search(r"\b(trail|road)\b", o["n"], re.I) \
+                and not re.search(r"\s[—·]\s", o["n"]):
+            it["n"] = o["n"].strip()   # Oct 24: a merged card keeps the plain name ("Cascadia 19 - Men's", not "Cascadia 19 Trail - Men's"):
+                                       # its shoe page address stays the same
         if o.get("_t"):
             it["t"] = o["_t"]          # a store's "Trail Running Shoes - MT3" (tidy_shoes) says trail, whatever the other names say
         oi = len(it["of"])
