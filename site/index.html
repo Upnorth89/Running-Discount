@@ -702,7 +702,7 @@ const ANA=(()=>{const ls=k=>{try{return localStorage.getItem(k)}catch(e){return 
   let over={};try{const q=new URLSearchParams(location.search).get("exp");over=JSON.parse(ls("gf-exp")||"{}");
     if(q){q.split(",").forEach(x=>{const [n,a]=x.split(":");if(n&&/^[AB]$/.test(a))over[n]=a});localStorage.setItem("gf-exp",JSON.stringify(over))}}catch(e){}
   const arm=n=>{if(over[n])return over[n];let h=2166136261;for(const c of did+"|"+n){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return (h>>>0)%2?"B":"A"};
-  const TESTS=["r100","run1st"];   // Oct 22: 'run1st' = running gear leads the first rows (B)   // Oct 22: the redesign ('look' B) is the site for everyone (Bastien), 'runcard' ended (0 vs 2 sign-ups, too rare to decide), 'layout' ended Oct 19
+  const TESTS=["r100","run1st","cards2"];   // Oct 22: 'run1st' = running gear leads the first rows (B)   // Oct 22: the redesign ('look' B) is the site for everyone (Bastien), 'runcard' ended (0 vs 2 sign-ups, too rare to decide), 'layout' ended Oct 19
      // Oct 21: 'look' = sizes on each card + category photos + store names (B)   // Oct 20: 'welcome' and 'drops' ended (A won); 'layout' back as a 50/50 test
   if(fresh){TESTS.forEach(n=>add("signup-step",`exp|${n}|${arm(n)}`))}
   if(fresh)add("visit",em?"email-"+em:(matchMedia("(display-mode: standalone)").matches||navigator.standalone)?"home-screen app":document.referrer?new URL(document.referrer).hostname:"",null,location.pathname);
@@ -807,7 +807,7 @@ en:{
   get shareText(){return `Running and outdoor gear on sale in your size, from stores ${US()?"across the US":"across Canada"}.`},usFuel:"Fuel from US stores (The Feed, Skratch…) is hidden while “Ships from Canada” is on.",usFuelShow:"Show US stores too",shipsFrom:c=>`ships from ${({US:"the US",CA:"Canada",UK:"the UK",FR:"France",DK:"Denmark",AU:"Australia"})[c]||(US()?"outside the US":"outside Canada")}, duties may apply`,showMore:n=>`Show ${n} more`,
   allGear:"All gear",typeAll:"All",types:{daily:"Daily trainers",race:"Carbon & race",trail:"Trail",hike:"Hiking & winter",spike:"Track & XC spikes",light:"Lights",pole:"Poles",bottle:"Bottles & flasks",sun:"Sunglasses",tee:"T-shirts & tanks",layer:"Long sleeves & hoodies",jacket:"Jackets & vests",short:"Shorts",tight:"Tights",pant:"Pants"},
   get shipsCA(){return US()?"Ships from the US":"Ships from Canada"},saleOnly:"Include full price",
-  stopWatching:"Stop watching",watchBtn:"Watch price",watchOn:"Watching",openMail:n=>`Open ${n}`,bwH:"Didn't buy it?",bwTxt:"We'll show you when the price drops.",bwGo:"♡ Watch price",bwMail:"Get an email when it drops in your size.",bwNotify:"Notify me",bwFine:"Free. Plus the best deals in your size every Friday.",bwSuH:"Want an email when it drops?",bwSuTxt:"Add your email: we'll write when it drops in your size, plus the best deals every Friday. Free.",qsH:"Like this deal?",qsTxt:"Get the best ones in your size every Friday. Free, one email a week.",watch:"Watch",removed:"Removed from your watchlist.",
+  stopWatching:"Stop watching",watchBtn:"Watch price",watchS:"Watch",watchOn:"Watching",openMail:n=>`Open ${n}`,bwH:"Didn't buy it?",bwTxt:"We'll show you when the price drops.",bwGo:"♡ Watch price",bwMail:"Get an email when it drops in your size.",bwNotify:"Notify me",bwFine:"Free. Plus the best deals in your size every Friday.",bwSuH:"Want an email when it drops?",bwSuTxt:"Add your email: we'll write when it drops in your size, plus the best deals every Friday. Free.",qsH:"Like this deal?",qsTxt:"Get the best ones in your size every Friday. Free, one email a week.",watch:"Watch",removed:"Removed from your watchlist.",
   watching:"Watching. We'll email you if it drops or comes back in your size.",
   watchingPending:"Watching. Confirm your email to get price-drop alerts.",watchingSignup:"Watching. Sign up for the Friday email to get price-drop alerts.",
   watchlistChanges:n=>`Your watchlist, ${n} ${PL(n,"change","changes")}`,
@@ -920,7 +920,7 @@ fr:{
   get shareText(){return `Des aubaines de course et de plein air dans votre taille, dans des boutiques ${US()?"partout aux États-Unis":"partout au Canada"}.`},usFuel:"La nutrition des boutiques américaines (The Feed, Skratch…) est masquée quand « Expédié du Canada » est activé.",usFuelShow:"Voir aussi les boutiques américaines",shipsFrom:c=>`expédié ${({US:"des États-Unis",CA:"du Canada",UK:"du Royaume-Uni",FR:"de France",DK:"du Danemark",AU:"d'Australie"})[c]||(US()?"de l'extérieur des États-Unis":"de l'extérieur du Canada")}, des droits peuvent s'appliquer`,showMore:n=>`Voir ${n} de plus`,
   allGear:"Tout",typeAll:"Tout",types:{daily:"Entraînement",race:"Carbone et compétition",trail:"Sentier",hike:"Randonnée et hiver",spike:"Pointes (piste et cross)",light:"Frontales",pole:"Bâtons",bottle:"Gourdes et flasques",sun:"Lunettes de soleil",tee:"T-shirts et camisoles",layer:"Manches longues et kangourous",jacket:"Manteaux et vestes",short:"Shorts",tight:"Collants",pant:"Pantalons"},
   get shipsCA(){return US()?"Expédié des États-Unis":"Expédié du Canada"},saleOnly:"Inclure le prix régulier",
-  stopWatching:"Retirer des favoris",watchBtn:"Suivre le prix",watchOn:"Suivi",openMail:n=>`Ouvrir ${n}`,bwH:"Pas acheté?",bwTxt:"On vous montre quand le prix baisse.",bwGo:"♡ Suivre le prix",bwMail:"Recevez un courriel quand son prix baisse dans votre taille.",bwNotify:"M'avertir",bwFine:"Gratuit. Et les meilleures aubaines à votre taille chaque vendredi.",bwSuH:"Un courriel quand il baisse?",bwSuTxt:"Entrez votre courriel : on vous écrit quand il baisse dans votre taille, et les meilleures aubaines chaque vendredi. Gratuit.",qsH:"Cette aubaine vous plaît?",qsTxt:"Recevez les meilleures à votre taille chaque vendredi. Gratuit, un courriel par semaine.",watch:"Ajouter aux favoris",removed:"Retiré de vos favoris.",
+  stopWatching:"Retirer des favoris",watchBtn:"Suivre le prix",watchS:"Suivre",watchOn:"Suivi",openMail:n=>`Ouvrir ${n}`,bwH:"Pas acheté?",bwTxt:"On vous montre quand le prix baisse.",bwGo:"♡ Suivre le prix",bwMail:"Recevez un courriel quand son prix baisse dans votre taille.",bwNotify:"M'avertir",bwFine:"Gratuit. Et les meilleures aubaines à votre taille chaque vendredi.",bwSuH:"Un courriel quand il baisse?",bwSuTxt:"Entrez votre courriel : on vous écrit quand il baisse dans votre taille, et les meilleures aubaines chaque vendredi. Gratuit.",qsH:"Cette aubaine vous plaît?",qsTxt:"Recevez les meilleures à votre taille chaque vendredi. Gratuit, un courriel par semaine.",watch:"Ajouter aux favoris",removed:"Retiré de vos favoris.",
   watching:"Ajouté. On vous écrit si le prix baisse ou si votre taille revient en stock.",
   watchingPending:"Ajouté. Confirmez votre courriel pour recevoir les alertes de baisse de prix.",watchingSignup:"Ajouté. Abonnez-vous au courriel du vendredi pour recevoir les alertes de baisse de prix.",
   watchlistChanges:n=>`Vos favoris, ${n} ${PL(n,"changement","changements")}`,
@@ -1147,6 +1147,10 @@ const WELCOME_B=false;   // test "welcome" ended Oct 20: without the welcome scr
 // Search + categories first, then the swipe row as small tiles (tile()). Was test 'layout' B (Oct 18); Oct 19 Bastien chose it for
 // everyone (Baymard: shoppers who search go straight for the box; one day of our data, not a test result)
 const LAYOUT_B=ANA.arm("layout")==="B";
+/* Test 'cards2' (Oct 25): B = phones show one deal per row, photo beside the details (theme.css html.cards2), 6 top deals + 4 per
+   category; metric = homepage first visits that click a store (direct visitors: 15% since the redesign, 33% before) */
+const CARDS2=ANA.arm("cards2")==="B";if(CARDS2)document.documentElement.classList.add("cards2");
+const C2P=()=>CARDS2&&innerWidth<700&&innerWidth>=380;   // phones with two cards a row
 const LOOK_B=true;   // Oct 22 (Bastien: "I'd redesign now"): the redesign for everyone, no test; before/after numbers watched for 2 weeks (docs/decisions.md)
    // Oct 21 (Bastien's redesign mockups): the sizes row on cards, category photos + store names on the welcome screen   // Oct 20: back to a 50/50 test (early data: sizes picked 14% B vs 45% A, 33 devices)
 if(LAYOUT_B){document.body.classList.add("lay-b");$("filtersBox").after($("newBox"))}
@@ -1637,7 +1641,7 @@ function rdUpdate(all,p){   // hero, dropdowns, tiles, why: from today's data, e
   document.documentElement.classList.toggle("rdw",!!view.watch);document.documentElement.classList.toggle("rdsized",hasSizes());
   const nf=[view_rd.brand,view_rd.max,view.store,state.groups.length===1,view.fullPrice,state.ships==="all",view.cdn,view.sort!=="match"].filter(Boolean).length;$("rdBarN").textContent=$("rdQFN").textContent=$("hFiltN").textContent=nf||"";
 }
-function rdLim(top){const c=innerWidth>=1000?5:innerWidth>=700?3:2;return c*(top?2:c===2?2:1)}   // full rows only: 2 rows of Top deals, 1 row (phones 2) per category
+function rdLim(top){if(CARDS2&&innerWidth<700)return top?6:4;const c=innerWidth>=1000?5:innerWidth>=700?3:2;return c*(top?2:c===2?2:1)}   // full rows only: 2 rows of Top deals, 1 row (phones 2) per category
 /* the first rows of "Today's top deals" (Bastien OK'd, Oct 21): known running gear first. A shoe = a model with its own price page
    (sold in 3+ Canadian stores); anything else = a brand carried by 4+ of our stores. Everything else follows in the same order. */
 var RDBS={n:-1,m:{}};
@@ -1815,7 +1819,8 @@ const lowDays=d=>(d.hd>=LOW_DAYS&&d.lo!=null&&d.pct>0&&d.best<=d.lo+0.01&&d.hi>d
 // Oct 23 (Bastien: "is it necessary to have all sizes at the bottom of each card? aren't we already telling people only what is in their
 // size?"): the list is already filtered to your size, so the card says it in one line; the chips row stays for "every size" browsing
 function yourSize(mine){const l=mine.map(x=>x.replace(/ (wide|large)$/,"")).slice(0,3);
-  return `<div class="yoursz">${esc(t(l.length>1?"yourSizes":"yourSize",l.join(", ")))}</div>`}
+  const tx=t(l.length>1?"yourSizes":"yourSize",l.join(", "));   // cards2 B: "✓ Size 11" shares the last line with the Watch button
+  return `<div class="yoursz">${esc(C2P()?tx.replace(/ (in stock|en stock)$/,""):tx)}</div>`}
 function sizeRow(d,mine){
   const SO=["2XS","XS","S","M","L","XL","2XL","3XL"],ix=v=>{const i=SO.indexOf(norm(v));return i<0?99:i},nv=v=>parseFloat(String(v).replace(/^[MW]/,""));
   const other=state.gender==="men"?"W:":state.gender==="women"?"M:":null;   // unisex shoes list both cuts: keep the visitor's
@@ -1825,6 +1830,7 @@ function sizeRow(d,mine){
   const you=new Set(d.any?[]:mine);let at=all.findIndex(x=>you.has(x));if(at<0)at=0;
   const from=Math.max(0,Math.min(at-2,all.length-5)),shown=all.slice(from,from+5);   // 5 fit one line on a phone
   const lab=x=>x.replace(/ (wide|large)$/,"");
+  if(C2P())return `<div class="sztxt" aria-label="${esc(t(d.any?"sizesOnSale":"inYourSize"))} ${esc(all.join(", "))}">${all.map(x=>you.has(x)?`<b>${esc(lab(x))}</b>`:esc(lab(x))).join("/")}</div>`;   // cards2 B (Bastien): "XS / S / M" on one line, not boxes
   return `<div class="szrow" aria-label="${esc(t(d.any?"sizesOnSale":"inYourSize"))} ${esc(mine.join(", "))}">${from>0?'<span class="szmore">…</span>':""}${shown.map((x,i)=>`<span class="sz${you.has(x)?" you":""}${Math.abs(from+i-at)>1?" far":""}"${you.has(x)?` title="${esc(t("szYou"))}"`:""}>${esc(lab(x))}</span>`).join("")}${from+5<all.length?'<span class="szmore">…</span>':""}</div>`}
 function card(d,extra){
   const sized=SIZED.has(d.g);
@@ -2001,8 +2007,8 @@ $("dealList").addEventListener("click",e=>{
 const HEART='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 6.9 4.5c2.1 0 3.6 1.2 5.1 3 1.5-1.8 3-3 5.1-3 3.5 0 5.5 3.5 4.2 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>';
 let watches=LS.get("gf-watch")||{};           // key -> {b,n,g,url,price,saved}
 const itemKey=d=>`${d.b}|${d.n}|${d.g}|${d.w?1:0}`.toLowerCase();   // same id the alert emails use
-function heartBtn(k,on,d){return `<button type="button" class="heart" data-key="${esc(k)}" aria-pressed="${on}" aria-label="${on?t("stopWatching"):t("watch")} ${esc(d.b+" "+d.n)}">${HEART}<span class="hl" aria-hidden="true">${on?t("watchOn"):t("watchBtn")}</span></button>`}
-function setHearts(k){const on=!!watches[k];document.querySelectorAll(`.heart[data-key="${CSS.escape(k)}"]`).forEach(x=>{x.setAttribute("aria-pressed",String(on));const l=x.querySelector(".hl");if(l)l.textContent=on?t("watchOn"):t("watchBtn")})}
+function heartBtn(k,on,d){return `<button type="button" class="heart" data-key="${esc(k)}" aria-pressed="${on}" aria-label="${on?t("stopWatching"):t("watch")} ${esc(d.b+" "+d.n)}">${HEART}<span class="hl" aria-hidden="true">${on?t("watchOn"):t(C2P()?"watchS":"watchBtn")}</span></button>`}
+function setHearts(k){const on=!!watches[k];document.querySelectorAll(`.heart[data-key="${CSS.escape(k)}"]`).forEach(x=>{x.setAttribute("aria-pressed",String(on));const l=x.querySelector(".hl");if(l)l.textContent=on?t("watchOn"):t(C2P()?"watchS":"watchBtn")})}
 /* Oct 11 (52% of sign-ups tapped the confirm link): "Check your inbox" gets a button that opens their mail (Gmail, Outlook…) */
 const MAILAPPS=[[/^(gmail|googlemail)\./,"Gmail","https://mail.google.com/mail/u/0/#search/from%3Athegearfox.com"],[/^(outlook|hotmail|live|msn)\./,"Outlook","https://outlook.live.com/mail/0/"],[/^(yahoo|ymail|rocketmail)\./,"Yahoo Mail","https://mail.yahoo.com/"],[/^(icloud|me|mac)\.com$/,"iCloud Mail","https://www.icloud.com/mail"],[/^(proton|protonmail|pm)\./,"Proton Mail","https://mail.proton.me/"]];
 function mailBtn(e){const dm=(String(e||"").split("@")[1]||"").toLowerCase(),m=MAILAPPS.find(x=>x[0].test(dm));return m?`<a class="mailbtn" href="${m[2]}" target="_blank" rel="noopener" data-mailapp="${m[1]}">${t("openMail",m[1])}</a>`:""}
@@ -2269,7 +2275,7 @@ function renderAll(){
     NEWROW=drops.length+fresh.length>=3;
     if(!NEWROW);else if(CALM&&NEWSTYLE==="row"&&!view.newAll)$("newBox").innerHTML+=ns;else parts.push(ns)}
   // Oct 8: until someone picks that size, Top deals skip items left only in rare sizes (an XS-only hoodie at #2)
-  const commonFit=d=>!d.any||(APPAREL_GROUPS.includes(d.g)?d.ok.some(e=>["S","M","L","XL"].includes(norm(e[0])))
+  const commonFit=d=>!d.any||(APPAREL_GROUPS.includes(d.g)?new Set(d.ok.map(e=>norm(e[0])).filter(z=>["S","M","L"].includes(z))).size>=2   // Oct 25: no clothing size yet = 2+ of S/M/L (an XL-only top was #2 for a men's 11)
     :d.g==="shoes"?d.ok.some(e=>{const k=shoeKey(e[0]);return k&&+k.n>=7&&+k.n<=12}):true);
   let top=shoesFirst(onSale.filter(commonFit).sort(SORTS[view.sort]));
   if(LOOK_B&&view.sort==="match")top=rdKnownFirst(top);

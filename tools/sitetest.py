@@ -532,7 +532,8 @@ def site_flow(base, per, accented):
 
         def watch_label():   # Oct 11: cards say "Watch price" (the small heart alone was used by 5 people in 3 weeks)
             labels = page.eval_on_selector_all("section.grp .heart .hl", "e => e.map(x => x.textContent)")
-            assert labels and all(x in ("Watch price", "Watching") for x in labels), f"cards' watch buttons say {set(labels)}"
+            ok = ("Watch price", "Watching") + (("Watch",) if page.evaluate("document.documentElement.classList.contains('cards2')") else ())   # test cards2 B: "Watch" (Bastien OK'd, Oct 25)
+            assert labels and all(x in ok for x in labels), f"cards' watch buttons say {set(labels)}"
             return f"{len(labels)} cards"
         check("Cards have a 'Watch price' button")(watch_label, page)
 
@@ -747,6 +748,33 @@ def site_flow(base, per, accented):
                 assert not page.locator(".procard").count(), "the card shows outside the test window (Nov 2-16) without ?pro=1"
             return "B $5/$49, A $3/$29, 'No thanks' hides it, nothing outside the test window"
         check("Fox Pro waitlist card (price test)")(pro_card, page)
+
+        def compact_cards():   # Oct 25 (Bastien: "more items would be better on a screen"): test 'cards2' B = slimmer two-per-row phone cards,
+            # last line = your size / "S/M/L" on the left + "♡ Watch" on the right, 6 top deals; A = as before
+            out = {}
+            for arm in ("B", "A"):
+                page.goto(base + f"?exp=cards2:{arm}", wait_until="domcontentloaded")
+                page.wait_for_selector("section.grp .deal", timeout=20000)
+                page.wait_for_timeout(600)
+                out[arm] = page.evaluate("""() => {const cs = [...document.querySelectorAll('#dealList section.grp:not(.new) .rdc')].slice(0, 12);
+                  const hit = (a, b) => { if (!a || !b) return false; const x = a.getBoundingClientRect(), y = b.getBoundingClientRect();
+                    return x.left < y.right - 1 && y.left < x.right - 1 && x.top < y.bottom - 1 && y.top < x.bottom - 1 };
+                  return {on: document.documentElement.classList.contains('cards2'), top: document.querySelectorAll('#grp-__sale .rdc').length,
+                    h: Math.round(cs.reduce((t, c) => t + c.getBoundingClientRect().height, 0) / Math.max(1, cs.length)),
+                    labels: [...new Set(cs.map(c => (c.querySelector('.heart .hl') || {}).textContent))],
+                    over: cs.filter(c => [...c.querySelectorAll('.yoursz,.sztxt,.cmp,.rdrep,.store,.price')].some(e => hit(e, c.querySelector('.heart')))).length,
+                    boxes: cs.filter(c => c.querySelector('.szrow')).length, wide: document.documentElement.scrollWidth > innerWidth}}""")
+            page.evaluate("() => {const o = JSON.parse(localStorage.getItem('gf-exp') || '{}'); delete o.cards2; localStorage.setItem('gf-exp', JSON.stringify(o))}")
+            b, a = out["B"], out["A"]
+            assert b["on"] and not a["on"], f"group switch didn't apply: {out}"
+            assert b["top"] == 6 and a["top"] == 4, f"top deals shown: B {b['top']}, A {a['top']} (should be 6 and 4)"
+            assert set(b["labels"]) <= {"Watch", "Watching"} and set(a["labels"]) <= {"Watch price", "Watching"}, f"watch labels B {b['labels']}, A {a['labels']}"
+            assert not b["over"], f"B: on {b['over']} cards the last line runs into 'Watch'"
+            assert not b["boxes"], f"B: {b['boxes']} cards still show size boxes"
+            assert not b["wide"], "B: the page is wider than the phone"
+            assert b["h"] < a["h"] * 0.85, f"B cards aren't slimmer: {b['h']}px vs {a['h']}px"
+            return f"B {b['h']}px a card (A {a['h']}px), 6 top deals, size + Watch on one line, no overlaps"
+        check("Compact phone cards (test cards2)")(compact_cards, page)
 
         def your_size_line():   # Oct 23 (Bastien OK'd): cards say "✓ Size 11 in stock" instead of a row of size chips
             lines = page.eval_on_selector_all("section.grp:not(.new) .deal .yoursz", "e => e.map(x => x.textContent)")
@@ -1109,7 +1137,7 @@ def site_flow(base, per, accented):
                 got = q.evaluate("""() => {const vis = el => !!el && el.getClientRects().length > 0, txt = s => [...document.querySelectorAll(s)].filter(vis).map(x => x.textContent).join(' ');
                   const cards = [...document.querySelectorAll('#dealList section.grp:not(.new) .dw')].slice(0, 6);
                   return {
-                    '"Watch price" in words on cards': cards.length > 0 && cards.every(w => /watch price|watching/i.test(w.querySelector('.heart')?.innerText || '')),
+                    '"Watch price" in words on cards': cards.length > 0 && cards.every(w => /watch price|watching/i.test(w.querySelector('.heart')?.innerText || '') || (document.documentElement.classList.contains('cards2') && /^\W*watch$/i.test((w.querySelector('.heart')?.innerText || '').trim()))),
                     'your sizes shown': /11/.test(txt('#subhead,#sizeSummary,#ddSize,#rdQS,#rdBarZ')),
                     'sign-up card': !!document.querySelector('#dealList .signup'),
                     'search box': vis(document.getElementById('dSearch')),

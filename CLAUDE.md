@@ -251,6 +251,11 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   computers' hero shorter (photo 230px, one-line headline, sub hidden once sized) so the category circles fit a 1366x650 browser;
   More filters scrolls its row into view; Brand menu + brand circles/A-Z count full-price items when Include full price is on ("only 1
   norda"), `.fullwait` line while deals.json (21 MB, 3.4 MB sent) loads, toast if it fails.
+  Test 'cards2' (Oct 25, Bastien OK'd; daily review: direct homepage first visits clicking a store fell 33% -> 15% after the redesign):
+  B on phones 380-699px (`C2P()`, html.cards2, theme.css) = slimmer cards: photo 4:3, last line = "✓ Size 11" (`yourSize` minus "in stock") or
+  sizes as "XS/S/M" (`sizeRow` -> .sztxt, yours in orange) + "♡ Watch" (`watchS`; core "Watch price" shortened for B only, his OK),
+  smaller CAD (kept: not in the phone header), 6 top deals (`rdLim`). Metric = homepage first visits that click a store, p<0.05.
+  Site test "Compact phone cards (test cards2)". Same day: Top deals clothing needs 2+ of S/M/L until a clothing size is picked (`commonFit`).
   Test 'pro' (Oct 25, Bastien OK'd; Fox Pro step 1 of 2): `proOn()`/`proHTML()` in index.html, Nov 2-16 (PRO_FROM/PRO_TO), visits 2+
   (`ANA.nv()`), takes the sign-up card's slot (members: one tap, saves `pro_wait` in the profile; others: email = subscribe + Friday email),
   A $3/$29, B $5/$49; gf-pro / gf-nopro; analytics signup-step pro-view|pro-join|pro-no; funnel "FOX PRO PRICE TEST"; `?pro=1` shows it any
