@@ -87,6 +87,12 @@ for nm, g in (("before Oct 22", [s for s in home if s.get("d", "") < RD]), ("fro
     if g:
         SC["redesign " + nm] = (f"redesign watch, homepage first visits {nm}: {len(g)} -> sizes {pct(sum(1 for s in g if 'sizes-saved' in s['kinds']), len(g))}, "
                                 f"store {pct(sum(1 for s in g if 'deal-click' in s['kinds']), len(g))}")
+for nm, g in (("before Oct 22", [s for s in home if s.get("d", "") < RD]), ("from Oct 22", [s for s in home if s.get("d", "") >= RD])):
+    g = [s for s in g if (s.get("src") or "(none)").lower() == "(none)"]   # same source both sides: Reddit item links click stores more
+    if g:
+        SC["redesign direct " + nm] = (f"redesign watch, DIRECT homepage first visits {nm}: {len(g)} -> sizes {pct(sum(1 for s in g if 'sizes-saved' in s['kinds']), len(g))}, "
+                                       f"store {pct(sum(1 for s in g if 'deal-click' in s['kinds']), len(g))}, "
+                                       f"store among size-pickers {pct(sum(1 for s in g if 'deal-click' in s['kinds'] and 'sizes-saved' in s['kinds']), max(1, sum(1 for s in g if 'sizes-saved' in s['kinds'])))}")
 SC["home"] = f"homepage first visits {len(home)}: sizes {pct(len(z), len(home))}, store {pct(len(c), len(home))}, sign-up {pct(len(su), len(home))}"
 only = [s for s in home if s["kinds"] <= {"visit", "ref-visit"}]
 out.append(f"Homepage first visits with nothing but the visit (no welcome, no leave/scroll: bots, link previews or gone at once): "
@@ -417,6 +423,56 @@ try:
                f"active subscribers now {live}; unsubscribed ever {unsub}")
 except Exception as e:
     out.append(f"Email numbers: couldn't read ({str(e)[:80]})")
+
+# SEARCHES (Oct 24, Bastien: "the Google of the outdoor space"): what people look for, and what found nothing. A search counts
+# once per session (the site sends it after 1.5 s of no typing; the last word typed is the one kept)
+try:
+    norm = lambda q: " ".join((q or "").lower().split())[:40]
+    last = {}
+    for e in rows:
+        if e["kind"] in ("search", "search-none") and e["detail"] and ":" not in (e["detail"] or "")[:14]:
+            last[(e["sid"], norm(e["detail"])[:3])] = (e["kind"], norm(e["detail"]))
+    found = Counter(q for k, q in last.values() if k == "search")
+    none = Counter(q for k, q in last.values() if k == "search-none")
+    nses = len({sid for sid, _ in last})
+    if last:
+        out.append(f"SEARCHES: {nses} sessions searched, {sum(found.values()) + sum(none.values())} searches, "
+                   f"{sum(none.values())} found nothing ({round(100 * sum(none.values()) / max(1, sum(found.values()) + sum(none.values())))}%)")
+        out.append("  top searches: " + ", ".join(f"{q} {n}" for q, n in found.most_common(20)))
+        if none:
+            out.append("  found nothing: " + ", ".join(f"{q} {n}" for q, n in none.most_common(25)))
+        dym = Counter((e["detail"] or "")[14:] for e in rows if e["kind"] == "search" and (e["detail"] or "").startswith("did-you-mean: "))
+        if dym:
+            out.append("  'Did you mean' taps: " + ", ".join(f"{q} {n}" for q, n in dym.most_common(10)))
+except Exception as e:
+    out.append(f"Searches: couldn't read ({str(e)[:80]})")
+
+# FOX PRO PRICE TEST (Nov 2-16, agreed Oct 25): returning visitors see a waitlist card, A = $3/month or $29/year, B = $5/month or
+# $49/year. Per device (a device that saw it in several sessions counts once). Rule: build Pro if 5%+ of viewers join at a price;
+# both pass -> the higher price unless the lower one gets clearly more people (p < 0.05)
+try:
+    import math as _m
+    view, join, no = {"A": set(), "B": set()}, {"A": set(), "B": set()}, {"A": set(), "B": set()}
+    did = {}
+    for e in rows:
+        d_ = e.get("detail") or ""
+        if e["kind"] == "signup-step" and d_.startswith(("pro-view|", "pro-join|", "pro-no|")):
+            k, a_ = d_.split("|")[:2]
+            dev_ = e["sid"]            # one session = one device here (sessions don't carry the device id)
+            {"pro-view": view, "pro-join": join, "pro-no": no}[k].setdefault(a_, set()).add(dev_)
+    if view["A"] or view["B"]:
+        def zt(y1, n1, y2, n2):
+            if not n1 or not n2:
+                return 1.0
+            p_ = (y1 + y2) / (n1 + n2)
+            se = _m.sqrt(p_ * (1 - p_) * (1 / n1 + 1 / n2)) or 1
+            return _m.erfc(abs(y1 / n1 - y2 / n2) / se / _m.sqrt(2))
+        nA, nB, jA, jB = len(view["A"]), len(view["B"]), len(join["A"] & view["A"]), len(join["B"] & view["B"])
+        out.append(f"FOX PRO PRICE TEST (sessions that saw the card): $3/$29 (A) {pct(jA, nA)} joined of {nA}, 'No thanks' {len(no['A'])} | "
+                   f"$5/$49 (B) {pct(jB, nB)} joined of {nB}, 'No thanks' {len(no['B'])} | difference p={zt(jA, nA, jB, nB):.3f} "
+                   f"| rule: build at a price where 5%+ join")
+except Exception as e:
+    out.append(f"Fox Pro test: couldn't read ({str(e)[:80]})")
 
 # Race gear lists (Oct 23, Bastien: "a tracker to see how and if people are using the gear checklist")
 try:
