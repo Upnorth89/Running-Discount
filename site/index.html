@@ -1361,6 +1361,8 @@ function baseModel(n){
   n=n.replace(/^[ -]+|[ -]+$/g,"").replace(/\s+(running road|road racing|road running|road)\s*$/i,"");
   n=n.replace(/\b(ZoomX|Air Zoom|Zoom)\s+(?=(Vaporfly|Alphafly|Pegasus|Streakfly|Invincible)\b)/gi,"")   // Oct 8: one page per Nike shoe
     .replace(/\b(Vaporfly|Alphafly)\s+Next\s*%?\s*/gi,"$1 ").replace(/\s+(Keely Hodgkinson|H\.?\s?Koumori)\b.*$/i,"");
+  n=n.replace(/\bGore[- ]?Tex\b/gi,"GTX")   // Oct 24: one page per shoe
+    .trim().replace(/^((?:Fresh\s?Foam(?:\s+X)?|FuelCell)\s+)?(\d{3,4})\s+v(\d+)\b/i,"$1$2v$3");
   return n.replace(/\s+/g," ").replace(/^[ -]+|[ -]+$/g,"");
 }
 function slugify(t){t=t.toLowerCase().replace(/\+/g," plus").replace(/&/g," and ").replace(/[üû]/g,"u").replace(/[öô]/g,"o").replace(/[éèêë]/g,"e").replace(/[àâä]/g,"a");

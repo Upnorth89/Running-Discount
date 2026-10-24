@@ -126,7 +126,19 @@ def main():
                 raise RuntimeError(f"{must} missing")
         if n < 300:
             raise RuntimeError(f"only {n} shoe pages")
-        return f"{n} shoe pages"
+        # Oct 24: a shoe page with nothing in stock is noindex and out of the sitemap; nothing in the sitemap is noindex
+        sm = set(re.findall(r"<loc>https://thegearfox\.com([^<]+)</loc>", (site / "sitemap.xml").read_text()))
+        hidden = 0
+        for p in [q for d in ("shoes", "chaussures", "us/shoes") for q in (site / d).glob("*/index.html")]:
+            h = p.read_text()
+            u = "/" + str(p.parent.relative_to(site)) + "/"
+            if 'content="noindex' in h:
+                hidden += 1
+                if u in sm:
+                    raise RuntimeError(f"{u} is noindex but in the sitemap")
+            elif u not in sm:
+                raise RuntimeError(f"{u} is missing from the sitemap")
+        return f"{n} shoe pages, {hidden} kept out of Google (out of stock or forwarded)"
     step("Shoe pages, list pages, sitemap", pages)
 
     def real_drop_rule():   # Oct 23: Black Friday "is this deal real?" labels = the homepage badge's rule, good news only

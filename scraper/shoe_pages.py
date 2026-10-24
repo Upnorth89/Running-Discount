@@ -297,6 +297,9 @@ def base_model(n):
     n = re.sub(r"\b(ZoomX|Air Zoom|Zoom)\s+(?=(Vaporfly|Alphafly|Pegasus|Streakfly|Invincible)\b)", "", n, flags=re.I)
     n = re.sub(r"\b(Vaporfly|Alphafly)\s+Next\s*%?\s*", r"\1 ", n, flags=re.I)
     n = re.sub(r"\s+(Keely Hodgkinson|H\.?\s?Koumori)\b.*$", "", n, flags=re.I)
+    # Oct 24 (28 shoes had a "Gore-Tex" page AND a "GTX" page competing on Google): one page each
+    n = re.sub(r"\bGore[- ]?Tex\b", "GTX", n, flags=re.I)
+    n = re.sub(r"^((?:Fresh\s?Foam(?:\s+X)?|FuelCell)\s+)?(\d{3,4})\s+v(\d+)\b", r"\1\2v\3", n.strip(), flags=re.I)   # New Balance "880 v15" = "880v15"
     return re.sub(r"\s+", " ", n).strip(" -")
 
 
@@ -1101,7 +1104,7 @@ def price_chart(its, L, updated, prefix=""):
     return {lab: f'<section class="pws"><p class="pw {k}">{esc(t)}</p>{btn}</section>' for lab, k, t in blocks}, ""
 
 
-def model_page(slug, its, stores, L, updated, related, brand_models, paths=None):
+def model_page(slug, its, stores, L, updated, related, brand_models, paths=None, brand_pages=(), hide=False):
     first = its[0]
     brand = first["b"]
     name = f"{brand} {base_model(first['n'])}"
@@ -1134,8 +1137,13 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None)
                          "offers": {"@type": "AggregateOffer", "priceCurrency": L["cur"], "lowPrice": f"{lo_p / L.get('fx', 1):.2f}", "highPrice": f"{hi_p / L.get('fx', 1):.2f}",
                                     "offerCount": len(allrows), "availability": "https://schema.org/InStock"}}, ensure_ascii=False)
         ld = f'<script type="application/ld+json">{ld}</script>'
+    elif hide:   # Oct 24 (Bastien OK'd): nothing in stock for 14+ days = kept out of Google until it's back (the page stays for visitors)
+        ld = '<meta name="robots" content="noindex,follow">'
+        NOINDEX.add(path_fr if L["lang"] == "fr-CA" else path_en)    # this page only (a US page names its Canadian twin)
     out = [page_head(L, title, desc, path_en, path_fr, ld)]
-    out.append(f'<p class="crumbs"><a href="/{L["dir"]}/">{L["all"]}</a> › {esc(brand)}</p>')
+    # the brand links to its brand page (when there is one): our own links tell Google which pages matter
+    bl = f'<a href="/{L["brandDir"]}/{slugify(brand)}/">{esc(brand)}</a>' if brand in brand_pages else esc(brand)
+    out.append(f'<p class="crumbs"><a href="/{L["dir"]}/">{L["all"]}</a> › {bl}</p>')
     out.append(f'<h1>{esc(name)}</h1><p class="sub">{L["h1sub"]}</p>')
     t = L["types"].get(first.get("t") or "", "")
     if best:
@@ -1236,7 +1244,8 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None)
         crumbs_ld = {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
             {"@type": "ListItem", "position": 1, "name": "The Gear Fox", "item": BASE + "/"},
             {"@type": "ListItem", "position": 2, "name": L["all"], "item": f"{BASE}/{L['dir']}/"},
-            {"@type": "ListItem", "position": 3, "name": name}]}
+            *([{"@type": "ListItem", "position": 3, "name": bname(brand), "item": f"{BASE}/{L['brandDir']}/{slugify(brand)}/"}] if brand in brand_pages else []),
+            {"@type": "ListItem", "position": 4 if brand in brand_pages else 3, "name": name}]}
         # the date the prices were checked: answer engines favour pages they can see are fresh
         page_ld = {"@context": "https://schema.org", "@type": "WebPage", "name": name, "dateModified": date.today().isoformat(),
                    "inLanguage": L["lang"], "publisher": {"@type": "Organization", "name": "The Gear Fox", "url": BASE + "/"}}
@@ -1446,22 +1455,6 @@ def main():
     by_brand = defaultdict(list)
     for s, v in known_live.items():
         by_brand[v["b"].lower()].append(s)
-    entries, n_live = [], 0
-    for slug, meta in known_live.items():
-        its = models.get(slug) or [{"b": meta["b"], "n": meta["n"][len(meta["b"]) + 1:], "g": "shoes", "t": meta.get("t"), "sz": [], "of": []}]
-        n_live += bool(models.get(slug))
-        same = [s for s in by_brand[meta["b"].lower()] if s != slug]
-        related = sorted(same, key=lambda s: (known[s].get("t") != meta.get("t"), s))[:8]
-        offs = [round(100 * (1 - e[1] / e[3])) for d in its for e in d["sz"] if len(e) > 3 and e[1] < e[3] * 0.99]
-        entries.append((meta["b"], slug, meta["n"], max(offs, default=0)))
-        for L in T.values():
-            p = site / L["dir"] / slug / "index.html"
-            p.parent.mkdir(parents=True, exist_ok=True)
-            p.write_text(model_page(slug, its, stores, L, updated, related, names))
-    (site / "shoe-pages.css").write_text(HEAD_CSS.strip() + "\n")
-    (site / "shoes" / "alts.json").write_text(json.dumps(alt_file(models, known_live), ensure_ascii=False, separators=(",", ":")))
-    (site / "chaussures").mkdir(exist_ok=True)
-    (site / "chaussures" / "alts.json").write_text((site / "shoes" / "alts.json").read_text())
     # today's numbers per model (and per gender) for the list pages
     summ = {sl: summary(models[sl], stores) for sl in known_live if models.get(sl)}
     summ = {k: v for k, v in summ.items() if v}
@@ -1476,6 +1469,23 @@ def main():
     for sl, sm in summ.items():
         brand_models[known_live[sl]["b"]].append(sl)
     brands = sorted([b for b, sls in brand_models.items() if len(sls) >= 3], key=lambda b: (-len(brand_models[b]), b.lower()))
+    entries, n_live = [], 0
+    for slug, meta in known_live.items():
+        its = models.get(slug) or [{"b": meta["b"], "n": meta["n"][len(meta["b"]) + 1:], "g": "shoes", "t": meta.get("t"), "sz": [], "of": []}]
+        n_live += bool(models.get(slug))
+        same = [s for s in by_brand[meta["b"].lower()] if s != slug]
+        related = sorted(same, key=lambda s: (known[s].get("t") != meta.get("t"), s))[:8]
+        offs = [round(100 * (1 - e[1] / e[3])) for d in its for e in d["sz"] if len(e) > 3 and e[1] < e[3] * 0.99]
+        entries.append((meta["b"], slug, meta["n"], max(offs, default=0)))
+        hide = stale(meta, bool(models.get(slug)))
+        for L in T.values():
+            p = site / L["dir"] / slug / "index.html"
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text(model_page(slug, its, stores, L, updated, related, names, brand_pages=set(brands), hide=hide))
+    (site / "shoe-pages.css").write_text(HEAD_CSS.strip() + "\n")
+    (site / "shoes" / "alts.json").write_text(json.dumps(alt_file(models, known_live), ensure_ascii=False, separators=(",", ":")))
+    (site / "chaussures").mkdir(exist_ok=True)
+    (site / "chaussures" / "alts.json").write_text((site / "shoes" / "alts.json").read_text())
     extra_urls = []
     for L in T.values():
         other = T["fr" if L is T["en"] else "en"]
@@ -1552,11 +1562,22 @@ def main():
         html_ = re.sub(r"<!--SEO-TODAY-->.*?<!--/SEO-TODAY-->", lambda m: "<!--SEO-TODAY-->" + block + "<!--/SEO-TODAY-->", html_, flags=re.S)
         idx.write_text(html_)
     (site / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
-                                      "".join(f"<url><loc>{BASE}{u}</loc><lastmod>{day}</lastmod></url>\n" for u in urls) + "</urlset>\n")
+                                      "".join(f"<url><loc>{BASE}{u}</loc><lastmod>{day}</lastmod></url>\n" for u in urls if u not in NOINDEX) + "</urlset>\n")
     print(f"shoe pages: {len(known_live)} models ({n_live} in stock today), {2 * len(known_live)} pages EN/FR, "
-          f"{sum(1 for v in known.values() if v.get('to'))} old addresses forwarded, {len(extra_urls)} list pages ({len(brands)} brands), sitemap {len(urls)} links")
+          f"{sum(1 for v in known.values() if v.get('to'))} old addresses forwarded, {len(NOINDEX)} out-of-stock pages kept out of Google, {len(extra_urls)} list pages ({len(brands)} brands), sitemap {len(urls)} links")
 
 
+NOINDEX = set()   # model pages with nothing in stock for 14+ days: noindex + out of the sitemap
+HIDE_DAYS = 14    # a day or two out of stock doesn't flip a page in and out of Google
+
+
+def stale(meta, live_today):
+    """Registry entry `seen` = the last day the model was in stock (kept in pages.json). True = hide it from Google."""
+    today = date.today().isoformat()
+    if live_today:
+        meta["seen"] = today
+        return False
+    return not meta.get("seen") or (date.today() - date.fromisoformat(meta["seen"])).days >= HIDE_DAYS
 NOT_SHOE_PAGE = re.compile(r"clean|\bkit\b|\blaces?\b|insoles?|spray|wipes|shoe horn", re.I)   # moved out of shoes (Oct 7)
 
 
@@ -1620,19 +1641,6 @@ def build_us(site, stores, ca_models, ca_brands):
     by_brand = defaultdict(list)
     for s_, v in live.items():
         by_brand[v["b"].lower()].append(s_)
-    entries, urls = [], []
-    for slug, meta in live.items():
-        its = models.get(slug) or [{"b": meta["b"], "n": meta["n"][len(meta["b"]) + 1:], "g": "shoes", "t": meta.get("t"), "sz": [], "of": []}]
-        same = [x for x in by_brand[meta["b"].lower()] if x != slug]
-        related = sorted(same, key=lambda x: (known[x].get("t") != meta.get("t"), x))[:8]
-        offs = [round(100 * (1 - e[1] / e[3])) for d in its for e in d["sz"] if len(e) > 3 and e[1] < e[3] * 0.99]
-        entries.append((meta["b"], slug, meta["n"], max(offs, default=0)))
-        p = site / L["dir"] / slug / "index.html"
-        p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(model_page(slug, its, stores, L, updated, related, names,
-                                paths=(f"/{L['dir']}/{slug}/", f"/shoes/{slug}/" if slug in ca_models else "")))
-        urls.append(f"/{L['dir']}/{slug}/")
-    (site / L["dir"] / "alts.json").write_text(json.dumps(alt_file(models, live, fx), ensure_ascii=False, separators=(",", ":")))
     summ = {sl: summary(models[sl], stores) for sl in live if models.get(sl)}
     summ = {k: v for k, v in summ.items() if v}
     gsumm = {g: {sl: summary(models[sl], stores, g) for sl in summ} for g in ("women", "men")}
@@ -1646,6 +1654,20 @@ def build_us(site, stores, ca_models, ca_brands):
     for sl in summ:
         brand_models[live[sl]["b"]].append(sl)
     brands = sorted([b for b, sls in brand_models.items() if len(sls) >= 3], key=lambda b: (-len(brand_models[b]), b.lower()))
+    entries, urls = [], []
+    for slug, meta in live.items():
+        its = models.get(slug) or [{"b": meta["b"], "n": meta["n"][len(meta["b"]) + 1:], "g": "shoes", "t": meta.get("t"), "sz": [], "of": []}]
+        same = [x for x in by_brand[meta["b"].lower()] if x != slug]
+        related = sorted(same, key=lambda x: (known[x].get("t") != meta.get("t"), x))[:8]
+        offs = [round(100 * (1 - e[1] / e[3])) for d in its for e in d["sz"] if len(e) > 3 and e[1] < e[3] * 0.99]
+        entries.append((meta["b"], slug, meta["n"], max(offs, default=0)))
+        p = site / L["dir"] / slug / "index.html"
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(model_page(slug, its, stores, L, updated, related, names,
+                                paths=(f"/{L['dir']}/{slug}/", f"/shoes/{slug}/" if slug in ca_models else ""), brand_pages=set(brands),
+                                hide=stale(meta, bool(models.get(slug)))))
+        urls.append(f"/{L['dir']}/{slug}/")
+    (site / L["dir"] / "alts.json").write_text(json.dumps(alt_file(models, live, fx), ensure_ascii=False, separators=(",", ":")))
     for k, rows in kinds.items():
         tail = f'{L["hubSlugs"][k]}/' if L["hubSlugs"][k] else ""
         own, twin = f'/{L["hubDir"]}/{tail}', f'/{T["en"]["hubDir"]}/{tail}'
