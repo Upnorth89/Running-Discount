@@ -3434,14 +3434,14 @@ SHOE_SIZES = lambda o: o.get("sz") and all(re.match(r"^([MW]:)?\d{1,2}([.,][05])
 # Not food (Oct 7 audit: ~200 gloves, socks, caps, lights filed as nutrition, mostly by stores' own product types:
 # Brainsport types Stance socks "Nutrition"; The Feed sells gear). Only when the name has no food word.
 NOT_FOOD = re.compile(r"matches\b|fire ?(starter|striker)|ferro ?rod|headlamp|\blights?\b|luminator|reflective|\btape\b|\btowel|\bbag\b|\bspikes?\b|traction|massage|\bball\b|"
-                      r"flasques?|bidon|gourde|\bcup\b|soft ?flask|sleeves?\b|\bcover\b|sling|bite valve|\btube\b|sheaths?|reservoir", re.I)
+                      r"flasques?|bidon|gourde|\bcup\b|soft ?flask|sleeves?\b|\bcover\b|sling|bite valve|\btube\b|sheaths?|reservoir|(heel|gel) cups?|insoles?|orthotics?", re.I)
 CAMP_BRANDS = {"big agnes", "esbit"}
 NOT_SOCK = re.compile(r"t-?shirt|\btee\b|hood|jacket|sweat|pullover|\btank\b|shorts?\b|pants?\b|tights?\b|sleeve|jogger|"
                       r"boxer|brief|underwear|legging|\btop\b|shirt|bralette|\bbra\b", re.I)
 STRONG_FOOD = re.compile(r"\bgels?\b(?!-| pockets?| force| heel| cups?| ball| insoles?| arch)|\bchews?\b|drink mix|electrolyte|energy bar|protein|stroopwafel|(?<!wool )waffle|"
                          r"caffeine|hydration mix|\bfuel\b(?! belt|\W+n\W*\s*fly|\s*cell)|\bbars?\b(?=.*\b(\d+ ?g|pack|box|bar)\b)|nut butter|honey|\bmix\b|tablets|capsules", re.I)
 EYEWEAR_BRANDS = {"ombraz", "goodr", "sunski", "tifosi", "roka", "district vision", "julbo", "suncloud", "moana sunnies", "alpinamente", "knockaround"}
-SOCK_BRANDS = {"darn tough", "balega", "feetures", "injinji", "swiftwick", "wigwam", "drymax", "rockay", "wrightsock", "thorlo", "sockwell", "os1st", "bridgedale", "stance"}
+SOCK_BRANDS = {"darn tough", "balega", "feetures", "injinji", "swiftwick", "wigwam", "drymax", "rockay", "wrightsock", "thorlo", "sockwell", "os1st", "bridgedale", "stance", "lorpen"}
 CLOTH_SOCK_SHAPE = re.compile(r"\bcrew\b|no[- ]show|\bquarter\b|\bmicro\b|\bmini\b|\btab\b|over[- ]the[- ]calf|\botc\b|\bboot\b", re.I)
 BYOB = re.compile(r"build your own bundle|\bbundle\d{3,}", re.I)
 def tidy_food(offers):
@@ -3627,9 +3627,9 @@ def drop_kids(offers):
         out.append(o)
     return out
 
-US_CASUAL_BRANDS = {"sorel", "olukai", "k-swiss", "smellwell", "dryshod", "vans", "converse", "sperry", "keen"}
+US_CASUAL_BRANDS = {"sorel", "olukai", "k-swiss", "smellwell", "dryshod", "vans", "converse", "sperry", "keen", "aetrex"}
 US_LIFESTYLE_BRANDS = {"beyond yoga", "fp movement", "free people", "nux", "rvca", "roark", "travismathew", "sunsets", "forum snowboards"}
-US_CASUAL = re.compile(r"\b(sneaker|leather|boot|slip-?on)s?\b", re.I)
+US_CASUAL = re.compile(r"\b(sneaker|leather|boot|slip[- ]?on)s?\b", re.I)
 US_CAPS_STORES = {"runningwell", "performancerun", "paragon"} | set(RUNFREE_US)     # US shops that write everything in capitals
 US_WIDTH = re.compile(r"\s+-\s+[^-]+?\s+-\s+(Regular|Medium|Standard|Wide|Extra Wide|X-?Wide|Narrow)\s*\(\s*[A-Z0-9]+\s*\)", re.I)
 STYLE_CODE = re.compile(r"\s+((?=[A-Z0-9]*\d)(?=[A-Z0-9]*[A-Z])[A-Z0-9]{7,}|\d{6,})(?=$|\s+-\s)")
@@ -4228,6 +4228,13 @@ def merge(offers):
         oi = {str(i): u for i, u in enumerate(im) if u and u != it["img"] and i in wins}
         if oi:
             it["oi"] = oi
+        # Oct 24 (sorting check): the last word, after every store's offers are in. MEC's Bridgedale "3/4 Crew" (a sock) was
+        # still a top on the live site; US shops' "Gel Heel Cups" were food
+        if it["g"] in ("tops", "bottoms") and it["b"].lower() in SOCK_BRANDS and CLOTH_SOCK_SHAPE.search(it["n"]) \
+                and not NOT_SOCK.search(it["n"]):
+            it["g"] = "socks"
+        elif it["g"] == "nutrition" and re.search(r"(heel|gel) cups?|insoles?|orthotics?", it["n"], re.I):
+            it["g"] = "gear"
         fs = it.pop("_fs", [])
         if any(fs):
             it["fs"] = fs          # per offer, same order as "of" (FINAL_SALE codes)
