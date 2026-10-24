@@ -43,7 +43,7 @@ def hay(d):
     t = fold(d["b"] + " " + d["n"])
     w = [x for x in (sq(x) for x in t.split()) if x]
     pairs = [w[i] + x for i, x in enumerate(w[1:]) if re.search(r"\d", x + w[i])]
-    return t + " " + " ".join(w) + " " + " ".join(pairs) + (" goretex gtx" if re.search(r"gore-?tex|\bgtx\b", t) else "")
+    return t + " " + " ".join(w) + " " + " ".join(pairs) + (" goretex gtx" if re.search(r"gore-?tex|\bgtx\b", t) else "") + " " + sq(fold(d["b"]))
 
 
 def words(q):

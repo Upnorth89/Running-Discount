@@ -1388,7 +1388,7 @@ const SQ=s=>s.replace(/[^a-z0-9]/g,"").replace(/v(?=\d)/g,"");
 const qhas=(t,w)=>t.includes(w)||(w.length>4&&/[se]$/.test(w)&&t.includes(w.slice(0,-1)));
 function hayOf(fold,d){const t=fold(d.b+" "+d.n),w=t.split(/\s+/).map(SQ).filter(Boolean);   // per word: "hood - long" never makes "odlo"
   const pairs=w.slice(1).map((x,i)=>/\d/.test(x+w[i])?w[i]+x:"").filter(Boolean);                 // "1080 v15" -> "108015", "pegasus 41"
-  return t+" "+w.join(" ")+" "+pairs.join(" ")+(/gore-?tex|\bgtx\b/.test(t)?" goretex gtx":"")}
+  return t+" "+w.join(" ")+" "+pairs.join(" ")+(/gore-?tex|\bgtx\b/.test(t)?" goretex gtx":"")+" "+SQ(fold(d.b))}   // Oct 25: "runningroom" = Running Room
 function lev(a,b){if(Math.abs(a.length-b.length)>2)return 9;let p=Array.from({length:b.length+1},(_,i)=>i);
   for(let i=1;i<=a.length;i++){const r=[i];for(let j=1;j<=b.length;j++)r[j]=Math.min(p[j]+1,r[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=r}return p[b.length]}
 function suggest(q,fold){const V=vocab(fold);let changed=false;

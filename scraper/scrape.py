@@ -281,7 +281,13 @@ def scrape_runningroom():
     for o in offers.values():
         if not o["img"]:
             continue
-        o["sz"] = [[k, v[0], v[1], None] for k, v in o["sz"].items()]
+        # Oct 25 (a visitor: Hoka Skyward X 2 men's 9 at $80, "wrong price" + "wrong size"): one size of a colour at 60%+ off while
+        # every other size of that colour is full price is a typo in the store's feed (its page doesn't show it): regular price
+        full = [v for v in o["sz"].values() if v[0] >= v[1] * 0.99]
+        if len(full) >= 3 and len(full) == len(o["sz"]) - 1:
+            o["sz"] = {k: ((v[1], v[1], v[2]) if v[0] < v[1] * 0.4 else v) for k, v in o["sz"].items()}
+        # each size keeps its own link (the feed's url opens that colour AND size; the colour's first url opened size 8.5)
+        o["sz"] = [[k, v[0], v[1], v[2]] for k, v in o["sz"].items()]
         out.append(o)
     print(f"  runningroom: {len(recs)} feed records -> {len(out)} products", file=sys.stderr)
     return out
