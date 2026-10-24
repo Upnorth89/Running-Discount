@@ -512,7 +512,7 @@ try:
     srcs = Counter(src(s) for s in new)
     sc = ["SCORECARD (milestone Mar 2027: 2,000 members, $1,000/month)",
           f"  first visits {len(new)}: " + ", ".join(f"{k} {v}" for k, v in srcs.most_common(5))]
-    sc += [f"  {SC[k]}" for k in ("home", "redesign before Oct 22", "redesign from Oct 22", "shoe", "week") if k in SC]
+    sc += [f"  {SC[k]}" for k in ("home", "redesign before Oct 22", "redesign from Oct 22", "redesign direct before Oct 22", "redesign direct from Oct 22", "shoe", "week") if k in SC]
     if "members" in SC:
         sc.append(f"  active subscribers {SC['members']} (milestone 2,000)")
     if "clicks" in SC:
