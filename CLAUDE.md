@@ -90,6 +90,10 @@ scraper/shoe_pages.py    Google pages: one per popular shoe model (3+ Canadian s
                          hi 2%+ above) per model at its best price -> summary `lowd` -> green "✓ Lowest price we've seen in N days" on every
                          list card (`card_list`); BF week (Nov 20-Dec 1) lists real drops first (`real_first`) + count line `bfReal`. check.py
                          step "Black Friday real-drop labels: the rule". Shows from ~Nov 1.
+                         SEO cleanup (Oct 24, Bastien OK'd "1-3"): a model page with nothing in stock for 14+ days (`seen` = last in-stock day
+                         in pages.json, `stale()`, HIDE_DAYS) gets noindex,follow and leaves the sitemap (NOINDEX; page stays for visitors);
+                         breadcrumb brand links to /brands/<b>/ when it has a page (+ BreadcrumbList); base_model/baseModel: "Gore-Tex" = "GTX",
+                         New Balance "880 v15" = "880v15" (28 + 8 duplicate pages forwarded). check.py: no noindex page in the sitemap, every other shoe page in it.
                          Price line (Oct 15, Bastien dropped the chart: "not make people feel like they missed a sale"): `price_chart()` under
                          the size tables, per version, from hist/prices.jsonl: 5%+ cheaper in 60 days -> "It was $X on <date> ($Y today). Sales
                          come back: don't miss the next one." + [Email me when it drops] (#alertBox); today lowest -> green line only with 30+
