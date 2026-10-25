@@ -177,6 +177,8 @@ every check (rule in CLAUDE.md: try every allowed way first; a store that says n
 | Hoka (hoka.com, brand store) | Canada/US | Cloudflare 403 to GitHub's servers on every product list (robots.txt itself answers; Oct 16, 2026). Bookmark test file (Oct 16, US men's, 175 shoes): list pages carry no sizes (`data-all-sizes` empty) and the saver cut each tile before its price | site from GitHub, Grab deals bookmark | an affiliate feed (Hoka is on AvantLink/Rakuten in some regions); Hoka shoes already come from ~20 Canadian stores |
 | Merrell (merrell.com/CA) | Canada | robots.txt blocks ClaudeBot and other AI robots (`Disallow: /`, Oct 16, 2026), so it isn't read even though the site answers | site from GitHub | an affiliate feed, or Merrell allowing AI agents |
 | Salomon (salomon.com/en-ca) | Canada | answers GitHub's servers and robots.txt allows product pages, but after ~1 h of pages (one every 3 s) it answered HTTP 403 (Oct 16, 2026); a second try at one page every 20 s got a 403 on its first product page: a firm no (rechecked on the 1st and 15th). Reader `_salomon_read` kept (JSON-LD variants, ?sizeId= links, only colours at inStockPercentage 100) | site from GitHub | an affiliate feed, or ask Salomon |
+| Patagonia (patagonia.ca / patagonia.com, brand store) | Canada/US | Akamai bot wall: every page, robots.txt included, answers a "Hang Tight! Routing to checkout..." holding page with no products, from the sandbox and from GitHub's servers, with our honest bot name (Oct 25, 2026; Bastien asked to add it for hiking) | site from sandbox + GitHub (probe.yml honest) | an affiliate feed, or ask Patagonia; Patagonia already comes from Altitude Sports, Valhalla Pure, SAIL and The Last Hunt (hiking read Oct 25) |
+| Latulippe (latulippe.com) | Québec | Cloudflare 403 challenge on every page, robots.txt included, from the sandbox and GitHub (Oct 25, 2026) | sandbox, GitHub probe (honest) | Grab deals bookmark support, an affiliate feed, or ask them |
 | MEC | Canada | blocks automated reading | site; **saved pages work** (Grab deals) | MEC product feed via AvantLink/Sovrn |
 | REI | USA | blocks automated reading | **saved pages work** (US side) | affiliate feed |
 | Boutique Courir | Montréal | blocks automated reading (Oct 1) | site | ask the store |
@@ -391,6 +393,16 @@ Read now (first read Oct 25; data kept OFF the live site until the Hiking tab la
 Camping (Bastien, Oct 25: "read the camping stuff but not publish it"): read from the same places (Altitude/Last Hunt camping
 types: tents, sleeping bags, sleeping mats; SAIL outdoor-gear-hiking-sleeping-bags-mats; VPO "Camping" type), stored, never published
 until camping is decided (plan: only if hiking brings sign-ups by February).
+
+Checked Oct 25 (Bastien: "Gear trade, mountain warehouse, Latulippe in Quebec"):
+- Gear Trade (geartrade.com, Shopify): readable, robots.txt allows /products.json. Two kinds of items: new retail stock (tag RetailVendorPartner,
+  real compare-at prices) and consignment used gear (tags ConsignmentItem / SoldConsignmentItem, one-offs). Take the new stock for hiking;
+  used gear is a separate idea (condition, one size each) for later.
+- Mountain Warehouse (mountainwarehouse.com/ca, Next.js): answers our honest bot from GitHub (200); robots.txt blocks only /_next/, /api/,
+  /basket/. Own brand only, and most of its range always shows a 'was' price, so its % off says little until our price history has
+  30+ days; read it from product pages (JSON-LD) after the hiking launch, ranked like everyone else.
+- Latulippe (latulippe.com, Québec): Cloudflare "Just a moment" / "Attention Required" 403 from the sandbox AND from GitHub, robots.txt
+  included: it said no. Possible later: the Grab deals bookmark (Bastien's own browser) taught to read Latulippe lists.
 
 Next to add for hiking (stores we already read for running, hiking sections not yet): Sports Experts (night read: add hiking lists),
 Sporting Life (outdoor section), Decathlon (hiking section, night slices), Sport Chek (hiking search), Bushtukah, Coureur Nordique,
