@@ -377,6 +377,26 @@ The Run Company, Le Coin des Coureurs.
 Checked Oct 3: Running Factory (Windsor, runningfactory.com): readable, only ~37 on sale, mostly CEP sleeves; recheck later.
 "Runner's Choice" (Toronto) not found; The Runners Shop is the Toronto store (added).
 
+## Hiking (+ camping read, not published) — started Oct 25, 2026; launch ~Nov 17
+
+Read now (first read Oct 25; data kept OFF the live site until the Hiking tab launches):
+
+| Store | Where we read it | How | Oct 25 |
+|---|---|---|---|
+| Altitude Sports (altitude-sports.com) | `/c/camping-and-hiking`, one product type at a time | same commercetools reader as running | 2,458 hiking items in stock, 158 on sale |
+| The Last Hunt (thelasthunt.com) | `/c/camping-and-hiking` | same reader | 1,759 in stock, all discounted (outlet) |
+| Valhalla Pure Outfitters (www.vpo.ca) | the whole store's `/products.json` (www. only; bare vpo.ca answers 404), a page every 2 s | Shopify; robots.txt allows it | ~25,000 products, ~7,500 hiking-type, 463 on sale; 8,011 have no product type (sort by tags/name) |
+| SAIL (sail.ca/en-ca) | collections outdoor-gear-hiking-hiking-boots-shoes, -backpacking-packs, outdoor-gear-backpacks-day-backpacks, -hiking-poles-parts, -gear-headlamps, -gear-gaiters, -health-safety-bear-protection, -hydration, footwear-accessories-socks-hiking-socks | Shopify collections, a page every 2 s; robots ok (only sort_by blocked) | 899 in stock, 164 on sale; clothing collections still to find |
+
+Camping (Bastien, Oct 25: "read the camping stuff but not publish it"): read from the same places (Altitude/Last Hunt camping
+types: tents, sleeping bags, sleeping mats; SAIL outdoor-gear-hiking-sleeping-bags-mats; VPO "Camping" type), stored, never published
+until camping is decided (plan: only if hiking brings sign-ups by February).
+
+Next to add for hiking (stores we already read for running, hiking sections not yet): Sports Experts (night read: add hiking lists),
+Sporting Life (outdoor section), Decathlon (hiking section, night slices), Sport Chek (hiking search), Bushtukah, Coureur Nordique,
+Run Uphill, Arc'teryx (hiking lines beyond ARC_RUN). MEC: Bastien's saved pages (Grab deals) of its hiking lists.
+USA side later: REI (saved pages), Sports Basement (hiking collection); Backcountry stays blocked.
+
 ## Snow (researched Oct 2, 2026; parked until mid-November)
 
 Readable snow shops (Shopify): Comor Sports (comorsports.com, Vancouver), Oberson (oberson.com, Québec: alpine + big
