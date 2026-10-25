@@ -146,6 +146,7 @@ jobs:
           done
           [ -s /tmp/hike/hike-offers.json ] && cp /tmp/hike/hike-offers.json site/ || true
           python scraper/shoe_pages.py site --hike || echo "::warning::boot pages failed"   # boot & hiking shoe price pages (Oct 25)
+          python scraper/hike_pages.py site || echo "::warning::trail gear lists failed"   # trail gear lists (Oct 25): checked hikes only
       # a robot visitor clicks through today's site before it goes live: sizes, every category, one search per category,
       # filters, hearts, menu, French, shoe pages, links (tools/sitetest.py, Oct 5, 2026). Results go in the health email;
       # a critical failure (no deals, crash, empty shoe pages) is retried once, then stops publishing (see below).

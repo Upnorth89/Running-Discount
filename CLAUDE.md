@@ -410,6 +410,15 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   kind of hiking behind "+ Clothing size, …"; `.clb`, html.shortb; no "Gear for" row). Why: 124 of 125 first visitors who didn't pick sizes
   left at the sizes screen; size-picking 33% -> 22% since Oct 22 (p=0.002). Metric: homepage first visits that pick sizes, ~465/group,
   decide ~Nov 8. Preview: PV_SHORT=1. Site test "Short sizes screen (test short B)".
+  Trail gear lists (Oct 25, Bastien: "Yes start"; built + previewed, OFF until his OK: `LIVE` in scraper/hike_pages.py + `TRAIL_LIVE` in
+  index.html): scraper/hike_pages.py (refresh step after the boot pages) -> /hikes/<slug>/ + /randonnees/<slug>/ + /us/hikes/<slug>/ and hubs,
+  reusing race_pages.py (size box, ticks, ♡ Watch, sign-up box; sign-ups here get `sport:"hike"`). Lines = hikes.gear_for() per trip length
+  (`trips()`: day / 1 night / usual nights) with levels Essential (Y, counted) / Required (M) / Recommended (R); picks from the hiking files
+  by group/type + a name rule per line (`NEED`, `NOT`, `PACK_BITS`: no watches, books, bells under safety lines); bear spray = checklist
+  line (no store ships it). Only `checked` hikes go live: hikes.VERIFIED (27 of 101 on Oct 25, each figure re-read on the park/trail page,
+  url kept; climb shown only when the page gives one, `gain_ok`). The other 74 need their trail page read by hand (Sépaq, PCTA, Yukon
+  block robots). Preview: `hike_pages.py DIR --all`. check.py "Trail gear lists (checked hikes only)" (--force), site test "Trail gear list:
+  sizes, deals, ticks". Preview artifact: https://claude.ai/artifact/KdkvAVSK2eH9ApAXvTz5Yq
 - **Clothing sizes per category** (Oct 21, a visitor: "medium in shorts, L in socks, small in t-shirts"): sizes screen keeps one quick
   "Clothing size" row + "Different size in shorts, socks or gloves?" (`#clothMore`/`#clothBy`, `state.clothBy` = only the categories that
   differ, `clothFor(g)`; bras follow tops, hats the main size). Profiles already kept a size per group (Friday email/alerts use them);

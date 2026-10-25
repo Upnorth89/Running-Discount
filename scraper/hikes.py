@@ -267,6 +267,46 @@ for row in H:
     HIKES.append(h)
 BY = {h["slug"]: h for h in HIKES}
 
+# Oct 25: figures re-read on the park's / trail's own page (slug -> km, climb in m or None when the page gives none, the page, extra).
+# Only these show distance/climb on the live trail gear lists (hike_pages.py); the rest wait for their own check.
+PC = "https://parks.canada.ca/pn-np"
+VERIFIED = {
+    "frosty-mountain": (20.8, 1150, "https://bcparks.ca/ec-manning-park/", {}),            # 10.4 km one way from Lightning Lakes, 1,150 m
+    "juan-de-fuca": (47, None, "https://bcparks.ca/juan-de-fuca-park/", {}),
+    "cape-scott": (47.2, None, "https://bcparks.ca/cape-scott-park/hiking/", {"name": "Cape Scott Trail (to the lighthouse)"}),   # 23.6 km one way
+    "iceline": (20.3, 1090, f"{PC}/bc/yoho/activ/randonnee-hike/jour-day", {}),           # Iceline via Little Yoho, loop
+    "rockwall": (54.1, 3405, f"{PC}/bc/kootenay/activ/arrierepays-backcountry", {"oneway": True}),
+    "plain-of-six-glaciers": (11.8, 595, f"{PC}/ab/banff/activ/randonnee-hiking", {}),     # 5.9 km one way, 595 m
+    "cory-pass": (13, None, f"{PC}/ab/banff/activ/randonnee-hiking", {}),
+    "sulphur-skyline": (8.8, 700, f"{PC}/ab/jasper/activ/experience/sentiers-trails/miette", {}),
+    "crypt-lake": (17.2, None, f"{PC}/ab/waterton/activ/experiences/randonee-hiking", {}),
+    "carthew-alderson": (20.1, None, f"{PC}/ab/waterton/activ/experiences/randonee-hiking/journee-day", {"oneway": True}),
+    "chilkoot": (53, None, "https://parks.canada.ca/lhn-nhs/yt/chilkoot/visit", {}),
+    "kings-throne": (10, 548, f"{PC}/yt/kluane/activ/randonnee-hiking/kings-throne", {"name": "King's Throne (to the cirque)"}),
+    "algonquin-highland": (35, None, "https://www.ontarioparks.ca/park/algonquin/backcountry/activities", {}),
+    "centennial-ridges": (10, None, "https://www.ontarioparks.ca/park/algonquin/activities", {}),
+    "la-cloche-silhouette": (80, None, "https://www.ontarioparks.ca/park/killarney/activities", {}),
+    "top-of-the-giant": (21.8, None, "https://www.ontarioparks.ca/park/sleepinggiant/activities", {}),
+    "cape-breton-skyline": (8, None, f"{PC}/ns/cbreton/activ/randonnee-hiking/skyline", {}),   # 8 km loop (6.5 km out and back)
+    "gros-morne-mountain": (17, 1000, f"{PC}/nl/grosmorne/activ/experiences/randonnee-hiking", {}),
+    "long-range-traverse": (35, None, f"{PC}/nl/grosmorne/activ/experiences/arriere-pays-backcountry", {}),
+    "cape-chignecto": (52, None, "https://parks.novascotia.ca/park/cape-chignecto", {}),
+    "rainier-skyline": (8, None, "https://www.nps.gov/mora/planyourvisit/trails-of-mount-rainier.htm", {}),   # 5 miles
+    "wonderland-trail": (150, None, "https://www.nps.gov/mora/planyourvisit/trails-of-mount-rainier.htm", {}),   # 93 miles
+    "john-muir-trail": (338, None, "https://www.nps.gov/yose/planyourvisit/brochures.htm", {}),   # 210 miles
+    "angels-landing": (8.7, 454, "https://www.nps.gov/zion/planyourvisit/angels-landing-hiking-permits.htm", {}),
+    "delicate-arch": (4.8, None, "https://www.nps.gov/arch/", {}),
+    "queens-garden-navajo": (4.7, None, "https://www.nps.gov/brca/", {}),
+    "superior-hiking-trail": (483, None, "https://superiorhiking.org/", {}),               # 300 miles
+}
+for s, (km, gain, url, extra) in VERIFIED.items():
+    h = BY[s]
+    h.update(km=km, src=url, checked=True, gain_ok=gain is not None, **{k: v for k, v in extra.items() if k != "oneway"})
+    if gain is not None:
+        h["gain_m"] = gain
+    if extra.get("oneway") and "oneway" not in h["flags"]:
+        h["flags"].append("oneway")
+
 # ---------------------------------------------------------------- the gear rules
 # (key, EN, FR, why EN, why FR, shop link: (group, type) on the Hiking tab or None)
 ESSENTIALS = [
@@ -276,7 +316,7 @@ ESSENTIALS = [
     ("light", "Headlamp + spare batteries", "Frontale + piles de rechange", "Hikes run late more often than planned.",
      "Les randonnées finissent souvent plus tard que prévu.", ("gear", "light")),
     ("sun", "Sun protection: sunglasses, sun hat, sunscreen", "Protection solaire : lunettes, chapeau, crème", "UV is stronger with altitude and on snow.",
-     "Les UV sont plus forts en altitude et sur la neige.", ("gear", "sun")),
+     "Les UV sont plus forts en altitude et sur la neige.", ("headwear", None)),
     ("firstaid", "First-aid kit (with blister care)", "Trousse de premiers soins (ampoules incluses)", "Blisters and small cuts are the most common problems.",
      "Ampoules et petites coupures sont les problèmes les plus fréquents.", ("gear", "safety")),
     ("knife", "Knife or multi-tool + repair tape", "Couteau ou outil multifonction + ruban de réparation", "For gear repairs and first aid.",
@@ -316,8 +356,10 @@ def gear_for(h, days=None, month=None):
         "Room for the essentials" + (" and a night's gear." if days > 1 else "."), "De la place pour les essentiels" + (" et le matériel de nuit." if days > 1 else "."),
         ("packs", "overnight" if days > 1 else "day"))
     if h["gain_m"] >= 700 or days > 1:
-        add("poles", "Trekking poles", "Bâtons de randonnée", f"About {h['gain_m']:,} m of climbing: poles save your knees on the way down.",
-            f"Environ {h['gain_m']:,} m de dénivelé : les bâtons ménagent vos genoux à la descente.", ("gear", "pole"))
+        add("poles", "Trekking poles", "Bâtons de randonnée",
+            f"About {h['gain_m']:,} m of climbing: poles save your knees on the way down." if h.get("gain_ok") else "A long climb or a heavy pack: poles save your knees on the way down.",
+            f"Environ {h['gain_m']:,} m de dénivelé : les bâtons ménagent vos genoux à la descente." if h.get("gain_ok") else "Longue montée ou sac lourd : les bâtons ménagent vos genoux à la descente.",
+            ("gear", "pole"))
     wet = h["climate"] in ("coastal-wet", "forest-humid")
     if wet:
         add("rainpants", "Rain pants", "Pantalon imperméable", "A wet-climate trail: rain is likely in any season.",
@@ -339,10 +381,10 @@ def gear_for(h, days=None, month=None):
     if h["bears"] == "grizzly":
         add("bearspray", "Bear spray (in a holster you can reach)", "Chasse-ours en aérosol (dans un étui accessible)",
             "Grizzly country: carry it where you can reach it in seconds.", "Territoire du grizzli : à portée de main en quelques secondes.",
-            ("gear", "safety"))
+            None)   # the stores we read don't sell it online (it doesn't ship): a checklist line
     elif h["bears"] == "black":
         add("bearspray", "Bear spray", "Chasse-ours en aérosol", "Black bears live here; spray is the proven deterrent.",
-            "Des ours noirs vivent ici; l'aérosol est le moyen de dissuasion éprouvé.", ("gear", "safety"))
+            "Des ours noirs vivent ici; l'aérosol est le moyen de dissuasion éprouvé.", None)
     if "canister" in fl and days > 1:
         add("canister", "Approved bear canister", "Contenant anti-ours approuvé", "The park requires one for overnight trips.",
             "Le parc l'exige pour les nuits en camping.", None, level="required")

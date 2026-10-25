@@ -1394,6 +1394,8 @@ let FULL=false,fullLoading=null;
    only models listed in shoes/pages.json get a link (a page that forwards points to its new address). */
 let SHOEPAGES=null;
 /* Canada: shoes/ (EN) + chaussures/ (FR); USA: us/shoes/ (US stores, US dollars; English) */
+const TRAIL_LIVE=false;   // trail gear lists: on with hike_pages.py LIVE
+const raceDir=()=>HIKE()&&TRAIL_LIVE?(US()?"us/hikes/":LANG==="fr"?"randonnees/":"hikes/"):US()?"us/races/":LANG==="fr"?"courses/":"races/";   // Oct 25: trail gear lists on the hiking side
 const shoeDir=()=>HIKE()?(US()?"us/hiking-boots/":LANG==="fr"?"bottes-randonnee/":"hiking-boots/"):US()?"us/shoes/":LANG==="fr"?"chaussures/":"shoes/";   // Oct 25: boot pages on the hiking side
 let SHOEPAGES_FOR="";
 function loadShoePages(){const c=COUNTRY+(HIKE()?"|hike":"");if(SHOEPAGES&&SHOEPAGES_FOR===c)return;SHOEPAGES={};SHOEPAGES_FOR=c;
@@ -1514,7 +1516,7 @@ function setCountry(c,from){if(c===COUNTRY||(c!=="us"&&c!=="ca"))return;COUNTRY=
   if(LS0("rd-profile"))saveProfile();applyStatic();renderCountry();
   if(!$("sheet").classList.contains("hidden"))openSheet();renderAll();loadCountry()}
 function renderCountry(){document.querySelectorAll("[data-ctry]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.ctry===COUNTRY)));document.documentElement.classList.toggle("us",US());
-  $("mShoes").href=shoeDir();$("mRaces").href=US()?"us/races/":LANG==="fr"?"courses/":"races/";if($("rnRaces")){$("rnRaces").href=$("mRaces").href;$("rnShoes").href=$("mShoes").href}}   // race gear lists (Oct 21; US races on the USA side)
+  $("mShoes").href=shoeDir();$("mRaces").href=raceDir();if($("rnRaces")){$("rnRaces").href=$("mRaces").href;$("rnShoes").href=$("mShoes").href}}   // race gear lists (Oct 21; US races on the USA side)
 document.addEventListener("click",e=>{const b=e.target.closest("[data-ctry]");if(b)setCountry(b.dataset.ctry,b.closest("#menu")?"menu":"welcome")});
 /* switch Running | Hiking: the other catalogue, same sizes and filters; a picked category or type starts over */
 function setSport(s,from){if(s===SPORT||(s!=="run"&&s!=="hike"))return;SPORT=s;LS.set("gf-sport",s);applySport();
@@ -1571,7 +1573,7 @@ var RD_RUN={shoes:["shoes"],apparel:["tops","bottoms","bras"],packs:["packs"],ac
 var RD_HIKE={shoes:["shoes"],apparel:["tops"],bottoms:["bottoms"],packs:["packs"],acc:["socks","gloves","headwear"],gear:["gear"]};   // six circles, like running
 var RD_TILES=RD_RUN;
 /* hiking words (EN/FR) laid over the running ones while Hiking is picked; the running words come back on Running */
-const HIKE_TXT={en:{mShoes:"Boot prices by model",wShoeShort:"Find a boot",searchShort:"Search hiking gear",groups:{shoes:"Boots & shoes",tops:"Jackets & tops",bottoms:"Pants & shorts",socks:"Socks",gloves:"Gloves",
+const HIKE_TXT={en:{mRaces:"Trail gear lists",mShoes:"Boot prices by model",wShoeShort:"Find a boot",searchShort:"Search hiking gear",groups:{shoes:"Boots & shoes",tops:"Jackets & tops",bottoms:"Pants & shorts",socks:"Socks",gloves:"Gloves",
     headwear:"Hats",packs:"Packs",gear:"Poles, lights & gear"},
   types:{hike:"Hiking shoes",boot:"Boots",approach:"Approach shoes",shell:"Rain shells",insulated:"Insulated",fleece:"Fleece",wind:"Wind & softshell",
     base:"Base layers",shirt:"Shirts",pant:"Pants",rain:"Rain pants",short:"Shorts",day:"Day packs",overnight:"Overnight packs (35 L+)",pole:"Poles",
@@ -1587,8 +1589,8 @@ const HIKE_TXT={en:{mShoes:"Boot prices by model",wShoeShort:"Find a boot",searc
     kinds:{hike:"hiking shoes",boot:"hiking boots",approach:"approach shoes",shell:"rain jacket",insulated:"insulated layer",fleece:"fleece",wind:"wind jacket",
       base:"base layer",shirt:"shirt",pant:"pants",rain:"rain pants",short:"shorts",day:"day pack",overnight:"overnight pack",pole:"trekking poles",light:"headlamp",
       water:"water",traction:"traction",safety:"safety",nav:"navigation",gaiter:"gaiters",sun:"sunglasses"},ph:"Search boots, jackets, packs, brands…",phS:"Search boots, brands…",tiles:{shoes:"Boots & Shoes",apparel:"Jackets & Tops",bottoms:"Pants & Shorts",packs:"Packs",acc:"Accessories",gear:"Gear"},
-    nav:{shoes:"Boots",apparel:"Clothing",shoePrices:"Boot prices"}}},
- fr:{mShoes:"Prix des bottes par modèle",wShoeShort:"Chercher une botte",searchShort:"Chercher (randonnée)",groups:{shoes:"Bottes et chaussures",tops:"Manteaux et hauts",bottoms:"Pantalons et shorts",socks:"Bas",gloves:"Gants",
+    nav:{shoes:"Boots",apparel:"Clothing",shoePrices:"Boot prices",races:"Trail lists"}}},
+ fr:{mRaces:"Listes de matériel de randonnée",mShoes:"Prix des bottes par modèle",wShoeShort:"Chercher une botte",searchShort:"Chercher (randonnée)",groups:{shoes:"Bottes et chaussures",tops:"Manteaux et hauts",bottoms:"Pantalons et shorts",socks:"Bas",gloves:"Gants",
     headwear:"Chapeaux et tuques",packs:"Sacs à dos",gear:"Bâtons, frontales et équipement"},
   types:{hike:"Chaussures de randonnée",boot:"Bottes",approach:"Chaussures d'approche",shell:"Imperméables",insulated:"Isolés",fleece:"Laine polaire",wind:"Coupe-vent",
     base:"Couches de base",shirt:"Chandails",pant:"Pantalons",rain:"Pantalons imperméables",short:"Shorts",day:"Sacs de jour",overnight:"Sacs de plusieurs jours (35 L+)",
@@ -1604,7 +1606,7 @@ const HIKE_TXT={en:{mShoes:"Boot prices by model",wShoeShort:"Find a boot",searc
     kinds:{hike:"chaussures de randonnée",boot:"bottes de randonnée",approach:"chaussures d'approche",shell:"manteau imperméable",insulated:"couche isolante",fleece:"laine polaire",
       wind:"coupe-vent",base:"couche de base",shirt:"chandail",pant:"pantalon",rain:"pantalon imperméable",short:"short",day:"sac de jour",overnight:"sac de plusieurs jours",
       pole:"bâtons de randonnée",light:"frontale",water:"eau",traction:"crampons",safety:"sécurité",nav:"navigation",gaiter:"guêtres",sun:"lunettes de soleil"},ph:"Chercher bottes, manteaux, sacs, marques…",phS:"Bottes, marques…",tiles:{shoes:"Bottes et chaussures",apparel:"Manteaux et hauts",bottoms:"Pantalons et shorts",packs:"Sacs à dos",acc:"Accessoires",gear:"Équipement"},
-    nav:{shoes:"Bottes",apparel:"Vêtements",shoePrices:"Prix des bottes"}}}};
+    nav:{shoes:"Bottes",apparel:"Vêtements",shoePrices:"Prix des bottes",races:"Listes randonnée"}}}};
 let RUN_TXT=null;
 const MORE_B={en:["+ Clothing size, road or trail, favourite brands","+ Clothing size, kind of hiking, favourite brands"],
   fr:["+ Taille de vêtements, route ou sentier, marques préférées","+ Taille de vêtements, type de randonnée, marques préférées"]};
@@ -2206,7 +2208,7 @@ $("filtersBox").addEventListener("change",e=>{const el=e.target;if(!el||el.close
   ana(el.id==="sort"?"sort":"filter",(el.id||el.name||el.value||"")+(el.type==="checkbox"?":"+el.checked:el.id==="sort"?"":":"+el.value),null)});
 /* ☰ menu: the shoe pages, watchlist, sizes, About, Instagram, language and currency */
 function menuOpen(on){$("menu").hidden=!on;$("menuBtn").setAttribute("aria-expanded",String(on));
-  if(on){$("mShoes").href=shoeDir();$("mRaces").href=US()?"us/races/":LANG==="fr"?"courses/":"races/";const f=$("menu").querySelector("a,button");if(f)f.focus()}}
+  if(on){$("mShoes").href=shoeDir();$("mRaces").href=raceDir();const f=$("menu").querySelector("a,button");if(f)f.focus()}}
 $("menuBtn").addEventListener("click",e=>{e.stopPropagation();menuOpen($("menu").hidden)});
 document.addEventListener("click",e=>{if(!$("menu").hidden&&!e.target.closest("#menu"))menuOpen(false)});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("menu").hidden){menuOpen(false);$("menuBtn").focus()}});

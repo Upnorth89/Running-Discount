@@ -232,6 +232,25 @@ def main():
         return r.stdout.strip().replace("\n", "; ") + f"; {len(names)} names match"
     step("Boot price pages + links match", boot_pages)
 
+    def hike_lists():   # Oct 25: trail gear lists (scraper/hike_pages.py), only hikes whose figures were checked on the park's page
+        if not (site / "deals-hike.json").exists():
+            return "no hiking file (skipped)"
+        r = subprocess.run([sys.executable, str(ROOT / "scraper" / "hike_pages.py"), str(site), "--force"], capture_output=True, text=True)
+        if r.returncode:
+            raise RuntimeError(r.stderr.strip().splitlines()[-1] if r.stderr.strip() else "failed")
+        sys.path.insert(0, str(ROOT / "scraper"))
+        import hikes as HK
+        live = [h for h in HK.HIKES if h.get("checked")]
+        missing = [h["slug"] for h in live for d in ("hikes", "randonnees") if not (site / d / h["slug"] / "index.html").exists()]
+        if missing:
+            raise RuntimeError(f"{len(missing)} trail gear list pages missing (e.g. {missing[0]})")
+        sm = (site / "sitemap.xml").read_text() if (site / "sitemap.xml").exists() else ""
+        unchecked = [h["slug"] for h in HK.HIKES if not h.get("checked") and f"/hikes/{h['slug']}/" in sm]
+        if unchecked:
+            raise RuntimeError(f"unchecked hikes in the sitemap: {unchecked[:3]}")
+        return r.stdout.strip()
+    step("Trail gear lists (checked hikes only)", hike_lists)
+
     def email():
         sys.path.insert(0, str(ROOT / "scraper"))
         import weekly_email as W

@@ -1400,6 +1400,36 @@ def site_flow(base, per, accented):
             return f"{len(links)} models; {h1[:40]}; {len(hrefs)} hiking cards link to boot pages"
         check("Boot price pages + hiking cards link to them")(boot_pages, pg)
 
+        def hike_lists():   # Oct 25 (Bastien: trail gear lists): hub -> a trail, sizes picked -> deals in each line, a tick counts
+            if not site_get("hikes/index.html") and not site_get("hikes/"):
+                return "no trail gear lists in this build (skipped)"
+            c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+            stub(c)
+            q2 = c.new_page()
+            errs = []
+            q2.on("pageerror", lambda e: errs.append(str(e)))
+            try:
+                q2.goto(base + "hikes/", wait_until="domcontentloaded")
+                links = q2.eval_on_selector_all(".cards a", "e => e.map(a => a.getAttribute('href'))")
+                assert links, "no trails on the hub"
+                q2.goto(base + links[0].lstrip("/"), wait_until="domcontentloaded")
+                q2.click('#rsize [data-g="men"]')
+                q2.click('#rsize button[data-s="M"]')
+                q2.select_option("#shoeSz", "11")
+                settle(q2, 500)
+                deals = q2.locator(".gi:not([hidden]) .dl li").count()
+                assert deals >= 5, f"{links[0]}: only {deals} deals after men's M / 11"
+                before = q2.inner_text("#prog")
+                q2.locator(".gi:not([hidden]) input.have").first.check()
+                settle(q2, 300)
+                assert q2.inner_text("#prog") != before, "ticking an essential didn't change 'You have N of M'"
+                assert "running" not in q2.title().lower(), f"trail page title says running: {q2.title()!r}"
+                assert not errs, f"script error: {errs[0][:120]}"
+            finally:
+                c.close()
+            return f"{len(links)} trails; {links[0]}: {deals} deals in men's M / 11"
+        check("Trail gear list: sizes, deals, ticks")(hike_lists, pg)
+
         def menu_short_phone():   # Oct 25 (Bastien: "is there no more button to go from Canada to USA in the menu?"): on a short phone
             # the menu ran past the screen; Canada/USA and Prices in must be reachable
             c = br.new_context(viewport={"width": 320, "height": 568}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
