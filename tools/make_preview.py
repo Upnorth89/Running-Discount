@@ -27,6 +27,8 @@ for k, a in enumerate(sys.argv):
         NEW.append((sel.strip(), what.strip(), how.strip()))
 
 s = (SITE / "index.html").read_text()
+if os.environ.get("PV_SHORT"):    # Oct 25: preview test 'short' B (fit + shoe size only on the first sizes screen)
+    s = s.replace("const SHORT_B=(", "const SHORT_B=true||(", 1)
 # Oct 22 (Bastien: "we used to have a bunch of seo links at the bottom ... where did all that go?"): the morning build fills the
 # SEO-TODAY block on the live page only; git keeps it empty. PV_SEO = a built index.html (or the live site's address) to copy it from
 if os.environ.get("PV_SEO") and "<!--SEO-TODAY--><!--/SEO-TODAY-->" in s:

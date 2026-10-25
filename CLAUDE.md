@@ -397,6 +397,19 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   Intake (Oct 25, Bastien OK'd): `#wSport` "Gear for" row on the welcome; hiking words via HIKE_TOP keys (shoeSizeH, clothMore, by_tops…) +
   rd.h1; `#euBox` EU boot line (EU_M/EU_W = LOWA chart, `syncEU()` until changed, `euSet`) -> "E:44.5" keys match EU-only boots (scrape.py
   `eu_keep`); `#hkind` day/overnight/both -> profile `hike_kind`, `hikeFit()` ranks packs/layers. Site test "Hiking intake".
+  Boot price pages (Oct 25, Bastien: "Everything should be doing the same as the shoe page"): shoe_pages.py `build_hike()` /
+  `hike_main()` (`shoe_pages.py site --hike`, refresh.yml right after the hiking files land; adds to sitemap.xml): /hiking-boots/<slug>/
+  + /bottes-randonnee/<slug>/ (Canada) and /us/hiking-boots/<slug>/, list pages at each dir, registry <dir>/pages.json (3+ stores on that
+  side, pages never disappear), `_H` strings EN/FR/US, `hike_name()` tidies store wording ("Mid WP" = "Waterproof Mid"; JS copy
+  `hikeName()` in index.html, check.py "Boot price pages + links match"). Hiking side: cards' "All sizes & stores", menu "Boot prices by
+  model", welcome "Find a boot" go there (`shoeDir()`). First build: 64 Canadian + 44 US models. Site test "Boot price pages + hiking cards…".
+  Friday email (Oct 25, Bastien: "unless someone subscribes on the hiking page then it should give them hiking items"): profile `sport`
+  = the side they signed up on (`withSport()` at subscribe/Google, kept by toProfile); weekly_email.py sends hiking items to sport=hike
+  (HIKE_LABEL headings, links add &sport=hike, EU sizes match). Everyone else: running, as before.
+  Test 'short' (Oct 25, preview; SHORT_LIVE=false until Bastien's OK): B = first sizes screen asks fit + shoe size only (clothing, EU line,
+  kind of hiking behind "+ Clothing size, …"; `.clb`, html.shortb; no "Gear for" row). Why: 124 of 125 first visitors who didn't pick sizes
+  left at the sizes screen; size-picking 33% -> 22% since Oct 22 (p=0.002). Metric: homepage first visits that pick sizes, ~465/group,
+  decide ~Nov 8. Preview: PV_SHORT=1. Site test "Short sizes screen (test short B)".
 - **Clothing sizes per category** (Oct 21, a visitor: "medium in shorts, L in socks, small in t-shirts"): sizes screen keeps one quick
   "Clothing size" row + "Different size in shorts, socks or gloves?" (`#clothMore`/`#clothBy`, `state.clothBy` = only the categories that
   differ, `clothFor(g)`; bras follow tops, hats the main size). Profiles already kept a size per group (Friday email/alerts use them);

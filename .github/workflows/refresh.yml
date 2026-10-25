@@ -79,6 +79,8 @@ jobs:
           curl -fsSL "$BASE/health.json" -o site/health.json || true
           mkdir -p site/shoes && curl -fsSL "$BASE/shoes/pages.json" -o site/shoes/pages.json || true   # models that have a page (pages never disappear)
           mkdir -p site/us/shoes && curl -fsSL "$BASE/us/shoes/pages.json" -o site/us/shoes/pages.json || true   # same for the USA side
+          mkdir -p site/hiking-boots site/us/hiking-boots && curl -fsSL "$BASE/hiking-boots/pages.json" -o site/hiking-boots/pages.json || true   # boot pages (Oct 25)
+          curl -fsSL "$BASE/us/hiking-boots/pages.json" -o site/us/hiking-boots/pages.json || true
           # last night's RunFree read (scraper/runfree.py, runfree.yml), kept on the history branch
           curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/history/runfree.json" -o /tmp/runfree.json || true
           curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/history/decathlon.json" -o /tmp/decathlon.json || true
@@ -143,6 +145,7 @@ jobs:
             if [ -s /tmp/hike/$f.json ]; then cp /tmp/hike/$f.json site/; else curl -fsSL "https://thegearfox.com/$f.json" -o site/$f.json || true; fi
           done
           [ -s /tmp/hike/hike-offers.json ] && cp /tmp/hike/hike-offers.json site/ || true
+          python scraper/shoe_pages.py site --hike || echo "::warning::boot pages failed"   # boot & hiking shoe price pages (Oct 25)
       # a robot visitor clicks through today's site before it goes live: sizes, every category, one search per category,
       # filters, hearts, menu, French, shoe pages, links (tools/sitetest.py, Oct 5, 2026). Results go in the health email;
       # a critical failure (no deals, crash, empty shoe pages) is retried once, then stops publishing (see below).

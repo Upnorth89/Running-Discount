@@ -464,7 +464,7 @@ body.locked #langPick,body.locked #curBtn,body.locked #openWatch,body.locked #me
 .walt{margin:10px 0 -12px}.walt button,.walt a{white-space:nowrap;font:600 15px var(--body);color:var(--moss);text-decoration:none;background:none;border:0;padding:0 6px;cursor:pointer;min-height:44px}
 .walt .dot{color:var(--muted)}
 @media(max-width:350px){.walt button,.walt a{font-size:14px;padding:0 3px}}
-#sizesPart.short .later{display:none}
+#sizesPart.short .later{display:none}html.shortb #sizesPart.short .clb,html.shortb #wSport{display:none!important}
 .moresz{display:none;margin:14px 0 0}#sizesPart.short .moresz{display:block}
 .clothmore{margin:8px 0 0}#clothBy .byrow{margin:10px 0 0}#clothBy .byrow b{display:block;font:600 14px var(--body);margin:0 0 4px}
 .browsebar{background:var(--card);border:1.5px solid var(--hivis);border-radius:12px;padding:12px 14px;margin:0 0 16px;font-size:15px}
@@ -630,11 +630,11 @@ body.locked #langPick,body.locked #curBtn,body.locked #openWatch,body.locked #me
     <div class="scale" id="shoeSizes"></div>
     <div id="shoeWBox" class="hidden"><p class="wline" id="wLine"></p><div class="scale hidden" id="shoeSizesW"></div></div>
     <div class="chips" id="width" style="margin-top:8px" role="group" aria-label="Shoe width" data-i18n-aria="shoeWidth"></div>
-    <div id="euBox" class="hk"><p class="wline euline" id="euLine"></p><div class="scale hidden" id="euSizes"></div></div>
+    <div id="euBox" class="hk clb"><p class="wline euline" id="euLine"></p><div class="scale hidden" id="euSizes"></div></div>
 
-    <h3 data-i18n="clothSizeH">Clothing size <small>tops, shorts, socks, gloves</small></h3>
-    <div class="scale" id="clothSizes"></div>   <!-- Oct 22 (Bastien): clothing sizes show right away, not behind "+ Clothing size" -->
-    <p class="clothmore"><button type="button" class="linkbtn" id="clothMore" data-i18n="clothMore">Different size in shorts, socks or gloves?</button></p>
+    <h3 class="clb" data-i18n="clothSizeH">Clothing size <small>tops, shorts, socks, gloves</small></h3>
+    <div class="scale clb" id="clothSizes"></div>   <!-- Oct 22 (Bastien): clothing sizes show right away, not behind "+ Clothing size" -->
+    <p class="clothmore clb"><button type="button" class="linkbtn" id="clothMore" data-i18n="clothMore">Different size in shorts, socks or gloves?</button></p>
     <div id="clothBy" class="hidden"></div>
     <p class="moresz"><button type="button" class="linkbtn" id="moreSizes" data-i18n="moreSizes">+ Road or trail, favourite brands</button></p>
 
@@ -711,7 +711,8 @@ const ANA=(()=>{const ls=k=>{try{return localStorage.getItem(k)}catch(e){return 
   let over={};try{const q=new URLSearchParams(location.search).get("exp");over=JSON.parse(ls("gf-exp")||"{}");
     if(q){q.split(",").forEach(x=>{const [n,a]=x.split(":");if(n&&/^[AB]$/.test(a))over[n]=a});localStorage.setItem("gf-exp",JSON.stringify(over))}}catch(e){}
   const arm=n=>{if(over[n])return over[n];let h=2166136261;for(const c of did+"|"+n){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return (h>>>0)%2?"B":"A"};
-  const TESTS=["r100","run1st","cards2"];   // Oct 22: 'run1st' = running gear leads the first rows (B)   // Oct 22: the redesign ('look' B) is the site for everyone (Bastien), 'runcard' ended (0 vs 2 sign-ups, too rare to decide), 'layout' ended Oct 19
+  const TESTS=["r100","run1st","cards2"];   // add "short" with SHORT_LIVE   // Oct 25: 'short' B = first sizes screen asks only fit + shoe size (Bastien OK'd)
+    // Oct 22: 'run1st' = running gear leads the first rows (B)   // Oct 22: the redesign ('look' B) is the site for everyone (Bastien), 'runcard' ended (0 vs 2 sign-ups, too rare to decide), 'layout' ended Oct 19
      // Oct 21: 'look' = sizes on each card + category photos + store names (B)   // Oct 20: 'welcome' and 'drops' ended (A won); 'layout' back as a 50/50 test
   if(fresh){TESTS.forEach(n=>add("signup-step",`exp|${n}|${arm(n)}`))}
   if(fresh)add("visit",em?"email-"+em:(matchMedia("(display-mode: standalone)").matches||navigator.standalone)?"home-screen app":document.referrer?new URL(document.referrer).hostname:"",null,location.pathname);
@@ -1071,7 +1072,7 @@ function appManifest(){try{
   el.href="data:application/manifest+json,"+encodeURIComponent(JSON.stringify(m));
 }catch(e){}}
 const state={name:"",email:"",gender:"",terrain:"both",ships:"ca",groups:ORDER.slice(),shoe:[],shoeW:[],wTouched:false,width:[],cloth:[],clothBy:{},brands:[],
-  hkind:"both",shoeEU:[],euTouched:false};   // Oct 25, hiking: kind of hiking + EU boot sizes
+  hkind:"both",shoeEU:[],euTouched:false,signSport:null};   // Oct 25, hiking: kind of hiking + EU boot sizes
 /* EU boot sizes (Oct 25, Bastien OK'd the hiking intake): European boots (La Sportiva, Scarpa, LOWA, Hanwag…) are often sold in EU sizes only.
    Until the visitor changes it, their EU size comes from their US size with LOWA's own chart (us.lowa.com, the one maker chart we read);
    boots listed in EU sizes ("E:44.5") match only the EU sizes the visitor has. */
@@ -1090,7 +1091,7 @@ const TZ=(()=>{try{return Intl.DateTimeFormat().resolvedOptions().timeZone||""}c
 function toProfile(){
   const sizes={shoes:{sizes:state.shoe,width:state.width,...(state.gender==="any"&&state.shoeW.length?{women:state.shoeW}:{}),...(state.shoeEU.length?{eu:state.shoeEU}:{}),...(state.euTouched?{euSet:1}:{})}};
   APPAREL_GROUPS.forEach(g=>sizes[g]={sizes:clothFor(g).slice()});
-  return {lang:LANG,country:COUNTRY,tz:TZ,name:state.name,email:state.email,gender:state.gender,terrain:state.terrain,...(state.hkind!=="both"?{hike_kind:state.hkind}:{}),ships:state.ships,groups:state.groups,sizes,brands:state.brands,activities:[],...(REF?{ref:REF}:{}),...(LS.get("gf-pro")?{pro_wait:LS.get("gf-pro")}:{})};
+  return {lang:LANG,country:COUNTRY,tz:TZ,name:state.name,email:state.email,gender:state.gender,terrain:state.terrain,...(state.hkind!=="both"?{hike_kind:state.hkind}:{}),...(state.signSport?{sport:state.signSport}:{}),ships:state.ships,groups:state.groups,sizes,brands:state.brands,activities:[],...(REF?{ref:REF}:{}),...(LS.get("gf-pro")?{pro_wait:LS.get("gf-pro")}:{})};
 }
 function applyProfile(p){
   if(!p)return;
@@ -1102,7 +1103,7 @@ function applyProfile(p){
   Object.assign(state,{name:p.name||"",email:p.email||"",gender:p.gender||"",terrain:["road","trail"].includes(p.terrain)?p.terrain:"both",ships:p.ships||"ca",
     groups:(p.groups&&p.groups.length)?p.groups.filter(g=>GL(g)):ORDER.slice(),
     shoe:((sz.shoes||{}).sizes||[]).map(String),shoeW:((sz.shoes||{}).women||[]).map(String),wTouched:!!(sz.shoes||{}).women,width:(sz.shoes||{}).width||[],cloth:CLOTH.filter(c=>cloth.has(c)),clothBy,brands:p.brands||[],
-    hkind:["day","overnight"].includes(p.hike_kind)?p.hike_kind:"both",shoeEU:((sz.shoes||{}).eu||[]).map(String),euTouched:!!(sz.shoes||{}).euSet});
+    hkind:["day","overnight"].includes(p.hike_kind)?p.hike_kind:"both",shoeEU:((sz.shoes||{}).eu||[]).map(String),euTouched:!!(sz.shoes||{}).euSet,signSport:p.sport==="hike"?"hike":p.sport==="run"?"run":null});
   syncEU();
   customBrands=state.brands.filter(b=>!BRANDS.includes(b));
   if(p.lang&&!LS0("gf-lang")&&p.lang!==LANG){LANG=p.lang;applyStatic()}
@@ -1187,6 +1188,8 @@ const WELCOME_B=false;   // test "welcome" ended Oct 20: without the welcome scr
 const LAYOUT_B=ANA.arm("layout")==="B";
 /* Test 'cards2' (Oct 25): B = phones show one deal per row, photo beside the details (theme.css html.cards2), 6 top deals + 4 per
    category; metric = homepage first visits that click a store (direct visitors: 15% since the redesign, 33% before) */
+const SHORT_LIVE=false;   // preview until Bastien's OK; ?exp=short:B shows B any time
+const SHORT_B=(()=>{try{return (SHORT_LIVE?ANA.arm("short"):JSON.parse(localStorage.getItem("gf-exp")||"{}").short)==="B"}catch(e){return false}})();if(SHORT_B)document.documentElement.classList.add("shortb");   // Oct 25 test 'short': 124 of 125 first visitors who didn't pick sizes left at the sizes screen
 const CARDS2=ANA.arm("cards2")==="B";if(CARDS2)document.documentElement.classList.add("cards2");
 const C2P=()=>CARDS2&&innerWidth<700&&innerWidth>=380;   // phones with two cards a row
 const LOOK_B=true;   // Oct 22 (Bastien: "I'd redesign now"): the redesign for everyone, no test; before/after numbers watched for 2 weeks (docs/decisions.md)
@@ -1391,10 +1394,10 @@ let FULL=false,fullLoading=null;
    only models listed in shoes/pages.json get a link (a page that forwards points to its new address). */
 let SHOEPAGES=null;
 /* Canada: shoes/ (EN) + chaussures/ (FR); USA: us/shoes/ (US stores, US dollars; English) */
-const shoeDir=()=>US()?"us/shoes/":LANG==="fr"?"chaussures/":"shoes/";
+const shoeDir=()=>HIKE()?(US()?"us/hiking-boots/":LANG==="fr"?"bottes-randonnee/":"hiking-boots/"):US()?"us/shoes/":LANG==="fr"?"chaussures/":"shoes/";   // Oct 25: boot pages on the hiking side
 let SHOEPAGES_FOR="";
-function loadShoePages(){const c=COUNTRY;if(SHOEPAGES&&SHOEPAGES_FOR===c)return;SHOEPAGES={};SHOEPAGES_FOR=c;
-  fetch(US()?"us/shoes/pages.json":"shoes/pages.json").then(r=>r.ok?r.json():{}).then(j=>{if(c!==COUNTRY)return;SHOEPAGES=j||{};if(DATA)renderAll()}).catch(()=>{})}
+function loadShoePages(){const c=COUNTRY+(HIKE()?"|hike":"");if(SHOEPAGES&&SHOEPAGES_FOR===c)return;SHOEPAGES={};SHOEPAGES_FOR=c;
+  fetch(HIKE()?(US()?"us/hiking-boots/pages.json":"hiking-boots/pages.json"):US()?"us/shoes/pages.json":"shoes/pages.json").then(r=>r.ok?r.json():{}).then(j=>{if(c!==COUNTRY+(HIKE()?"|hike":""))return;SHOEPAGES=j||{};if(DATA)renderAll()}).catch(()=>{})}
 function baseModel(n){
   n=n.replace(/\s*(-\s*|\()(Men|Women)[’']s\)?$|\s*(-\s*|\()Unisex\)?$/,"");
   n=n.split(/\s+[—·]\s+/)[0];
@@ -1410,9 +1413,19 @@ function baseModel(n){
 }
 function slugify(t){t=t.toLowerCase().replace(/\+/g," plus").replace(/&/g," and ").replace(/[üû]/g,"u").replace(/[öô]/g,"o").replace(/[éèêë]/g,"e").replace(/[àâä]/g,"a");
   return t.replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"")}
+/* Boot pages (Oct 25): same name tidying as scraper/shoe_pages.py hike_name() ("Targhee IV Mid WP" = "Targhee IV Waterproof Mid") */
+const HK_HEIGHT={mid:"Mid",middle:"Mid",low:"Low",high:"High"},HK_SHELL={wp:"Waterproof",wtpf:"Waterproof",waterproof:"Waterproof",gtx:"GTX",vent:"Vent",vented:"Vent"};
+function hikeName(n){
+  n=n.replace(/\b(hiking|hike|backpacking|approach|trekking|walking|winter|trail)\s+(boots?|shoes?)\b|\bboots?\b/gi," ").replace(/\(?\bavailable in (wide )?widths?\b\)?/gi," ");
+  n=baseModel(n).replace(/\b(men|women)[’']?s\b|\bunisex\b|\bfootwear\b|\b\d{6,}\b/gi," ").replace(/\b(\d+)\.0\b/g,"$1").replace(/\b(\w+)\s+\1\b/gi,"$1");
+  const core=[],h=[],sh=[];
+  n.replace(/-/g," - ").split(/\s+/).filter(Boolean).forEach(w=>{const k=w.toLowerCase().replace(/^[.,]+|[.,]+$/g,"");
+    if(HK_HEIGHT[k])h.push(HK_HEIGHT[k]);else if(HK_SHELL[k])sh.push(HK_SHELL[k]);else if(w!=="-")core.push(w)});
+  return [...core,...new Set(h),...new Set(sh)].join(" ").replace(/^[ -]+|[ -]+$/g,"");
+}
 function shoePage(d){
-  if(d.g!=="shoes"||!SHOEPAGES||HIKE())return null;
-  let sl=slugify(d.b+" "+baseModel(d.n)),m=SHOEPAGES[sl];
+  if(d.g!=="shoes"||!SHOEPAGES)return null;
+  let sl=slugify(d.b+" "+(HIKE()?hikeName:baseModel)(d.n)),m=SHOEPAGES[sl];
   if(m&&m.to){sl=m.to;m=SHOEPAGES[sl]}
   return m?{slug:sl,name:m.n}:null;
 }
@@ -1501,7 +1514,7 @@ function setCountry(c,from){if(c===COUNTRY||(c!=="us"&&c!=="ca"))return;COUNTRY=
   if(LS0("rd-profile"))saveProfile();applyStatic();renderCountry();
   if(!$("sheet").classList.contains("hidden"))openSheet();renderAll();loadCountry()}
 function renderCountry(){document.querySelectorAll("[data-ctry]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.ctry===COUNTRY)));document.documentElement.classList.toggle("us",US());
-  $("mShoes").href=US()?"us/shoes/":LANG==="fr"?"chaussures/":"shoes/";$("mRaces").href=US()?"us/races/":LANG==="fr"?"courses/":"races/";if($("rnRaces")){$("rnRaces").href=$("mRaces").href;$("rnShoes").href=$("mShoes").href}}   // race gear lists (Oct 21; US races on the USA side)
+  $("mShoes").href=shoeDir();$("mRaces").href=US()?"us/races/":LANG==="fr"?"courses/":"races/";if($("rnRaces")){$("rnRaces").href=$("mRaces").href;$("rnShoes").href=$("mShoes").href}}   // race gear lists (Oct 21; US races on the USA side)
 document.addEventListener("click",e=>{const b=e.target.closest("[data-ctry]");if(b)setCountry(b.dataset.ctry,b.closest("#menu")?"menu":"welcome")});
 /* switch Running | Hiking: the other catalogue, same sizes and filters; a picked category or type starts over */
 function setSport(s,from){if(s===SPORT||(s!=="run"&&s!=="hike"))return;SPORT=s;LS.set("gf-sport",s);applySport();
@@ -1558,7 +1571,7 @@ var RD_RUN={shoes:["shoes"],apparel:["tops","bottoms","bras"],packs:["packs"],ac
 var RD_HIKE={shoes:["shoes"],apparel:["tops"],bottoms:["bottoms"],packs:["packs"],acc:["socks","gloves","headwear"],gear:["gear"]};   // six circles, like running
 var RD_TILES=RD_RUN;
 /* hiking words (EN/FR) laid over the running ones while Hiking is picked; the running words come back on Running */
-const HIKE_TXT={en:{searchShort:"Search hiking gear",groups:{shoes:"Boots & shoes",tops:"Jackets & tops",bottoms:"Pants & shorts",socks:"Socks",gloves:"Gloves",
+const HIKE_TXT={en:{mShoes:"Boot prices by model",wShoeShort:"Find a boot",searchShort:"Search hiking gear",groups:{shoes:"Boots & shoes",tops:"Jackets & tops",bottoms:"Pants & shorts",socks:"Socks",gloves:"Gloves",
     headwear:"Hats",packs:"Packs",gear:"Poles, lights & gear"},
   types:{hike:"Hiking shoes",boot:"Boots",approach:"Approach shoes",shell:"Rain shells",insulated:"Insulated",fleece:"Fleece",wind:"Wind & softshell",
     base:"Base layers",shirt:"Shirts",pant:"Pants",rain:"Rain pants",short:"Shorts",day:"Day packs",overnight:"Overnight packs (35 L+)",pole:"Poles",
@@ -1574,8 +1587,8 @@ const HIKE_TXT={en:{searchShort:"Search hiking gear",groups:{shoes:"Boots & shoe
     kinds:{hike:"hiking shoes",boot:"hiking boots",approach:"approach shoes",shell:"rain jacket",insulated:"insulated layer",fleece:"fleece",wind:"wind jacket",
       base:"base layer",shirt:"shirt",pant:"pants",rain:"rain pants",short:"shorts",day:"day pack",overnight:"overnight pack",pole:"trekking poles",light:"headlamp",
       water:"water",traction:"traction",safety:"safety",nav:"navigation",gaiter:"gaiters",sun:"sunglasses"},ph:"Search boots, jackets, packs, brands…",phS:"Search boots, brands…",tiles:{shoes:"Boots & Shoes",apparel:"Jackets & Tops",bottoms:"Pants & Shorts",packs:"Packs",acc:"Accessories",gear:"Gear"},
-    nav:{shoes:"Boots",apparel:"Clothing"}}},
- fr:{searchShort:"Chercher (randonnée)",groups:{shoes:"Bottes et chaussures",tops:"Manteaux et hauts",bottoms:"Pantalons et shorts",socks:"Bas",gloves:"Gants",
+    nav:{shoes:"Boots",apparel:"Clothing",shoePrices:"Boot prices"}}},
+ fr:{mShoes:"Prix des bottes par modèle",wShoeShort:"Chercher une botte",searchShort:"Chercher (randonnée)",groups:{shoes:"Bottes et chaussures",tops:"Manteaux et hauts",bottoms:"Pantalons et shorts",socks:"Bas",gloves:"Gants",
     headwear:"Chapeaux et tuques",packs:"Sacs à dos",gear:"Bâtons, frontales et équipement"},
   types:{hike:"Chaussures de randonnée",boot:"Bottes",approach:"Chaussures d'approche",shell:"Imperméables",insulated:"Isolés",fleece:"Laine polaire",wind:"Coupe-vent",
     base:"Couches de base",shirt:"Chandails",pant:"Pantalons",rain:"Pantalons imperméables",short:"Shorts",day:"Sacs de jour",overnight:"Sacs de plusieurs jours (35 L+)",
@@ -1591,9 +1604,11 @@ const HIKE_TXT={en:{searchShort:"Search hiking gear",groups:{shoes:"Boots & shoe
     kinds:{hike:"chaussures de randonnée",boot:"bottes de randonnée",approach:"chaussures d'approche",shell:"manteau imperméable",insulated:"couche isolante",fleece:"laine polaire",
       wind:"coupe-vent",base:"couche de base",shirt:"chandail",pant:"pantalon",rain:"pantalon imperméable",short:"short",day:"sac de jour",overnight:"sac de plusieurs jours",
       pole:"bâtons de randonnée",light:"frontale",water:"eau",traction:"crampons",safety:"sécurité",nav:"navigation",gaiter:"guêtres",sun:"lunettes de soleil"},ph:"Chercher bottes, manteaux, sacs, marques…",phS:"Bottes, marques…",tiles:{shoes:"Bottes et chaussures",apparel:"Manteaux et hauts",bottoms:"Pantalons et shorts",packs:"Sacs à dos",acc:"Accessoires",gear:"Équipement"},
-    nav:{shoes:"Bottes",apparel:"Vêtements"}}}};
+    nav:{shoes:"Bottes",apparel:"Vêtements",shoePrices:"Prix des bottes"}}}};
 let RUN_TXT=null;
-const HIKE_TOP=["shoeSizeH","shoeSizeMH","clothSizeH","clothMore","by_tops","by_bottoms","moreSizes","wIntro"];
+const MORE_B={en:["+ Clothing size, road or trail, favourite brands","+ Clothing size, kind of hiking, favourite brands"],
+  fr:["+ Taille de vêtements, route ou sentier, marques préférées","+ Taille de vêtements, type de randonnée, marques préférées"]};
+const HIKE_TOP=["mShoes","wShoeShort","shoeSizeH","shoeSizeMH","clothSizeH","clothMore","by_tops","by_bottoms","moreSizes","wIntro"];
 const nStoresH=()=>(DATA&&DATA.n_stores)||66;
 function applySport(){
   if(!RUN_TXT){RUN_TXT={};for(const L of ["en","fr"]){const I=I18N[L];RUN_TXT[L]={top:Object.fromEntries(HIKE_TOP.map(k=>[k,I[k]])),searchShort:I.searchShort,headSized:I.headSized,h1:I.rd.h1,h1n:I.rd.h1n,sub:I.rd.sub,why:I.rd.why.slice(),kinds:{...I.rd.kinds},groups:{...I.groups},types:{...I.types},
@@ -1602,6 +1617,7 @@ function applySport(){
     HIKE_TOP.forEach(k=>{I[k]=h?H[k]:R0.top[k]});
     I.searchShort=h?H.searchShort:R0.searchShort;I.headSized=h?H.headSized:R0.headSized;I.rd.h1=h?H.rd.h1:R0.h1;I.rd.h1n=h?H.rd.h1n:R0.h1n;I.rd.sub=h?H.rd.sub:R0.sub;I.rd.kinds=h?{...H.rd.kinds}:{...R0.kinds};
     I.rd.why=R0.why.slice();if(h)I.rd.why[2]=H.rd.why2;I.groups=h?{...R0.groups,...H.groups}:{...R0.groups};I.types=h?{...R0.types,...H.types}:{...R0.types};
+    if(typeof SHORT_B!=="undefined"&&SHORT_B)I.moreSizes=MORE_B[L][h?1:0];
     I.rd.ph=h?H.rd.ph:R0.ph;I.rd.phS=h?H.rd.phS:R0.phS;I.rd.tiles=h?{...H.rd.tiles}:{...R0.tiles};I.rd.nav=h?{...R0.nav,...H.rd.nav}:{...R0.nav}}
   TYPES=HIKE()?TYPES_HIKE:TYPES_RUN;RD_TILES=HIKE()?RD_HIKE:RD_RUN;
   if(!applySport.title)applySport.title=document.title;
@@ -2190,7 +2206,7 @@ $("filtersBox").addEventListener("change",e=>{const el=e.target;if(!el||el.close
   ana(el.id==="sort"?"sort":"filter",(el.id||el.name||el.value||"")+(el.type==="checkbox"?":"+el.checked:el.id==="sort"?"":":"+el.value),null)});
 /* ☰ menu: the shoe pages, watchlist, sizes, About, Instagram, language and currency */
 function menuOpen(on){$("menu").hidden=!on;$("menuBtn").setAttribute("aria-expanded",String(on));
-  if(on){$("mShoes").href=US()?"us/shoes/":LANG==="fr"?"chaussures/":"shoes/";$("mRaces").href=US()?"us/races/":LANG==="fr"?"courses/":"races/";const f=$("menu").querySelector("a,button");if(f)f.focus()}}
+  if(on){$("mShoes").href=shoeDir();$("mRaces").href=US()?"us/races/":LANG==="fr"?"courses/":"races/";const f=$("menu").querySelector("a,button");if(f)f.focus()}}
 $("menuBtn").addEventListener("click",e=>{e.stopPropagation();menuOpen($("menu").hidden)});
 document.addEventListener("click",e=>{if(!$("menu").hidden&&!e.target.closest("#menu"))menuOpen(false)});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("menu").hidden){menuOpen(false);$("menuBtn").focus()}});
@@ -2450,7 +2466,8 @@ let sub=LS.get("gf-sub");            // {key, email, active} once this device is
 function setSub(v){sub=v;LS.set("gf-sub",v)}
 /* the hearts picked before signing up ride along with the sign-up (watch_new) and come back with the confirm link, even when
    it's opened on another device (Oct 8: shoe pages and the come-back bar sign people up before they ever reach the homepage) */
-function subProfile(p){const w=Object.entries(watches).slice(0,10);return w.length?{...p,watch_new:Object.fromEntries(w)}:p}
+function withSport(p){if(!state.signSport)state.signSport=HIKE()?"hike":"run";return {...p,sport:state.signSport}}   // Oct 25 (Bastien): the side they signed up on picks the Friday email's items
+function subProfile(p){p=withSport(p);const w=Object.entries(watches).slice(0,10);return w.length?{...p,watch_new:Object.fromEntries(w)}:p}
 let signupErr="",resentAt=0;
 /* Fox Pro price test (Oct 25, Bastien: "yes run the Pro price test from Nov 2"): from Nov 2 to Nov 16, returning visitors see a
    waitlist card in the sign-up slot. Half the devices see $3/month or $29/year (A), half $5/month or $49/year (B): ANA.arm("pro").
@@ -2686,7 +2703,7 @@ async function onGoogle(credential){
 }
 async function googleSubscribe(){
   const btn=$("saveSizes");btn.disabled=true;btn.textContent=t("oneMoment");
-  try{const r=await rpc("google_subscribe",{p_profile:toProfile()},gSession.access);btn.disabled=false;linkFromGoogle(r,t("gIn"))}
+  try{const r=await rpc("google_subscribe",{p_profile:withSport(toProfile())},gSession.access);btn.disabled=false;linkFromGoogle(r,t("gIn"))}
   catch(e){btn.disabled=false;btn.textContent=t("subscribeShow");gSession=null;openSheet();gateErr(t("gFail"))}
 }
 

@@ -129,7 +129,7 @@ def stub(ctx):
     ctx.route(re.compile(r"umami|googletagmanager|accounts\.google|gstatic"), lambda r: r.abort())
     ctx.route(re.compile(r"^https?://(?!127\.0\.0\.1).*\.(jpe?g|png|webp|gif|avif)(\?.*)?$", re.I), lambda r: r.abort())
     # A/B tests (Oct 18): the robot is group A unless a check asks otherwise (test "welcome" B skips the welcome screen)
-    ctx.add_init_script("try{if(!localStorage.getItem('gf-exp'))localStorage.setItem('gf-exp',JSON.stringify({welcome:'A',layout:'A'}))}catch(e){}")
+    ctx.add_init_script("try{if(!localStorage.getItem('gf-exp'))localStorage.setItem('gf-exp',JSON.stringify({welcome:'A',layout:'A',short:'A'}))}catch(e){}")
 
 
 # ---------- what today's data says we should see ----------
@@ -1329,6 +1329,76 @@ def site_flow(base, per, accented):
                 c.close()
             return f"EU 44.5 matched, overnight saved; {h1.splitlines()[0][:40]}"
         check("Hiking intake: EU boot size, kind of hiking, hiking words")(hiking_intake, pg)
+
+        def short_sizes():   # Oct 25 test 'short' (Bastien OK'd): B's first sizes screen asks only fit + shoe size; clothing,
+            # the EU line and the rest sit behind one link; Show my deals works with just a shoe size (clothing in every size)
+            c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+            stub(c)
+            c.add_init_script("try{localStorage.setItem('gf-exp',JSON.stringify({welcome:'A',layout:'A',short:'B'}))}catch(e){}")
+            q2 = c.new_page()
+            errs = []
+            q2.on("pageerror", lambda e: errs.append(str(e)))
+            try:
+                q2.goto(base, wait_until="domcontentloaded")
+                q2.wait_for_selector("#saveSizes", state="visible", timeout=30000)
+                settle(q2, 600)
+                q2.click("#saveSizes")
+                q2.wait_for_selector("#shoeSizes .chip", state="visible")
+                settle(q2, 400)
+                assert not q2.locator("#clothSizes").is_visible(), "B: clothing sizes still on the first screen"
+                more = q2.inner_text("#moreSizes")
+                assert "Clothing size" in more, f"B: the link doesn't offer the clothing size: {more!r}"
+                q2.click("#fit button[data-v=men]")
+                q2.click("#shoeSizes .chip[data-v='11']")
+                q2.click("#saveSizes")
+                q2.wait_for_selector("#sheet", state="hidden", timeout=20000)
+                q2.wait_for_selector("#dealList .rdc", timeout=30000)
+                n = q2.locator("#dealList .rdc").count()
+                assert n > 3, f"only {n} deals after fit + shoe size"
+                q2.click("#menuBtn")
+                q2.click('#menu [data-go="sizes"]')
+                q2.wait_for_selector("#clothSizes button", state="visible", timeout=10000)
+                assert not errs, f"script error: {errs[0][:120]}"
+            finally:
+                c.close()
+            return f"fit + shoe size only, {n} deals; clothing size there under My sizes"
+        check("Short sizes screen (test short B)")(short_sizes, pg)
+
+        def boot_pages():   # Oct 25 (Bastien: boot price pages "doing the same as the shoe page"): list -> a model page with sizes,
+            # its French twin, and a hiking card's "All sizes & stores" link lands on a boot page
+            if not site_get("hiking-boots/pages.json"):
+                return "no boot pages in this build (skipped)"
+            c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+            stub(c)
+            q2 = c.new_page()
+            errs = []
+            q2.on("pageerror", lambda e: errs.append(str(e)))
+            try:
+                q2.goto(base + "hiking-boots/", wait_until="domcontentloaded")
+                links = q2.eval_on_selector_all(".links a", "e => e.map(a => a.getAttribute('href'))")
+                assert len(links) >= 10, f"only {len(links)} models on the boot list page"
+                q2.goto(base + links[0].lstrip("/"), wait_until="domcontentloaded")
+                h1 = q2.inner_text("h1")
+                rows = q2.locator("table tr").count()
+                assert rows > 2 or q2.locator("text=Not in stock").count(), f"{links[0]}: no size table"
+                assert "running" not in q2.title().lower(), f"boot page title says running: {q2.title()!r}"
+                q2.goto(base + links[0].lstrip("/").replace("hiking-boots/", "bottes-randonnee/"), wait_until="domcontentloaded")
+                assert q2.evaluate("document.documentElement.lang").startswith("fr"), "French boot page missing"
+                c.add_init_script("""try{localStorage.setItem('gf-nosignup','1');localStorage.setItem('gf-peek','1');
+                  localStorage.setItem('rd-profile',JSON.stringify({gender:'men',terrain:'both',ships:'ca',country:'ca',groups:['shoes'],sizes:{shoes:{sizes:['11'],width:[]}},brands:[],lang:'en'}))}catch(e){}""")
+                q3 = c.new_page()
+                q3.on("pageerror", lambda e: errs.append(str(e)))
+                q3.goto(base + "?sport=hike", wait_until="domcontentloaded")
+                q3.wait_for_function("document.documentElement.classList.contains('hike') && document.querySelectorAll('#dealList .rdc').length > 3", timeout=30000)
+                q3.wait_for_timeout(1500)
+                hrefs = q3.eval_on_selector_all("a.cmp", "e => e.map(a => a.getAttribute('href'))")
+                bad = [h for h in hrefs if "hiking-boots/" not in h]
+                assert not bad, f"hiking cards link to running shoe pages: {bad[:2]}"
+                assert not errs, f"script error: {errs[0][:120]}"
+            finally:
+                c.close()
+            return f"{len(links)} models; {h1[:40]}; {len(hrefs)} hiking cards link to boot pages"
+        check("Boot price pages + hiking cards link to them")(boot_pages, pg)
 
         def menu_short_phone():   # Oct 25 (Bastien: "is there no more button to go from Canada to USA in the menu?"): on a short phone
             # the menu ran past the screen; Canada/USA and Prices in must be reachable

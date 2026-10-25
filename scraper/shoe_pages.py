@@ -377,7 +377,7 @@ def rows_for(d, stores, L):
             continue
         wide = s.endswith("~W")
         mw = any(str(x[0]).startswith("W:") for x in d["sz"])   # both cuts in one table: men's rows say "M 9" (as the summary does)
-        s = s.replace("~W", "").replace("M:", "M " if mw else "").replace("W:", "W ")
+        s = s.replace("~W", "").replace("M:", "M " if mw else "").replace("W:", "W ").replace("E:", "EU ")   # EU-only boots (Oct 25)
         if mw and not s.startswith(("M ", "W ")):     # a store's plain "8" in that table is the men's 8: one row with "M 8"
             s = "M " + s
         key = s + (f" ({L['wide']})" if wide and not d.get("w") else "")
@@ -548,7 +548,10 @@ def menu_links(L, other_path):
     items = [(home, "🔥", L["mDeals"]), (f"/{L['dir']}/", "👟", L["mShoes"]),
              (home + ("&" if "?" in home else "?") + "show=watch", "♡", L["mWatch"]), (home + ("&" if "?" in home else "?") + "show=sizes", "✏️", L["mSizes"]),
              ("/about.html" + ("?lang=fr" if fr else ""), "🦊", L["mAbout"]), ("https://www.instagram.com/thegearfox/", "📸", "Instagram")]
-    items.insert(2, ("/us/races/" if L["lang"] == "en-US" else "/courses/" if fr else "/races/", "🏁", L["mRaces"]))   # race gear lists (Oct 21; US races too)
+    if L.get("hike"):      # boot pages: menu goes to the hiking side, no race lists
+        items[1] = (f"/{L['dir']}/", "👟", L["mShoes"])
+    else:
+        items.insert(2, ("/us/races/" if L["lang"] == "en-US" else "/courses/" if fr else "/races/", "🏁", L["mRaces"]))   # race gear lists (Oct 21; US races too)
     out = "".join(f'<a href="{u}">{MENU_SVG.format(MENU_ICONS[i])}{esc(t)}</a>' for u, i, t in items)
     if L["lang"] == "en-US":
         return out + f'<a class="sw" href="{other_path}" hreflang="{L["other"]}">{L["switch"]}</a>'
@@ -1107,7 +1110,7 @@ def price_chart(its, L, updated, prefix=""):
 def model_page(slug, its, stores, L, updated, related, brand_models, paths=None, brand_pages=(), hide=False):
     first = its[0]
     brand = first["b"]
-    name = f"{brand} {base_model(first['n'])}"
+    name = f"{brand} {(hike_name if L.get('hike') else base_model)(first['n'])}"
     path_en, path_fr = paths or (f"/shoes/{slug}/", f"/chaussures/{slug}/")
     money = L["money"]
     # every variant (men's, women's, wide…) with its sizes
@@ -1259,7 +1262,7 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None,
     return "".join(out)
 
 
-def alt_file(models, live, fx=1.0):
+def alt_file(models, live, fx=1.0, namer=None):
     """Oct 22: /shoes/alts.json (and /us/shoes/alts.json): for each kind of shoe, the 40 models with the deepest sale, each with
     its sale sizes per cut ("m" men's / unisex, "w" women's): size -> [price, % off]. Shoe pages pick 6 in the visitor's size."""
     out = defaultdict(list)
@@ -1292,7 +1295,7 @@ def alt_file(models, live, fx=1.0):
             continue
         t = its[0].get("t") or "daily"
         img = next((d["img"] for d in its if d.get("img")), "")
-        out[t].append((top, n, {"s": slug, "b": its[0]["b"], "n": base_model(its[0]["n"]), "i": img,
+        out[t].append((top, n, {"s": slug, "b": its[0]["b"], "n": (namer or base_model)(its[0]["n"]), "i": img,
                                 **{g: c for g, c in cuts.items() if c}}))
     # shoes on sale in 4+ sizes first (a 71% deal left in one women's 5 helps almost nobody), then the deepest discount
     return {t: [x[2] for x in sorted(rows, key=lambda r: (r[1] < 4, -r[0], -r[1]))[:40]] for t, rows in out.items()}
@@ -1315,6 +1318,8 @@ def card_list(L, rows):
 
 def browse_nav(L, brands):
     """Links between the pages: by kind, by brand, Black Friday (same order in both languages)."""
+    if L.get("hike"):      # boot pages (Oct 25): hiking deals + every boot model; no running lists
+        return f'<nav class="browse" aria-label="{L["browse"]}"><a href="{L["home"]}">{esc(L["mDeals"])}</a><a href="/{L["dir"]}/">{esc(L["all"])}</a></nav>'
     hub = lambda k: f'/{L["hubDir"]}/' + (f'{L["hubSlugs"][k]}/' if L["hubSlugs"][k] else "")
     links = [(hub(k), L["hubs"][k][1]) for k in ("all", "road", "trail", "racing", "women", "men")]
     links += [(f'/{L["bfDir"]}/', L["bfLink"])] + ([(f'/{L["bdDir"]}/', L["bdLink"])] if L.get("bdDir") else []) + [(f'/{L["dir"]}/', L["all"])]
@@ -1712,5 +1717,163 @@ def build_us(site, stores, ca_models, ca_brands):
     return urls, ([r for r in kinds["all"] if r[2]["sizes"] >= 6][:12], brands)
 
 
+# ---------- Boot & hiking shoe price pages (Oct 25, Bastien: "Everything should be doing the same as the shoe page") ----------
+HIKE_WORDS = re.compile(r"\b(hiking|hike|backpacking|approach|trekking|walking|winter|trail)\s+(boots?|shoes?)\b|\bboots?\b", re.I)
+_H = {
+    "en": dict(dir="hiking-boots", q="&sport=hike", home="/?sport=hike",
+               title="{name} price in Canada: every size, every store", titleSale="{name} Sale Canada: from {price} (−{p}%)",
+               aboutH="About this boot",
+               about="The {name} is a {type}. Today {stores} stores in Canada carry it and we found {sizes} sizes in stock.",
+               typeLower={"hike": "hiking shoe", "boot": "hiking boot", "approach": "approach shoe", "": "hiking boot or shoe"},
+               types={"hike": "Hiking shoe", "boot": "Hiking boot", "approach": "Approach shoe"},
+               altH={k: "Other hiking boots & shoes on sale in your size" for k in ("hike", "boot", "approach", "daily")},
+               altH0={k: "Other hiking boots & shoes on sale today" for k in ("hike", "boot", "approach", "daily")},
+               h1sub="On sale in Canada: every size, every store",
+               desc="{name}: today's best price in every size at {n} Canadian outdoor stores{off}. Checked every morning by The Gear Fox.",
+               cta="Get it in your size", ctaTxt="Pick your sizes once. Every Friday we email the best hiking deals in them, and you can get a price-drop alert on this boot.",
+               more="More {brand} boots & shoes", all="All boot & hiking shoe models", mShoes="Boot prices by model", mDeals="Today's hiking deals",
+               idxTitle="Hiking boot & shoe prices by model in Canada", idxH1="Boot prices by model",
+               idxIntro="Every hiking boot and shoe we track, with today's best price in each size at Canadian outdoor stores. Updated every morning.",
+               idxDesc="Today's best price in every size for {n} hiking boot and shoe models at Canadian outdoor stores. Updated every morning by The Gear Fox.",
+               find="Search a model (e.g. Moab)", alertDone="You're watching this boot. We'll email you when it drops in your size."),
+    "fr": dict(dir="bottes-randonnee", q="&lang=fr&sport=hike", home="/?lang=fr&sport=hike",
+               title="{name} : prix au Canada, chaque pointure, chaque boutique", titleSale="{name} en solde au Canada : dès {price} (−{p} %)",
+               aboutH="À propos de ce modèle",
+               about="{name} : {type}. Aujourd'hui, {stores} boutiques au Canada le vendent et nous avons trouvé {sizes} pointures en stock.",
+               typeLower={"hike": "chaussure de randonnée", "boot": "botte de randonnée", "approach": "chaussure d'approche", "": "botte ou chaussure de randonnée"},
+               types={"hike": "Chaussure de randonnée", "boot": "Botte de randonnée", "approach": "Chaussure d'approche"},
+               altH={k: "Autres bottes et chaussures de randonnée en solde dans votre pointure" for k in ("hike", "boot", "approach", "daily")},
+               altH0={k: "Autres bottes et chaussures de randonnée en solde aujourd'hui" for k in ("hike", "boot", "approach", "daily")},
+               h1sub="En solde au Canada : chaque pointure, chaque boutique",
+               desc="{name} : le meilleur prix du jour dans chaque pointure dans {n} boutiques de plein air canadiennes{off}. Vérifié chaque matin par The Gear Fox.",
+               cta="Trouvez-la dans votre pointure", ctaTxt="Choisissez vos tailles une fois. Chaque vendredi, on vous envoie les meilleures aubaines de randonnée dans vos tailles, et vous pouvez suivre le prix de ce modèle.",
+               more="Autres modèles {brand}", all="Toutes les bottes et chaussures de randonnée", mShoes="Prix des bottes par modèle", mDeals="Aubaines de randonnée du jour",
+               idxTitle="Prix des bottes et chaussures de randonnée par modèle au Canada", idxH1="Prix des bottes par modèle",
+               idxIntro="Toutes les bottes et chaussures de randonnée que nous suivons, avec le meilleur prix du jour dans chaque pointure dans les boutiques de plein air canadiennes. Mis à jour chaque matin.",
+               idxDesc="Le meilleur prix du jour dans chaque pointure pour {n} modèles de bottes et chaussures de randonnée dans les boutiques canadiennes. Mis à jour chaque matin par The Gear Fox.",
+               find="Chercher un modèle (ex. Moab)", alertDone="Vous suivez ce modèle. On vous écrit quand il baisse dans votre pointure."),
+    "us": dict(dir="us/hiking-boots", q="&c=us&sport=hike", home="/?c=us&sport=hike",
+               title="{name} price: every size, every store", titleSale="{name} Sale: from {price} (−{p}%)",
+               about="The {name} is a {type}. Today {stores} US stores carry it and we found {sizes} sizes in stock.",
+               h1sub="On sale at US outdoor stores: every size, every store",
+               desc="{name}: today's best price in every size at {n} US outdoor stores{off}. Checked every morning by The Gear Fox.",
+               idxTitle="Hiking boot & shoe prices by model", idxIntro="Every hiking boot and shoe we track, with today's best price in each size at US outdoor stores. Updated every morning.",
+               idxDesc="Today's best price in every size for {n} hiking boot and shoe models at US outdoor stores. Updated every morning by The Gear Fox."),
+}
+
+
+HEIGHT = {"mid": "Mid", "middle": "Mid", "low": "Low", "high": "High"}
+SHELL = {"wp": "Waterproof", "wtpf": "Waterproof", "waterproof": "Waterproof", "gtx": "GTX", "vent": "Vent", "vented": "Vent"}
+
+
+def hike_name(n):
+    """Stores word the same boot differently ("Targhee IV Mid WP", "Targhee IV Waterproof Mid", "... Mid Wtpf"): one name each,
+    so one page. Core words keep their order; then height (Mid/Low/High), then the shell (Waterproof/GTX/Vent)."""
+    n = HIKE_WORDS.sub(" ", n)
+    n = re.sub(r"\(?\bavailable in (wide )?widths?\b\)?", " ", n, flags=re.I)
+    n = base_model(n)
+    n = re.sub(r"\b(men|women)[’']?s\b|\bunisex\b|\bfootwear\b|\b\d{6,}\b", " ", n, flags=re.I)   # style codes "1313731"
+    n = re.sub(r"\b(\d+)\.0\b", r"\1", n)                                       # "Free Hiker 2.0" = "Free Hiker 2"
+    n = re.sub(r"\b(\w+)\s+\1\b", r"\1", n, flags=re.I)                          # "Terrex Terrex"
+    core, h, sh = [], [], []
+    for w in n.replace("-", " - ").split():
+        k = w.lower().strip(".,")
+        if k in HEIGHT:
+            h.append(HEIGHT[k])
+        elif k in SHELL:
+            sh.append(SHELL[k])
+        elif w != "-":
+            core.append(w)
+    return " ".join(core + list(dict.fromkeys(h)) + list(dict.fromkeys(sh))).strip(" -")
+
+
+def hike_models(items):
+    models = defaultdict(list)
+    for d in items:
+        if d["g"] != "shoes":
+            continue
+        name = hike_name(d["n"])
+        if name:
+            models[slugify(f'{d["b"]} {name}')].append(d)
+    return models
+
+
+def build_hike(site, stores):
+    """Boot & hiking shoe pages from the hiking files: /hiking-boots/<slug>/ + /bottes-randonnee/<slug>/ (Canada) and
+    /us/hiking-boots/<slug>/. Same rules as the shoe pages: a page once 3+ stores on that side carry the model; pages never
+    disappear (hiking-boots/pages.json). Returns the URLs for the sitemap."""
+    urls = []
+    for side, fname in (("ca", "deals-hike.json"), ("us", "deals-hike-us.json")):
+        f = site / fname
+        if not f.exists():
+            continue
+        data = json.loads(f.read_text())
+        items, updated = data["items"], data.get("updated")
+        fx = float((data.get("fx") or {}).get("USD") or 1.37)
+        langs = []
+        for code in (("en", "fr") if side == "ca" else ("us",)):
+            L = dict(US if code == "us" else T[code])
+            L.update(_H["en"] if code == "us" else {})
+            L.update(_H[code])
+            L["hike"] = True
+            if code == "us":
+                L["fx"], L["money"] = fx, (lambda v, fx=fx: f"${v / fx:,.2f}")
+            langs.append(L)
+        on_side = (lambda h: stores.get(h, [""])[1:2] == ["US"]) if side == "us" else (lambda h: len(stores.get(h, [""])) < 2)
+        models = hike_models(items)
+        reg_path = site / langs[0]["dir"] / "pages.json"
+        try:
+            known = json.loads(reg_path.read_text())
+        except Exception:
+            known = {}
+        for slug, its in models.items():
+            if slug not in known and len({host(u) for d in its for u in d["of"] if on_side(host(u))}) >= MIN_STORES:
+                known[slug] = {"b": its[0]["b"], "n": f'{its[0]["b"]} {hike_name(its[0]["n"])}', "t": its[0].get("t") or ""}
+        live = {s_: v for s_, v in known.items() if not v.get("to")}
+        names = {s_: v["n"] for s_, v in live.items()}
+        by_brand = defaultdict(list)
+        for s_, v in live.items():
+            by_brand[v["b"].lower()].append(s_)
+        entries = []
+        for slug, meta in live.items():
+            its = models.get(slug) or [{"b": meta["b"], "n": meta["n"][len(meta["b"]) + 1:], "g": "shoes", "t": meta.get("t"), "sz": [], "of": []}]
+            same = [x for x in by_brand[meta["b"].lower()] if x != slug]
+            related = sorted(same, key=lambda x: (known[x].get("t") != meta.get("t"), x))[:8]
+            offs = [round(100 * (1 - e[1] / e[3])) for d in its for e in d["sz"] if len(e) > 3 and e[1] < e[3] * 0.99]
+            entries.append((meta["b"], slug, meta["n"], max(offs, default=0)))
+            paths = (f"/{_H['en']['dir']}/{slug}/", f"/{_H['fr']['dir']}/{slug}/") if side == "ca" else (f"/{_H['us']['dir']}/{slug}/", "")
+            for L in langs:
+                p = site / L["dir"] / slug / "index.html"
+                p.parent.mkdir(parents=True, exist_ok=True)
+                p.write_text(model_page(slug, its, stores, L, updated, related, names, paths=paths, hide=stale(meta, bool(models.get(slug)))))
+                urls.append(f"/{L['dir']}/{slug}/")
+        for L in langs:
+            (site / L["dir"]).mkdir(parents=True, exist_ok=True)
+            (site / L["dir"] / "alts.json").write_text(json.dumps(alt_file(models, live, fx if side == "us" else 1.0, hike_name), ensure_ascii=False, separators=(",", ":")))
+            ip = (f"/{_H['en']['dir']}/", f"/{_H['fr']['dir']}/") if side == "ca" else (f"/{L['dir']}/", "")
+            (site / L["dir"] / "index.html").write_text(index_page(L, entries, updated, paths=ip))
+            urls.append(f"/{L['dir']}/")
+        reg_path.write_text(json.dumps(known, ensure_ascii=False, separators=(",", ":")))
+        print(f"boot pages ({side}): {len(live)} models, {len(entries) * len(langs)} pages")
+    return urls
+
+
+def hike_main(site):
+    """`shoe_pages.py site --hike`: the boot pages, after the hiking read lands in site/ (it runs alongside the running read)."""
+    import os
+    load_history(os.environ.get("HISTORY_FILE") or "hist/prices.jsonl")
+    urls = build_hike(site, store_names((site / "index.html").read_text()))
+    p = site / "sitemap.xml"
+    if p.exists() and urls:
+        x = p.read_text()
+        day = date.today().isoformat()
+        new = "".join(f"<url><loc>{BASE}{u}</loc><lastmod>{day}</lastmod></url>\n" for u in urls
+                      if u not in NOINDEX and f"{BASE}{u}<" not in x)
+        p.write_text(x.replace("</urlset>", new + "</urlset>"))
+
+
 if __name__ == "__main__":
-    main()
+    if "--hike" in sys.argv:
+        hike_main(Path(sys.argv[1]))
+    else:
+        main()
