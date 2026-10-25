@@ -50,7 +50,7 @@ SKIP = re.compile(
     r"suitcase|wallet|tote|purse|laptop|coffee|beans|food|meal|snack|bar|candy|gum|knife|knives|multi-?tool|axe|saw|"
     r"hatchet|gift set|mask|scrunchie|keychain|key ?chain|sweatpants|joggers?|sweatshirt|cardigan|flannel|"
     r"scarf|socks? liner|run(ning)?\b|trail run\w*|race|racing|track|spikes?|insoles?|laces?|shoe ?care|wax|spray|"
-    r"cleaner|repair|patch|warranty|rental|demo|sample sale|replacement|spare|parts?|buckle|strap only|lid)\b", re.I)
+    r"cleaner|cleaning|nikwax|wash-in|repair|patch|warranty|rental|demo|sample sale|replacement|spare|parts?|buckle|strap only|lid)\b", re.I)
 # Allowed even when a SKIP word appears: "Running Shorts" are skipped, but these names are hiking gear
 KEEP = re.compile(r"\b(trekking|hiking|backpacking|approach|bear (spray|canister|bell)|first[- ]aid|emergency|water (filter|bottle)|"
                   r"purif|microspikes?|nanospikes?|crampons?|traction)\b", re.I)
@@ -64,6 +64,7 @@ NOT_HIKE_BRANDS = {"barbour", "bogner", "bogner fire + ice", "duer", "krimson kl
                    "fischer", "salomon snow", "helly hansen ski", "sweaty betty", "beyond yoga", "alo", "free people", "varley"}
 CASUAL = re.compile(r"\b(cotton|linen|henley|corded|used|pre-owned|guide ?book|\d(st|nd|rd|th) edition|bottle opener|opener|teddy|corduroy|cord|denim|shacket|shirt[- ]jacket|work jacket|bomber|trench|wool coat|overcoat|"
                     r"peacoat|sweater|cardigan|knit|chore|canvas|moleskin|overalls?|dungarees?|blazer|loungewear|lounge|sleep)\b", re.I)
+GARMENT = re.compile(r"\b(t-shirts?|tees?|shirts?|shorts|hood(y|ie)s?|jackets?|pants?|tights?|leggings?|skirts?|pullovers?)\b", re.I)
 CASUAL_TOP = re.compile(r"\b(logo|graphic|tee shirt|t-shirt|tee|tank|polo|henley|button[- ]?(up|down)|crew ?neck sweatshirt)\b", re.I)
 
 CAMP = [("tent", r"\b(wing|tent|tarp|awning|shelter) poles?\b|\bpole\s+\d{3}\s?cm\b|\btents?\b|\bshelters?\b|\btarps?\b|\bbivy\b|\bbivvy\b|\bhammocks?\b|\bmid\s?\d|\bpyramid\b|tent (stakes?|poles?|footprint)"),
@@ -79,11 +80,11 @@ SHOE = re.compile(r"\b(boots?|shoes?|footwear|chaussures?|bottes?|souliers?|appr
 PACK_L = re.compile(r"(?<![\d.])(\d{2,3})\s?(?:\+\s?\d+\s?)?(?:l|liters?|litres?)\b", re.I)
 
 RULES = [  # (group, type, pattern); first match wins, tested on the product name (store's type/collection only as a hint)
-    ("socks", None, r"\bsocks?\b|\bchaussettes?\b|\bbas\b"),
-    ("gloves", None, r"\bgloves?\b|\bmitts?\b|\bmittens?\b|\bgants?\b|\bmitaines?\b"),
+    ("socks", None, r"\bsocks?\b|\bchaussettes?\b|\bbas\b|\b(micro|mini|quarter|no[- ]show)[- ]crew\b|^(?!.*\b(tee|t-shirt|shirt|top|sweater|sweatshirt|neck)\b).*\b(crew|liner)\b.*\bcushion|^(?!.*\b(tee|t-shirt|shirt|top|sweater|sweatshirt|neck)\b).*\bhiker\b.*\bcrew\b"),
+    ("gloves", None, r"^(?!.*\b(jackets?|shirts?|tees?|pants?|shorts?)\b).*\bgloves?\b|\bmitts?\b|\bmittens?\b|\bgants?\b|\bmitaines?\b"),
     ("gear", "gaiter", r"^(?!.*\bneck\b).*(\bgaiters?\b|\bgu[êe]tres?\b)"),
-    ("headwear", None, r"\bhats?\b|\bcaps?\b(?![- ]sleeve)|\bbeanies?\b|\btoques?\b|\btuques?\b|\bbuffs?\b|neck ?gaiter|"
-                       r"\bbalaclavas?\b|\bheadbands?\b|\bvisors?\b|\bsun ?hats?\b|\bbucket\b|\bchapeau\b|\bcasquettes?\b"),
+    ("headwear", None, r"^(?!.*\b(t-shirts?|tees?|shirts?|hood(y|ie)s?)\b).*(?:\bhats?\b|\bcaps?\b(?![- ]sleeve)|\bbeanies?\b|\btoques?\b|\btuques?\b|\bbuffs?\b|neck ?gaiter|"
+                       r"\bbalaclavas?\b|\bheadbands?\b|\bvisors?\b|\bsun ?hats?\b|\bbucket hat\b|\bchapeau\b|\bcasquettes?\b)"),
     ("gear", "pole", r"\b(trekking|hiking|walking|z|carbon|distance|trail) poles?\b|\bpoles?\b|\bb[âa]tons?\b"),
     ("gear", "light", r"\bheadlamps?\b|\bflashlights?\b|\bfrontales?\b|\blampes? frontales?\b|\btorch\b"),
     ("gear", "water", r"water (filters?|bottles?|treatment|purif\w*)|\bfilters?\b|\bpurifiers?\b|\bsteripen\b|\bsqueeze\b|"
@@ -94,14 +95,14 @@ RULES = [  # (group, type, pattern); first match wins, tested on the product nam
                        r"\bbivvy\b|blister|moleskin|\bsos\b|\binreach\b|satellite (messenger|communicator)|\bplb\b"),
     ("gear", "nav", r"\bgps\b|\bcompass\w*\b|\baltimeter\b|\bboussoles?\b"),
     ("gear", "sun", r"sunglass\w*|\blunettes\b|\bgoggles?\b"),
-    ("packs", None, r"\bbackpacks?\b|\bday ?packs?\b|\brucksacks?\b|\bpacks?\b(?! of)(?!able)|\bsac(s)? [àa] dos\b|"
-                    r"\bhip ?packs?\b|\bwaist ?packs?\b|\bfanny ?packs?\b|\blumbar\b|\bvest pack\b"),
+    ("packs", None, r"^(?!.*\b(shorts?|tights?|hood(y|ie)s?|jackets?|tees?|t-shirts?|shirts?|pants?|skirts?|leggings?)\b).*(?:\bbackpacks?\b|\bday ?packs?\b|\brucksacks?\b|\bpacks?\b(?! of)(?!able)|\bsac(s)? [àa] dos\b|"
+                    r"\bhip ?packs?\b|\bwaist ?packs?\b|\bfanny ?packs?\b|\blumbar\b|\bvest pack\b)"),
     ("bottoms", "rain", r"\b(rain|waterproof|hard ?shell|shell|storm|gtx|gore-?tex|h2no|precip)\b.*\b(pants?|trousers?|bottoms?|bibs?)\b|"
                         r"\b(pants?|trousers?)\b.*\b(rain|waterproof|shell)\b|\bpantalons? imper"),
     ("bottoms", "base", r"\b(base ?layer|baselayer|thermal|long ?(johns|underwear)|merino)\b.*\b(bottoms?|pants?|tights?|leggings?)\b|"
                         r"\b(bottoms?|tights?|leggings?)\b"),
-    ("bottoms", "short", r"(?<!short sleeve )\bshorts\b|\bshort\b(?![- ]sleeve)|\bskorts?\b|\bbermudas?\b"),
-    ("bottoms", "pant", r"\bpants?\b|\btrousers?\b|\bpantalons?\b|\bzip[- ]off\b|\bconvertible\b(?!.*jacket)|\bknickers?\b"),
+    ("bottoms", "short", r"\bskirts?\b|(?<!short sleeve )\bshorts\b|\bshort\b(?![- ]sleeve)|\bskorts?\b|\bbermudas?\b"),
+    ("bottoms", "pant", r"\bpants?\b|\btrousers?\b|\bpantalons?\b|\bzip[- ]off\b(?!.*\bjacket)|\bconvertible\b(?!.*jacket)|\bknickers?\b"),
     ("tops", "insulated", r"\binsulated\b.*\b(jackets?|parkas?|hood(y|ie)|vests?|coats?)\b"),
     ("tops", "shell", r"\b(rain|waterproof|hard ?shell|storm|gtx|gore-?tex|h2no|futurelight|precip|torrentshell|beta|zeta|alpha|"
                       r"microlight|aspire|helium|foray|interstellar|stretch ozonic|minimalist)\b.*\b(jackets?|anoraks?|shells?|parkas?|ponchos?)\b|"
@@ -173,6 +174,8 @@ def classify(name, ptype="", hint="", brand=""):
             r"\b(socks?|gaiters?|traction|microspikes?|nanospikes?|crampons?|cleats?|poles?|cubes?|bags?|boot[- ]?(length|cut))\b", n, re.I):
         return "shoes", shoe_type(n)
     for g, t, rx in RULES:
+        if g in ("gear", "packs", "headwear", "gloves") and GARMENT.search(n):
+            continue                           # "EMS Compass Pants", "Hiking Pole Logo Tee", "Hoodie with Gaiter": clothing
         if rx.search(n):
             if g == "packs":
                 return "packs", pack_type(n)
@@ -477,6 +480,14 @@ def tidy(items):
         if it["b"].lower() in NOT_HIKE_BRANDS or CASUAL.search(it["n"]):
             continue
         c = classify(it["n"], brand=it["b"])
+        if it["b"].lower() in s.SOCK_BRANDS and re.search(r"\b(crew|liner|no[- ]show|ankle|quarter)\b", it["n"], re.I) \
+                and not re.search(r"\b(tee|t-shirt|shirt|top|sweater|sweatshirt|neck)\b", it["n"], re.I):
+            c = ("socks", None)                # a sock brand's "Mid Crew" (Swiftwick, Darn Tough, Fits)
+        if not c and it["g"] in ("headwear", "packs", "gloves", "gear") and re.search(
+                r"\b(t-shirts?|tees?|shirts?|shorts|hood(y|ie)s?|jackets?|pants?|tights?)\b", it["n"], re.I):
+            c = next(((g, t) for g, t, rx in RULES if g in ("tops", "bottoms") and rx.search(it["n"])), None)
+            if not c:
+                continue                       # clothing with an accessory word ("Cool Beanie T-Shirt"): ours or out
         if c and c[0] != "camp":
             if c[0] != it["g"] or c[1]:          # the running merge's tidy-ups are tuned for running gear: our own sorting wins
                 it["g"], it["t"] = c[0], c[1] or (it.get("t") if c[0] == it["g"] else None)
@@ -576,6 +587,15 @@ def merged(offers, side):
                 e[0] = eu_to_us(o["b"], e[0], women) or shoe_label(e[0], women)
         offs.append(o)
     known = {(o["b"] or "").strip().lower(): o["b"] for o in offs if o["st"] != "geartrade" and o.get("b")}
+    import unicodedata
+    fold = lambda b: re.sub(r"[^a-z0-9]", "", unicodedata.normalize("NFD", (b or "").lower()).encode("ascii", "ignore").decode())
+    spell = collections.defaultdict(collections.Counter)
+    for o in offs:
+        spell[fold(o["b"])][o["b"]] += 1
+    for o in offs:                       # Hooké = Hooke, KÜHL = Kuhl, Klättermusen = Klattermusen: the most common spelling
+        c = spell.get(fold(o["b"]))
+        if c and len(c) > 1:
+            o["b"] = c.most_common(1)[0][0]
     for o in offs:                       # Gear Trade lists itself as the vendor: "geartrade Stio Turpin Fleece" -> Stio
         if o["st"] == "geartrade" and (o["b"] or "").lower() in ("geartrade", "gear trade", ""):
             ws = re.sub(r"^geartrade\s+", "", o["n"], flags=re.I).split()
@@ -584,6 +604,9 @@ def merged(offers, side):
                 if b and len(ws) > k:
                     o["b"], o["n"] = b, " ".join(ws[k:])
                     break
+            else:
+                if len(ws) > 2 and ws[0][:1].isupper():
+                    o["b"], o["n"] = ws[0], " ".join(ws[1:])   # a brand no other store carries: its first word
     camp = [o for o in offs if o["g"] == "camp"]
     hike = [o for o in offs if o["g"] != "camp"]
     for o in camp:
