@@ -1524,21 +1524,23 @@ const HIKE_TXT={en:{searchShort:"Search hiking gear",groups:{shoes:"Boots & shoe
   types:{hike:"Hiking shoes",boot:"Boots",approach:"Approach shoes",shell:"Rain shells",insulated:"Insulated",fleece:"Fleece",wind:"Wind & softshell",
     base:"Base layers",shirt:"Shirts",pant:"Pants",rain:"Rain pants",short:"Shorts",day:"Day packs",overnight:"Overnight packs (35 L+)",pole:"Poles",
     light:"Headlamps",water:"Water",traction:"Traction",safety:"Safety & first aid",nav:"Navigation",gaiter:"Gaiters",sun:"Sunglasses"},
-  rd:{ph:"Search boots, jackets, packs, brands…",phS:"Search boots, brands…",tiles:{shoes:"Boots & Shoes",apparel:"Jackets & Tops",bottoms:"Pants & Shorts",packs:"Packs",acc:"Accessories",gear:"Gear"},
+  headSized:n=>`${n} hiking deals in your size`,
+  rd:{h1n:n=>[`${n} hiking deals`,"in your ","size."],ph:"Search boots, jackets, packs, brands…",phS:"Search boots, brands…",tiles:{shoes:"Boots & Shoes",apparel:"Jackets & Tops",bottoms:"Pants & Shorts",packs:"Packs",acc:"Accessories",gear:"Gear"},
     nav:{shoes:"Boots",apparel:"Clothing"}}},
  fr:{searchShort:"Chercher (randonnée)",groups:{shoes:"Bottes et chaussures",tops:"Manteaux et hauts",bottoms:"Pantalons et shorts",socks:"Bas",gloves:"Gants",
     headwear:"Chapeaux et tuques",packs:"Sacs à dos",gear:"Bâtons, frontales et équipement"},
   types:{hike:"Chaussures de randonnée",boot:"Bottes",approach:"Chaussures d'approche",shell:"Imperméables",insulated:"Isolés",fleece:"Laine polaire",wind:"Coupe-vent",
     base:"Couches de base",shirt:"Chandails",pant:"Pantalons",rain:"Pantalons imperméables",short:"Shorts",day:"Sacs de jour",overnight:"Sacs de plusieurs jours (35 L+)",
     pole:"Bâtons",light:"Frontales",water:"Eau",traction:"Crampons",safety:"Sécurité et premiers soins",nav:"Navigation",gaiter:"Guêtres",sun:"Lunettes de soleil"},
-  rd:{ph:"Chercher bottes, manteaux, sacs, marques…",phS:"Bottes, marques…",tiles:{shoes:"Bottes et chaussures",apparel:"Manteaux et hauts",bottoms:"Pantalons et shorts",packs:"Sacs à dos",acc:"Accessoires",gear:"Équipement"},
+  headSized:n=>`${n} aubaines de randonnée à votre taille`,
+  rd:{h1n:n=>[`${n} aubaines de randonnée`,"à votre ","taille."],ph:"Chercher bottes, manteaux, sacs, marques…",phS:"Bottes, marques…",tiles:{shoes:"Bottes et chaussures",apparel:"Manteaux et hauts",bottoms:"Pantalons et shorts",packs:"Sacs à dos",acc:"Accessoires",gear:"Équipement"},
     nav:{shoes:"Bottes",apparel:"Vêtements"}}}};
 let RUN_TXT=null;
 function applySport(){
-  if(!RUN_TXT){RUN_TXT={};for(const L of ["en","fr"]){const I=I18N[L];RUN_TXT[L]={searchShort:I.searchShort,groups:{...I.groups},types:{...I.types},
+  if(!RUN_TXT){RUN_TXT={};for(const L of ["en","fr"]){const I=I18N[L];RUN_TXT[L]={searchShort:I.searchShort,headSized:I.headSized,h1n:I.rd.h1n,groups:{...I.groups},types:{...I.types},
     ph:I.rd.ph,phS:I.rd.phS,tiles:{...I.rd.tiles},nav:{...I.rd.nav}}}}
   for(const L of ["en","fr"]){const I=I18N[L],R0=RUN_TXT[L],H=HIKE_TXT[L],h=HIKE();
-    I.searchShort=h?H.searchShort:R0.searchShort;I.groups=h?{...R0.groups,...H.groups}:{...R0.groups};I.types=h?{...R0.types,...H.types}:{...R0.types};
+    I.searchShort=h?H.searchShort:R0.searchShort;I.headSized=h?H.headSized:R0.headSized;I.rd.h1n=h?H.rd.h1n:R0.h1n;I.groups=h?{...R0.groups,...H.groups}:{...R0.groups};I.types=h?{...R0.types,...H.types}:{...R0.types};
     I.rd.ph=h?H.rd.ph:R0.ph;I.rd.phS=h?H.rd.phS:R0.phS;I.rd.tiles=h?{...H.rd.tiles}:{...R0.tiles};I.rd.nav=h?{...R0.nav,...H.rd.nav}:{...R0.nav}}
   TYPES=HIKE()?TYPES_HIKE:TYPES_RUN;RD_TILES=HIKE()?RD_HIKE:RD_RUN;
   document.documentElement.classList.toggle("hike",HIKE());}
