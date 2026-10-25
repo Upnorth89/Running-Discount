@@ -1430,6 +1430,28 @@ def site_flow(base, per, accented):
             return f"{len(links)} trails; {links[0]}: {deals} deals in men's M / 11"
         check("Trail gear list: sizes, deals, ticks")(hike_lists, pg)
 
+        def hike_bottom():   # Oct 25 (Bastien: "The hiking page shows running deal links at the bottom"): hiking side = boot block + boot footer link
+            if not (site_get("index.html") or "").count('class="seo-today seo-hike"'):
+                return "no hiking bottom block in this build (skipped)"
+            c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+            stub(c)
+            c.add_init_script("""try{localStorage.setItem('gf-nosignup','1');localStorage.setItem('gf-peek','1');
+              localStorage.setItem('rd-profile',JSON.stringify({gender:'men',terrain:'both',ships:'ca',country:'ca',groups:['shoes'],sizes:{shoes:{sizes:['11'],width:[]}},brands:[],lang:'en'}))}catch(e){}""")
+            q2 = c.new_page()
+            try:
+                q2.goto(base + "?sport=hike", wait_until="domcontentloaded")
+                q2.wait_for_function("document.documentElement.classList.contains('hike') && document.querySelectorAll('#dealList .rdc').length > 3", timeout=30000)
+                run_vis = q2.evaluate("[...document.querySelectorAll('.seo-today:not(.seo-hike)')].some(e => e.offsetParent)")
+                hike_vis = q2.evaluate("[...document.querySelectorAll('.seo-hike .seo-en')].some(e => e.offsetParent)")
+                assert not run_vis, "the running deals block still shows on the hiking side"
+                assert hike_vis, "the hiking bottom block doesn't show on the hiking side"
+                foot = q2.inner_text('p.foot[data-i18n="footer"]')
+                assert "Boot prices" in foot and "Shoe prices" not in foot, f"hiking footer link: {foot!r}"
+            finally:
+                c.close()
+            return "boot block + 'Boot prices by model' on the hiking side"
+        check("Hiking side: bottom block and footer are hiking")(hike_bottom, pg)
+
         def menu_short_phone():   # Oct 25 (Bastien: "is there no more button to go from Canada to USA in the menu?"): on a short phone
             # the menu ran past the screen; Canada/USA and Prices in must be reachable
             c = br.new_context(viewport={"width": 320, "height": 568}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
@@ -1876,8 +1898,8 @@ def site_flow(base, per, accented):
                 bad = [x for x in lines if "ships from the US" in x]
                 assert not bad, f"US stores are labelled as shipping from abroad ({bad[0]})"
                 assert "USD" in pu.inner_text("section.grp:not(.new)"), "prices on the USA side aren't in US dollars"
-                if pu.locator(".seo-us").count():          # the bottom block: the US copy, not "...in Canada"
-                    assert pu.locator(".seo-us").is_visible() and not pu.locator(".seo-en").is_visible(), \
+                if pu.locator(".seo-today:not(.seo-hike) .seo-us").count():          # the bottom block: the US copy, not "...in Canada"
+                    assert pu.locator(".seo-today:not(.seo-hike) .seo-us").is_visible() and not pu.locator(".seo-today:not(.seo-hike) .seo-en").is_visible(), \
                         "the bottom of the page still shows Canadian shoe prices on the USA side"
                 if site_get("us/shoes/pages.json") is not None:          # a US card's "All sizes & stores" opens the US shoe page
                     lk = pu.locator("section.grp a.cmp")

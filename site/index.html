@@ -115,6 +115,7 @@ input:focus-visible,button:focus-visible,summary:focus-visible,select:focus-visi
 .seo-today p{margin:0 0 6px;line-height:1.6}
 html[lang=fr] .seo-today .seo-en,html:not([lang=fr]) .seo-today .seo-fr{display:none}
 html.us .seo-today .seo-en,html.us .seo-today .seo-fr,html:not(.us) .seo-today .seo-us{display:none}   /* USA side: its own copy */
+html.hike .seo-today:not(.seo-hike),html:not(.hike) .seo-hike{display:none}   /* Oct 25: the hiking side shows its own block (boots) */
 .wline{margin:8px 0 2px;font-size:15px;color:var(--muted)}
 .wline b{color:var(--ink)}
 .wline button{font:inherit;color:var(--moss);background:none;border:0;padding:0 2px;text-decoration:underline;cursor:pointer;min-height:24px}
@@ -571,6 +572,7 @@ body.locked #langPick,body.locked #curBtn,body.locked #openWatch,body.locked #me
   <div class="sharecard hidden" id="shareCard"><span id="shareTxt"></span><button type="button" class="btn" id="shareBtn"></button></div>
   <p class="foot" id="dealsFoot"></p>
   <!--SEO-TODAY--><!--/SEO-TODAY-->
+  <!--SEO-HIKE--><!--/SEO-HIKE-->
   <p class="foot" data-i18n="footer">The Gear Fox · Outfox full price · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="shoes/">Shoe prices by model</a> · <a href="about.html">About</a> · <a href="privacy.html">Privacy</a></p>
 </main>
 <div class="toast hidden" id="toast" role="status"></div>
@@ -792,7 +794,7 @@ en:{
     sub2:(g,k)=>g?`${g} ${k}`:k[0].toUpperCase()+k.slice(1),cmp:"All sizes →",heroAt:(p,s)=>`${p} at ${s}`,menu:"Menu",mySizes:"My sizes"},
   watchlist:"Your watchlist",yourSizes:"Your sizes",menu:"Menu",mDeals:"Today's deals",mShoes:"Shoe prices by model",mRaces:"Race gear lists",mSizes:"My sizes",mAbout:"About The Gear Fox",mApp:"Add to your home screen",appTipH:"Get The Gear Fox on your home screen",appTipIos:"Tap the Share button {s} in Safari's bar",appTipIos2:"Scroll down and tap <b style=\"display:inline\">Add to Home Screen</b>",appTipAnd:"Tap the ⋮ menu at the top of Chrome",appTipAnd2:"Tap <b style=\"display:inline\">Add to Home screen</b>",appTipWhy:"It opens like an app, with your sizes ready.",gotIt:"Got it",mCur:"Prices in",langLabel:"Language",edit:"Edit",allDeals:"← All deals",categories:"Categories",
   sort:"Sort",sortMatch:"Best match",sortDiscount:"Biggest discount",sortPrice:"Lowest price",search:"Search brand or model",searchShort:"Search gear",
-  get footer(){return 'The Gear Fox · Outfox full price · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="'+(US()?"us/shoes/":"shoes/")+'">Shoe prices by model</a> · <a href="about.html">About</a> · <a href="privacy.html">Privacy</a>'},close:"Close",fit:"Fit",
+  get footer(){return 'The Gear Fox · Outfox full price · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="'+shoeDir()+'">'+this.mShoes+'</a> · <a href="about.html">About</a> · <a href="privacy.html">Privacy</a>'},close:"Close",fit:"Fit",
   men:"Men's",women:"Women's",both:"Both",menWomen:"Men's & women's",
   terrainH:"Where do you run? <small>for shoes</small>",terrainA:"Where do you run?",terrRoad:"Road",terrTrail:"Trail",terrBoth:"Both",
   shoeSizeH:"Shoe size <small>US, pick one or more</small>",shoeSizeMH:"Men's shoe size <small>US, pick one or more</small>",
@@ -906,7 +908,7 @@ fr:{
     sub2:(g,k)=>g?`${k[0].toUpperCase()+k.slice(1)} · ${g}`:k[0].toUpperCase()+k.slice(1),cmp:"Tailles →",heroAt:(p,s)=>`${p} chez ${s}`,menu:"Menu",mySizes:"Mes tailles"},
   watchlist:"Vos favoris",yourSizes:"Vos tailles",menu:"Menu",mDeals:"Aubaines du jour",mShoes:"Prix des chaussures par modèle",mRaces:"Listes de matériel de course",mSizes:"Mes tailles",mAbout:"À propos de The Gear Fox",mApp:"Ajouter à l'écran d'accueil",appTipH:"The Gear Fox sur votre écran d'accueil",appTipIos:"Touchez le bouton Partager {s} dans la barre de Safari",appTipIos2:"Descendez et touchez <b style=\"display:inline\">Sur l'écran d'accueil</b>",appTipAnd:"Touchez le menu ⋮ en haut de Chrome",appTipAnd2:"Touchez <b style=\"display:inline\">Ajouter à l'écran d'accueil</b>",appTipWhy:"Elle s'ouvre comme une appli, avec vos tailles prêtes.",gotIt:"Compris",mCur:"Prix en",langLabel:"Langue",edit:"Modifier",allDeals:"← Toutes les aubaines",categories:"Catégories",
   sort:"Trier",sortMatch:"Meilleur choix",sortDiscount:"Plus gros rabais",sortPrice:"Prix le plus bas",search:"Chercher une marque ou un modèle",searchShort:"Chercher",
-  footer:'The Gear Fox · Flairez les aubaines · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="chaussures/">Prix des chaussures par modèle</a> · <a href="about.html">À propos</a> · <a href="privacy.html">Confidentialité</a>',close:"Fermer",fit:"Coupe",
+  get footer(){return 'The Gear Fox · Flairez les aubaines · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="'+shoeDir()+'">'+this.mShoes+'</a> · <a href="about.html">À propos</a> · <a href="privacy.html">Confidentialité</a>'},close:"Fermer",fit:"Coupe",
   men:"Homme",women:"Femme",both:"Les deux",menWomen:"Homme et femme",
   terrainH:"Où courez-vous? <small>pour les chaussures</small>",terrainA:"Où courez-vous?",terrRoad:"Route",terrTrail:"Sentier",terrBoth:"Les deux",
   shoeSizeH:"Pointure <small>US, une ou plusieurs</small>",shoeSizeMH:"Pointure homme <small>US, une ou plusieurs</small>",
@@ -1394,7 +1396,7 @@ let FULL=false,fullLoading=null;
    only models listed in shoes/pages.json get a link (a page that forwards points to its new address). */
 let SHOEPAGES=null;
 /* Canada: shoes/ (EN) + chaussures/ (FR); USA: us/shoes/ (US stores, US dollars; English) */
-const TRAIL_LIVE=false;   // trail gear lists: on with hike_pages.py LIVE
+const TRAIL_LIVE=true;    // trail gear lists: on with hike_pages.py LIVE (Oct 25, Bastien OK'd)
 const raceDir=()=>HIKE()&&TRAIL_LIVE?(US()?"us/hikes/":LANG==="fr"?"randonnees/":"hikes/"):US()?"us/races/":LANG==="fr"?"courses/":"races/";   // Oct 25: trail gear lists on the hiking side
 const shoeDir=()=>HIKE()?(US()?"us/hiking-boots/":LANG==="fr"?"bottes-randonnee/":"hiking-boots/"):US()?"us/shoes/":LANG==="fr"?"chaussures/":"shoes/";   // Oct 25: boot pages on the hiking side
 let SHOEPAGES_FOR="";
@@ -1610,7 +1612,7 @@ const HIKE_TXT={en:{mRaces:"Trail gear lists",mShoes:"Boot prices by model",wSho
 let RUN_TXT=null;
 const MORE_B={en:["+ Clothing size, road or trail, favourite brands","+ Clothing size, kind of hiking, favourite brands"],
   fr:["+ Taille de vêtements, route ou sentier, marques préférées","+ Taille de vêtements, type de randonnée, marques préférées"]};
-const HIKE_TOP=["mShoes","wShoeShort","shoeSizeH","shoeSizeMH","clothSizeH","clothMore","by_tops","by_bottoms","moreSizes","wIntro"];
+const HIKE_TOP=["mRaces","mShoes","wShoeShort","shoeSizeH","shoeSizeMH","clothSizeH","clothMore","by_tops","by_bottoms","moreSizes","wIntro"];
 const nStoresH=()=>(DATA&&DATA.n_stores)||66;
 function applySport(){
   if(!RUN_TXT){RUN_TXT={};for(const L of ["en","fr"]){const I=I18N[L];RUN_TXT[L]={top:Object.fromEntries(HIKE_TOP.map(k=>[k,I[k]])),searchShort:I.searchShort,headSized:I.headSized,h1:I.rd.h1,h1n:I.rd.h1n,sub:I.rd.sub,why:I.rd.why.slice(),kinds:{...I.rd.kinds},groups:{...I.groups},types:{...I.types},

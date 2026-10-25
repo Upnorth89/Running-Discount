@@ -397,6 +397,8 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   Intake (Oct 25, Bastien OK'd): `#wSport` "Gear for" row on the welcome; hiking words via HIKE_TOP keys (shoeSizeH, clothMore, by_tops…) +
   rd.h1; `#euBox` EU boot line (EU_M/EU_W = LOWA chart, `syncEU()` until changed, `euSet`) -> "E:44.5" keys match EU-only boots (scrape.py
   `eu_keep`); `#hkind` day/overnight/both -> profile `hike_kind`, `hikeFit()` ranks packs/layers. Site test "Hiking intake".
+  Hiking side bottom (Oct 25, Bastien: "shows running deal links at the bottom"): `hike_home()` in shoe_pages.py fills <!--SEO-HIKE--> (keep EMPTY
+  in git) with today's best boot deals + links; CSS shows it instead of SEO-TODAY on html.hike; footer link = `shoeDir()` + mShoes ("Boot prices by model").
   Boot price pages (Oct 25, Bastien: "Everything should be doing the same as the shoe page"): shoe_pages.py `build_hike()` /
   `hike_main()` (`shoe_pages.py site --hike`, refresh.yml right after the hiking files land; adds to sitemap.xml): /hiking-boots/<slug>/
   + /bottes-randonnee/<slug>/ (Canada) and /us/hiking-boots/<slug>/, list pages at each dir, registry <dir>/pages.json (3+ stores on that
@@ -410,8 +412,8 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   kind of hiking behind "+ Clothing size, …"; `.clb`, html.shortb; no "Gear for" row). Why: 124 of 125 first visitors who didn't pick sizes
   left at the sizes screen; size-picking 33% -> 22% since Oct 22 (p=0.002). Metric: homepage first visits that pick sizes, ~465/group,
   decide ~Nov 8. Preview: PV_SHORT=1. Site test "Short sizes screen (test short B)".
-  Trail gear lists (Oct 25, Bastien: "Yes start"; built + previewed, OFF until his OK: `LIVE` in scraper/hike_pages.py + `TRAIL_LIVE` in
-  index.html): scraper/hike_pages.py (refresh step after the boot pages) -> /hikes/<slug>/ + /randonnees/<slug>/ + /us/hikes/<slug>/ and hubs,
+  Trail gear lists (Oct 25, Bastien: "Yes start", then "Yes" to ship: LIVE since Oct 25; switches `LIVE` in scraper/hike_pages.py + `TRAIL_LIVE` in
+  index.html; ☰ "Trail gear lists" on the Hiking side via `raceDir()`): scraper/hike_pages.py (refresh step after the boot pages) -> /hikes/<slug>/ + /randonnees/<slug>/ + /us/hikes/<slug>/ and hubs,
   reusing race_pages.py (size box, ticks, ♡ Watch, sign-up box; sign-ups here get `sport:"hike"`). Lines = hikes.gear_for() per trip length
   (`trips()`: day / 1 night / usual nights) with levels Essential (Y, counted) / Required (M) / Recommended (R); picks from the hiking files
   by group/type + a name rule per line (`NEED`, `NOT`, `PACK_BITS`: no watches, books, bells under safety lines); bear spray = checklist

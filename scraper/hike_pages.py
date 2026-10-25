@@ -310,7 +310,7 @@ def hub(L, hikes):
     return head + f'<h1 class="hubh">{esc(s["hubH1"])}</h1><p class="sub">{esc(s["hubIntro"])}</p>{rows}</ul>' + page_foot(Tl)
 
 
-LIVE = False      # Oct 25: built and previewed; on the live site after Bastien's OK (then also TRAIL_LIVE in index.html)
+LIVE = True       # Oct 25: Bastien OK'd ("Yes"); TRAIL_LIVE in index.html goes with it
 
 
 def main():

@@ -1858,11 +1858,57 @@ def build_hike(site, stores):
     return urls
 
 
+HIKE_HOME = {"en": ("Today's best hiking boot deals in Canada", "Hiking deals in your size", "All boot prices by model"),
+             "fr": ("Les meilleures aubaines de bottes de randonnée au Canada aujourd'hui", "Aubaines de randonnée à votre taille", "Prix des bottes par modèle"),
+             "us": ("Today's best hiking boot deals", "Hiking deals in your size", "All boot prices by model")}
+
+
+def hike_home(site, stores):
+    """Oct 25 (Bastien: the hiking tab showed "Today's best running shoe deals" at the bottom): the homepage's hiking twin of the
+    SEO-TODAY block, between <!--SEO-HIKE--> markers (keep them EMPTY in git); html.hike shows it instead of the running one."""
+    parts = []
+    for side, fname, codes in (("ca", "deals-hike.json", ("en", "fr")), ("us", "deals-hike-us.json", ("us",))):
+        f = site / fname
+        if not f.exists():
+            continue
+        data = json.loads(f.read_text())
+        models = hike_models(data["items"])
+        try:
+            known = json.loads((site / _H["en" if side == "ca" else "us"]["dir"] / "pages.json").read_text())
+        except Exception:
+            continue
+        rows = []
+        for sl, meta in known.items():
+            if meta.get("to") or not models.get(sl):
+                continue
+            sm = summary(models[sl], stores)
+            if sm and sm["top"] >= 10 and sm["sizes"] >= 6:
+                rows.append((sl, meta["n"], sm))
+        rows = sorted(rows, key=lambda r: (-r[2]["top"], -r[2]["sizes"]))[:12]
+        fx = float((data.get("fx") or {}).get("USD") or 1.37)
+        for code in codes:
+            L = dict(US if code == "us" else T[code]); L.update(_H["en"] if code == "us" else {}); L.update(_H[code])
+            money = (lambda v: f"${v / fx:,.2f}") if code == "us" else L["money"]
+            h2, deals, more = HIKE_HOME[code]
+            li = "".join(f'<li><a href="/{L["dir"]}/{sl}/">{esc(n)}</a> · {money(sm["price"])}' + (f' (−{sm["top"]}%)' if sm["top"] >= 10 else "") + "</li>"
+                         for sl, n, sm in rows)
+            trail = {"en": ("/hikes/", "Trail gear lists"), "fr": ("/randonnees/", "Listes de matériel de randonnée"), "us": ("/us/hikes/", "Trail gear lists")}[code]
+            nav = f'<a href="{L["home"]}">{esc(deals)}</a> · <a href="/{L["dir"]}/">{esc(more)}</a> · <a href="{trail[0]}">{esc(trail[1])}</a>'
+            parts.append(f'<div class="seo-{code}" lang="{"en" if code == "us" else code}"><h2>{esc(h2)}</h2><ol>{li}</ol><p>{nav}</p></div>')
+    idx = site / "index.html"
+    html_ = idx.read_text()
+    if parts and "<!--SEO-HIKE-->" in html_:
+        block = f'<section class="seo-today seo-hike">{"".join(parts)}</section>'
+        idx.write_text(re.sub(r"<!--SEO-HIKE-->.*?<!--/SEO-HIKE-->", lambda m: "<!--SEO-HIKE-->" + block + "<!--/SEO-HIKE-->", html_, flags=re.S))
+
+
 def hike_main(site):
     """`shoe_pages.py site --hike`: the boot pages, after the hiking read lands in site/ (it runs alongside the running read)."""
     import os
     load_history(os.environ.get("HISTORY_FILE") or "hist/prices.jsonl")
-    urls = build_hike(site, store_names((site / "index.html").read_text()))
+    stores = store_names((site / "index.html").read_text())
+    urls = build_hike(site, stores)
+    hike_home(site, stores)
     p = site / "sitemap.xml"
     if p.exists() and urls:
         x = p.read_text()
