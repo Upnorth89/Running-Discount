@@ -62,11 +62,11 @@ NOT_HIKE_BRANDS = {"barbour", "bogner", "bogner fire + ice", "duer", "krimson kl
                    "quartz co.", "canada goose", "rudsak", "soia & kyo", "tentree", "toad&co", "toad & co", "faherty", "birkenstock",
                    "teva", "crocs", "hey dude", "chaco", "olukai", "reef", "rainbow", "dakine", "armada", "faction", "volkl", "atomic",
                    "fischer", "salomon snow", "helly hansen ski", "sweaty betty", "beyond yoga", "alo", "free people", "varley"}
-CASUAL = re.compile(r"\b(cotton|teddy|corduroy|cord|denim|shacket|shirt[- ]jacket|work jacket|bomber|trench|wool coat|overcoat|"
+CASUAL = re.compile(r"\b(cotton|linen|henley|corded|used|pre-owned|guide ?book|\d(st|nd|rd|th) edition|bottle opener|opener|teddy|corduroy|cord|denim|shacket|shirt[- ]jacket|work jacket|bomber|trench|wool coat|overcoat|"
                     r"peacoat|sweater|cardigan|knit|chore|canvas|moleskin|overalls?|dungarees?|blazer|loungewear|lounge|sleep)\b", re.I)
 CASUAL_TOP = re.compile(r"\b(logo|graphic|tee shirt|t-shirt|tee|tank|polo|henley|button[- ]?(up|down)|crew ?neck sweatshirt)\b", re.I)
 
-CAMP = [("tent", r"\btents?\b|\bshelters?\b|\btarps?\b|\bbivy\b|\bbivvy\b|\bhammocks?\b|\bmid\s?\d|\bpyramid\b|tent (stakes?|poles?|footprint)"),
+CAMP = [("tent", r"\b(wing|tent|tarp|awning|shelter) poles?\b|\bpole\s+\d{3}\s?cm\b|\btents?\b|\bshelters?\b|\btarps?\b|\bbivy\b|\bbivvy\b|\bhammocks?\b|\bmid\s?\d|\bpyramid\b|tent (stakes?|poles?|footprint)"),
         ("bag", r"sleeping ?bags?|\bquilts?\b|\bunder ?quilts?\b|sac de couchage|bag liner|sleep(ing)? liner"),
         ("mat", r"sleeping (pads?|mats?)|\b(air|foam|camp) (pads?|mats?|mattress)|\bpads?\b(?=.*\b(r[- ]?value|sleep|inflat))|\bpillows?\b|matelas"),
         ("kitchen", r"\bstoves?\b|\bcook(set|ware|ing)?\b|\bpots?\b|\bpans?\b|\bkettle\b|\butensils?\b|\bsporks?\b|\bcups?\b|\bbowls?\b|"
@@ -81,7 +81,7 @@ PACK_L = re.compile(r"(?<![\d.])(\d{2,3})\s?(?:\+\s?\d+\s?)?(?:l|liters?|litres?
 RULES = [  # (group, type, pattern); first match wins, tested on the product name (store's type/collection only as a hint)
     ("socks", None, r"\bsocks?\b|\bchaussettes?\b|\bbas\b"),
     ("gloves", None, r"\bgloves?\b|\bmitts?\b|\bmittens?\b|\bgants?\b|\bmitaines?\b"),
-    ("gear", "gaiter", r"\bgaiters?\b(?!.*\bneck\b)|\bgu[êe]tres?\b"),
+    ("gear", "gaiter", r"^(?!.*\bneck\b).*(\bgaiters?\b|\bgu[êe]tres?\b)"),
     ("headwear", None, r"\bhats?\b|\bcaps?\b(?![- ]sleeve)|\bbeanies?\b|\btoques?\b|\btuques?\b|\bbuffs?\b|neck ?gaiter|"
                        r"\bbalaclavas?\b|\bheadbands?\b|\bvisors?\b|\bsun ?hats?\b|\bbucket\b|\bchapeau\b|\bcasquettes?\b"),
     ("gear", "pole", r"\b(trekking|hiking|walking|z|carbon|distance|trail) poles?\b|\bpoles?\b|\bb[âa]tons?\b"),
@@ -102,6 +102,7 @@ RULES = [  # (group, type, pattern); first match wins, tested on the product nam
                         r"\b(bottoms?|tights?|leggings?)\b"),
     ("bottoms", "short", r"(?<!short sleeve )\bshorts\b|\bshort\b(?![- ]sleeve)|\bskorts?\b|\bbermudas?\b"),
     ("bottoms", "pant", r"\bpants?\b|\btrousers?\b|\bpantalons?\b|\bzip[- ]off\b|\bconvertible\b(?!.*jacket)|\bknickers?\b"),
+    ("tops", "insulated", r"\binsulated\b.*\b(jackets?|parkas?|hood(y|ie)|vests?|coats?)\b"),
     ("tops", "shell", r"\b(rain|waterproof|hard ?shell|storm|gtx|gore-?tex|h2no|futurelight|precip|torrentshell|beta|zeta|alpha|"
                       r"microlight|aspire|helium|foray|interstellar|stretch ozonic|minimalist)\b.*\b(jackets?|anoraks?|shells?|parkas?|ponchos?)\b|"
                       r"\b(shell|rain) (jackets?|coats?)\b|\bponchos?\b|\bmanteaux? (de pluie|imper)"),
@@ -109,7 +110,7 @@ RULES = [  # (group, type, pattern); first match wins, tested on the product nam
                           r"proton|kor airshield|thermawool|thermal ?wool|"
                           r"micro puff|parka|belay|duvet|plumes?|isol[ée]s?)\b"),
     ("tops", "fleece", r"\bfleece\b|\bpolaire\b|\bpolartec\b|\bgrid\b|\bR1\b|\bthermal pro\b|\bmicro ?fleece\b|\bsherpa\b"),
-    ("tops", "wind", r"\bsoft ?shell\b|\bwind\w*\b|\bcoupe[- ]vent\b|\bgamma\b|\bsquamish\b|\bhoudini\b"),
+    ("tops", "wind", r"\bsoft ?shell\b|\bwind\b|windbreaker|windshirt|windshell|windproof|\bcoupe[- ]vent\b|\bgamma\b|\bhoudini\b|\bsquamish hood"),
     ("tops", "base", r"\b(base ?layer|baselayer|thermal|first ?layer|merino \d{3}|\d{3} merino)\b|\b(crew|zip[- ]?neck|1/4 zip|half[- ]zip)\b.*\bmerino\b"),
     ("tops", "insulated", r"\bvests?\b|\bgilets?\b"),
     ("tops", "@", r"\bjackets?\b|\banoraks?\b|\bmanteaux?\b|\bvestes?\b|\bcoats?\b|\bponcho\b|\bhalf[- ]zip\b|\b1/2 zip\b"),
@@ -490,6 +491,8 @@ def tidy(items):
             it["t"] = pack_type(it["n"])
         if it["g"] in ("socks", "gloves", "headwear"):
             it.pop("t", None)
+        elif it.get("t") not in HTYPES.get(it["g"], []):   # a running type left over ("jacket", "layer"): ours, or none (shown under All)
+            it["t"] = jacket_type(it["n"], "") if it["g"] == "tops" else None
         out.append(it)
     items = out
     for it in items:
@@ -572,6 +575,15 @@ def merged(offers, side):
             for e in o["sz"]:
                 e[0] = eu_to_us(o["b"], e[0], women) or shoe_label(e[0], women)
         offs.append(o)
+    known = {(o["b"] or "").strip().lower(): o["b"] for o in offs if o["st"] != "geartrade" and o.get("b")}
+    for o in offs:                       # Gear Trade lists itself as the vendor: "geartrade Stio Turpin Fleece" -> Stio
+        if o["st"] == "geartrade" and (o["b"] or "").lower() in ("geartrade", "gear trade", ""):
+            ws = re.sub(r"^geartrade\s+", "", o["n"], flags=re.I).split()
+            for k in (3, 2, 1):
+                b = known.get(" ".join(ws[:k]).lower())
+                if b and len(ws) > k:
+                    o["b"], o["n"] = b, " ".join(ws[k:])
+                    break
     camp = [o for o in offs if o["g"] == "camp"]
     hike = [o for o in offs if o["g"] != "camp"]
     for o in camp:
