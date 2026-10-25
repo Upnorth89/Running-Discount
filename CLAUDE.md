@@ -394,6 +394,9 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   `scraper/hikes.py`: 101 hikes (park page, km, climb, days, months, climate, bears, flags) + `gear_for(hike, days, month)` = 10 essentials
   + what the hike adds, each linked to a hiking group/type ("Trail gear lists", next to build). Figures rounded, `checked` False until
   re-read on the park page.
+  Intake (Oct 25, Bastien OK'd): `#wSport` "Gear for" row on the welcome; hiking words via HIKE_TOP keys (shoeSizeH, clothMore, by_tops…) +
+  rd.h1; `#euBox` EU boot line (EU_M/EU_W = LOWA chart, `syncEU()` until changed, `euSet`) -> "E:44.5" keys match EU-only boots (scrape.py
+  `eu_keep`); `#hkind` day/overnight/both -> profile `hike_kind`, `hikeFit()` ranks packs/layers. Site test "Hiking intake".
 - **Clothing sizes per category** (Oct 21, a visitor: "medium in shorts, L in socks, small in t-shirts"): sizes screen keeps one quick
   "Clothing size" row + "Different size in shorts, socks or gloves?" (`#clothMore`/`#clothBy`, `state.clothBy` = only the categories that
   differ, `clothFor(g)`; bras follow tops, hats the main size). Profiles already kept a size per group (Friday email/alerts use them);

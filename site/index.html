@@ -598,6 +598,7 @@ body.locked #langPick,body.locked #curBtn,body.locked #openWatch,body.locked #me
     </div>
     <div id="welcomePart" class="hidden">
       <div class="ctry" role="group" aria-label="Country" data-i18n-aria="ctryA"><span data-i18n="ctryLabel">Shopping from</span><button type="button" data-ctry="ca">Canada</button><button type="button" data-ctry="us" data-i18n="usa">USA</button></div>
+      <div class="ctry wsport" id="wSport" role="group" hidden><span data-i18n="gearFor">Gear for</span><button type="button" data-sport="run" data-i18n="sportRun">Running</button><button type="button" data-sport="hike" data-i18n="sportHike">Hiking</button></div>
       <div class="wstats" id="wStats"></div>
       <div class="wdeals" id="wDeals"></div>
       <div class="gwrap hidden" id="gW"><p class="or"><span data-i18n="wOr">or with Google, one tap</span></p><div class="gbtn" id="gBtnW"></div></div>
@@ -618,10 +619,18 @@ body.locked #langPick,body.locked #curBtn,body.locked #openWatch,body.locked #me
       <button type="button" data-v="both" data-i18n="terrBoth">Both</button>
     </div>
 
+    <h3 class="later hk" data-i18n="hkindH">What kind of hiking? <small>optional</small></h3>
+    <div class="seg later hk" id="hkind" role="group" aria-label="What kind of hiking?" data-i18n-aria="hkindA">
+      <button type="button" data-v="day" data-i18n="hkDay">Day hikes</button>
+      <button type="button" data-v="overnight" data-i18n="hkOver">Overnight trips</button>
+      <button type="button" data-v="both" data-i18n="terrBoth">Both</button>
+    </div>
+
     <h3 id="shoeSizeH" data-i18n="shoeSizeH">Shoe size <small>US, pick one or more</small></h3>
     <div class="scale" id="shoeSizes"></div>
     <div id="shoeWBox" class="hidden"><p class="wline" id="wLine"></p><div class="scale hidden" id="shoeSizesW"></div></div>
     <div class="chips" id="width" style="margin-top:8px" role="group" aria-label="Shoe width" data-i18n-aria="shoeWidth"></div>
+    <div id="euBox" class="hk"><p class="wline euline" id="euLine"></p><div class="scale hidden" id="euSizes"></div></div>
 
     <h3 data-i18n="clothSizeH">Clothing size <small>tops, shorts, socks, gloves</small></h3>
     <div class="scale" id="clothSizes"></div>   <!-- Oct 22 (Bastien): clothing sizes show right away, not behind "+ Clothing size" -->
@@ -859,7 +868,8 @@ en:{
   cTitle:"Deals in your size",cIntro:"Sign up free, or sign back in. We'll ask your sizes only once.",cContinue:"Continue",
   cSizesIntro:"Last step: pick your fit and sizes.",
   wTitle:"Your size. On sale. Every day.",wIntro:half=>`<b>${half?"More than half of":"Many"} gear deals aren't available in your size.</b> Every morning we check running and outdoor stores ${US()?"across the US":"across Canada"} and show you only the ones that are.`,
-  ctryLabel:"Shopping from",sportLbl:"Running or hiking",sportRun:"Running",sportHike:"Hiking",ctryA:"Country",usa:"USA",where:()=>US()?"across the US":"across Canada",
+  ctryLabel:"Shopping from",gearFor:"Gear for",hkindH:"What kind of hiking? <small>optional</small>",hkindA:"What kind of hiking?",hkDay:"Day hikes",hkOver:"Overnight trips",
+  euLine:(v,auto)=>`European boots (La Sportiva, Scarpa, LOWA…): <b>EU ${v}</b>${auto?" <small>matched from your US size with LOWA's chart</small>":""}`,sportLbl:"Running or hiking",sportRun:"Running",sportHike:"Hiking",ctryA:"Country",usa:"USA",where:()=>US()?"across the US":"across Canada",
   wGo:"Find my deals",wShoes:"or look up a specific shoe →",wBrowseShort:"Just browse",wShoeShort:"Find a shoe",sizesOnSale:"Sizes on sale:",
   browseNote:"Showing every size.",browsePick:"Pick your size",browseWhy:" and we'll hide what won't fit.",clothNote:"Every clothing size shown.",clothPick:"Pick your clothing size",
   moreSizes:"+ Road or trail, favourite brands",cmpLink:"All sizes & stores →",
@@ -972,7 +982,8 @@ fr:{
   cTitle:"Des aubaines à votre taille",cIntro:"Abonnez-vous gratuitement ou reconnectez-vous. On vous demande vos tailles une seule fois.",cContinue:"Continuer",
   cSizesIntro:"Dernière étape : choisissez votre coupe et vos tailles.",
   wTitle:"Des aubaines sur mesure.",wIntro:half=>`<b>${half?"Plus de la moitié des ":"Beaucoup d'"}aubaines ne sont pas offertes dans votre taille.</b> Chaque matin, on parcourt les boutiques de course et de plein air ${US()?"partout aux États-Unis":"partout au Canada"} et on vous montre seulement celles qui le sont.`,
-  ctryLabel:"Je magasine",sportLbl:"Course ou randonnée",sportRun:"Course",sportHike:"Randonnée",ctryA:"Pays",usa:"É.-U.",where:()=>US()?"partout aux États-Unis":"partout au Canada",
+  ctryLabel:"Je magasine",gearFor:"Équipement de",hkindH:"Quel type de randonnée? <small>facultatif</small>",hkindA:"Quel type de randonnée?",hkDay:"À la journée",hkOver:"Avec nuitées",
+  euLine:(v,auto)=>`Bottes européennes (La Sportiva, Scarpa, LOWA…) : <b>EU ${v}</b>${auto?" <small>d'après votre pointure US et la charte de LOWA</small>":""}`,sportLbl:"Course ou randonnée",sportRun:"Course",sportHike:"Randonnée",ctryA:"Pays",usa:"É.-U.",where:()=>US()?"partout aux États-Unis":"partout au Canada",
   wGo:"Trouver mes aubaines",wShoes:"ou cherchez une chaussure précise →",wBrowseShort:"Tout voir",wShoeShort:"Chercher un modèle",sizesOnSale:"Tailles en solde :",
   browseNote:"Toutes les tailles sont affichées.",browsePick:"Choisissez votre taille",browseWhy:" et on cache ce qui ne vous va pas.",clothNote:"Toutes les tailles de vêtements sont affichées.",clothPick:"Choisissez votre taille de vêtements",
   moreSizes:"+ Route ou sentier, marques préférées",
@@ -1059,7 +1070,15 @@ function appManifest(){try{
     background_color:"#FA5501",theme_color:"#17201C",icons:[{src:o+"/icon-192.png",sizes:"192x192",type:"image/png"},{src:o+"/icon-512.png",sizes:"512x512",type:"image/png"}]};
   el.href="data:application/manifest+json,"+encodeURIComponent(JSON.stringify(m));
 }catch(e){}}
-const state={name:"",email:"",gender:"",terrain:"both",ships:"ca",groups:ORDER.slice(),shoe:[],shoeW:[],wTouched:false,width:[],cloth:[],clothBy:{},brands:[]};
+const state={name:"",email:"",gender:"",terrain:"both",ships:"ca",groups:ORDER.slice(),shoe:[],shoeW:[],wTouched:false,width:[],cloth:[],clothBy:{},brands:[],
+  hkind:"both",shoeEU:[],euTouched:false};   // Oct 25, hiking: kind of hiking + EU boot sizes
+/* EU boot sizes (Oct 25, Bastien OK'd the hiking intake): European boots (La Sportiva, Scarpa, LOWA, Hanwag…) are often sold in EU sizes only.
+   Until the visitor changes it, their EU size comes from their US size with LOWA's own chart (us.lowa.com, the one maker chart we read);
+   boots listed in EU sizes ("E:44.5") match only the EU sizes the visitor has. */
+const EU_M={"7":"39.5","7.5":"40","8":"41","8.5":"41.5","9":"42","9.5":"42.5","10":"43.5","10.5":"44","11":"44.5","11.5":"45","12":"46","12.5":"46.5","13":"47","13.5":"48","14":"48.5","14.5":"49","15":"49.5"};
+const EU_W={"4":"35","4.5":"36","5":"36.5","5.5":"37","6":"37.5","6.5":"38","7":"39","7.5":"39.5","8":"40","8.5":"41","9":"41.5","9.5":"42","10":"42.5","10.5":"43.5","11":"44"};
+const EU_OPTS=[];for(let v=35;v<=50;v+=0.5)EU_OPTS.push(String(v));
+function syncEU(){if(state.euTouched)return;const ch=state.gender==="women"?EU_W:EU_M;state.shoeEU=[...new Set(state.shoe.map(s=>ch[s]).filter(Boolean))].sort((a,b)=>a-b)}
 /* "Both": the shoe grid is men's sizes and a second, women's list follows it (men's + 1.5: men's 8.5 = women's 10) until the
    person changes it. One runner who shops both sections; several runners = the Fox Pro family plan. */
 const toW=n=>{const v=parseFloat(n)+1.5;return v<=15?String(v):null};
@@ -1069,9 +1088,9 @@ let customBrands=[];
 /* The browser's time zone, so the Friday email lands at 7am wherever the person lives */
 const TZ=(()=>{try{return Intl.DateTimeFormat().resolvedOptions().timeZone||""}catch(e){return ""}})();
 function toProfile(){
-  const sizes={shoes:{sizes:state.shoe,width:state.width,...(state.gender==="any"&&state.shoeW.length?{women:state.shoeW}:{})}};
+  const sizes={shoes:{sizes:state.shoe,width:state.width,...(state.gender==="any"&&state.shoeW.length?{women:state.shoeW}:{}),...(state.shoeEU.length?{eu:state.shoeEU}:{}),...(state.euTouched?{euSet:1}:{})}};
   APPAREL_GROUPS.forEach(g=>sizes[g]={sizes:clothFor(g).slice()});
-  return {lang:LANG,country:COUNTRY,tz:TZ,name:state.name,email:state.email,gender:state.gender,terrain:state.terrain,ships:state.ships,groups:state.groups,sizes,brands:state.brands,activities:[],...(REF?{ref:REF}:{}),...(LS.get("gf-pro")?{pro_wait:LS.get("gf-pro")}:{})};
+  return {lang:LANG,country:COUNTRY,tz:TZ,name:state.name,email:state.email,gender:state.gender,terrain:state.terrain,...(state.hkind!=="both"?{hike_kind:state.hkind}:{}),ships:state.ships,groups:state.groups,sizes,brands:state.brands,activities:[],...(REF?{ref:REF}:{}),...(LS.get("gf-pro")?{pro_wait:LS.get("gf-pro")}:{})};
 }
 function applyProfile(p){
   if(!p)return;
@@ -1082,7 +1101,9 @@ function applyProfile(p){
   BY_GROUPS.forEach(g=>{if(per[g].length&&per[g].join(",")!==main.join(","))clothBy[g]=per[g]});
   Object.assign(state,{name:p.name||"",email:p.email||"",gender:p.gender||"",terrain:["road","trail"].includes(p.terrain)?p.terrain:"both",ships:p.ships||"ca",
     groups:(p.groups&&p.groups.length)?p.groups.filter(g=>GL(g)):ORDER.slice(),
-    shoe:((sz.shoes||{}).sizes||[]).map(String),shoeW:((sz.shoes||{}).women||[]).map(String),wTouched:!!(sz.shoes||{}).women,width:(sz.shoes||{}).width||[],cloth:CLOTH.filter(c=>cloth.has(c)),clothBy,brands:p.brands||[]});
+    shoe:((sz.shoes||{}).sizes||[]).map(String),shoeW:((sz.shoes||{}).women||[]).map(String),wTouched:!!(sz.shoes||{}).women,width:(sz.shoes||{}).width||[],cloth:CLOTH.filter(c=>cloth.has(c)),clothBy,brands:p.brands||[],
+    hkind:["day","overnight"].includes(p.hike_kind)?p.hike_kind:"both",shoeEU:((sz.shoes||{}).eu||[]).map(String),euTouched:!!(sz.shoes||{}).euSet});
+  syncEU();
   customBrands=state.brands.filter(b=>!BRANDS.includes(b));
   if(p.lang&&!LS0("gf-lang")&&p.lang!==LANG){LANG=p.lang;applyStatic()}
   if((p.country==="us"||p.country==="ca")&&p.country!==COUNTRY&&!LINK_C&&!LS0("gf-country")&&typeof setCountry==="function"&&DATA)setCountry(p.country,"profile");
@@ -1104,7 +1125,11 @@ function renderSheet(){
   setTimeout(renderLive,0);
   document.querySelectorAll("#fit button").forEach(b=>b.setAttribute("aria-pressed",String(state.gender===b.dataset.v)));
   document.querySelectorAll("#terrain button").forEach(b=>b.setAttribute("aria-pressed",String(state.terrain===b.dataset.v)));
+  document.querySelectorAll("#hkind button").forEach(b=>b.setAttribute("aria-pressed",String(state.hkind===b.dataset.v)));
   $("shoeSizes").innerHTML=scaleHTML(SHOE,state.shoe);
+  {syncEU();const open=!$("euSizes").classList.contains("hidden");$("euBox").hidden=!state.shoe.length&&!state.shoeEU.length;
+    $("euLine").innerHTML=t("euLine",state.shoeEU.length?state.shoeEU.join(", "):"—",!state.euTouched)+` · <button type="button" id="euChange">${open?t("done"):t("change")}</button>`;
+    $("euSizes").innerHTML=scaleHTML(EU_OPTS,state.shoeEU)}
   const both=state.gender==="any";$("shoeSizeH").innerHTML=t(both?"shoeSizeMH":"shoeSizeH");
   $("shoeWBox").classList.toggle("hidden",!both||!state.shoe.length);
   if(both){const open=!$("shoeSizesW").classList.contains("hidden");
@@ -1124,6 +1149,10 @@ $("shoeWBox").addEventListener("click",e=>{
   if(e.target.id==="wChange"){$("shoeSizesW").classList.toggle("hidden");renderSheet();return}
   const b=e.target.closest(".chip");if(!b)return;state.wTouched=true;toggle(state.shoeW,b.dataset.v);state.shoeW.sort((a,b)=>a-b);renderSheet()});
 $("terrain").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;state.terrain=b.dataset.v;renderSheet()});
+$("hkind").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;state.hkind=b.dataset.v;ana("signup-step","hkind|"+b.dataset.v);renderSheet()});
+$("euBox").addEventListener("click",e=>{
+  if(e.target.id==="euChange"){$("euSizes").classList.toggle("hidden");renderSheet();return}
+  const b=e.target.closest(".chip");if(!b)return;state.euTouched=true;toggle(state.shoeEU,b.dataset.v);state.shoeEU.sort((a,b)=>a-b);renderSheet()});
 $("shoeSizes").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;toggle(state.shoe,b.dataset.v);state.shoe.sort((a,b)=>a-b);syncW();renderSheet()});
 $("width").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;
   const w=state.width.length?state.width:["Regular"];toggle(w,b.dataset.v);state.width=w.length?w:["Regular"];renderSheet()});
@@ -1268,7 +1297,7 @@ function openSheet(){lastFocus=document.activeElement;renderSheet();
   if(g)$("gateEmail").value=state.email||"";
   const gOn=G.ready&&g;$("gUp").classList.toggle("hidden",!gOn||!!gSession);$("gIn").classList.toggle("hidden",!gOn);
   $("gW").classList.add("hidden");$("wSignin").classList.toggle("hidden",!showWelcome);
-  $("wAlt").classList.toggle("hidden",!showWelcome);renderCountry();
+  $("wAlt").classList.toggle("hidden",!showWelcome);renderCountry();renderSport();
   $("sizesPart").classList.toggle("short",shortSizes());$("wShoesA").href=shoeDir();
   $("gSigned").classList.toggle("hidden",!gSession);if(gSession)$("gSigned").innerHTML=t("gSigned",esc(gSession.email));
   $("gateEmail").classList.toggle("hidden",!!gSession);
@@ -1478,8 +1507,8 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-ctry]");if
 function setSport(s,from){if(s===SPORT||(s!=="run"&&s!=="hike"))return;SPORT=s;LS.set("gf-sport",s);applySport();
   DATA=null;FULL=false;fullLoading=null;ITEMS=[];byKey={};ALLSALE=null;MISS=null;storeCountsMemo=null;VOCAB=null;view.store="";view.open={};view.type={};
   state.groups=ORDER.slice();ana("filter","sport|"+s+"|"+(from||""));
-  applyStatic();renderSport();renderAll();loadCountry();if(typeof rdGoDeals==="function"&&from==="switch")scrollTo({top:0,behavior:"smooth"})}
-function renderSport(){document.querySelectorAll("[data-sport]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.sport===SPORT)));document.documentElement.classList.toggle("hike",HIKE())}
+  applyStatic();renderSport();if(!$("sheet").classList.contains("hidden"))openSheet();renderAll();loadCountry();if(typeof rdGoDeals==="function"&&from==="switch")scrollTo({top:0,behavior:"smooth"})}
+function renderSport(){if($("wSport"))$("wSport").hidden=!HIKE_OK;document.querySelectorAll("[data-sport]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.sport===SPORT)));document.documentElement.classList.toggle("hike",HIKE())}
 const sportSw=()=>HIKE_OK?`<div class="sportsw" role="group" aria-label="${esc(t("sportLbl"))}"><button type="button" data-sport="run" aria-pressed="${!HIKE()}">${esc(t("sportRun"))}</button><button type="button" data-sport="hike" aria-pressed="${HIKE()}">${esc(t("sportHike"))}</button></div>`:"";
 document.addEventListener("click",e=>{const b=e.target.closest("[data-sport]");if(b)setSport(b.dataset.sport,"switch")});
 renderCountry();
@@ -1535,7 +1564,11 @@ const HIKE_TXT={en:{searchShort:"Search hiking gear",groups:{shoes:"Boots & shoe
     base:"Base layers",shirt:"Shirts",pant:"Pants",rain:"Rain pants",short:"Shorts",day:"Day packs",overnight:"Overnight packs (35 L+)",pole:"Poles",
     light:"Headlamps",water:"Water",traction:"Traction",safety:"Safety & first aid",nav:"Navigation",gaiter:"Gaiters",sun:"Sunglasses"},
   headSized:n=>`${n} hiking deals in your size`,
-  rd:{h1n:n=>[`${n} hiking deals`,"in your ","size."],
+  shoeSizeH:"Boot & shoe size <small>US, pick one or more</small>",shoeSizeMH:"Men's boot & shoe size <small>US, pick one or more</small>",
+  clothSizeH:"Clothing size <small>jackets, pants, socks, gloves</small>",clothMore:"Different size in pants, socks or shirts?",
+  by_tops:"Shirts & jackets",by_bottoms:"Pants & shorts",moreSizes:"+ Kind of hiking, favourite brands",
+  wIntro:half=>`<b>${half?"More than half of":"Many"} hiking deals aren't available in your size.</b> Every morning we check ${num(nStoresH())} outdoor stores ${US()?"across the US":"across Canada and the USA"} and show you only the ones that are.`,
+  rd:{h1:["Find hiking gear deals","in your ","exact size."],h1n:n=>[`${n} hiking deals`,"in your ","size."],
     sub:n=>`Every morning we check ${n} outdoor stores in Canada and the USA and show you the best prices in stock, in your size. No more guessing.`,
     why2:["No more guessing",()=>"Every store's price for the same boot or jacket, side by side."],
     kinds:{hike:"hiking shoes",boot:"hiking boots",approach:"approach shoes",shell:"rain jacket",insulated:"insulated layer",fleece:"fleece",wind:"wind jacket",
@@ -1548,7 +1581,11 @@ const HIKE_TXT={en:{searchShort:"Search hiking gear",groups:{shoes:"Boots & shoe
     base:"Couches de base",shirt:"Chandails",pant:"Pantalons",rain:"Pantalons imperméables",short:"Shorts",day:"Sacs de jour",overnight:"Sacs de plusieurs jours (35 L+)",
     pole:"Bâtons",light:"Frontales",water:"Eau",traction:"Crampons",safety:"Sécurité et premiers soins",nav:"Navigation",gaiter:"Guêtres",sun:"Lunettes de soleil"},
   headSized:n=>`${n} aubaines de randonnée à votre taille`,
-  rd:{h1n:n=>[`${n} aubaines de randonnée`,"à votre ","taille."],
+  shoeSizeH:"Pointure de bottes et chaussures <small>US, une ou plusieurs</small>",shoeSizeMH:"Pointure homme (bottes et chaussures) <small>US, une ou plusieurs</small>",
+  clothSizeH:"Taille de vêtements <small>manteaux, pantalons, bas, gants</small>",clothMore:"Une autre taille en pantalons, bas ou chandails ?",
+  by_tops:"Chandails et manteaux",by_bottoms:"Pantalons et shorts",moreSizes:"+ Type de randonnée, marques préférées",
+  wIntro:half=>`<b>${half?"Plus de la moitié des ":"Beaucoup d'"}aubaines de randonnée ne sont pas offertes dans votre taille.</b> Chaque matin, on vérifie ${num(nStoresH())} boutiques de plein air ${US()?"partout aux États-Unis":"au Canada et aux États-Unis"} et on vous montre seulement celles qui le sont.`,
+  rd:{h1:["Les aubaines de randonnée","dans votre ","taille exacte."],h1n:n=>[`${n} aubaines de randonnée`,"à votre ","taille."],
     sub:n=>`Chaque matin, on vérifie ${n} boutiques de plein air au Canada et aux États-Unis et on vous montre les meilleurs prix en stock, dans votre taille. Fini les devinettes.`,
     why2:["Fini les devinettes",()=>"Le prix de chaque boutique pour la même botte ou le même manteau, côte à côte."],
     kinds:{hike:"chaussures de randonnée",boot:"bottes de randonnée",approach:"chaussures d'approche",shell:"manteau imperméable",insulated:"couche isolante",fleece:"laine polaire",
@@ -1556,17 +1593,21 @@ const HIKE_TXT={en:{searchShort:"Search hiking gear",groups:{shoes:"Boots & shoe
       pole:"bâtons de randonnée",light:"frontale",water:"eau",traction:"crampons",safety:"sécurité",nav:"navigation",gaiter:"guêtres",sun:"lunettes de soleil"},ph:"Chercher bottes, manteaux, sacs, marques…",phS:"Bottes, marques…",tiles:{shoes:"Bottes et chaussures",apparel:"Manteaux et hauts",bottoms:"Pantalons et shorts",packs:"Sacs à dos",acc:"Accessoires",gear:"Équipement"},
     nav:{shoes:"Bottes",apparel:"Vêtements"}}}};
 let RUN_TXT=null;
+const HIKE_TOP=["shoeSizeH","shoeSizeMH","clothSizeH","clothMore","by_tops","by_bottoms","moreSizes","wIntro"];
+const nStoresH=()=>(DATA&&DATA.n_stores)||66;
 function applySport(){
-  if(!RUN_TXT){RUN_TXT={};for(const L of ["en","fr"]){const I=I18N[L];RUN_TXT[L]={searchShort:I.searchShort,headSized:I.headSized,h1n:I.rd.h1n,sub:I.rd.sub,why:I.rd.why.slice(),kinds:{...I.rd.kinds},groups:{...I.groups},types:{...I.types},
+  if(!RUN_TXT){RUN_TXT={};for(const L of ["en","fr"]){const I=I18N[L];RUN_TXT[L]={top:Object.fromEntries(HIKE_TOP.map(k=>[k,I[k]])),searchShort:I.searchShort,headSized:I.headSized,h1:I.rd.h1,h1n:I.rd.h1n,sub:I.rd.sub,why:I.rd.why.slice(),kinds:{...I.rd.kinds},groups:{...I.groups},types:{...I.types},
     ph:I.rd.ph,phS:I.rd.phS,tiles:{...I.rd.tiles},nav:{...I.rd.nav}}}}
   for(const L of ["en","fr"]){const I=I18N[L],R0=RUN_TXT[L],H=HIKE_TXT[L],h=HIKE();
-    I.searchShort=h?H.searchShort:R0.searchShort;I.headSized=h?H.headSized:R0.headSized;I.rd.h1n=h?H.rd.h1n:R0.h1n;I.rd.sub=h?H.rd.sub:R0.sub;I.rd.kinds=h?{...H.rd.kinds}:{...R0.kinds};
+    HIKE_TOP.forEach(k=>{I[k]=h?H[k]:R0.top[k]});
+    I.searchShort=h?H.searchShort:R0.searchShort;I.headSized=h?H.headSized:R0.headSized;I.rd.h1=h?H.rd.h1:R0.h1;I.rd.h1n=h?H.rd.h1n:R0.h1n;I.rd.sub=h?H.rd.sub:R0.sub;I.rd.kinds=h?{...H.rd.kinds}:{...R0.kinds};
     I.rd.why=R0.why.slice();if(h)I.rd.why[2]=H.rd.why2;I.groups=h?{...R0.groups,...H.groups}:{...R0.groups};I.types=h?{...R0.types,...H.types}:{...R0.types};
     I.rd.ph=h?H.rd.ph:R0.ph;I.rd.phS=h?H.rd.phS:R0.phS;I.rd.tiles=h?{...H.rd.tiles}:{...R0.tiles};I.rd.nav=h?{...R0.nav,...H.rd.nav}:{...R0.nav}}
   TYPES=HIKE()?TYPES_HIKE:TYPES_RUN;RD_TILES=HIKE()?RD_HIKE:RD_RUN;
   if(!applySport.title)applySport.title=document.title;
   document.title=HIKE()?(LANG==="fr"?"The Gear Fox | Aubaines de randonnée à votre taille":"The Gear Fox | Hiking deals in your size"):applySport.title;
-  document.documentElement.classList.toggle("hike",HIKE());}
+  document.documentElement.classList.toggle("hike",HIKE());
+  try{if(document.getElementById("clothMore"))applyStatic()}catch(e){}}
 applySport();
 const RDI={search:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>',
   chev:'<svg class="chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>',
@@ -1794,8 +1835,9 @@ function offTag(d){const reg=CUR==="USD"?d.reg/usdRate():d.reg;
 
 /* Shoe sizes come standardised from the refresh: "10", "M:10" / "W:11" (men's / women's from unisex labels),
    "~W" wide, "~N" narrow. */
-function shoeKey(s){const m=/^(?:([MW]):)?(\d+(?:\.5)?)(?:~([WN]))?$/.exec(String(s));return m?{g:m[1]||"",n:m[2],w:m[3]||""}:null}
+function shoeKey(s){const m=/^(?:([MWE]):)?(\d+(?:\.5)?)(?:~([WN]))?$/.exec(String(s));return m?{g:m[1]||"",n:m[2],w:m[3]||""}:null}
 function sizeLabel(s,g){const k=shoeKey(s);if(!k)return s;
+  if(k.g==="E")return "EU "+k.n+(k.w==="W"?(LANG==="fr"?" large":" wide"):"");
   return (k.g&&g!=="men"&&g!=="women"?k.g:"")+k.n+(k.w==="W"?(LANG==="fr"?" large":" wide"):"")}
 /* Open the product with the shopper's size already picked when the store gives each size its own link. */
 function sizeUrl(d,e){
@@ -1822,7 +1864,10 @@ function shoesFirst(list){
   const head=[];for(let i=0;i<6&&(shoes.length||rest.length);i++)head.push(((i%2===0&&shoes.length)||!rest.length?shoes:rest).shift());
   const used=new Set(head);return head.concat(list.filter(d=>!used.has(d)));
 }
-const terrainFit=d=>d.g!=="shoes"||state.terrain==="both"||!d.t||SPIKE.test(d.n)?0:TERRAIN[state.terrain].includes(d.t)?20:-25;
+const terrainFit=d=>HIKE()?hikeFit(d):d.g!=="shoes"||state.terrain==="both"||!d.t||SPIKE.test(d.n)?0:TERRAIN[state.terrain].includes(d.t)?20:-25;
+// Oct 25, hiking: "What kind of hiking?" ranks first (never hides): day hikers -> day packs, light layers; overnight -> bigger packs, warm layers
+const hikeFit=d=>state.hkind==="both"?0:d.g==="packs"&&d.t?(d.t===(state.hkind==="day"?"day":"overnight")?20:-25)
+  :state.hkind==="overnight"&&d.g==="tops"&&d.t==="insulated"?10:state.hkind==="day"&&d.g==="tops"&&d.t==="shirt"?5:0;
 // Oct 20 (design scan): with no size picked, a one-size leftover at 85% off beat deals in many sizes and whole rows were one
 // brand's last XS/2XL: those rank lower (−6 per missing size under 4)
 const score=d=>d.pct+(GROUP_BONUS[d.g]||0)+Math.min(15,(d.reg-d.best)/10)-(d.g==="shoes"&&SPIKE.test(d.n)?30:0)+terrainFit(d)
@@ -1855,6 +1900,7 @@ function matchItems(p,list){
         ok=d.sz.filter(e=>{
           if(e[0]==="OS")return true;
           const k=shoeKey(e[0]);if(!k||k.w==="N")return false;
+          if(k.g==="E"){const wideE=k.w==="W";return (wideE?wantWide:wantReg)&&(sz.eu||[]).map(String).includes(k.n)}   // EU-only boots: the visitor's EU size
           if(k.g&&G&&k.g!==G)return false;                     // "M:10" is for men, "W:11" for women
           const wide=k.w==="W"||(!k.w&&d.w);
           if(wide?!wantWide:!wantReg)return false;

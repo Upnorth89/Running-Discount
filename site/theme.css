@@ -694,3 +694,9 @@ html.hike #rnRaces,html.hike #rnShoes,html.hike #terrain,html.hike h3[data-i18n=
 /* Oct 25: on short phones (iPhone SE) the ☰ menu ran past the screen and its last rows (Shopping from Canada/USA, Prices in) were out
    of reach: it scrolls inside itself now */
 .menu{max-height:calc(100vh - 80px);max-height:calc(100dvh - 80px);overflow-y:auto;overscroll-behavior:contain}
+/* Oct 25, hiking intake: hiking-only rows (kind of hiking, EU boot size) show only on the hiking side; the welcome's "Find a shoe"
+   (running shoe pages) waits for the boot pages */
+html:not(.hike) .hk{display:none!important}
+html.hike #wShoesA,html.hike #wAlt .dot{display:none}
+.euline{font-size:14px;line-height:1.45}
+.euline small{display:block;color:var(--muted,#56626A);font-size:12.5px}

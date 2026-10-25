@@ -583,6 +583,7 @@ def merged(offers, side):
             o["ca"] = bool(o.get("us"))
         if o["g"] == "shoes":
             women = bool(re.search(r"\bwom[ae]n", o["n"], re.I)) or o["sx"] == ["women"]
+            o["eu_keep"] = True                 # EU-only sizes the maker's chart can't convert stay EU ("E:44.5")
             for e in o["sz"]:
                 e[0] = eu_to_us(o["b"], e[0], women) or shoe_label(e[0], women)
         offs.append(o)

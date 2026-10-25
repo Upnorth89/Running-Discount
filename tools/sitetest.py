@@ -1288,11 +1288,53 @@ def site_flow(base, per, accented):
             return f"{h1.splitlines()[0][:40]}; circles {', '.join(tiles[:3])}…"
         check("Hiking tab: switch, hiking deals and words, circles, types, back to running")(hiking_tab, pg)
 
+        def hiking_intake():   # Oct 25 (Bastien OK'd the hiking intake mockup: "similar drop down as running. Different choices for socks
+            # pants shirts"): a new visitor landing on ?sport=hike gets hiking words, the EU boot line matched from the US size,
+            # "What kind of hiking?" and a hiking per-category size link; all of it saved in the profile
+            if not site_json("sale-hike.json"):
+                return "no hiking file in this build (skipped)"
+            c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+            stub(c)
+            q2 = c.new_page()
+            errs = []
+            q2.on("pageerror", lambda e: errs.append(str(e)))
+            try:
+                q2.goto(base + "?sport=hike", wait_until="domcontentloaded")
+                q2.wait_for_selector("#saveSizes", state="visible", timeout=30000)
+                settle(q2, 800)
+                assert q2.get_attribute("#wSport [data-sport=hike]", "aria-pressed") == "true", "welcome: Hiking not shown as picked"
+                q2.click("#saveSizes")
+                q2.wait_for_selector("#shoeSizes .chip", state="visible")
+                q2.click("#fit button[data-v=men]")
+                q2.click("#shoeSizes .chip[data-v='11']")
+                q2.click("#clothSizes .chip[data-v=M]")
+                settle(q2, 400)
+                eu = q2.inner_text("#euLine")
+                assert "EU 44.5" in eu, f"EU line for a men's US 11: {eu!r}"
+                if q2.locator("#moreSizes").is_visible():
+                    q2.click("#moreSizes")
+                cm = q2.inner_text("#clothMore")
+                assert "pants" in cm.lower(), f"per-category size link isn't worded for hiking: {cm!r}"
+                q2.click("#hkind button[data-v=overnight]")
+                q2.click("#saveSizes")
+                q2.wait_for_selector("#sheet", state="hidden", timeout=20000)
+                settle(q2, 1500)
+                p = q2.evaluate("JSON.parse(localStorage.getItem('rd-profile'))")
+                assert p.get("hike_kind") == "overnight", f"kind of hiking not saved: {p.get('hike_kind')}"
+                assert p["sizes"]["shoes"].get("eu") == ["44.5"], f"EU size not saved: {p['sizes']['shoes']}"
+                h1 = q2.inner_text("#rdH1")
+                assert "running" not in h1.lower(), f"hiking headline says running: {h1!r}"
+                assert not errs, f"script error: {errs[0][:120]}"
+            finally:
+                c.close()
+            return f"EU 44.5 matched, overnight saved; {h1.splitlines()[0][:40]}"
+        check("Hiking intake: EU boot size, kind of hiking, hiking words")(hiking_intake, pg)
+
         def menu_short_phone():   # Oct 25 (Bastien: "is there no more button to go from Canada to USA in the menu?"): on a short phone
             # the menu ran past the screen; Canada/USA and Prices in must be reachable
             c = br.new_context(viewport={"width": 320, "height": 568}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
             stub(c)
-            c.add_init_script("""try{localStorage.setItem('gf-nosignup','1');localStorage.setItem('rd-profile',JSON.stringify({gender:'men',ships:'ca',country:'ca',groups:['shoes'],sizes:{shoes:{sizes:['11']}},lang:'en'}))}catch(e){}""")
+            c.add_init_script("""try{localStorage.setItem('gf-nosignup','1');localStorage.setItem('gf-peek','1');localStorage.setItem('rd-profile',JSON.stringify({gender:'men',terrain:'both',ships:'ca',country:'ca',groups:['shoes'],sizes:{shoes:{sizes:['11'],width:[]}},brands:[],lang:'en'}))}catch(e){}""")
             q2 = c.new_page()
             try:
                 q2.goto(base, wait_until="domcontentloaded")

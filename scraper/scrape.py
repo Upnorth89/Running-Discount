@@ -4227,6 +4227,9 @@ def merge(offers):
                 if eu and o["sx"] in (["men"], ["women"]):
                     us = eu_us[(o["b"].lower(), o["sx"][0])].get(eu[0], set())
                     keys = [k + eu[1] for k in next(iter(us))] if len(us) == 1 else []
+                if not keys and eu and o.get("eu_keep") and " " not in eu[0]:
+                    keys = ["E:" + eu[0] + eu[1]]   # Oct 25, hiking boots: an EU-only size stays EU ("E:44.5"); the site matches it to
+                                                    # the visitor's own EU boot size (never converted by guess)
             else:
                 keys = acc_sizes(size) if o["g"] in ("packs", "gear") else [size]
             for k in keys:
