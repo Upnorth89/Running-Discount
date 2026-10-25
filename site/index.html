@@ -1525,7 +1525,12 @@ const HIKE_TXT={en:{searchShort:"Search hiking gear",groups:{shoes:"Boots & shoe
     base:"Base layers",shirt:"Shirts",pant:"Pants",rain:"Rain pants",short:"Shorts",day:"Day packs",overnight:"Overnight packs (35 L+)",pole:"Poles",
     light:"Headlamps",water:"Water",traction:"Traction",safety:"Safety & first aid",nav:"Navigation",gaiter:"Gaiters",sun:"Sunglasses"},
   headSized:n=>`${n} hiking deals in your size`,
-  rd:{h1n:n=>[`${n} hiking deals`,"in your ","size."],ph:"Search boots, jackets, packs, brands…",phS:"Search boots, brands…",tiles:{shoes:"Boots & Shoes",apparel:"Jackets & Tops",bottoms:"Pants & Shorts",packs:"Packs",acc:"Accessories",gear:"Gear"},
+  rd:{h1n:n=>[`${n} hiking deals`,"in your ","size."],
+    sub:n=>`Every morning we check ${n} outdoor stores in Canada and the USA and show you the best prices in stock, in your size. No more guessing.`,
+    why2:["No more guessing",()=>"Every store's price for the same boot or jacket, side by side."],
+    kinds:{hike:"hiking shoes",boot:"hiking boots",approach:"approach shoes",shell:"rain jacket",insulated:"insulated layer",fleece:"fleece",wind:"wind jacket",
+      base:"base layer",shirt:"shirt",pant:"pants",rain:"rain pants",short:"shorts",day:"day pack",overnight:"overnight pack",pole:"trekking poles",light:"headlamp",
+      water:"water",traction:"traction",safety:"safety",nav:"navigation",gaiter:"gaiters",sun:"sunglasses"},ph:"Search boots, jackets, packs, brands…",phS:"Search boots, brands…",tiles:{shoes:"Boots & Shoes",apparel:"Jackets & Tops",bottoms:"Pants & Shorts",packs:"Packs",acc:"Accessories",gear:"Gear"},
     nav:{shoes:"Boots",apparel:"Clothing"}}},
  fr:{searchShort:"Chercher (randonnée)",groups:{shoes:"Bottes et chaussures",tops:"Manteaux et hauts",bottoms:"Pantalons et shorts",socks:"Bas",gloves:"Gants",
     headwear:"Chapeaux et tuques",packs:"Sacs à dos",gear:"Bâtons, frontales et équipement"},
@@ -1533,16 +1538,24 @@ const HIKE_TXT={en:{searchShort:"Search hiking gear",groups:{shoes:"Boots & shoe
     base:"Couches de base",shirt:"Chandails",pant:"Pantalons",rain:"Pantalons imperméables",short:"Shorts",day:"Sacs de jour",overnight:"Sacs de plusieurs jours (35 L+)",
     pole:"Bâtons",light:"Frontales",water:"Eau",traction:"Crampons",safety:"Sécurité et premiers soins",nav:"Navigation",gaiter:"Guêtres",sun:"Lunettes de soleil"},
   headSized:n=>`${n} aubaines de randonnée à votre taille`,
-  rd:{h1n:n=>[`${n} aubaines de randonnée`,"à votre ","taille."],ph:"Chercher bottes, manteaux, sacs, marques…",phS:"Bottes, marques…",tiles:{shoes:"Bottes et chaussures",apparel:"Manteaux et hauts",bottoms:"Pantalons et shorts",packs:"Sacs à dos",acc:"Accessoires",gear:"Équipement"},
+  rd:{h1n:n=>[`${n} aubaines de randonnée`,"à votre ","taille."],
+    sub:n=>`Chaque matin, on vérifie ${n} boutiques de plein air au Canada et aux États-Unis et on vous montre les meilleurs prix en stock, dans votre taille. Fini les devinettes.`,
+    why2:["Fini les devinettes",()=>"Le prix de chaque boutique pour la même botte ou le même manteau, côte à côte."],
+    kinds:{hike:"chaussures de randonnée",boot:"bottes de randonnée",approach:"chaussures d'approche",shell:"manteau imperméable",insulated:"couche isolante",fleece:"laine polaire",
+      wind:"coupe-vent",base:"couche de base",shirt:"chandail",pant:"pantalon",rain:"pantalon imperméable",short:"short",day:"sac de jour",overnight:"sac de plusieurs jours",
+      pole:"bâtons de randonnée",light:"frontale",water:"eau",traction:"crampons",safety:"sécurité",nav:"navigation",gaiter:"guêtres",sun:"lunettes de soleil"},ph:"Chercher bottes, manteaux, sacs, marques…",phS:"Bottes, marques…",tiles:{shoes:"Bottes et chaussures",apparel:"Manteaux et hauts",bottoms:"Pantalons et shorts",packs:"Sacs à dos",acc:"Accessoires",gear:"Équipement"},
     nav:{shoes:"Bottes",apparel:"Vêtements"}}}};
 let RUN_TXT=null;
 function applySport(){
-  if(!RUN_TXT){RUN_TXT={};for(const L of ["en","fr"]){const I=I18N[L];RUN_TXT[L]={searchShort:I.searchShort,headSized:I.headSized,h1n:I.rd.h1n,groups:{...I.groups},types:{...I.types},
+  if(!RUN_TXT){RUN_TXT={};for(const L of ["en","fr"]){const I=I18N[L];RUN_TXT[L]={searchShort:I.searchShort,headSized:I.headSized,h1n:I.rd.h1n,sub:I.rd.sub,why:I.rd.why.slice(),kinds:{...I.rd.kinds},groups:{...I.groups},types:{...I.types},
     ph:I.rd.ph,phS:I.rd.phS,tiles:{...I.rd.tiles},nav:{...I.rd.nav}}}}
   for(const L of ["en","fr"]){const I=I18N[L],R0=RUN_TXT[L],H=HIKE_TXT[L],h=HIKE();
-    I.searchShort=h?H.searchShort:R0.searchShort;I.headSized=h?H.headSized:R0.headSized;I.rd.h1n=h?H.rd.h1n:R0.h1n;I.groups=h?{...R0.groups,...H.groups}:{...R0.groups};I.types=h?{...R0.types,...H.types}:{...R0.types};
+    I.searchShort=h?H.searchShort:R0.searchShort;I.headSized=h?H.headSized:R0.headSized;I.rd.h1n=h?H.rd.h1n:R0.h1n;I.rd.sub=h?H.rd.sub:R0.sub;I.rd.kinds=h?{...H.rd.kinds}:{...R0.kinds};
+    I.rd.why=R0.why.slice();if(h)I.rd.why[2]=H.rd.why2;I.groups=h?{...R0.groups,...H.groups}:{...R0.groups};I.types=h?{...R0.types,...H.types}:{...R0.types};
     I.rd.ph=h?H.rd.ph:R0.ph;I.rd.phS=h?H.rd.phS:R0.phS;I.rd.tiles=h?{...H.rd.tiles}:{...R0.tiles};I.rd.nav=h?{...R0.nav,...H.rd.nav}:{...R0.nav}}
   TYPES=HIKE()?TYPES_HIKE:TYPES_RUN;RD_TILES=HIKE()?RD_HIKE:RD_RUN;
+  if(!applySport.title)applySport.title=document.title;
+  document.title=HIKE()?(LANG==="fr"?"The Gear Fox | Aubaines de randonnée à votre taille":"The Gear Fox | Hiking deals in your size"):applySport.title;
   document.documentElement.classList.toggle("hike",HIKE());}
 applySport();
 const RDI={search:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>',

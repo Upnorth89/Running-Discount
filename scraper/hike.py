@@ -40,7 +40,7 @@ PAUSE = 1.5
 
 # ---------------------------------------------------------------- what is (and isn't) hiking
 SKIP = re.compile(
-    r"\b(ski|skis|skiing|snowboard\w*|splitboard|bindings?|skins?|avalanche|beacon|probe|shovel|freeride|backcountry ski|nordic|"
+    r"\b(ski|skis|skiing|snowcrew|snowmobile|snowsports|snow ?pants?|snow ?bibs?|snow ?jackets?|snowboard\w*|splitboard|bindings?|skins?|avalanche|beacon|probe|shovel|freeride|backcountry ski|nordic|"
     r"cross[- ]country|xc ski|bike|biking|cycling|mtb|bibs?|chamois|swim\w*|bikini|paddl\w*|kayak\w*|canoe|pfd|life ?jacket|"
     r"wetsuit|neoprene|surf|wader|fishing|hunting|hunter|camo|blaze orange|golf|yoga|pickleball|tennis|kids?|youth|junior|"
     r"jr|toddler|baby|infant|boys?|girls?|dog|pet|leash|gift ?card|e-?gift|book|guide ?book|maps?|sticker|decal|poster|"
@@ -477,8 +477,8 @@ def tidy(items):
     run = running_shoes()
     out = []
     for it in items:
-        if it["b"].lower() in NOT_HIKE_BRANDS or CASUAL.search(it["n"]):
-            continue
+        if it["b"].lower() in NOT_HIKE_BRANDS or CASUAL.search(it["n"]) or (SKIP.search(it["n"]) and not KEEP.search(it["n"])):
+            continue                           # a rule added after the night's read still applies (snow pants, Oct 25)
         c = classify(it["n"], brand=it["b"])
         if it["b"].lower() in s.SOCK_BRANDS and re.search(r"\b(crew|liner|no[- ]show|ankle|quarter)\b", it["n"], re.I) \
                 and not re.search(r"\b(tee|t-shirt|shirt|top|sweater|sweatshirt|neck)\b", it["n"], re.I):

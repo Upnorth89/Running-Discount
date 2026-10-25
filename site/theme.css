@@ -689,3 +689,5 @@ html:not(.rd) header.top .tagline{color:#fff}
 .rd .rdfilters .sportsw{order:0}
 @media(max-width:759px){.rd .rdfilters .sportsw{display:none}}
 @media(max-width:379px){.sportsw{gap:4px}.sportsw button{padding:0 10px;font-size:14px}}
+/* Hiking side: running-only parts step aside (race lists, shoe price pages, "Where do you run?") */
+html.hike #rnRaces,html.hike #rnShoes,html.hike #terrain,html.hike h3[data-i18n="terrainH"]{display:none}
