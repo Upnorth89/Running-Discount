@@ -2448,6 +2448,13 @@ def _file_age_days(path):
     return (time.time() - ts) / 86400
 
 _grabbed = []
+def outdoor_list(d):
+    """Oct 25 (Bastien: hiking tab ~Nov 17; MEC/REI hiking lists through the same bookmark): a saved list whose page address is a
+    hiking / camping list belongs to the hidden hiking files, never to the running site."""
+    from urllib.parse import urlparse
+    path = urlparse(d.get("url") or "").path          # the page address only: "utm_campaign" in a query is not camping
+    return bool(re.search(r"hik|\bcamp|trek|backpacking|mountaineer|randonn|\btentes?\b|\btents?\b|sleeping|sac-de-couchage", path, re.I))
+
 def grab_saves():
     """Lists sent from the phone bookmark (Oct 8: thegearfox.com/grab-save.html -> Supabase grab_saves, last 10 days),
     written to a temp folder as the same JSON files the bookmark downloads. Needs SUPABASE_URL + SUPABASE_SECRET_KEY."""
@@ -2501,6 +2508,9 @@ def scrape_mec_saved():
                 continue
             if d.get("store") != "mec":
                 continue
+            if outdoor_list(d):          # hiking/camping list: kept for the hiking files (Oct 25)
+                print(f"  {f.name}: a hiking/camping list, kept out of the running site", file=sys.stderr)
+                continue
             hits = d.get("hits") or []
         else:
             m = re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', text, re.S)
@@ -2536,6 +2546,9 @@ def scrape_svp_saved():
             continue
         if d.get("store") != "svp":
             continue
+        if outdoor_list(d):          # hiking/camping list: kept for the hiking files (Oct 25)
+            print(f"  {f.name}: a hiking/camping list, kept out of the running site", file=sys.stderr)
+            continue
         used += 1
         for p in d.get("products") or []:
             if p.get("id") in seen:
@@ -2560,6 +2573,9 @@ def scrape_rei_saved():
             except Exception:
                 continue
             if d.get("store") != "rei":
+                continue
+            if outdoor_list(d):          # hiking/camping list: kept for the hiking files (Oct 25)
+                print(f"  {f.name}: a hiking/camping list, kept out of the running site", file=sys.stderr)
                 continue
             results = d.get("results") or []
         else:
@@ -4620,6 +4636,9 @@ def scrape_backcountry_grab():
         except Exception:
             continue
         if d.get("store") != "backcountry":
+            continue
+        if outdoor_list(d):          # hiking/camping list: kept for the hiking files (Oct 25)
+            print(f"  {f.name}: a hiking/camping list, kept out of the running site", file=sys.stderr)
             continue
         used += 1
         for p in d.get("products") or []:

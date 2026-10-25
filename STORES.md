@@ -404,6 +404,25 @@ Checked Oct 25 (Bastien: "Gear trade, mountain warehouse, Latulippe in Quebec"):
 - Latulippe (latulippe.com, Québec): Cloudflare "Just a moment" / "Attention Required" 403 from the sandbox AND from GitHub, robots.txt
   included: it said no. Possible later: the Grab deals bookmark (Bastien's own browser) taught to read Latulippe lists.
 
+Small stores + ultralight brands (checked Oct 25; Bastien: "a lot of niche small stores, hyperlight, backpacks built in the usa").
+All Shopify, /products.json answers, robots.txt doesn't block AI agents; ships to Canada (meta.json). First page only, so "on sale" is a hint:
+| Store | Kind | Currency | First page: items / on sale |
+|---|---|---|---|
+| La Cordée (lacordee.com) | Québec outdoor chain (Montréal) | CAD | 250 / 1 |
+| Monod Sports (monodsports.com) | Banff outdoor store | CAD | 250 / 1 |
+| Comor Sports (comorsports.com) | Vancouver outdoor store | CAD | 250 / 0 |
+| Hyperlite Mountain Gear | US-made ultralight packs/shelters | USD | 118 / 0 |
+| Gossamer Gear | US ultralight packs | USD | 124 / 14 |
+| Zpacks | US-made ultralight packs/tents | USD | 250 / 0 |
+| Durston Gear | ultralight tents/packs | USD | 37 / 0 |
+| Six Moon Designs | US ultralight packs/shelters | USD | 121 / 5 |
+| Pa'lante Packs | US-made ultralight packs | USD | 36 / 0 |
+| Atom Packs | UK-made ultralight packs | GBP (skip: other currencies not handled) | 46 / 1 |
+Didn't answer from the sandbox (check from GitHub): Live Out There, ULA Equipment, Superior Wilderness Designs, Kakwa.
+404 on /products.json (not Shopify; JSON-LD route later): Enlightened Equipment, Mountain Laurel Designs, Escape Route, Treeline.
+Ultralight makers rarely discount: their value for us is "watch the price" (full price included) + Black Friday / seconds sales.
+Their gear = the "Fastpack / ultralight" filter (packs, shelters, quilts). Shelters/quilts are camping-side: read, not published.
+
 Next to add for hiking (stores we already read for running, hiking sections not yet): Sports Experts (night read: add hiking lists),
 Sporting Life (outdoor section), Decathlon (hiking section, night slices), Sport Chek (hiking search), Bushtukah, Coureur Nordique,
 Run Uphill, Arc'teryx (hiking lines beyond ARC_RUN). MEC: Bastien's saved pages (Grab deals) of its hiking lists.
