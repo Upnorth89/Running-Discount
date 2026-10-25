@@ -372,6 +372,22 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   **Race list check** (race-check.yml, the 3rd of each month, scraper/race_check.py): rereads every race's `src`/`src_fr` (pages + PDFs),
   keeps the gear lines + linked PDFs/list pictures, compares with race-check.json on the history branch; emails ONLY when a list changed
   (+/- lines) or a page stopped answering. Then update that race in RACES from its own list.
+- **Hiking (Oct 25; Bastien: "gathering as many hiking stores and hiking gear we can find", "make it look identical to the running page";
+  launch on his OK after the preview)**: `scraper/hike.py OUTDIR [stores…] [--remerge]` reads 66 stores (Altitude/Last Hunt
+  /c/camping-and-hiking via `ct_store`; Shopify `SHOPIFY` list by collection or whole store; robots.txt checked each run; honest UA;
+  a CAD store that answers in USD is left out that night) -> hike-offers.json + deals-hike(-us).json / sale-hike(-us).json + camp(-us).json
+  (camping: read, NOT published). `classify()` = hiking groups (the running groups) + types (`HTYPES`): shoes hike/boot/approach, tops
+  shell/insulated/fleece/wind/base/shirt, bottoms pant/rain/short/base, packs day/overnight (35 L+), gear pole/light/water/traction/safety/
+  nav/gaiter/sun; SKIP (ski, bike, paddling, hunting, climbing hardware, kids, casual), NOT_HIKE_BRANDS (fashion/ski), CASUAL words; the
+  running merge does sizes/brands/genders, then our sorting wins (`tidy`); trail runners the running site carries (RUNNING_DEALS) stay on the
+  running side; shoe labels "8.5 US"/"7 UK" read (`shoe_label`), EU only from makers' own charts (`EU_CHART`: LOWA). `ul` = fastpack flag.
+  Site: Running | Hiking pills beside the size (`sportSw()`, phones in .rdqf, computers after #ddSize), `SPORT`/`HIKE()`, gf-sport,
+  `applySport()` swaps TYPES/RD_TILES/words (HIKE_TXT EN/FR), DFILE adds "-hike", circles img/cat/hike-*.webp (Altitude photos, SOURCES.json).
+  Hidden: `HIKE_LIVE=false` (preview: make_preview.py embeds sale-hike.json as gfdata-hike when it's in the site folder and turns it on;
+  PV_HIKE_PHOTOS=N). Not yet: nightly job (runfree.yml) + refresh step, hiking stores' shipping labels on cards were added to STORES.
+  `scraper/hikes.py`: 101 hikes (park page, km, climb, days, months, climate, bears, flags) + `gear_for(hike, days, month)` = 10 essentials
+  + what the hike adds, each linked to a hiking group/type ("Trail gear lists", next to build). Figures rounded, `checked` False until
+  re-read on the park page.
 - **Clothing sizes per category** (Oct 21, a visitor: "medium in shorts, L in socks, small in t-shirts"): sizes screen keeps one quick
   "Clothing size" row + "Different size in shorts, socks or gloves?" (`#clothMore`/`#clothBy`, `state.clothBy` = only the categories that
   differ, `clothFor(g)`; bras follow tops, hats the main size). Profiles already kept a size per group (Friday email/alerts use them);

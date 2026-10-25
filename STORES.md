@@ -408,7 +408,7 @@ Small stores + ultralight brands (checked Oct 25; Bastien: "a lot of niche small
 All Shopify, /products.json answers, robots.txt doesn't block AI agents; ships to Canada (meta.json). First page only, so "on sale" is a hint:
 | Store | Kind | Currency | First page: items / on sale |
 |---|---|---|---|
-| La Cordée (lacordee.com) | Québec outdoor chain (Montréal) | CAD | 250 / 1 |
+| La Cordée (lacordee.com) | Québec outdoor chain (Montréal): LEFT OUT Oct 25 (Bastien: in creditor protection; orders/returns at risk) | CAD | 250 / 1 |
 | Monod Sports (monodsports.com) | Banff outdoor store | CAD | 250 / 1 |
 | Comor Sports (comorsports.com) | Vancouver outdoor store | CAD | 250 / 0 |
 | Hyperlite Mountain Gear | US-made ultralight packs/shelters | USD | 118 / 0 |
@@ -427,6 +427,29 @@ Next to add for hiking (stores we already read for running, hiking sections not 
 Sporting Life (outdoor section), Decathlon (hiking section, night slices), Sport Chek (hiking search), Bushtukah, Coureur Nordique,
 Run Uphill, Arc'teryx (hiking lines beyond ARC_RUN). MEC: Bastien's saved pages (Grab deals) of its hiking lists.
 USA side later: REI (saved pages), Sports Basement (hiking collection); Backcountry stays blocked.
+
+**Hiking reader (scraper/hike.py, Oct 25 night; Bastien: "gathering as many hiking stores and hiking gear we can find ... we always input
+both [sale and full price] so people can track")**: 55 stores in `SHOPIFY` + Altitude/Last Hunt (`ct_store`). First full read Oct 25:
+Canada 15,345 hiking items (4,458 on sale) + 3,420 camping (read, not published); USA 7,711 (2,502 on sale) + 2,095 camping.
+Biggest: VPO 5,628 listings, Altitude 2,481, Ascent (US) 1,773, Gear Trade 1,662 (new stock only), SAIL 1,462, Last Hunt 1,440.
+Checked from the sandbox, robots.txt read for ClaudeBot/anthropic-ai/*: 74 of 176 outdoor stores/brands answer /products.json.
+- Campmor: robots.txt bans ClaudeBot and anthropic-ai -> never read.
+- Taiga Works, J.B. Field's: their cart answered USD to our honest bot (CAD stores) -> left out that night (prices unsure); recheck from GitHub.
+- Scarpa US, Smartwool, Big Sky: 503 that night (busy), kept for the next read.
+- Not Shopify (404), JSON-LD route later: Mountain Laurel Designs, Enlightened Equipment, Tarptent, ULA, Mammut, Norrøna, Rab (ca.), Petzl,
+  Exped, Prana, Kühl, Salewa, Dynafit, Topo Athletic, Warbonnet, Wilderness Supply, Algonquin Outfitters.
+- 403 (said no): Hammock Gear, Helly Hansen, Icebreaker, Jetboil, Ledlenser, Osprey, Waymark, Steep & Cheap, REI, Backcountry, MEC, Enwild,
+  Outdoor Gear Exchange.
+- Not hiking enough to read: Karbon, Orage, Kanuk, Alpine North (ski/winter coats), 7mesh (bike), Indyeva (fashion), Herschel (bags),
+  tentree (casual), Stanfield's (underwear), Kula Cloth, Argali (hunting), Atom Packs (GBP), Montane (GBP), Mountain Equipment UK (GBP).
+- USA-only (shipping list leaves Canada out): Ascent Outdoors, EMS, Big Agnes, Oboz, LOWA, KEEN, Darn Tough, Kelty, Cascade Mountain Tech.
+To probe next (Canada first): The Trail Shop (Halifax), Europe Bound (Toronto), Robinsons Outdoors (Victoria), Campers Village (AB),
+Chaltrek (Thunder Bay), Track 'n Trail; USA: Next Adventure, Ute Mountaineer, Midwest Mountaineering, Wilderness Exchange, Ramsey Outdoor,
+Appalachian Outdoors, Half-Moon Outfitters, Great Outdoor Provision, Diamond Brand, Rock/Creek, Bivouac, Gearhead Outfitters, Mountain
+High Outfitters, Sunlight Sports, Teton Mountaineering, Wasatch Touring, Outdoors Inc, Second Ascent, Massey's, Backcountry Experience,
+Mountain Chalet, The Base Camp (Billings), The Trailhead (Missoula).
+EU boot sizes: only makers' own charts (`EU_CHART`; LOWA so far, from us.lowa.com). Retailer charts for La Sportiva, Scarpa, Hanwag, AKU,
+Zamberlan disagree by half a size, so those stay EU unless a store's own label gives both.
 
 ## Snow (researched Oct 2, 2026; parked until mid-November)
 

@@ -510,8 +510,13 @@ def site_flow(base, per, accented):
             page.wait_for_selector("#backBar", timeout=6000)
             assert not page.locator("#backBar.bwbar,#backBar.subar").count(), "a removed bar ('Didn't buy it?' / sign-up) came back"
             bar = page.inner_text("#backBar")
+            page.evaluate("scrollTo(0, document.body.scrollHeight * 0.6)")   # Oct 25: from far down the page, Show must bring the store's
+            settle(page, 300)                                                     # deals into view (they opened out of sight)
             page.click("#backBar .go")
             page.wait_for_selector(".storebar")
+            settle(page, 1200)
+            top = page.evaluate("document.querySelector('.storebar').getBoundingClientRect().top")
+            assert 0 <= top < page.evaluate("innerHeight"), f"Show opened the store's deals out of sight (box at {round(top)} px)"
             name = page.inner_text(".storebar b").strip()
             cs = cards(page)
             assert cs, f"the come-back bar opened {name} with no deals"
@@ -1209,6 +1214,40 @@ def site_flow(base, per, accented):
             pg.evaluate("sessionStorage.removeItem('gf-lastshop')")
             return "no sign-up bar; the store offer only"
         check("Back from a store: no sign-up bar (removed Oct 22)")(backbar_none, pg)
+
+        def any_size_link():   # Oct 25 (Bastien: "clicked a salomon shoe and its showing me size 6.5 when I have 11 selected"): a view of
+            # every size (?q= post links, "Show all sizes") opened the cheapest size at the store; with the visitor's size in stock, the
+            # link must open on their size
+            items = site_json("sale.json")["items"]
+            pick = None
+            for x in items:
+                if x["g"] != "shoes" or x.get("sx") != ["men"] or x.get("w"):
+                    continue
+                e11 = [e for e in x["sz"] if e[0] == "11" and len(e) > 4 and isinstance(e[4], int)]
+                if e11 and any(e[1] < e11[0][1] and len(e) > 4 and e[4] != e11[0][4] for e in x["sz"]):
+                    pick = (x, e11[0])
+                    break
+            if not pick:
+                return "no shoe today with a cheaper size than 11 (nothing to check)"
+            x, e = pick
+            q = " ".join(re.sub(r"\s+-\s+Men's$", "", x["n"]).split()[:4])
+            c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+            stub(c)
+            c.add_init_script("""try{localStorage.setItem('gf-nosignup','1');localStorage.setItem('gf-peek','1');
+              localStorage.setItem('rd-profile',JSON.stringify({gender:'men',terrain:'both',ships:'all',country:'ca',groups:['shoes'],sizes:{shoes:{sizes:['11'],width:[]}},brands:[],lang:'en'}))}catch(e){}""")
+            q2 = c.new_page()
+            try:
+                q2.goto(base + "?q=" + q.replace(" ", "+"), wait_until="domcontentloaded")
+                q2.wait_for_selector("#dealList a[href*='variant='], #dealList a.deal", timeout=20000)
+                settle(q2, 800)
+                hrefs = q2.eval_on_selector_all("#dealList a[href^='http']", "e => e.map(a => a.href)")
+                mine = [h for h in hrefs if h.split("?")[0] == x["of"][e[2]].split("?")[0]]
+                assert mine, f"'{q}': the card for {x['b']} {x['n']} isn't on the page"
+                assert any(f"variant={e[4]}" in h for h in mine), f"'{q}': the card opens {mine[0][-40:]}, not size 11 (variant {e[4]})"
+            finally:
+                c.close()
+            return f"{x['b']} {q}: opens size 11"
+        check("All-sizes view: the store link opens on your size")(any_size_link, pg)
 
         def open_mail():     # Oct 11 (52% confirmed): "Check your inbox" opens their mail app
             pg.evaluate("localStorage.setItem('gf-sub',JSON.stringify({pending:'robot@gmail.com'}))")

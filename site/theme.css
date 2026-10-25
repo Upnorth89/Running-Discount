@@ -680,3 +680,12 @@ html:not(.rd) header.top .tagline{color:#fff}
   html.cards2.rd .rdc .sztxt b{color:var(--hivis)}
   html.cards2.rd .rdc .lostamp{transform:scale(.85);transform-origin:bottom left}
 }
+
+/* Running | Hiking switch (Oct 25; hidden until the Hiking tab launches): two pills beside your size, like the Canada/USA pills */
+.sportsw{display:flex;gap:6px;flex:none}
+.sportsw button{min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #DDD5C8;background:#fff;color:#17232B;font:600 15px var(--body,Inter,system-ui,sans-serif);cursor:pointer}
+.sportsw button[aria-pressed="true"]{background:var(--hivis,#FF5A1F);border-color:var(--hivis,#FF5A1F);color:var(--hivis-ink,#17232B)}
+.sportsw button:focus-visible{outline:2px solid var(--hivis,#FF5A1F);outline-offset:2px}
+.rd .rdfilters .sportsw{order:0}
+@media(max-width:759px){.rd .rdfilters .sportsw{display:none}}
+@media(max-width:379px){.sportsw{gap:4px}.sportsw button{padding:0 10px;font-size:14px}}

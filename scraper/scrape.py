@@ -3395,6 +3395,8 @@ LIFESTYLE_SHOE = re.compile(r"^(new balance\s+(740|2002r?|9060|530|1906r?)|on\s+
                             r"|salomon\s+xt-?(6|pathway|whisper|4|quest)|asics\s+gel-?(kayano\s?(14|20)|k1011)"
                             r"|nike\s+(zoom\s+)?vomero\s?5|hoka\s+speedgoat\s?2|adidas\s+(originals\b|ultraboost\s+1\.0|.*\bdna\b|adizero\s+goukana))\b", re.I)
 # soccer boots (Frontrunners sells them): ground codes FG/AG/MG/SG/TF, or the model lines
+NORDIC = re.compile(r"(?i)\bnordic (walking )?poles?\b|\b(nordic|xc|skate|ski)\b.*\bpoles?\b|"
+                    r"^(atomic|rossignol|swix|fischer|madshus|one way|kv\+|exel|toko)\b.*\bpoles?\b|\b(xc|nordic|skate)\b.*\binsoles?\b")
 GOALIE = re.compile(r"goal ?keep|\b(copa|pred|predator) gl\b|\bvapor grip\b|\bgk (dynamic|match|vapor)", re.I)
 SOCCER = re.compile(r"\b(FG|AG|MG|SG|TF)\b|(?i:\b(soccer|futsal|predator|f50|copa|tiempo|mercurial)\b)")
 
@@ -4048,6 +4050,9 @@ def merge(offers):
             o["n"] = n
     # soccer goalkeeper gloves come in numbered sizes, so tidy_gear would file them under shoes (Gazelle Sports, Oct 6)
     offers = [o for o in offers if not GOALIE.search(o["n"] or "")]
+    # Oct 25 (Bastien: "we're seeing some nordic poles in the finds on top deals"): cross-country ski poles (Atomic, Rossignol, Swix
+    # Aerobics First and Bushtukah file them under running in winter), Nordic walking poles and XC ski insoles are not running gear
+    offers = [o for o in offers if not NORDIC.search(f'{o["b"]} {o["n"]}')]
     # Rackets & Runners: walking shoes and Babolat's tennis line are not running gear
     offers = [o for o in offers if not (o.get("st") == "rackets" and (re.search(r"\bwalking\b", o["n"] or "", re.I)
                                                                     or re.match(r"babolat", o["b"] or "", re.I)
