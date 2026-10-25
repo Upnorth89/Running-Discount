@@ -691,3 +691,6 @@ html:not(.rd) header.top .tagline{color:#fff}
 @media(max-width:379px){.sportsw{gap:4px}.sportsw button{padding:0 10px;font-size:14px}}
 /* Hiking side: running-only parts step aside (race lists, shoe price pages, "Where do you run?") */
 html.hike #rnRaces,html.hike #rnShoes,html.hike #terrain,html.hike h3[data-i18n="terrainH"]{display:none}
+/* Oct 25: on short phones (iPhone SE) the ☰ menu ran past the screen and its last rows (Shopping from Canada/USA, Prices in) were out
+   of reach: it scrolls inside itself now */
+.menu{max-height:calc(100vh - 80px);max-height:calc(100dvh - 80px);overflow-y:auto;overscroll-behavior:contain}

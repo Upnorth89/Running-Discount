@@ -1009,7 +1009,7 @@ const US=()=>COUNTRY==="us";
 /* Running | Hiking (Oct 25, Bastien: "build the sub category of hiking. We have to make it look identical to the running page"):
    one page, two catalogues. Hiking = sale-hike(-us).json / deals-hike(-us).json from scraper/hike.py, same sizes, cards and
    filters; its own categories and type buttons (applySport). Hidden until HIKE_LIVE; ?hike=1 shows the switch (previews). */
-const HIKE_LIVE=false;
+const HIKE_LIVE=true;   // Oct 25: launched (Bastien: "I'd launch today")
 const HIKE_OK=HIKE_LIVE||(()=>{try{return new URLSearchParams(location.search).has("hike")}catch(e){return false}})();
 let SPORT=(()=>{try{const s=new URLSearchParams(location.search).get("sport");if(s==="hike"||s==="run")return s}catch(e){}return LS0("gf-sport")||"run"})();
 if(!HIKE_OK)SPORT="run";
@@ -1439,7 +1439,16 @@ function watchFromLink(){
   watchQDone=true;try{history.replaceState(null,"",location.pathname)}catch(e){}
   track("watch-from-page",{});if(!watches[WATCH_Q])toggleWatch(WATCH_Q);else toast(t("watching"));
 }
-function useData(d,full){DATA=d;ITEMS=d.items||[];FULL=full;byKey={};ITEMS.forEach(x=>(byKey[itemKey(x)]=byKey[itemKey(x)]||[]).push(x));renderAll();loadShoePages();watchFromLink();setTimeout(offerStore,600);logLoad(full)}
+/* Oct 25 (Hiking tab): a heart from the other side (a hiking jacket watched, now on Running) is looked up in that side's file,
+   loaded once and only when such a heart exists, so the watchlist never calls it "gone" */
+let OTHER={},otherFor="",otherDone=false;
+function mergeOther(){for(const k in OTHER)if(!byKey[k])byKey[k]=OTHER[k]}
+function loadOther(){const f=(HIKE()?"deals":"deals-hike")+(US()?"-us":"")+".json";
+  if(otherFor===f)return;OTHER={};otherDone=false;
+  if(!Object.values(watches).some(w=>(w.s||"run")!==SPORT)){otherDone=true;return}
+  otherFor=f;loadData(f).then(d=>{(d.items||[]).forEach(x=>{const k=itemKey(x);if(watches[k])(OTHER[k]=OTHER[k]||[]).push(x)});otherDone=true;mergeOther();renderAll()})
+    .catch(()=>{otherDone=true})}
+function useData(d,full){DATA=d;ITEMS=d.items||[];FULL=full;byKey={};ITEMS.forEach(x=>(byKey[itemKey(x)]=byKey[itemKey(x)]||[]).push(x));mergeOther();loadOther();renderAll();loadShoePages();watchFromLink();setTimeout(offerStore,600);logLoad(full)}
 /* Load time (Oct 8): how long until the deals are on screen, once per visit, with the connection type, so we can see whether
    slow phones leave before anything shows (55 of 228 first visitors who didn't pick sizes left within 5 s) */
 let loadLogged=false;
@@ -1452,7 +1461,8 @@ const DFILE=full=>(full?"deals":"sale")+(HIKE()?"-hike":"")+(US()?"-us":"")+".js
 function loadFull(){if(FULL||fullLoading)return;fullLoading=loadData(DFILE(true)).then(d=>useData(d,true)).catch(()=>{fullLoading=null;if(view.fullPrice)toast(t("fullFail"))})}
 function loadCountry(){return loadData(DFILE(false)).then(d=>useData(d,false)).catch(()=>loadData(DFILE(true)).then(d=>useData(d,true)))
   .then(()=>{if(!$("sheet").classList.contains("hidden"))openSheet();if(Object.keys(watches).length)loadFull()})
-  .catch(()=>{DATA={items:[]};$("dealList").innerHTML=`<div class="empty">${t("loadFail")}</div>`})}
+  .catch(()=>{if(HIKE()){SPORT="hike";setSport("run","fail");return}   // the hiking files didn't load: back to running, never an empty page
+    DATA={items:[]};$("dealList").innerHTML=`<div class="empty">${t("loadFail")}</div>`})}
 loadCountry();
 /* switch country: the other side's data, its currency (unless the visitor picked one), saved with the sizes */
 function setCountry(c,from){if(c===COUNTRY||(c!=="us"&&c!=="ca"))return;COUNTRY=c;LS.set("gf-country",c);
@@ -2092,7 +2102,7 @@ function toggleWatch(k,quiet){     // quiet: the come-back bar asks for the emai
   const m=matchItems({...toProfile(),groups:ORDER},byKey[k]);let best=m.length?Math.min(...m.map(x=>x.best)):null;
   if(best==null&&!hasSizes())best=Math.min(...byKey[k].flatMap(x=>x.sz.map(e=>e[1])));   // no sizes yet (came from a shoe page): today's lowest price, not "gone"
   const url=m.length?m.sort((a,b)=>a.best-b.best)[0].url:(d.of||[])[0];
-  watches[k]={b:d.b,n:d.n,g:d.g,url,price:best,low:best,seen:best,gone:best==null,saved:new Date().toISOString()};saveWatches();
+  watches[k]={b:d.b,n:d.n,g:d.g,url,price:best,low:best,seen:best,gone:best==null,saved:new Date().toISOString(),...(HIKE()&&!OTHER[k]?{s:"hike"}:{})};saveWatches();
   track("watch-add",{brand:d.b,group:d.g});
   goneW(k,false);
   if(sub&&sub.key&&sub.active){rpc("watch_add",{p_token:sub.key,p_key:k,p_meta:watches[k]}).then(()=>{if(watches[k]){watches[k].sv=1;saveWatches()}}).catch(()=>{});
@@ -2219,7 +2229,7 @@ function renderWatch(){
       w.low=Math.min(w.low??st.cur,st.cur);w.seen=st.cur;w.gone=false;     // you've now seen today's price
       return card(st.d,b.join(""));
     }
-    w.gone=true;
+    if((w.s||"run")===SPORT||otherDone)w.gone=true;   // the other side's file still loading: not "gone" yet
     return `<div class="dw"><a class="deal gone" href="${esc(affUrl(w.url)||"#")}" data-store="${esc(storeOf(w.url))}" target="_blank" rel="noopener">
       <div class="top"><span class="brand">${esc(w.b||"")}</span></div><div class="name">${esc(nm(w.n||""))}</div>
       <div class="gonetxt">${t("goneTxt")}</div></a>${heartBtn(k,true,{b:w.b||"",n:w.n||""})}</div>`;

@@ -383,8 +383,14 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   running side; shoe labels "8.5 US"/"7 UK" read (`shoe_label`), EU only from makers' own charts (`EU_CHART`: LOWA). `ul` = fastpack flag.
   Site: Running | Hiking pills beside the size (`sportSw()`, phones in .rdqf, computers after #ddSize), `SPORT`/`HIKE()`, gf-sport,
   `applySport()` swaps TYPES/RD_TILES/words (HIKE_TXT EN/FR), DFILE adds "-hike", circles img/cat/hike-*.webp (Altitude photos, SOURCES.json).
-  Hidden: `HIKE_LIVE=false` (preview: make_preview.py embeds sale-hike.json as gfdata-hike when it's in the site folder and turns it on;
-  PV_HIKE_PHOTOS=N). Not yet: nightly job (runfree.yml) + refresh step, hiking stores' shipping labels on cards were added to STORES.
+  LIVE since Oct 25 (Bastien: "I'd launch today"; `HIKE_LIVE=true`): refresh.yml starts hike.py in the background right after "Fetch
+  yesterday's data" (yesterday's hike-offers.json = each store's fallback) and publishes deals/sale-hike(-us).json + hike-offers.json before
+  the site test (yesterday's live files if today's read didn't finish in time); camp files are never published. A failed hiking load sends
+  the visitor back to Running. Watch hearts remember their side (`s:"hike"`); the other side's file loads only for the watchlist
+  (`loadOther`); alerts.py reads the hiking files too (the Friday email doesn't yet). Hiking wording: HIKE_TXT (headline, intro, kinds, why,
+  title); html.hike hides race lists, shoe price links and "Where do you run?". check.py downloads the live hiking files (HIKE_DIR = a
+  local read before they exist). Site tests "Hiking tab: …" and "Menu on a short phone: Canada/USA reachable" (the menu scrolls inside
+  itself). Preview: make_preview.py embeds sale-hike.json as gfdata-hike when it's in the site folder (PV_HIKE_PHOTOS=N).
   `scraper/hikes.py`: 101 hikes (park page, km, climb, days, months, climate, bears, flags) + `gear_for(hike, days, month)` = 10 essentials
   + what the hike adds, each linked to a hiking group/type ("Trail gear lists", next to build). Figures rounded, `checked` False until
   re-read on the park page.

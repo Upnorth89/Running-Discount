@@ -229,7 +229,6 @@ if hike_path.exists():
         hitems.append(y)
     hike_blob = json.dumps({"updated": dh["updated"], "stores": dh.get("stores", {}), "n_stores": dh.get("n_stores"), "fx": dh.get("fx", {}),
                             "sport": "hike", "items": hitems}, separators=(",", ":")).replace("</", "<\\/")
-    rep("const HIKE_LIVE=false;", "const HIKE_LIVE=true;   /* preview: the Running | Hiking switch shows */")
     print(f"preview hiking: {len(hitems)} sale items, {sum(1 for v in hgot.values() if v)} photos", file=sys.stderr)
 # the USA side (Oct 6, 2026): its items on sale, when the site folder has deals-us.json (kept small: sale items, no photos)
 us_path = SITE / "deals-us.json"

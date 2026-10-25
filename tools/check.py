@@ -100,7 +100,18 @@ def main():
                     if i == 2:
                         raise
                     time.sleep(5)
-        return "offers.json + deals.json"
+        # Oct 25: the Hiking tab's files (scraper/hike.py), live once launched; before that HIKE_DIR = a local read
+        got = []
+        for f in ("sale-hike.json", "deals-hike.json", "sale-hike-us.json", "deals-hike-us.json"):
+            try:
+                urllib.request.urlretrieve(LIVE + f, site / f)
+                got.append(f)
+            except Exception:
+                src = Path(os.environ.get("HIKE_DIR", "/nonexistent")) / f
+                if src.exists():
+                    shutil.copy(src, site / f)
+                    got.append(f)
+        return "offers.json + deals.json" + (f" + {len(got)} hiking files" if got else "")
     step("Download today's live data", fetch)
 
     def merge():

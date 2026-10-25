@@ -1249,6 +1249,67 @@ def site_flow(base, per, accented):
             return f"{x['b']} {q}: opens size 11"
         check("All-sizes view: the store link opens on your size")(any_size_link, pg)
 
+        def hiking_tab():   # Oct 25 (Bastien: hiking "identical to the running page", launch today): the switch beside the size,
+            # hiking deals and words, the six hiking circles, hiking type buttons, and back to running
+            if not site_json("sale-hike.json"):
+                return "no hiking file in this build (skipped)"
+            c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+            stub(c)
+            c.add_init_script("""try{localStorage.setItem('gf-nosignup','1');localStorage.setItem('gf-peek','1');localStorage.removeItem('gf-sport');
+              localStorage.setItem('rd-profile',JSON.stringify({gender:'men',terrain:'both',ships:'ca',country:'ca',groups:['shoes','tops','bottoms','socks','gloves','headwear','packs','gear'],sizes:{shoes:{sizes:['11'],width:[]},tops:{sizes:['M']},bottoms:{sizes:['M']}},brands:[],lang:'en'}))}catch(e){}""")
+            q2 = c.new_page()
+            errs = []
+            q2.on("pageerror", lambda e: errs.append(str(e)))
+            try:
+                q2.goto(base, wait_until="domcontentloaded")
+                q2.wait_for_selector("#dealList .rdc", timeout=30000)
+                sw = [b for b in q2.query_selector_all(".sportsw button[data-sport=hike]") if b.is_visible()]
+                assert sw, "no visible Hiking button beside the size"
+                sw[0].click()
+                q2.wait_for_function("document.documentElement.classList.contains('hike') && document.querySelectorAll('#dealList .rdc').length > 3", timeout=30000)
+                settle(q2, 800)
+                h1 = q2.inner_text("#rdH1")
+                assert "hiking" in h1.lower(), f"headline on the hiking side: {h1!r}"
+                tiles = q2.eval_on_selector_all("#rdTiles .rdtile b", "e => e.map(x => x.textContent)")
+                assert tiles[:3] == ["Boots & Shoes", "Jackets & Tops", "Pants & Shorts"], f"hiking circles: {tiles}"
+                q2.locator("#rdTiles .rdtile").nth(1).click()
+                settle(q2, 1000)
+                chips = q2.eval_on_selector_all(".types .chip", "e => e.map(x => x.textContent)")
+                assert "Rain shells" in chips, f"no hiking type buttons under Jackets & Tops: {chips}"
+                wide = q2.evaluate("document.documentElement.scrollWidth - innerWidth")
+                assert wide <= 1, f"the hiking page is {wide}px wider than the phone"
+                [b for b in q2.query_selector_all(".sportsw button[data-sport=run]") if b.is_visible()][0].click()
+                q2.wait_for_function("!document.documentElement.classList.contains('hike')", timeout=20000)
+                settle(q2, 1500)
+                assert "hiking" not in q2.inner_text("#rdH1").lower(), "back on Running, the headline still says hiking"
+                assert not errs, f"script error: {errs[0][:120]}"
+            finally:
+                c.close()
+            return f"{h1.splitlines()[0][:40]}; circles {', '.join(tiles[:3])}…"
+        check("Hiking tab: switch, hiking deals and words, circles, types, back to running")(hiking_tab, pg)
+
+        def menu_short_phone():   # Oct 25 (Bastien: "is there no more button to go from Canada to USA in the menu?"): on a short phone
+            # the menu ran past the screen; Canada/USA and Prices in must be reachable
+            c = br.new_context(viewport={"width": 320, "height": 568}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+            stub(c)
+            c.add_init_script("""try{localStorage.setItem('gf-nosignup','1');localStorage.setItem('rd-profile',JSON.stringify({gender:'men',ships:'ca',country:'ca',groups:['shoes'],sizes:{shoes:{sizes:['11']}},lang:'en'}))}catch(e){}""")
+            q2 = c.new_page()
+            try:
+                q2.goto(base, wait_until="domcontentloaded")
+                q2.wait_for_selector("#dealList .rdc", timeout=30000)
+                q2.click("#menuBtn")
+                settle(q2, 500)
+                q2.locator("#menu [data-ctry=us]").scroll_into_view_if_needed(timeout=3000)
+                r = q2.evaluate("document.querySelector('#menu [data-ctry=us]').getBoundingClientRect().bottom")
+                assert r <= q2.evaluate("innerHeight"), f"USA button below the screen ({round(r)}px) and can't be reached"
+                q2.click("#menu [data-ctry=us]")
+                settle(q2, 800)
+                assert q2.evaluate("document.documentElement.classList.contains('us')"), "tapping USA in the menu didn't switch"
+            finally:
+                c.close()
+            return "Canada/USA reachable and working on a 320x568 phone"
+        check("Menu on a short phone: Canada/USA reachable")(menu_short_phone, pg)
+
         def open_mail():     # Oct 11 (52% confirmed): "Check your inbox" opens their mail app
             pg.evaluate("localStorage.setItem('gf-sub',JSON.stringify({pending:'robot@gmail.com'}))")
             pg.reload(wait_until="domcontentloaded")
