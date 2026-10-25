@@ -406,7 +406,7 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   Friday email (Oct 25, Bastien: "unless someone subscribes on the hiking page then it should give them hiking items"): profile `sport`
   = the side they signed up on (`withSport()` at subscribe/Google, kept by toProfile); weekly_email.py sends hiking items to sport=hike
   (HIKE_LABEL headings, links add &sport=hike, EU sizes match). Everyone else: running, as before.
-  Test 'short' (Oct 25, preview; SHORT_LIVE=false until Bastien's OK): B = first sizes screen asks fit + shoe size only (clothing, EU line,
+  Test 'short' (Oct 25, LIVE 50/50 same day, Bastien: "yes let's shorten the size selection to fast track sign ups"): B = first sizes screen asks fit + shoe size only (clothing, EU line,
   kind of hiking behind "+ Clothing size, …"; `.clb`, html.shortb; no "Gear for" row). Why: 124 of 125 first visitors who didn't pick sizes
   left at the sizes screen; size-picking 33% -> 22% since Oct 22 (p=0.002). Metric: homepage first visits that pick sizes, ~465/group,
   decide ~Nov 8. Preview: PV_SHORT=1. Site test "Short sizes screen (test short B)".

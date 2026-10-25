@@ -711,7 +711,7 @@ const ANA=(()=>{const ls=k=>{try{return localStorage.getItem(k)}catch(e){return 
   let over={};try{const q=new URLSearchParams(location.search).get("exp");over=JSON.parse(ls("gf-exp")||"{}");
     if(q){q.split(",").forEach(x=>{const [n,a]=x.split(":");if(n&&/^[AB]$/.test(a))over[n]=a});localStorage.setItem("gf-exp",JSON.stringify(over))}}catch(e){}
   const arm=n=>{if(over[n])return over[n];let h=2166136261;for(const c of did+"|"+n){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return (h>>>0)%2?"B":"A"};
-  const TESTS=["r100","run1st","cards2"];   // add "short" with SHORT_LIVE   // Oct 25: 'short' B = first sizes screen asks only fit + shoe size (Bastien OK'd)
+  const TESTS=["r100","run1st","cards2","short"];   // Oct 25: 'short' live (Bastien OK'd)   // Oct 25: 'short' B = first sizes screen asks only fit + shoe size (Bastien OK'd)
     // Oct 22: 'run1st' = running gear leads the first rows (B)   // Oct 22: the redesign ('look' B) is the site for everyone (Bastien), 'runcard' ended (0 vs 2 sign-ups, too rare to decide), 'layout' ended Oct 19
      // Oct 21: 'look' = sizes on each card + category photos + store names (B)   // Oct 20: 'welcome' and 'drops' ended (A won); 'layout' back as a 50/50 test
   if(fresh){TESTS.forEach(n=>add("signup-step",`exp|${n}|${arm(n)}`))}
@@ -1188,7 +1188,7 @@ const WELCOME_B=false;   // test "welcome" ended Oct 20: without the welcome scr
 const LAYOUT_B=ANA.arm("layout")==="B";
 /* Test 'cards2' (Oct 25): B = phones show one deal per row, photo beside the details (theme.css html.cards2), 6 top deals + 4 per
    category; metric = homepage first visits that click a store (direct visitors: 15% since the redesign, 33% before) */
-const SHORT_LIVE=false;   // preview until Bastien's OK; ?exp=short:B shows B any time
+const SHORT_LIVE=true;    // Oct 25 (Bastien: "yes let's shorten the size selection"): 50/50; ?exp=short:B shows B any time
 const SHORT_B=(()=>{try{return (SHORT_LIVE?ANA.arm("short"):JSON.parse(localStorage.getItem("gf-exp")||"{}").short)==="B"}catch(e){return false}})();if(SHORT_B)document.documentElement.classList.add("shortb");   // Oct 25 test 'short': 124 of 125 first visitors who didn't pick sizes left at the sizes screen
 const CARDS2=ANA.arm("cards2")==="B";if(CARDS2)document.documentElement.classList.add("cards2");
 const C2P=()=>CARDS2&&innerWidth<700&&innerWidth>=380;   // phones with two cards a row
