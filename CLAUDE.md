@@ -477,6 +477,15 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   + shoe page `?ref=bluesky`. Posts only when repo variable SOCIAL_LIVE=1 AND secrets BLUESKY_HANDLE + BLUESKY_APP_PASSWORD exist (Bastien
   adds them himself); otherwise a dry run (artifact "posts": posts.html). Pinterest (app review + demo video) and Threads (Meta verification)
   next. Plan doc tab "Growth plan (Oct 27)" = the full night-of-Oct-26 growth/monetize/SEO answers.
+- **Rotation on the automatic posts** (Oct 26, Bastien OK'd; stop rule Nov 17): shoes every day + ONE rotating category by date
+  (`social_post.rotation()`: date.toordinal() % 4 = most popular / coats / pants / tops; `fits()`). Bluesky = 1 rotating + 2 shoes,
+  Pinterest = 2 rotating + 3 shoes per board, Instagram kit = its 3 non-shoe picks from that Wednesday's category (topped up as before).
+  Rotating items (`picks_cat()`): real drop this week (same rule), S, M AND L at the shown price (one-size gear: OS), store page
+  confirmed, one per brand, once per 21 days, running side only (the history has no hiking items); link = homepage ?q= that the site's
+  search (search_check.py hay/qhas) answers with only that model in the WHOLE catalogue (deals.json: ?q= landings show full price too),
+  never ending on "with"/"and". "Most popular" = the non-shoe category with the most deal clicks in 7 days (clicks record the category,
+  not the item; needs SUPABASE_SECRET_KEY, else any category). Refs: bluesky-shoes / bluesky-<cat>, pinterest-shoes / pinterest-<cat>.
+  Nov 17: rotating posts bring clicks but no sign-ups vs shoe posts = back to shoes only.
 - **Pinterest feeds** (Oct 26, growth chat + Bastien: 6-week test, stop if <30 first visits with ?ref=pinterest by mid-Dec): `tools/pin_feed.py`
   (refresh.yml step "Pinterest feeds" after the race pages): morning = today's real drops from social_post.picks (side ca/us; US prices in US$
   against the "us|" history), livecheck-confirmed, 5 per side, each shoe once per 21 days (the feed is the memory), last 50 kept ->

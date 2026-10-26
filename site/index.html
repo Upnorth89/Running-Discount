@@ -1243,7 +1243,7 @@ const storesLabel=()=>{if(DATA&&DATA.n_stores)return String(DATA.n_stores);if(!D
 function renderWelcome(){
   if(!DATA)return;
   const sale=allSale();
-  const top=Math.max(...sale.filter(d=>d.pct<=75).map(d=>d.pct),0);
+  const top=sale.reduce((a,d)=>d.pct<=75&&d.pct>a?d.pct:a,0);   // Oct 26: no spread of ~9,000 numbers (RangeError "Maximum call stack" on a US iPhone)
   $("wStats").innerHTML=`<div class="wstat"><b>${num(sale.length)}</b><span>${t("wOnSale")}</span></div>`+
     `<div class="wstat"><b>${t("wUpTo",top)}</b><span>${t("wOff")}</span></div>`+
     `<div class="wstat"><b>${storesLabel()}</b><span>${t("wStores")}</span></div>`;
@@ -1836,7 +1836,7 @@ function rdCard(d,extra,real){
   const h=storeOf(d.url),s=STORES[h]||[h],home=US()?"US":"CA",org=s[1]||(STORES[h]?"CA":d.ca===false?"XX":home),from=org===home?"":org;
   const sized=SIZED.has(d.g)||accLetters(d);
   return `<div class="dw rdc${sp?" hascmp":""}"><a class="deal" href="${esc(affUrl(d.url))}" data-store="${esc(h)}" target="_blank" rel="noopener">
-    <div class="pic${d.img?"":" nopic"}" data-b="${esc(d.b)}">${d.img?`<img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.add('nopic');this.remove()">`:""}${d.pct?`<span class="pct">${offTag(d)}</span>`:""}${lowDays(d)?`<span class="lostamp" aria-hidden="true"><span>${t("lowL1")}</span><span>${t("lowStampDays",lowDays(d))}</span></span>`:""}</div>
+    <div class="pic${d.img?"":" nopic"}" data-b="${esc(d.b)}">${d.img?`<img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="if(this.parentNode)this.parentNode.classList.add('nopic');this.remove()">`:""}${d.pct?`<span class="pct">${offTag(d)}</span>`:""}${lowDays(d)?`<span class="lostamp" aria-hidden="true"><span>${t("lowL1")}</span><span>${t("lowStampDays",lowDays(d))}</span></span>`:""}</div>
     <div class="name"><span class="brand">${esc(d.b)}</span>${d.fav?" ★":""}${cdnBrand(d)?`&nbsp;<span class="leaf" title="${t("cdnTip")}" aria-label="${t("cdnTip")}">🍁</span>`:""} ${esc(m)}</div>
     <div class="kind">${esc(sub)}</div>
     <div class="price"><b>${money(d.best)}</b>${curTag()}${d.pct?`<s>${money(d.reg)}</s>`:""}</div>
@@ -2180,8 +2180,8 @@ function toggleWatch(k,quiet){     // quiet: the come-back bar asks for the emai
     if(sub&&sub.key){goneW(k,true);rpc("watch_remove",{p_token:sub.key,p_key:k}).then(()=>goneW(k,false)).catch(()=>{})}   // kept until the server says done
     toast(t("removed"));return}
   const d=(byKey[k]||[])[0];if(!d)return;
-  const m=matchItems({...toProfile(),groups:ORDER},byKey[k]);let best=m.length?Math.min(...m.map(x=>x.best)):null;
-  if(best==null&&!hasSizes())best=Math.min(...byKey[k].flatMap(x=>x.sz.map(e=>e[1])));   // no sizes yet (came from a shoe page): today's lowest price, not "gone"
+  const m=matchItems({...toProfile(),groups:ORDER},byKey[k]);let best=m.length?m.reduce((a,x)=>Math.min(a,x.best),Infinity):null;
+  if(best==null&&!hasSizes())best=byKey[k].reduce((a,x)=>x.sz.reduce((b,e)=>Math.min(b,e[1]),a),Infinity);   // no sizes yet (came from a shoe page): today's lowest price, not "gone"
   const url=m.length?m.sort((a,b)=>a.best-b.best)[0].url:(d.of||[])[0];
   watches[k]={b:d.b,n:d.n,g:d.g,url,price:best,low:best,seen:best,gone:best==null,saved:new Date().toISOString(),...(HIKE()&&!OTHER[k]?{s:"hike"}:{})};saveWatches();
   track("watch-add",{brand:d.b,group:d.g});

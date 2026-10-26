@@ -29,7 +29,7 @@ sys.path.insert(0, str(ROOT / "scraper"))
 import social_post as SPOST        # noqa: E402  (picks, store check, history)
 
 SITE = "https://thegearfox.com"
-PER_DAY, KEEP, IMG_DAYS = 5, 50, 45
+PER_DAY, ROT_PER_DAY, KEEP, IMG_DAYS = 5, 2, 50, 45
 SIDES = {"ca": ("sale.json", "shoes/pages.json", "The Gear Fox: running shoe price drops in Canada", "CAD"),
          "us": ("sale-us.json", "us/shoes/pages.json", "The Gear Fox: running shoe price drops in the US", "USD")}
 UA = {"User-Agent": "TheGearFoxBot/1.0 (+https://thegearfox.com/about.html)"}
@@ -112,7 +112,7 @@ display:flex;flex-direction:column;padding:56px 64px 48px}}
 <div class="b">{e(p["b"])}{e(g)}</div><div class="n">{e(p["name"][len(p["b"]):].strip())}</div>
 <div class="pr"><span class="now">{money(p["now"])}</span><span class="cur">{cur}</span><span class="off">−{p["pct"]}%</span></div>
 <div class="was">Regular {money(p["reg"])}</div>
-<div class="st">at {e(p["store"])}</div><div class="sz">{p["sizes"]} sizes at this price</div>
+<div class="st">at {e(p["store"])}</div><div class="sz">{e(p["sizes_label"]) if p.get("sizes_label") else str(p["sizes"]) + " sizes"} at this price</div>
 <div class="ft"><img src="{logo}"><span class="u">thegearfox.com</span></div>
 </body></html>'''
 
@@ -168,7 +168,7 @@ def main():
     prev = os.environ.get("PIN_PREV")
     today = date.today()
     (site / "pins" / "img").mkdir(parents=True, exist_ok=True)
-    hist = None
+    hist = pop = None
     for side, (sale_f, pages_f, _, cur) in SIDES.items():
         old = [it for it in old_items(side, prev) if age_days(it, today) <= IMG_DAYS]
         keep_images(site, old)
@@ -180,27 +180,39 @@ def main():
                 if hist is None:
                     hist = SPOST.history()
                 state = {}
-                for it in old:          # each shoe once per 21 days: the feed itself is the memory
+                for it in old:          # each item once per 21 days: the feed itself is the memory
                     m = re.search(r"/shoes/([^/?]+)/", it["link"])
-                    if m and age_days(it, today) < SPOST.REPOST_DAYS:
-                        state[m.group(1)] = today.isoformat()
-                jobs = []
-                for p in SPOST.picks(sale, pages, hist, state, today, side=side):
+                    key = it["guid"].split("|")[1] if it["guid"].count("|") == 2 else (m.group(1) if m else None)
+                    if key and age_days(it, today) < SPOST.REPOST_DAYS:
+                        state[key] = today.isoformat()
+                # Oct 26 rotation (Bastien OK'd): 2 items of today's rotating category (tried first) + shoes for the rest (3, or more
+                # when the category has fewer real drops today); ref pinterest-<kind> so the Nov 17 check splits them
+                cat = SPOST.rotation(today)
+                if pop is None and cat == "popular":
+                    pop = SPOST.popular_group() or ""
+                full = site / sale_f.replace("sale", "deals")      # the search link must be unique in the whole catalogue
+                rot = SPOST.picks_cat(sale, hist, state, today, cat, side=side, pop=pop or None,
+                                      everything=json.loads(full.read_text())) if full.exists() else []
+                queue = [(cat, p) for p in rot] + [("shoes", p) for p in SPOST.picks(sale, pages, hist, state, today, side=side)]
+                for kind, p in queue:
                     if len(new) >= PER_DAY:
                         break
+                    if kind == cat and sum(it["kind"] == cat for it in new) >= ROT_PER_DAY:
+                        continue
                     if not SPOST.confirmed(p):
                         print(f"  {side}: not confirmed on the store page: {p['name']}")
                         continue
-                    name = f"{today.isoformat()}-{side}-{p['slug']}.jpg"
+                    name = f"{today.isoformat()}-{side}-{SPOST.SP.slugify(p['slug'])}.jpg"
                     g = f' ({p["gender"]})' if p["gender"] else ""
-                    link = f'{p["page"]}?ref=pinterest'
+                    link = SPOST.with_ref(p["page"], f"pinterest-{kind}")
+                    sizes = f'{p["sizes_label"]} at that price' if p.get("sizes_label") else f'{p["sizes"]} sizes at that price'
                     img = f"{SITE}/pins/img/{name}"
                     title = f'{p["name"]}{g} dropped ${p["drop"]:,}: {money(p["now"])} at {p["store"]}, −{p["pct"]}%'
                     if len(title) > 100:
                         title = f'{p["name"]}{g}: {money(p["now"])} at {p["store"]}, −{p["pct"]}%'[:100]
                     text = (f'{p["name"]}{g} dropped ${p["drop"]:,} this week: {money(p["now"])} {cur} at {p["store"]} '
-                            f'(regular {money(p["reg"])}, −{p["pct"]}%), {p["sizes"]} sizes at that price. Every size and store, checked daily.')
-                    new.append({"title": title, "link": link, "guid": f"{side}-{p['slug']}-{today.isoformat()}",
+                            f'(regular {money(p["reg"])}, −{p["pct"]}%), {sizes}. Every size and store, checked daily.')
+                    new.append({"kind": kind, "title": title, "link": link, "guid": f"{side}|{p['slug']}|{today.isoformat()}",
                                 "date": format_datetime(datetime.now(timezone.utc)), "img": img,
                                 "desc": f'<p><img src="{html.escape(img)}" alt="{html.escape(p["name"])}"></p><p>{html.escape(text)}</p>', "_job": (card_html(p, cur), site / "pins" / "img" / name)})
                 render([it["_job"] for it in new])

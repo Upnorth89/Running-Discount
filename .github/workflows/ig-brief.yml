@@ -47,4 +47,5 @@ jobs:
           HEALTH_EMAIL: ${{ secrets.HEALTH_EMAIL }}
           FROM_EMAIL: "The Gear Fox <deals@thegearfox.com>"
           HISTORY_FILE: /tmp/prices.jsonl
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}   # "most popular" rotation week
         run: python scraper/ig_brief.py

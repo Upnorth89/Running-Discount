@@ -143,6 +143,7 @@ jobs:
         continue-on-error: true
         env:
           HISTORY_FILE: hist/prices.jsonl
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}   # "most popular" rotation day
         run: |
           pip install -q playwright && python -m playwright install --with-deps chromium > /dev/null
           python tools/pin_feed.py site ${{ needs.check.outputs.morning == 'true' && ' ' || '--carry' }}
