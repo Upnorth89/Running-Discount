@@ -123,7 +123,9 @@ def text(p, ref):
 def bluesky(p, body, link):
     """Bluesky's own API (app password, no review needed): a post with a link card (title, line, photo)."""
     s = requests.post("https://bsky.social/xrpc/com.atproto.server.createSession", timeout=30,
-                      json={"identifier": os.environ["BLUESKY_HANDLE"], "password": os.environ["BLUESKY_APP_PASSWORD"]}).json()
+                      json={"identifier": os.environ["BLUESKY_HANDLE"].strip().lstrip("@"), "password": os.environ["BLUESKY_APP_PASSWORD"].strip()}).json()
+    if "accessJwt" not in s:     # Oct 26: a failed login showed up only as 'accessJwt'; say what Bluesky said (never the secrets)
+        raise RuntimeError(f'Bluesky login failed: {s.get("error")}: {s.get("message")} (handle like thegearfox.bsky.social, app password from Settings > App passwords)')
     H = {"Authorization": f'Bearer {s["accessJwt"]}'}
     card = {"uri": link, "title": f'{p["name"]}: ${p["now"]:.2f} (−{p["pct"]}%)', "description": "Every size and store in Canada, checked daily."}
     if p["img"]:
@@ -178,13 +180,16 @@ def main():
             except Exception as e:
                 p["error"] = str(e)[:200]
         posts.append(p)
-        print(("OK  " if p["ok"] else "SKIP") + " " + p["text"].replace("\n", " | "))
+        print(("OK  " if p["ok"] else "SKIP") + " " + p["text"].replace("\n", " | "))   # OK = confirmed on the store page; posting result on the next line
         if p.get("posted") or p.get("error"):
             print("     -> " + (f'posted {p["posted"]["bluesky"]}' if p.get("posted") else f'NOT posted: {p["error"]}'))
     (out / "posts.json").write_text(json.dumps(posts, indent=1, ensure_ascii=False))
     sf.write_text(json.dumps(state, indent=1))
     preview(posts, out)
     print(f"{len(cands)} real drops today, {sum(p['ok'] for p in posts)} confirmed; live={live}")
+    failed = [p for p in posts if p.get("error")]
+    if failed:      # the run goes red so a failed login is never a quiet green run
+        sys.exit(f"{len(failed)} post(s) failed: {failed[0]['error']}")
 
 
 if __name__ == "__main__":
