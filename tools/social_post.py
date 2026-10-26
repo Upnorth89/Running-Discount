@@ -9,7 +9,8 @@ with ?ref=<network> so the Monday check-in counts visits and sign-ups per networ
   SOCIAL_LIVE=1 python tools/social_post.py OUT  # posts to every network whose keys are set (GitHub secrets only):
       Bluesky: BLUESKY_HANDLE + BLUESKY_APP_PASSWORD (an app password made in Bluesky's settings, never the real password)
 
-Nothing posts until Bastien says yes AND the repo variable SOCIAL_LIVE is 1. Each item is posted once per 21 days
+Bastien said yes (Oct 26): social.yml sets SOCIAL_LIVE=1 unless the repo variable SOCIAL_LIVE is 0 (pause); a network
+posts only once its keys are in GitHub secrets. Each item is posted once per 21 days
 (OUT_DIR/social-state.json, kept on the history branch by social.yml).
 """
 import html

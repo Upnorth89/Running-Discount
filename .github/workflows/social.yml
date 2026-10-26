@@ -1,8 +1,8 @@
 name: Daily drop posts
 
 # Oct 26 (Bastien: "make growth into an automatic feature"): today's real price drops on shoes, posted with a link to the shoe page.
-# OFF until Bastien says yes: posts only when the repo variable SOCIAL_LIVE is 1 AND a network's keys are in GitHub secrets
-# (Bluesky: BLUESKY_HANDLE + BLUESKY_APP_PASSWORD). Otherwise it's a dry run: the "posts" artifact shows what it would have posted.
+# Bastien said yes (Oct 26). A network posts once its keys are in GitHub secrets (Bluesky: BLUESKY_HANDLE + BLUESKY_APP_PASSWORD);
+# without keys it's a dry run (the "posts" artifact shows what it would have posted). Repo variable SOCIAL_LIVE=0 = pause.
 on:
   schedule:
     - cron: "21 15 * * *"    # 8:21am Vancouver, after the morning refresh has published today's prices
@@ -32,7 +32,7 @@ jobs:
       - name: Posts
         env:
           HISTORY_FILE: /tmp/prices.jsonl
-          SOCIAL_LIVE: ${{ vars.SOCIAL_LIVE }}
+          SOCIAL_LIVE: ${{ vars.SOCIAL_LIVE || '1' }}
           BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
           BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
         run: python tools/social_post.py /tmp/social

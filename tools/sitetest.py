@@ -1424,11 +1424,19 @@ def site_flow(base, per, accented):
                 settle(q2, 300)
                 assert q2.inner_text("#prog") != before, "ticking an essential didn't change 'You have N of M'"
                 assert "running" not in q2.title().lower(), f"trail page title says running: {q2.title()!r}"
+                # Oct 26 (Bastien: calories by hours hiked and pack weight): the food box answers, and a heavier pack means more
+                fo = q2.inner_text("#fuel .fo")
+                assert "kcal" in fo, f"the food box shows no calories: {fo[:80]!r}"
+                k1 = int(re.search(r"([\d,]+) kcal", fo).group(1).replace(",", ""))
+                q2.fill('#fuel [data-f="fu_pack"]', "25")
+                settle(q2, 200)
+                k2 = int(re.search(r"([\d,]+) kcal", q2.inner_text("#fuel .fo")).group(1).replace(",", ""))
+                assert k2 > k1, f"a 25 kg pack didn't raise the calories ({k1} -> {k2})"
                 assert not errs, f"script error: {errs[0][:120]}"
             finally:
                 c.close()
-            return f"{len(links)} trails; {links[0]}: {deals} deals in men's M / 11"
-        check("Trail gear list: sizes, deals, ticks")(hike_lists, pg)
+            return f"{len(links)} trails; {links[0]}: {deals} deals in men's M / 11; food box {k1} -> {k2} kcal with a 25 kg pack"
+        check("Trail gear list: sizes, deals, ticks, food box")(hike_lists, pg)
 
         def hike_bottom():   # Oct 25 (Bastien: "The hiking page shows running deal links at the bottom"): hiking side = boot block + boot footer link
             if not (site_get("index.html") or "").count('class="seo-today seo-hike"'):
