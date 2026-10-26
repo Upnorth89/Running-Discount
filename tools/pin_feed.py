@@ -93,14 +93,15 @@ def card_html(p, cur):
     img = re.sub(r"([?&])width=\d+", r"\1width=1000", p["img"])
     g = f' · {p["gender"]}' if p["gender"] else ""
     e = html.escape
+    long_ = len(p["name"][len(p["b"]):].strip()) > 20      # a name on two lines: smaller photo + name, so the sizes line clears the footer
     return f'''<!doctype html><html><head><meta charset="utf-8"><style>
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@500;700;800&display=swap');
 *{{box-sizing:border-box;margin:0}}body{{width:1000px;height:1500px;background:#fff;font-family:Inter,Arial,sans-serif;color:#17201C;
 display:flex;flex-direction:column;padding:56px 64px 48px}}
-.ph{{height:700px;display:flex;align-items:center;justify-content:center;margin-bottom:28px}}.ph img{{max-width:100%;max-height:100%;object-fit:contain}}
+.ph{{height:{600 if long_ else 700}px;display:flex;align-items:center;justify-content:center;margin-bottom:28px}}.ph img{{max-width:100%;max-height:100%;object-fit:contain}}
 .drop{{align-self:flex-start;background:#1F7A4D;color:#fff;font-weight:800;font-size:40px;padding:10px 22px;border-radius:14px}}
 .b{{margin-top:26px;font-size:34px;font-weight:700;color:#5c6660;text-transform:uppercase;letter-spacing:.04em}}
-.n{{font-family:'Archivo Black',Inter,sans-serif;font-size:62px;line-height:1.05;margin-top:6px;overflow-wrap:anywhere}}
+.n{{font-family:'Archivo Black',Inter,sans-serif;font-size:{54 if long_ else 62}px;line-height:1.05;margin-top:6px;overflow-wrap:anywhere}}
 .pr{{display:flex;align-items:baseline;gap:22px;margin-top:26px}}.now{{font-family:'Archivo Black',Inter,sans-serif;font-size:96px;color:#E8621A}}
 .cur{{font-size:30px;font-weight:700;color:#5c6660}}.off{{font-size:44px;font-weight:800;background:#FDEBDD;color:#B4470E;padding:4px 16px;border-radius:12px}}
 .was{{font-size:32px;color:#5c6660;margin-top:8px}}.st{{font-size:36px;font-weight:700;margin-top:22px}}.sz{{font-size:32px;color:#5c6660;margin-top:6px}}
