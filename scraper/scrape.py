@@ -130,6 +130,7 @@ def canon_shoe(label, women=False):
         t = m.group(1)            # "42.5 (9.5US)", "39 (7.5+US)" (The Trail Runner Store, La Sportiva)
     t = re.sub(r"(?i)\s*\(\s*(?:eu\s*)?\d\d(?:[.,]\d)?(?:\s*[12]/3)?(?:\s*eu)?\s*\)", "", t)
     t = re.sub(r"(?i)\s*/\s*(?:eu|uk)\s*\d+(?:[.,]\d)?(?:\s*[12]/3)?\s*$", "", t).strip()
+    t = re.sub(r"(?i)\b(medium|regular|standard|wide|x-?wide|extra wide|narrow)\s*\((?:2a|aa|b|d|2e|ee|4e|6e)\)", r"\1", t)   # Oct 26: Bushtukah "Medium (D) / 9.0"
     # width first: "D / 9.0", "4E / 9.5", "B / 7.0" (Frontrunners); men's D and women's B are regular, women's D wide
     m = re.match(r"(?i)^(2a|aa|b|d|2e|ee|4e|6e)\s*/\s*(\d+(?:\.\d)?)$", t)
     if m:
@@ -137,6 +138,12 @@ def canon_shoe(label, women=False):
         wide = w in ("2e", "ee", "4e", "6e") or (women and w == "d")
         narrow = w in ("2a", "aa") or (not women and w == "b")
         t = m.group(2) + (" Wide" if wide else " Narrow" if narrow else "")
+    # Oct 26: "M5W7" (OOFOS, no slash), "6.0(W7.5)" (Heartbreak spikes), unisex "6/7.5", "4.5/6" (men's/women's with no letters:
+    # Columbus, Frontrunners; only when women's is 1 to 2 sizes up, the usual unisex gap, so "7/8" ranges stay unread)
+    m = (re.match(r"(?i)^m\s*(\d+(?:\.\d)?)\s*w\s*(\d+(?:\.\d)?)$", t) or re.match(r"(?i)^(\d+(?:\.\d)?)\s*\(\s*w\s*(\d+(?:\.\d)?)\s*\)$", t)
+         or re.match(r"^(\d+(?:\.\d)?)\s*/\s*(\d+(?:\.\d)?)$", t))
+    if m and 1 <= float(m.group(2)) - float(m.group(1)) <= 2:
+        return [k for k in ("M:" + (_us(m.group(1)) or ""), "W:" + (_us(m.group(2)) or "")) if len(k) > 2]
     # "9 M / 10.5 W", "4.5 M / 6W" (Lems), "US 7M / 9W"
     m = re.match(r"(?i)^(?:us\s*)?(\d+(?:\.\d)?)\s*m(?:en'?s)?\s*/\s*(\d+(?:\.\d)?)\s*w(?:omen'?s)?$", t)   # Oct 24: REI "5 Mens/6.5 Womens"
     if m:
@@ -1861,6 +1868,7 @@ def shopify_products(base, max_pages=40, cookies=None):
 SIZE_OPT = re.compile(r"^((us|eu|uk|men'?s|women'?s|mens|womens|shoe)\s+)?(size|taille|pointure|grandeur)(\s+(us|eu|uk))?( ?\([^)]*\))?$", re.I)
 # "Size (US M)" (Ski Uphill); "US Size" (The Trail Runner Store: 1,300 shoes had no readable size until Oct 9)
 WIDTH_OPT = re.compile(r"^(width|shoe width|shoe fit|fit|largeur)$", re.I)
+WIDTH_VAL = re.compile(r"(?i)^(2a|aa|b|d|2e|ee|4e|6e|regular|medium|standard|wide|x-?wide|extra wide|narrow)(\s*\([^)]*\))?$")
 
 def width_word(w, title):
     """A width option value -> the words canon_shoe() reads. Men's D and women's B are regular; women's D is wide."""
@@ -1910,6 +1918,17 @@ def shopify_items(st, base, prods, group_fn, fx=1.0, size_aware=False, size_fn=N
         if not g:
             continue
         opts = [o["name"].lower() for o in p.get("options", [])]
+        si0 = wi0 = None
+        if size_aware and g == "shoes" and len(opts) > 1 and not any(SIZE_OPT.match(n) for n in opts):
+            # Oct 26: a size option with a name SIZE_OPT doesn't know (Runners Plus, Runner's Den, Mountain Running Co.) put the size
+            # in the card name ("Atomo Star · M5 / W6.5") and the width/colour in the sizes, so ~140 shoes had no readable size.
+            # The option whose values read as shoe sizes is the size; one whose values are all width words is the width.
+            vals_ = [[x for x in o.get("values") or [] if x] for o in p.get("options", [])]
+            si0 = next((i for i, vs in enumerate(vals_) if len(vs) >= 2 and sum(bool(canon_shoe(x)) for x in vs) >= 0.8 * len(vs)), None)
+            if si0 is not None:
+                wi0 = next((i for i, n in enumerate(opts) if i != si0 and WIDTH_OPT.match(n)), None)
+                if wi0 is None:
+                    wi0 = next((i for i, vs in enumerate(vals_) if i != si0 and vs and all(WIDTH_VAL.match(x.strip()) for x in vs)), None)
         img = (p.get("images") or [{}])[0].get("src")
         if img:
             img += ("&" if "?" in img else "?") + "width=360"
@@ -1927,6 +1946,8 @@ def shopify_items(st, base, prods, group_fn, fx=1.0, size_aware=False, size_fn=N
             vals = [v.get(f"option{i}") or "" for i in (1, 2, 3)][:len(opts)]
             si = next((i for i, n in enumerate(opts) if SIZE_OPT.match(n)), None) if size_aware else None
             wi = next((i for i, n in enumerate(opts) if WIDTH_OPT.match(n)), None) if si is not None else None
+            if si is None and si0 is not None:
+                si, wi = si0, wi0
             if si is not None:            # apparel: one card per colour, sizes as the "sizes"
                 key = " / ".join(x for i, x in enumerate(vals) if i not in (si, wi) and x)
                 label = vals[si]
@@ -3387,7 +3408,7 @@ for _st in RUNFREE:
 
 # Casual footwear some running stores also sell; not what people come here for.
 CASUAL_BRANDS = {"ambler", "birkenstock", "wolky", "teva", "crocs", "ugg", "blundstone", "dr. martens", "clarks", "oofos", "billy footwear", "vessi"}   # Ambler (Oct 8): toques, and its only "shoe" is a wool slipper
-CASUAL_SHOE = re.compile(r"\b(sandal|sandale|clog|sabot|slipper|pantoufle|mule|flip[- ]flops?|ellipse flip|loafer|slide|clearwater cnx|ks86|recovery (flip|slide)|ora recovery|bobs|casual sneaker|leather sneaker|chelsea)s?\b", re.I)   # Oct 19 (mystery shop): Skechers BOBS, Keen KS86 Leather, Xero "Casual Sneaker"
+CASUAL_SHOE = re.compile(r"\b(sandal|sandale|clog|sabot|slipper|pantoufle|mule|flip[- ]flops?|ellipse flip|loafer|slide|clearwater cnx|ks86|recovery (flip|slide)|ora recovery|bobs|casual sneaker|leather sneaker|chelsea|traction bootie)s?\b", re.I)   # Oct 19 (mystery shop): Skechers BOBS, Keen KS86 Leather, Xero "Casual Sneaker"
 # court and lifestyle shoes from running brands (ASICS tennis/pickleball lines, retro sneakers)
 COURT_SHOE = re.compile(r"pick[el]+ball|\btennis\b|\bpadel\b|\bcourt\b|gel[- ]?(resolution|dedicate|game|challenger|1130|nyc|kahana)|solution speed", re.I)
 # lifestyle lines stores file under running (brand + model; Foot Locker, Oct 4, 2026)
@@ -3735,7 +3756,8 @@ def tidy_us_names(offers):
 BIKE_SHOE_BRANDS = {"leatt", "five ten", "shimano", "giro", "fizik", "northwave", "sidi", "ride concepts", "crankbrothers"}   # clip-in/MTB shoes (Oct 7)
 SHOE_CARE = re.compile(r"\blaces?\b|\blacets?\b|quicklace|cleaner|cleaning|repel|deodou?ri[sz]er|\bwipes\b|spike wrench|"
                        r"\bspray\b|\bpackage\b.*spikes|\bshoe ?(bag|tree|horn)\b|\binsoles?\b|quick-?clip|"
-                       r"replacement spikes|\d+ count\b|roll-?on|foot shield|installation", re.I)
+                       r"replacement spikes|\d+ count\b|roll-?on|foot shield|installation|"
+                       r"care kit|yaktrax|microspikes|ice (cleats?|grips?|traction)|traction (devices?|aids?)", re.I)   # Oct 26: Grangers kit, Yaktrax Run
 LEAD_SHOE = re.compile(r"^(trail |road )?running shoes?\s*[-–,]\s*", re.I)      # Stampeak (NNormal), Decathlon: "Trail running shoes - Tomir 2.0"
 ONE_COLOUR = re.compile(r"\s+[-–]\s+(black|white|beige|blue|green|orange|red|brown|burgundy|grey|gray|pink|purple|yellow|navy)(?=\s+[-–]\s+(men|women|unisex))", re.I)
 
@@ -3752,7 +3774,7 @@ def tidy_shoes(offers):
                 o["_t"] = "trail"     # later tidying may drop the words; the road/trail type stays
         if o["g"] == "shoes":
             o["n"] = re.sub(r"\s+-\s+(Men|Women)$", r" - \1's", o["n"])   # Stampeak: "Cadi - Men"
-        if o["g"] == "shoes" and SHOE_CARE.search(o["n"]) and not re.search(r"running shoes?|\bshoes?$", o["n"], re.I):
+        if o["g"] == "shoes" and SHOE_CARE.search(f"{o['b'] or ''} {o['n']}") and not re.search(r"running shoes?|\bshoes?$", o["n"], re.I):
             o["g"] = "gear"            # laces, cleaners, sprays, spike wrenches: shoe things, not shoes (Oct 7 audit)
         if o["g"] == "shoes":
             if (o["b"] or "").lower() in CASUAL_BRANDS or (o["b"] or "").lower() in BIKE_SHOE_BRANDS or CASUAL_SHOE.search(o["n"]) or SOCCER.search(o["n"]) or COURT_SHOE.search(o["n"]) \

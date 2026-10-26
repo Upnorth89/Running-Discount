@@ -471,7 +471,7 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   (actions/cache "indexnow-*", /tmp/indexnow-state.json); new + changed are sent, cache lost = all. INDEXNOW_DRY=1 = count only.
   Bing Webmaster Tools (Oct 23, Bastien signed in): sitemap OK (2.3K URLs discovered) but only 5 pages indexed, Backlinks "-":
   Bing waits for links from other sites (race organizer emails). He requested indexing for /, /shoes/, /running-shoes-sale/.
-- **Daily drop posts** (Oct 26, Bastien: "make growth into an automatic feature"; LIVE Oct 26: he said yes and added the Bluesky secrets; repo variable SOCIAL_LIVE=0 pauses): `tools/social_post.py` + social.yml
+- **Daily drop posts** (Oct 26, Bastien: "make growth into an automatic feature"; LIVE on Bluesky Oct 26, @thegearfox.bsky.social; repo variable SOCIAL_LIVE=0 pauses; a failed login turns the run red with Bluesky's reason): `tools/social_post.py` + social.yml
   (8:21am Vancouver): today's biggest REAL drops on shoes with a shoe page (history: a week ago vs today, 10% or $10, >= $5, 5+ sizes at the
   price), each confirmed by livecheck, one per brand, 3 a day, each shoe once per 21 days (actions/cache social-state.json); text = facts only
   + shoe page `?ref=bluesky`. Posts only when repo variable SOCIAL_LIVE=1 AND secrets BLUESKY_HANDLE + BLUESKY_APP_PASSWORD exist (Bastien
@@ -627,6 +627,7 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   2,974 products, 1,262 on sale; sorting check clean; 4 of 4 sale prices matched on the store's page.
   Oct 12: asked for gzip, its server sometimes sends a file cut short (19 KB, the store failed): files are read with
   Accept-Encoding: identity + one retry.
+- Shoe sizes, Oct 26: a Shopify shoe whose size option has an unknown name gets it found by its values (`si0` in shopify_items: 80%+ read by canon_shoe; width = WIDTH_OPT or all-width values `WIDTH_VAL`); canon_shoe reads "M5W7", "6.0(W7.5)", unisex "6/7.5" (W 1-2 above M only), "Medium (D) / 9.0".
 - Shoe sizes (Oct 9, Bastien: "we aren't pulling shoes that have European sizing?"): 2,476 shoe listings had no readable size.
   Fixed: Shopify option "US Size" (The Trail Runner Store, ~1,100), width first "D / 9.0" (Frontrunners; `canon_shoe(label, women)`),
   US+EU labels ("10.0 (43)", "EU 43 (US 10)", "42.5 (9.5US)"), "9 M / 10.5 W". EU-only sizes ("42", "38.5 EU": La Sportiva,
