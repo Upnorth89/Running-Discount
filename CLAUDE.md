@@ -477,6 +477,12 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   + shoe page `?ref=bluesky`. Posts only when repo variable SOCIAL_LIVE=1 AND secrets BLUESKY_HANDLE + BLUESKY_APP_PASSWORD exist (Bastien
   adds them himself); otherwise a dry run (artifact "posts": posts.html). Pinterest (app review + demo video) and Threads (Meta verification)
   next. Plan doc tab "Growth plan (Oct 27)" = the full night-of-Oct-26 growth/monetize/SEO answers.
+- **Pinterest feeds** (Oct 26, growth chat + Bastien: 6-week test, stop if <30 first visits with ?ref=pinterest by mid-Dec): `tools/pin_feed.py`
+  (refresh.yml step "Pinterest feeds" after the race pages): morning = today's real drops from social_post.picks (side ca/us; US prices in US$
+  against the "us|" history), livecheck-confirmed, 5 per side, each shoe once per 21 days (the feed is the memory), last 50 kept ->
+  site/pins/ca.xml + us.xml (RSS 2.0, enclosure + media:content + <img> in the description, link = shoe page ?ref=pinterest) + a 1000x1500
+  JPG per pin in site/pins/img/ (Playwright; a pin whose text overflows or photo fails is left out; >45 days pruned). Every other run =
+  `--carry` (yesterday's feeds + pictures from the live site, since a deploy replaces site/). Night scan checks both feeds + every link/picture.
 - **Growth calendar** (Oct 11, Bastien: "post every 3 days on running gear"): plan doc section "Growth: a post every 3 days" + send_later
   reminders at 6:30am Vancouver (C25K Oct 14, RunningShoes 17, runninglifestyle 20, BuyCanadian 23, xxrunning 26, trailrunning 29,
   FrugalMaleFashionCDN Nov 1, ultrarunning 4, RunningShoeGeeks 7 + plan the rest to Cyber Monday). A different place each time.

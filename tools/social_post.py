@@ -56,9 +56,13 @@ def history():
     return h
 
 
-def picks(sale, pages, hist, state, today):
+def picks(sale, pages, hist, state, today, side="ca"):
+    """side "us" (Oct 26, Pinterest's USA board): US stores, prices in US$ (the history's "us|" lines are in US$; the site files
+    keep CAD, so today's price is divided by the file's fx), links to /us/shoes/."""
     names = store_names()
     cut = (today - timedelta(days=7)).isoformat()
+    us = side == "us"
+    fx = float((sale.get("fx") or {}).get("USD") or 1.37) if us else 1.0
     out = []
     for d in sale["items"]:
         if d.get("g") != "shoes" or not d.get("ca") or not d.get("sz"):
@@ -71,10 +75,11 @@ def picks(sale, pages, hist, state, today):
             continue
         best = min(e[1] for e in d["sz"])
         at = [e for e in d["sz"] if e[1] <= best + 0.01]
-        reg = max((e[3] or 0) for e in at)
+        reg = max((e[3] or 0) for e in at) / fx
+        best = round(best / fx, 2)
         if len(at) < 5 or not reg or best >= reg * 0.9:
             continue
-        k = f'{d["b"]}|{d["n"]}|{d["g"]}|{1 if d.get("w") else 0}'.lower()
+        k = ("us|" if us else "") + f'{d["b"]}|{d["n"]}|{d["g"]}|{1 if d.get("w") else 0}'.lower()
         h = hist.get(k) or []
         old = [x for x in h if x[0] <= cut]
         if not old:
@@ -92,7 +97,7 @@ def picks(sale, pages, hist, state, today):
         out.append({"slug": slug, "b": d["b"], "name": f'{d["b"]} {nm_}', "gender": gender, "now": best,
                     "was": then, "reg": reg, "pct": round(100 * (1 - best / reg)), "drop": round(off), "store": names.get(host(u), host(u)),
                     "url": u, "variant": e[4] if len(e) > 4 else None, "sizes": len(at), "img": d.get("img") or "",
-                    "page": f"{SITE}/shoes/{slug}/"})
+                    "page": f"{SITE}/{'us/shoes' if us else 'shoes'}/{slug}/", "side": side})
     out.sort(key=lambda x: (-x["drop"], -x["pct"]))
     seen, keep = set(), []
     for p in out:                       # one per brand and per model a day
@@ -107,7 +112,7 @@ def confirmed(p):
     """Still on sale on the store's own page right now (the Instagram kit's rule: blocked or unsure = left out)."""
     try:
         import livecheck
-        return livecheck.still_on_sale(p["url"], p["now"], p.get("variant")) is True
+        return livecheck.still_on_sale(p["url"], p["now"], p.get("variant"), us=p.get("side") == "us") is True
     except Exception:
         return False
 
