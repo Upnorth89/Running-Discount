@@ -548,8 +548,10 @@ def menu_links(L, other_path):
     items = [(home, "🔥", L["mDeals"]), (f"/{L['dir']}/", "👟", L["mShoes"]),
              (home + ("&" if "?" in home else "?") + "show=watch", "♡", L["mWatch"]), (home + ("&" if "?" in home else "?") + "show=sizes", "✏️", L["mSizes"]),
              ("/about.html" + ("?lang=fr" if fr else ""), "🦊", L["mAbout"]), ("https://www.instagram.com/thegearfox/", "📸", "Instagram")]
-    if L.get("hike"):      # boot pages: menu goes to the hiking side, no race lists
+    if L.get("hike"):      # boot + trail list pages: menu goes to the hiking side, trail gear lists instead of race lists
         items[1] = (f"/{L['dir']}/", "👟", L["mShoes"])
+        items.insert(2, ("/us/hikes/" if L["lang"] == "en-US" else "/randonnees/" if fr else "/hikes/", "🏁",
+                         "Listes de matériel de randonnée" if fr else "Trail gear lists"))   # Oct 26 (Bastien: "the trail list still links to races")
     else:
         items.insert(2, ("/us/races/" if L["lang"] == "en-US" else "/courses/" if fr else "/races/", "🏁", L["mRaces"]))   # race gear lists (Oct 21; US races too)
     out = "".join(f'<a href="{u}">{MENU_SVG.format(MENU_ICONS[i])}{esc(t)}</a>' for u, i, t in items)

@@ -20,7 +20,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import hikes as HK                                                            # noqa: E402
 import race_pages as RP                                                       # noqa: E402
-from shoe_pages import T, US, esc, page_head, page_foot, store_names, size_url, host   # noqa: E402
+from shoe_pages import T, US, _H, esc, page_head, page_foot, store_names, size_url, host   # noqa: E402
 
 POOL, SHOW = 60, 10
 MONTHS = {"en": "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split(),
@@ -90,8 +90,35 @@ S = {
 }
 S["us"] = dict(S["en"], dir="us/hikes", desc="What to bring for {name} ({where}): the 10 essentials and what this trail adds, with today's best prices in your size at US stores.",
                otherSide="Shopping in Canada? This list with Canadian stores →")
+# Oct 26 (Bastien: "include formula for calories per day consumed depending on hours hiked and weight on back"): the food box.
+# Pandolf et al. (1977) load-carriage equation, the standard one (US Army): watts = 1.5W + 2(W+L)(L/W)^2 + n(W+L)(1.5V^2 + 0.35VG),
+# W body kg, L pack kg, V m/s, G grade %, n terrain (1.2 = trail). Half the walking time climbing at the trail's average grade
+# (total climb over half the distance), half on the flat; the rest of the day at ~1 kcal per kg per hour (resting).
+FUEL = {
+    "en": dict(fu_fuelH="Calories and food for this trip", fu_fuelTxt="Your numbers stay on this device.", fu_body="Your weight", fu_pack="Pack weight",
+               fu_hours="Hours of walking a day", fu_climb="Total climb", fu_kg="kg", fu_lb="lb", fu_m="m", fu_ft="ft",
+               fu_trail="On the trail: about {k} kcal a day ({h} kcal an hour).",
+               fu_day="Whole day, camp included: about {k} kcal.",
+               fu_food="Food to carry: about {f} a day of dense trail food (about 4,400 kcal per kg), {t} for the trip.",
+               fu_snack="Snacks for the day: {a}–{b} kcal (a common guideline: 200–300 kcal for each hour on the trail).",
+               fu_fine="An estimate from the Pandolf load-carriage equation (1977), on trail, with half the walking uphill at this trail's average grade, plus about 1 kcal per kg of body weight per resting hour. Cold, snow, a fast pace or a heavier pack mean more.",
+               fu_noclimb="This park doesn't publish the climb: add it for a better estimate.",
+               fu_gpx="Hiking your own route? Load its GPX file (AllTrails, Gaia GPS, Strava and Garmin all export one)",
+               fu_gpxOk="Your route: {km} km, {m} m of climb.", fu_gpxBad="We couldn't read that file. Try a GPX export."),
+    "fr": dict(fu_fuelH="Calories et nourriture pour cette sortie", fu_fuelTxt="Vos chiffres restent sur cet appareil.", fu_body="Votre poids", fu_pack="Poids du sac",
+               fu_hours="Heures de marche par jour", fu_climb="Dénivelé total", fu_kg="kg", fu_lb="lb", fu_m="m", fu_ft="pi",
+               fu_trail="En sentier : environ {k} kcal par jour ({h} kcal à l'heure).",
+               fu_day="Journée complète, camp compris : environ {k} kcal.",
+               fu_food="Nourriture à apporter : environ {f} par jour d'aliments denses (environ 4 400 kcal par kg), {t} pour la sortie.",
+               fu_snack="Collations pour la journée : {a} à {b} kcal (repère courant : 200 à 300 kcal par heure de marche).",
+               fu_fine="Estimation tirée de l'équation de Pandolf (1977) sur le coût de la marche avec charge, en sentier, la moitié de la marche en montée selon la pente moyenne du sentier, plus environ 1 kcal par kg de poids corporel par heure de repos. Le froid, la neige, un rythme rapide ou un sac plus lourd en demandent plus.",
+               fu_noclimb="Ce parc ne publie pas le dénivelé : ajoutez-le pour une meilleure estimation.",
+               fu_gpx="Votre propre itinéraire ? Chargez son fichier GPX (AllTrails, Gaia GPS, Strava et Garmin en exportent tous un)",
+               fu_gpxOk="Votre itinéraire : {km} km, {m} m de dénivelé.", fu_gpxBad="Impossible de lire ce fichier. Essayez un export GPX."),
+}
+FUEL["us"] = FUEL["en"]
 for L in S:   # the race pages' size box, watch and sign-up words
-    S[L] = dict(RP.S[L], **S[L])
+    S[L] = dict(RP.S[L], **FUEL[L], **S[L])
 
 
 def where(h, L):
@@ -193,15 +220,22 @@ def facts(h, L):
     return " · ".join(out)
 
 
+
+def HL(L):
+    """Hiking strings for the page header/menu (boot prices + trail gear lists, hiking home), like the boot pages."""
+    d = dict(US if L == "us" else T[L]); d.update(_H["en"] if L == "us" else {}); d.update(_H[L]); d["hike"] = True
+    return d
+
+
 def page(h, L, items, stores, checked_on):
     s, Tl = S[L], (US if L == "us" else T[L])
     slug, LL = h["slug"], ("en" if L == "us" else L)
     fmt = dict(name=h["name"], where=where(h, LL))
     own = f'/{s["dir"]}/{slug}/'
     if L == "us":
-        head = page_head(US, s["title"].format(**fmt), s["desc"].format(**fmt), own, "", f"<style>{RP.CSS}</style>")
+        head = page_head(HL("us"), s["title"].format(**fmt), s["desc"].format(**fmt), own, "", f"<style>{RP.CSS}{FUEL_CSS}</style>").replace('class="sw" href="/shoes/"', f'class="sw" href="/hikes/{slug}/"')
     else:
-        head = page_head(T[L], s["title"].format(**fmt), s["desc"].format(**fmt), f"/hikes/{slug}/", f"/randonnees/{slug}/", f"<style>{RP.CSS}</style>")
+        head = page_head(HL(L), s["title"].format(**fmt), s["desc"].format(**fmt), f"/hikes/{slug}/", f"/randonnees/{slug}/", f"<style>{RP.CSS}{FUEL_CSS}</style>")
     BASE = "https://thegearfox.com"
     head = re.sub(r'(<link rel="alternate" hreflang="[^"]+" href="[^"]+">\n?)+',
                   f'<link rel="alternate" hreflang="en-CA" href="{BASE}/hikes/{slug}/">\n<link rel="alternate" hreflang="fr-CA" href="{BASE}/randonnees/{slug}/">\n'
@@ -258,6 +292,7 @@ def page(h, L, items, stores, checked_on):
 <ul class="gl" id="gl" data-race="hike-{slug}" data-default="{default}" data-lm="{s['M']}" data-lr="{s['R']}" data-la="" data-lp="" data-ll=""
  data-home="{Tl['home']}{"&" if "?" in Tl['home'] else "?"}sport=hike" data-watch="{esc(s['watch'])}" data-won="{esc(s['watchOn'])}" data-wmember="{esc(s['wMember'])}" data-wnew="{esc(s['wNew'])}" data-wpending="{esc(s['wPending'])}" data-wadd="{esc(s['wAdd'])}" data-woff="{esc(s['wOff'])}" data-moren="{esc(s['moreN'])}" data-dh="{esc(s['deals'])}" data-dhs="{esc(s['dealsSize'])}" data-none="{esc(s['noDeals'])}" data-few="{esc(s['few'])}" data-off="{esc(s['off'])}" data-ly="{esc(s['Y'])}">{"".join(lis)}</ul>
 <div hidden id="shoeBox" data-root="" data-dir="" data-pickfit="" data-from="" data-page="" data-none="" data-rm="" data-gone="" data-picksize=""><input id="shoeQ"><ul id="shoeSug"></ul><ul id="shoeMine"></ul></div>
+{fuel(h, L)}
 <p class="srcb">{src} {s['notAff']}</p>
 <section class="alert" id="raceBox" data-ref="hike-{slug}" data-bad="{esc(Tl['alertBad'])}" data-ok="{esc(Tl['alertOk'])}" data-fail="{esc(Tl['alertFail'])}" data-pick="{esc(s['sizeTxt'])}">
 <h2>{esc(s['boxH'])}</h2><p class="fine">{esc(s['boxTxt'])}</p><form novalidate><input type="email" autocomplete="email" inputmode="email" placeholder="{esc(Tl['emailPh'])}" aria-label="Email" required><button type="submit">{esc(s['boxBtn'])}</button></form><p class="msg" aria-live="polite"></p></section>
@@ -267,7 +302,68 @@ def page(h, L, items, stores, checked_on):
 <script id="shoes" type="application/json">[]</script>
 """
     fx = getattr(page, "fx", 1.0) if L == "us" else 1.0
-    return (head + body + script(L, fx) + page_foot(Tl).replace('"shoe-page"', '"hike-page"').replace("|shoes||shoe-page", "|gear||hike-page"))
+    return (head + body + script(L, fx) + FUEL_JS + page_foot(Tl).replace('"shoe-page"', '"hike-page"').replace("|shoes||shoe-page", "|gear||hike-page"))
+
+
+def fuel(h, L):
+    """The food box: inputs prefilled from the trail (hours: 4 km/h + 1 h per 600 m climbed, Naismith's rule at a loaded hiker's
+    pace; the visitor can change it), the maths in the page."""
+    s, us = S[L], L == "us"
+    gain = h["gain_m"] if h.get("gain_ok") else 0
+    km = h["km"]
+    nc = "" if gain else f'<p class="fine">{esc(s["fu_noclimb"])}</p>'
+    num = lambda k, v, step, unit: (f'<label class="fu"><span>{s[k]}</span><span class="fi"><input type="number" inputmode="decimal" min="0" '
+                                    f'step="{step}" data-f="{k}" value="{v}"><em>{unit}</em></span></label>')
+    return (f'<section class="fuel" id="fuel" data-km="{km:g}" data-gain="{gain}" data-us="{1 if us else 0}" data-l="{"fr" if L == "fr" else "en"}"'
+            f' data-trail="{esc(s["fu_trail"])}" data-day="{esc(s["fu_day"])}" data-food="{esc(s["fu_food"])}" data-snack="{esc(s["fu_snack"])}">'
+            f'<h2>{esc(s["fu_fuelH"])}</h2><p class="fine">{esc(s["fu_fuelTxt"])}</p><div class="fus">'
+            + num("fu_body", 165 if us else 75, 1, s["fu_lb"] if us else s["fu_kg"])
+            + num("fu_pack", "", 0.5, s["fu_lb"] if us else s["fu_kg"])
+            + num("fu_hours", "", 0.5, "h")
+            + num("fu_climb", round(gain * 3.281) if us else gain, 10, s["fu_ft"] if us else s["fu_m"])
+            + f'</div>{nc}<label class="gpx"><span>{esc(s["fu_gpx"])}</span><input type="file" accept=".gpx,application/gpx+xml" data-ok="{esc(s["fu_gpxOk"])}" data-bad="{esc(s["fu_gpxBad"])}"></label><p class="gpxm fine" aria-live="polite"></p>'
+            f'<div class="fo" aria-live="polite"></div><p class="fine">{esc(s["fu_fine"])}</p></section>')
+
+
+FUEL_CSS = """.fuel{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:14px;margin:18px 0}
+.fuel h2{margin:0 0 4px;font-size:18px}.fus{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.fu{display:flex;flex-direction:column;gap:3px;font-size:13px;font-weight:600}.fu input{font:inherit;font-weight:400;padding:8px;border:1.5px solid var(--line);border-radius:10px;width:100%;box-sizing:border-box}
+.fi{display:flex;align-items:center;gap:6px}.fu em{font-style:normal;font-weight:400;color:var(--mute,#5c6660);font-size:12px}.gpx{display:flex;flex-direction:column;gap:4px;font-size:13px;margin:4px 0}.gpx input{font-size:13px;max-width:100%}.fo p{margin:6px 0}.fo b{font-size:17px}"""
+
+FUEL_JS = """<script>(function(){var b=document.getElementById("fuel");if(!b)return;
+var us=b.dataset.us==="1",fr=b.dataset.l==="fr",km=+b.dataset.km;
+function days(){var x=document.querySelector(".dists button[aria-pressed=true]");return x?+x.dataset.d:1}
+function inp(k){return b.querySelector('[data-f="'+k+'"]')}
+function num(v,d){return (Math.round(v/d)*d).toLocaleString(fr?"fr-CA":"en-CA")}
+function fill(){var d=days(),g=+inp("fu_climb").value*(us?0.3048:1),h=(km/4+g/600)/d;   // 4 km/h + 1 h per 600 m (Naismith at a loaded pace)
+  if(!inp("fu_hours").dataset.own)inp("fu_hours").value=Math.max(1,Math.round(h*2)/2);
+  if(!inp("fu_pack").dataset.own)inp("fu_pack").value=us?(d>1?(d>3?31:24):13):(d>1?(d>3?14:11):6)}
+function calc(){var d=days(),k=us?0.4536:1,W=+inp("fu_body").value*k,L=+inp("fu_pack").value*k,H=+inp("fu_hours").value,
+  g=+inp("fu_climb").value*(us?0.3048:1),o=b.querySelector(".fo");
+  if(!(W>20&&H>0)){o.innerHTML="";return}
+  var V=Math.max(0.3,Math.min(2,(km*1000/d)/(H*3600))),G=Math.min(40,g/(km*1000/2)*100)||0,n=1.2,
+      P=function(G){return 1.5*W+2*(W+L)*Math.pow(L/W,2)+n*(W+L)*(1.5*V*V+0.35*V*G)},
+      kh=(P(G)+P(0))/2*3600/4184,tr=kh*H,all=tr+Math.max(0,24-H)*W*1.0,t=function(s,o){return s.replace(/\{(\w)\}/g,function(_,x){return o[x]})},
+      wt=function(kg){return us?num(kg*2.2046,0.1)+" lb":num(kg,0.1)+" kg"};
+  var out="<p><b>"+t(b.dataset.trail,{k:num(tr,10),h:num(kh,10)})+"</b></p>";
+  if(d>1){var f=all/4400;out+="<p>"+t(b.dataset.day,{k:num(all,50)})+"</p><p>"+t(b.dataset.food,{f:wt(f),t:wt(f*d)})+"</p>"}
+  else out+="<p>"+t(b.dataset.snack,{a:num(H*200,50),b:num(H*300,50)})+"</p>";
+  o.innerHTML=out}
+b.addEventListener("input",function(e){if(e.target.dataset.f)e.target.dataset.own=1;if(e.target.dataset.f==="fu_climb")fill();calc()});
+document.querySelectorAll(".dists button").forEach(function(x){x.addEventListener("click",function(){setTimeout(function(){fill();calc()},0)})});
+var gf=b.querySelector(".gpx input"),gm=b.querySelector(".gpxm");
+gf.addEventListener("change",function(){var f=gf.files&&gf.files[0];if(!f)return;var r=new FileReader();
+  r.onload=function(){try{var x=new DOMParser().parseFromString(r.result,"application/xml"),pts=x.querySelectorAll("trkpt,rtept"),d=0,up=0,pv=null,ev=null;
+    if(pts.length<2)throw 0;
+    pts.forEach(function(p){var la=+p.getAttribute("lat")*Math.PI/180,lo=+p.getAttribute("lon")*Math.PI/180,e=p.querySelector("ele");
+      if(pv){var a=Math.sin((la-pv[0])/2),c=Math.sin((lo-pv[1])/2);d+=12742000*Math.asin(Math.sqrt(a*a+Math.cos(la)*Math.cos(pv[0])*c*c))}
+      pv=[la,lo];if(e){var z=+e.textContent;if(ev===null)ev=z;else if(Math.abs(z-ev)>=5){if(z>ev)up+=z-ev;ev=z}}});   // 5 m steps: GPS noise doesn't count as climb
+    km=Math.round(d/100)/10;inp("fu_climb").value=Math.round(us?up*3.281:up);inp("fu_climb").dataset.own=1;inp("fu_hours").dataset.own="";
+    gm.textContent=gf.dataset.ok.replace("{km}",km.toLocaleString(fr?"fr-CA":"en-CA")).replace("{m}",Math.round(up).toLocaleString(fr?"fr-CA":"en-CA"));
+    fill();calc()}catch(e){gm.textContent=gf.dataset.bad}};r.readAsText(f)});
+try{var p=JSON.parse(localStorage.getItem("gf-fuel")||"null");if(p&&p.b)inp("fu_body").value=p.b}catch(e){}
+inp("fu_body").addEventListener("change",function(){try{localStorage.setItem("gf-fuel",JSON.stringify({b:inp("fu_body").value}))}catch(e){}});
+fill();calc()})();</script>"""
 
 
 def script(L, fx):
@@ -305,8 +401,8 @@ def hub(L, hikes):
         rows += (f'<li><a href="/{s["dir"]}/{h["slug"]}/"><span class="nm"><b>{esc(h["name"])}</b>'
                  f'<small>{esc(where(h, LL))} · {esc(facts(h, LL))}</small></span><span class="pr">{s["hubGo"]}</span></a></li>')
     t, d = s["hubTitle"].format(n=len(hikes)), s["hubDesc"]
-    head = (page_head(US, t, d, "/us/hikes/", "", f"<style>{RP.HUB_CSS}</style>") if L == "us"
-            else page_head(T[L], t, d, "/hikes/", "/randonnees/", f"<style>{RP.HUB_CSS}</style>"))
+    head = (page_head(HL("us"), t, d, "/us/hikes/", "", f"<style>{RP.HUB_CSS}</style>").replace('class="sw" href="/shoes/"', 'class="sw" href="/hikes/"') if L == "us"
+            else page_head(HL(L), t, d, "/hikes/", "/randonnees/", f"<style>{RP.HUB_CSS}</style>"))
     return head + f'<h1 class="hubh">{esc(s["hubH1"])}</h1><p class="sub">{esc(s["hubIntro"])}</p>{rows}</ul>' + page_foot(Tl)
 
 

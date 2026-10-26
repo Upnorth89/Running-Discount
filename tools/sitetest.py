@@ -329,6 +329,23 @@ def site_flow(base, per, accented):
             return f"'saucny' -> saucony: {n} deals"
         check("Search: did you mean")(search_help, page)
 
+        def search_closest():   # Oct 26 (Bastien OK'd): a search whose words don't all match offers the closest models, never a dead end
+            all_gear()
+            page.fill("#dSearch", "saucony zzqxv")
+            settle(page, 1200)
+            h = page.locator(".searchhelp")
+            assert h.count() and h.locator("[data-sq]").count(), "'saucony zzqxv' leaves a dead end (no closest matches)"
+            first = h.locator("[data-sq]").first.inner_text()
+            assert "saucony" in first.lower(), f"closest match for 'saucony zzqxv' isn't a Saucony: {first!r}"
+            h.locator("[data-sq]").first.click()
+            settle(page, 1200)
+            n = len(cards(page))
+            page.fill("#dSearch", "")
+            settle(page)
+            assert n, f"tapping '{first}' finds nothing"
+            return f"'saucony zzqxv' -> {first}: {n} deals"
+        check("Search: closest matches, never a dead end")(search_closest, page)
+
         def report_link():   # Oct 8: "Wrong price or size?" on a card -> three reasons -> thanks
             all_gear()
             page.locator("#dealList .dw .rep").first.click()
@@ -1424,11 +1441,23 @@ def site_flow(base, per, accented):
                 settle(q2, 300)
                 assert q2.inner_text("#prog") != before, "ticking an essential didn't change 'You have N of M'"
                 assert "running" not in q2.title().lower(), f"trail page title says running: {q2.title()!r}"
+                # Oct 26 (Bastien: "the trail list still links to races"): the menu is the hiking one
+                menu = q2.eval_on_selector_all("details.menu nav a", "e => e.map(a => a.getAttribute('href'))")
+                assert not [u for u in menu if "/races/" in u or "/courses/" in u or "/shoes/" in u], f"trail page menu goes to running pages: {menu}"
+                assert any("/hikes/" in u for u in menu), f"trail page menu has no trail gear lists link: {menu}"
+                # Oct 26 (Bastien: calories by hours hiked and pack weight): the food box answers, and a heavier pack means more
+                fo = q2.inner_text("#fuel .fo")
+                assert "kcal" in fo, f"the food box shows no calories: {fo[:80]!r}"
+                k1 = int(re.search(r"([\d,]+) kcal", fo).group(1).replace(",", ""))
+                q2.fill('#fuel [data-f="fu_pack"]', "25")
+                settle(q2, 200)
+                k2 = int(re.search(r"([\d,]+) kcal", q2.inner_text("#fuel .fo")).group(1).replace(",", ""))
+                assert k2 > k1, f"a 25 kg pack didn't raise the calories ({k1} -> {k2})"
                 assert not errs, f"script error: {errs[0][:120]}"
             finally:
                 c.close()
-            return f"{len(links)} trails; {links[0]}: {deals} deals in men's M / 11"
-        check("Trail gear list: sizes, deals, ticks")(hike_lists, pg)
+            return f"{len(links)} trails; {links[0]}: {deals} deals in men's M / 11; food box {k1} -> {k2} kcal with a 25 kg pack"
+        check("Trail gear list: sizes, deals, ticks, food box")(hike_lists, pg)
 
         def hike_bottom():   # Oct 25 (Bastien: "The hiking page shows running deal links at the bottom"): hiking side = boot block + boot footer link
             if not (site_get("index.html") or "").count('class="seo-today seo-hike"'):
