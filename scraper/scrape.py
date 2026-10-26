@@ -209,7 +209,14 @@ RR_GROUP = {range(111, 127): "bottoms", range(131, 145): "tops", range(153, 155)
             range(222, 223): "headwear", range(223, 224): "gear", range(224, 225): "gloves", range(225, 226): "headwear",
             range(229, 230): "gear", range(230, 240): "nutrition", range(242, 246): "socks", range(281, 282): "gear",
             range(282, 284): "packs", range(284, 285): "gear", range(424, 425): "gear", range(426, 427): "headwear",
-            range(427, 428): "gear", range(300, 314): "shoes", range(320, 334): "shoes"}
+            range(427, 428): "gear", range(300, 314): "shoes", range(320, 334): "shoes",
+            # Oct 26 (coverage check): Walking Room's trail/hiking shoes (Speedgoat 6 Mid GTX, Ultra Flow, Lone Peak 9+, Timp 6,
+            # Moab), Garmin/Wahoo watches and a few running tops sat in codes we didn't map, so they were silently dropped
+            range(900, 902): "shoes", range(211, 212): "watches", range(151, 153): "tops", range(261, 262): "tops"}
+# codes left out on purpose (walking/casual shoes, sandals, slippers, pickleball, kids, insoles, headphones, swim, books, body care…):
+# any OTHER code with 20+ in-stock records is a new category the store added, and the morning email says so (coverage.json)
+RR_SKIP_CODES = {171, 172, 201, 203, 212, 221, 226, 228, 251, 262, 271, 272, 273, 314, 315, 316, 317, 318, 421, 422, 423, 425, 428, 429,
+           902, 903, 904, 905, 906, 907, 908, 909, 910, 911}
 RR_BRANDS = ("New Balance", "Running Room", "Fuel Belt", "Under Armour", "The North Face", "Black Diamond", "Dr. Cohen's", "Pearl Izumi")
 
 
@@ -225,7 +232,8 @@ def scrape_runningroom():
     if sm.status_code != 200:
         raise RuntimeError(f"Running Room feed: HTTP {sm.status_code}")
     recs = []
-    for u in re.findall(r"<loc>([^<]+/products_\d+\.json)</loc>", sm.text):
+    urls = re.findall(r"<loc>([^<]+/products_\d+\.json)</loc>", sm.text)
+    for u in urls:
         # Oct 12: asked for gzip, Running Room's server sometimes sends a file cut short (19 KB instead of 2 MB, no
         # content-encoding) and the whole store failed; uncompressed it comes back whole. Oct 18: still 19 KB twice
         # 10 s apart (the file was being rebuilt that morning; whole again later), so retries wait up to ~6 min in all.
@@ -241,12 +249,14 @@ def scrape_runningroom():
                     raise RuntimeError(f"Running Room feed file {u.rsplit('/', 1)[-1]}: not readable ({len(r.content)} bytes)")
                 time.sleep(wait)
         time.sleep(2)
-    offers = {}
+    offers, unknown = {}, collections.Counter()
     for p in recs:
         a = p.get("attributes") or {}
         m = re.match(r"(\d+)", str(a.get("tax_class_id") or ""))
         code = int(m.group(1)) if m else 0
         g = next((v for k, v in RR_GROUP.items() if code in k), None)
+        if not g and code not in RR_SKIP_CODES and (p.get("stock") or {}).get("is_in_stock"):
+            unknown[code] += 1
         if not g or not (p.get("stock") or {}).get("is_in_stock") or (p["stock"].get("qty") or 0) <= 0:
             continue
         full = re.sub(r"\s*\([^()]*\)\s*$", "", html_lib.unescape(p.get("name") or "")).strip()
@@ -297,6 +307,8 @@ def scrape_runningroom():
         o["sz"] = [[k, v[0], v[1], v[2]] for k, v in o["sz"].items()]
         out.append(o)
     print(f"  runningroom: {len(recs)} feed records -> {len(out)} products", file=sys.stderr)
+    new = {c: n for c, n in unknown.items() if n >= 20}
+    save_coverage("runningroom", len(urls), len(urls), ("new product codes we don't read yet: " + ", ".join(f"{c} ({n} sizes)" for c, n in sorted(new.items()))) if new else "")
     return out
 
 
@@ -1391,11 +1403,12 @@ def list_catalogue(base):
     """Every running listing, tagged with our group. The stores' search caps a listing at 1000
     results, so we list one product type at a time and split big types by gender."""
     types = plp(f"{base}/c/running")["facets"].get("attributes.product_type_name", {})
-    found = {}
+    found, listed = {}, 0
     for t, n in types.items():
         g = CT_TYPES.get(t)
         if not g:
             continue
+        listed += n
         url = f"{base}/c/running?product_type_name={quote(t)}"
         parts = [url] if n <= 1000 else [f"{url}&gender={x}" for x in ("Men", "Women", "NA")]
         for u in parts:
@@ -1404,7 +1417,7 @@ def list_catalogue(base):
                 print(f"  ! {u} has {first['nbHits']} listings, only 1000 reachable", file=sys.stderr)
             for h in hits:
                 found.setdefault(h["slug"], (g, h.get("image_url")))
-    return found
+    return found, listed
 
 def attr(attrs, name):
     for a in attrs:
@@ -1457,8 +1470,8 @@ def product(base, slug, st, g, img):
             "sx": sx, "w": wide, "img": img, "lp": lp, "bb": None, "sz": [[k, pr, rg, u] for k, (pr, rg, u) in sizes.items()]}
 
 def scrape_commercetools(st, base):
-    listing = list_catalogue(base)
-    print(f"  {st}: {len(listing)} running listings", file=sys.stderr)
+    listing, listed = list_catalogue(base)
+    print(f"  {st}: {len(listing)} running listings (the store counts {listed})", file=sys.stderr)
     out, errors = [], 0
     def one(item):
         slug, (g, img) = item
@@ -1474,6 +1487,9 @@ def scrape_commercetools(st, base):
                 out.append(r)
     if listing and errors > len(listing) * 0.3:
         raise RuntimeError(f"{st}: {errors}/{len(listing)} product pages failed")
+    # Oct 26: the store's own count for the product types we read vs the product pages we read (a type over its 1000-result cap,
+    # or pages that failed, show up as a gap in the morning email)
+    save_coverage(st, listed, len(listing) - errors, f"{errors} product pages failed" if errors > len(listing) * 0.03 else "")
     return out
 
 # ---------------------------------------------------------------- Decathlon Canada (server-rendered pages; robots.txt allows them)
@@ -2443,6 +2459,8 @@ def scrape_sportinglife():
                 out.append(r)
     if listing and errors > len(listing) * 0.3:
         raise RuntimeError(f"sportinglife: {errors}/{len(listing)} product pages failed")
+    save_coverage("sportinglife", total or 0, len(listing) - errors,
+                  f"{errors} product pages failed" if errors > len(listing) * 0.03 else "")   # Oct 26: its "N Items" vs what we read
     n_sz = sum(len(o["sz"]) for o in out)
     print(f"  sportinglife: {sum(len(e) > 3 for o in out for e in o['sz'])} of {n_sz} sizes have their own link", file=sys.stderr)
     return out

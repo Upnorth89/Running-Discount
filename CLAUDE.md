@@ -563,7 +563,11 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   Shopify: a store that hits the 24-page limit); health.py `coverage_check` adds "Store coverage" to the email and flags <97%.
   First morning (Oct 14) it caught 3 US stores stopped at 24 pages: SHOPIFY_MAX_PAGES = 80 now (Athletic Annex 7,312 products,
   Pacers 8,191: +3,500); only a FULL last page is flagged (PR Run & Walk ended at 5,795 = false alarm).
-  Next: the same count for Altitude/Last Hunt (commercetools total), Sporting Life, Running Room, Decathlon.
+  Oct 26: Altitude/Last Hunt (facet count of the product types we read vs product pages read: 100% both), Sporting Life ("N Items"
+  vs read) and Running Room (feed files read + `RR_SKIP_CODES`: an unknown tax-class code with 20+ in-stock sizes = "new product codes we
+  don't read yet" in the email). The Running Room check found codes 900/901 (Walking Room trail/hiking shoes: Speedgoat 6 Mid GTX, Ultra
+  Flow, Lone Peak 9+, Timp 6), 211 (Garmin/Wahoo watches), 151/152/261 (running tops) silently dropped: now read (+265 products, 55 on sale).
+  Next: Decathlon.
 - Sport Chek (Oct 13; Bastien: "build the Sport Chek reader"): it stopped blocking (robots.txt allows products, llms.txt published),
   so `scrape_sportchek` reads it live with an honest bot name through the data its own pages use (public key in every page, no
   login): search of the Running section etc. (~1,090 products), price/stock per 500 colour+sizes, size details only for products in
