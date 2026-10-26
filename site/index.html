@@ -847,7 +847,7 @@ en:{
   noHaveH:q=>`We don't have “${q}” yet.`,noHaveB:"We read every search that comes up empty to choose the next stores and brands we add.",
   noHaveGo:"See deals in my size",noHaveGoAll:"See today's deals",
   noSize:(q,n)=>`Nothing in your size for “${q}” right now, but ${n} in other sizes.`,showAllSizes:"Show all sizes",yourSizesOnly:"Back to my sizes",
-  allSizesOn:q=>`Showing “${q}” in every size.`,didYou:"Did you mean",storeGo:s=>`See every deal at ${s}`,addSizes:"Add your sizes to hide gear that won't fit. ",
+  allSizesOn:q=>`Showing “${q}” in every size.`,didYou:"Did you mean",closest:q=>`No exact match for “${q}”. Closest:`,storeGo:s=>`See every deal at ${s}`,addSizes:"Add your sizes to hide gear that won't fit. ",
   checkInbox:"Check your inbox",checkInboxTxt:e=>`Tap the link we sent to ${e} to start your Friday email.`,
   junkHint:"Not there after a minute? Check Junk or Promotions (Outlook and Hotmail often file us there) and mark it \"Not junk\".",
   resend:"Send it again",resendFail:"Couldn't send just now. Try again in a minute.",resent:"Sent again. Give it a minute.",resendWait:"Just sent. Give it a minute, then check Junk.",
@@ -961,7 +961,7 @@ fr:{
   noHaveH:q=>`On n'a pas encore « ${q} ».`,noHaveB:"On lit chaque recherche sans résultat pour choisir les prochaines boutiques et marques à ajouter.",
   noHaveGo:"Voir les aubaines dans ma taille",noHaveGoAll:"Voir les aubaines du jour",
   noSize:(q,n)=>`Rien dans votre taille pour « ${q} » en ce moment, mais ${n} dans d'autres tailles.`,showAllSizes:"Voir toutes les tailles",yourSizesOnly:"Revenir à mes tailles",
-  allSizesOn:q=>`« ${q} » dans toutes les tailles.`,didYou:"Vouliez-vous dire",storeGo:s=>`Voir toutes les aubaines chez ${s}`,addSizes:"Ajoutez vos tailles pour cacher ce qui ne vous va pas. ",
+  allSizesOn:q=>`« ${q} » dans toutes les tailles.`,didYou:"Vouliez-vous dire",closest:q=>`Aucun résultat exact pour « ${q} ». Le plus proche :`,storeGo:s=>`Voir toutes les aubaines chez ${s}`,addSizes:"Ajoutez vos tailles pour cacher ce qui ne vous va pas. ",
   checkInbox:"Vérifiez vos courriels",checkInboxTxt:e=>`Cliquez sur le lien envoyé à ${e} pour activer votre courriel du vendredi.`,
   junkHint:"Pas reçu après une minute? Vérifiez les courriels indésirables ou Promotions (Outlook et Hotmail nous y classent souvent) et indiquez « Pas un courriel indésirable ».",
   resend:"Renvoyer",resendFail:"Envoi impossible pour l'instant. Réessayez dans une minute.",resent:"Renvoyé. Laissez-lui une minute.",resendWait:"Tout juste envoyé. Donnez-lui une minute, puis vérifiez les indésirables.",
@@ -1466,11 +1466,24 @@ function searchHelp(q,p,n,fold){const raw=esc(view.q.trim()),bits=[];
   const qs=q.join(" "),st=qs.length>=4&&Object.entries(STORES).find(([h,v])=>{const nm=fold(v[0]),bare=nm.replace(/^(the|la|le|les|l')\s*/,"");   // "last hunt", "boutique du lac" (Oct 20)
     return [nm,bare].some(x=>x.startsWith(qs)||x.replace(/\s+/g,"").startsWith(qs.replace(/\s+/g,"")))});
   if(!n&&!view.anySize&&!st&&!bits.length){let sg=suggest(q,fold);
-    if(!sg&&q.length>1){const any=ws=>ITEMS.some(d=>{const x=hayOf(fold,d);return ws.every(w=>qhas(x,w))});   // "alphafly 4" -> "alphafly"
+    // Oct 26 (Bastien OK'd; "sc rebel", "on cloudboom strike 2" found nothing, NN/g: never a dead end): when not every word matches,
+    // the deals in your sizes that match the MOST words, up to 4 models, each a tap away
+    const near=q.length>1?closest(q,p,fold):[];
+    if(!sg&&!near.length&&q.length>1){const any=ws=>ITEMS.some(d=>{const x=hayOf(fold,d);return ws.every(w=>qhas(x,w))});   // "alphafly 4" -> "alphafly"
       for(let k=q.length-1;k>=1&&!sg;k--)if(any(q.slice(0,k)))sg=q.slice(0,k).join(" ")}
-    if(sg)bits.push(`${t("didYou")} <button type="button" data-sq="${esc(sg)}">${esc(sg)}</button>?`)}
+    if(sg&&sg.replace(/\s/g,"").length<3)sg=null;                     // never "Did you mean sc?"
+    if(near.length)bits.push(`${t("closest",raw)} `+near.map(x=>`<button type="button" data-sq="${esc(x)}">${esc(x)}</button>`).join(" · "));
+    else if(sg)bits.push(`${t("didYou")} <button type="button" data-sq="${esc(sg)}">${esc(sg)}</button>?`)}
   if(st&&st[0]!==view.store)bits.push(`<button type="button" data-shop="${esc(st[0])}">${t("storeGo",esc(st[1][0]))}</button>`)
   return bits.length?`<div class="widen searchhelp">${bits.join("<br>")}</div>`:""}
+function closest(q,p,fold){const best=new Map();let top=0;
+  for(const d of matchItems(p)){const x=hayOf(fold,d),tk=new Set(x.split(/\s+/));   // a whole word counts more than part of one ("rebel" vs "Rebellion")
+    const k=q.reduce((a,w)=>a+(w.length<3?0:tk.has(w)||tk.has(w+"s")?1:qhas(x,w)?0.5:0),0);
+    if(!k||k<top)continue;if(k>top){top=k;best.clear()}
+    const nm=(d.b+" "+(d.g==="shoes"?baseModel(d.n):d.n.replace(/\s+-\s+(Men's|Women's|Unisex)$/,""))).replace(/\s+/g," ").trim();
+    if(/\b(?=[a-z]*\d)(?=\d*[a-z])[a-z0-9]{6,}\b/i.test(nm))continue;     // a store's style code ("MFCX4TR"): not a name to offer
+    const key=SQ(fold(nm)),o=best.get(key);best.set(key,{nm:o&&o.nm.length<nm.length?o.nm:nm,n:(o?o.n:0)+1})}   // "Fuel Cell Rebel v5" = "FuelCell Rebel 5"
+  return top&&top<q.filter(w=>w.length>=3).length+q.filter(w=>w.length<3).length?[...best.values()].sort((a,b)=>b.n-a.n||a.nm.length-b.nm.length).slice(0,4).map(e=>e.nm):[]}
 function shoeSearch(q){   // models whose name has every search word: "clif" -> Clifton 10, Clifton 11…
   if(!SHOEPAGES||!q.length)return [];
   const flat=x=>x.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
@@ -2108,7 +2121,8 @@ $("toggles").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!
 $("sort").addEventListener("change",e=>{view.sort=e.target.value;view.open={};renderAll()});
 let searchT;$("dSearch").addEventListener("input",e=>{clearTimeout(searchT);searchT=setTimeout(()=>{view.q=e.target.value;view.open={};view.anySize=false;view.anyFit=false;renderAll()},200)});
 let anaQ="",anaQT;$("dSearch").addEventListener("input",e=>{clearTimeout(anaQT);anaQT=setTimeout(()=>{const q=e.target.value.trim().toLowerCase();
-  if(q.length<2||q===anaQ)return;anaQ=q;const n=document.querySelectorAll("#dealList .dw").length;ana(n?"search":"search-none",q,n)},1500)});
+  if(q.length<2||q===anaQ||!ITEMS.length||!document.querySelector("#dealList .deal,#dealList .searchhelp,#dealList .widen"))return;   // Oct 26: not before the deals have loaded
+  anaQ=q;const n=document.querySelectorAll("#dealList .dw").length;ana(n?"search":"search-none",q,n)},1500)});
 $("newBox").addEventListener("click",e=>{
   const ar=e.target.closest("[data-row]");
   if(ar){const g=ar.parentNode.querySelector(".grid");g.scrollBy({left:(+ar.dataset.row)*g.clientWidth*0.8,behavior:"smooth"});return}

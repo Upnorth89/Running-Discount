@@ -329,6 +329,23 @@ def site_flow(base, per, accented):
             return f"'saucny' -> saucony: {n} deals"
         check("Search: did you mean")(search_help, page)
 
+        def search_closest():   # Oct 26 (Bastien OK'd): a search whose words don't all match offers the closest models, never a dead end
+            all_gear()
+            page.fill("#dSearch", "saucony zzqxv")
+            settle(page, 1200)
+            h = page.locator(".searchhelp")
+            assert h.count() and h.locator("[data-sq]").count(), "'saucony zzqxv' leaves a dead end (no closest matches)"
+            first = h.locator("[data-sq]").first.inner_text()
+            assert "saucony" in first.lower(), f"closest match for 'saucony zzqxv' isn't a Saucony: {first!r}"
+            h.locator("[data-sq]").first.click()
+            settle(page, 1200)
+            n = len(cards(page))
+            page.fill("#dSearch", "")
+            settle(page)
+            assert n, f"tapping '{first}' finds nothing"
+            return f"'saucony zzqxv' -> {first}: {n} deals"
+        check("Search: closest matches, never a dead end")(search_closest, page)
+
         def report_link():   # Oct 8: "Wrong price or size?" on a card -> three reasons -> thanks
             all_gear()
             page.locator("#dealList .dw .rep").first.click()
