@@ -32,7 +32,7 @@ while True:
         break
 
 S = defaultdict(lambda: {"kinds": set(), "entry": None, "nv": None, "dev": None, "ref": None, "secs": None, "scroll": None,
-                         "steps": set(), "n": 0, "pages": set(), "race": [], "dclick": []})
+                         "steps": set(), "n": 0, "pages": set(), "race": [], "dclick": [], "hike": [], "sport": None})
 for e in rows:
     s = S[e["sid"]]
     s["n"] += 1
@@ -54,6 +54,10 @@ for e in rows:
         s["pages"].add(e["detail"])
     if e["kind"] == "filter" and (e["detail"] or "").startswith("race|"):   # race gear lists (Oct 23): race|<race>|<what>|<detail>
         s["race"].append(e["detail"].split("|", 3)[1:])
+    if e["kind"] == "filter" and (e["detail"] or "").startswith("hike|"):   # trail gear lists (Oct 25): hike|<slug>|<what>|<detail>
+        s["hike"].append(e["detail"].split("|", 3)[1:])
+    if e["kind"] == "filter" and (e["detail"] or "").startswith("sport|"):  # Running | Hiking switch: sport|<run|hike>|<from>
+        s["sport"] = e["detail"].split("|")[1]
     if e["kind"] == "deal-click":
         s["dclick"].append(e["detail"] or "")
     if e["kind"] in ("welcome-view", "sizes-saved", "load"):
@@ -498,6 +502,31 @@ try:
             out.append("  store clicks by item: " + ", ".join(f"{k} {v}" for k, v in clicks.most_common(10)))
 except Exception as e:
     out.append(f"Race gear lists: couldn't read ({str(e)[:80]})")
+
+# HIKING (Oct 26: live since Oct 25): the Running | Hiking switch, boot price pages, trail gear lists
+try:
+    HP = ("/hikes/", "/randonnees/", "/us/hikes/")
+    BP = ("/hiking-boots/", "/bottes-randonnee/", "/us/hiking-boots/")
+    on = lambda s, P: any(any((pth or "").startswith(x) for x in P) for pth in s["pages"])
+    hs = [s for s in S.values() if s["sport"] == "hike"]
+    hn = [s for s in new if s["sport"] == "hike"]
+    homen = [s for s in new if "/" in s["pages"]]
+    tl = [s for s in S.values() if on(s, HP) or s["hike"]]
+    bp = [s for s in S.values() if on(s, BP)]
+    out.append(f"HIKING: {len(hs)} sessions switched to Hiking ({pct(len(hn), len(homen))} of homepage first visits); of those "
+               f"sessions: picked sizes {pct(sum('sizes-saved' in s['kinds'] for s in hs), len(hs))}, clicked a store "
+               f"{pct(sum('deal-click' in s['kinds'] for s in hs), len(hs))}, signed up {pct(sum('signup' in s['kinds'] for s in hs), len(hs))}")
+    out.append(f"  boot price pages: {len(bp)} sessions ({sum(1 for s in new if any((s['entry'] or '').startswith(x) for x in BP))} first visits landed), "
+               f"clicked a store {pct(sum('deal-click' in s['kinds'] for s in bp), len(bp))} | trail gear lists: {len(tl)} sessions "
+               f"({sum(1 for s in new if any((s['entry'] or '').startswith(x) for x in HP))} landed), ticked an item "
+               f"{pct(sum(any(x[1] == 'have' for x in s['hike']) for s in tl), len(tl))}, changed trip length "
+               f"{pct(sum(any(x[1] in ('trip', 'dist') for x in s['hike']) for s in tl), len(tl))}, clicked a store "
+               f"{pct(sum('deal-click' in s['kinds'] for s in tl), len(tl))}, signed up {pct(sum('signup' in s['kinds'] for s in tl), len(tl))}")
+    per = Counter(x[0] for s in tl for x in s["hike"][:1])
+    if per:
+        out.append("  trails opened (sessions): " + ", ".join(f"{k} {v}" for k, v in per.most_common(12)))
+except Exception as e:
+    out.append(f"Hiking: couldn't read ({str(e)[:80]})")
 
 # SCORECARD (Oct 24, Bastien: "weekly checkins ... to ensure we are optimizing the data we collect and where people drop off"):
 # the few numbers the Monday check-in starts from, against the Path to $300K milestones (plan doc). The store-commission line

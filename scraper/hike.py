@@ -42,7 +42,7 @@ PAUSE = 1.5
 SKIP = re.compile(
     r"\b(ski|skis|skiing|snowcrew|snowmobile|snowsports|snow ?pants?|snow ?bibs?|snow ?jackets?|snowboard\w*|splitboard|bindings?|skins?|avalanche|beacon|probe|shovel|freeride|backcountry ski|nordic|"
     r"cross[- ]country|xc ski|bike|biking|cycling|mtb|bibs?|chamois|swim\w*|bikini|paddl\w*|kayak\w*|canoe|pfd|life ?jacket|"
-    r"wetsuit|neoprene|surf|wader|fishing|hunting|hunter|camo|blaze orange|golf|yoga|pickleball|tennis|kids?|youth|junior|"
+    r"wetsuit|neoprene|surf|wader|fish|fishing|pfg|tele ?ties|hunting|hunter|camo|blaze orange|golf|yoga|pickleball|tennis|kids?|youth|junior|"
     r"jr|toddler|baby|infant|boys?|girls?|dog|pet|leash|gift ?card|e-?gift|book|guide ?book|maps?|sticker|decal|poster|"
     r"calendar|slippers?|booties|sandals?|flip[- ]flops?|clogs?|slides?|winter boots?|snow boots?|rain boots?|apres|pac boots?|"
     r"jeans?|denim|chinos?|dress|blazer|suit|underwear|briefs?|boxers?|bras?|bralette|lingerie|pajamas?|robe|harness|"
@@ -61,7 +61,10 @@ NOT_HIKE_BRANDS = {"barbour", "bogner", "bogner fire + ice", "duer", "krimson kl
                    "orage", "karbon", "686", "burton", "volcom", "sorel", "kamik", "baffin", "blundstone", "ugg", "pajar", "quartz co",
                    "quartz co.", "canada goose", "rudsak", "soia & kyo", "tentree", "toad&co", "toad & co", "faherty", "birkenstock",
                    "teva", "crocs", "hey dude", "chaco", "olukai", "reef", "rainbow", "dakine", "armada", "faction", "volkl", "atomic",
-                   "fischer", "salomon snow", "helly hansen ski", "sweaty betty", "beyond yoga", "alo", "free people", "varley"}
+                   "fischer", "salomon snow", "helly hansen ski", "sweaty betty", "beyond yoga", "alo", "free people", "varley",
+                   # Oct 26 hiking walk-through: casual/fashion labels and fishing/ski brands whole-store reads let in
+                   "duck head", "southern shirt company", "z supply", "johnnie o", "johnnie-o", "marsh wear", "goorin bros",
+                   "goorin bros.", "mono", "hunter", "simms", "howler brothers", "marker", "tel"}
 CASUAL = re.compile(r"\b(cotton|linen|henley|corded|used|pre-owned|guide ?book|\d(st|nd|rd|th) edition|bottle opener|opener|teddy|corduroy|cord|denim|shacket|shirt[- ]jacket|work jacket|bomber|trench|wool coat|overcoat|"
                     r"peacoat|sweater|cardigan|knit|chore|canvas|moleskin|overalls?|dungarees?|blazer|loungewear|lounge|sleep)\b", re.I)
 GARMENT = re.compile(r"\b(t-shirts?|tees?|shirts?|shorts|hood(y|ie)s?|jackets?|pants?|tights?|leggings?|skirts?|pullovers?)\b", re.I)
@@ -169,6 +172,9 @@ def classify(name, ptype="", hint="", brand=""):
             if t == "tent" and re.search(r"\bmid\b", n, re.I) and SHOE.search(f"{n} {hint}") and not re.search(r"\bmid\s?\d", n, re.I):
                 break                                            # "Moab 3 Mid": a boot, not a pyramid tent
             return "camp", t
+    # Oct 26: "Mountain DryVent Mono Short Jacket" (a short jacket, not shorts), "Expedition Pack Down Anorak" (a jacket, not a pack)
+    if re.search(r"\b(short|pack[- ]?down)\s+(jacket|anorak|parka|coat)\b|\bpack[- ]?down\s+\w+\s+(jacket|anorak|parka)\b", n, re.I):
+        return "tops", jacket_type(n, hint)
     hint_g = next((g for g, rx in HINT if rx.search(hint or "")), None)
     if re.search(r"\b(boots?|shoes?|footwear|chaussures?|bottes?|souliers?)\b", n, re.I) and not re.search(
             r"\b(socks?|gaiters?|traction|microspikes?|nanospikes?|crampons?|cleats?|poles?|cubes?|bags?|boot[- ]?(length|cut))\b", n, re.I):

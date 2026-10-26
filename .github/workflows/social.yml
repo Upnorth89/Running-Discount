@@ -1,0 +1,47 @@
+name: Daily drop posts
+
+# Oct 26 (Bastien: "make growth into an automatic feature"): today's real price drops on shoes, posted with a link to the shoe page.
+# OFF until Bastien says yes: posts only when the repo variable SOCIAL_LIVE is 1 AND a network's keys are in GitHub secrets
+# (Bluesky: BLUESKY_HANDLE + BLUESKY_APP_PASSWORD). Otherwise it's a dry run: the "posts" artifact shows what it would have posted.
+on:
+  schedule:
+    - cron: "21 15 * * *"    # 8:21am Vancouver, after the morning refresh has published today's prices
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install requests
+      - name: Price history
+        run: git fetch --depth=1 origin history && git show FETCH_HEAD:prices.jsonl > /tmp/prices.jsonl
+      - name: What was posted already (one post per shoe per 21 days)
+        uses: actions/cache/restore@v4
+        with:
+          path: /tmp/social/social-state.json
+          key: social-${{ github.run_id }}
+          restore-keys: social-
+      - name: Posts
+        env:
+          HISTORY_FILE: /tmp/prices.jsonl
+          SOCIAL_LIVE: ${{ vars.SOCIAL_LIVE }}
+          BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
+          BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+        run: python tools/social_post.py /tmp/social
+      - uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: /tmp/social/social-state.json
+          key: social-${{ github.run_id }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: posts
+          path: /tmp/social/posts.*

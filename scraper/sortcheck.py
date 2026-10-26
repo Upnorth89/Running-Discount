@@ -45,6 +45,10 @@ OK = re.compile(r"^(SOAR Running Artefact Cap|Ben's InvisiNet|Aetrex L\d|Satisfy
                 r"BlackToe Mix Pack|Craft (Nordlite|Xplor)|Saucony Endorphin Pro \d+ Speed-lace|CEP (Pro Run )?Omnispeed|Merrell Silvo Lace)", re.I)   # Omnispeed: CEP's running shoe; Silvo Lace: a hiking shoe (Oct 20)   # Speed-lace = the shoe with quick laces
 
 
+# two cards on one shoe page that really are two shoes (base_model gives them one page): Hoka's road Rocket X vs Rocket X Trail
+OK_TWINS = [r"^hoka-rocket-x$", r"^topo-athletic-ultraventure-\d+$"]
+
+
 def host(i):
     u = (i.get("of") or [i.get("lp") or ""])[0] or ""
     return re.sub(r"^https?://(www\.)?", "", str(u)).split("/")[0]
@@ -108,6 +112,20 @@ def check(items, store=None):
                 and not re.search(r"t-?shirt|\btee\b|hood|jacket|sweat|pullover|\btank\b|shorts?\b|pants?\b|tights?\b|sleeve|"
                                   r"boxer|brief|underwear|legging|\btop\b|shirt|bralette|bra\b|jogger", i.get("n") or "", re.I):
             hits["odd"].append(f"{b} {i.get('n')} ({g}, {host(i)}; {b} is mostly socks)")
+    # Oct 26 (Bastien: "a filter that catches this everyday"): two shoe cards on one shoe page (same gender, width, ships-from) =
+    # one shoe worded two ways that the merge's second pass didn't join; each new wording habit shows up here the same morning
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from shoe_pages import base_model, slugify
+        tw = collections.defaultdict(list)
+        for i in items:
+            if i.get("g") == "shoes" and (not store or store in host(i)):
+                tw[(slugify(f'{i.get("b")} {base_model(i.get("n") or "")}'), tuple(sorted(i.get("sx") or [])), bool(i.get("w")), bool(i.get("ca")))].append(i)
+        for k, v in tw.items():
+            if len(v) > 1 and not any(re.search(x, k[0]) for x in OK_TWINS):
+                hits["twins"].append(" + ".join(f'"{i.get("n")}" ({len(i.get("of") or [])} stores, {i.get("t") or "?"})' for i in v) + f" -> /{k[0]}/")
+    except Exception as e:
+        hits["twins"].append(f"(couldn't check: {str(e)[:60]})")
     # one brand under two spellings
     c = collections.Counter(i.get("b") or "" for i in items)
     groups = collections.defaultdict(list)
@@ -120,7 +138,7 @@ def check(items, store=None):
              "shoes": "non-shoes under Shoes (laces, sprays, socks…)", "cloth": "clothing under gear/accessories",
              "tops": "bottoms under Tops", "bottoms": "tops under Bottoms", "gender": "name and gender disagree",
              "type": "trail shoes typed road/race", "brandname": "a product name in the brand field",
-             "brands": "one brand under two spellings", "odd": "food or shoes from a brand that sells neither"}
+             "brands": "one brand under two spellings", "twins": "one shoe on two cards (same shoe page)", "odd": "food or shoes from a brand that sells neither"}
     return sorted(((k, LABEL[k], v) for k, v in hits.items()), key=lambda x: -len(x[2]))
 
 

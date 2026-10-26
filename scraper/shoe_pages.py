@@ -1123,6 +1123,9 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None,
     for lab, rows, d in groups:
         merged[lab].extend(rows)
         first.setdefault(lab, d)
+    # Oct 26: the page's photo (hero + Google's product data); `first` above is per table, so the photo comes from the items
+    # (it read first["img"] on that dict and never found one: no shoe page had a photo)
+    photo = next((d["img"] for _, _, d in groups if d.get("img")), "") or next((d["img"] for d in its if d.get("img")), "")
     allrows = [r for _, rows in merged.items() for r in rows]
     sale = [r for _, r in allrows if r[0] < r[1] * 0.99]
     best = min(allrows, key=lambda kv: kv[1][0])[1] if allrows else None
@@ -1136,7 +1139,7 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None,
     if best:
         lo_p, hi_p = min(r[0] for _, r in allrows), max(r[0] for _, r in allrows)
         ld = json.dumps({"@context": "https://schema.org", "@type": "Product", "name": name, "brand": {"@type": "Brand", "name": brand},
-                         **({"image": first["img"]} if first.get("img") else {}),
+                         **({"image": photo} if photo else {}),
                          "offers": {"@type": "AggregateOffer", "priceCurrency": L["cur"], "lowPrice": f"{lo_p / L.get('fx', 1):.2f}", "highPrice": f"{hi_p / L.get('fx', 1):.2f}",
                                     "offerCount": len(allrows), "availability": "https://schema.org/InStock"}}, ensure_ascii=False)
         ld = f'<script type="application/ld+json">{ld}</script>'
@@ -1156,7 +1159,7 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None,
         # "Is this deal real?": good news only (Bastien's call): the best price today is the lowest in 30+ days of history
         lows = [d for d in its if d.get("hd", 0) >= HISTORY_DAYS and d.get("lo") is not None and min(e[1] for e in d["sz"]) <= d["lo"] + 0.01 and (d.get("hi") or 0) > min(e[1] for e in d["sz"]) * 1.02]   # a real drop
         badge = f'<span class="badge">{L["low"].format(d=min(60, max(d["hd"] for d in lows)))}</span>' if lows and off else ""   # 60-day window
-        img = f'<img src="{esc(first["img"])}" alt="{esc(name)}" loading="lazy" referrerpolicy="no-referrer">' if first.get("img") else ""
+        img = f'<img src="{esc(photo)}" alt="{esc(name)}" loading="lazy" referrerpolicy="no-referrer">' if photo else ""
         out.append(f'<div class="hero">{img}<div>{f"<span class=tag>{esc(t)}</span>" if t else ""}<p>{line}</p>{badge}'
                    f'<p class="facts">{L["facts"].format(sizes=len(allrows), stores=n_stores, date=fmt_date(updated, L))}</p></div></div>')
     else:
@@ -1608,6 +1611,12 @@ def forward_old(known, models, site, dirs):
                     break
             if meta.get("to"):
                 break
+        if not meta.get("to"):   # Oct 26: "zegama-trail-2" = "zegama-2-trail", "stinson-7" -> "stinson-7-trail", "860v15-2e" -> "860v15-wide":
+            # since the merge reads a lone trail/road word as filler, a page whose shoes moved forwards to the live page with the same words
+            nk = lambda x: sorted(w for w in x.replace("-2e", "-wide").split("-") if w not in ("trail", "road"))
+            hit = [k for k in models if k != slug and k in known and not known[k].get("to") and nk(k) == nk(slug)]
+            if len(hit) == 1:
+                meta["to"] = hit[0]
     for slug, to in {s: v["to"] for s, v in known.items() if v.get("to")}.items():
         for d in dirs:
             p = site / d / slug / "index.html"

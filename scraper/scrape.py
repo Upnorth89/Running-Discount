@@ -3969,8 +3969,13 @@ def _shoe_name(o, keep_tr):
     name = re.sub(r"\b((trail|road) )?racing( shoes?)?\b", " ", name)    # "Zoom Fly 6 Racing Shoe" = "Zoom Fly 6 Road Racing Shoes"
     name = re.sub(tr, " ", name)
     name = re.sub(r"\bunisex\b", " ", name)                   # "Metaspeed Ray" = "Metaspeed Ray - Unisex" (no gender either way)
+    if not keep_tr:   # Oct 26: "Torin 8 - Road Shoe" = "Torin 8 Road Running Shoes"; a lone trail/road word only stays when it names
+        name = re.sub(r"\b(trail|road)\b", " ", name)                 # another model (_TRAIL_MODELS: "Ghost Trail", "Rocket X Trail")
+    name = re.sub(r"\b(\d{3,4}) ?v ?(\d{1,2})\b", r"\1v\2", name)   # Oct 26: New Balance "880 v15" = "880v15" = "880 V15" (56 twin cards)
+    name = re.sub(r"\sd(?=\smen s$)|\sb(?=\swomen s$)", " ", name)   # "Adrenaline GTS 25 (D) - Men's": D (men) / B (women) = standard width
     if o["b"].lower().strip() == "nike":
-        name = re.sub(r"^\s*(nike\s+)?air zoom\s+", "", name)       # "Air Zoom Pegasus 41" = "Pegasus 41"
+        name = re.sub(r"^\s*(nike\s+)?(air zoom|zoomx|zoom(?! fly))\s+", "", name)   # "Air Zoom Pegasus 41" = "Zoom Pegasus 41" = "Pegasus 41"
+        name = re.sub(r"\bnext\b", " ", name)                         # "ZoomX Vaporfly Next% 4" = "Vaporfly 4", "Alphafly Next 3" = "Alphafly 3"
     if o["b"].lower().strip() == "adidas":
         name = re.sub(r"^\s*adizero\s+", "", name)            # "Evo SL - Men's" (Endurance) = "Adizero EVO SL" (Altitude)
     if o["b"].lower().strip() == "asics":
@@ -4184,7 +4189,17 @@ def merge(offers):
     _TRAIL_MODELS.clear()
     for o in tidied:          # models a store names with Trail/Road but without "running" ("Ghost Trail - Men's")
         if o["g"] == "shoes" and re.search(r"\b(trail|road)\b", o["n"], re.I) and not re.search(r"\brun(ning)?\b", o["n"], re.I):
-            _TRAIL_MODELS.add((o["b"].lower().strip(), _shoe_name(o, True)))
+            k = _shoe_name(o, True)
+            w = re.search(r"\b(trail|road)\b", k)
+            # Oct 26 (89 Canadian shoes had two cards: "Cascadia 19 - Men's" + "Cascadia 19 Trail Running Shoe - Men's"): the
+            # word is part of the model only when it changes the kind of shoe (Brooks' road Ghost vs "Ghost Trail"); on a model
+            # that is already that kind ("Cascadia 19 Trail", "Torin 8 Road") it adds nothing and must not split the card
+            if w:
+                base = re.sub(r"\b(trail|road)\b", " ", k)
+                kind = garment_type("shoes", f'{o["b"]} {base}')
+                if (w.group(1) == "trail" and kind in ("trail", "hike")) or (w.group(1) == "road" and kind in ("daily", "race")):
+                    continue
+            _TRAIL_MODELS.add((o["b"].lower().strip(), k))
     # Oct 9: shoes listed in EU sizes only ("42", "38.5 EU": La Sportiva, Vibram, Vivobarefoot) used to be dropped. Today's
     # labels that carry both EU and US for the same brand and gender ("EU 43 (US 10)", "10.0 (43)") give that brand's chart;
     # an EU-only size takes it when every store agrees on one US size, otherwise it stays unread (no guessing).
@@ -4207,6 +4222,8 @@ def merge(offers):
                                    "_ca": [], "_fs": [], "ca": False}
             if o["g"] in TYPES:
                 it["t"] = garment_type(o["g"], f'{o["b"]} {o["n"]}' if o["g"] in ("shoes", "gear") else o["n"])
+        if o["g"] == "shoes":
+            it.setdefault("_nm", []).append(o["n"].strip())
         if o.get("_t"):
             it["t"] = o["_t"]          # a store's "Trail Running Shoes - MT3" (tidy_shoes) says trail, whatever the other names say
         oi = len(it["of"])
@@ -4244,9 +4261,67 @@ def merge(offers):
     for it in items.values():
         spell[it["b"].lower()][it["b"]] += 1
     best = {k: max(c, key=lambda b: (b != b.upper() or len(b) <= 4, c[b])) for k, c in spell.items()}   # GU, LEKI stay
+    # Oct 26: when stores word a shoe differently, the card takes the wording whose shoe page already exists, so merging
+    # two cards never moves a page Google knows (the registries sit beside deals.json; none = the first store's wording)
+    reg = set()
+    for f in (OUT.parent / "shoes" / "pages.json", OUT.parent / "us" / "shoes" / "pages.json"):
+        try:
+            reg |= {s_ for s_, v in json.loads(f.read_text()).items() if not v.get("to")}
+        except Exception:
+            pass
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from shoe_pages import base_model as _bm, slugify as _sl
+    # Oct 26 (Bastien: "Can't we build a filter that catches this everyday when we gather data"): a second pass. Two shoe cards
+    # that land on the same shoe page (same brand + model words once "trail"/"road" filler is set aside, same gender, width,
+    # kind of shoe and ships-from) are one shoe worded two ways by two stores: they become one card, whatever new wording a
+    # store comes up with. The kind keeps real pairs apart (Brooks' road Ghost vs Ghost Trail, Hoka Rocket X vs Rocket X Trail).
+    twin, merged = {}, 0
+    def join(a, it):
+        off = len(a["of"])
+        for f_ in ("of", "_st", "_ca", "_fs", "_im", "_nm"):
+            a.setdefault(f_, []).extend(it.get(f_) or [])
+        a["lp"] = max(a["lp"], it["lp"]); a["img"] = a["img"] or it.get("img"); a["bb"] = a["bb"] or it.get("bb")
+        for k, (price, oi, r, v) in it["sz"].items():
+            cur = a["sz"].get(k)
+            if cur is None or (a["_ca"][oi + off], -price) > (a["_ca"][cur[1]], -cur[0]):
+                a["sz"][k] = (price, oi + off, r, v)
+    for key in list(items):
+        it = items[key]
+        if it["g"] != "shoes":
+            continue
+        core = " ".join(w for w in _sl(f'{best[it["b"].lower()]} {_bm(it["n"])}').split("-") if w not in ("trail", "road"))
+        tk = (core, tuple(sorted(it["sx"])), it["w"], it["ca"], it.get("t"))
+        a = twin.get(tk)
+        if a is None:
+            twin[tk] = it
+            continue
+        join(a, it)
+        del items[key]
+        merged += 1
+        # a plain name ("Venosk - Men's") next to the same model sold as "Venosk Trail Running Shoes": the plain one was typed as a
+        # road shoe only because its name says nothing; it joins the trail card (race/hike pairs stay apart: Rocket X vs Rocket X Trail)
+    page = lambda it: _sl(f'{best[it["b"].lower()]} {_bm(it["n"])}')     # the exact shoe page (Ghost and Ghost Trail differ here)
+    trails = {(page(it), tuple(sorted(it["sx"])), it["w"], it["ca"]): it for it in items.values() if it["g"] == "shoes" and it.get("t") == "trail"}
+    for key in list(items):
+        it = items.get(key)
+        if not it or it["g"] != "shoes" or it.get("t") != "daily" or re.search(r"\broad\b", it["n"], re.I):
+            continue
+        a = trails.get((page(it), tuple(sorted(it["sx"])), it["w"], it["ca"]))
+        if a is None or a is it:
+            continue
+        join(a, it)
+        del items[key]
+        merged += 1
+    if merged:
+        print(f"  shoe twins joined (second pass): {merged}")
     out = []
     for it in items.values():
         it["b"] = best[it["b"].lower()]
+        nms = it.pop("_nm", None)
+        if reg and nms and len(set(nms)) > 1 and _sl(f'{it["b"]} {_bm(it["n"])}') not in reg:
+            hit = next((n for n in nms if _sl(f'{it["b"]} {_bm(n)}') in reg and not re.search(r"\s[—·]\s", n)), None)
+            if hit:
+                it["n"] = hit
         # [size, price, offer, regular] plus the size's own variant id when the store has one
         it["sz"] = [[s, p, i, r] + ([v] if v else []) for s, (p, i, r, v) in it["sz"].items()]
         it.pop("_ca", None)

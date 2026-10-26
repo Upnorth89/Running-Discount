@@ -94,6 +94,8 @@ scraper/shoe_pages.py    Google pages: one per popular shoe model (3+ Canadian s
                          in pages.json, `stale()`, HIDE_DAYS) gets noindex,follow and leaves the sitemap (NOINDEX; page stays for visitors);
                          breadcrumb brand links to /brands/<b>/ when it has a page (+ BreadcrumbList); base_model/baseModel: "Gore-Tex" = "GTX",
                          New Balance "880 v15" = "880v15" (28 + 8 duplicate pages forwarded). check.py: no noindex page in the sitemap, every other shoe page in it.
+                         Page photo (Oct 26 bug): model_page reassigned `first` to a per-table dict, so no shoe/boot page had a hero photo
+                         or a Product `image`; now `photo` = first item photo (hero + JSON-LD image, needed for product results).
                          Price line (Oct 15, Bastien dropped the chart: "not make people feel like they missed a sale"): `price_chart()` under
                          the size tables, per version, from hist/prices.jsonl: 5%+ cheaper in 60 days -> "It was $X on <date> ($Y today). Sales
                          come back: don't miss the next one." + [Email me when it drops] (#alertBox); today lowest -> green line only with 30+
@@ -285,7 +287,7 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
 - **Weekly data check-in (Oct 24, Bastien: "weekly checkins ... where people drop off")**: scheduled task Mondays 7:47am Vancouver
   (trigger "Weekly data check-in (Monday)"): funnel.yml -> ONE page: Path to $300K scorecard, drop-offs this week vs last, the 3
   search-quality numbers ("Google of the outdoor space", one sector at a time: % searches finding nothing, duplicate cards, readable
-  shoe sizes), data gaps, live tests, ONE decision. tools/funnel.py prints a SCORECARD (top) + SEARCHES section for it.
+  shoe sizes), data gaps, live tests, ONE decision. tools/funnel.py prints a SCORECARD (top) + SEARCHES section for it, and a HIKING section (Oct 26: switched to Hiking, boot pages, trail gear lists: ticks, trip length, store clicks, sign-ups; tests 'short'/'cards2' show in EXPERIMENT lines by themselves).
   Oct 24 baseline: 10% of searches found nothing (80/798; most = not on sale in their size, which the site already explains);
   46 duplicate shoe-card groups in Canada (fix parked on the side branch a5424a7: it changes ~40 shoe page slugs per side,
   needs a slug-stable display name first); 97.3% of shoe listings with readable sizes (REI "5 Mens/6.5 Womens" fixed).
@@ -378,7 +380,7 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   a CAD store that answers in USD is left out that night) -> hike-offers.json + deals-hike(-us).json / sale-hike(-us).json + camp(-us).json
   (camping: read, NOT published). `classify()` = hiking groups (the running groups) + types (`HTYPES`): shoes hike/boot/approach, tops
   shell/insulated/fleece/wind/base/shirt, bottoms pant/rain/short/base, packs day/overnight (35 L+), gear pole/light/water/traction/safety/
-  nav/gaiter/sun; SKIP (ski, bike, paddling, hunting, climbing hardware, kids, casual), NOT_HIKE_BRANDS (fashion/ski), CASUAL words; the
+  nav/gaiter/sun; SKIP (ski, bike, paddling, hunting, climbing hardware, kids, casual), NOT_HIKE_BRANDS (fashion/ski; Oct 26 + casual/fishing labels: Duck Head, Z Supply, Johnnie-O, Southern Shirt, Howler Brothers, Goorin, Mono, Simms, Marker), CASUAL words, "Short Jacket"/"Pack Down Anorak" = tops; the
   running merge does sizes/brands/genders, then our sorting wins (`tidy`); trail runners the running site carries (RUNNING_DEALS) stay on the
   running side; shoe labels "8.5 US"/"7 UK" read (`shoe_label`), EU only from makers' own charts (`EU_CHART`: LOWA). `ul` = fastpack flag.
   Site: Running | Hiking pills beside the size (`sportSw()`, phones in .rdqf, computers after #ddSize), `SPORT`/`HIKE()`, gf-sport,
@@ -469,6 +471,12 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   (actions/cache "indexnow-*", /tmp/indexnow-state.json); new + changed are sent, cache lost = all. INDEXNOW_DRY=1 = count only.
   Bing Webmaster Tools (Oct 23, Bastien signed in): sitemap OK (2.3K URLs discovered) but only 5 pages indexed, Backlinks "-":
   Bing waits for links from other sites (race organizer emails). He requested indexing for /, /shoes/, /running-shoes-sale/.
+- **Daily drop posts** (Oct 26, Bastien: "make growth into an automatic feature"; OFF until his yes): `tools/social_post.py` + social.yml
+  (8:21am Vancouver): today's biggest REAL drops on shoes with a shoe page (history: a week ago vs today, 10% or $10, >= $5, 5+ sizes at the
+  price), each confirmed by livecheck, one per brand, 3 a day, each shoe once per 21 days (actions/cache social-state.json); text = facts only
+  + shoe page `?ref=bluesky`. Posts only when repo variable SOCIAL_LIVE=1 AND secrets BLUESKY_HANDLE + BLUESKY_APP_PASSWORD exist (Bastien
+  adds them himself); otherwise a dry run (artifact "posts": posts.html). Pinterest (app review + demo video) and Threads (Meta verification)
+  next. Plan doc tab "Growth plan (Oct 27)" = the full night-of-Oct-26 growth/monetize/SEO answers.
 - **Growth calendar** (Oct 11, Bastien: "post every 3 days on running gear"): plan doc section "Growth: a post every 3 days" + send_later
   reminders at 6:30am Vancouver (C25K Oct 14, RunningShoes 17, runninglifestyle 20, BuyCanadian 23, xxrunning 26, trailrunning 29,
   FrugalMaleFashionCDN Nov 1, ultrarunning 4, RunningShoeGeeks 7 + plan the rest to Cyber Monday). A different place each time.
@@ -705,6 +713,15 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   reader takes the colour out of the title when the product has exactly ONE colour option value that sits at the end / before "- …",
   "(Men's)", "|" or "Shoes" (Run Uphill, Foveo, Brainsport, Soar…; values with digits ignored: Le Coureur codes). mkey: "001-A" = "001A",
   "Spikes" = "Spike". Tested on 31 stores' live products.json before shipping.
+- Shoe twin cards (Oct 26): `_shoe_name` reads New Balance "880 v15" = "880v15", a lone trail/road word as filler unless it names another model
+  (`_TRAIL_MODELS` only keeps it when it changes the kind: "Ghost Trail", "Rocket X Trail"), Nike "Air Zoom"/"ZoomX"/"Zoom" (not Zoom Fly) + "Next%",
+  men's (D)/women's (B) = standard width. A merged card takes the store wording whose shoe page is registered (scrape.py reads shoes/pages.json
+  + us/shoes/pages.json beside deals.json), so merging never moves a page; forward_old forwards a page whose shoes moved to the page with the
+  same words minus trail/road. SECOND PASS (Oct 26, Bastien: "a filter that catches this everyday when we gather data"): after the
+  name merge, shoe cards landing on the same shoe page (brand + base_model words minus trail/road, gender, width, ships-from, same kind `t`)
+  are joined whatever the wording; a plain-name 'daily' card joins the trail card on the EXACT same page (Boreal's "Ghost" = Ghost Trail;
+  Brooks' road Ghost stays apart). sortcheck "one shoe on two cards (same shoe page)" flags any twin left in the morning email
+  (OK_TWINS: Hoka Rocket X vs Rocket X Trail, Topo Ultraventure hike vs trail). Oct 26: CA 79 -> 0, USA 62 -> 0. Measure: count of shoe cards sharing a shoe-page slug + gender + width + ships-from (Oct 26: CA 81 -> 18).
 - `CAPS_STORES` (Le Coureur writes in capitals: softened), `OWN_BRAND` (rabbit/Bandit leave the brand "0").
 - Shoe size keys: `"10"`, `"M:10"`/`"W:11"` (from unisex labels), suffix `~W` wide, `~N` narrow (hidden).
 - Accessories (packs, gear) in letter sizes follow the clothing size; odd labels are hidden on cards.
