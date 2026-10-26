@@ -298,6 +298,17 @@ VERIFIED = {
     "delicate-arch": (4.8, None, "https://www.nps.gov/arch/", {}),
     "queens-garden-navajo": (4.7, None, "https://www.nps.gov/brca/", {}),
     "superior-hiking-trail": (483, None, "https://superiorhiking.org/", {}),               # 300 miles
+    # Oct 26 (winter-season trails first)
+    "plateau-point": (19.3, None, "https://www.nps.gov/grca/planyourvisit/upload/BrightAngelTrail.pdf", {}),   # 12 miles round trip
+    "grand-canyon-r2r": (37.7, 1317, "https://www.nps.gov/grca/planyourvisit/trail-distances.htm", {"oneway": True, "name": "Grand Canyon Rim to Rim (North Kaibab + Bright Angel)"}),   # 13.6 + 9.9 mi; Phantom 776 m -> South Rim 2093 m
+    "zion-narrows": (16.1, None, "https://www.nps.gov/zion/planyourvisit/thenarrows.htm", {"name": "The Narrows (bottom-up to Big Spring)"}),   # ten-mile round trip
+    "chesler-park": (17.2, None, "https://www.nps.gov/cany/planyourvisit/hiking.htm", {"name": "Chesler Park / Joint Trail"}),   # 10.7 miles
+    "old-rag": (15.1, 716, "https://www.nps.gov/thingstodo/old-rag-circuit.htm", {}),        # 9.4-mile circuit, 2,348 ft
+    "alum-cave-leconte": (16.1, None, "https://www.nps.gov/thingstodo/leconte-via-alum-cave-trail.htm", {}),
+    "multnomah-wahkeena": (7.7, None, "https://www.fs.usda.gov/r06/columbiarivergorge/recreation/trails/wahkeena-trail-420", {}),   # 4.8 mile loop
+    "lost-coast": (39.6, None, "https://www.blm.gov/visit/lost-coast-trail", {"oneway": True}),   # 24.6 miles Mattole to Black Sands Beach
+    "half-dome": (26, 1470, "https://www.nps.gov/yose/planyourvisit/yosemite-valley-trails.htm", {}),   # via JMT, 16.2 mi, 4,830 ft
+    "sky-pond": (13.6, 526, "https://www.nps.gov/romo/planyourvisit/exploring-the-bear-lake-road-corridor.htm", {}),   # 4.2 mi one way, 1,726 ft
 }
 for s, (km, gain, url, extra) in VERIFIED.items():
     h = BY[s]
