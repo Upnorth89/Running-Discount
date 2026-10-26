@@ -88,7 +88,7 @@ def picks(sale, pages, hist, state, today):
         e = at[0]
         u = d["of"][e[2]]
         gender = "Women's" if d.get("sx") == ["women"] else "Men's" if d.get("sx") == ["men"] else ""
-        nm_ = re.sub(r"\b[A-Z]{5,}\b", lambda w: w.group(0).capitalize(), SP.base_model(d["n"]))   # "ENDORPHIN EDGE" -> "Endorphin Edge"
+        nm_ = re.sub(r"\b(?!GTX\b|BOA\b)[A-Z]{4,}\b", lambda w: w.group(0).capitalize(), SP.base_model(d["n"]))   # "Endorphin EDGE" -> "Endorphin Edge"
         out.append({"slug": slug, "b": d["b"], "name": f'{d["b"]} {nm_}', "gender": gender, "now": best,
                     "was": then, "reg": reg, "pct": round(100 * (1 - best / reg)), "drop": round(off), "store": names.get(host(u), host(u)),
                     "url": u, "variant": e[4] if len(e) > 4 else None, "sizes": len(at), "img": d.get("img") or "",
@@ -179,6 +179,8 @@ def main():
                 p["error"] = str(e)[:200]
         posts.append(p)
         print(("OK  " if p["ok"] else "SKIP") + " " + p["text"].replace("\n", " | "))
+        if p.get("posted") or p.get("error"):
+            print("     -> " + (f'posted {p["posted"]["bluesky"]}' if p.get("posted") else f'NOT posted: {p["error"]}'))
     (out / "posts.json").write_text(json.dumps(posts, indent=1, ensure_ascii=False))
     sf.write_text(json.dumps(state, indent=1))
     preview(posts, out)
