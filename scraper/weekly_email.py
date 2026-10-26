@@ -129,9 +129,12 @@ def match(items, p):
                 G = {"men": "M", "women": "W"}.get(gender or "", "")
                 # "Both" with its own women's sizes (site: men's + 1.5 until changed): women's sizes use that list
                 want_w = {str(x) for x in spec.get("women") or []} if gender == "any" else set()
+                want_eu = {str(x) for x in spec.get("eu") or []}
                 def fits(e):
                     if e[0] == "OS":
                         return True
+                    if str(e[0]).startswith("E:"):     # Oct 25, hiking: European-only boots ("E:44.5") match the EU size line
+                        return str(e[0])[2:].split("~")[0] in want_eu
                     k = SHOE_KEY.match(str(e[0]))
                     if not k or k.group(3) == "N":
                         return False
@@ -225,7 +228,7 @@ def tr(lang, key, *a):
     return v(*a) if callable(v) else (v.format(*a) if a else v)
 
 
-SIDE = {"us": False, "fx": 1.0}      # set per person in main(): the USA side shows US dollars and US wording (Oct 6, 2026)
+SIDE = {"us": False, "fx": 1.0, "hike": False}      # set per person in main(): the USA side shows US dollars and US wording (Oct 6, 2026)
 
 
 def money(v, lang="en"):
@@ -247,11 +250,20 @@ def pct_txt(n, lang="en"):
     return f"−{n} %" if lang == "fr" else f"−{n}%"
 
 
+HIKE_LABEL = {"shoes": "Boots & shoes", "tops": "Jackets & tops", "bottoms": "Pants & shorts", "packs": "Packs",
+              "gear": "Poles, lights & water"}
+HIKE_FR = {"shoes": "Bottes et chaussures", "tops": "Manteaux et hauts", "bottoms": "Pantalons et shorts", "packs": "Sacs à dos",
+           "gear": "Bâtons, frontales et eau"}
+
 def group_label(g, lang="en"):
+    if SIDE.get("hike") and g in HIKE_LABEL:
+        return HIKE_FR[g] if lang == "fr" else HIKE_LABEL[g]
     return GROUP_FR.get(g, GROUP_LABEL[g]) if lang == "fr" else GROUP_LABEL[g]
 
 
 def shoe_label(s, lang="en"):
+    if str(s).startswith("E:"):
+        return "EU " + str(s)[2:]
     k = SHOE_KEY.match(str(s))
     if not k:
         return str(s)
@@ -370,10 +382,10 @@ def shop_link(p):
     """Site link that opens this person's tailored shop on any device."""
     import base64
     if p.get("token"):
-        return f"{SITE_URL}?k={p['token']}"      # private key: loads their saved profile from the database
+        return f"{SITE_URL}?k={p['token']}" + ("&sport=hike" if SIDE.get("hike") else "")      # private key: loads their saved profile from the database
     keep = {k: p.get(k) for k in ("name", "gender", "ships", "activities", "groups", "sizes", "brands", "max_price", "lang")}
     b = base64.urlsafe_b64encode(json.dumps(keep, separators=(",", ":")).encode()).decode().rstrip("=")
-    return f"{SITE_URL}?p={b}"          # query string survives email link-wrappers better than #
+    return f"{SITE_URL}?p={b}" + ("&sport=hike" if SIDE.get("hike") else "")          # query string survives email link-wrappers better than #
 
 def build(p, sale, watch=None):
     lang = lang_of(p)
@@ -552,6 +564,17 @@ def main():
             SIDE["fx"] = float((data.get("fx") or {}).get("USD") or 1.37)
         except Exception as e:
             print(f"  (no USA deals: {e}; US subscribers get the Canadian list)")
+    hike = {"ca": [], "us": []}             # Oct 25 (Bastien): people who signed up on the Hiking side get hiking items
+    if any(p.get("sport") == "hike" for p in profiles):
+        for k, f in (("ca", "deals-hike.json"), ("us", "deals-hike-us.json")):
+            try:
+                hike[k] = (requests.get(DEALS_URL.replace("deals.json", f), timeout=60).json() if DEALS_URL
+                           else json.loads((ROOT / "site" / f).read_text())).get("items", [])
+                print(f"{len(hike[k])} hiking items ({k})")
+                if k == "us" and hike[k] and SIDE["fx"] == 1.0:
+                    SIDE["fx"] = float((data.get("fx") or {}).get("USD") or 1.37)
+            except Exception as e:
+                print(f"  (no hiking deals {k}: {e}; hiking subscribers get the running list)")
     try:                                   # shoe price pages, for the "All sizes & stores" links
         SHOE_PAGES.update(requests.get(SITE_URL + "shoes/pages.json", timeout=30).json() if DEALS_URL
                           else json.loads((ROOT / "site" / "shoes" / "pages.json").read_text()))
@@ -564,9 +587,9 @@ def main():
             import alerts as A
             from datetime import datetime, timezone
             by_key, by_us = {}, {}
-            for d in items:
+            for d in items + hike["ca"]:
                 by_key.setdefault(A.item_key(d), []).append(d)
-            for d in us_items:
+            for d in us_items + hike["us"]:
                 by_us.setdefault(A.item_key(d), []).append(d)
             watch_news = A.evaluate_sides(A.fetch_rows(), by_key, by_us, datetime.now(timezone.utc), cooldown=False)
             print(f"watchlist news for {sum(1 for w in watch_news.values() if w['drops'] or w['backs'])} people")
@@ -576,10 +599,15 @@ def main():
     for p in profiles:
         if not p.get("email"):
             continue
-        SIDE["us"] = p.get("country") == "us" and bool(us_items)
-        side = us_items if SIDE["us"] else items
+        us = p.get("country") == "us"
+        SIDE["hike"] = p.get("sport") == "hike" and bool(hike["us" if us else "ca"])
+        if SIDE["hike"]:
+            SIDE["us"], side = us, hike["us" if us else "ca"]
+        else:
+            SIDE["us"] = us and bool(us_items)
+            side = us_items if SIDE["us"] else items
         # anything below full price; no nutrition (Oct 9, Bastien: the Friday email is gear, not gels)
-        sale = [d for d in match(side, p) if d["pct"] >= 1 and terrain_ok(d, p) and d["g"] != "nutrition"]
+        sale = [d for d in match(side, p) if d["pct"] >= 1 and (SIDE["hike"] or terrain_ok(d, p)) and d["g"] != "nutrition"]
         who = p["email"]
         watch = watch_news.get(p.get("token"))
         has_watch = bool(watch and (watch["drops"] or watch["backs"]))

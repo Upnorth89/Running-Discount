@@ -4,5 +4,11 @@
  "packs": "https://s3.amazonaws.com/syncpigeon/alti_prod/images/nat-ns30730_electric-blue-reflective-silver.jpg",
  "acc": "https://s3.amazonaws.com/syncpigeon/alti_prod/images/hoo-1151232_papaya.jpg",
  "nutrition": "https://s3.amazonaws.com/syncpigeon/alti_prod/images/nak-bgne-1b-ca_no-color.jpg",
- "gear": "https://s3.amazonaws.com/syncpigeon/alti_prod/images/bdd-bd620678_azul.jpg"
+ "gear": "https://s3.amazonaws.com/syncpigeon/alti_prod/images/bdd-bd620678_azul.jpg",
+ "hike-shoes": "https://s3.amazonaws.com/syncpigeon/alti_prod/images/mer-j035833_earth.jpg",
+ "hike-apparel": "https://s3.amazonaws.com/syncpigeon/alti_prod/images/pat-85241_smolder-blue.jpg",
+ "hike-bottoms": "https://s3.amazonaws.com/syncpigeon/alti_prod/images/fjr-f86891_dark-grey.jpg",
+ "hike-packs": "https://s3.amazonaws.com/syncpigeon/alti_prod/images/osp-aura50w_berry-sorbet-red.jpg",
+ "hike-acc": "https://s3.amazonaws.com/syncpigeon/alti_prod/images/smt-sw002852_moonbeam.jpg",
+ "hike-gear": "https://s3.amazonaws.com/syncpigeon/alti_prod/images/pet-e065ab_green.jpg"
 }

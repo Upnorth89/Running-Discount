@@ -129,7 +129,7 @@ def stub(ctx):
     ctx.route(re.compile(r"umami|googletagmanager|accounts\.google|gstatic"), lambda r: r.abort())
     ctx.route(re.compile(r"^https?://(?!127\.0\.0\.1).*\.(jpe?g|png|webp|gif|avif)(\?.*)?$", re.I), lambda r: r.abort())
     # A/B tests (Oct 18): the robot is group A unless a check asks otherwise (test "welcome" B skips the welcome screen)
-    ctx.add_init_script("try{if(!localStorage.getItem('gf-exp'))localStorage.setItem('gf-exp',JSON.stringify({welcome:'A',layout:'A'}))}catch(e){}")
+    ctx.add_init_script("try{if(!localStorage.getItem('gf-exp'))localStorage.setItem('gf-exp',JSON.stringify({welcome:'A',layout:'A',short:'A'}))}catch(e){}")
 
 
 # ---------- what today's data says we should see ----------
@@ -378,6 +378,25 @@ def site_flow(base, per, accented):
             return "; ".join(out) or "neither in these sizes today"
         check("Search without punctuation")(punctuation, page)
 
+        def plural():   # Oct 24 (searches that found nothing: "saucony endorphins speed", "glycerine"): a trailing s or e is forgiven
+            out = []
+            for written, typed in (("endorphin speed", "endorphins speed"), ("glycerin", "glycerine")):
+                all_gear()
+                page.fill("#dSearch", written)
+                settle(page, 900)
+                n = len(cards(page))
+                if not n:
+                    continue
+                page.fill("#dSearch", typed)
+                settle(page, 900)
+                m = len(cards(page))
+                assert m >= n, f"searching '{typed}' finds {m} deals, '{written}' finds {n}"
+                out.append(f"'{typed}' {m} (>= '{written}' {n})")
+            page.fill("#dSearch", "")
+            settle(page)
+            return "; ".join(out) or "neither in these sizes today"
+        check("Search forgives a plural or an extra e")(plural, page)
+
         def nonsense():
             all_gear()
             page.fill("#dSearch", "zzqxw")
@@ -491,8 +510,13 @@ def site_flow(base, per, accented):
             page.wait_for_selector("#backBar", timeout=6000)
             assert not page.locator("#backBar.bwbar,#backBar.subar").count(), "a removed bar ('Didn't buy it?' / sign-up) came back"
             bar = page.inner_text("#backBar")
+            page.evaluate("scrollTo(0, document.body.scrollHeight * 0.6)")   # Oct 25: from far down the page, Show must bring the store's
+            settle(page, 300)                                                     # deals into view (they opened out of sight)
             page.click("#backBar .go")
             page.wait_for_selector(".storebar")
+            settle(page, 1200)
+            top = page.evaluate("document.querySelector('.storebar').getBoundingClientRect().top")
+            assert 0 <= top < page.evaluate("innerHeight"), f"Show opened the store's deals out of sight (box at {round(top)} px)"
             name = page.inner_text(".storebar b").strip()
             cs = cards(page)
             assert cs, f"the come-back bar opened {name} with no deals"
@@ -513,7 +537,8 @@ def site_flow(base, per, accented):
 
         def watch_label():   # Oct 11: cards say "Watch price" (the small heart alone was used by 5 people in 3 weeks)
             labels = page.eval_on_selector_all("section.grp .heart .hl", "e => e.map(x => x.textContent)")
-            assert labels and all(x in ("Watch price", "Watching") for x in labels), f"cards' watch buttons say {set(labels)}"
+            ok = ("Watch price", "Watching") + (("Watch",) if page.evaluate("document.documentElement.classList.contains('cards2')") else ())   # test cards2 B: "Watch" (Bastien OK'd, Oct 25)
+            assert labels and all(x in ok for x in labels), f"cards' watch buttons say {set(labels)}"
             return f"{len(labels)} cards"
         check("Cards have a 'Watch price' button")(watch_label, page)
 
@@ -703,6 +728,58 @@ def site_flow(base, per, accented):
             assert len(sug) <= 6 and all("peg" in x.lower() for x in sug), f"odd suggestions: {sug}"
             return f"'peg' -> {', '.join(sug[:3])}…"
         # Oct 22: test 'runcard' ended (Bastien); its check is off
+
+        def pro_card():   # Oct 25 (Bastien: "yes run the Pro price test from Nov 2"): the waitlist card, $3/$29 (A) vs $5/$49 (B)
+            seen = {}
+            for arm in ("B", "A"):
+                page.goto(base + f"?pro=1&exp=pro:{arm}", wait_until="domcontentloaded")
+                page.wait_for_selector("section.grp .deal", timeout=20000)
+                if not page.locator(".procard").count():
+                    page.evaluate("() => localStorage.removeItem('gf-exp')")
+                    return "no card slot on this visit (waiting for an email confirmation): skipped"
+                seen[arm] = page.inner_text(".procard .proprice")
+            assert "$5/month or $49/year" in seen["B"], f"group B shows {seen['B']!r}"
+            assert "$3/month or $29/year" in seen["A"], f"group A shows {seen['A']!r}"
+            assert page.locator("#proForm, #proJoin").count(), "no way to join the waitlist"
+            page.click("#proNo")
+            page.wait_for_timeout(400)
+            gone = not page.locator(".procard").count()
+            page.evaluate("() => {localStorage.removeItem('gf-nopro'); localStorage.removeItem('gf-exp')}")
+            page.goto(base, wait_until="domcontentloaded")
+            page.wait_for_selector("section.grp .deal", timeout=20000)
+            assert gone, "'No thanks' didn't hide the card"
+            import datetime as _dt
+            if not ("2026-11-02" <= _dt.date.today().isoformat() <= "2026-11-16"):
+                assert not page.locator(".procard").count(), "the card shows outside the test window (Nov 2-16) without ?pro=1"
+            return "B $5/$49, A $3/$29, 'No thanks' hides it, nothing outside the test window"
+        check("Fox Pro waitlist card (price test)")(pro_card, page)
+
+        def compact_cards():   # Oct 25 (Bastien: "more items would be better on a screen"): test 'cards2' B = slimmer two-per-row phone cards,
+            # last line = your size / "S/M/L" on the left + "♡ Watch" on the right, 6 top deals; A = as before
+            out = {}
+            for arm in ("B", "A"):
+                page.goto(base + f"?exp=cards2:{arm}", wait_until="domcontentloaded")
+                page.wait_for_selector("section.grp .deal", timeout=20000)
+                page.wait_for_timeout(600)
+                out[arm] = page.evaluate("""() => {const cs = [...document.querySelectorAll('#dealList section.grp:not(.new) .rdc')].slice(0, 12);
+                  const hit = (a, b) => { if (!a || !b) return false; const x = a.getBoundingClientRect(), y = b.getBoundingClientRect();
+                    return x.left < y.right - 1 && y.left < x.right - 1 && x.top < y.bottom - 1 && y.top < x.bottom - 1 };
+                  return {on: document.documentElement.classList.contains('cards2'), top: document.querySelectorAll('#grp-__sale .rdc').length,
+                    h: Math.round(cs.reduce((t, c) => t + c.getBoundingClientRect().height, 0) / Math.max(1, cs.length)),
+                    labels: [...new Set(cs.map(c => (c.querySelector('.heart .hl') || {}).textContent))],
+                    over: cs.filter(c => [...c.querySelectorAll('.yoursz,.sztxt,.cmp,.rdrep,.store,.price')].some(e => hit(e, c.querySelector('.heart')))).length,
+                    boxes: cs.filter(c => c.querySelector('.szrow')).length, wide: document.documentElement.scrollWidth > innerWidth}}""")
+            page.evaluate("() => {const o = JSON.parse(localStorage.getItem('gf-exp') || '{}'); delete o.cards2; localStorage.setItem('gf-exp', JSON.stringify(o))}")
+            b, a = out["B"], out["A"]
+            assert b["on"] and not a["on"], f"group switch didn't apply: {out}"
+            assert b["top"] == 6 and a["top"] == 4, f"top deals shown: B {b['top']}, A {a['top']} (should be 6 and 4)"
+            assert set(b["labels"]) <= {"Watch", "Watching"} and set(a["labels"]) <= {"Watch price", "Watching"}, f"watch labels B {b['labels']}, A {a['labels']}"
+            assert not b["over"], f"B: on {b['over']} cards the last line runs into 'Watch'"
+            assert not b["boxes"], f"B: {b['boxes']} cards still show size boxes"
+            assert not b["wide"], "B: the page is wider than the phone"
+            assert b["h"] < a["h"] * 0.85, f"B cards aren't slimmer: {b['h']}px vs {a['h']}px"
+            return f"B {b['h']}px a card (A {a['h']}px), 6 top deals, size + Watch on one line, no overlaps"
+        check("Compact phone cards (test cards2)")(compact_cards, page)
 
         def your_size_line():   # Oct 23 (Bastien OK'd): cards say "✓ Size 11 in stock" instead of a row of size chips
             lines = page.eval_on_selector_all("section.grp:not(.new) .deal .yoursz", "e => e.map(x => x.textContent)")
@@ -1065,7 +1142,7 @@ def site_flow(base, per, accented):
                 got = q.evaluate("""() => {const vis = el => !!el && el.getClientRects().length > 0, txt = s => [...document.querySelectorAll(s)].filter(vis).map(x => x.textContent).join(' ');
                   const cards = [...document.querySelectorAll('#dealList section.grp:not(.new) .dw')].slice(0, 6);
                   return {
-                    '"Watch price" in words on cards': cards.length > 0 && cards.every(w => /watch price|watching/i.test(w.querySelector('.heart')?.innerText || '')),
+                    '"Watch price" in words on cards': cards.length > 0 && cards.every(w => /watch price|watching/i.test(w.querySelector('.heart')?.innerText || '') || (document.documentElement.classList.contains('cards2') && /^\W*watch$/i.test((w.querySelector('.heart')?.innerText || '').trim()))),
                     'your sizes shown': /11/.test(txt('#subhead,#sizeSummary,#ddSize,#rdQS,#rdBarZ')),
                     'sign-up card': !!document.querySelector('#dealList .signup'),
                     'search box': vis(document.getElementById('dSearch')),
@@ -1137,6 +1214,265 @@ def site_flow(base, per, accented):
             pg.evaluate("sessionStorage.removeItem('gf-lastshop')")
             return "no sign-up bar; the store offer only"
         check("Back from a store: no sign-up bar (removed Oct 22)")(backbar_none, pg)
+
+        def any_size_link():   # Oct 25 (Bastien: "clicked a salomon shoe and its showing me size 6.5 when I have 11 selected"): a view of
+            # every size (?q= post links, "Show all sizes") opened the cheapest size at the store; with the visitor's size in stock, the
+            # link must open on their size
+            items = site_json("sale.json")["items"]
+            pick = None
+            for x in items:
+                if x["g"] != "shoes" or x.get("sx") != ["men"] or x.get("w"):
+                    continue
+                e11 = [e for e in x["sz"] if e[0] == "11" and len(e) > 4 and isinstance(e[4], int)]
+                if e11 and any(e[1] < e11[0][1] and len(e) > 4 and e[4] != e11[0][4] for e in x["sz"]):
+                    pick = (x, e11[0])
+                    break
+            if not pick:
+                return "no shoe today with a cheaper size than 11 (nothing to check)"
+            x, e = pick
+            q = " ".join(re.sub(r"\s+-\s+Men's$", "", x["n"]).split()[:4])
+            c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+            stub(c)
+            c.add_init_script("""try{localStorage.setItem('gf-nosignup','1');localStorage.setItem('gf-peek','1');
+              localStorage.setItem('rd-profile',JSON.stringify({gender:'men',terrain:'both',ships:'all',country:'ca',groups:['shoes'],sizes:{shoes:{sizes:['11'],width:[]}},brands:[],lang:'en'}))}catch(e){}""")
+            q2 = c.new_page()
+            try:
+                q2.goto(base + "?q=" + q.replace(" ", "+"), wait_until="domcontentloaded")
+                q2.wait_for_selector("#dealList a[href*='variant='], #dealList a.deal", timeout=20000)
+                settle(q2, 800)
+                hrefs = q2.eval_on_selector_all("#dealList a[href^='http']", "e => e.map(a => a.href)")
+                mine = [h for h in hrefs if h.split("?")[0] == x["of"][e[2]].split("?")[0]]
+                assert mine, f"'{q}': the card for {x['b']} {x['n']} isn't on the page"
+                assert any(f"variant={e[4]}" in h for h in mine), f"'{q}': the card opens {mine[0][-40:]}, not size 11 (variant {e[4]})"
+            finally:
+                c.close()
+            return f"{x['b']} {q}: opens size 11"
+        check("All-sizes view: the store link opens on your size")(any_size_link, pg)
+
+        def hiking_tab():   # Oct 25 (Bastien: hiking "identical to the running page", launch today): the switch beside the size,
+            # hiking deals and words, the six hiking circles, hiking type buttons, and back to running
+            if not site_json("sale-hike.json"):
+                return "no hiking file in this build (skipped)"
+            c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+            stub(c)
+            c.add_init_script("""try{localStorage.setItem('gf-nosignup','1');localStorage.setItem('gf-peek','1');localStorage.removeItem('gf-sport');
+              localStorage.setItem('rd-profile',JSON.stringify({gender:'men',terrain:'both',ships:'ca',country:'ca',groups:['shoes','tops','bottoms','socks','gloves','headwear','packs','gear'],sizes:{shoes:{sizes:['11'],width:[]},tops:{sizes:['M']},bottoms:{sizes:['M']}},brands:[],lang:'en'}))}catch(e){}""")
+            q2 = c.new_page()
+            errs = []
+            q2.on("pageerror", lambda e: errs.append(str(e)))
+            try:
+                q2.goto(base, wait_until="domcontentloaded")
+                q2.wait_for_selector("#dealList .rdc", timeout=30000)
+                sw = [b for b in q2.query_selector_all(".sportsw button[data-sport=hike]") if b.is_visible()]
+                assert sw, "no visible Hiking button beside the size"
+                sw[0].click()
+                q2.wait_for_function("document.documentElement.classList.contains('hike') && document.querySelectorAll('#dealList .rdc').length > 3", timeout=30000)
+                settle(q2, 800)
+                h1 = q2.inner_text("#rdH1")
+                assert "hiking" in h1.lower(), f"headline on the hiking side: {h1!r}"
+                tiles = q2.eval_on_selector_all("#rdTiles .rdtile b", "e => e.map(x => x.textContent)")
+                assert tiles[:3] == ["Boots & Shoes", "Jackets & Tops", "Pants & Shorts"], f"hiking circles: {tiles}"
+                q2.locator("#rdTiles .rdtile").nth(1).click()
+                settle(q2, 1000)
+                chips = q2.eval_on_selector_all(".types .chip", "e => e.map(x => x.textContent)")
+                assert "Rain shells" in chips, f"no hiking type buttons under Jackets & Tops: {chips}"
+                wide = q2.evaluate("document.documentElement.scrollWidth - innerWidth")
+                assert wide <= 1, f"the hiking page is {wide}px wider than the phone"
+                [b for b in q2.query_selector_all(".sportsw button[data-sport=run]") if b.is_visible()][0].click()
+                q2.wait_for_function("!document.documentElement.classList.contains('hike')", timeout=20000)
+                settle(q2, 1500)
+                assert "hiking" not in q2.inner_text("#rdH1").lower(), "back on Running, the headline still says hiking"
+                assert not errs, f"script error: {errs[0][:120]}"
+            finally:
+                c.close()
+            return f"{h1.splitlines()[0][:40]}; circles {', '.join(tiles[:3])}…"
+        check("Hiking tab: switch, hiking deals and words, circles, types, back to running")(hiking_tab, pg)
+
+        def hiking_intake():   # Oct 25 (Bastien OK'd the hiking intake mockup: "similar drop down as running. Different choices for socks
+            # pants shirts"): a new visitor landing on ?sport=hike gets hiking words, the EU boot line matched from the US size,
+            # "What kind of hiking?" and a hiking per-category size link; all of it saved in the profile
+            if not site_json("sale-hike.json"):
+                return "no hiking file in this build (skipped)"
+            c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+            stub(c)
+            q2 = c.new_page()
+            errs = []
+            q2.on("pageerror", lambda e: errs.append(str(e)))
+            try:
+                q2.goto(base + "?sport=hike", wait_until="domcontentloaded")
+                q2.wait_for_selector("#saveSizes", state="visible", timeout=30000)
+                settle(q2, 800)
+                assert q2.get_attribute("#wSport [data-sport=hike]", "aria-pressed") == "true", "welcome: Hiking not shown as picked"
+                q2.click("#saveSizes")
+                q2.wait_for_selector("#shoeSizes .chip", state="visible")
+                q2.click("#fit button[data-v=men]")
+                q2.click("#shoeSizes .chip[data-v='11']")
+                q2.click("#clothSizes .chip[data-v=M]")
+                settle(q2, 400)
+                eu = q2.inner_text("#euLine")
+                assert "EU 44.5" in eu, f"EU line for a men's US 11: {eu!r}"
+                if q2.locator("#moreSizes").is_visible():
+                    q2.click("#moreSizes")
+                cm = q2.inner_text("#clothMore")
+                assert "pants" in cm.lower(), f"per-category size link isn't worded for hiking: {cm!r}"
+                q2.click("#hkind button[data-v=overnight]")
+                q2.click("#saveSizes")
+                q2.wait_for_selector("#sheet", state="hidden", timeout=20000)
+                settle(q2, 1500)
+                p = q2.evaluate("JSON.parse(localStorage.getItem('rd-profile'))")
+                assert p.get("hike_kind") == "overnight", f"kind of hiking not saved: {p.get('hike_kind')}"
+                assert p["sizes"]["shoes"].get("eu") == ["44.5"], f"EU size not saved: {p['sizes']['shoes']}"
+                h1 = q2.inner_text("#rdH1")
+                assert "running" not in h1.lower(), f"hiking headline says running: {h1!r}"
+                assert not errs, f"script error: {errs[0][:120]}"
+            finally:
+                c.close()
+            return f"EU 44.5 matched, overnight saved; {h1.splitlines()[0][:40]}"
+        check("Hiking intake: EU boot size, kind of hiking, hiking words")(hiking_intake, pg)
+
+        def short_sizes():   # Oct 25 test 'short' (Bastien OK'd): B's first sizes screen asks only fit + shoe size; clothing,
+            # the EU line and the rest sit behind one link; Show my deals works with just a shoe size (clothing in every size)
+            c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+            stub(c)
+            c.add_init_script("try{localStorage.setItem('gf-exp',JSON.stringify({welcome:'A',layout:'A',short:'B'}))}catch(e){}")
+            q2 = c.new_page()
+            errs = []
+            q2.on("pageerror", lambda e: errs.append(str(e)))
+            try:
+                q2.goto(base, wait_until="domcontentloaded")
+                q2.wait_for_selector("#saveSizes", state="visible", timeout=30000)
+                settle(q2, 600)
+                q2.click("#saveSizes")
+                q2.wait_for_selector("#shoeSizes .chip", state="visible")
+                settle(q2, 400)
+                assert not q2.locator("#clothSizes").is_visible(), "B: clothing sizes still on the first screen"
+                more = q2.inner_text("#moreSizes")
+                assert "Clothing size" in more, f"B: the link doesn't offer the clothing size: {more!r}"
+                q2.click("#fit button[data-v=men]")
+                q2.click("#shoeSizes .chip[data-v='11']")
+                q2.click("#saveSizes")
+                q2.wait_for_selector("#sheet", state="hidden", timeout=20000)
+                q2.wait_for_selector("#dealList .rdc", timeout=30000)
+                n = q2.locator("#dealList .rdc").count()
+                assert n > 3, f"only {n} deals after fit + shoe size"
+                q2.click("#menuBtn")
+                q2.click('#menu [data-go="sizes"]')
+                q2.wait_for_selector("#clothSizes button", state="visible", timeout=10000)
+                assert not errs, f"script error: {errs[0][:120]}"
+            finally:
+                c.close()
+            return f"fit + shoe size only, {n} deals; clothing size there under My sizes"
+        check("Short sizes screen (test short B)")(short_sizes, pg)
+
+        def boot_pages():   # Oct 25 (Bastien: boot price pages "doing the same as the shoe page"): list -> a model page with sizes,
+            # its French twin, and a hiking card's "All sizes & stores" link lands on a boot page
+            if not site_get("hiking-boots/pages.json"):
+                return "no boot pages in this build (skipped)"
+            c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+            stub(c)
+            q2 = c.new_page()
+            errs = []
+            q2.on("pageerror", lambda e: errs.append(str(e)))
+            try:
+                q2.goto(base + "hiking-boots/", wait_until="domcontentloaded")
+                links = q2.eval_on_selector_all(".links a", "e => e.map(a => a.getAttribute('href'))")
+                assert len(links) >= 10, f"only {len(links)} models on the boot list page"
+                q2.goto(base + links[0].lstrip("/"), wait_until="domcontentloaded")
+                h1 = q2.inner_text("h1")
+                rows = q2.locator("table tr").count()
+                assert rows > 2 or q2.locator("text=Not in stock").count(), f"{links[0]}: no size table"
+                assert "running" not in q2.title().lower(), f"boot page title says running: {q2.title()!r}"
+                q2.goto(base + links[0].lstrip("/").replace("hiking-boots/", "bottes-randonnee/"), wait_until="domcontentloaded")
+                assert q2.evaluate("document.documentElement.lang").startswith("fr"), "French boot page missing"
+                c.add_init_script("""try{localStorage.setItem('gf-nosignup','1');localStorage.setItem('gf-peek','1');
+                  localStorage.setItem('rd-profile',JSON.stringify({gender:'men',terrain:'both',ships:'ca',country:'ca',groups:['shoes'],sizes:{shoes:{sizes:['11'],width:[]}},brands:[],lang:'en'}))}catch(e){}""")
+                q3 = c.new_page()
+                q3.on("pageerror", lambda e: errs.append(str(e)))
+                q3.goto(base + "?sport=hike", wait_until="domcontentloaded")
+                q3.wait_for_function("document.documentElement.classList.contains('hike') && document.querySelectorAll('#dealList .rdc').length > 3", timeout=30000)
+                q3.wait_for_timeout(1500)
+                hrefs = q3.eval_on_selector_all("a.cmp", "e => e.map(a => a.getAttribute('href'))")
+                bad = [h for h in hrefs if "hiking-boots/" not in h]
+                assert not bad, f"hiking cards link to running shoe pages: {bad[:2]}"
+                assert not errs, f"script error: {errs[0][:120]}"
+            finally:
+                c.close()
+            return f"{len(links)} models; {h1[:40]}; {len(hrefs)} hiking cards link to boot pages"
+        check("Boot price pages + hiking cards link to them")(boot_pages, pg)
+
+        def hike_lists():   # Oct 25 (Bastien: trail gear lists): hub -> a trail, sizes picked -> deals in each line, a tick counts
+            if not site_get("hikes/index.html") and not site_get("hikes/"):
+                return "no trail gear lists in this build (skipped)"
+            c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+            stub(c)
+            q2 = c.new_page()
+            errs = []
+            q2.on("pageerror", lambda e: errs.append(str(e)))
+            try:
+                q2.goto(base + "hikes/", wait_until="domcontentloaded")
+                links = q2.eval_on_selector_all(".cards a", "e => e.map(a => a.getAttribute('href'))")
+                assert links, "no trails on the hub"
+                q2.goto(base + links[0].lstrip("/"), wait_until="domcontentloaded")
+                q2.click('#rsize [data-g="men"]')
+                q2.click('#rsize button[data-s="M"]')
+                q2.select_option("#shoeSz", "11")
+                settle(q2, 500)
+                deals = q2.locator(".gi:not([hidden]) .dl li").count()
+                assert deals >= 5, f"{links[0]}: only {deals} deals after men's M / 11"
+                before = q2.inner_text("#prog")
+                q2.locator(".gi:not([hidden]) input.have").first.check()
+                settle(q2, 300)
+                assert q2.inner_text("#prog") != before, "ticking an essential didn't change 'You have N of M'"
+                assert "running" not in q2.title().lower(), f"trail page title says running: {q2.title()!r}"
+                assert not errs, f"script error: {errs[0][:120]}"
+            finally:
+                c.close()
+            return f"{len(links)} trails; {links[0]}: {deals} deals in men's M / 11"
+        check("Trail gear list: sizes, deals, ticks")(hike_lists, pg)
+
+        def hike_bottom():   # Oct 25 (Bastien: "The hiking page shows running deal links at the bottom"): hiking side = boot block + boot footer link
+            if not (site_get("index.html") or "").count('class="seo-today seo-hike"'):
+                return "no hiking bottom block in this build (skipped)"
+            c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+            stub(c)
+            c.add_init_script("""try{localStorage.setItem('gf-nosignup','1');localStorage.setItem('gf-peek','1');
+              localStorage.setItem('rd-profile',JSON.stringify({gender:'men',terrain:'both',ships:'ca',country:'ca',groups:['shoes'],sizes:{shoes:{sizes:['11'],width:[]}},brands:[],lang:'en'}))}catch(e){}""")
+            q2 = c.new_page()
+            try:
+                q2.goto(base + "?sport=hike", wait_until="domcontentloaded")
+                q2.wait_for_function("document.documentElement.classList.contains('hike') && document.querySelectorAll('#dealList .rdc').length > 3", timeout=30000)
+                run_vis = q2.evaluate("[...document.querySelectorAll('.seo-today:not(.seo-hike)')].some(e => e.offsetParent)")
+                hike_vis = q2.evaluate("[...document.querySelectorAll('.seo-hike .seo-en')].some(e => e.offsetParent)")
+                assert not run_vis, "the running deals block still shows on the hiking side"
+                assert hike_vis, "the hiking bottom block doesn't show on the hiking side"
+                foot = q2.inner_text('p.foot[data-i18n="footer"]')
+                assert "Boot prices" in foot and "Shoe prices" not in foot, f"hiking footer link: {foot!r}"
+            finally:
+                c.close()
+            return "boot block + 'Boot prices by model' on the hiking side"
+        check("Hiking side: bottom block and footer are hiking")(hike_bottom, pg)
+
+        def menu_short_phone():   # Oct 25 (Bastien: "is there no more button to go from Canada to USA in the menu?"): on a short phone
+            # the menu ran past the screen; Canada/USA and Prices in must be reachable
+            c = br.new_context(viewport={"width": 320, "height": 568}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+            stub(c)
+            c.add_init_script("""try{localStorage.setItem('gf-nosignup','1');localStorage.setItem('gf-peek','1');localStorage.setItem('rd-profile',JSON.stringify({gender:'men',terrain:'both',ships:'ca',country:'ca',groups:['shoes'],sizes:{shoes:{sizes:['11'],width:[]}},brands:[],lang:'en'}))}catch(e){}""")
+            q2 = c.new_page()
+            try:
+                q2.goto(base, wait_until="domcontentloaded")
+                q2.wait_for_selector("#dealList .rdc", timeout=30000)
+                q2.click("#menuBtn")
+                settle(q2, 500)
+                q2.locator("#menu [data-ctry=us]").scroll_into_view_if_needed(timeout=3000)
+                r = q2.evaluate("document.querySelector('#menu [data-ctry=us]').getBoundingClientRect().bottom")
+                assert r <= q2.evaluate("innerHeight"), f"USA button below the screen ({round(r)}px) and can't be reached"
+                q2.click("#menu [data-ctry=us]")
+                settle(q2, 800)
+                assert q2.evaluate("document.documentElement.classList.contains('us')"), "tapping USA in the menu didn't switch"
+            finally:
+                c.close()
+            return "Canada/USA reachable and working on a 320x568 phone"
+        check("Menu on a short phone: Canada/USA reachable")(menu_short_phone, pg)
 
         def open_mail():     # Oct 11 (52% confirmed): "Check your inbox" opens their mail app
             pg.evaluate("localStorage.setItem('gf-sub',JSON.stringify({pending:'robot@gmail.com'}))")
@@ -1562,8 +1898,8 @@ def site_flow(base, per, accented):
                 bad = [x for x in lines if "ships from the US" in x]
                 assert not bad, f"US stores are labelled as shipping from abroad ({bad[0]})"
                 assert "USD" in pu.inner_text("section.grp:not(.new)"), "prices on the USA side aren't in US dollars"
-                if pu.locator(".seo-us").count():          # the bottom block: the US copy, not "...in Canada"
-                    assert pu.locator(".seo-us").is_visible() and not pu.locator(".seo-en").is_visible(), \
+                if pu.locator(".seo-today:not(.seo-hike) .seo-us").count():          # the bottom block: the US copy, not "...in Canada"
+                    assert pu.locator(".seo-today:not(.seo-hike) .seo-us").is_visible() and not pu.locator(".seo-today:not(.seo-hike) .seo-en").is_visible(), \
                         "the bottom of the page still shows Canadian shoe prices on the USA side"
                 if site_get("us/shoes/pages.json") is not None:          # a US card's "All sizes & stores" opens the US shoe page
                     lk = pu.locator("section.grp a.cmp")

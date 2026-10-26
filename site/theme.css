@@ -654,3 +654,47 @@ html:not(.rd) header.top .tagline{color:#fff}
 @media(min-width:900px){.rd .menu [data-go="deals"],.rd .menu [data-go="races"]{display:none}}
 @media(min-width:1400px){.rd .menu [data-go="shoes"]{display:none}}
 .menu .langrow{border-top:1.5px solid var(--line)}
+
+/* Test 'cards2' (Oct 25, Bastien: "more items would be better on a screen"; since the redesign, direct homepage first visits that
+   click a store fell 33% -> 15%): group B on two-per-row phones (380-699px) = slimmer cards: photo 4:3 instead of square, tighter
+   spacing, and the last line holds "✓ Size 11" on the left + a small "♡ Watch" on the right (Bastien's idea); "All sizes →" just
+   above on shoe cards. ~30% more deals per screen. One-per-row was tried first: no gain (two 418px cards a row = ~209px a deal). */
+@media(min-width:380px) and (max-width:699px){
+  html.cards2.rd .rdc .deal,html.cards2.rd .compact .rdc .deal{padding:8px 8px 40px}
+  html.cards2.rd .rdc.hascmp .deal,html.cards2.rd .compact .rdc.hascmp .deal{padding-bottom:62px}
+  html.cards2.rd .rdc .pic,html.cards2.rd .compact .rdc .pic{margin:-8px -8px 6px;aspect-ratio:4/3}
+  html.cards2.rd .rdc .pic img,html.cards2.rd .compact .rdc .pic img{padding:22px 8px 2px}
+  html.cards2.rd .rdc .name{font-size:14px;line-height:1.25}
+  html.cards2.rd .rdc .kind{font-size:12px;margin-bottom:2px}
+  html.cards2.rd .rdc .price{margin:2px 0 0!important;gap:0 6px}
+  html.cards2.rd .rdc .price b{font-size:18px}
+  html.cards2.rd .rdc .price s{font-size:11.5px}
+  html.cards2.rd .rdc .price .cur{font-size:9.5px;margin-left:-4px}
+  html.cards2.rd .rdc .price{gap:0 5px}
+  html.cards2.rd .rdc .store b{font-size:12px}
+  html.cards2.rd .rdc .yoursz{position:absolute;left:9px;right:92px;bottom:15px;margin:0;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  html.cards2.rd .rdc:has(.heart[aria-pressed="true"]) .yoursz,html.cards2.rd .rdc:has(.heart[aria-pressed="true"]) .sztxt{right:112px}   /* "♡ Watching" is wider than "♡ Watch" */
+  html.cards2.rd .rdc .heart,html.cards2.rd .rdc .heart{left:auto;right:7px;bottom:7px;height:30px;padding:0 9px 0 7px;font-size:12px}
+  html.cards2.rd .rdc .cmp,html.cards2.rd .rdc.hascmp .cmp{left:9px;bottom:42px;font-size:12px}
+  html.cards2.rd .rdc .sztxt{position:absolute;left:9px;right:92px;bottom:15px;margin:0;font:500 12px var(--body);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  html.cards2.rd .rdc .sztxt b{color:var(--hivis)}
+  html.cards2.rd .rdc .lostamp{transform:scale(.85);transform-origin:bottom left}
+}
+
+/* Running | Hiking switch (Oct 25; hidden until the Hiking tab launches): two pills beside your size, like the Canada/USA pills */
+.sportsw{display:flex;gap:6px;flex:none}
+.sportsw button{min-height:44px;padding:0 14px;border-radius:999px;border:1px solid #DDD5C8;background:#fff;color:#17232B;font:600 15px var(--body,Inter,system-ui,sans-serif);cursor:pointer}
+.sportsw button[aria-pressed="true"]{background:var(--hivis,#FF5A1F);border-color:var(--hivis,#FF5A1F);color:var(--hivis-ink,#17232B)}
+.sportsw button:focus-visible{outline:2px solid var(--hivis,#FF5A1F);outline-offset:2px}
+.rd .rdfilters .sportsw{order:0}
+@media(max-width:759px){.rd .rdfilters .sportsw{display:none}}
+@media(max-width:379px){.sportsw{gap:4px}.sportsw button{padding:0 10px;font-size:14px}}
+/* Hiking side: running-only parts step aside (race lists, shoe price pages, "Where do you run?") */
+html.hike #terrain,html.hike h3[data-i18n="terrainH"]{display:none}
+/* Oct 25: on short phones (iPhone SE) the ☰ menu ran past the screen and its last rows (Shopping from Canada/USA, Prices in) were out
+   of reach: it scrolls inside itself now */
+.menu{max-height:calc(100vh - 80px);max-height:calc(100dvh - 80px);overflow-y:auto;overscroll-behavior:contain}
+/* Oct 25, hiking intake: hiking-only rows (kind of hiking, EU boot size) show only on the hiking side */
+html:not(.hike) .hk{display:none!important}
+.euline{font-size:14px;line-height:1.45}
+.euline small{display:block;color:var(--muted,#56626A);font-size:12.5px}

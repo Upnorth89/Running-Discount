@@ -160,6 +160,37 @@
         if (batch.length < 250) break;
       }
       save(`svp-${new Date().toISOString().slice(0, 10)}.json`, { store: "svp", saved: new Date().toISOString(), url: location.href, products });
+    } else if (/latulippe\.com$/.test(host)) {
+      // Oct 25 (Bastien: "build the grab deals for latulippe ... practical for camping stuff later"). Its wall stops our robots, so
+      // we couldn't see how its pages are built: try a Shopify collection first, then the page's own product data (JSON-LD),
+      // and if neither is there, save what this tab shows so the reader can be finished from it. Kept off the live site.
+      const day = new Date().toISOString().slice(0, 10), base = { store: "latulippe", saved: new Date().toISOString(), url: location.href };
+      let products = [];
+      const m = location.pathname.match(/^((?:\/[a-z]{2})?\/collections\/[^/]+)/);
+      if (m) {
+        for (let n = 1; n <= 40; n++) {
+          say(`Latulippe: page ${n}…`); if (n > 1) await sleep(2000);
+          const r = await fetch(`${location.origin}${m[1]}/products.json?limit=250&page=${n}`, { credentials: "include" });
+          if (!r.ok) break;
+          const batch = ((await r.json().catch(() => ({}))).products) || [];
+          if (!batch.length) break;
+          products = products.concat(batch.map(p => ({ title: p.title, handle: p.handle, vendor: p.vendor, product_type: p.product_type, tags: p.tags,
+            images: (p.images || []).slice(0, 1).map(i => i.src), options: p.options,
+            variants: (p.variants || []).map(v => ({ id: v.id, title: v.title, price: v.price, compare_at_price: v.compare_at_price, available: v.available })) })));
+          if (batch.length < 250) break;
+        }
+      }
+      if (products.length) {
+        save(`latulippe-${day}.json`, { ...base, kind: "shopify", products });
+      } else {
+        const ld = [...document.querySelectorAll('script[type="application/ld+json"]')].map(x => x.textContent.slice(0, 50000));
+        const tiles = [...document.querySelectorAll("[data-product-id], [data-pid], .product-tile, .product-item, .product-card, li.product, .product")]
+          .slice(0, 300).map(x => x.outerHTML.slice(0, 5000));
+        const data = [...document.querySelectorAll("script:not([src])")].map(x => x.textContent)
+          .filter(t => /price|sku|productId|variant/i.test(t)).map(t => t.slice(0, 50000)).slice(0, 8);
+        if (!ld.length && !tiles.length) throw new Error("no product list on this page: open a list like Tents or Hiking boots");
+        save(`latulippe-${day}.json`, { ...base, kind: "page", products: tiles.length ? tiles : ld, ld, data });
+      }
     } else if (/hoka\.com$/.test(host)) {
       // Hoka (test, Oct 5): saves only what this tab already shows (no extra requests at all), like "Save page as".
       // Scroll to the bottom first so every shoe on the page has loaded.
@@ -170,7 +201,7 @@
       download(`hoka-${new Date().toISOString().slice(0, 10)}.json`, { store: "hoka", saved: new Date().toISOString(), url: location.href, ld, data, tiles });
       say(`Hoka: ${tiles.length} shoes on this page saved. File saved.`);
     } else {
-      say("Open a running product list on MEC, REI, Backcountry or SVP Sports first (the deals or all running gear), then tap the bookmark.");
+      say("Open a product list on MEC, REI, Backcountry, SVP Sports or Latulippe first (the deals or all running gear), then tap the bookmark.");
     }
   } catch (e) {
     say("Couldn't read this page (" + e.message + "). Open a product list (running deals, Running shoes, Running clothing...), then try again.");

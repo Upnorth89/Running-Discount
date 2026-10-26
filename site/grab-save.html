@@ -24,8 +24,8 @@ button{font:800 16px system-ui;background:var(--hivis);color:#17201C;border:2px 
 </div>
 <script>
 const SB="https://krwymmkauwqqxjxbvkyq.supabase.co", PK="sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2";
-const FROM=["https://www.mec.ca","https://www.rei.com","https://www.svpsports.ca","https://www.backcountry.com"];
-const NAMES={mec:"MEC",rei:"REI",svp:"SVP Sports",backcountry:"Backcountry"};
+const FROM=["https://www.mec.ca","https://www.rei.com","https://www.svpsports.ca","https://www.backcountry.com","https://www.latulippe.com","https://latulippe.com"];
+const NAMES={mec:"MEC",rei:"REI",svp:"SVP Sports",backcountry:"Backcountry",latulippe:"Latulippe"};
 const $=id=>document.getElementById(id), say=(t,c)=>{$("msg").textContent=t;$("msg").className=c||"m"};
 let KEY=null,got=null;try{KEY=localStorage.getItem("gf-stats-key")}catch(e){}
 async function call(part){

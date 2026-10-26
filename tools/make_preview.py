@@ -27,6 +27,8 @@ for k, a in enumerate(sys.argv):
         NEW.append((sel.strip(), what.strip(), how.strip()))
 
 s = (SITE / "index.html").read_text()
+if os.environ.get("PV_SHORT"):    # Oct 25: preview test 'short' B (fit + shoe size only on the first sizes screen)
+    s = s.replace("const SHORT_B=(", "const SHORT_B=true||(", 1)
 # Oct 22 (Bastien: "we used to have a bunch of seo links at the bottom ... where did all that go?"): the morning build fills the
 # SEO-TODAY block on the live page only; git keeps it empty. PV_SEO = a built index.html (or the live site's address) to copy it from
 if os.environ.get("PV_SEO") and "<!--SEO-TODAY--><!--/SEO-TODAY-->" in s:
@@ -187,6 +189,9 @@ cat_dir = SITE / "img" / "cat"
 if cat_dir.exists() and 'function rdImg(k){return "img/cat/"+k+".webp"}' in s:
     pics = {f.stem: "data:image/webp;base64," + base64.b64encode(f.read_bytes()).decode() for f in cat_dir.glob("*.webp")}
     rep('function rdImg(k){return "img/cat/"+k+".webp"}', "function rdImg(k){return (" + json.dumps(pics) + ")[k]||\"\"}")
+elif cat_dir.exists() and 'function rdImg(k){return "img/cat/"+(HIKE()?"hike-":"")+k+".webp"}' in s:   # Oct 25: hiking circles too
+    pics = {f.stem: "data:image/webp;base64," + base64.b64encode(f.read_bytes()).decode() for f in cat_dir.glob("*.webp")}
+    rep('function rdImg(k){return "img/cat/"+(HIKE()?"hike-":"")+k+".webp"}', "function rdImg(k){return (" + json.dumps(pics) + ")[(HIKE()?\"hike-\":\"\")+k]||\"\"}")
 if os.environ.get("PV_LOOK") == "B":
     rep('const LOOK_B=ANA.arm("look")==="B";', 'const LOOK_B=true;   /* preview: the redesign for everyone */')
 blob = json.dumps({"updated": data["updated"], "stores": data.get("stores", {}), "n_stores": data.get("n_stores"), "fx": data.get("fx", {}), "items": items}, separators=(",", ":")).replace("</", "<\\/")
@@ -197,7 +202,36 @@ if sp_path.exists():   # the homepage picks the Canada or USA list (Oct 22: this
     rep('fetch(US()?"us/shoes/pages.json":"shoes/pages.json").then(r=>r.ok?r.json():{})',
         'Promise.resolve(US()?' + (us_sp.read_text() if us_sp.exists() else "{}").replace("</", "<\\/") + ':' + sp_path.read_text().replace("</", "<\\/") + ')')
 rep('const loadData=f=>fetch(f,{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error(f);return r.json()});',
-    'const loadData=f=>Promise.resolve(JSON.parse(document.getElementById(/-us/.test(f)&&document.getElementById("gfdata-us")?"gfdata-us":"gfdata").textContent));')
+    'const loadData=f=>{const id=/-hike/.test(f)?"gfdata-hike":/-us/.test(f)&&document.getElementById("gfdata-us")?"gfdata-us":"gfdata",el=document.getElementById(id);'
+    'return el?Promise.resolve(JSON.parse(el.textContent)):Promise.reject(new Error(f))};')
+# the Hiking tab (Oct 25): its sale items (Canada) with some photos, and the switch shown
+hike_path = SITE / "sale-hike.json"
+hike_blob = ""
+if hike_path.exists():
+    dh = json.loads(hike_path.read_text())
+    hx = [x for x in dh["items"] if on_sale(x) and x.get("ca") is not False]
+    NHP = int(os.environ.get("PV_HIKE_PHOTOS", "0") or 0)
+    if NHP and NPH:
+        hs = sorted((x for x in hx if x.get("img")), key=lambda x: -max((1 - z[1] / z[3]) for z in x["sz"] if len(z) > 3 and z[3]))
+        per, pick = {}, []
+        for x in hs:
+            if per.get(x["g"], 0) < max(20, NHP // 6) and len(pick) < NHP:
+                per[x["g"]] = per.get(x["g"], 0) + 1
+                pick.append(x)
+        with ThreadPoolExecutor(24) as ex:
+            hgot = dict(zip((f"{x['b']}|{x['n']}" for x in pick), ex.map(thumb, pick)))
+    else:
+        hgot = {}
+    hitems = []
+    for x in hx:
+        y = {k: v for k, v in x.items() if k != "img"}
+        im = hgot.get(f"{x['b']}|{x['n']}")
+        if im:
+            y["img"] = im
+        hitems.append(y)
+    hike_blob = json.dumps({"updated": dh["updated"], "stores": dh.get("stores", {}), "n_stores": dh.get("n_stores"), "fx": dh.get("fx", {}),
+                            "sport": "hike", "items": hitems}, separators=(",", ":")).replace("</", "<\\/")
+    print(f"preview hiking: {len(hitems)} sale items, {sum(1 for v in hgot.values() if v)} photos", file=sys.stderr)
 # the USA side (Oct 6, 2026): its items on sale, when the site folder has deals-us.json (kept small: sale items, no photos)
 us_path = SITE / "deals-us.json"
 us_blob = ""
@@ -271,6 +305,8 @@ s = s.replace("__PVNEW__", new_js)
 s = s.rstrip() + '\n<script type="application/json" id="gfdata">' + blob + "</script>\n"
 if us_blob:
     s += '<script type="application/json" id="gfdata-us">' + us_blob + "</script>\n"
+if hike_blob:
+    s += '<script type="application/json" id="gfdata-hike">' + hike_blob + "</script>\n"
 m = s.index("<script>\n(function(){")
 e = s.index("</script>", m) + len("</script>")
 s = s[:m] + s[e:] + s[m:e] + "\n"

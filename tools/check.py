@@ -100,7 +100,18 @@ def main():
                     if i == 2:
                         raise
                     time.sleep(5)
-        return "offers.json + deals.json"
+        # Oct 25: the Hiking tab's files (scraper/hike.py), live once launched; before that HIKE_DIR = a local read
+        got = []
+        for f in ("sale-hike.json", "deals-hike.json", "sale-hike-us.json", "deals-hike-us.json"):
+            try:
+                urllib.request.urlretrieve(LIVE + f, site / f)
+                got.append(f)
+            except Exception:
+                src = Path(os.environ.get("HIKE_DIR", "/nonexistent")) / f
+                if src.exists():
+                    shutil.copy(src, site / f)
+                    got.append(f)
+        return "offers.json + deals.json" + (f" + {len(got)} hiking files" if got else "")
     step("Download today's live data", fetch)
 
     def merge():
@@ -194,6 +205,51 @@ def main():
             raise RuntimeError(f"{len(diff)} shoes get a different page address on the site (e.g. {diff[0]})")
         return f"{len(names)} shoes"
     step("Shoe page links match (site vs pages)", same_names)
+
+    def boot_pages():   # Oct 25: boot & hiking shoe price pages, from the hiking files; the site's JS copy of hike_name must agree
+        if not (site / "deals-hike.json").exists():
+            return "no hiking file (skipped)"
+        r = subprocess.run([sys.executable, str(ROOT / "scraper" / "shoe_pages.py"), str(site), "--hike"], capture_output=True, text=True)
+        if r.returncode:
+            raise RuntimeError(r.stderr.strip().splitlines()[-1] if r.stderr.strip() else "failed")
+        if not (site / "hiking-boots" / "index.html").exists() or not (site / "bottes-randonnee" / "index.html").exists():
+            raise RuntimeError("no boot pages written")
+        sys.path.insert(0, str(ROOT / "scraper"))
+        import shoe_pages as SP
+        names = [[d["b"], d["n"]] for f in ("deals-hike.json", "deals-hike-us.json") if (site / f).exists()
+                 for d in json.loads((site / f).read_text())["items"] if d["g"] == "shoes"]
+        html = (ROOT / "site" / "index.html").read_text()
+        js = "\n".join([re.search(r"function baseModel\(n\)\{.*?\n\}", html, re.S).group(0),
+                        re.search(r"function slugify\(t\)\{.*?\}\n", html, re.S).group(0),
+                        re.search(r"const HK_HEIGHT=.*?\n", html).group(0),
+                        re.search(r"function hikeName\(n\)\{.*?\n\}", html, re.S).group(0)])
+        (work / "h.json").write_text(json.dumps(names))
+        (work / "h.js").write_text(js + f"\nconsole.log(JSON.stringify(require({json.dumps(str(work / 'h.json'))}).map(([b,n])=>slugify(b+' '+hikeName(n)))));")
+        got = json.loads(subprocess.run(["node", str(work / "h.js")], capture_output=True, text=True).stdout)
+        diff = [n for n, g in zip(names, got) if SP.slugify(f"{n[0]} {SP.hike_name(n[1])}") != g]
+        if diff:
+            raise RuntimeError(f"{len(diff)} boots get a different page address on the site (e.g. {diff[0]})")
+        return r.stdout.strip().replace("\n", "; ") + f"; {len(names)} names match"
+    step("Boot price pages + links match", boot_pages)
+
+    def hike_lists():   # Oct 25: trail gear lists (scraper/hike_pages.py), only hikes whose figures were checked on the park's page
+        if not (site / "deals-hike.json").exists():
+            return "no hiking file (skipped)"
+        r = subprocess.run([sys.executable, str(ROOT / "scraper" / "hike_pages.py"), str(site), "--force"], capture_output=True, text=True)
+        if r.returncode:
+            raise RuntimeError(r.stderr.strip().splitlines()[-1] if r.stderr.strip() else "failed")
+        sys.path.insert(0, str(ROOT / "scraper"))
+        import hikes as HK
+        live = [h for h in HK.HIKES if h.get("checked")]
+        missing = [h["slug"] for h in live for d in ("hikes", "randonnees") if not (site / d / h["slug"] / "index.html").exists()]
+        if missing:
+            raise RuntimeError(f"{len(missing)} trail gear list pages missing (e.g. {missing[0]})")
+        sm = (site / "sitemap.xml").read_text() if (site / "sitemap.xml").exists() else ""
+        unchecked = [h["slug"] for h in HK.HIKES if not h.get("checked") and f"/hikes/{h['slug']}/" in sm]
+        if unchecked:
+            raise RuntimeError(f"unchecked hikes in the sitemap: {unchecked[:3]}")
+        return r.stdout.strip()
+    step("Trail gear lists (checked hikes only)", hike_lists)
 
     def email():
         sys.path.insert(0, str(ROOT / "scraper"))

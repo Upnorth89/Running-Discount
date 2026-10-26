@@ -177,6 +177,8 @@ every check (rule in CLAUDE.md: try every allowed way first; a store that says n
 | Hoka (hoka.com, brand store) | Canada/US | Cloudflare 403 to GitHub's servers on every product list (robots.txt itself answers; Oct 16, 2026). Bookmark test file (Oct 16, US men's, 175 shoes): list pages carry no sizes (`data-all-sizes` empty) and the saver cut each tile before its price | site from GitHub, Grab deals bookmark | an affiliate feed (Hoka is on AvantLink/Rakuten in some regions); Hoka shoes already come from ~20 Canadian stores |
 | Merrell (merrell.com/CA) | Canada | robots.txt blocks ClaudeBot and other AI robots (`Disallow: /`, Oct 16, 2026), so it isn't read even though the site answers | site from GitHub | an affiliate feed, or Merrell allowing AI agents |
 | Salomon (salomon.com/en-ca) | Canada | answers GitHub's servers and robots.txt allows product pages, but after ~1 h of pages (one every 3 s) it answered HTTP 403 (Oct 16, 2026); a second try at one page every 20 s got a 403 on its first product page: a firm no (rechecked on the 1st and 15th). Reader `_salomon_read` kept (JSON-LD variants, ?sizeId= links, only colours at inStockPercentage 100) | site from GitHub | an affiliate feed, or ask Salomon |
+| Patagonia (patagonia.ca / patagonia.com, brand store) | Canada/US | Akamai bot wall: every page, robots.txt included, answers a "Hang Tight! Routing to checkout..." holding page with no products, from the sandbox and from GitHub's servers, with our honest bot name (Oct 25, 2026; Bastien asked to add it for hiking) | site from sandbox + GitHub (probe.yml honest) | an affiliate feed, or ask Patagonia; Patagonia already comes from Altitude Sports, Valhalla Pure, SAIL and The Last Hunt (hiking read Oct 25) |
+| Latulippe (latulippe.com) | Québec | Cloudflare 403 challenge on every page, robots.txt included, from the sandbox and GitHub (Oct 25, 2026) | sandbox, GitHub probe (honest) | Grab deals bookmark support, an affiliate feed, or ask them |
 | MEC | Canada | blocks automated reading | site; **saved pages work** (Grab deals) | MEC product feed via AvantLink/Sovrn |
 | REI | USA | blocks automated reading | **saved pages work** (US side) | affiliate feed |
 | Boutique Courir | Montréal | blocks automated reading (Oct 1) | site | ask the store |
@@ -376,6 +378,78 @@ The Run Company, Le Coin des Coureurs.
 
 Checked Oct 3: Running Factory (Windsor, runningfactory.com): readable, only ~37 on sale, mostly CEP sleeves; recheck later.
 "Runner's Choice" (Toronto) not found; The Runners Shop is the Toronto store (added).
+
+## Hiking (+ camping read, not published) — started Oct 25, 2026; launch ~Nov 17
+
+Read now (first read Oct 25; data kept OFF the live site until the Hiking tab launches):
+
+| Store | Where we read it | How | Oct 25 |
+|---|---|---|---|
+| Altitude Sports (altitude-sports.com) | `/c/camping-and-hiking`, one product type at a time | same commercetools reader as running | 2,458 hiking items in stock, 158 on sale |
+| The Last Hunt (thelasthunt.com) | `/c/camping-and-hiking` | same reader | 1,759 in stock, all discounted (outlet) |
+| Valhalla Pure Outfitters (www.vpo.ca) | the whole store's `/products.json` (www. only; bare vpo.ca answers 404), a page every 2 s | Shopify; robots.txt allows it | ~25,000 products, ~7,500 hiking-type, 463 on sale; 8,011 have no product type (sort by tags/name) |
+| SAIL (sail.ca/en-ca) | collections outdoor-gear-hiking-hiking-boots-shoes, -backpacking-packs, outdoor-gear-backpacks-day-backpacks, -hiking-poles-parts, -gear-headlamps, -gear-gaiters, -health-safety-bear-protection, -hydration, footwear-accessories-socks-hiking-socks | Shopify collections, a page every 2 s; robots ok (only sort_by blocked) | 899 in stock, 164 on sale; clothing collections still to find |
+
+Camping (Bastien, Oct 25: "read the camping stuff but not publish it"): read from the same places (Altitude/Last Hunt camping
+types: tents, sleeping bags, sleeping mats; SAIL outdoor-gear-hiking-sleeping-bags-mats; VPO "Camping" type), stored, never published
+until camping is decided (plan: only if hiking brings sign-ups by February).
+
+Checked Oct 25 (Bastien: "Gear trade, mountain warehouse, Latulippe in Quebec"):
+- Gear Trade (geartrade.com, Shopify): readable, robots.txt allows /products.json. Two kinds of items: new retail stock (tag RetailVendorPartner,
+  real compare-at prices) and consignment used gear (tags ConsignmentItem / SoldConsignmentItem, one-offs). Take the new stock for hiking;
+  used gear is a separate idea (condition, one size each) for later.
+- Mountain Warehouse (mountainwarehouse.com/ca, Next.js): answers our honest bot from GitHub (200); robots.txt blocks only /_next/, /api/,
+  /basket/. Own brand only, and most of its range always shows a 'was' price, so its % off says little until our price history has
+  30+ days; read it from product pages (JSON-LD) after the hiking launch, ranked like everyone else.
+- Latulippe (latulippe.com, Québec): Cloudflare "Just a moment" / "Attention Required" 403 from the sandbox AND from GitHub, robots.txt
+  included: it said no. Possible later: the Grab deals bookmark (Bastien's own browser) taught to read Latulippe lists.
+
+Small stores + ultralight brands (checked Oct 25; Bastien: "a lot of niche small stores, hyperlight, backpacks built in the usa").
+All Shopify, /products.json answers, robots.txt doesn't block AI agents; ships to Canada (meta.json). First page only, so "on sale" is a hint:
+| Store | Kind | Currency | First page: items / on sale |
+|---|---|---|---|
+| La Cordée (lacordee.com) | Québec outdoor chain (Montréal): LEFT OUT Oct 25 (Bastien: in creditor protection; orders/returns at risk) | CAD | 250 / 1 |
+| Monod Sports (monodsports.com) | Banff outdoor store | CAD | 250 / 1 |
+| Comor Sports (comorsports.com) | Vancouver outdoor store | CAD | 250 / 0 |
+| Hyperlite Mountain Gear | US-made ultralight packs/shelters | USD | 118 / 0 |
+| Gossamer Gear | US ultralight packs | USD | 124 / 14 |
+| Zpacks | US-made ultralight packs/tents | USD | 250 / 0 |
+| Durston Gear | ultralight tents/packs | USD | 37 / 0 |
+| Six Moon Designs | US ultralight packs/shelters | USD | 121 / 5 |
+| Pa'lante Packs | US-made ultralight packs | USD | 36 / 0 |
+| Atom Packs | UK-made ultralight packs | GBP (skip: other currencies not handled) | 46 / 1 |
+Didn't answer from the sandbox (check from GitHub): Live Out There, ULA Equipment, Superior Wilderness Designs, Kakwa.
+404 on /products.json (not Shopify; JSON-LD route later): Enlightened Equipment, Mountain Laurel Designs, Escape Route, Treeline.
+Ultralight makers rarely discount: their value for us is "watch the price" (full price included) + Black Friday / seconds sales.
+Their gear = the "Fastpack / ultralight" filter (packs, shelters, quilts). Shelters/quilts are camping-side: read, not published.
+
+Next to add for hiking (stores we already read for running, hiking sections not yet): Sports Experts (night read: add hiking lists),
+Sporting Life (outdoor section), Decathlon (hiking section, night slices), Sport Chek (hiking search), Bushtukah, Coureur Nordique,
+Run Uphill, Arc'teryx (hiking lines beyond ARC_RUN). MEC: Bastien's saved pages (Grab deals) of its hiking lists.
+USA side later: REI (saved pages), Sports Basement (hiking collection); Backcountry stays blocked.
+
+**Hiking reader (scraper/hike.py, Oct 25 night; Bastien: "gathering as many hiking stores and hiking gear we can find ... we always input
+both [sale and full price] so people can track")**: 55 stores in `SHOPIFY` + Altitude/Last Hunt (`ct_store`). First full read Oct 25:
+Canada 15,345 hiking items (4,458 on sale) + 3,420 camping (read, not published); USA 7,711 (2,502 on sale) + 2,095 camping.
+Biggest: VPO 5,628 listings, Altitude 2,481, Ascent (US) 1,773, Gear Trade 1,662 (new stock only), SAIL 1,462, Last Hunt 1,440.
+Checked from the sandbox, robots.txt read for ClaudeBot/anthropic-ai/*: 74 of 176 outdoor stores/brands answer /products.json.
+- Campmor: robots.txt bans ClaudeBot and anthropic-ai -> never read.
+- Taiga Works, J.B. Field's: their cart answered USD to our honest bot (CAD stores) -> left out that night (prices unsure); recheck from GitHub.
+- Scarpa US, Smartwool, Big Sky: 503 that night (busy), kept for the next read.
+- Not Shopify (404), JSON-LD route later: Mountain Laurel Designs, Enlightened Equipment, Tarptent, ULA, Mammut, Norrøna, Rab (ca.), Petzl,
+  Exped, Prana, Kühl, Salewa, Dynafit, Topo Athletic, Warbonnet, Wilderness Supply, Algonquin Outfitters.
+- 403 (said no): Hammock Gear, Helly Hansen, Icebreaker, Jetboil, Ledlenser, Osprey, Waymark, Steep & Cheap, REI, Backcountry, MEC, Enwild,
+  Outdoor Gear Exchange.
+- Not hiking enough to read: Karbon, Orage, Kanuk, Alpine North (ski/winter coats), 7mesh (bike), Indyeva (fashion), Herschel (bags),
+  tentree (casual), Stanfield's (underwear), Kula Cloth, Argali (hunting), Atom Packs (GBP), Montane (GBP), Mountain Equipment UK (GBP).
+- USA-only (shipping list leaves Canada out): Ascent Outdoors, EMS, Big Agnes, Oboz, LOWA, KEEN, Darn Tough, Kelty, Cascade Mountain Tech.
+To probe next (Canada first): The Trail Shop (Halifax), Europe Bound (Toronto), Robinsons Outdoors (Victoria), Campers Village (AB),
+Chaltrek (Thunder Bay), Track 'n Trail; USA: Next Adventure, Ute Mountaineer, Midwest Mountaineering, Wilderness Exchange, Ramsey Outdoor,
+Appalachian Outdoors, Half-Moon Outfitters, Great Outdoor Provision, Diamond Brand, Rock/Creek, Bivouac, Gearhead Outfitters, Mountain
+High Outfitters, Sunlight Sports, Teton Mountaineering, Wasatch Touring, Outdoors Inc, Second Ascent, Massey's, Backcountry Experience,
+Mountain Chalet, The Base Camp (Billings), The Trailhead (Missoula).
+EU boot sizes: only makers' own charts (`EU_CHART`; LOWA so far, from us.lowa.com). Retailer charts for La Sportiva, Scarpa, Hanwag, AKU,
+Zamberlan disagree by half a size, so those stay EU unless a store's own label gives both.
 
 ## Snow (researched Oct 2, 2026; parked until mid-November)
 

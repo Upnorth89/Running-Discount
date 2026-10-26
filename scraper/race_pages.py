@@ -401,7 +401,7 @@ RACES.update({
         "when": {"en": "September 2027 (date to come; 2026: Sept. 11–15)", "fr": "Septembre 2027 (date à venir; 2026 : 11 au 15 sept.)"},
         "dists": ["200M", "100K", "50K"], "default": "200M", "cupless": True,
         "src": "https://www.sinistersports.ca/soo200/rules_gear",
-        "read": {"en": "October 22, 2026", "fr": "22 octobre 2026"},
+        "read": {"en": "October 25, 2026 (confirmed with the race)", "fr": "25 octobre 2026 (confirmé avec la course)"},
         "items": [(k, lv, t, sp) for (k, t), lv, sp in [
             (_SIN("inreach", "Garmin inReach", "Garmin inReach", "Provided by the race.", "Fourni par la course."), "PPP", False),
             (_SIN("battery", "Battery backup", "Batterie de secours", "Provided at Stokely; the race swaps it at major aid stations.",
@@ -423,17 +423,17 @@ RACES.update({
                   "Seulement si vous savez vous en servir."), "RRR", False),
         ]],
     },
-    # sinistersports.ca/divide200/racer_information_package, "Mandatory / Recommended Gear" (read Oct 22, 2026): items marked
-    # "mandatory - provided" or "mandatory after 5:00pm"; the rest unmarked under "a mix of mandatory and recommended gear"
+    # sinistersports.ca/divide200/racer_information_package (read Oct 22, 2026). Oct 25, Kirsti (Sinister Sports) to Bastien: "We don't have
+    # any mandatory gear. Other than ones bib and timing chip. And at the divide and SOO 200 the InReach": everything else = recommended
     "divide-200": {
         "name": "Divide 200", "short": "Divide", "de": "de la ", "le": "la ", "unit": "label",
         "where": {"en": "Crowsnest Pass, AB", "fr": "Crowsnest Pass, Alb."},
         "when": {"en": "August 16–20, 2027", "fr": "16 au 20 août 2027"},
         "dists": ["200M", "100K"], "default": "200M", "cupless": True,
         "src": "https://www.sinistersports.ca/divide200/racer_information_package",
-        "read": {"en": "October 22, 2026", "fr": "22 octobre 2026"},
+        "read": {"en": "October 25, 2026 (confirmed with the race)", "fr": "25 octobre 2026 (confirmé avec la course)"},
         "items": [(k, lv, t, sp) for (k, t), lv, sp in [
-            (_SIN("headlamp", "Headlamp", "Lampe frontale", "Mandatory after 5:00 pm.", "Obligatoire après 17 h."), "MM", True),
+            (_SIN("headlamp", "Headlamp", "Lampe frontale", "You'll be out after dark.", "Vous serez dehors à la nuit tombée."), "RR", True),
             (_SIN("inreach", "Garmin inReach + Spotwalla tracking", "Garmin inReach + suivi Spotwalla",
                   "Provided by the race, returned at the end.", "Fourni par la course, rendu à la fin."), "PP", False),
             (_SIN("battery", "Battery backup", "Batterie de secours", "Provided; more at major aid stations.", "Fournie; d'autres aux gros ravitos."), "PP", False),
@@ -442,15 +442,15 @@ RACES.update({
             (_SIN("orange", "Blaze orange clothing item", "Vêtement orange vif", "The race gives a neck gaiter (hunting season). Extra bright clothing welcome.",
                   "La course donne un cache-cou (saison de chasse). Des vêtements voyants en plus sont bienvenus."), "PP", False),
             (_SIN("water", "2 L of fluid: bottles or a hydration pack", "2 L de liquide : gourdes ou sac d'hydratation",
-                  "No cups at aid stations: bring something to drink from.", "Pas de verres aux ravitos : apportez de quoi boire."), "LL", False),
-            (_SIN("jacket", "Wind and water resistant jacket", "Manteau coupe-vent et déperlant"), "LL", True),
-            (_SIN("tuque", "Toque or warm hat", "Tuque ou chapeau chaud"), "LL", False),
-            (_SIN("cap", "Sun hat", "Chapeau de soleil"), "LL", False),
-            (_SIN("gloves", "Full-finger gloves", "Gants à doigts complets"), "LL", False),
-            (_SIN("poles", "Running or trekking poles", "Bâtons de course ou de randonnée"), "LL", False),
-            (_SIN("whistle", "Whistle", "Sifflet"), "LL", False),
+                  "No cups at aid stations: bring something to drink from.", "Pas de verres aux ravitos : apportez de quoi boire."), "RR", False),
+            (_SIN("jacket", "Wind and water resistant jacket", "Manteau coupe-vent et déperlant"), "RR", True),
+            (_SIN("tuque", "Toque or warm hat", "Tuque ou chapeau chaud"), "RR", False),
+            (_SIN("cap", "Sun hat", "Chapeau de soleil"), "RR", False),
+            (_SIN("gloves", "Full-finger gloves", "Gants à doigts complets"), "RR", False),
+            (_SIN("poles", "Running or trekking poles", "Bâtons de course ou de randonnée"), "RR", False),
+            (_SIN("whistle", "Whistle", "Sifflet"), "RR", False),
             (_SIN("bear", "Bear spray or bear banger", "Chasse-ours en aérosol ou pétard", "Only if you know how to use it.",
-                  "Seulement si vous savez vous en servir."), "LL", False),
+                  "Seulement si vous savez vous en servir."), "RR", False),
         ]],
     },
 })

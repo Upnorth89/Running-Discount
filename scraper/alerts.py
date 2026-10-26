@@ -205,6 +205,12 @@ def main():
     us_src = Path(src).with_name("deals-us.json")         # the USA side, for people who shop from the US
     for d in (json.loads(us_src.read_text()).get("items", []) if us_src.exists() else []):
         by_us.setdefault(item_key(d), []).append(d)
+    # Oct 25: the Hiking tab's catalogue (scraper/hike.py): hiking items people watch get the same drop / back-in-size emails
+    for name, by in (("deals-hike.json", by_key), ("deals-hike-us.json", by_us)):
+        f = Path(src).with_name(name)
+        for d in (json.loads(f.read_text()).get("items", []) if f.exists() else []):
+            if item_key(d) not in by:
+                by.setdefault(item_key(d), []).append(d)
     if not (W.SB_URL and W.SB_KEY):
         print("Supabase not configured, no alerts")
         return 0

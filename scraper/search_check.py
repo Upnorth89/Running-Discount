@@ -43,7 +43,7 @@ def hay(d):
     t = fold(d["b"] + " " + d["n"])
     w = [x for x in (sq(x) for x in t.split()) if x]
     pairs = [w[i] + x for i, x in enumerate(w[1:]) if re.search(r"\d", x + w[i])]
-    return t + " " + " ".join(w) + " " + " ".join(pairs) + (" goretex gtx" if re.search(r"gore-?tex|\bgtx\b", t) else "")
+    return t + " " + " ".join(w) + " " + " ".join(pairs) + (" goretex gtx" if re.search(r"gore-?tex|\bgtx\b", t) else "") + " " + sq(fold(d["b"]))
 
 
 def words(q):
@@ -61,6 +61,11 @@ def lev(a, b):
             r.append(min(p[j] + 1, r[j - 1] + 1, p[j - 1] + (a[i - 1] != b[j - 1])))
         p = r
     return p[len(b)]
+
+
+def qhas(t, w):
+    """index.html qhas() (Oct 24): a word also matches without a trailing s or e ("endorphins", "glycerine")."""
+    return w in t or (len(w) > 4 and w[-1] in "se" and w[:-1] in t)
 
 
 class Side:
@@ -82,13 +87,13 @@ class Side:
             self.squash.append(("".join(ws), starts))
 
     def hits(self, q):
-        return sum(1 for h in self.hays if all(w in h for w in q))
+        return sum(1 for h in self.hays if all(qhas(h, w) for w in q))
 
     def suggest(self, q):
         """Same as suggest() + the "longest part that exists" fallback in index.html."""
         changed, out = False, []
         for w in q:
-            if any(w in k for k in self.vocab):
+            if any(qhas(k, w) for k in self.vocab):
                 out.append(w)
                 continue
             m = re.fullmatch(r"([a-z]{3,})(\d+)", w)

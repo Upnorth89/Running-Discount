@@ -115,6 +115,7 @@ input:focus-visible,button:focus-visible,summary:focus-visible,select:focus-visi
 .seo-today p{margin:0 0 6px;line-height:1.6}
 html[lang=fr] .seo-today .seo-en,html:not([lang=fr]) .seo-today .seo-fr{display:none}
 html.us .seo-today .seo-en,html.us .seo-today .seo-fr,html:not(.us) .seo-today .seo-us{display:none}   /* USA side: its own copy */
+html.hike .seo-today:not(.seo-hike),html:not(.hike) .seo-hike{display:none}   /* Oct 25: the hiking side shows its own block (boots) */
 .wline{margin:8px 0 2px;font-size:15px;color:var(--muted)}
 .wline b{color:var(--ink)}
 .wline button{font:inherit;color:var(--moss);background:none;border:0;padding:0 2px;text-decoration:underline;cursor:pointer;min-height:24px}
@@ -366,6 +367,7 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
 
 /* Friday email card */
 .signup{background:var(--band);color:var(--band-ink);border-radius:14px;padding:18px;margin:0 0 30px}
+.procard .proprice{margin:10px 0 12px;font-size:15px;line-height:1.4}.procard .proprice b{font-size:20px}.procard #proJoin{width:100%}.procard #proForm{display:flex;flex-direction:column;gap:8px}.procard #proForm input,.procard #proForm button{width:100%;margin:0}
 .rcwrap{position:relative}.rcsug{display:flex;flex-direction:column;background:var(--card);border-radius:10px;overflow:hidden;margin-top:4px}.rcsug:empty{display:none}.rcsug button{all:unset;cursor:pointer;padding:11px 14px;font:500 15px/1.25 var(--body);color:var(--ink);border-top:1px solid var(--line)}.rcsug button:first-child{border-top:0}.rcsug button:active,.rcsug button:hover{background:var(--mist)}
 .runcard #suForm{flex-direction:column}.runcard #suForm input,.runcard #suForm .primary{flex:none;width:100%}.runcard #suForm .primary{min-height:48px;line-height:1.15;padding:8px 16px}
 .signup h3{font:800 24px/1.1 var(--display);margin:0 0 4px}
@@ -463,7 +465,7 @@ body.locked #langPick,body.locked #curBtn,body.locked #openWatch,body.locked #me
 .walt{margin:10px 0 -12px}.walt button,.walt a{white-space:nowrap;font:600 15px var(--body);color:var(--moss);text-decoration:none;background:none;border:0;padding:0 6px;cursor:pointer;min-height:44px}
 .walt .dot{color:var(--muted)}
 @media(max-width:350px){.walt button,.walt a{font-size:14px;padding:0 3px}}
-#sizesPart.short .later{display:none}
+#sizesPart.short .later{display:none}html.shortb #sizesPart.short .clb,html.shortb #wSport{display:none!important}
 .moresz{display:none;margin:14px 0 0}#sizesPart.short .moresz{display:block}
 .clothmore{margin:8px 0 0}#clothBy .byrow{margin:10px 0 0}#clothBy .byrow b{display:block;font:600 14px var(--body);margin:0 0 4px}
 .browsebar{background:var(--card);border:1.5px solid var(--hivis);border-radius:12px;padding:12px 14px;margin:0 0 16px;font-size:15px}
@@ -570,6 +572,7 @@ body.locked #langPick,body.locked #curBtn,body.locked #openWatch,body.locked #me
   <div class="sharecard hidden" id="shareCard"><span id="shareTxt"></span><button type="button" class="btn" id="shareBtn"></button></div>
   <p class="foot" id="dealsFoot"></p>
   <!--SEO-TODAY--><!--/SEO-TODAY-->
+  <!--SEO-HIKE--><!--/SEO-HIKE-->
   <p class="foot" data-i18n="footer">The Gear Fox · Outfox full price · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="shoes/">Shoe prices by model</a> · <a href="about.html">About</a> · <a href="privacy.html">Privacy</a></p>
 </main>
 <div class="toast hidden" id="toast" role="status"></div>
@@ -597,6 +600,7 @@ body.locked #langPick,body.locked #curBtn,body.locked #openWatch,body.locked #me
     </div>
     <div id="welcomePart" class="hidden">
       <div class="ctry" role="group" aria-label="Country" data-i18n-aria="ctryA"><span data-i18n="ctryLabel">Shopping from</span><button type="button" data-ctry="ca">Canada</button><button type="button" data-ctry="us" data-i18n="usa">USA</button></div>
+      <div class="ctry wsport" id="wSport" role="group" hidden><span data-i18n="gearFor">Gear for</span><button type="button" data-sport="run" data-i18n="sportRun">Running</button><button type="button" data-sport="hike" data-i18n="sportHike">Hiking</button></div>
       <div class="wstats" id="wStats"></div>
       <div class="wdeals" id="wDeals"></div>
       <div class="gwrap hidden" id="gW"><p class="or"><span data-i18n="wOr">or with Google, one tap</span></p><div class="gbtn" id="gBtnW"></div></div>
@@ -617,14 +621,22 @@ body.locked #langPick,body.locked #curBtn,body.locked #openWatch,body.locked #me
       <button type="button" data-v="both" data-i18n="terrBoth">Both</button>
     </div>
 
+    <h3 class="later hk" data-i18n="hkindH">What kind of hiking? <small>optional</small></h3>
+    <div class="seg later hk" id="hkind" role="group" aria-label="What kind of hiking?" data-i18n-aria="hkindA">
+      <button type="button" data-v="day" data-i18n="hkDay">Day hikes</button>
+      <button type="button" data-v="overnight" data-i18n="hkOver">Overnight trips</button>
+      <button type="button" data-v="both" data-i18n="terrBoth">Both</button>
+    </div>
+
     <h3 id="shoeSizeH" data-i18n="shoeSizeH">Shoe size <small>US, pick one or more</small></h3>
     <div class="scale" id="shoeSizes"></div>
     <div id="shoeWBox" class="hidden"><p class="wline" id="wLine"></p><div class="scale hidden" id="shoeSizesW"></div></div>
     <div class="chips" id="width" style="margin-top:8px" role="group" aria-label="Shoe width" data-i18n-aria="shoeWidth"></div>
+    <div id="euBox" class="hk clb"><p class="wline euline" id="euLine"></p><div class="scale hidden" id="euSizes"></div></div>
 
-    <h3 data-i18n="clothSizeH">Clothing size <small>tops, shorts, socks, gloves</small></h3>
-    <div class="scale" id="clothSizes"></div>   <!-- Oct 22 (Bastien): clothing sizes show right away, not behind "+ Clothing size" -->
-    <p class="clothmore"><button type="button" class="linkbtn" id="clothMore" data-i18n="clothMore">Different size in shorts, socks or gloves?</button></p>
+    <h3 class="clb" data-i18n="clothSizeH">Clothing size <small>tops, shorts, socks, gloves</small></h3>
+    <div class="scale clb" id="clothSizes"></div>   <!-- Oct 22 (Bastien): clothing sizes show right away, not behind "+ Clothing size" -->
+    <p class="clothmore clb"><button type="button" class="linkbtn" id="clothMore" data-i18n="clothMore">Different size in shorts, socks or gloves?</button></p>
     <div id="clothBy" class="hidden"></div>
     <p class="moresz"><button type="button" class="linkbtn" id="moreSizes" data-i18n="moreSizes">+ Road or trail, favourite brands</button></p>
 
@@ -701,7 +713,8 @@ const ANA=(()=>{const ls=k=>{try{return localStorage.getItem(k)}catch(e){return 
   let over={};try{const q=new URLSearchParams(location.search).get("exp");over=JSON.parse(ls("gf-exp")||"{}");
     if(q){q.split(",").forEach(x=>{const [n,a]=x.split(":");if(n&&/^[AB]$/.test(a))over[n]=a});localStorage.setItem("gf-exp",JSON.stringify(over))}}catch(e){}
   const arm=n=>{if(over[n])return over[n];let h=2166136261;for(const c of did+"|"+n){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return (h>>>0)%2?"B":"A"};
-  const TESTS=["r100","run1st"];   // Oct 22: 'run1st' = running gear leads the first rows (B)   // Oct 22: the redesign ('look' B) is the site for everyone (Bastien), 'runcard' ended (0 vs 2 sign-ups, too rare to decide), 'layout' ended Oct 19
+  const TESTS=["r100","run1st","cards2","short"];   // Oct 25: 'short' live (Bastien OK'd)   // Oct 25: 'short' B = first sizes screen asks only fit + shoe size (Bastien OK'd)
+    // Oct 22: 'run1st' = running gear leads the first rows (B)   // Oct 22: the redesign ('look' B) is the site for everyone (Bastien), 'runcard' ended (0 vs 2 sign-ups, too rare to decide), 'layout' ended Oct 19
      // Oct 21: 'look' = sizes on each card + category photos + store names (B)   // Oct 20: 'welcome' and 'drops' ended (A won); 'layout' back as a 50/50 test
   if(fresh){TESTS.forEach(n=>add("signup-step",`exp|${n}|${arm(n)}`))}
   if(fresh)add("visit",em?"email-"+em:(matchMedia("(display-mode: standalone)").matches||navigator.standalone)?"home-screen app":document.referrer?new URL(document.referrer).hostname:"",null,location.pathname);
@@ -753,7 +766,8 @@ const STORES={"altitude-sports.com":["Altitude Sports"],"laboutiquedulac.com":["
   "feetures.com":["Feetures","US"],"balega.com":["Balega","US"],"darntough.com":["Darn Tough","US"],"swiftwick.com":["Swiftwick","US"],
   "stance.com":["Stance","US"],"wigwam.com":["Wigwam","US"],"goodr.com":["goodr","US"],"roka.com":["Roka","US"],"sunski.com":["Sunski","US"],"ombraz.com":["Ombraz","US"],"territoryrun.co":["Territory Run Co.","US"],"pathprojects.com":["Path Projects","US"],
   "tifosioptics.com":["Tifosi","US"],"tailwindnutrition.com":["Tailwind","US"],"skratchlabs.com":["Skratch Labs","US"],"nuun.com":["Nuun","US"],
-  "honeystinger.com":["Honey Stinger","US"],"guenergy.com":["GU","US"],"humagel.com":["Huma","US"]};
+  "honeystinger.com":["Honey Stinger","US"],"guenergy.com":["GU","US"],"humagel.com":["Huma","US"],
+  "vpo.ca":["Valhalla Pure Outfitters"],"monodsports.com":["Monod Sports"],"trailheadpaddleshack.ca":["Trailhead"],"geartrade.com":["Gear Trade"],"taigaworks.com":["Taiga Works"],"hillsound.ca":["Hillsound"],"greatsox.com":["J.B. Field's"],"ca.tilley.com":["Tilley"],"primusequipment.ca":["Primus"],"zamberlancanada.ca":["Zamberlan"],"featheredfriends.com":["Feathered Friends", "US"],"seatosummit.com":["Sea to Summit", "US"],"lasportivausa.com":["La Sportiva", "US"],"us.scarpa.com":["Scarpa", "US"],"outdoorresearch.com":["Outdoor Research", "US"],"ridgemerino.com":["Ridge Merino", "US"],"minus33.com":["Minus33", "US"],"blackdiamondequipment.com":["Black Diamond", "US"],"msrgear.com":["MSR", "US"],"thermarest.com":["Therm-a-Rest", "US"],"nemoequipment.com":["NEMO", "US"],"bigskyinternational.com":["Big Sky International", "US"],"katabaticgear.com":["Katabatic Gear", "US"],"snowpeak.com":["Snow Peak", "US"],"cnocoutdoors.com":["CNOC", "US"],"vargooutdoors.com":["Vargo", "US"],"nitecorestore.com":["Nitecore Store", "US"],"sierradesigns.com":["Sierra Designs", "US"],"tetonsports.com":["TETON Sports", "US"],"outdoorvitals.com":["Outdoor Vitals", "US"],"pariaoutdoorproducts.com":["Paria", "US"],"naturehike.com":["Naturehike", "US"],"gossamergear.com":["Gossamer Gear", "US"],"sixmoondesigns.com":["Six Moon Designs", "US"],"zpacks.com":["Zpacks", "US"],"durstongear.com":["Durston Gear", "US"],"hyperlitemountaingear.com":["Hyperlite Mountain Gear", "US"],"palantepacks.com":["Pa'lante", "US"],"gryphongear.com":["Gryphon Gear", "US"],"garagegrowngear.com":["Garage Grown Gear", "US"],"neptunemountaineering.com":["Neptune Mountaineering", "US"],"outdoorplay.com":["Outdoorplay", "US"],"ascentoutdoors.com":["Ascent Outdoors", "US"],"ems.com":["Eastern Mountain Sports", "US"],"bigagnes.com":["Big Agnes", "US"],"obozfootwear.com":["Oboz", "US"],"lowaboots.com":["LOWA", "US"],"us.lowa.com":["LOWA", "US"],"keenfootwear.com":["KEEN", "US"],"kelty.com":["Kelty", "US"],"cascademountaintech.com":["Cascade Mountain Tech", "US"],"nextadventure.net":["Next Adventure", "US"],"gearheadoutfitters.com":["Gearhead Outfitters", "US"],"mountainhighoutfitters.com":["Mountain High Outfitters", "US"],"outdoorsinc.com":["Outdoors Inc.", "US"],"appoutdoors.com":["Appalachian Outdoors", "US"],"greatoutdoorprovision.com":["Great Outdoor Provision Co.", "US"],"halfmoonoutfitters.com":["Half-Moon Outfitters", "US"],"mastgeneralstore.com":["Mast General Store", "US"],"mtnchalet.com":["Mountain Chalet", "US"],"ramseyoutdoor.com":["Ramsey Outdoor", "US"],"secondascent.com":["Second Ascent", "US"]};
 function storeLine(d){
   const h=storeOf(d.url),s=STORES[h]||[h],home=US()?"US":"CA",org=s[1]||(STORES[h]?"CA":d.ca===false?"XX":home),from=org===home?"":org;
   return `<div class="store">${t("atStore",esc(s[0]))}${from?` · <span class="abroad">${t("shipsFrom",from)}</span>`:""}${d.fin?` · <span class="fin" title="${esc(t("finalSaleTip"))}">${t("finalSale")}</span>`:""}</div>`;
@@ -780,7 +794,7 @@ en:{
     sub2:(g,k)=>g?`${g} ${k}`:k[0].toUpperCase()+k.slice(1),cmp:"All sizes →",heroAt:(p,s)=>`${p} at ${s}`,menu:"Menu",mySizes:"My sizes"},
   watchlist:"Your watchlist",yourSizes:"Your sizes",menu:"Menu",mDeals:"Today's deals",mShoes:"Shoe prices by model",mRaces:"Race gear lists",mSizes:"My sizes",mAbout:"About The Gear Fox",mApp:"Add to your home screen",appTipH:"Get The Gear Fox on your home screen",appTipIos:"Tap the Share button {s} in Safari's bar",appTipIos2:"Scroll down and tap <b style=\"display:inline\">Add to Home Screen</b>",appTipAnd:"Tap the ⋮ menu at the top of Chrome",appTipAnd2:"Tap <b style=\"display:inline\">Add to Home screen</b>",appTipWhy:"It opens like an app, with your sizes ready.",gotIt:"Got it",mCur:"Prices in",langLabel:"Language",edit:"Edit",allDeals:"← All deals",categories:"Categories",
   sort:"Sort",sortMatch:"Best match",sortDiscount:"Biggest discount",sortPrice:"Lowest price",search:"Search brand or model",searchShort:"Search gear",
-  get footer(){return 'The Gear Fox · Outfox full price · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="'+(US()?"us/shoes/":"shoes/")+'">Shoe prices by model</a> · <a href="about.html">About</a> · <a href="privacy.html">Privacy</a>'},close:"Close",fit:"Fit",
+  get footer(){return 'The Gear Fox · Outfox full price · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="'+shoeDir()+'">'+this.mShoes+'</a> · <a href="about.html">About</a> · <a href="privacy.html">Privacy</a>'},close:"Close",fit:"Fit",
   men:"Men's",women:"Women's",both:"Both",menWomen:"Men's & women's",
   terrainH:"Where do you run? <small>for shoes</small>",terrainA:"Where do you run?",terrRoad:"Road",terrTrail:"Trail",terrBoth:"Both",
   shoeSizeH:"Shoe size <small>US, pick one or more</small>",shoeSizeMH:"Men's shoe size <small>US, pick one or more</small>",
@@ -806,7 +820,7 @@ en:{
   get shareText(){return `Running and outdoor gear on sale in your size, from stores ${US()?"across the US":"across Canada"}.`},usFuel:"Fuel from US stores (The Feed, Skratch…) is hidden while “Ships from Canada” is on.",usFuelShow:"Show US stores too",shipsFrom:c=>`ships from ${({US:"the US",CA:"Canada",UK:"the UK",FR:"France",DK:"Denmark",AU:"Australia"})[c]||(US()?"outside the US":"outside Canada")}, duties may apply`,showMore:n=>`Show ${n} more`,
   allGear:"All gear",typeAll:"All",types:{daily:"Daily trainers",race:"Carbon & race",trail:"Trail",hike:"Hiking & winter",spike:"Track & XC spikes",light:"Lights",pole:"Poles",bottle:"Bottles & flasks",sun:"Sunglasses",tee:"T-shirts & tanks",layer:"Long sleeves & hoodies",jacket:"Jackets & vests",short:"Shorts",tight:"Tights",pant:"Pants"},
   get shipsCA(){return US()?"Ships from the US":"Ships from Canada"},saleOnly:"Include full price",
-  stopWatching:"Stop watching",watchBtn:"Watch price",watchOn:"Watching",openMail:n=>`Open ${n}`,bwH:"Didn't buy it?",bwTxt:"We'll show you when the price drops.",bwGo:"♡ Watch price",bwMail:"Get an email when it drops in your size.",bwNotify:"Notify me",bwFine:"Free. Plus the best deals in your size every Friday.",bwSuH:"Want an email when it drops?",bwSuTxt:"Add your email: we'll write when it drops in your size, plus the best deals every Friday. Free.",qsH:"Like this deal?",qsTxt:"Get the best ones in your size every Friday. Free, one email a week.",watch:"Watch",removed:"Removed from your watchlist.",
+  stopWatching:"Stop watching",watchBtn:"Watch price",watchS:"Watch",watchOn:"Watching",openMail:n=>`Open ${n}`,bwH:"Didn't buy it?",bwTxt:"We'll show you when the price drops.",bwGo:"♡ Watch price",bwMail:"Get an email when it drops in your size.",bwNotify:"Notify me",bwFine:"Free. Plus the best deals in your size every Friday.",bwSuH:"Want an email when it drops?",bwSuTxt:"Add your email: we'll write when it drops in your size, plus the best deals every Friday. Free.",qsH:"Like this deal?",qsTxt:"Get the best ones in your size every Friday. Free, one email a week.",watch:"Watch",removed:"Removed from your watchlist.",
   watching:"Watching. We'll email you if it drops or comes back in your size.",
   watchingPending:"Watching. Confirm your email to get price-drop alerts.",watchingSignup:"Watching. Sign up for the Friday email to get price-drop alerts.",
   watchlistChanges:n=>`Your watchlist, ${n} ${PL(n,"change","changes")}`,
@@ -838,7 +852,7 @@ en:{
   junkHint:"Not there after a minute? Check Junk or Promotions (Outlook and Hotmail often file us there) and mark it \"Not junk\".",
   resend:"Send it again",resendFail:"Couldn't send just now. Try again in a minute.",resent:"Sent again. Give it a minute.",resendWait:"Just sent. Give it a minute, then check Junk.",
   otherEmail:"Use a different email",getDeals:"Get deals like these every Friday",
-  getDealsTxt:"One email, Friday morning, only gear on sale in your sizes.",perksTitle:"Free with your email",rcH:"What do you run in?",rcTxt:"Pick your shoe: we'll email you when it drops in your size. Plus your best deals every Friday.",rcPh:"Your shoe, e.g. Pegasus 41",rcGo:"Email me when it drops",perk1:"An alert when gear you heart drops in price",perk2:"Your best deals every Friday morning",perk3:"Your sizes and hearts on all your devices",noThanks:"No thanks",peekTitle:n=>`${n} deals in your size today`,peekTxt:"Add your email to see them all, get price-drop alerts on deals you heart, and the best ones every Friday.",peekG:"or continue with Google",email:"Email",signUp:"Sign up",
+  getDealsTxt:"One email, Friday morning, only gear on sale in your sizes.",perksTitle:"Free with your email",proH:"Fox Pro is coming",pro1:"Phone app alerts the moment we see a watched item drop in your size",pro2:"No limit on your watchlist: follow whole models and brands",pro3:"Early alerts for Black Friday and Boxing Day",proPrice:(m,y)=>`$${m}/month or $${y}/year`,proFound:"Founding price, yours for as long as you stay.",proJoin:"Join the waitlist",proFine:"No payment now. We'll email you when it opens.",proFineNew:"No payment now. We'll email you when it opens, plus the Friday deals in your size (unsubscribe in one tap).",proThanks:"You're on the Fox Pro waitlist. We'll email you when it opens.",rcH:"What do you run in?",rcTxt:"Pick your shoe: we'll email you when it drops in your size. Plus your best deals every Friday.",rcPh:"Your shoe, e.g. Pegasus 41",rcGo:"Email me when it drops",perk1:"An alert when gear you heart drops in price",perk2:"Your best deals every Friday morning",perk3:"Your sizes and hearts on all your devices",noThanks:"No thanks",peekTitle:n=>`${n} deals in your size today`,peekTxt:"Add your email to see them all, get price-drop alerts on deals you heart, and the best ones every Friday.",peekG:"or continue with Google",email:"Email",signUp:"Sign up",
   signupFine:'We\'ll email you to confirm. Unsubscribe with one tap. <a href="privacy.html">Privacy</a>',
   badEmail:"That email doesn't look right.",signupFail:m=>`Couldn't sign you up just now: ${m}`,
   emailOn:e=>`Friday email on for ${e} · <button type="button" id="stopEmail">Stop it</button>`,
@@ -857,7 +871,8 @@ en:{
   cTitle:"Deals in your size",cIntro:"Sign up free, or sign back in. We'll ask your sizes only once.",cContinue:"Continue",
   cSizesIntro:"Last step: pick your fit and sizes.",
   wTitle:"Your size. On sale. Every day.",wIntro:half=>`<b>${half?"More than half of":"Many"} gear deals aren't available in your size.</b> Every morning we check running and outdoor stores ${US()?"across the US":"across Canada"} and show you only the ones that are.`,
-  ctryLabel:"Shopping from",ctryA:"Country",usa:"USA",where:()=>US()?"across the US":"across Canada",
+  ctryLabel:"Shopping from",gearFor:"Gear for",hkindH:"What kind of hiking? <small>optional</small>",hkindA:"What kind of hiking?",hkDay:"Day hikes",hkOver:"Overnight trips",
+  euLine:(v,auto)=>`European boots (La Sportiva, Scarpa, LOWA…): <b>EU ${v}</b>${auto?" <small>matched from your US size with LOWA's chart</small>":""}`,sportLbl:"Running or hiking",sportRun:"Running",sportHike:"Hiking",ctryA:"Country",usa:"USA",where:()=>US()?"across the US":"across Canada",
   wGo:"Find my deals",wShoes:"or look up a specific shoe →",wBrowseShort:"Just browse",wShoeShort:"Find a shoe",sizesOnSale:"Sizes on sale:",
   browseNote:"Showing every size.",browsePick:"Pick your size",browseWhy:" and we'll hide what won't fit.",clothNote:"Every clothing size shown.",clothPick:"Pick your clothing size",
   moreSizes:"+ Road or trail, favourite brands",cmpLink:"All sizes & stores →",
@@ -893,7 +908,7 @@ fr:{
     sub2:(g,k)=>g?`${k[0].toUpperCase()+k.slice(1)} · ${g}`:k[0].toUpperCase()+k.slice(1),cmp:"Tailles →",heroAt:(p,s)=>`${p} chez ${s}`,menu:"Menu",mySizes:"Mes tailles"},
   watchlist:"Vos favoris",yourSizes:"Vos tailles",menu:"Menu",mDeals:"Aubaines du jour",mShoes:"Prix des chaussures par modèle",mRaces:"Listes de matériel de course",mSizes:"Mes tailles",mAbout:"À propos de The Gear Fox",mApp:"Ajouter à l'écran d'accueil",appTipH:"The Gear Fox sur votre écran d'accueil",appTipIos:"Touchez le bouton Partager {s} dans la barre de Safari",appTipIos2:"Descendez et touchez <b style=\"display:inline\">Sur l'écran d'accueil</b>",appTipAnd:"Touchez le menu ⋮ en haut de Chrome",appTipAnd2:"Touchez <b style=\"display:inline\">Ajouter à l'écran d'accueil</b>",appTipWhy:"Elle s'ouvre comme une appli, avec vos tailles prêtes.",gotIt:"Compris",mCur:"Prix en",langLabel:"Langue",edit:"Modifier",allDeals:"← Toutes les aubaines",categories:"Catégories",
   sort:"Trier",sortMatch:"Meilleur choix",sortDiscount:"Plus gros rabais",sortPrice:"Prix le plus bas",search:"Chercher une marque ou un modèle",searchShort:"Chercher",
-  footer:'The Gear Fox · Flairez les aubaines · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="chaussures/">Prix des chaussures par modèle</a> · <a href="about.html">À propos</a> · <a href="privacy.html">Confidentialité</a>',close:"Fermer",fit:"Coupe",
+  get footer(){return 'The Gear Fox · Flairez les aubaines · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="'+shoeDir()+'">'+this.mShoes+'</a> · <a href="about.html">À propos</a> · <a href="privacy.html">Confidentialité</a>'},close:"Fermer",fit:"Coupe",
   men:"Homme",women:"Femme",both:"Les deux",menWomen:"Homme et femme",
   terrainH:"Où courez-vous? <small>pour les chaussures</small>",terrainA:"Où courez-vous?",terrRoad:"Route",terrTrail:"Sentier",terrBoth:"Les deux",
   shoeSizeH:"Pointure <small>US, une ou plusieurs</small>",shoeSizeMH:"Pointure homme <small>US, une ou plusieurs</small>",
@@ -919,7 +934,7 @@ fr:{
   get shareText(){return `Des aubaines de course et de plein air dans votre taille, dans des boutiques ${US()?"partout aux États-Unis":"partout au Canada"}.`},usFuel:"La nutrition des boutiques américaines (The Feed, Skratch…) est masquée quand « Expédié du Canada » est activé.",usFuelShow:"Voir aussi les boutiques américaines",shipsFrom:c=>`expédié ${({US:"des États-Unis",CA:"du Canada",UK:"du Royaume-Uni",FR:"de France",DK:"du Danemark",AU:"d'Australie"})[c]||(US()?"de l'extérieur des États-Unis":"de l'extérieur du Canada")}, des droits peuvent s'appliquer`,showMore:n=>`Voir ${n} de plus`,
   allGear:"Tout",typeAll:"Tout",types:{daily:"Entraînement",race:"Carbone et compétition",trail:"Sentier",hike:"Randonnée et hiver",spike:"Pointes (piste et cross)",light:"Frontales",pole:"Bâtons",bottle:"Gourdes et flasques",sun:"Lunettes de soleil",tee:"T-shirts et camisoles",layer:"Manches longues et kangourous",jacket:"Manteaux et vestes",short:"Shorts",tight:"Collants",pant:"Pantalons"},
   get shipsCA(){return US()?"Expédié des États-Unis":"Expédié du Canada"},saleOnly:"Inclure le prix régulier",
-  stopWatching:"Retirer des favoris",watchBtn:"Suivre le prix",watchOn:"Suivi",openMail:n=>`Ouvrir ${n}`,bwH:"Pas acheté?",bwTxt:"On vous montre quand le prix baisse.",bwGo:"♡ Suivre le prix",bwMail:"Recevez un courriel quand son prix baisse dans votre taille.",bwNotify:"M'avertir",bwFine:"Gratuit. Et les meilleures aubaines à votre taille chaque vendredi.",bwSuH:"Un courriel quand il baisse?",bwSuTxt:"Entrez votre courriel : on vous écrit quand il baisse dans votre taille, et les meilleures aubaines chaque vendredi. Gratuit.",qsH:"Cette aubaine vous plaît?",qsTxt:"Recevez les meilleures à votre taille chaque vendredi. Gratuit, un courriel par semaine.",watch:"Ajouter aux favoris",removed:"Retiré de vos favoris.",
+  stopWatching:"Retirer des favoris",watchBtn:"Suivre le prix",watchS:"Suivre",watchOn:"Suivi",openMail:n=>`Ouvrir ${n}`,bwH:"Pas acheté?",bwTxt:"On vous montre quand le prix baisse.",bwGo:"♡ Suivre le prix",bwMail:"Recevez un courriel quand son prix baisse dans votre taille.",bwNotify:"M'avertir",bwFine:"Gratuit. Et les meilleures aubaines à votre taille chaque vendredi.",bwSuH:"Un courriel quand il baisse?",bwSuTxt:"Entrez votre courriel : on vous écrit quand il baisse dans votre taille, et les meilleures aubaines chaque vendredi. Gratuit.",qsH:"Cette aubaine vous plaît?",qsTxt:"Recevez les meilleures à votre taille chaque vendredi. Gratuit, un courriel par semaine.",watch:"Ajouter aux favoris",removed:"Retiré de vos favoris.",
   watching:"Ajouté. On vous écrit si le prix baisse ou si votre taille revient en stock.",
   watchingPending:"Ajouté. Confirmez votre courriel pour recevoir les alertes de baisse de prix.",watchingSignup:"Ajouté. Abonnez-vous au courriel du vendredi pour recevoir les alertes de baisse de prix.",
   watchlistChanges:n=>`Vos favoris, ${n} ${PL(n,"changement","changements")}`,
@@ -951,7 +966,7 @@ fr:{
   junkHint:"Pas reçu après une minute? Vérifiez les courriels indésirables ou Promotions (Outlook et Hotmail nous y classent souvent) et indiquez « Pas un courriel indésirable ».",
   resend:"Renvoyer",resendFail:"Envoi impossible pour l'instant. Réessayez dans une minute.",resent:"Renvoyé. Laissez-lui une minute.",resendWait:"Tout juste envoyé. Donnez-lui une minute, puis vérifiez les indésirables.",
   otherEmail:"Utiliser un autre courriel",getDeals:"Recevez des aubaines comme celles-ci chaque vendredi",
-  getDealsTxt:"Un courriel le vendredi matin, seulement des articles en solde dans vos tailles.",perksTitle:"Gratuit avec votre courriel",rcH:"Vous courez avec quoi?",rcTxt:"Choisissez votre chaussure : on vous écrit quand elle baisse à votre taille. En prime, vos meilleures aubaines chaque vendredi.",rcPh:"Votre chaussure (ex. Pegasus 41)",rcGo:"M'avertir d'une baisse",perk1:"Une alerte quand un coup de cœur baisse de prix",perk2:"Vos meilleures aubaines chaque vendredi matin",perk3:"Vos tailles et vos coups de cœur sur tous vos appareils",noThanks:"Non merci",peekTitle:n=>`${n} aubaines dans vos tailles aujourd'hui`,peekTxt:"Entrez votre courriel pour toutes les voir, être averti des baisses de prix sur vos coups de cœur et recevoir les meilleures chaque vendredi.",peekG:"ou continuer avec Google",email:"Courriel",signUp:"M'abonner",
+  getDealsTxt:"Un courriel le vendredi matin, seulement des articles en solde dans vos tailles.",perksTitle:"Gratuit avec votre courriel",proH:"Fox Pro arrive bientôt",pro1:"Alertes dans l'appli sur votre téléphone dès qu'on voit baisser un article suivi dans votre taille",pro2:"Liste de suivi sans limite : suivez des modèles et des marques entiers",pro3:"Des alertes en avance pour le Vendredi fou et les soldes d'après Noël",proPrice:(m,y)=>`${m} $/mois ou ${y} $/an`,proFound:"Prix fondateur, garanti tant que vous restez.",proJoin:"Rejoindre la liste d'attente",proFine:"Aucun paiement maintenant. On vous écrit à l'ouverture.",proFineNew:"Aucun paiement maintenant. On vous écrit à l'ouverture, avec les aubaines du vendredi dans votre taille (désabonnement en un clic).",proThanks:"Vous êtes sur la liste d'attente de Fox Pro. On vous écrit à l'ouverture.",rcH:"Vous courez avec quoi?",rcTxt:"Choisissez votre chaussure : on vous écrit quand elle baisse à votre taille. En prime, vos meilleures aubaines chaque vendredi.",rcPh:"Votre chaussure (ex. Pegasus 41)",rcGo:"M'avertir d'une baisse",perk1:"Une alerte quand un coup de cœur baisse de prix",perk2:"Vos meilleures aubaines chaque vendredi matin",perk3:"Vos tailles et vos coups de cœur sur tous vos appareils",noThanks:"Non merci",peekTitle:n=>`${n} aubaines dans vos tailles aujourd'hui`,peekTxt:"Entrez votre courriel pour toutes les voir, être averti des baisses de prix sur vos coups de cœur et recevoir les meilleures chaque vendredi.",peekG:"ou continuer avec Google",email:"Courriel",signUp:"M'abonner",
   signupFine:'On vous écrit pour confirmer. Désabonnement en un clic. <a href="privacy.html">Confidentialité</a>',
   badEmail:"Ce courriel ne semble pas valide.",signupFail:m=>`Impossible de vous abonner pour l'instant : ${m}`,
   emailOn:e=>`Courriel du vendredi activé pour ${e} · <button type="button" id="stopEmail">L'arrêter</button>`,
@@ -970,7 +985,8 @@ fr:{
   cTitle:"Des aubaines à votre taille",cIntro:"Abonnez-vous gratuitement ou reconnectez-vous. On vous demande vos tailles une seule fois.",cContinue:"Continuer",
   cSizesIntro:"Dernière étape : choisissez votre coupe et vos tailles.",
   wTitle:"Des aubaines sur mesure.",wIntro:half=>`<b>${half?"Plus de la moitié des ":"Beaucoup d'"}aubaines ne sont pas offertes dans votre taille.</b> Chaque matin, on parcourt les boutiques de course et de plein air ${US()?"partout aux États-Unis":"partout au Canada"} et on vous montre seulement celles qui le sont.`,
-  ctryLabel:"Je magasine",ctryA:"Pays",usa:"É.-U.",where:()=>US()?"partout aux États-Unis":"partout au Canada",
+  ctryLabel:"Je magasine",gearFor:"Équipement de",hkindH:"Quel type de randonnée? <small>facultatif</small>",hkindA:"Quel type de randonnée?",hkDay:"À la journée",hkOver:"Avec nuitées",
+  euLine:(v,auto)=>`Bottes européennes (La Sportiva, Scarpa, LOWA…) : <b>EU ${v}</b>${auto?" <small>d'après votre pointure US et la charte de LOWA</small>":""}`,sportLbl:"Course ou randonnée",sportRun:"Course",sportHike:"Randonnée",ctryA:"Pays",usa:"É.-U.",where:()=>US()?"partout aux États-Unis":"partout au Canada",
   wGo:"Trouver mes aubaines",wShoes:"ou cherchez une chaussure précise →",wBrowseShort:"Tout voir",wShoeShort:"Chercher un modèle",sizesOnSale:"Tailles en solde :",
   browseNote:"Toutes les tailles sont affichées.",browsePick:"Choisissez votre taille",browseWhy:" et on cache ce qui ne vous va pas.",clothNote:"Toutes les tailles de vêtements sont affichées.",clothPick:"Choisissez votre taille de vêtements",
   moreSizes:"+ Route ou sentier, marques préférées",
@@ -1004,6 +1020,14 @@ let COUNTRY=LINK_C||LS0("gf-country")||((LS0("rd-profile")||{}).country)||(LS0("
   ((()=>{try{return US_TZ.test(Intl.DateTimeFormat().resolvedOptions().timeZone||"")}catch(e){return false}})()?"us":"ca");
 if(LINK_C)try{localStorage.setItem("gf-country",JSON.stringify(LINK_C))}catch(e){}
 const US=()=>COUNTRY==="us";
+/* Running | Hiking (Oct 25, Bastien: "build the sub category of hiking. We have to make it look identical to the running page"):
+   one page, two catalogues. Hiking = sale-hike(-us).json / deals-hike(-us).json from scraper/hike.py, same sizes, cards and
+   filters; its own categories and type buttons (applySport). Hidden until HIKE_LIVE; ?hike=1 shows the switch (previews). */
+const HIKE_LIVE=true;   // Oct 25: launched (Bastien: "I'd launch today")
+const HIKE_OK=HIKE_LIVE||(()=>{try{return new URLSearchParams(location.search).has("hike")}catch(e){return false}})();
+let SPORT=(()=>{try{const s=new URLSearchParams(location.search).get("sport");if(s==="hike"||s==="run")return s}catch(e){}return LS0("gf-sport")||"run"})();
+if(!HIKE_OK)SPORT="run";
+const HIKE=()=>SPORT==="hike";
 let LANG=LS0("gf-lang")||((LS0("rd-profile")||{}).lang)||LINK_LANG||(/^fr/i.test(navigator.language||"")?"fr":"en");
 function t(k,...a){const v=(I18N[LANG]&&I18N[LANG][k]!==undefined)?I18N[LANG][k]:I18N.en[k];return typeof v==="function"?v(...a):v}
 const num=n=>Number(n).toLocaleString(LANG==="fr"?"fr-CA":"en-CA");
@@ -1049,7 +1073,15 @@ function appManifest(){try{
     background_color:"#FA5501",theme_color:"#17201C",icons:[{src:o+"/icon-192.png",sizes:"192x192",type:"image/png"},{src:o+"/icon-512.png",sizes:"512x512",type:"image/png"}]};
   el.href="data:application/manifest+json,"+encodeURIComponent(JSON.stringify(m));
 }catch(e){}}
-const state={name:"",email:"",gender:"",terrain:"both",ships:"ca",groups:ORDER.slice(),shoe:[],shoeW:[],wTouched:false,width:[],cloth:[],clothBy:{},brands:[]};
+const state={name:"",email:"",gender:"",terrain:"both",ships:"ca",groups:ORDER.slice(),shoe:[],shoeW:[],wTouched:false,width:[],cloth:[],clothBy:{},brands:[],
+  hkind:"both",shoeEU:[],euTouched:false,signSport:null};   // Oct 25, hiking: kind of hiking + EU boot sizes
+/* EU boot sizes (Oct 25, Bastien OK'd the hiking intake): European boots (La Sportiva, Scarpa, LOWA, Hanwag…) are often sold in EU sizes only.
+   Until the visitor changes it, their EU size comes from their US size with LOWA's own chart (us.lowa.com, the one maker chart we read);
+   boots listed in EU sizes ("E:44.5") match only the EU sizes the visitor has. */
+const EU_M={"7":"39.5","7.5":"40","8":"41","8.5":"41.5","9":"42","9.5":"42.5","10":"43.5","10.5":"44","11":"44.5","11.5":"45","12":"46","12.5":"46.5","13":"47","13.5":"48","14":"48.5","14.5":"49","15":"49.5"};
+const EU_W={"4":"35","4.5":"36","5":"36.5","5.5":"37","6":"37.5","6.5":"38","7":"39","7.5":"39.5","8":"40","8.5":"41","9":"41.5","9.5":"42","10":"42.5","10.5":"43.5","11":"44"};
+const EU_OPTS=[];for(let v=35;v<=50;v+=0.5)EU_OPTS.push(String(v));
+function syncEU(){if(state.euTouched)return;const ch=state.gender==="women"?EU_W:EU_M;state.shoeEU=[...new Set(state.shoe.map(s=>ch[s]).filter(Boolean))].sort((a,b)=>a-b)}
 /* "Both": the shoe grid is men's sizes and a second, women's list follows it (men's + 1.5: men's 8.5 = women's 10) until the
    person changes it. One runner who shops both sections; several runners = the Fox Pro family plan. */
 const toW=n=>{const v=parseFloat(n)+1.5;return v<=15?String(v):null};
@@ -1059,9 +1091,9 @@ let customBrands=[];
 /* The browser's time zone, so the Friday email lands at 7am wherever the person lives */
 const TZ=(()=>{try{return Intl.DateTimeFormat().resolvedOptions().timeZone||""}catch(e){return ""}})();
 function toProfile(){
-  const sizes={shoes:{sizes:state.shoe,width:state.width,...(state.gender==="any"&&state.shoeW.length?{women:state.shoeW}:{})}};
+  const sizes={shoes:{sizes:state.shoe,width:state.width,...(state.gender==="any"&&state.shoeW.length?{women:state.shoeW}:{}),...(state.shoeEU.length?{eu:state.shoeEU}:{}),...(state.euTouched?{euSet:1}:{})}};
   APPAREL_GROUPS.forEach(g=>sizes[g]={sizes:clothFor(g).slice()});
-  return {lang:LANG,country:COUNTRY,tz:TZ,name:state.name,email:state.email,gender:state.gender,terrain:state.terrain,ships:state.ships,groups:state.groups,sizes,brands:state.brands,activities:[],...(REF?{ref:REF}:{})};
+  return {lang:LANG,country:COUNTRY,tz:TZ,name:state.name,email:state.email,gender:state.gender,terrain:state.terrain,...(state.hkind!=="both"?{hike_kind:state.hkind}:{}),...(state.signSport?{sport:state.signSport}:{}),ships:state.ships,groups:state.groups,sizes,brands:state.brands,activities:[],...(REF?{ref:REF}:{}),...(LS.get("gf-pro")?{pro_wait:LS.get("gf-pro")}:{})};
 }
 function applyProfile(p){
   if(!p)return;
@@ -1072,7 +1104,9 @@ function applyProfile(p){
   BY_GROUPS.forEach(g=>{if(per[g].length&&per[g].join(",")!==main.join(","))clothBy[g]=per[g]});
   Object.assign(state,{name:p.name||"",email:p.email||"",gender:p.gender||"",terrain:["road","trail"].includes(p.terrain)?p.terrain:"both",ships:p.ships||"ca",
     groups:(p.groups&&p.groups.length)?p.groups.filter(g=>GL(g)):ORDER.slice(),
-    shoe:((sz.shoes||{}).sizes||[]).map(String),shoeW:((sz.shoes||{}).women||[]).map(String),wTouched:!!(sz.shoes||{}).women,width:(sz.shoes||{}).width||[],cloth:CLOTH.filter(c=>cloth.has(c)),clothBy,brands:p.brands||[]});
+    shoe:((sz.shoes||{}).sizes||[]).map(String),shoeW:((sz.shoes||{}).women||[]).map(String),wTouched:!!(sz.shoes||{}).women,width:(sz.shoes||{}).width||[],cloth:CLOTH.filter(c=>cloth.has(c)),clothBy,brands:p.brands||[],
+    hkind:["day","overnight"].includes(p.hike_kind)?p.hike_kind:"both",shoeEU:((sz.shoes||{}).eu||[]).map(String),euTouched:!!(sz.shoes||{}).euSet,signSport:p.sport==="hike"?"hike":p.sport==="run"?"run":null});
+  syncEU();
   customBrands=state.brands.filter(b=>!BRANDS.includes(b));
   if(p.lang&&!LS0("gf-lang")&&p.lang!==LANG){LANG=p.lang;applyStatic()}
   if((p.country==="us"||p.country==="ca")&&p.country!==COUNTRY&&!LINK_C&&!LS0("gf-country")&&typeof setCountry==="function"&&DATA)setCountry(p.country,"profile");
@@ -1094,7 +1128,11 @@ function renderSheet(){
   setTimeout(renderLive,0);
   document.querySelectorAll("#fit button").forEach(b=>b.setAttribute("aria-pressed",String(state.gender===b.dataset.v)));
   document.querySelectorAll("#terrain button").forEach(b=>b.setAttribute("aria-pressed",String(state.terrain===b.dataset.v)));
+  document.querySelectorAll("#hkind button").forEach(b=>b.setAttribute("aria-pressed",String(state.hkind===b.dataset.v)));
   $("shoeSizes").innerHTML=scaleHTML(SHOE,state.shoe);
+  {syncEU();const open=!$("euSizes").classList.contains("hidden");$("euBox").hidden=!state.shoe.length&&!state.shoeEU.length;
+    $("euLine").innerHTML=t("euLine",state.shoeEU.length?state.shoeEU.join(", "):"—",!state.euTouched)+` · <button type="button" id="euChange">${open?t("done"):t("change")}</button>`;
+    $("euSizes").innerHTML=scaleHTML(EU_OPTS,state.shoeEU)}
   const both=state.gender==="any";$("shoeSizeH").innerHTML=t(both?"shoeSizeMH":"shoeSizeH");
   $("shoeWBox").classList.toggle("hidden",!both||!state.shoe.length);
   if(both){const open=!$("shoeSizesW").classList.contains("hidden");
@@ -1114,6 +1152,10 @@ $("shoeWBox").addEventListener("click",e=>{
   if(e.target.id==="wChange"){$("shoeSizesW").classList.toggle("hidden");renderSheet();return}
   const b=e.target.closest(".chip");if(!b)return;state.wTouched=true;toggle(state.shoeW,b.dataset.v);state.shoeW.sort((a,b)=>a-b);renderSheet()});
 $("terrain").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;state.terrain=b.dataset.v;renderSheet()});
+$("hkind").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;state.hkind=b.dataset.v;ana("signup-step","hkind|"+b.dataset.v);renderSheet()});
+$("euBox").addEventListener("click",e=>{
+  if(e.target.id==="euChange"){$("euSizes").classList.toggle("hidden");renderSheet();return}
+  const b=e.target.closest(".chip");if(!b)return;state.euTouched=true;toggle(state.shoeEU,b.dataset.v);state.shoeEU.sort((a,b)=>a-b);renderSheet()});
 $("shoeSizes").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;toggle(state.shoe,b.dataset.v);state.shoe.sort((a,b)=>a-b);syncW();renderSheet()});
 $("width").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;
   const w=state.width.length?state.width:["Regular"];toggle(w,b.dataset.v);state.width=w.length?w:["Regular"];renderSheet()});
@@ -1146,6 +1188,12 @@ const WELCOME_B=false;   // test "welcome" ended Oct 20: without the welcome scr
 // Search + categories first, then the swipe row as small tiles (tile()). Was test 'layout' B (Oct 18); Oct 19 Bastien chose it for
 // everyone (Baymard: shoppers who search go straight for the box; one day of our data, not a test result)
 const LAYOUT_B=ANA.arm("layout")==="B";
+/* Test 'cards2' (Oct 25): B = phones show one deal per row, photo beside the details (theme.css html.cards2), 6 top deals + 4 per
+   category; metric = homepage first visits that click a store (direct visitors: 15% since the redesign, 33% before) */
+const SHORT_LIVE=true;    // Oct 25 (Bastien: "yes let's shorten the size selection"): 50/50; ?exp=short:B shows B any time
+const SHORT_B=(()=>{try{return (SHORT_LIVE?ANA.arm("short"):JSON.parse(localStorage.getItem("gf-exp")||"{}").short)==="B"}catch(e){return false}})();if(SHORT_B)document.documentElement.classList.add("shortb");   // Oct 25 test 'short': 124 of 125 first visitors who didn't pick sizes left at the sizes screen
+const CARDS2=ANA.arm("cards2")==="B";if(CARDS2)document.documentElement.classList.add("cards2");
+const C2P=()=>CARDS2&&innerWidth<700&&innerWidth>=380;   // phones with two cards a row
 const LOOK_B=true;   // Oct 22 (Bastien: "I'd redesign now"): the redesign for everyone, no test; before/after numbers watched for 2 weeks (docs/decisions.md)
    // Oct 21 (Bastien's redesign mockups): the sizes row on cards, category photos + store names on the welcome screen   // Oct 20: back to a 50/50 test (early data: sizes picked 14% B vs 45% A, 33 devices)
 if(LAYOUT_B){document.body.classList.add("lay-b");$("filtersBox").after($("newBox"))}
@@ -1254,7 +1302,7 @@ function openSheet(){lastFocus=document.activeElement;renderSheet();
   if(g)$("gateEmail").value=state.email||"";
   const gOn=G.ready&&g;$("gUp").classList.toggle("hidden",!gOn||!!gSession);$("gIn").classList.toggle("hidden",!gOn);
   $("gW").classList.add("hidden");$("wSignin").classList.toggle("hidden",!showWelcome);
-  $("wAlt").classList.toggle("hidden",!showWelcome);renderCountry();
+  $("wAlt").classList.toggle("hidden",!showWelcome);renderCountry();renderSport();
   $("sizesPart").classList.toggle("short",shortSizes());$("wShoesA").href=shoeDir();
   $("gSigned").classList.toggle("hidden",!gSession);if(gSession)$("gSigned").innerHTML=t("gSigned",esc(gSession.email));
   $("gateEmail").classList.toggle("hidden",!!gSession);
@@ -1348,10 +1396,12 @@ let FULL=false,fullLoading=null;
    only models listed in shoes/pages.json get a link (a page that forwards points to its new address). */
 let SHOEPAGES=null;
 /* Canada: shoes/ (EN) + chaussures/ (FR); USA: us/shoes/ (US stores, US dollars; English) */
-const shoeDir=()=>US()?"us/shoes/":LANG==="fr"?"chaussures/":"shoes/";
+const TRAIL_LIVE=true;    // trail gear lists: on with hike_pages.py LIVE (Oct 25, Bastien OK'd)
+const raceDir=()=>HIKE()&&TRAIL_LIVE?(US()?"us/hikes/":LANG==="fr"?"randonnees/":"hikes/"):US()?"us/races/":LANG==="fr"?"courses/":"races/";   // Oct 25: trail gear lists on the hiking side
+const shoeDir=()=>HIKE()?(US()?"us/hiking-boots/":LANG==="fr"?"bottes-randonnee/":"hiking-boots/"):US()?"us/shoes/":LANG==="fr"?"chaussures/":"shoes/";   // Oct 25: boot pages on the hiking side
 let SHOEPAGES_FOR="";
-function loadShoePages(){const c=COUNTRY;if(SHOEPAGES&&SHOEPAGES_FOR===c)return;SHOEPAGES={};SHOEPAGES_FOR=c;
-  fetch(US()?"us/shoes/pages.json":"shoes/pages.json").then(r=>r.ok?r.json():{}).then(j=>{if(c!==COUNTRY)return;SHOEPAGES=j||{};if(DATA)renderAll()}).catch(()=>{})}
+function loadShoePages(){const c=COUNTRY+(HIKE()?"|hike":"");if(SHOEPAGES&&SHOEPAGES_FOR===c)return;SHOEPAGES={};SHOEPAGES_FOR=c;
+  fetch(HIKE()?(US()?"us/hiking-boots/pages.json":"hiking-boots/pages.json"):US()?"us/shoes/pages.json":"shoes/pages.json").then(r=>r.ok?r.json():{}).then(j=>{if(c!==COUNTRY+(HIKE()?"|hike":""))return;SHOEPAGES=j||{};if(DATA)renderAll()}).catch(()=>{})}
 function baseModel(n){
   n=n.replace(/\s*(-\s*|\()(Men|Women)[’']s\)?$|\s*(-\s*|\()Unisex\)?$/,"");
   n=n.split(/\s+[—·]\s+/)[0];
@@ -1367,9 +1417,19 @@ function baseModel(n){
 }
 function slugify(t){t=t.toLowerCase().replace(/\+/g," plus").replace(/&/g," and ").replace(/[üû]/g,"u").replace(/[öô]/g,"o").replace(/[éèêë]/g,"e").replace(/[àâä]/g,"a");
   return t.replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"")}
+/* Boot pages (Oct 25): same name tidying as scraper/shoe_pages.py hike_name() ("Targhee IV Mid WP" = "Targhee IV Waterproof Mid") */
+const HK_HEIGHT={mid:"Mid",middle:"Mid",low:"Low",high:"High"},HK_SHELL={wp:"Waterproof",wtpf:"Waterproof",waterproof:"Waterproof",gtx:"GTX",vent:"Vent",vented:"Vent"};
+function hikeName(n){
+  n=n.replace(/\b(hiking|hike|backpacking|approach|trekking|walking|winter|trail)\s+(boots?|shoes?)\b|\bboots?\b/gi," ").replace(/\(?\bavailable in (wide )?widths?\b\)?/gi," ");
+  n=baseModel(n).replace(/\b(men|women)[’']?s\b|\bunisex\b|\bfootwear\b|\b\d{6,}\b/gi," ").replace(/\b(\d+)\.0\b/g,"$1").replace(/\b(\w+)\s+\1\b/gi,"$1");
+  const core=[],h=[],sh=[];
+  n.replace(/-/g," - ").split(/\s+/).filter(Boolean).forEach(w=>{const k=w.toLowerCase().replace(/^[.,]+|[.,]+$/g,"");
+    if(HK_HEIGHT[k])h.push(HK_HEIGHT[k]);else if(HK_SHELL[k])sh.push(HK_SHELL[k]);else if(w!=="-")core.push(w)});
+  return [...core,...new Set(h),...new Set(sh)].join(" ").replace(/^[ -]+|[ -]+$/g,"");
+}
 function shoePage(d){
   if(d.g!=="shoes"||!SHOEPAGES)return null;
-  let sl=slugify(d.b+" "+baseModel(d.n)),m=SHOEPAGES[sl];
+  let sl=slugify(d.b+" "+(HIKE()?hikeName:baseModel)(d.n)),m=SHOEPAGES[sl];
   if(m&&m.to){sl=m.to;m=SHOEPAGES[sl]}
   return m?{slug:sl,name:m.n}:null;
 }
@@ -1384,13 +1444,15 @@ function vocab(fold){if(VOCAB)return VOCAB;const c=new Map();
 /* Oct 10 (stats: "arcteryx", "goretex", "a1080v15" found nothing): search ignores punctuation and spaces ("arcteryx" finds
    Arc'teryx, "1080v15" finds "1080 V15" and "1080 15"), and Gore-Tex = GTX. */
 const SQ=s=>s.replace(/[^a-z0-9]/g,"").replace(/v(?=\d)/g,"");
+// Oct 24 (searches that found nothing: "saucony endorphins speed", "glycerine"): a word also matches without a trailing s or e
+const qhas=(t,w)=>t.includes(w)||(w.length>4&&/[se]$/.test(w)&&t.includes(w.slice(0,-1)));
 function hayOf(fold,d){const t=fold(d.b+" "+d.n),w=t.split(/\s+/).map(SQ).filter(Boolean);   // per word: "hood - long" never makes "odlo"
   const pairs=w.slice(1).map((x,i)=>/\d/.test(x+w[i])?w[i]+x:"").filter(Boolean);                 // "1080 v15" -> "108015", "pegasus 41"
-  return t+" "+w.join(" ")+" "+pairs.join(" ")+(/gore-?tex|\bgtx\b/.test(t)?" goretex gtx":"")}
+  return t+" "+w.join(" ")+" "+pairs.join(" ")+(/gore-?tex|\bgtx\b/.test(t)?" goretex gtx":"")+" "+SQ(fold(d.b))}   // Oct 25: "runningroom" = Running Room
 function lev(a,b){if(Math.abs(a.length-b.length)>2)return 9;let p=Array.from({length:b.length+1},(_,i)=>i);
   for(let i=1;i<=a.length;i++){const r=[i];for(let j=1;j<=b.length;j++)r[j]=Math.min(p[j]+1,r[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=r}return p[b.length]}
 function suggest(q,fold){const V=vocab(fold);let changed=false;
-  const out=q.map(w=>{if([...V.keys()].some(k=>k.includes(w)))return w;
+  const out=q.map(w=>{if([...V.keys()].some(k=>qhas(k,w)))return w;
     const m=w.match(/^([a-z]{3,})(\d+)$/);if(m&&V.has(m[1])){changed=true;return m[1]+" "+m[2]}   // "norda000" -> "norda 000"
     if(w.length<4)return w;let best=null,bd=(w.length>=7?2:1)+1,bn=0;
     for(const [k,n] of V){const d=lev(w,k);if(d<bd||(d===bd&&n>bn)){best=k;bd=d;bn=n}}
@@ -1398,13 +1460,13 @@ function suggest(q,fold){const V=vocab(fold);let changed=false;
   return changed?out.join(" "):null}
 function searchHelp(q,p,n,fold){const raw=esc(view.q.trim()),bits=[];
   if(view.anySize)bits.push(`${t("allSizesOn",raw)} <button type="button" data-anysize="0">${t("yourSizesOnly")}</button>`);
-  else if(!n&&hasSizes()){const hit=d=>{const x=hayOf(fold,d);return q.every(w=>x.includes(w))};
+  else if(!n&&hasSizes()){const hit=d=>{const x=hayOf(fold,d);return q.every(w=>qhas(x,w))};
     const k=matchItems({...p,sizes:{},groups:ORDER}).filter(hit).length;
     if(k)bits.push(`${t("noSize",raw,num(k))} <button type="button" data-anysize="1">${t("showAllSizes")}</button>`)}
   const qs=q.join(" "),st=qs.length>=4&&Object.entries(STORES).find(([h,v])=>{const nm=fold(v[0]),bare=nm.replace(/^(the|la|le|les|l')\s*/,"");   // "last hunt", "boutique du lac" (Oct 20)
     return [nm,bare].some(x=>x.startsWith(qs)||x.replace(/\s+/g,"").startsWith(qs.replace(/\s+/g,"")))});
   if(!n&&!view.anySize&&!st&&!bits.length){let sg=suggest(q,fold);
-    if(!sg&&q.length>1){const any=ws=>ITEMS.some(d=>{const x=hayOf(fold,d);return ws.every(w=>x.includes(w))});   // "alphafly 4" -> "alphafly"
+    if(!sg&&q.length>1){const any=ws=>ITEMS.some(d=>{const x=hayOf(fold,d);return ws.every(w=>qhas(x,w))});   // "alphafly 4" -> "alphafly"
       for(let k=q.length-1;k>=1&&!sg;k--)if(any(q.slice(0,k)))sg=q.slice(0,k).join(" ")}
     if(sg)bits.push(`${t("didYou")} <button type="button" data-sq="${esc(sg)}">${esc(sg)}</button>?`)}
   if(st&&st[0]!==view.store)bits.push(`<button type="button" data-shop="${esc(st[0])}">${t("storeGo",esc(st[1][0]))}</button>`)
@@ -1423,7 +1485,16 @@ function watchFromLink(){
   watchQDone=true;try{history.replaceState(null,"",location.pathname)}catch(e){}
   track("watch-from-page",{});if(!watches[WATCH_Q])toggleWatch(WATCH_Q);else toast(t("watching"));
 }
-function useData(d,full){DATA=d;ITEMS=d.items||[];FULL=full;byKey={};ITEMS.forEach(x=>(byKey[itemKey(x)]=byKey[itemKey(x)]||[]).push(x));renderAll();loadShoePages();watchFromLink();setTimeout(offerStore,600);logLoad(full)}
+/* Oct 25 (Hiking tab): a heart from the other side (a hiking jacket watched, now on Running) is looked up in that side's file,
+   loaded once and only when such a heart exists, so the watchlist never calls it "gone" */
+let OTHER={},otherFor="",otherDone=false;
+function mergeOther(){for(const k in OTHER)if(!byKey[k])byKey[k]=OTHER[k]}
+function loadOther(){const f=(HIKE()?"deals":"deals-hike")+(US()?"-us":"")+".json";
+  if(otherFor===f)return;OTHER={};otherDone=false;
+  if(!Object.values(watches).some(w=>(w.s||"run")!==SPORT)){otherDone=true;return}
+  otherFor=f;loadData(f).then(d=>{(d.items||[]).forEach(x=>{const k=itemKey(x);if(watches[k])(OTHER[k]=OTHER[k]||[]).push(x)});otherDone=true;mergeOther();renderAll()})
+    .catch(()=>{otherDone=true})}
+function useData(d,full){DATA=d;ITEMS=d.items||[];FULL=full;byKey={};ITEMS.forEach(x=>(byKey[itemKey(x)]=byKey[itemKey(x)]||[]).push(x));mergeOther();loadOther();renderAll();loadShoePages();watchFromLink();setTimeout(offerStore,600);logLoad(full)}
 /* Load time (Oct 8): how long until the deals are on screen, once per visit, with the connection type, so we can see whether
    slow phones leave before anything shows (55 of 228 first visitors who didn't pick sizes left within 5 s) */
 let loadLogged=false;
@@ -1432,11 +1503,12 @@ function logLoad(full){if(loadLogged)return;loadLogged=true;
     page=nav?Math.round(nav.domContentLoadedEventEnd):null,c=navigator.connection||{},
     dat=(performance.getEntriesByType("resource")||[]).filter(r=>/\/(sale|deals)(-us)?\.json/.test(r.name))[0];
     ana("load",[full?"deals":"sale",c.effectiveType||"?",page!=null?"page="+page:"",dat&&dat.transferSize?"kb="+Math.round(dat.transferSize/1024):""].filter(Boolean).join("|"),ms)}catch(e){}}
-const DFILE=full=>(full?"deals":"sale")+(US()?"-us":"")+".json";
+const DFILE=full=>(full?"deals":"sale")+(HIKE()?"-hike":"")+(US()?"-us":"")+".json";
 function loadFull(){if(FULL||fullLoading)return;fullLoading=loadData(DFILE(true)).then(d=>useData(d,true)).catch(()=>{fullLoading=null;if(view.fullPrice)toast(t("fullFail"))})}
 function loadCountry(){return loadData(DFILE(false)).then(d=>useData(d,false)).catch(()=>loadData(DFILE(true)).then(d=>useData(d,true)))
   .then(()=>{if(!$("sheet").classList.contains("hidden"))openSheet();if(Object.keys(watches).length)loadFull()})
-  .catch(()=>{DATA={items:[]};$("dealList").innerHTML=`<div class="empty">${t("loadFail")}</div>`})}
+  .catch(()=>{if(HIKE()){SPORT="hike";setSport("run","fail");return}   // the hiking files didn't load: back to running, never an empty page
+    DATA={items:[]};$("dealList").innerHTML=`<div class="empty">${t("loadFail")}</div>`})}
 loadCountry();
 /* switch country: the other side's data, its currency (unless the visitor picked one), saved with the sizes */
 function setCountry(c,from){if(c===COUNTRY||(c!=="us"&&c!=="ca"))return;COUNTRY=c;LS.set("gf-country",c);
@@ -1446,8 +1518,16 @@ function setCountry(c,from){if(c===COUNTRY||(c!=="us"&&c!=="ca"))return;COUNTRY=
   if(LS0("rd-profile"))saveProfile();applyStatic();renderCountry();
   if(!$("sheet").classList.contains("hidden"))openSheet();renderAll();loadCountry()}
 function renderCountry(){document.querySelectorAll("[data-ctry]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.ctry===COUNTRY)));document.documentElement.classList.toggle("us",US());
-  $("mShoes").href=US()?"us/shoes/":LANG==="fr"?"chaussures/":"shoes/";$("mRaces").href=US()?"us/races/":LANG==="fr"?"courses/":"races/";if($("rnRaces")){$("rnRaces").href=$("mRaces").href;$("rnShoes").href=$("mShoes").href}}   // race gear lists (Oct 21; US races on the USA side)
+  $("mShoes").href=shoeDir();$("mRaces").href=raceDir();if($("rnRaces")){$("rnRaces").href=$("mRaces").href;$("rnShoes").href=$("mShoes").href}}   // race gear lists (Oct 21; US races on the USA side)
 document.addEventListener("click",e=>{const b=e.target.closest("[data-ctry]");if(b)setCountry(b.dataset.ctry,b.closest("#menu")?"menu":"welcome")});
+/* switch Running | Hiking: the other catalogue, same sizes and filters; a picked category or type starts over */
+function setSport(s,from){if(s===SPORT||(s!=="run"&&s!=="hike"))return;SPORT=s;LS.set("gf-sport",s);applySport();
+  DATA=null;FULL=false;fullLoading=null;ITEMS=[];byKey={};ALLSALE=null;MISS=null;storeCountsMemo=null;VOCAB=null;view.store="";view.open={};view.type={};
+  state.groups=ORDER.slice();ana("filter","sport|"+s+"|"+(from||""));
+  applyStatic();renderSport();if(!$("sheet").classList.contains("hidden"))openSheet();renderAll();loadCountry();if(typeof rdGoDeals==="function"&&from==="switch")scrollTo({top:0,behavior:"smooth"})}
+function renderSport(){if($("wSport"))$("wSport").hidden=!HIKE_OK;document.querySelectorAll("[data-sport]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.sport===SPORT)));document.documentElement.classList.toggle("hike",HIKE())}
+const sportSw=()=>HIKE_OK?`<div class="sportsw" role="group" aria-label="${esc(t("sportLbl"))}"><button type="button" data-sport="run" aria-pressed="${!HIKE()}">${esc(t("sportRun"))}</button><button type="button" data-sport="hike" aria-pressed="${HIKE()}">${esc(t("sportHike"))}</button></div>`:"";
+document.addEventListener("click",e=>{const b=e.target.closest("[data-sport]");if(b)setSport(b.dataset.sport,"switch")});
 renderCountry();
 const PAGE=8, MORE=24;
 const CARDS=LS0("gf-cards")||"compact";                    // "compact" (phones: photo beside the text) or "big"
@@ -1469,7 +1549,10 @@ const CDN_BRANDS=new Set(["praise endurance","balmoral","inner self","brix","upi
   "le coureur nordique","capra","canmore sweatshop","strides",
   "xact","xact nutrition","xact electrolytes","rose boreal","life sport","life sports gear","kinesys","kinesys performance sunscreen"]);   // Oct 7: confirmed by Bastien (Back River left out: a distributor; its items are Feetures, Sprints, Tailwind)
 const cdnBrand=d=>!US()&&CDN_BRANDS.has(String(d.b).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase());
-const TYPES={shoes:["daily","race","trail","hike","spike"],tops:["tee","layer","jacket"],bottoms:["short","tight","pant"],gear:["light","pole","bottle","sun"]};   // garment type buttons under these categories (deals.json "t")
+const TYPES_RUN={shoes:["daily","race","trail","hike","spike"],tops:["tee","layer","jacket"],bottoms:["short","tight","pant"],gear:["light","pole","bottle","sun"]};   // garment type buttons under these categories (deals.json "t")
+const TYPES_HIKE={shoes:["hike","boot","approach"],tops:["shell","insulated","fleece","wind","base","shirt"],bottoms:["pant","rain","short","base"],
+  packs:["day","overnight"],gear:["pole","light","water","traction","safety","nav","gaiter","sun"]};   // scraper/hike.py HTYPES
+let TYPES=TYPES_RUN;
 const NEWSTYLE_DEFAULT="row";                              // "row" (A) or "sticky" (B)
 const NEWSTYLE=LS0("gf-newstyle")||NEWSTYLE_DEFAULT;
 document.body.classList.add(NEWSTYLE==="row"?"newrow":"sticky");
@@ -1487,8 +1570,65 @@ if(CALM){document.body.classList.add("hdrsearch");$("hSearch").appendChild($("dS
 /* category pictures (Oct 22, Bastien: "use the same retailer for all pictures and simply keep those pictures until we decide to
    change them"): six Altitude Sports product photos, cropped square on white, in site/img/cat (sources in SOURCES.json), shown
    as small circles. Earlier the same day: today's deal photos (all different, "looks pretty bad") and AI pictures (dropped). */
-function rdImg(k){return "img/cat/"+k+".webp"}   // a function: the welcome screen can draw before this line runs
-var RD_TILES={shoes:["shoes"],apparel:["tops","bottoms","bras"],packs:["packs"],acc:["socks","gloves","headwear"],nutrition:["nutrition"],gear:["gear","watches"]};
+function rdImg(k){return "img/cat/"+(HIKE()?"hike-":"")+k+".webp"}   // a function: the welcome screen can draw before this line runs
+var RD_RUN={shoes:["shoes"],apparel:["tops","bottoms","bras"],packs:["packs"],acc:["socks","gloves","headwear"],nutrition:["nutrition"],gear:["gear","watches"]};
+var RD_HIKE={shoes:["shoes"],apparel:["tops"],bottoms:["bottoms"],packs:["packs"],acc:["socks","gloves","headwear"],gear:["gear"]};   // six circles, like running
+var RD_TILES=RD_RUN;
+/* hiking words (EN/FR) laid over the running ones while Hiking is picked; the running words come back on Running */
+const HIKE_TXT={en:{mRaces:"Trail gear lists",mShoes:"Boot prices by model",wShoeShort:"Find a boot",searchShort:"Search hiking gear",groups:{shoes:"Boots & shoes",tops:"Jackets & tops",bottoms:"Pants & shorts",socks:"Socks",gloves:"Gloves",
+    headwear:"Hats",packs:"Packs",gear:"Poles, lights & gear"},
+  types:{hike:"Hiking shoes",boot:"Boots",approach:"Approach shoes",shell:"Rain shells",insulated:"Insulated",fleece:"Fleece",wind:"Wind & softshell",
+    base:"Base layers",shirt:"Shirts",pant:"Pants",rain:"Rain pants",short:"Shorts",day:"Day packs",overnight:"Overnight packs (35 L+)",pole:"Poles",
+    light:"Headlamps",water:"Water",traction:"Traction",safety:"Safety & first aid",nav:"Navigation",gaiter:"Gaiters",sun:"Sunglasses"},
+  headSized:n=>`${n} hiking deals in your size`,
+  shoeSizeH:"Boot & shoe size <small>US, pick one or more</small>",shoeSizeMH:"Men's boot & shoe size <small>US, pick one or more</small>",
+  clothSizeH:"Clothing size <small>jackets, pants, socks, gloves</small>",clothMore:"Different size in pants, socks or shirts?",
+  by_tops:"Shirts & jackets",by_bottoms:"Pants & shorts",moreSizes:"+ Kind of hiking, favourite brands",
+  wIntro:half=>`<b>${half?"More than half of":"Many"} hiking deals aren't available in your size.</b> Every morning we check ${num(nStoresH())} outdoor stores ${US()?"across the US":"across Canada and the USA"} and show you only the ones that are.`,
+  rd:{h1:["Find hiking gear deals","in your ","exact size."],h1n:n=>[`${n} hiking deals`,"in your ","size."],
+    sub:n=>`Every morning we check ${n} outdoor stores in Canada and the USA and show you the best prices in stock, in your size. No more guessing.`,
+    why2:["No more guessing",()=>"Every store's price for the same boot or jacket, side by side."],
+    kinds:{hike:"hiking shoes",boot:"hiking boots",approach:"approach shoes",shell:"rain jacket",insulated:"insulated layer",fleece:"fleece",wind:"wind jacket",
+      base:"base layer",shirt:"shirt",pant:"pants",rain:"rain pants",short:"shorts",day:"day pack",overnight:"overnight pack",pole:"trekking poles",light:"headlamp",
+      water:"water",traction:"traction",safety:"safety",nav:"navigation",gaiter:"gaiters",sun:"sunglasses"},ph:"Search boots, jackets, packs, brands…",phS:"Search boots, brands…",tiles:{shoes:"Boots & Shoes",apparel:"Jackets & Tops",bottoms:"Pants & Shorts",packs:"Packs",acc:"Accessories",gear:"Gear"},
+    nav:{shoes:"Boots",apparel:"Clothing",shoePrices:"Boot prices",races:"Trail lists"}}},
+ fr:{mRaces:"Listes de matériel de randonnée",mShoes:"Prix des bottes par modèle",wShoeShort:"Chercher une botte",searchShort:"Chercher (randonnée)",groups:{shoes:"Bottes et chaussures",tops:"Manteaux et hauts",bottoms:"Pantalons et shorts",socks:"Bas",gloves:"Gants",
+    headwear:"Chapeaux et tuques",packs:"Sacs à dos",gear:"Bâtons, frontales et équipement"},
+  types:{hike:"Chaussures de randonnée",boot:"Bottes",approach:"Chaussures d'approche",shell:"Imperméables",insulated:"Isolés",fleece:"Laine polaire",wind:"Coupe-vent",
+    base:"Couches de base",shirt:"Chandails",pant:"Pantalons",rain:"Pantalons imperméables",short:"Shorts",day:"Sacs de jour",overnight:"Sacs de plusieurs jours (35 L+)",
+    pole:"Bâtons",light:"Frontales",water:"Eau",traction:"Crampons",safety:"Sécurité et premiers soins",nav:"Navigation",gaiter:"Guêtres",sun:"Lunettes de soleil"},
+  headSized:n=>`${n} aubaines de randonnée à votre taille`,
+  shoeSizeH:"Pointure de bottes et chaussures <small>US, une ou plusieurs</small>",shoeSizeMH:"Pointure homme (bottes et chaussures) <small>US, une ou plusieurs</small>",
+  clothSizeH:"Taille de vêtements <small>manteaux, pantalons, bas, gants</small>",clothMore:"Une autre taille en pantalons, bas ou chandails ?",
+  by_tops:"Chandails et manteaux",by_bottoms:"Pantalons et shorts",moreSizes:"+ Type de randonnée, marques préférées",
+  wIntro:half=>`<b>${half?"Plus de la moitié des ":"Beaucoup d'"}aubaines de randonnée ne sont pas offertes dans votre taille.</b> Chaque matin, on vérifie ${num(nStoresH())} boutiques de plein air ${US()?"partout aux États-Unis":"au Canada et aux États-Unis"} et on vous montre seulement celles qui le sont.`,
+  rd:{h1:["Les aubaines de randonnée","dans votre ","taille exacte."],h1n:n=>[`${n} aubaines de randonnée`,"à votre ","taille."],
+    sub:n=>`Chaque matin, on vérifie ${n} boutiques de plein air au Canada et aux États-Unis et on vous montre les meilleurs prix en stock, dans votre taille. Fini les devinettes.`,
+    why2:["Fini les devinettes",()=>"Le prix de chaque boutique pour la même botte ou le même manteau, côte à côte."],
+    kinds:{hike:"chaussures de randonnée",boot:"bottes de randonnée",approach:"chaussures d'approche",shell:"manteau imperméable",insulated:"couche isolante",fleece:"laine polaire",
+      wind:"coupe-vent",base:"couche de base",shirt:"chandail",pant:"pantalon",rain:"pantalon imperméable",short:"short",day:"sac de jour",overnight:"sac de plusieurs jours",
+      pole:"bâtons de randonnée",light:"frontale",water:"eau",traction:"crampons",safety:"sécurité",nav:"navigation",gaiter:"guêtres",sun:"lunettes de soleil"},ph:"Chercher bottes, manteaux, sacs, marques…",phS:"Bottes, marques…",tiles:{shoes:"Bottes et chaussures",apparel:"Manteaux et hauts",bottoms:"Pantalons et shorts",packs:"Sacs à dos",acc:"Accessoires",gear:"Équipement"},
+    nav:{shoes:"Bottes",apparel:"Vêtements",shoePrices:"Prix des bottes",races:"Listes randonnée"}}}};
+let RUN_TXT=null;
+const MORE_B={en:["+ Clothing size, road or trail, favourite brands","+ Clothing size, kind of hiking, favourite brands"],
+  fr:["+ Taille de vêtements, route ou sentier, marques préférées","+ Taille de vêtements, type de randonnée, marques préférées"]};
+const HIKE_TOP=["mRaces","mShoes","wShoeShort","shoeSizeH","shoeSizeMH","clothSizeH","clothMore","by_tops","by_bottoms","moreSizes","wIntro"];
+const nStoresH=()=>(DATA&&DATA.n_stores)||66;
+function applySport(){
+  if(!RUN_TXT){RUN_TXT={};for(const L of ["en","fr"]){const I=I18N[L];RUN_TXT[L]={top:Object.fromEntries(HIKE_TOP.map(k=>[k,I[k]])),searchShort:I.searchShort,headSized:I.headSized,h1:I.rd.h1,h1n:I.rd.h1n,sub:I.rd.sub,why:I.rd.why.slice(),kinds:{...I.rd.kinds},groups:{...I.groups},types:{...I.types},
+    ph:I.rd.ph,phS:I.rd.phS,tiles:{...I.rd.tiles},nav:{...I.rd.nav}}}}
+  for(const L of ["en","fr"]){const I=I18N[L],R0=RUN_TXT[L],H=HIKE_TXT[L],h=HIKE();
+    HIKE_TOP.forEach(k=>{I[k]=h?H[k]:R0.top[k]});
+    I.searchShort=h?H.searchShort:R0.searchShort;I.headSized=h?H.headSized:R0.headSized;I.rd.h1=h?H.rd.h1:R0.h1;I.rd.h1n=h?H.rd.h1n:R0.h1n;I.rd.sub=h?H.rd.sub:R0.sub;I.rd.kinds=h?{...H.rd.kinds}:{...R0.kinds};
+    I.rd.why=R0.why.slice();if(h)I.rd.why[2]=H.rd.why2;I.groups=h?{...R0.groups,...H.groups}:{...R0.groups};I.types=h?{...R0.types,...H.types}:{...R0.types};
+    if(typeof SHORT_B!=="undefined"&&SHORT_B)I.moreSizes=MORE_B[L][h?1:0];
+    I.rd.ph=h?H.rd.ph:R0.ph;I.rd.phS=h?H.rd.phS:R0.phS;I.rd.tiles=h?{...H.rd.tiles}:{...R0.tiles};I.rd.nav=h?{...R0.nav,...H.rd.nav}:{...R0.nav}}
+  TYPES=HIKE()?TYPES_HIKE:TYPES_RUN;RD_TILES=HIKE()?RD_HIKE:RD_RUN;
+  if(!applySport.title)applySport.title=document.title;
+  document.title=HIKE()?(LANG==="fr"?"The Gear Fox | Aubaines de randonnée à votre taille":"The Gear Fox | Hiking deals in your size"):applySport.title;
+  document.documentElement.classList.toggle("hike",HIKE());
+  try{if(document.getElementById("clothMore"))applyStatic()}catch(e){}}
+applySport();
 const RDI={search:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>',
   chev:'<svg class="chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>',
   arrow:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
@@ -1501,12 +1641,12 @@ const rdM=v=>LANG==="fr"?v+" $":"$"+v;
 const rdDisp=d=>CUR==="USD"?d.best/usdRate():d.best;
 var RDC={key:"",src:[],tiles:{},hero:null,brands:[]};
 function rdSource(p){   // today's sale deals in your sizes, every category (tiles, hero, brands don't empty when one category is picked)
-  const pr={...toProfile()};delete pr.groups;const key=JSON.stringify([pr,state.ships,view.cdn,US(),ITEMS.length,!!SHOEPAGES,view.fullPrice]);   // cached per sizes/side; shoe pages load later
+  const pr={...toProfile()};delete pr.groups;const key=JSON.stringify([pr,state.ships,view.cdn,US(),SPORT,ITEMS.length,!!SHOEPAGES,view.fullPrice]);   // cached per sizes/side; shoe pages load later
   if(key===RDC.key)return RDC;
   const mine=matchItems({...p,store:"",groups:ORDER});let src=mine.filter(d=>d.pct>0);if(view.cdn&&!US())src=src.filter(cdnBrand);
   src.sort(SORTS.match);const tiles={};
   for(const [k,gs] of Object.entries(RD_TILES))tiles[k]={n:src.filter(d=>gs.includes(d.g)).length};
-  const hero=src.find(d=>d.g==="shoes"&&d.img&&d.pct>=25&&d.pct<=60&&!SPIKE.test(d.n)&&d.t!=="hike"&&d.ok.length>=1&&(d.any||d.ok.length>=1))||null;
+  const hero=src.find(d=>d.g==="shoes"&&d.img&&d.pct>=25&&d.pct<=60&&!SPIKE.test(d.n)&&(HIKE()||d.t!=="hike")&&d.ok.length>=1&&(d.any||d.ok.length>=1))||null;
   // Oct 23 (Bastien: "it shows only 1 norda even though I clicked full price"): brand counts follow "Include full price"
   const bc={};(view.fullPrice?mine.filter(d=>!view.cdn||US()||cdnBrand(d)):src).forEach(d=>{bc[d.b]=(bc[d.b]||0)+1});
   RDC={key,src,tiles,hero,brands:Object.entries(bc).sort((a,b)=>b[1]-a[1])};return RDC}
@@ -1539,6 +1679,7 @@ function rdBuild(){
   // phones (Oct 22, Bastien OK'd): your size + one Filters button under the search; the five boxes live in the Filters panel
   $("rdSearch").insertAdjacentHTML("afterend",`<div class="rdqf"><button type="button" class="dd" id="rdQS"><span></span>${RDI.chev}</button><button type="button" class="rdqfb" id="rdQF"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg><span></span><i class="n" id="rdQFN"></i></button></div>`);
   $("rdFilters").append($("filtBtn"));
+  $("rdQS").insertAdjacentHTML("afterend",sportSw());$("ddSize").insertAdjacentHTML("afterend",sportSw());
   const wy=document.createElement("section");wy.className="rdwhy";wy.id="rdWhy";$("dealsFoot").before(wy);
   // phones (Oct 21, Bastien: "make it more user friendly for mobile"): once the hero's search scrolls away, a slim bar under the
   // header keeps search + Filters one tap away; Filters opens a panel from the bottom with every filter (Baymard: keep filtering
@@ -1634,7 +1775,7 @@ function rdUpdate(all,p){   // hero, dropdowns, tiles, why: from today's data, e
   document.documentElement.classList.toggle("rdw",!!view.watch);document.documentElement.classList.toggle("rdsized",hasSizes());
   const nf=[view_rd.brand,view_rd.max,view.store,state.groups.length===1,view.fullPrice,state.ships==="all",view.cdn,view.sort!=="match"].filter(Boolean).length;$("rdBarN").textContent=$("rdQFN").textContent=$("hFiltN").textContent=nf||"";
 }
-function rdLim(top){const c=innerWidth>=1000?5:innerWidth>=700?3:2;return c*(top?2:c===2?2:1)}   // full rows only: 2 rows of Top deals, 1 row (phones 2) per category
+function rdLim(top){if(CARDS2&&innerWidth<700)return top?6:4;const c=innerWidth>=1000?5:innerWidth>=700?3:2;return c*(top?2:c===2?2:1)}   // full rows only: 2 rows of Top deals, 1 row (phones 2) per category
 /* the first rows of "Today's top deals" (Bastien OK'd, Oct 21): known running gear first. A shoe = a model with its own price page
    (sold in 3+ Canadian stores); anything else = a brand carried by 4+ of our stores. Everything else follows in the same order. */
 var RDBS={n:-1,m:{}};
@@ -1714,8 +1855,9 @@ function offTag(d){const reg=CUR==="USD"?d.reg/usdRate():d.reg;
 
 /* Shoe sizes come standardised from the refresh: "10", "M:10" / "W:11" (men's / women's from unisex labels),
    "~W" wide, "~N" narrow. */
-function shoeKey(s){const m=/^(?:([MW]):)?(\d+(?:\.5)?)(?:~([WN]))?$/.exec(String(s));return m?{g:m[1]||"",n:m[2],w:m[3]||""}:null}
+function shoeKey(s){const m=/^(?:([MWE]):)?(\d+(?:\.5)?)(?:~([WN]))?$/.exec(String(s));return m?{g:m[1]||"",n:m[2],w:m[3]||""}:null}
 function sizeLabel(s,g){const k=shoeKey(s);if(!k)return s;
+  if(k.g==="E")return "EU "+k.n+(k.w==="W"?(LANG==="fr"?" large":" wide"):"");
   return (k.g&&g!=="men"&&g!=="women"?k.g:"")+k.n+(k.w==="W"?(LANG==="fr"?" large":" wide"):"")}
 /* Open the product with the shopper's size already picked when the store gives each size its own link. */
 function sizeUrl(d,e){
@@ -1736,13 +1878,16 @@ const TERRAIN={road:["daily","race"],trail:["trail","hike"]};
    Shoe, other, shoe, other… (their road/trail kind, no spikes or hiking boots), then everything else in order. */
 function shoesFirst(list){
   if(!state.shoe.length||view.sort!=="match")return list;
-  const ok=d=>d.g==="shoes"&&!SPIKE.test(d.n)&&d.t!=="hike"&&terrainFit(d)>=0;
+  const ok=d=>d.g==="shoes"&&!SPIKE.test(d.n)&&(HIKE()||d.t!=="hike"&&terrainFit(d)>=0);
   const shoes=list.filter(ok),rest=list.filter(d=>d.g!=="shoes");
   if(!shoes.length)return list;
   const head=[];for(let i=0;i<6&&(shoes.length||rest.length);i++)head.push(((i%2===0&&shoes.length)||!rest.length?shoes:rest).shift());
   const used=new Set(head);return head.concat(list.filter(d=>!used.has(d)));
 }
-const terrainFit=d=>d.g!=="shoes"||state.terrain==="both"||!d.t||SPIKE.test(d.n)?0:TERRAIN[state.terrain].includes(d.t)?20:-25;
+const terrainFit=d=>HIKE()?hikeFit(d):d.g!=="shoes"||state.terrain==="both"||!d.t||SPIKE.test(d.n)?0:TERRAIN[state.terrain].includes(d.t)?20:-25;
+// Oct 25, hiking: "What kind of hiking?" ranks first (never hides): day hikers -> day packs, light layers; overnight -> bigger packs, warm layers
+const hikeFit=d=>state.hkind==="both"?0:d.g==="packs"&&d.t?(d.t===(state.hkind==="day"?"day":"overnight")?20:-25)
+  :state.hkind==="overnight"&&d.g==="tops"&&d.t==="insulated"?10:state.hkind==="day"&&d.g==="tops"&&d.t==="shirt"?5:0;
 // Oct 20 (design scan): with no size picked, a one-size leftover at 85% off beat deals in many sizes and whole rows were one
 // brand's last XS/2XL: those rank lower (−6 per missing size under 4)
 const score=d=>d.pct+(GROUP_BONUS[d.g]||0)+Math.min(15,(d.reg-d.best)/10)-(d.g==="shoes"&&SPIKE.test(d.n)?30:0)+terrainFit(d)
@@ -1775,6 +1920,7 @@ function matchItems(p,list){
         ok=d.sz.filter(e=>{
           if(e[0]==="OS")return true;
           const k=shoeKey(e[0]);if(!k||k.w==="N")return false;
+          if(k.g==="E"){const wideE=k.w==="W";return (wideE?wantWide:wantReg)&&(sz.eu||[]).map(String).includes(k.n)}   // EU-only boots: the visitor's EU size
           if(k.g&&G&&k.g!==G)return false;                     // "M:10" is for men, "W:11" for women
           const wide=k.w==="W"||(!k.w&&d.w);
           if(wide?!wantWide:!wantReg)return false;
@@ -1786,8 +1932,11 @@ function matchItems(p,list){
     else if(accLetters(d)){const want=((p.sizes.tops||{}).sizes||[]).map(norm);if(want.length)ok=d.sz.filter(e=>e[0]==="OS"||want.includes(e[0]));else any=true}
     if(p.store)ok=ok.filter(e=>storeOf((d.of||[])[e[2]]||d.lp||"")===p.store);   // one store: only the sizes it sells best-priced
     if(!ok.length)continue;
-    let pick=ok[0];
-    for(const e of ok)if(e[1]<pick[1]||(e[1]===pick[1]&&e[3]>pick[3]))pick=e;
+    let pick=ok[0],from=ok;
+    // Oct 25 (Bastien: "clicked a salomon shoe and its showing me size 6.5 when I have 11 selected"): a view of every size (post links,
+    // "Show all sizes") picked the cheapest size of all for the link; with the visitor's own size in stock, the link opens on that one
+    if(any&&p.mine&&p.mine.sizes){const own=matchItems({...p.mine,store:p.store,groups:[d.g],mine:null},[d])[0];if(own&&!own.any&&own.ok.length)from=own.ok}
+    for(const e of from)if(e[1]<pick[1]||(e[1]===pick[1]&&e[3]>pick[3])||!from.includes(pick))pick=e;
     const best=pick[1], reg=Math.max(pick[3]||best,best);
     const pct=reg>best?Math.round(100*(1-best/reg)):0;
     const ns=ok.filter(e=>(e[3]||0)>e[1]*1.01).length;
@@ -1812,7 +1961,8 @@ const lowDays=d=>(d.hd>=LOW_DAYS&&d.lo!=null&&d.pct>0&&d.best<=d.lo+0.01&&d.hi>d
 // Oct 23 (Bastien: "is it necessary to have all sizes at the bottom of each card? aren't we already telling people only what is in their
 // size?"): the list is already filtered to your size, so the card says it in one line; the chips row stays for "every size" browsing
 function yourSize(mine){const l=mine.map(x=>x.replace(/ (wide|large)$/,"")).slice(0,3);
-  return `<div class="yoursz">${esc(t(l.length>1?"yourSizes":"yourSize",l.join(", ")))}</div>`}
+  const tx=t(l.length>1?"yourSizes":"yourSize",l.join(", "));   // cards2 B: "✓ Size 11" shares the last line with the Watch button
+  return `<div class="yoursz">${esc(C2P()?tx.replace(/ (in stock|en stock)$/,""):tx)}</div>`}
 function sizeRow(d,mine){
   const SO=["2XS","XS","S","M","L","XL","2XL","3XL"],ix=v=>{const i=SO.indexOf(norm(v));return i<0?99:i},nv=v=>parseFloat(String(v).replace(/^[MW]/,""));
   const other=state.gender==="men"?"W:":state.gender==="women"?"M:":null;   // unisex shoes list both cuts: keep the visitor's
@@ -1822,6 +1972,7 @@ function sizeRow(d,mine){
   const you=new Set(d.any?[]:mine);let at=all.findIndex(x=>you.has(x));if(at<0)at=0;
   const from=Math.max(0,Math.min(at-2,all.length-5)),shown=all.slice(from,from+5);   // 5 fit one line on a phone
   const lab=x=>x.replace(/ (wide|large)$/,"");
+  if(C2P())return `<div class="sztxt" aria-label="${esc(t(d.any?"sizesOnSale":"inYourSize"))} ${esc(all.join(", "))}">${all.map(x=>you.has(x)?`<b>${esc(lab(x))}</b>`:esc(lab(x))).join("/")}</div>`;   // cards2 B (Bastien): "XS / S / M" on one line, not boxes
   return `<div class="szrow" aria-label="${esc(t(d.any?"sizesOnSale":"inYourSize"))} ${esc(mine.join(", "))}">${from>0?'<span class="szmore">…</span>':""}${shown.map((x,i)=>`<span class="sz${you.has(x)?" you":""}${Math.abs(from+i-at)>1?" far":""}"${you.has(x)?` title="${esc(t("szYou"))}"`:""}>${esc(lab(x))}</span>`).join("")}${from+5<all.length?'<span class="szmore">…</span>':""}</div>`}
 function card(d,extra){
   const sized=SIZED.has(d.g);
@@ -1920,7 +2071,10 @@ function cdnView(on,from){view.cdn=on;view.open={};ana("canadian",(on?"on|":"off
   renderAll()}
 function shopStore(h,from){view.store=h;view.open={};view.q="";$("dSearch").value="";if(h)ana("store-view",h+"|"+from);
   try{const u=new URL(location.href);if(h)u.searchParams.set("store",h);else u.searchParams.delete("store");history.replaceState(null,"",u)}catch(e){}
-  hideBackBar();renderAll();window.scrollTo({top:Math.max(0,$("filtersBox").getBoundingClientRect().top+scrollY-70),behavior:"smooth"})}
+  // Oct 25 (Bastien: "continue shopping at le coureur ... the click goes nowhere"): since the redesign the filters box sits hidden in the
+  // Filters panel (top 0), so the page stayed where it was and the store's deals opened out of sight: scroll to the store's own box
+  hideBackBar();renderAll();const el=document.querySelector("#dealList .storebar")||$("dealList"),hh=(document.querySelector(".topbar .in")||{}).offsetHeight||60;
+  if(el)window.scrollTo({top:Math.max(0,el.getBoundingClientRect().top+scrollY-hh-12),behavior:"smooth"})}
 /* back from a store's site: offer the rest of that store's deals once per store per visit */
 // kept for the visit (sessionStorage): the back button can reload the page, which used to forget the store (Oct 6)
 let lastShop=(()=>{try{return JSON.parse(sessionStorage.getItem("gf-lastshop")||"null")}catch(e){return null}})();
@@ -1998,8 +2152,8 @@ $("dealList").addEventListener("click",e=>{
 const HEART='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 6.9 4.5c2.1 0 3.6 1.2 5.1 3 1.5-1.8 3-3 5.1-3 3.5 0 5.5 3.5 4.2 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>';
 let watches=LS.get("gf-watch")||{};           // key -> {b,n,g,url,price,saved}
 const itemKey=d=>`${d.b}|${d.n}|${d.g}|${d.w?1:0}`.toLowerCase();   // same id the alert emails use
-function heartBtn(k,on,d){return `<button type="button" class="heart" data-key="${esc(k)}" aria-pressed="${on}" aria-label="${on?t("stopWatching"):t("watch")} ${esc(d.b+" "+d.n)}">${HEART}<span class="hl" aria-hidden="true">${on?t("watchOn"):t("watchBtn")}</span></button>`}
-function setHearts(k){const on=!!watches[k];document.querySelectorAll(`.heart[data-key="${CSS.escape(k)}"]`).forEach(x=>{x.setAttribute("aria-pressed",String(on));const l=x.querySelector(".hl");if(l)l.textContent=on?t("watchOn"):t("watchBtn")})}
+function heartBtn(k,on,d){return `<button type="button" class="heart" data-key="${esc(k)}" aria-pressed="${on}" aria-label="${on?t("stopWatching"):t("watch")} ${esc(d.b+" "+d.n)}">${HEART}<span class="hl" aria-hidden="true">${on?t("watchOn"):t(C2P()?"watchS":"watchBtn")}</span></button>`}
+function setHearts(k){const on=!!watches[k];document.querySelectorAll(`.heart[data-key="${CSS.escape(k)}"]`).forEach(x=>{x.setAttribute("aria-pressed",String(on));const l=x.querySelector(".hl");if(l)l.textContent=on?t("watchOn"):t(C2P()?"watchS":"watchBtn")})}
 /* Oct 11 (52% of sign-ups tapped the confirm link): "Check your inbox" gets a button that opens their mail (Gmail, Outlook…) */
 const MAILAPPS=[[/^(gmail|googlemail)\./,"Gmail","https://mail.google.com/mail/u/0/#search/from%3Athegearfox.com"],[/^(outlook|hotmail|live|msn)\./,"Outlook","https://outlook.live.com/mail/0/"],[/^(yahoo|ymail|rocketmail)\./,"Yahoo Mail","https://mail.yahoo.com/"],[/^(icloud|me|mac)\.com$/,"iCloud Mail","https://www.icloud.com/mail"],[/^(proton|protonmail|pm)\./,"Proton Mail","https://mail.proton.me/"]];
 function mailBtn(e){const dm=(String(e||"").split("@")[1]||"").toLowerCase(),m=MAILAPPS.find(x=>x[0].test(dm));return m?`<a class="mailbtn" href="${m[2]}" target="_blank" rel="noopener" data-mailapp="${m[1]}">${t("openMail",m[1])}</a>`:""}
@@ -2014,7 +2168,7 @@ function toggleWatch(k,quiet){     // quiet: the come-back bar asks for the emai
   const m=matchItems({...toProfile(),groups:ORDER},byKey[k]);let best=m.length?Math.min(...m.map(x=>x.best)):null;
   if(best==null&&!hasSizes())best=Math.min(...byKey[k].flatMap(x=>x.sz.map(e=>e[1])));   // no sizes yet (came from a shoe page): today's lowest price, not "gone"
   const url=m.length?m.sort((a,b)=>a.best-b.best)[0].url:(d.of||[])[0];
-  watches[k]={b:d.b,n:d.n,g:d.g,url,price:best,low:best,seen:best,gone:best==null,saved:new Date().toISOString()};saveWatches();
+  watches[k]={b:d.b,n:d.n,g:d.g,url,price:best,low:best,seen:best,gone:best==null,saved:new Date().toISOString(),...(HIKE()&&!OTHER[k]?{s:"hike"}:{})};saveWatches();
   track("watch-add",{brand:d.b,group:d.g});
   goneW(k,false);
   if(sub&&sub.key&&sub.active){rpc("watch_add",{p_token:sub.key,p_key:k,p_meta:watches[k]}).then(()=>{if(watches[k]){watches[k].sv=1;saveWatches()}}).catch(()=>{});
@@ -2056,7 +2210,7 @@ $("filtersBox").addEventListener("change",e=>{const el=e.target;if(!el||el.close
   ana(el.id==="sort"?"sort":"filter",(el.id||el.name||el.value||"")+(el.type==="checkbox"?":"+el.checked:el.id==="sort"?"":":"+el.value),null)});
 /* ☰ menu: the shoe pages, watchlist, sizes, About, Instagram, language and currency */
 function menuOpen(on){$("menu").hidden=!on;$("menuBtn").setAttribute("aria-expanded",String(on));
-  if(on){$("mShoes").href=US()?"us/shoes/":LANG==="fr"?"chaussures/":"shoes/";$("mRaces").href=US()?"us/races/":LANG==="fr"?"courses/":"races/";const f=$("menu").querySelector("a,button");if(f)f.focus()}}
+  if(on){$("mShoes").href=shoeDir();$("mRaces").href=raceDir();const f=$("menu").querySelector("a,button");if(f)f.focus()}}
 $("menuBtn").addEventListener("click",e=>{e.stopPropagation();menuOpen($("menu").hidden)});
 document.addEventListener("click",e=>{if(!$("menu").hidden&&!e.target.closest("#menu"))menuOpen(false)});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("menu").hidden){menuOpen(false);$("menuBtn").focus()}});
@@ -2141,7 +2295,7 @@ function renderWatch(){
       w.low=Math.min(w.low??st.cur,st.cur);w.seen=st.cur;w.gone=false;     // you've now seen today's price
       return card(st.d,b.join(""));
     }
-    w.gone=true;
+    if((w.s||"run")===SPORT||otherDone)w.gone=true;   // the other side's file still loading: not "gone" yet
     return `<div class="dw"><a class="deal gone" href="${esc(affUrl(w.url)||"#")}" data-store="${esc(storeOf(w.url))}" target="_blank" rel="noopener">
       <div class="top"><span class="brand">${esc(w.b||"")}</span></div><div class="name">${esc(nm(w.n||""))}</div>
       <div class="gonetxt">${t("goneTxt")}</div></a>${heartBtn(k,true,{b:w.b||"",n:w.n||""})}</div>`;
@@ -2236,9 +2390,9 @@ function renderAll(){
   const q=fold(view.q.trim()).split(/\s+/).map(w=>/^[a-z0-9]+$/.test(w)?w.replace(/v(?=\d)/g,""):SQ(w)).filter(Boolean);
   if(q.length&&!FULL)loadFull();     // a search looks at everything in your size, full price too (sale items first)
   // a search stays inside the categories picked (chips); only when nothing matches there does it look in every category
-  const hit=d=>{const t=hayOf(fold,d);return q.every(w=>t.includes(w))};
+  const hit=d=>{const t=hayOf(fold,d);return q.every(w=>qhas(t,w))};
   const cdn=view.cdn&&!US();
-  let all=matchItems(q.length&&view.anySize?{...p,sizes:{},...(view.anyFit?{gender:"any"}:{})}:p),wide=false;   // anyFit: a ?q= link shows its deal to anyone
+  let all=matchItems(q.length&&view.anySize?{...p,sizes:{},...(view.anyFit?{gender:"any"}:{}),mine:p}:p),wide=false;   // anyFit: a ?q= link shows its deal to anyone
   if(cdn)all=all.filter(cdnBrand);
   if(LOOK_B){rdUpdate(all,p);all=rdFilter(all)}   // redesign: hero, dropdowns, tiles; brand + price dropdowns
   if(q.length){all=all.filter(hit);if(!all.length&&!ORDER.every(g=>p.groups.includes(g))){all=matchItems({...p,groups:ORDER}).filter(d=>hit(d)&&(!cdn||cdnBrand(d)));wide=all.length>0}}
@@ -2266,7 +2420,7 @@ function renderAll(){
     NEWROW=drops.length+fresh.length>=3;
     if(!NEWROW);else if(CALM&&NEWSTYLE==="row"&&!view.newAll)$("newBox").innerHTML+=ns;else parts.push(ns)}
   // Oct 8: until someone picks that size, Top deals skip items left only in rare sizes (an XS-only hoodie at #2)
-  const commonFit=d=>!d.any||(APPAREL_GROUPS.includes(d.g)?d.ok.some(e=>["S","M","L","XL"].includes(norm(e[0])))
+  const commonFit=d=>!d.any||(APPAREL_GROUPS.includes(d.g)?new Set(d.ok.map(e=>norm(e[0])).filter(z=>["S","M","L"].includes(z))).size>=2   // Oct 25: no clothing size yet = 2+ of S/M/L (an XL-only top was #2 for a men's 11)
     :d.g==="shoes"?d.ok.some(e=>{const k=shoeKey(e[0]);return k&&+k.n>=7&&+k.n<=12}):true);
   let top=shoesFirst(onSale.filter(commonFit).sort(SORTS[view.sort]));
   if(LOOK_B&&view.sort==="match")top=rdKnownFirst(top);
@@ -2316,13 +2470,38 @@ let sub=LS.get("gf-sub");            // {key, email, active} once this device is
 function setSub(v){sub=v;LS.set("gf-sub",v)}
 /* the hearts picked before signing up ride along with the sign-up (watch_new) and come back with the confirm link, even when
    it's opened on another device (Oct 8: shoe pages and the come-back bar sign people up before they ever reach the homepage) */
-function subProfile(p){const w=Object.entries(watches).slice(0,10);return w.length?{...p,watch_new:Object.fromEntries(w)}:p}
+function withSport(p){if(!state.signSport)state.signSport=HIKE()?"hike":"run";return {...p,sport:state.signSport}}   // Oct 25 (Bastien): the side they signed up on picks the Friday email's items
+function subProfile(p){p=withSport(p);const w=Object.entries(watches).slice(0,10);return w.length?{...p,watch_new:Object.fromEntries(w)}:p}
 let signupErr="",resentAt=0;
+/* Fox Pro price test (Oct 25, Bastien: "yes run the Pro price test from Nov 2"): from Nov 2 to Nov 16, returning visitors see a
+   waitlist card in the sign-up slot. Half the devices see $3/month or $29/year (A), half $5/month or $49/year (B): ANA.arm("pro").
+   No payment, no wall. Members join in one tap (saved in their profile: pro_wait); others leave their email (that's a normal
+   sign-up, said on the card). Analytics signup-step pro-view|A, pro-join|A, pro-no|A; funnel.py "FOX PRO PRICE TEST".
+   Decision rule (plan doc): build Pro if 5%+ of the visitors who saw the card join at a price. ?pro=1 shows it any day (previews). */
+const PRO_FROM="2026-11-02",PRO_TO="2026-11-16";
+let proSeen=false,proErr="";
+function proOn(){const q=/[?&]pro=1\b/.test(location.search),d=new Date().toISOString().slice(0,10);
+  return (q||(d>=PRO_FROM&&d<=PRO_TO&&ANA.nv()>=2))&&!LS.get("gf-pro")&&!LS.get("gf-nopro")}
+const proArm=()=>ANA.arm("pro"),proPrices=()=>proArm()==="B"?[5,49]:[3,29];
+function proHTML(member){
+  if(!proOn())return "";const [m,y]=proPrices();
+  if(!proSeen){proSeen=true;ana("signup-step",`pro-view|${proArm()}`)}
+  return `<div class="signup procard"><h3>${t("proH")}</h3>
+    <ul class="perks"><li>${t("pro1")}</li><li>${t("pro2")}</li><li>${t("pro3")}</li></ul>
+    <p class="proprice"><b>${t("proPrice",m,y)}</b><br>${t("proFound")}</p>
+    ${member?`<button class="primary" type="button" id="proJoin">${t("proJoin")}</button>`
+      :`<form id="proForm" novalidate><label for="proEmail" class="hidden">${t("email")}</label>
+      <input id="proEmail" type="email" autocomplete="email" inputmode="email" placeholder="${t("emailPh")}" value="${esc(state.email)}" required>
+      <button class="primary" type="submit">${t("proJoin")}</button></form>`}
+    ${proErr?`<p class="err">${esc(proErr)}</p>`:""}
+    <p class="fine">${t(member?"proFine":"proFineNew")} · <button type="button" id="proNo" class="linkbtn">${t("noThanks")}</button></p></div>`;
+}
 function signupHTML(){
-  if(sub&&sub.active)return "";
+  if(sub&&sub.active)return proHTML(true);
   if(sub&&sub.pending)return `<div class="signup"><h3>${t("checkInbox")}</h3><p style="margin:0">${sub.signin?t("signinCard",esc(sub.pending)):t("checkInboxTxt",esc(sub.pending))}</p>
     ${mailBtn(sub.pending)}<p class="fine">${t("junkHint")}</p>
     <p class="fine"><button type="button" id="suResend" style="font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;cursor:pointer">${t("resend")}</button> · <button type="button" id="suRetry" style="font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;cursor:pointer">${t("otherEmail")}</button></p></div>`;
+  const pro=proHTML(false);if(pro)return pro;          // Nov 2-16: returning visitors see the Fox Pro waitlist card in this slot
   if(LS.get("gf-nosignup"))return "";                  // "No thanks" on this device: hearts still ask
   if(QLAND&&view.q)return `<div class="signup qsline"><p><b>${t("qsH")}</b> ${t("qsTxt")}</p>
     <form id="suForm" novalidate><label for="suEmail" class="hidden">${t("email")}</label>
@@ -2373,6 +2552,17 @@ function runCardHTML(){
     <p class="fine">${t("signupFine")} · <button type="button" id="suNo" class="linkbtn">${t("noThanks")}</button></p></div>`;
 }
 function bindSignup(){
+  const pj=()=>{const [m,y]=proPrices();LS.set("gf-pro",{m,y,arm:proArm(),at:new Date().toISOString().slice(0,10)});ana("signup-step",`pro-join|${proArm()}`)};
+  const pb=$("proJoin");if(pb)pb.addEventListener("click",()=>{pj();saveProfile();toast(t("proThanks"));renderAll()});
+  const pf=$("proForm");if(pf)pf.addEventListener("submit",async e=>{
+    e.preventDefault();const email=cleanMail($("proEmail").value);
+    if(!okMail(email)){proErr=t("badEmail");renderAll();$("proEmail").focus();return}
+    const btn=pf.querySelector("button");btn.disabled=true;btn.textContent="…";
+    pj();state.email=email;const p=toProfile();LS.set("rd-profile",p);
+    try{await rpc("subscribe",{p_email:email,p_profile:subProfile(p)});proErr="";setSub({pending:email});track("signup",{method:"email",lang:LANG,where:"pro",ref:REF||"none"})}
+    catch(err){LS.set("gf-pro",null);proErr=t("signupFail",err.message)}
+    renderAll()});
+  const pn=$("proNo");if(pn)pn.addEventListener("click",()=>{LS.set("gf-nopro",1);ana("signup-step",`pro-no|${proArm()}`);renderAll()});
   const f=$("suForm");
   if(f)f.addEventListener("submit",async e=>{
     e.preventDefault();const email=cleanMail($("suEmail").value);
@@ -2517,7 +2707,7 @@ async function onGoogle(credential){
 }
 async function googleSubscribe(){
   const btn=$("saveSizes");btn.disabled=true;btn.textContent=t("oneMoment");
-  try{const r=await rpc("google_subscribe",{p_profile:toProfile()},gSession.access);btn.disabled=false;linkFromGoogle(r,t("gIn"))}
+  try{const r=await rpc("google_subscribe",{p_profile:withSport(toProfile())},gSession.access);btn.disabled=false;linkFromGoogle(r,t("gIn"))}
   catch(e){btn.disabled=false;btn.textContent=t("subscribeShow");gSession=null;openSheet();gateErr(t("gFail"))}
 }
 

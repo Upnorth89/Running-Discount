@@ -79,6 +79,8 @@ jobs:
           curl -fsSL "$BASE/health.json" -o site/health.json || true
           mkdir -p site/shoes && curl -fsSL "$BASE/shoes/pages.json" -o site/shoes/pages.json || true   # models that have a page (pages never disappear)
           mkdir -p site/us/shoes && curl -fsSL "$BASE/us/shoes/pages.json" -o site/us/shoes/pages.json || true   # same for the USA side
+          mkdir -p site/hiking-boots site/us/hiking-boots && curl -fsSL "$BASE/hiking-boots/pages.json" -o site/hiking-boots/pages.json || true   # boot pages (Oct 25)
+          curl -fsSL "$BASE/us/hiking-boots/pages.json" -o site/us/hiking-boots/pages.json || true
           # last night's RunFree read (scraper/runfree.py, runfree.yml), kept on the history branch
           curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/history/runfree.json" -o /tmp/runfree.json || true
           curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/history/decathlon.json" -o /tmp/decathlon.json || true
@@ -88,12 +90,19 @@ jobs:
           curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/history/brands.json" -o /tmp/brands.json || true
           curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/history/fleetfeet.json" -o /tmp/fleetfeet.json || true
           curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/history/deadlinks.json" -o /tmp/deadlinks.json || true   # last night's link check
+          mkdir -p /tmp/hike && curl -fsSL "$BASE/hike-offers.json" -o /tmp/hike/hike-offers.json || true   # yesterday's hiking read (a store that fails keeps it)
           mkdir -p /tmp/prev && cp site/deals.json site/offers.json site/health.json /tmp/prev/ 2>/dev/null || true
       - name: Keep the subscriber database awake
         continue-on-error: true
         run: |
           curl -fsS -X POST "https://krwymmkauwqqxjxbvkyq.supabase.co/rest/v1/rpc/ping" \
             -H "apikey: sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2" -H "Content-Type: application/json" -d '{}' || true
+      # the Hiking tab (Oct 25, scraper/hike.py): 66 outdoor stores, read alongside the running stores (its own lane, its own pace)
+      - name: Hiking catalogue (starts now, runs alongside the store reads)
+        continue-on-error: true
+        run: |
+          nohup python scraper/hike.py /tmp/hike > /tmp/hike.log 2>&1 &
+          echo $! > /tmp/hike.pid
       - name: Scrape stores
         env:                       # SUPABASE_*: deals sent from the phone "Grab deals" bookmark (grab_saves, Oct 8)
           SUPABASE_URL: "https://krwymmkauwqqxjxbvkyq.supabase.co"
@@ -127,6 +136,17 @@ jobs:
       - name: Race gear pages (EN/FR)
         continue-on-error: true
         run: python scraper/race_pages.py site
+      - name: Hiking catalogue (finish and publish; yesterday's files if today's read didn't finish)
+        continue-on-error: true
+        run: |
+          for i in $(seq 1 120); do kill -0 "$(cat /tmp/hike.pid 2>/dev/null)" 2>/dev/null || break; sleep 10; done
+          grep -v "^  " /tmp/hike.log | tail -12 || true
+          for f in deals-hike sale-hike deals-hike-us sale-hike-us; do
+            if [ -s /tmp/hike/$f.json ]; then cp /tmp/hike/$f.json site/; else curl -fsSL "https://thegearfox.com/$f.json" -o site/$f.json || true; fi
+          done
+          [ -s /tmp/hike/hike-offers.json ] && cp /tmp/hike/hike-offers.json site/ || true
+          python scraper/shoe_pages.py site --hike || echo "::warning::boot pages failed"   # boot & hiking shoe price pages (Oct 25)
+          python scraper/hike_pages.py site || echo "::warning::trail gear lists failed"   # trail gear lists (Oct 25): checked hikes only
       # a robot visitor clicks through today's site before it goes live: sizes, every category, one search per category,
       # filters, hearts, menu, French, shoe pages, links (tools/sitetest.py, Oct 5, 2026). Results go in the health email;
       # a critical failure (no deals, crash, empty shoe pages) is retried once, then stops publishing (see below).

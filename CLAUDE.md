@@ -94,6 +94,8 @@ scraper/shoe_pages.py    Google pages: one per popular shoe model (3+ Canadian s
                          in pages.json, `stale()`, HIDE_DAYS) gets noindex,follow and leaves the sitemap (NOINDEX; page stays for visitors);
                          breadcrumb brand links to /brands/<b>/ when it has a page (+ BreadcrumbList); base_model/baseModel: "Gore-Tex" = "GTX",
                          New Balance "880 v15" = "880v15" (28 + 8 duplicate pages forwarded). check.py: no noindex page in the sitemap, every other shoe page in it.
+                         Page photo (Oct 26 bug): model_page reassigned `first` to a per-table dict, so no shoe/boot page had a hero photo
+                         or a Product `image`; now `photo` = first item photo (hero + JSON-LD image, needed for product results).
                          Price line (Oct 15, Bastien dropped the chart: "not make people feel like they missed a sale"): `price_chart()` under
                          the size tables, per version, from hist/prices.jsonl: 5%+ cheaper in 60 days -> "It was $X on <date> ($Y today). Sales
                          come back: don't miss the next one." + [Email me when it drops] (#alertBox); today lowest -> green line only with 30+
@@ -251,6 +253,16 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   computers' hero shorter (photo 230px, one-line headline, sub hidden once sized) so the category circles fit a 1366x650 browser;
   More filters scrolls its row into view; Brand menu + brand circles/A-Z count full-price items when Include full price is on ("only 1
   norda"), `.fullwait` line while deals.json (21 MB, 3.4 MB sent) loads, toast if it fails.
+  Test 'cards2' (Oct 25, Bastien OK'd; daily review: direct homepage first visits clicking a store fell 33% -> 15% after the redesign):
+  B on phones 380-699px (`C2P()`, html.cards2, theme.css) = slimmer cards: photo 4:3, last line = "✓ Size 11" (`yourSize` minus "in stock") or
+  sizes as "XS/S/M" (`sizeRow` -> .sztxt, yours in orange) + "♡ Watch" (`watchS`; core "Watch price" shortened for B only, his OK),
+  smaller CAD (kept: not in the phone header), 6 top deals (`rdLim`). Metric = homepage first visits that click a store, p<0.05.
+  Site test "Compact phone cards (test cards2)". Same day: Top deals clothing needs 2+ of S/M/L until a clothing size is picked (`commonFit`).
+  Test 'pro' (Oct 25, Bastien OK'd; Fox Pro step 1 of 2): `proOn()`/`proHTML()` in index.html, Nov 2-16 (PRO_FROM/PRO_TO), visits 2+
+  (`ANA.nv()`), takes the sign-up card's slot (members: one tap, saves `pro_wait` in the profile; others: email = subscribe + Friday email),
+  A $3/$29, B $5/$49; gf-pro / gf-nopro; analytics signup-step pro-view|pro-join|pro-no; funnel "FOX PRO PRICE TEST"; `?pro=1` shows it any
+  day (previews). A tap overstates paying: <5% at both prices = stop; else step 2 in early Dec = real founding payment (Stripe, 30-day refund).
+  Site test "Fox Pro waitlist card (price test)".
   Parked: test 'card' (cleaner deal cards, ⋯ menu; commit 629e4d1, backlog). Site tests check each one. Correlations from the "RETENTION DRIVERS" lines are leads, never proof
   (Oct 17: "watchers come back 33%" was 9 devices).
 - **Own the design and product calls (Bastien, Oct 17: "You're supposed to optimize this to make it look the best and cleanest...
@@ -272,6 +284,14 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   tell me it's stupid and the reason why. I need to stop reminding you of this").** Every recommendation cites our own numbers
   (funnel.yml) and/or established UX/consumer research (Baymard, Nielsen Norman Group…), named, never made-up stats. When his idea
   won't work, say so plainly first, then why, then what would. Agreeing to be agreeable is the failure he keeps flagging.
+- **Weekly data check-in (Oct 24, Bastien: "weekly checkins ... where people drop off")**: scheduled task Mondays 7:47am Vancouver
+  (trigger "Weekly data check-in (Monday)"): funnel.yml -> ONE page: Path to $300K scorecard, drop-offs this week vs last, the 3
+  search-quality numbers ("Google of the outdoor space", one sector at a time: % searches finding nothing, duplicate cards, readable
+  shoe sizes), data gaps, live tests, ONE decision. tools/funnel.py prints a SCORECARD (top) + SEARCHES section for it, and a HIKING section (Oct 26: switched to Hiking, boot pages, trail gear lists: ticks, trip length, store clicks, sign-ups; tests 'short'/'cards2' show in EXPERIMENT lines by themselves).
+  Oct 24 baseline: 10% of searches found nothing (80/798; most = not on sale in their size, which the site already explains);
+  46 duplicate shoe-card groups in Canada (fix parked on the side branch a5424a7: it changes ~40 shoe page slugs per side,
+  needs a slug-stable display name first); 97.3% of shoe listings with readable sizes (REI "5 Mens/6.5 Womens" fixed).
+  Search forgives a trailing s/e (`qhas()` in index.html + search_check.py; site test "Search forgives a plural or an extra e").
 - **Answer, don't flip (Oct 24, Bastien: "You gave me advice, I then ask for clarification and then you just tell me the opposite").**
   I recommended brand+size pages, then reversed twice when he only asked questions. Before recommending: weigh costs/risks myself
   (near-copies, clutter, upkeep, real reach). A question from him = explain, not reverse. Change a recommendation only for a new
@@ -354,6 +374,55 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   **Race list check** (race-check.yml, the 3rd of each month, scraper/race_check.py): rereads every race's `src`/`src_fr` (pages + PDFs),
   keeps the gear lines + linked PDFs/list pictures, compares with race-check.json on the history branch; emails ONLY when a list changed
   (+/- lines) or a page stopped answering. Then update that race in RACES from its own list.
+- **Hiking (Oct 25; Bastien: "gathering as many hiking stores and hiking gear we can find", "make it look identical to the running page";
+  launch on his OK after the preview)**: `scraper/hike.py OUTDIR [stores…] [--remerge]` reads 66 stores (Altitude/Last Hunt
+  /c/camping-and-hiking via `ct_store`; Shopify `SHOPIFY` list by collection or whole store; robots.txt checked each run; honest UA;
+  a CAD store that answers in USD is left out that night) -> hike-offers.json + deals-hike(-us).json / sale-hike(-us).json + camp(-us).json
+  (camping: read, NOT published). `classify()` = hiking groups (the running groups) + types (`HTYPES`): shoes hike/boot/approach, tops
+  shell/insulated/fleece/wind/base/shirt, bottoms pant/rain/short/base, packs day/overnight (35 L+), gear pole/light/water/traction/safety/
+  nav/gaiter/sun; SKIP (ski, bike, paddling, hunting, climbing hardware, kids, casual), NOT_HIKE_BRANDS (fashion/ski; Oct 26 + casual/fishing labels: Duck Head, Z Supply, Johnnie-O, Southern Shirt, Howler Brothers, Goorin, Mono, Simms, Marker), CASUAL words, "Short Jacket"/"Pack Down Anorak" = tops; the
+  running merge does sizes/brands/genders, then our sorting wins (`tidy`); trail runners the running site carries (RUNNING_DEALS) stay on the
+  running side; shoe labels "8.5 US"/"7 UK" read (`shoe_label`), EU only from makers' own charts (`EU_CHART`: LOWA). `ul` = fastpack flag.
+  Site: Running | Hiking pills beside the size (`sportSw()`, phones in .rdqf, computers after #ddSize), `SPORT`/`HIKE()`, gf-sport,
+  `applySport()` swaps TYPES/RD_TILES/words (HIKE_TXT EN/FR), DFILE adds "-hike", circles img/cat/hike-*.webp (Altitude photos, SOURCES.json).
+  LIVE since Oct 25 (Bastien: "I'd launch today"; `HIKE_LIVE=true`): refresh.yml starts hike.py in the background right after "Fetch
+  yesterday's data" (yesterday's hike-offers.json = each store's fallback) and publishes deals/sale-hike(-us).json + hike-offers.json before
+  the site test (yesterday's live files if today's read didn't finish in time); camp files are never published. A failed hiking load sends
+  the visitor back to Running. Watch hearts remember their side (`s:"hike"`); the other side's file loads only for the watchlist
+  (`loadOther`); alerts.py reads the hiking files too (the Friday email doesn't yet). Hiking wording: HIKE_TXT (headline, intro, kinds, why,
+  title); html.hike hides race lists, shoe price links and "Where do you run?". check.py downloads the live hiking files (HIKE_DIR = a
+  local read before they exist). Site tests "Hiking tab: …" and "Menu on a short phone: Canada/USA reachable" (the menu scrolls inside
+  itself). Preview: make_preview.py embeds sale-hike.json as gfdata-hike when it's in the site folder (PV_HIKE_PHOTOS=N).
+  `scraper/hikes.py`: 101 hikes (park page, km, climb, days, months, climate, bears, flags) + `gear_for(hike, days, month)` = 10 essentials
+  + what the hike adds, each linked to a hiking group/type ("Trail gear lists", next to build). Figures rounded, `checked` False until
+  re-read on the park page.
+  Intake (Oct 25, Bastien OK'd): `#wSport` "Gear for" row on the welcome; hiking words via HIKE_TOP keys (shoeSizeH, clothMore, by_tops…) +
+  rd.h1; `#euBox` EU boot line (EU_M/EU_W = LOWA chart, `syncEU()` until changed, `euSet`) -> "E:44.5" keys match EU-only boots (scrape.py
+  `eu_keep`); `#hkind` day/overnight/both -> profile `hike_kind`, `hikeFit()` ranks packs/layers. Site test "Hiking intake".
+  Hiking side bottom (Oct 25, Bastien: "shows running deal links at the bottom"): `hike_home()` in shoe_pages.py fills <!--SEO-HIKE--> (keep EMPTY
+  in git) with today's best boot deals + links; CSS shows it instead of SEO-TODAY on html.hike; footer link = `shoeDir()` + mShoes ("Boot prices by model").
+  Boot price pages (Oct 25, Bastien: "Everything should be doing the same as the shoe page"): shoe_pages.py `build_hike()` /
+  `hike_main()` (`shoe_pages.py site --hike`, refresh.yml right after the hiking files land; adds to sitemap.xml): /hiking-boots/<slug>/
+  + /bottes-randonnee/<slug>/ (Canada) and /us/hiking-boots/<slug>/, list pages at each dir, registry <dir>/pages.json (3+ stores on that
+  side, pages never disappear), `_H` strings EN/FR/US, `hike_name()` tidies store wording ("Mid WP" = "Waterproof Mid"; JS copy
+  `hikeName()` in index.html, check.py "Boot price pages + links match"). Hiking side: cards' "All sizes & stores", menu "Boot prices by
+  model", welcome "Find a boot" go there (`shoeDir()`). First build: 64 Canadian + 44 US models. Site test "Boot price pages + hiking cards…".
+  Friday email (Oct 25, Bastien: "unless someone subscribes on the hiking page then it should give them hiking items"): profile `sport`
+  = the side they signed up on (`withSport()` at subscribe/Google, kept by toProfile); weekly_email.py sends hiking items to sport=hike
+  (HIKE_LABEL headings, links add &sport=hike, EU sizes match). Everyone else: running, as before.
+  Test 'short' (Oct 25, LIVE 50/50 same day, Bastien: "yes let's shorten the size selection to fast track sign ups"): B = first sizes screen asks fit + shoe size only (clothing, EU line,
+  kind of hiking behind "+ Clothing size, …"; `.clb`, html.shortb; no "Gear for" row). Why: 124 of 125 first visitors who didn't pick sizes
+  left at the sizes screen; size-picking 33% -> 22% since Oct 22 (p=0.002). Metric: homepage first visits that pick sizes, ~465/group,
+  decide ~Nov 8. Preview: PV_SHORT=1. Site test "Short sizes screen (test short B)".
+  Trail gear lists (Oct 25, Bastien: "Yes start", then "Yes" to ship: LIVE since Oct 25; switches `LIVE` in scraper/hike_pages.py + `TRAIL_LIVE` in
+  index.html; ☰ "Trail gear lists" on the Hiking side via `raceDir()`): scraper/hike_pages.py (refresh step after the boot pages) -> /hikes/<slug>/ + /randonnees/<slug>/ + /us/hikes/<slug>/ and hubs,
+  reusing race_pages.py (size box, ticks, ♡ Watch, sign-up box; sign-ups here get `sport:"hike"`). Lines = hikes.gear_for() per trip length
+  (`trips()`: day / 1 night / usual nights) with levels Essential (Y, counted) / Required (M) / Recommended (R); picks from the hiking files
+  by group/type + a name rule per line (`NEED`, `NOT`, `PACK_BITS`: no watches, books, bells under safety lines); bear spray = checklist
+  line (no store ships it). Only `checked` hikes go live: hikes.VERIFIED (27 of 101 on Oct 25, 37 on Oct 26; 10 a day by the scheduled task "Daily: verify 10 more hikes" (9:37am Vancouver), trails in season first; each figure re-read on the park/trail page,
+  url kept; climb shown only when the page gives one, `gain_ok`). The other 74 need their trail page read by hand (Sépaq, PCTA, Yukon
+  block robots). Preview: `hike_pages.py DIR --all`. check.py "Trail gear lists (checked hikes only)" (--force), site test "Trail gear list:
+  sizes, deals, ticks". Preview artifact: https://claude.ai/artifact/KdkvAVSK2eH9ApAXvTz5Yq
 - **Clothing sizes per category** (Oct 21, a visitor: "medium in shorts, L in socks, small in t-shirts"): sizes screen keeps one quick
   "Clothing size" row + "Different size in shorts, socks or gloves?" (`#clothMore`/`#clothBy`, `state.clothBy` = only the categories that
   differ, `clothFor(g)`; bras follow tops, hats the main size). Profiles already kept a size per group (Friday email/alerts use them);
@@ -402,6 +471,12 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   (actions/cache "indexnow-*", /tmp/indexnow-state.json); new + changed are sent, cache lost = all. INDEXNOW_DRY=1 = count only.
   Bing Webmaster Tools (Oct 23, Bastien signed in): sitemap OK (2.3K URLs discovered) but only 5 pages indexed, Backlinks "-":
   Bing waits for links from other sites (race organizer emails). He requested indexing for /, /shoes/, /running-shoes-sale/.
+- **Daily drop posts** (Oct 26, Bastien: "make growth into an automatic feature"; OFF until his yes): `tools/social_post.py` + social.yml
+  (8:21am Vancouver): today's biggest REAL drops on shoes with a shoe page (history: a week ago vs today, 10% or $10, >= $5, 5+ sizes at the
+  price), each confirmed by livecheck, one per brand, 3 a day, each shoe once per 21 days (actions/cache social-state.json); text = facts only
+  + shoe page `?ref=bluesky`. Posts only when repo variable SOCIAL_LIVE=1 AND secrets BLUESKY_HANDLE + BLUESKY_APP_PASSWORD exist (Bastien
+  adds them himself); otherwise a dry run (artifact "posts": posts.html). Pinterest (app review + demo video) and Threads (Meta verification)
+  next. Plan doc tab "Growth plan (Oct 27)" = the full night-of-Oct-26 growth/monetize/SEO answers.
 - **Growth calendar** (Oct 11, Bastien: "post every 3 days on running gear"): plan doc section "Growth: a post every 3 days" + send_later
   reminders at 6:30am Vancouver (C25K Oct 14, RunningShoes 17, runninglifestyle 20, BuyCanadian 23, xxrunning 26, trailrunning 29,
   FrugalMaleFashionCDN Nov 1, ultrarunning 4, RunningShoeGeeks 7 + plan the rest to Cyber Monday). A different place each time.
@@ -435,6 +510,9 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   (TORONTO: Running Free, Running Room, BlackToe, Sporting Life, MEC, Sport Chek, Decathlon, Foot Locker, Arc'teryx), "at <store>"
   on each line; an item whose ?q= link would find other models too is skipped. Put the Markdown inside ONE code block (copying rendered chat links loses them; Oct 13: "It doesn't
   work"); he pastes it in Reddit's Markdown mode.
+  **Reddit = shoes only with shoe page links (Oct 24, Bastien: "Reddit is great for clicks but no sign ups"; 705 Reddit first visits in
+  14 days, <1% signed up, 8 of 361 homepage landings picked sizes; shoe pages bring 24 of 61 sign-ups via "Email me when it drops"):
+  `reddit_post.py --pages-only` (no ?q= searches, no gear). Compare sign-ups per post by ?ref.**
   **Rule (Oct 17, Bastien: "the shoe name should be a clickable link. It makes it look cleaner"): item names are ALWAYS the
   link, never a bare address under the line.** His Markdown paste in Reddit's normal editor showed raw [..](..), so every post
   also gets `--html FILE` (a copy page: names as links + "Copy post" button that copies rich text, links survive a paste in
@@ -635,6 +713,15 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   reader takes the colour out of the title when the product has exactly ONE colour option value that sits at the end / before "- …",
   "(Men's)", "|" or "Shoes" (Run Uphill, Foveo, Brainsport, Soar…; values with digits ignored: Le Coureur codes). mkey: "001-A" = "001A",
   "Spikes" = "Spike". Tested on 31 stores' live products.json before shipping.
+- Shoe twin cards (Oct 26): `_shoe_name` reads New Balance "880 v15" = "880v15", a lone trail/road word as filler unless it names another model
+  (`_TRAIL_MODELS` only keeps it when it changes the kind: "Ghost Trail", "Rocket X Trail"), Nike "Air Zoom"/"ZoomX"/"Zoom" (not Zoom Fly) + "Next%",
+  men's (D)/women's (B) = standard width. A merged card takes the store wording whose shoe page is registered (scrape.py reads shoes/pages.json
+  + us/shoes/pages.json beside deals.json), so merging never moves a page; forward_old forwards a page whose shoes moved to the page with the
+  same words minus trail/road. SECOND PASS (Oct 26, Bastien: "a filter that catches this everyday when we gather data"): after the
+  name merge, shoe cards landing on the same shoe page (brand + base_model words minus trail/road, gender, width, ships-from, same kind `t`)
+  are joined whatever the wording; a plain-name 'daily' card joins the trail card on the EXACT same page (Boreal's "Ghost" = Ghost Trail;
+  Brooks' road Ghost stays apart). sortcheck "one shoe on two cards (same shoe page)" flags any twin left in the morning email
+  (OK_TWINS: Hoka Rocket X vs Rocket X Trail, Topo Ultraventure hike vs trail). Oct 26: CA 79 -> 0, USA 62 -> 0. Measure: count of shoe cards sharing a shoe-page slug + gender + width + ships-from (Oct 26: CA 81 -> 18).
 - `CAPS_STORES` (Le Coureur writes in capitals: softened), `OWN_BRAND` (rabbit/Bandit leave the brand "0").
 - Shoe size keys: `"10"`, `"M:10"`/`"W:11"` (from unisex labels), suffix `~W` wide, `~N` narrow (hidden).
 - Accessories (packs, gear) in letter sizes follow the clothing size; odd labels are hidden on cards.
