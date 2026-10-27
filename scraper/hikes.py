@@ -309,6 +309,16 @@ VERIFIED = {
     "lost-coast": (39.6, None, "https://www.blm.gov/visit/lost-coast-trail", {"oneway": True}),   # 24.6 miles Mattole to Black Sands Beach
     "half-dome": (26, 1470, "https://www.nps.gov/yose/planyourvisit/yosemite-valley-trails.htm", {}),   # via JMT, 16.2 mi, 4,830 ft
     "sky-pond": (13.6, 526, "https://www.nps.gov/romo/planyourvisit/exploring-the-bear-lake-road-corridor.htm", {}),   # 4.2 mi one way, 1,726 ft
+    # Oct 26 (2nd batch): BC Parks' Garibaldi trail sheet (May 19, 2026) gives each section's km + max gain; the totals add them up
+    "garibaldi-lake": (18, 900, "https://nrs.objectstore.gov.bc.ca/kuwyyf/garibaldi_trail_information_c5f34740b5.pdf", {}),          # Rubble Creek 6 km 770 m + junction to the lake 3 km 130 m, one way
+    "black-tusk": (27.8, 1430, "https://nrs.objectstore.gov.bc.ca/kuwyyf/garibaldi_trail_information_c5f34740b5.pdf", {}),           # 6 + Taylor Meadows 1.5 + 2 + viewpoint 4.4 km one way; 770+180+180+300 m
+    "panorama-ridge": (29.4, 1560, "https://nrs.objectstore.gov.bc.ca/kuwyyf/garibaldi_trail_information_c5f34740b5.pdf", {}),       # 6 + 1.5 + 2 + Helm Pass 2 + 3.2 km one way; 770+180+180+100+330 m
+    "elfin-lakes": (22, 700, "https://nrs.objectstore.gov.bc.ca/kuwyyf/garibaldi_trail_information_c5f34740b5.pdf", {}),             # parking to Red Heather 5 km 450 m + to Elfin Lakes 6 km 250 m, one way
+    "wedgemount-lake": (12, 1200, "https://nrs.objectstore.gov.bc.ca/kuwyyf/garibaldi_trail_information_c5f34740b5.pdf", {}),        # parking to Wedgemount Lake 6 km 1200 m, one way
+    "joffre-lakes": (9.4, 490, "https://nrs.objectstore.gov.bc.ca/kuwyyf/joffre_lakes_trail_map_f5e7b4668f.pdf", {}),   # 4.7 km one way, 490 m
+    "stawamus-chief": (3.6, 630, "https://bcparks.ca/stawamus-chief-park/", {"name": "Stawamus Chief (Third Peak)"}),   # "Third Peak 1.8km trail, elevation gain of 630m"
+    "grouse-grind": (2.5, 800, "https://www.metrovancouver.org/current-conditions/grouse-grind-trail", {"oneway": True}),   # 300 m to 1,100 m over ~2.5 km (down by gondola)
+    "west-coast-trail": (75, None, "https://parks.canada.ca/pn-np/bc/pacificrim/activ/SCO-WCT", {"oneway": True}),   # "Spanning 75 kilometres from Pachena Bay to Gordon River"
 }
 for s, (km, gain, url, extra) in VERIFIED.items():
     h = BY[s]

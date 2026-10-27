@@ -32,6 +32,7 @@ jobs:
       - name: Posts
         env:
           HISTORY_FILE: /tmp/prices.jsonl
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}   # "most popular" rotation day: clicks per category (own analytics)
           SOCIAL_LIVE: ${{ vars.SOCIAL_LIVE || '1' }}
           BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
           BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}

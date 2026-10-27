@@ -248,6 +248,33 @@ for k, n in Counter(src(s) for s in new).most_common(8):
                    + "; went on to the homepage " + str(sum(1 for s in g if land(s) != "homepage"
                                                            and {"welcome-view", "sizes-saved"} & s["kinds"])))
 
+# Oct 26: campaigns by ?ref= prefix (press-<outlet>, bluesky-<shoes|cat>, pinterest-<shoes|cat>): first visits and what they did,
+# then each tag; the Nov 17 rotation check compares bluesky-shoes / pinterest-shoes with the rotating categories
+def camp(r):
+    r = (r or "").lower()
+    return next((p for p in ("press", "bluesky", "pinterest", "reddit", "ig", "race", "hike") if r == p or r.startswith(p + "-")), None)
+
+
+def campaigns():
+  out.append("LINKS BY CAMPAIGN (first visits -> picked a size / clicked a store / signed up; sign-ups also count later visits):")
+  for c in ("press", "bluesky", "pinterest", "reddit", "ig", "race", "hike"):
+      g = [s for s in new if camp(s["ref"]) == c]
+      ups = sum(1 for s in alls if camp(s["ref"]) == c and "signup" in s["kinds"])
+      if not g and not ups:
+          continue
+      n = len(g)
+      out.append(f"  {c}: {n} -> sizes {pct(sum(1 for s in g if {'sizes-saved', 'shoe-page-size'} & s['kinds']), n)}, "
+                 f"store {pct(sum(1 for s in g if 'deal-click' in s['kinds']), n)}, sign-ups {ups}")
+      tags = Counter(s["ref"] for s in new if camp(s["ref"]) == c)
+      out.append("    " + ", ".join(f"{k} {v} ({sum(1 for s in alls if s['ref'] == k and 'signup' in s['kinds'])} sign-ups)"
+                                    for k, v in tags.most_common(10)))
+
+
+try:
+    campaigns()
+except Exception as e:          # never let this section stop the weekly report
+    out.append(f"LINKS BY CAMPAIGN: not computed ({e})")
+
 # sign-up card (Oct 11, Bastien deciding "a sign-up card on every page"): how often it's waved off, and where sign-ups come from
 st = Counter()
 for e in rows:

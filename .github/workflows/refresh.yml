@@ -136,6 +136,17 @@ jobs:
       - name: Race gear pages (EN/FR)
         continue-on-error: true
         run: python scraper/race_pages.py site
+      # Pinterest feeds (Oct 26, 6-week test; tools/pin_feed.py): the morning adds today's real drops (same picks as the Bluesky
+      # posts, confirmed on the store page) to site/pins/ca.xml + us.xml with a pin picture each; every other run puts yesterday's
+      # feeds and pictures back, since a deploy replaces the whole site
+      - name: Pinterest feeds
+        continue-on-error: true
+        env:
+          HISTORY_FILE: hist/prices.jsonl
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}   # "most popular" rotation day
+        run: |
+          pip install -q playwright && python -m playwright install --with-deps chromium > /dev/null
+          python tools/pin_feed.py site ${{ needs.check.outputs.morning == 'true' && ' ' || '--carry' }}
       - name: Hiking catalogue (finish and publish; yesterday's files if today's read didn't finish)
         continue-on-error: true
         run: |
@@ -145,6 +156,8 @@ jobs:
             if [ -s /tmp/hike/$f.json ]; then cp /tmp/hike/$f.json site/; else curl -fsSL "https://thegearfox.com/$f.json" -o site/$f.json || true; fi
           done
           [ -s /tmp/hike/hike-offers.json ] && cp /tmp/hike/hike-offers.json site/ || true
+          # Oct 27: the hiking side's price history (badges + Black Friday labels on boots and jackets after 30 days)
+          [ -f hist/prices.jsonl ] && python scraper/history.py hist/prices.jsonl site --hike ${{ github.event_name == 'push' && '--no-save' || '' }} || echo "::warning::hiking price history failed"
           python scraper/shoe_pages.py site --hike || echo "::warning::boot pages failed"   # boot & hiking shoe price pages (Oct 25)
           python scraper/hike_pages.py site || echo "::warning::trail gear lists failed"   # trail gear lists (Oct 25): checked hikes only
       # a robot visitor clicks through today's site before it goes live: sizes, every category, one search per category,

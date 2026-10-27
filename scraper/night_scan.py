@@ -156,6 +156,27 @@ def main():
     for u, code in broken.items():
         problems.setdefault(u, []).append(f"linked from our pages but answers HTTP {code or 'nothing'}")
 
+    # Pinterest feeds (Oct 26, tools/pin_feed.py): both parse, every pin's page and picture answers (Pinterest skips broken items)
+    for side in ("ca", "us"):
+        fu = BASE + f"pins/{side}.xml"
+        r = get(fu)
+        if not isinstance(r, requests.Response) or r.status_code != 200:
+            problems.setdefault(fu, []).append(f"Pinterest feed answers HTTP {getattr(r, 'status_code', 0) or 'nothing'}")
+            continue
+        try:
+            import xml.etree.ElementTree as ET
+            items = ET.fromstring(r.content).findall(".//item")
+        except Exception as e:
+            problems.setdefault(fu, []).append(f"Pinterest feed doesn't parse ({str(e)[:80]})")
+            continue
+        for it in items:
+            enc = it.find("enclosure")
+            for u in (it.findtext("link") or "", enc.get("url") if enc is not None else ""):
+                u2 = u.replace("https://thegearfox.com/", BASE)
+                code = head(u2)[1] if u2 else 0
+                if code != 200:
+                    problems.setdefault(fu, []).append(f"{u or 'missing picture'} answers HTTP {code or 'nothing'}")
+
     hubs = [BASE, BASE + "shoes/", BASE + "chaussures/", BASE + "races/", BASE + "courses/", BASE + "us/races/", BASE + "running-shoes-sale/",
             BASE + "black-friday/", BASE + "about.html", BASE + "privacy.html"]
     rest = [p for p in pages if p not in hubs]

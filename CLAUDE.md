@@ -153,7 +153,9 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
     (site test "Lowest-price badge rule"): today's price in your size <= `lo`, `hd` >= 30, and `hi` (highest in the 60-day window) 2%+ above today: a real drop,
     not a price that never moved (Oct 6: 76% of sale items were "at their lowest", 15% with the drop rule). N is capped at 60.
     Shoe pages use the same rule. USA side: its own history lines ("us|" keys) in USD, so exchange rates never fake a low;
-    US badges can start ~Nov 5. Preview: FAKE_HISTORY=1 python tools/make_preview.py OUT gives ~1 deal in 6 pretend history.
+    US badges can start ~Nov 5. Hiking (Oct 27, `history.py ... --hike` in refresh.yml's hiking step, after the hiking files land): own keys "hike|" (CAD) and
+    "hikeus|" (USD), annotates deals/sale-hike(-us).json the same way; first day Oct 27 (17,633 CA + 16,026 US products), so hiking badges/BF
+    labels can show from ~Nov 26; hiking items join the rotating posts once they have a week of history (picks_cat still reads running only). Preview: FAKE_HISTORY=1 python tools/make_preview.py OUT gives ~1 deal in 6 pretend history.
 - **Site test** (`tools/sitetest.py`, Oct 5; Bastien: "these little glitches are being caught by users and not our own health
   check"): every refresh, after the shoe pages, a robot phone (Playwright) opens the freshly built site served locally (sign-up,
   analytics and Google calls answered by a stand-in, nothing reaches Supabase/Umami) and clicks through like a visitor: welcome ->
@@ -419,9 +421,9 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   reusing race_pages.py (size box, ticks, ♡ Watch, sign-up box; sign-ups here get `sport:"hike"`). Lines = hikes.gear_for() per trip length
   (`trips()`: day / 1 night / usual nights) with levels Essential (Y, counted) / Required (M) / Recommended (R); picks from the hiking files
   by group/type + a name rule per line (`NEED`, `NOT`, `PACK_BITS`: no watches, books, bells under safety lines); bear spray = checklist
-  line (no store ships it). Only `checked` hikes go live: hikes.VERIFIED (27 of 101 on Oct 25, 37 on Oct 26; 10 a day by the scheduled task "Daily: verify 10 more hikes" (9:37am Vancouver), trails in season first; each figure re-read on the park/trail page,
+  line (no store ships it). Only `checked` hikes go live: hikes.VERIFIED (27 of 101 on Oct 25, 46 on Oct 26; 10 a day by the scheduled task "Daily: verify 10 more hikes" (9:37am Vancouver), trails in season first; each figure re-read on the park/trail page,
   url kept; climb shown only when the page gives one, `gain_ok`). The other 74 need their trail page read by hand (Sépaq, PCTA, Yukon
-  block robots). Preview: `hike_pages.py DIR --all`. check.py "Trail gear lists (checked hikes only)" (--force), site test "Trail gear list:
+  block robots). Preview: `hike_pages.py DIR --all`. Food box (Oct 26, `fuel()`/FUEL_JS): LCDA (Looney 2022, the Army's successor to Pandolf; half up, half down the average grade; Cunningham resting) kcal/day from body + pack kg, hours, climb, or a GPX file read in the browser (gf-fuel). Trail list pages use the hiking menu (`HL()`: boot prices + trail lists, site test checks no /races/ link). check.py "Trail gear lists (checked hikes only)" (--force), site test "Trail gear list:
   sizes, deals, ticks". Preview artifact: https://claude.ai/artifact/KdkvAVSK2eH9ApAXvTz5Yq
 - **Clothing sizes per category** (Oct 21, a visitor: "medium in shorts, L in socks, small in t-shirts"): sizes screen keeps one quick
   "Clothing size" row + "Different size in shorts, socks or gloves?" (`#clothMore`/`#clothBy`, `state.clothBy` = only the categories that
@@ -471,12 +473,27 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   (actions/cache "indexnow-*", /tmp/indexnow-state.json); new + changed are sent, cache lost = all. INDEXNOW_DRY=1 = count only.
   Bing Webmaster Tools (Oct 23, Bastien signed in): sitemap OK (2.3K URLs discovered) but only 5 pages indexed, Backlinks "-":
   Bing waits for links from other sites (race organizer emails). He requested indexing for /, /shoes/, /running-shoes-sale/.
-- **Daily drop posts** (Oct 26, Bastien: "make growth into an automatic feature"; OFF until his yes): `tools/social_post.py` + social.yml
+- **Daily drop posts** (Oct 26, Bastien: "make growth into an automatic feature"; LIVE on Bluesky Oct 26, @thegearfox.bsky.social; repo variable SOCIAL_LIVE=0 pauses; a failed login turns the run red with Bluesky's reason): `tools/social_post.py` + social.yml
   (8:21am Vancouver): today's biggest REAL drops on shoes with a shoe page (history: a week ago vs today, 10% or $10, >= $5, 5+ sizes at the
   price), each confirmed by livecheck, one per brand, 3 a day, each shoe once per 21 days (actions/cache social-state.json); text = facts only
   + shoe page `?ref=bluesky`. Posts only when repo variable SOCIAL_LIVE=1 AND secrets BLUESKY_HANDLE + BLUESKY_APP_PASSWORD exist (Bastien
   adds them himself); otherwise a dry run (artifact "posts": posts.html). Pinterest (app review + demo video) and Threads (Meta verification)
   next. Plan doc tab "Growth plan (Oct 27)" = the full night-of-Oct-26 growth/monetize/SEO answers.
+- **Rotation on the automatic posts** (Oct 26, Bastien OK'd; stop rule Nov 17): shoes every day + ONE rotating category by date
+  (`social_post.rotation()`: date.toordinal() % 4 = most popular / coats / pants / tops; `fits()`). Bluesky = 1 rotating + 2 shoes,
+  Pinterest = 2 rotating + 3 shoes per board, Instagram kit = its 3 non-shoe picks from that Wednesday's category (topped up as before).
+  Rotating items (`picks_cat()`): real drop this week (same rule), S, M AND L at the shown price (one-size gear: OS), store page
+  confirmed, one per brand, once per 21 days, running side only (the history has no hiking items); link = homepage ?q= that the site's
+  search (search_check.py hay/qhas) answers with only that model in the WHOLE catalogue (deals.json: ?q= landings show full price too),
+  never ending on "with"/"and". "Most popular" = the non-shoe category with the most deal clicks in 7 days (clicks record the category,
+  not the item; needs SUPABASE_SECRET_KEY, else any category). Refs: bluesky-shoes / bluesky-<cat>, pinterest-shoes / pinterest-<cat>.
+  Nov 17: rotating posts bring clicks but no sign-ups vs shoe posts = back to shoes only.
+- **Pinterest feeds** (Oct 26, growth chat + Bastien: 6-week test, stop if <30 first visits with ?ref=pinterest by mid-Dec): `tools/pin_feed.py`
+  (refresh.yml step "Pinterest feeds" after the race pages): morning = today's real drops from social_post.picks (side ca/us; US prices in US$
+  against the "us|" history), livecheck-confirmed, 5 per side, each shoe once per 21 days (the feed is the memory), last 50 kept ->
+  site/pins/ca.xml + us.xml (RSS 2.0, enclosure + media:content + <img> in the description, link = shoe page ?ref=pinterest) + a 1000x1500
+  JPG per pin in site/pins/img/ (Playwright; a pin whose text overflows or photo fails is left out; >45 days pruned). Every other run =
+  `--carry` (yesterday's feeds + pictures from the live site, since a deploy replaces site/). Night scan checks both feeds + every link/picture.
 - **Growth calendar** (Oct 11, Bastien: "post every 3 days on running gear"): plan doc section "Growth: a post every 3 days" + send_later
   reminders at 6:30am Vancouver (C25K Oct 14, RunningShoes 17, runninglifestyle 20, BuyCanadian 23, xxrunning 26, trailrunning 29,
   FrugalMaleFashionCDN Nov 1, ultrarunning 4, RunningShoeGeeks 7 + plan the rest to Cyber Monday). A different place each time.
@@ -557,7 +574,12 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   Shopify: a store that hits the 24-page limit); health.py `coverage_check` adds "Store coverage" to the email and flags <97%.
   First morning (Oct 14) it caught 3 US stores stopped at 24 pages: SHOPIFY_MAX_PAGES = 80 now (Athletic Annex 7,312 products,
   Pacers 8,191: +3,500); only a FULL last page is flagged (PR Run & Walk ended at 5,795 = false alarm).
-  Next: the same count for Altitude/Last Hunt (commercetools total), Sporting Life, Running Room, Decathlon.
+  Oct 26: Altitude/Last Hunt (facet count of the product types we read vs product pages read: 100% both), Sporting Life ("N Items"
+  vs read) and Running Room (feed files read + `RR_SKIP_CODES`: an unknown tax-class code with 20+ in-stock sizes = "new product codes we
+  don't read yet" in the email). The Running Room check found codes 900/901 (Walking Room trail/hiking shoes: Speedgoat 6 Mid GTX, Ultra
+  Flow, Lone Peak 9+, Timp 6), 211 (Garmin/Wahoo watches), 151/152/261 (running tops) silently dropped: now read (+265 products, 55 on sale).
+  Decathlon (Oct 26): each running list's own "N items" (`DEC_LIST_STATS`, saved as `lists` in decathlon.json when the list is
+  refreshed weekly) vs colour pages collected (59 of 59 on running-shoes), plus listed products read in the last 14 days (261 of 262).
 - Sport Chek (Oct 13; Bastien: "build the Sport Chek reader"): it stopped blocking (robots.txt allows products, llms.txt published),
   so `scrape_sportchek` reads it live with an honest bot name through the data its own pages use (public key in every page, no
   login): search of the Running section etc. (~1,090 products), price/stock per 500 colour+sizes, size details only for products in
@@ -627,6 +649,7 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   2,974 products, 1,262 on sale; sorting check clean; 4 of 4 sale prices matched on the store's page.
   Oct 12: asked for gzip, its server sometimes sends a file cut short (19 KB, the store failed): files are read with
   Accept-Encoding: identity + one retry.
+- Shoe sizes, Oct 26: a Shopify shoe whose size option has an unknown name gets it found by its values (`si0` in shopify_items: 80%+ read by canon_shoe; width = WIDTH_OPT or all-width values `WIDTH_VAL`); canon_shoe reads "M5W7", "6.0(W7.5)", unisex "6/7.5" (W 1-2 above M only), "Medium (D) / 9.0".
 - Shoe sizes (Oct 9, Bastien: "we aren't pulling shoes that have European sizing?"): 2,476 shoe listings had no readable size.
   Fixed: Shopify option "US Size" (The Trail Runner Store, ~1,100), width first "D / 9.0" (Frontrunners; `canon_shoe(label, women)`),
   US+EU labels ("10.0 (43)", "EU 43 (US 10)", "42.5 (9.5US)"), "9 M / 10.5 W". EU-only sizes ("42", "38.5 EU": La Sportiva,

@@ -12,7 +12,7 @@ under "us|" keys) for every product it has seen:
   hd  how many days of history we have for it (the site waits for enough history before showing a badge)
   hi  highest best price over the same window (the badge needs a real drop, not a price that never moved)
 
-Usage: python scraper/history.py HISTORY_FILE SITE_DIR [--no-save]
+Usage: python scraper/history.py HISTORY_FILE SITE_DIR [--no-save] [--hike]
        (--no-save: annotate the site files without recording today, e.g. on upload runs)
 """
 import json
@@ -120,10 +120,37 @@ def annotate(site, hist, prices, day, names=("deals.json", "sale.json"), prefix=
         p.write_text(json.dumps(data, separators=(",", ":"), ensure_ascii=False))
 
 
+HIKE = (("deals-hike.json", "sale-hike.json", "hike|"), ("deals-hike-us.json", "sale-hike-us.json", "hikeus|"))
+
+
+def hike_main(path, site, day):
+    """Oct 27 (Bastien: "yes do 1"): the hiking side's own history (own keys, so a boot never mixes with a running line; the USA
+    side in USD like running's "us|"), recorded once the hiking files have landed. 30 days of it = the "lowest in N days"
+    badge and Black Friday labels on boots and jackets in time for Nov 27."""
+    hist = load(path)
+    done = []
+    for deals, sale, prefix in HIKE:
+        if not (site / deals).exists():
+            continue
+        data = json.loads((site / deals).read_text())
+        fx = (float((data.get("fx") or {}).get("USD") or 0) or 1.0) if prefix == "hikeus|" else 1.0
+        prices = today_prices(data["items"], prefix, fx)
+        if "--no-save" not in sys.argv:
+            record(hist, prices, day)
+        annotate(site, hist, prices, day, (deals, sale), prefix, fx)
+        done.append(f"{deals} {len(prices)}")
+    if "--no-save" not in sys.argv and done:
+        prune(hist, day)
+        save(path, hist)
+    print("hiking price history: " + (", ".join(done) or "no hiking files"))
+
+
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     path, site = Path(args[0]), Path(args[1])
     day = datetime.now(ZoneInfo("America/Vancouver")).date().isoformat()
+    if "--hike" in sys.argv:
+        return hike_main(path, site, day)
     hist = load(path)
     items = json.loads((site / "deals.json").read_text())["items"]
     prices = today_prices(items)

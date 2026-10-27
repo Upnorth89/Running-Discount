@@ -20,7 +20,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import hikes as HK                                                            # noqa: E402
 import race_pages as RP                                                       # noqa: E402
-from shoe_pages import T, US, esc, page_head, page_foot, store_names, size_url, host   # noqa: E402
+from shoe_pages import T, US, _H, esc, page_head, page_foot, store_names, size_url, host   # noqa: E402
 
 POOL, SHOW = 60, 10
 MONTHS = {"en": "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split(),
@@ -91,9 +91,13 @@ S = {
 S["us"] = dict(S["en"], dir="us/hikes", desc="What to bring for {name} ({where}): the 10 essentials and what this trail adds, with today's best prices in your size at US stores.",
                otherSide="Shopping in Canada? This list with Canadian stores →")
 # Oct 26 (Bastien: "include formula for calories per day consumed depending on hours hiked and weight on back"): the food box.
-# Pandolf et al. (1977) load-carriage equation, the standard one (US Army): watts = 1.5W + 2(W+L)(L/W)^2 + n(W+L)(1.5V^2 + 0.35VG),
-# W body kg, L pack kg, V m/s, G grade %, n terrain (1.2 = trail). Half the walking time climbing at the trail's average grade
-# (total climb over half the distance), half on the flat; the rest of the day at ~1 kcal per kg per hour (resting).
+# Oct 26 (Bastien: "switch to most accurate and up to date formula"): the US Army's Load Carriage Decision Aid (LCDA; Looney et al.,
+# Med Sci Sports Exerc 2022;54(4):646, eq. 4), which beat Pandolf (1977) on the same data (bias 0.01 vs -0.44 W/kg):
+#   W/kg = M_rest + [0.19 + n*1.78*S^0.58 + 0.27*S^4 + M_grade] * (1 + 1.96*(L/W)^1.36)
+#   M_grade = 0.34*S*G*(1 - 1.05^(1 - 1.1^(G+32)))   (Looney 2019, MSSE 51(9):1954; G in %, works downhill too)
+# S m/s, L pack kg, W body kg, n terrain (1.2 = trail); M_rest = Cunningham RMR (500 + 22*lean kg kcal/day, lean ~ 80% of weight).
+# Half the walking time climbing at the trail's average grade (total climb over half the distance), half coming down at it; the rest
+# of the day at 1.2 x resting (sleep + camp chores).
 FUEL = {
     "en": dict(fu_fuelH="Calories and food for this trip", fu_fuelTxt="Your numbers stay on this device.", fu_body="Your weight", fu_pack="Pack weight",
                fu_hours="Hours of walking a day", fu_climb="Total climb", fu_kg="kg", fu_lb="lb", fu_m="m", fu_ft="ft",
@@ -101,7 +105,7 @@ FUEL = {
                fu_day="Whole day, camp included: about {k} kcal.",
                fu_food="Food to carry: about {f} a day of dense trail food (about 4,400 kcal per kg), {t} for the trip.",
                fu_snack="Snacks for the day: {a}–{b} kcal (a common guideline: 200–300 kcal for each hour on the trail).",
-               fu_fine="An estimate from the Pandolf load-carriage equation (1977), on trail, with half the walking uphill at this trail's average grade, plus about 1 kcal per kg of body weight per resting hour. Cold, snow, a fast pace or a heavier pack mean more.",
+               fu_fine="An estimate from the US Army's Load Carriage Decision Aid (Looney et al., 2022), on trail, with half the walking up and half down this trail's average grade, plus your resting burn for the rest of the day. Cold, snow, a fast pace or a heavier pack mean more.",
                fu_noclimb="This park doesn't publish the climb: add it for a better estimate.",
                fu_gpx="Hiking your own route? Load its GPX file (AllTrails, Gaia GPS, Strava and Garmin all export one)",
                fu_gpxOk="Your route: {km} km, {m} m of climb.", fu_gpxBad="We couldn't read that file. Try a GPX export."),
@@ -111,7 +115,7 @@ FUEL = {
                fu_day="Journée complète, camp compris : environ {k} kcal.",
                fu_food="Nourriture à apporter : environ {f} par jour d'aliments denses (environ 4 400 kcal par kg), {t} pour la sortie.",
                fu_snack="Collations pour la journée : {a} à {b} kcal (repère courant : 200 à 300 kcal par heure de marche).",
-               fu_fine="Estimation tirée de l'équation de Pandolf (1977) sur le coût de la marche avec charge, en sentier, la moitié de la marche en montée selon la pente moyenne du sentier, plus environ 1 kcal par kg de poids corporel par heure de repos. Le froid, la neige, un rythme rapide ou un sac plus lourd en demandent plus.",
+               fu_fine="Estimation tirée du modèle de l'armée américaine sur la marche avec charge (Load Carriage Decision Aid, Looney et coll., 2022), en sentier, la moitié de la marche en montée et l'autre en descente selon la pente moyenne du sentier, plus votre dépense au repos pour le reste de la journée. Le froid, la neige, un rythme rapide ou un sac plus lourd en demandent plus.",
                fu_noclimb="Ce parc ne publie pas le dénivelé : ajoutez-le pour une meilleure estimation.",
                fu_gpx="Votre propre itinéraire ? Chargez son fichier GPX (AllTrails, Gaia GPS, Strava et Garmin en exportent tous un)",
                fu_gpxOk="Votre itinéraire : {km} km, {m} m de dénivelé.", fu_gpxBad="Impossible de lire ce fichier. Essayez un export GPX."),
@@ -220,15 +224,22 @@ def facts(h, L):
     return " · ".join(out)
 
 
+
+def HL(L):
+    """Hiking strings for the page header/menu (boot prices + trail gear lists, hiking home), like the boot pages."""
+    d = dict(US if L == "us" else T[L]); d.update(_H["en"] if L == "us" else {}); d.update(_H[L]); d["hike"] = True
+    return d
+
+
 def page(h, L, items, stores, checked_on):
     s, Tl = S[L], (US if L == "us" else T[L])
     slug, LL = h["slug"], ("en" if L == "us" else L)
     fmt = dict(name=h["name"], where=where(h, LL))
     own = f'/{s["dir"]}/{slug}/'
     if L == "us":
-        head = page_head(US, s["title"].format(**fmt), s["desc"].format(**fmt), own, "", f"<style>{RP.CSS}{FUEL_CSS}</style>")
+        head = page_head(HL("us"), s["title"].format(**fmt), s["desc"].format(**fmt), own, "", f"<style>{RP.CSS}{FUEL_CSS}</style>").replace('class="sw" href="/shoes/"', f'class="sw" href="/hikes/{slug}/"')
     else:
-        head = page_head(T[L], s["title"].format(**fmt), s["desc"].format(**fmt), f"/hikes/{slug}/", f"/randonnees/{slug}/", f"<style>{RP.CSS}{FUEL_CSS}</style>")
+        head = page_head(HL(L), s["title"].format(**fmt), s["desc"].format(**fmt), f"/hikes/{slug}/", f"/randonnees/{slug}/", f"<style>{RP.CSS}{FUEL_CSS}</style>")
     BASE = "https://thegearfox.com"
     head = re.sub(r'(<link rel="alternate" hreflang="[^"]+" href="[^"]+">\n?)+',
                   f'<link rel="alternate" hreflang="en-CA" href="{BASE}/hikes/{slug}/">\n<link rel="alternate" hreflang="fr-CA" href="{BASE}/randonnees/{slug}/">\n'
@@ -335,8 +346,10 @@ function calc(){var d=days(),k=us?0.4536:1,W=+inp("fu_body").value*k,L=+inp("fu_
   g=+inp("fu_climb").value*(us?0.3048:1),o=b.querySelector(".fo");
   if(!(W>20&&H>0)){o.innerHTML="";return}
   var V=Math.max(0.3,Math.min(2,(km*1000/d)/(H*3600))),G=Math.min(40,g/(km*1000/2)*100)||0,n=1.2,
-      P=function(G){return 1.5*W+2*(W+L)*Math.pow(L/W,2)+n*(W+L)*(1.5*V*V+0.35*V*G)},
-      kh=(P(G)+P(0))/2*3600/4184,tr=kh*H,all=tr+Math.max(0,24-H)*W*1.0,t=function(s,o){return s.replace(/\{(\w)\}/g,function(_,x){return o[x]})},
+      R=(500+22*0.8*W)*4184/86400/W,   // Cunningham resting rate, W/kg
+      P=function(G){var mg=0.34*V*G*(1-Math.pow(1.05,1-Math.pow(1.1,G+32)));   // LCDA (Looney 2022), W per kg of body weight
+        return W*(R+Math.max(0,0.19+n*1.78*Math.pow(V,0.58)+0.27*Math.pow(V,4)+mg)*(1+1.96*Math.pow(L/W,1.36)))},
+      kh=(P(G)+P(-G))/2*3600/4184,tr=kh*H,all=tr+Math.max(0,24-H)*R*1.2*W*3600/4184,t=function(s,o){return s.replace(/\{(\w)\}/g,function(_,x){return o[x]})},
       wt=function(kg){return us?num(kg*2.2046,0.1)+" lb":num(kg,0.1)+" kg"};
   var out="<p><b>"+t(b.dataset.trail,{k:num(tr,10),h:num(kh,10)})+"</b></p>";
   if(d>1){var f=all/4400;out+="<p>"+t(b.dataset.day,{k:num(all,50)})+"</p><p>"+t(b.dataset.food,{f:wt(f),t:wt(f*d)})+"</p>"}
@@ -394,8 +407,8 @@ def hub(L, hikes):
         rows += (f'<li><a href="/{s["dir"]}/{h["slug"]}/"><span class="nm"><b>{esc(h["name"])}</b>'
                  f'<small>{esc(where(h, LL))} · {esc(facts(h, LL))}</small></span><span class="pr">{s["hubGo"]}</span></a></li>')
     t, d = s["hubTitle"].format(n=len(hikes)), s["hubDesc"]
-    head = (page_head(US, t, d, "/us/hikes/", "", f"<style>{RP.HUB_CSS}</style>") if L == "us"
-            else page_head(T[L], t, d, "/hikes/", "/randonnees/", f"<style>{RP.HUB_CSS}</style>"))
+    head = (page_head(HL("us"), t, d, "/us/hikes/", "", f"<style>{RP.HUB_CSS}</style>").replace('class="sw" href="/shoes/"', 'class="sw" href="/hikes/"') if L == "us"
+            else page_head(HL(L), t, d, "/hikes/", "/randonnees/", f"<style>{RP.HUB_CSS}</style>"))
     return head + f'<h1 class="hubh">{esc(s["hubH1"])}</h1><p class="sub">{esc(s["hubIntro"])}</p>{rows}</ul>' + page_foot(Tl)
 
 

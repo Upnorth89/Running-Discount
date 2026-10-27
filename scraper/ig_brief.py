@@ -145,12 +145,28 @@ def picks(items, stores):
         return got
 
     shoes = take([x for x in cands if x["g"] == "shoes"], 2, cap=1)     # one men's (or unisex) and one women's
-    top = take([x for x in cands if x["g"] == "tops"], 1)
-    bottom = take([x for x in cands if x["g"] == "bottoms"], 1)
-    clothes = top + bottom
-    if len(clothes) < 2:                 # no good top or bottom this week: take another of either
-        clothes += take([x for x in cands if x["g"] in ("tops", "bottoms") and x not in clothes], 2 - len(clothes))
-    gear = take([x for x in cands if x["g"] in ("packs", "gear", "watches")], 1)
+    # Oct 26 (Bastien OK'd "rotation on all automatic posts"): the 3 non-shoe picks come from this Wednesday's rotating category
+    # (tools/social_post.py ROTATION: most popular / coats / pants / tops), topped up with the usual top + bottom + gear
+    rot = []
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+        import social_post as SPOST
+        cat = SPOST.rotation(datetime.now().date())
+        pop = SPOST.popular_group() if cat == "popular" else None
+        rot = take([x for x in cands if x["g"] != "shoes" and SPOST.fits({"g": x["g"], "t": x.get("t"), "n": x["n"]}, cat, pop)], 3)
+        print(f"rotating category this week: {cat} ({len(rot)} picks)")
+    except Exception as e:
+        print(f"rotation skipped ({e})")
+    if len(rot) >= 3:
+        clothes, gear = rot[:2], rot[2:3]
+    else:
+        top = take([x for x in cands if x["g"] == "tops" and x not in rot], 1)
+        bottom = take([x for x in cands if x["g"] == "bottoms" and x not in rot], 1)
+        clothes = rot + top + bottom
+        if len(clothes) < 2:                 # no good top or bottom this week: take another of either
+            clothes += take([x for x in cands if x["g"] in ("tops", "bottoms") and x not in clothes], 2 - len(clothes))
+        gear = [] if len(clothes) >= 3 else take([x for x in cands if x["g"] in ("packs", "gear", "watches")], 1)
+        clothes, gear = clothes[:2], gear or clothes[2:3]
     # shoe, clothing, gear, shoe, clothing: the Reel's 3 are a shoe, a piece of clothing and an accessory
     order = shoes[:1] + clothes[:1] + gear + shoes[1:] + clothes[1:]
     reel = order[:3]

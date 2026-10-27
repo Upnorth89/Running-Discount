@@ -56,9 +56,13 @@ def history():
     return h
 
 
-def picks(sale, pages, hist, state, today):
+def picks(sale, pages, hist, state, today, side="ca"):
+    """side "us" (Oct 26, Pinterest's USA board): US stores, prices in US$ (the history's "us|" lines are in US$; the site files
+    keep CAD, so today's price is divided by the file's fx), links to /us/shoes/."""
     names = store_names()
     cut = (today - timedelta(days=7)).isoformat()
+    us = side == "us"
+    fx = float((sale.get("fx") or {}).get("USD") or 1.37) if us else 1.0
     out = []
     for d in sale["items"]:
         if d.get("g") != "shoes" or not d.get("ca") or not d.get("sz"):
@@ -71,10 +75,11 @@ def picks(sale, pages, hist, state, today):
             continue
         best = min(e[1] for e in d["sz"])
         at = [e for e in d["sz"] if e[1] <= best + 0.01]
-        reg = max((e[3] or 0) for e in at)
+        reg = max((e[3] or 0) for e in at) / fx
+        best = round(best / fx, 2)
         if len(at) < 5 or not reg or best >= reg * 0.9:
             continue
-        k = f'{d["b"]}|{d["n"]}|{d["g"]}|{1 if d.get("w") else 0}'.lower()
+        k = ("us|" if us else "") + f'{d["b"]}|{d["n"]}|{d["g"]}|{1 if d.get("w") else 0}'.lower()
         h = hist.get(k) or []
         old = [x for x in h if x[0] <= cut]
         if not old:
@@ -88,11 +93,11 @@ def picks(sale, pages, hist, state, today):
         e = at[0]
         u = d["of"][e[2]]
         gender = "Women's" if d.get("sx") == ["women"] else "Men's" if d.get("sx") == ["men"] else ""
-        nm_ = re.sub(r"\b[A-Z]{5,}\b", lambda w: w.group(0).capitalize(), SP.base_model(d["n"]))   # "ENDORPHIN EDGE" -> "Endorphin Edge"
+        nm_ = re.sub(r"\b(?!GTX\b|BOA\b)[A-Z]{4,}\b", lambda w: w.group(0).capitalize(), SP.base_model(d["n"]))   # "Endorphin EDGE" -> "Endorphin Edge"
         out.append({"slug": slug, "b": d["b"], "name": f'{d["b"]} {nm_}', "gender": gender, "now": best,
                     "was": then, "reg": reg, "pct": round(100 * (1 - best / reg)), "drop": round(off), "store": names.get(host(u), host(u)),
                     "url": u, "variant": e[4] if len(e) > 4 else None, "sizes": len(at), "img": d.get("img") or "",
-                    "page": f"{SITE}/shoes/{slug}/"})
+                    "page": f"{SITE}/{'us/shoes' if us else 'shoes'}/{slug}/", "side": side})
     out.sort(key=lambda x: (-x["drop"], -x["pct"]))
     seen, keep = set(), []
     for p in out:                       # one per brand and per model a day
@@ -103,27 +108,174 @@ def picks(sale, pages, hist, state, today):
     return keep
 
 
+# Oct 26 (Bastien OK'd, growth chat's spec): shoes every day (shoe pages bring the sign-ups) + ONE rotating category a day, by date:
+# most popular (the non-shoe category visitors clicked most in the last 7 days; clicks don't record the item), coats/jackets,
+# pants/tights, shirts/tops. Same honesty rules: real drop this week, confirmed on the store page, S, M AND L at the shown price
+# (one-size gear: in stock), one per brand, each item once per 21 days. Running side only: the price history doesn't cover hiking yet.
+# Link = a homepage search that finds only that item (?q=), ref "<network>-<category>" so the Nov 17 check splits shoes vs the rest.
+ROTATION = ("popular", "coats", "pants", "tops")
+JACKETY = re.compile(r"\b(jackets?|anorak|shell|parka|windbreaker|wind ?shell|softshell|hardshell)\b", re.I)
+CLOTHES = {"tops", "bottoms", "bras"}
+SIZE_ORDER = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "2XL", "3XL"]
+
+
+def rotation(today):
+    return ROTATION[today.toordinal() % len(ROTATION)]
+
+
+def popular_group():
+    """The non-shoe, non-food category with the most store clicks on our site in the last 7 days (own analytics)."""
+    key = os.environ.get("SUPABASE_SECRET_KEY")
+    if not key:
+        return None
+    sb = os.environ.get("SUPABASE_URL", "https://krwymmkauwqqxjxbvkyq.supabase.co").rstrip("/")
+    h = {"apikey": key, **({"Authorization": f"Bearer {key}"} if key.count(".") == 2 else {})}
+    since = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
+    count, got = {}, 0
+    try:
+        while True:
+            r = requests.get(f"{sb}/rest/v1/ana_events", timeout=60, headers={**h, "Range": f"{got}-{got + 999}"},
+                             params={"select": "detail", "kind": "eq.deal-click", "at": f"gte.{since}"})
+            r.raise_for_status()
+            rows = r.json()
+            for x in rows:
+                g = ((x.get("detail") or "").split("|") + ["", ""])[1]
+                if g and g not in ("shoes", "nutrition"):
+                    count[g] = count.get(g, 0) + 1
+            got += len(rows)
+            if len(rows) < 1000:
+                break
+    except Exception as e:
+        print(f"popular category: clicks not read ({e})")
+        return None
+    return max(count, key=count.get) if count else None
+
+
+def fits(d, cat, pop):
+    g, t, n = d.get("g"), d.get("t") or "", d.get("n") or ""
+    if cat == "coats":
+        return g == "tops" and (t == "jacket" or bool(JACKETY.search(n)))
+    if cat == "pants":
+        return g == "bottoms" and t in ("pant", "tight")
+    if cat == "tops":
+        return g == "tops" and t in ("tee", "layer") and not JACKETY.search(n)
+    return g not in ("shoes", "nutrition") and (g == pop if pop else True)
+
+
+def _fold(s):
+    import unicodedata
+    return unicodedata.normalize("NFD", str(s)).encode("ascii", "ignore").decode().lower()
+
+
+def _base(n):
+    n = re.sub(r"\s*\((also )?available in [^)]*\)", "", n, flags=re.I)
+    return re.sub(r"\s*-\s*(men|women)'?s.*$|\s*-\s*unisex.*$|\s*\((men|women)'?s\)", "", n, flags=re.I).strip(" -")
+
+
+def unique_q(it, hay):
+    """The shortest run of the item's own name words that the SITE's search (search_check.py = hayOf/qhas in index.html) answers
+    with this item only (its colours count as one); never ending on a little word ("with", "and"). None = no precise link: skip it."""
+    import search_check as SC
+    name = re.sub(r"[®™]", "", f"{it['b']} {_base(it['n'])}")
+    key = _fold(name)
+    toks = [w for w in _fold(name).split() if SC.words(w)]
+    for j in range(2, len(toks) + 1):
+        if toks[j - 1] in ("with", "and", "for", "the", "de", "et", "-", "&"):
+            continue
+        q = SC.words(" ".join(toks[:j]))
+        hits = [i for i, h in hay if all(SC.qhas(h, w) for w in q)]
+        if hits and all(_fold(i["b"] + " " + _base(i["n"])) == key for i in hits):
+            return " ".join(toks[:j])
+    return None
+
+
+def picks_cat(sale, hist, state, today, cat, side="ca", pop=None, everything=None):
+    """Today's real drops in the rotating category, same rules as the shoes; each gets a search link that finds only it."""
+    from urllib.parse import quote
+    names = store_names()
+    cut = (today - timedelta(days=7)).isoformat()
+    us = side == "us"
+    fx = float((sale.get("fx") or {}).get("USD") or 1.37) if us else 1.0
+    import search_check as SC
+    # a ?q= landing shows full-price items too (Oct 26: "2xu core compression long" also found a full-price "Long Sleeve Top"),
+    # so the link must be unique in the WHOLE catalogue (deals.json), as tools/reddit_post.py does
+    hay = [(i, SC.hay(i)) for i in (everything or sale)["items"]]
+    out = []
+    for d in sale["items"]:
+        if not d.get("ca") or not d.get("sz") or not fits(d, cat, pop):
+            continue
+        best = min(e[1] for e in d["sz"])
+        at = [e for e in d["sz"] if e[1] <= best + 0.01]
+        keys = {str(e[0]).upper() for e in at}
+        if d["g"] in CLOTHES or keys - {"OS"}:
+            if not {"S", "M", "L"} <= keys:
+                continue
+        elif "OS" not in keys:
+            continue
+        reg = max((e[3] or 0) for e in at) / fx
+        best = round(best / fx, 2)
+        if not reg or best >= reg * 0.9:
+            continue
+        k = ("us|" if us else "") + f'{d["b"]}|{d["n"]}|{d["g"]}|{1 if d.get("w") else 0}'.lower()
+        old = [x for x in hist.get(k) or [] if x[0] <= cut]
+        if not old:
+            continue
+        then = old[-1][1]
+        off = then - best
+        if not (off >= 5 and (off >= 10 or off / then >= 0.10) and best < then * 0.97):
+            continue
+        sid = "q:" + _fold(d["b"] + " " + _base(d["n"]))
+        if state.get(sid, "") >= (today - timedelta(days=REPOST_DAYS)).isoformat():
+            continue
+        q = unique_q(d, hay)
+        if not q:
+            continue
+        e = at[0]
+        u = d["of"][e[2]]
+        gender = "Women's" if d.get("sx") == ["women"] else "Men's" if d.get("sx") == ["men"] else ""
+        letters = [s for s in SIZE_ORDER if s in keys]
+        out.append({"slug": sid, "b": d["b"], "name": f'{d["b"]} {_base(d["n"])}', "gender": gender, "now": best, "was": then, "reg": reg,
+                    "pct": round(100 * (1 - best / reg)), "drop": round(off), "store": names.get(host(u), host(u)), "url": u,
+                    "variant": e[4] if len(e) > 4 else None, "sizes": len(at), "img": d.get("img") or "", "side": side, "cat": cat,
+                    "sizes_label": " · ".join(letters) if letters else "One size",
+                    "page": f"{SITE}/?{'c=us&' if us else ''}q={quote(q, safe='')}"})
+    out.sort(key=lambda x: (-x["drop"], -x["pct"]))
+    seen, keep = set(), []
+    for p in out:
+        if p["b"].lower() not in seen:
+            seen.add(p["b"].lower())
+            keep.append(p)
+    return keep
+
+
+def with_ref(page, ref):
+    return page + ("&" if "?" in page else "?") + f"ref={ref}"
+
+
 def confirmed(p):
     """Still on sale on the store's own page right now (the Instagram kit's rule: blocked or unsure = left out)."""
     try:
         import livecheck
-        return livecheck.still_on_sale(p["url"], p["now"], p.get("variant")) is True
+        return livecheck.still_on_sale(p["url"], p["now"], p.get("variant"), us=p.get("side") == "us") is True
     except Exception:
         return False
 
 
 def text(p, ref):
     g = f' ({p["gender"]})' if p["gender"] else ""
-    link = f'{p["page"]}?ref={ref}'
+    link = with_ref(p["page"], ref)
+    sizes = f'{p["sizes_label"]} at that price' if p.get("sizes_label") else f'{p["sizes"]} sizes at that price'
     return (f'{p["name"]}{g} dropped ${p["drop"]} this week: ${p["now"]:.2f} at {p["store"]} '
-            f'(regular ${p["reg"]:.0f}, −{p["pct"]}%), {p["sizes"]} sizes at that price.\n'
+            f'(regular ${p["reg"]:.0f}, −{p["pct"]}%), {sizes}.\n'
             f'Every size and store, checked daily: {link}'), link
 
 
 def bluesky(p, body, link):
     """Bluesky's own API (app password, no review needed): a post with a link card (title, line, photo)."""
     s = requests.post("https://bsky.social/xrpc/com.atproto.server.createSession", timeout=30,
-                      json={"identifier": os.environ["BLUESKY_HANDLE"], "password": os.environ["BLUESKY_APP_PASSWORD"]}).json()
+                      json={"identifier": os.environ["BLUESKY_HANDLE"].strip().lstrip("@"), "password": os.environ["BLUESKY_APP_PASSWORD"].strip()}).json()
+    if "accessJwt" not in s:     # Oct 26: a failed login showed up only as 'accessJwt'; say what Bluesky said (never the secrets)
+        raise RuntimeError(f'Bluesky login failed: {s.get("error")}: {s.get("message")} (handle like thegearfox.bsky.social, app password from Settings > App passwords)')
     H = {"Authorization": f'Bearer {s["accessJwt"]}'}
     card = {"uri": link, "title": f'{p["name"]}: ${p["now"]:.2f} (−{p["pct"]}%)', "description": "Every size and store in Canada, checked daily."}
     if p["img"]:
@@ -164,13 +316,27 @@ def main():
     sale = requests.get(f"{SITE}/sale.json", timeout=200).json()
     pages = requests.get(f"{SITE}/shoes/pages.json", timeout=60).json()
     today = date.today()
-    cands = picks(sale, pages, history(), state, today)
+    hist = history()
+    cat = rotation(today)
+    shoes = picks(sale, pages, hist, state, today)
+    try:
+        everything = requests.get(f"{SITE}/deals.json", timeout=300).json()
+    except Exception as e:
+        print(f"deals.json not read ({e}): no rotating item today (its search link can't be checked)")
+        everything = None
+    rot = picks_cat(sale, hist, state, today, cat, pop=popular_group() if cat == "popular" else None, everything=everything) if everything else []
+    print(f"today's rotating category: {cat} ({len(rot)} real drops)")
     posts, live = [], os.environ.get("SOCIAL_LIVE") == "1"
-    for p in cands:
-        if len([q for q in posts if q["ok"]]) >= PER_DAY:
+    # 1 rotating item (tried first) + shoes for the rest: 2 shoes, or 3 when no rotating item qualifies today
+    for kind, p in [(cat, p) for p in rot] + [("shoes", p) for p in shoes]:
+        ok = [q for q in posts if q["ok"]]
+        if len(ok) >= PER_DAY:
             break
+        if kind == cat and any(q["kind"] == cat for q in ok):
+            continue
+        p["kind"] = kind
         p["ok"] = confirmed(p)
-        p["text"], link = text(p, "bluesky")
+        p["text"], link = text(p, f"bluesky-{kind}")
         if p["ok"] and live and os.environ.get("BLUESKY_HANDLE") and os.environ.get("BLUESKY_APP_PASSWORD"):
             try:
                 p["posted"] = {"bluesky": bluesky(p, p["text"], link)}
@@ -178,11 +344,16 @@ def main():
             except Exception as e:
                 p["error"] = str(e)[:200]
         posts.append(p)
-        print(("OK  " if p["ok"] else "SKIP") + " " + p["text"].replace("\n", " | "))
+        print(("OK  " if p["ok"] else "SKIP") + " " + p["text"].replace("\n", " | "))   # OK = confirmed on the store page; posting result on the next line
+        if p.get("posted") or p.get("error"):
+            print("     -> " + (f'posted {p["posted"]["bluesky"]}' if p.get("posted") else f'NOT posted: {p["error"]}'))
     (out / "posts.json").write_text(json.dumps(posts, indent=1, ensure_ascii=False))
     sf.write_text(json.dumps(state, indent=1))
     preview(posts, out)
-    print(f"{len(cands)} real drops today, {sum(p['ok'] for p in posts)} confirmed; live={live}")
+    print(f"{len(shoes)} shoe + {len(rot)} {cat} real drops today, {sum(p['ok'] for p in posts)} confirmed; live={live}")
+    failed = [p for p in posts if p.get("error")]
+    if failed:      # the run goes red so a failed login is never a quiet green run
+        sys.exit(f"{len(failed)} post(s) failed: {failed[0]['error']}")
 
 
 if __name__ == "__main__":

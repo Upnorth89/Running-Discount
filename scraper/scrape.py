@@ -130,6 +130,7 @@ def canon_shoe(label, women=False):
         t = m.group(1)            # "42.5 (9.5US)", "39 (7.5+US)" (The Trail Runner Store, La Sportiva)
     t = re.sub(r"(?i)\s*\(\s*(?:eu\s*)?\d\d(?:[.,]\d)?(?:\s*[12]/3)?(?:\s*eu)?\s*\)", "", t)
     t = re.sub(r"(?i)\s*/\s*(?:eu|uk)\s*\d+(?:[.,]\d)?(?:\s*[12]/3)?\s*$", "", t).strip()
+    t = re.sub(r"(?i)\b(medium|regular|standard|wide|x-?wide|extra wide|narrow)\s*\((?:2a|aa|b|d|2e|ee|4e|6e)\)", r"\1", t)   # Oct 26: Bushtukah "Medium (D) / 9.0"
     # width first: "D / 9.0", "4E / 9.5", "B / 7.0" (Frontrunners); men's D and women's B are regular, women's D wide
     m = re.match(r"(?i)^(2a|aa|b|d|2e|ee|4e|6e)\s*/\s*(\d+(?:\.\d)?)$", t)
     if m:
@@ -137,6 +138,12 @@ def canon_shoe(label, women=False):
         wide = w in ("2e", "ee", "4e", "6e") or (women and w == "d")
         narrow = w in ("2a", "aa") or (not women and w == "b")
         t = m.group(2) + (" Wide" if wide else " Narrow" if narrow else "")
+    # Oct 26: "M5W7" (OOFOS, no slash), "6.0(W7.5)" (Heartbreak spikes), unisex "6/7.5", "4.5/6" (men's/women's with no letters:
+    # Columbus, Frontrunners; only when women's is 1 to 2 sizes up, the usual unisex gap, so "7/8" ranges stay unread)
+    m = (re.match(r"(?i)^m\s*(\d+(?:\.\d)?)\s*w\s*(\d+(?:\.\d)?)$", t) or re.match(r"(?i)^(\d+(?:\.\d)?)\s*\(\s*w\s*(\d+(?:\.\d)?)\s*\)$", t)
+         or re.match(r"^(\d+(?:\.\d)?)\s*/\s*(\d+(?:\.\d)?)$", t))
+    if m and 1 <= float(m.group(2)) - float(m.group(1)) <= 2:
+        return [k for k in ("M:" + (_us(m.group(1)) or ""), "W:" + (_us(m.group(2)) or "")) if len(k) > 2]
     # "9 M / 10.5 W", "4.5 M / 6W" (Lems), "US 7M / 9W"
     m = re.match(r"(?i)^(?:us\s*)?(\d+(?:\.\d)?)\s*m(?:en'?s)?\s*/\s*(\d+(?:\.\d)?)\s*w(?:omen'?s)?$", t)   # Oct 24: REI "5 Mens/6.5 Womens"
     if m:
@@ -202,7 +209,14 @@ RR_GROUP = {range(111, 127): "bottoms", range(131, 145): "tops", range(153, 155)
             range(222, 223): "headwear", range(223, 224): "gear", range(224, 225): "gloves", range(225, 226): "headwear",
             range(229, 230): "gear", range(230, 240): "nutrition", range(242, 246): "socks", range(281, 282): "gear",
             range(282, 284): "packs", range(284, 285): "gear", range(424, 425): "gear", range(426, 427): "headwear",
-            range(427, 428): "gear", range(300, 314): "shoes", range(320, 334): "shoes"}
+            range(427, 428): "gear", range(300, 314): "shoes", range(320, 334): "shoes",
+            # Oct 26 (coverage check): Walking Room's trail/hiking shoes (Speedgoat 6 Mid GTX, Ultra Flow, Lone Peak 9+, Timp 6,
+            # Moab), Garmin/Wahoo watches and a few running tops sat in codes we didn't map, so they were silently dropped
+            range(900, 902): "shoes", range(211, 212): "watches", range(151, 153): "tops", range(261, 262): "tops"}
+# codes left out on purpose (walking/casual shoes, sandals, slippers, pickleball, kids, insoles, headphones, swim, books, body care…):
+# any OTHER code with 20+ in-stock records is a new category the store added, and the morning email says so (coverage.json)
+RR_SKIP_CODES = {171, 172, 201, 203, 212, 221, 226, 228, 251, 262, 271, 272, 273, 314, 315, 316, 317, 318, 421, 422, 423, 425, 428, 429,
+           902, 903, 904, 905, 906, 907, 908, 909, 910, 911}
 RR_BRANDS = ("New Balance", "Running Room", "Fuel Belt", "Under Armour", "The North Face", "Black Diamond", "Dr. Cohen's", "Pearl Izumi")
 
 
@@ -218,7 +232,8 @@ def scrape_runningroom():
     if sm.status_code != 200:
         raise RuntimeError(f"Running Room feed: HTTP {sm.status_code}")
     recs = []
-    for u in re.findall(r"<loc>([^<]+/products_\d+\.json)</loc>", sm.text):
+    urls = re.findall(r"<loc>([^<]+/products_\d+\.json)</loc>", sm.text)
+    for u in urls:
         # Oct 12: asked for gzip, Running Room's server sometimes sends a file cut short (19 KB instead of 2 MB, no
         # content-encoding) and the whole store failed; uncompressed it comes back whole. Oct 18: still 19 KB twice
         # 10 s apart (the file was being rebuilt that morning; whole again later), so retries wait up to ~6 min in all.
@@ -234,12 +249,14 @@ def scrape_runningroom():
                     raise RuntimeError(f"Running Room feed file {u.rsplit('/', 1)[-1]}: not readable ({len(r.content)} bytes)")
                 time.sleep(wait)
         time.sleep(2)
-    offers = {}
+    offers, unknown = {}, collections.Counter()
     for p in recs:
         a = p.get("attributes") or {}
         m = re.match(r"(\d+)", str(a.get("tax_class_id") or ""))
         code = int(m.group(1)) if m else 0
         g = next((v for k, v in RR_GROUP.items() if code in k), None)
+        if not g and code not in RR_SKIP_CODES and (p.get("stock") or {}).get("is_in_stock"):
+            unknown[code] += 1
         if not g or not (p.get("stock") or {}).get("is_in_stock") or (p["stock"].get("qty") or 0) <= 0:
             continue
         full = re.sub(r"\s*\([^()]*\)\s*$", "", html_lib.unescape(p.get("name") or "")).strip()
@@ -290,6 +307,8 @@ def scrape_runningroom():
         o["sz"] = [[k, v[0], v[1], v[2]] for k, v in o["sz"].items()]
         out.append(o)
     print(f"  runningroom: {len(recs)} feed records -> {len(out)} products", file=sys.stderr)
+    new = {c: n for c, n in unknown.items() if n >= 20}
+    save_coverage("runningroom", len(urls), len(urls), ("new product codes we don't read yet: " + ", ".join(f"{c} ({n} sizes)" for c, n in sorted(new.items()))) if new else "")
     return out
 
 
@@ -1384,11 +1403,12 @@ def list_catalogue(base):
     """Every running listing, tagged with our group. The stores' search caps a listing at 1000
     results, so we list one product type at a time and split big types by gender."""
     types = plp(f"{base}/c/running")["facets"].get("attributes.product_type_name", {})
-    found = {}
+    found, listed = {}, 0
     for t, n in types.items():
         g = CT_TYPES.get(t)
         if not g:
             continue
+        listed += n
         url = f"{base}/c/running?product_type_name={quote(t)}"
         parts = [url] if n <= 1000 else [f"{url}&gender={x}" for x in ("Men", "Women", "NA")]
         for u in parts:
@@ -1397,7 +1417,7 @@ def list_catalogue(base):
                 print(f"  ! {u} has {first['nbHits']} listings, only 1000 reachable", file=sys.stderr)
             for h in hits:
                 found.setdefault(h["slug"], (g, h.get("image_url")))
-    return found
+    return found, listed
 
 def attr(attrs, name):
     for a in attrs:
@@ -1450,8 +1470,8 @@ def product(base, slug, st, g, img):
             "sx": sx, "w": wide, "img": img, "lp": lp, "bb": None, "sz": [[k, pr, rg, u] for k, (pr, rg, u) in sizes.items()]}
 
 def scrape_commercetools(st, base):
-    listing = list_catalogue(base)
-    print(f"  {st}: {len(listing)} running listings", file=sys.stderr)
+    listing, listed = list_catalogue(base)
+    print(f"  {st}: {len(listing)} running listings (the store counts {listed})", file=sys.stderr)
     out, errors = [], 0
     def one(item):
         slug, (g, img) = item
@@ -1467,6 +1487,9 @@ def scrape_commercetools(st, base):
                 out.append(r)
     if listing and errors > len(listing) * 0.3:
         raise RuntimeError(f"{st}: {errors}/{len(listing)} product pages failed")
+    # Oct 26: the store's own count for the product types we read vs the product pages we read (a type over its 1000-result cap,
+    # or pages that failed, show up as a gap in the morning email)
+    save_coverage(st, listed, len(listing) - errors, f"{errors} product pages failed" if errors > len(listing) * 0.03 else "")
     return out
 
 # ---------------------------------------------------------------- Decathlon Canada (server-rendered pages; robots.txt allows them)
@@ -1554,10 +1577,13 @@ DECATHLON_FILE = os.environ.get("DECATHLON_FILE", "/tmp/decathlon.json")
 class DecBusy(Exception):
     """Decathlon said "429 too many requests" even after waiting: stop asking for today."""
 
+DEC_LIST_STATS = {}      # Oct 26 (coverage): list path -> [items the list says it has, product links we collected from it]
+
+
 def dec_links(budget):
     t0, links = time.time(), []
     for path in DEC_LISTS:
-        start = 0
+        start, got = 0, set()
         while start < 2000 and time.time() - t0 < budget:
             try:
                 html = dec_get(f"{DEC_BASE}{path}?from={start}&size=40").text
@@ -1566,8 +1592,15 @@ def dec_links(budget):
                 if "429" in str(e):
                     raise DecBusy(str(e))
                 break                                     # keep what the other lists gave
-            new = [u for u in dict.fromkeys(re.findall(r'href="(/en/p/[^"]+)"', html)) if u not in links]
-            if not new:
+            if start == 0:
+                m = re.search(r'filter-bar__top-info[^>]*>\s*<span[^>]*>\s*([\d,]+)\s+items', html)
+                DEC_LIST_STATS[path] = [int(m.group(1).replace(",", "")) if m else None, 0]
+            found = list(dict.fromkeys(re.findall(r'href="(/en/p/[^"]+)"', html)))
+            got |= set(found)                                    # the list's "N items" counts each colour page
+            new = [u for u in found if u not in links]
+            if path in DEC_LIST_STATS:
+                DEC_LIST_STATS[path][1] = len(got)
+            if not found:
                 break
             links += new
             start += 40
@@ -1861,6 +1894,7 @@ def shopify_products(base, max_pages=40, cookies=None):
 SIZE_OPT = re.compile(r"^((us|eu|uk|men'?s|women'?s|mens|womens|shoe)\s+)?(size|taille|pointure|grandeur)(\s+(us|eu|uk))?( ?\([^)]*\))?$", re.I)
 # "Size (US M)" (Ski Uphill); "US Size" (The Trail Runner Store: 1,300 shoes had no readable size until Oct 9)
 WIDTH_OPT = re.compile(r"^(width|shoe width|shoe fit|fit|largeur)$", re.I)
+WIDTH_VAL = re.compile(r"(?i)^(2a|aa|b|d|2e|ee|4e|6e|regular|medium|standard|wide|x-?wide|extra wide|narrow)(\s*\([^)]*\))?$")
 
 def width_word(w, title):
     """A width option value -> the words canon_shoe() reads. Men's D and women's B are regular; women's D is wide."""
@@ -1910,6 +1944,17 @@ def shopify_items(st, base, prods, group_fn, fx=1.0, size_aware=False, size_fn=N
         if not g:
             continue
         opts = [o["name"].lower() for o in p.get("options", [])]
+        si0 = wi0 = None
+        if size_aware and g == "shoes" and len(opts) > 1 and not any(SIZE_OPT.match(n) for n in opts):
+            # Oct 26: a size option with a name SIZE_OPT doesn't know (Runners Plus, Runner's Den, Mountain Running Co.) put the size
+            # in the card name ("Atomo Star · M5 / W6.5") and the width/colour in the sizes, so ~140 shoes had no readable size.
+            # The option whose values read as shoe sizes is the size; one whose values are all width words is the width.
+            vals_ = [[x for x in o.get("values") or [] if x] for o in p.get("options", [])]
+            si0 = next((i for i, vs in enumerate(vals_) if len(vs) >= 2 and sum(bool(canon_shoe(x)) for x in vs) >= 0.8 * len(vs)), None)
+            if si0 is not None:
+                wi0 = next((i for i, n in enumerate(opts) if i != si0 and WIDTH_OPT.match(n)), None)
+                if wi0 is None:
+                    wi0 = next((i for i, vs in enumerate(vals_) if i != si0 and vs and all(WIDTH_VAL.match(x.strip()) for x in vs)), None)
         img = (p.get("images") or [{}])[0].get("src")
         if img:
             img += ("&" if "?" in img else "?") + "width=360"
@@ -1927,6 +1972,8 @@ def shopify_items(st, base, prods, group_fn, fx=1.0, size_aware=False, size_fn=N
             vals = [v.get(f"option{i}") or "" for i in (1, 2, 3)][:len(opts)]
             si = next((i for i, n in enumerate(opts) if SIZE_OPT.match(n)), None) if size_aware else None
             wi = next((i for i, n in enumerate(opts) if WIDTH_OPT.match(n)), None) if si is not None else None
+            if si is None and si0 is not None:
+                si, wi = si0, wi0
             if si is not None:            # apparel: one card per colour, sizes as the "sizes"
                 key = " / ".join(x for i, x in enumerate(vals) if i not in (si, wi) and x)
                 label = vals[si]
@@ -2422,6 +2469,8 @@ def scrape_sportinglife():
                 out.append(r)
     if listing and errors > len(listing) * 0.3:
         raise RuntimeError(f"sportinglife: {errors}/{len(listing)} product pages failed")
+    save_coverage("sportinglife", total or 0, len(listing) - errors,
+                  f"{errors} product pages failed" if errors > len(listing) * 0.03 else "")   # Oct 26: its "N Items" vs what we read
     n_sz = sum(len(o["sz"]) for o in out)
     print(f"  sportinglife: {sum(len(e) > 3 for o in out for e in o['sz'])} of {n_sz} sizes have their own link", file=sys.stderr)
     return out
@@ -3387,7 +3436,7 @@ for _st in RUNFREE:
 
 # Casual footwear some running stores also sell; not what people come here for.
 CASUAL_BRANDS = {"ambler", "birkenstock", "wolky", "teva", "crocs", "ugg", "blundstone", "dr. martens", "clarks", "oofos", "billy footwear", "vessi"}   # Ambler (Oct 8): toques, and its only "shoe" is a wool slipper
-CASUAL_SHOE = re.compile(r"\b(sandal|sandale|clog|sabot|slipper|pantoufle|mule|flip[- ]flops?|ellipse flip|loafer|slide|clearwater cnx|ks86|recovery (flip|slide)|ora recovery|bobs|casual sneaker|leather sneaker|chelsea)s?\b", re.I)   # Oct 19 (mystery shop): Skechers BOBS, Keen KS86 Leather, Xero "Casual Sneaker"
+CASUAL_SHOE = re.compile(r"\b(sandal|sandale|clog|sabot|slipper|pantoufle|mule|flip[- ]flops?|ellipse flip|loafer|slide|clearwater cnx|ks86|recovery (flip|slide)|ora recovery|bobs|casual sneaker|leather sneaker|chelsea|traction bootie)s?\b", re.I)   # Oct 19 (mystery shop): Skechers BOBS, Keen KS86 Leather, Xero "Casual Sneaker"
 # court and lifestyle shoes from running brands (ASICS tennis/pickleball lines, retro sneakers)
 COURT_SHOE = re.compile(r"pick[el]+ball|\btennis\b|\bpadel\b|\bcourt\b|gel[- ]?(resolution|dedicate|game|challenger|1130|nyc|kahana)|solution speed", re.I)
 # lifestyle lines stores file under running (brand + model; Foot Locker, Oct 4, 2026)
@@ -3735,7 +3784,8 @@ def tidy_us_names(offers):
 BIKE_SHOE_BRANDS = {"leatt", "five ten", "shimano", "giro", "fizik", "northwave", "sidi", "ride concepts", "crankbrothers"}   # clip-in/MTB shoes (Oct 7)
 SHOE_CARE = re.compile(r"\blaces?\b|\blacets?\b|quicklace|cleaner|cleaning|repel|deodou?ri[sz]er|\bwipes\b|spike wrench|"
                        r"\bspray\b|\bpackage\b.*spikes|\bshoe ?(bag|tree|horn)\b|\binsoles?\b|quick-?clip|"
-                       r"replacement spikes|\d+ count\b|roll-?on|foot shield|installation", re.I)
+                       r"replacement spikes|\d+ count\b|roll-?on|foot shield|installation|"
+                       r"care kit|yaktrax|microspikes|ice (cleats?|grips?|traction)|traction (devices?|aids?)", re.I)   # Oct 26: Grangers kit, Yaktrax Run
 LEAD_SHOE = re.compile(r"^(trail |road )?running shoes?\s*[-–,]\s*", re.I)      # Stampeak (NNormal), Decathlon: "Trail running shoes - Tomir 2.0"
 ONE_COLOUR = re.compile(r"\s+[-–]\s+(black|white|beige|blue|green|orange|red|brown|burgundy|grey|gray|pink|purple|yellow|navy)(?=\s+[-–]\s+(men|women|unisex))", re.I)
 
@@ -3752,7 +3802,7 @@ def tidy_shoes(offers):
                 o["_t"] = "trail"     # later tidying may drop the words; the road/trail type stays
         if o["g"] == "shoes":
             o["n"] = re.sub(r"\s+-\s+(Men|Women)$", r" - \1's", o["n"])   # Stampeak: "Cadi - Men"
-        if o["g"] == "shoes" and SHOE_CARE.search(o["n"]) and not re.search(r"running shoes?|\bshoes?$", o["n"], re.I):
+        if o["g"] == "shoes" and SHOE_CARE.search(f"{o['b'] or ''} {o['n']}") and not re.search(r"running shoes?|\bshoes?$", o["n"], re.I):
             o["g"] = "gear"            # laces, cleaners, sprays, spike wrenches: shoe things, not shoes (Oct 7 audit)
         if o["g"] == "shoes":
             if (o["b"] or "").lower() in CASUAL_BRANDS or (o["b"] or "").lower() in BIKE_SHOE_BRANDS or CASUAL_SHOE.search(o["n"]) or SOCCER.search(o["n"]) or COURT_SHOE.search(o["n"]) \
@@ -4498,6 +4548,17 @@ def scrape_decathlon_saved():
         raise RuntimeError(f"Decathlon night read last worked {t:%b %d}" + (f" ({d['failed']})" if d.get("failed") else ""))
     # products read before Oct 20 may carry cross-sell sizes (see dec_offer): until re-read, one whose sizes differ in price
     # 2.5x+ is left out rather than shown at a wrong price
+    # Oct 26 (coverage): each running list's own "N items" vs the products we collected from it, and how many listed products
+    # were read in the last 14 days (a full round of the night read takes about a week)
+    lists = {k: v for k, v in (d.get("lists") or {}).items() if v and v[0]}
+    seen = {u.replace(DEC_BASE, ""): s for u, s in (d.get("seen") or {}).items()}
+    fresh = sum(1 for u in d.get("links") or [] if u in seen)
+    short = [f"{k.rsplit('/', 1)[-1]} {v[1]} of {v[0]}" for k, v in lists.items() if v[1] < v[0] * 0.97]
+    links_n = len(d.get("links") or [])
+    note = "; ".join(x for x in (("lists cut short: " + ", ".join(short)) if short else "",
+                                 f"{links_n - fresh} listed products not read in 14 days" if links_n and fresh < links_n * 0.97 else "") if x)
+    save_coverage("decathlon", sum(v[0] for v in lists.values()) if lists else links_n,
+                  sum(min(v[1], v[0]) for v in lists.values()) if lists else fresh, note)
     ok = [o for o in d["offers"] if o.get("own") or len(o["sz"]) < 2 or max(e[1] for e in o["sz"]) <= 2.5 * min(e[1] for e in o["sz"])]
     if len(ok) < len(d["offers"]):
         print(f"  decathlon: {len(d['offers']) - len(ok)} products held back until re-read (mixed-in sizes)", file=sys.stderr)
@@ -4563,7 +4624,8 @@ def decathlon_night(out):
     offers = {u: o for u, o in offers.items() if seen.get(u, today) >= cutoff}
     good = read >= 20 or (not note and cur >= len(links))
     d = {"updated": today if good else (prev.get("updated") or today), "offers": list(offers.values()), "links": links,
-         "cursor": cur, "listed": listed, "seen": {u: t for u, t in seen.items() if t >= cutoff}}
+         "cursor": cur, "listed": listed, "seen": {u: t for u, t in seen.items() if t >= cutoff},
+         "lists": DEC_LIST_STATS or prev.get("lists") or {}}
     if note:
         d["failed"] = note
     p.write_text(json.dumps(d, separators=(",", ":"), ensure_ascii=False))
