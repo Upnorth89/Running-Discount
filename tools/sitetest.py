@@ -1453,6 +1453,15 @@ def site_flow(base, per, accented):
                 settle(q2, 200)
                 k2 = int(re.search(r"([\d,]+) kcal", q2.inner_text("#fuel .fo")).group(1).replace(",", ""))
                 assert k2 > k1, f"a 25 kg pack didn't raise the calories ({k1} -> {k2})"
+                # Oct 27 (Bastien: "some people use both"): kg | lb converts the weights, same answer
+                body = float(q2.input_value('#fuel [data-f="fu_body"]'))
+                q2.click('#fuel .fuu button[data-u="lb"]')
+                settle(q2, 200)
+                lbv = float(q2.input_value('#fuel [data-f="fu_body"]'))
+                assert abs(lbv - body * 2.2046) <= 1, f"kg -> lb: body weight {body} became {lbv}"
+                k3 = int(re.search(r"([\d,]+) kcal", q2.inner_text("#fuel .fo")).group(1).replace(",", ""))
+                assert abs(k3 - k2) <= 0.03 * k2, f"switching to lb changed the calories ({k2} -> {k3})"
+                q2.click('#fuel .fuu button[data-u="kg"]')
                 assert not errs, f"script error: {errs[0][:120]}"
             finally:
                 c.close()
