@@ -6,7 +6,7 @@ names a real store-wide offer ("20% off", "up to 50% off", "code FALL15", "extra
 prices for that store (deals.json): how many items are really on sale, the median and biggest discount, so an "up to 50% off" is
 shown with what it really means. A code taken off at checkout can't be checked (we never fill carts): the store's words are quoted.
 
-  python tools/offer_scan.py DEALS.json OUT.json [store keys…]
+  python tools/offer_scan.py SITE_DIR [store keys…]   (morning refresh, after the merge)
 """
 import concurrent.futures as cf
 import html
@@ -29,6 +29,7 @@ BAR = re.compile(r'<(div|p|a|span|section|aside|marquee|li|h\d)[^>]*class="[^"]*
                  re.S | re.I)
 PCT = re.compile(r"(?:up to\s+)?(\d{1,2})\s?%\s*(?:off|de rabais|de réduction|sur)|(?:jusqu'à|jusqu’à)\s+(\d{1,2})\s?%", re.I)
 CODE = re.compile(r"\b(?:code|promo code|use code|with code|avec le code|code promo)\s*:?\s*[\"“']?([A-Z0-9][A-Z0-9-]{2,19})\b", re.I)
+NOT_CODE = {"auto", "automatically", "applied", "applies", "at", "in", "required", "needed", "appliqué", "automatique", "requis", "not", "no"}
 SKIP = re.compile(r"free (?:shipping|returns|delivery)|livraison gratuite|retours gratuits|gift card|carte[- ]cadeau|sign up|inscri|newsletter|first order|premi[eè]re commande|members?\b|membership|collective|subscri|abonne|rewards?|points|loyalty", re.I)
 
 
@@ -75,6 +76,8 @@ def offer(lines):
         if SKIP.search(l):            # member / sign-up / subscription perks aren't a store-wide sale (naak "15% off subscriptions for members")
             continue
         p, c = PCT.search(l), CODE.search(l)
+        if c and c.group(1).lower() in NOT_CODE:    # "code auto applied to cart" (Wigwam, Oct 27) is not a code called AUTO
+            c = None
         if p or c:
             keep.append({"text": l, "pct": int(p.group(1) or p.group(2)) if p else None, "upto": bool(re.search(r"up to|jusqu", l, re.I)),
                          "code": c.group(1).upper() if c else None})
@@ -98,27 +101,71 @@ def truth(items, host):
             "max": max(on) if on else 0}
 
 
+def published(r, o, t, today):
+    """One offer for the site, or None. A sale banner our own prices don't back up (nothing on sale there today) stays off."""
+    if not t or t["items"] < 5:
+        return None
+    if not o["code"] and t["on_sale"] == 0:
+        return None
+    sale = o["upto"] or bool(re.search(r"sale|clearance|selected|solde|liquidation|sélection", o["text"], re.I))
+    # a sale banner ("up to 50% off selected") gets our check of the store's sale items; a cart-wide offer ("20% off, auto applied",
+    # a code) is about full-price gear: the note goes on that store's full-price cards instead
+    return {"store": r["host"], "side": r["side"], "en": o["text"], "fr": o["text"], "code": o["code"], "auto": True,
+            "until": today, "url": r["base"], "cards": not sale, "sale": sale,
+            "chk": {"n": t["items"], "on": t["on_sale"], "med": t["median"]} if sale and t["items"] >= 10 else None}
+
+
 def main():
-    deals, out = Path(sys.argv[1]), Path(sys.argv[2])
-    only = set(sys.argv[3:])
-    items = json.loads(deals.read_text())["items"]
+    """python tools/offer_scan.py SITE_DIR [--carry] [store keys…]: reads SITE/deals.json + deals-us.json, writes SITE/promos.json (hand-made
+    offers from SITE/promos-hand.json still within their dates, then today's banners) and /tmp/offer-scan.json (everything read)."""
+    import datetime
+    from zoneinfo import ZoneInfo
+    site = Path(sys.argv[1])
+    carry = "--carry" in sys.argv
+    only = {a for a in sys.argv[2:] if not a.startswith("--")}
+    today = datetime.datetime.now(ZoneInfo("America/Vancouver")).date().isoformat()
+    hand = []
+    try:
+        hand = [p for p in json.loads((site / "promos-hand.json").read_text()) if not p.get("until") or p["until"] >= today]
+    except Exception:
+        pass
+    if carry:   # every run but the morning one: this morning's banners (live promos.json) + today's hand-made offers, no store visits
+        try:
+            live = [p for p in json.loads(Path("/tmp/promos-live.json").read_text()) if p.get("auto") and p.get("until", "") >= today]
+        except Exception:
+            live = []
+        (site / "promos.json").write_text(json.dumps(hand + [p for p in live if p["store"] not in {h["store"] for h in hand}], ensure_ascii=False, indent=1))
+        print(f"store offers carried: {len(live)} from this morning + {len(hand)} by hand")
+        return
+    items = {s: json.loads((site / f).read_text())["items"] if (site / f).exists() else [] for s, f in (("ca", "deals.json"), ("us", "deals-us.json"))}
     stores = [(k, u) for k, u, *_ in scrape.SHOPIFY_STORES if not only or k in only]
 
     def one(ku):
         k, u = ku
-        lines, why = bars(u.rstrip("/"))
+        base = u.rstrip("/")
+        lines, why = bars(base)
         host = urllib.parse.urlparse(u).netloc.replace("www.", "")
-        return {"store": k, "host": host, "why": why, "lines": lines or [], "offers": offer(lines), "truth": truth(items, host)}
+        side = "us" if k in scrape.US_SHOPS or k.endswith("us") and k[:-2] in dict((x[0], 1) for x in scrape.SHOPIFY_STORES) else "ca"
+        return {"store": k, "host": host, "base": base, "side": side, "why": why, "lines": lines or [], "offers": offer(lines),
+                "truth": truth(items[side], host)}
 
     with cf.ThreadPoolExecutor(8) as ex:
         res = list(ex.map(one, stores))
-    out.write_text(json.dumps(res, ensure_ascii=False, indent=1))
-    found = [r for r in res if r["offers"]]
-    print(f"{len(res)} stores read, {sum(1 for r in res if r['why'])} not read, {len(found)} with an offer")
-    for r in found:
-        t = r["truth"]
+    Path("/tmp/offer-scan.json").write_text(json.dumps(res, ensure_ascii=False, indent=1))
+    auto, seen = [], {p["store"] for p in hand}
+    for r in res:
         for o in r["offers"]:
-            print(f"  {r['store']:16} {o['text'][:90]!r}", f"| our prices: {t['on_sale']}/{t['items']} on sale ({t['share']}%), median {t['median']}%, max {t['max']}%" if t else "| not in our data")
+            p = published(r, o, r["truth"], today)
+            if p and p["store"] not in seen:     # one offer per store: the first banner line that names one
+                seen.add(p["store"])
+                auto.append(p)
+    auto.sort(key=lambda p: -((p["chk"] or {}).get("on") or 0))
+    (site / "promos.json").write_text(json.dumps(hand + auto, ensure_ascii=False, indent=1))
+    print(f"{len(res)} stores read, {sum(1 for r in res if r['why'])} not read, {sum(1 for r in res if r['offers'])} with an offer line, "
+          f"{len(auto)} on the site today (+ {len(hand)} by hand)")
+    for p in hand + auto:
+        c = p.get("chk")
+        print(f"  {p['side']} {p['store']:24} {p['en'][:80]!r}" + (f" | our check: {c['on']} of {c['n']} on sale, median {c['med']}%" if c else ""))
 
 
 if __name__ == "__main__":

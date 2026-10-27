@@ -147,6 +147,14 @@ jobs:
         run: |
           pip install -q playwright && python -m playwright install --with-deps chromium > /dev/null
           python tools/pin_feed.py site ${{ needs.check.outputs.morning == 'true' && ' ' || '--carry' }}
+      # Store offers (Oct 27, Bastien: "we can't build a reader that does this every morning?"): the morning reads each Shopify store's
+      # homepage bar once (tools/offer_scan.py), keeps real store-wide offers, checks a sale banner against our own prices -> site/promos.json;
+      # every other run keeps this morning's offers. Hand-made offers: site/promos-hand.json (with an end date).
+      - name: Store offers
+        continue-on-error: true
+        run: |
+          curl -fsSL "https://thegearfox.com/promos.json" -o /tmp/promos-live.json || true
+          python tools/offer_scan.py site ${{ needs.check.outputs.morning == 'true' && ' ' || '--carry' }}
       - name: Hiking catalogue (finish and publish; yesterday's files if today's read didn't finish)
         continue-on-error: true
         run: |

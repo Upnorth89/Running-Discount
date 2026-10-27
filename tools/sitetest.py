@@ -1677,7 +1677,10 @@ def site_flow(base, per, accented):
             c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
             stub(c)
             offers = [{"store": "ca.shop.runningroom.com", "side": "ca", "en": "Test offer", "fr": "Offre test", "code": "TESTCODE", "until": "2099-12-31"},
-                      {"store": "sportchek.ca", "side": "ca", "en": "Old offer", "code": "OLD", "until": "2000-01-01"}]
+                      {"store": "sportchek.ca", "side": "ca", "en": "Old offer", "code": "OLD", "until": "2099-01-01", "from": "2098-01-01"},
+                      {"store": "sportinglife.ca", "side": "ca", "en": "Up to 40% off sale", "fr": "Up to 40% off sale", "auto": True, "sale": True,
+                       "cards": False, "until": "2099-12-31", "chk": {"n": 400, "on": 120, "med": 30}},   # Oct 27: read off a homepage bar
+                      {"store": "us.2xu.com", "side": "us", "en": "US only", "until": "2099-12-31"}]
             c.route("**/promos.json*", lambda r: r.fulfill(status=200, content_type="application/json", body=json.dumps(offers)))
             c.add_init_script("try{localStorage.setItem('gf-nosignup','1');localStorage.setItem('gf-peek','1');localStorage.setItem('rd-profile',JSON.stringify({gender:'men',terrain:'both',"
                               "ships:'ca',country:'ca',groups:['shoes','tops','bottoms'],sizes:{shoes:{sizes:['11'],width:[]},tops:{sizes:['M']},"
@@ -1687,8 +1690,21 @@ def site_flow(base, per, accented):
                 q.goto(base, wait_until="domcontentloaded")
                 q.wait_for_selector("#dealList .promobar", state="attached", timeout=30000)
                 bars = q.locator("#dealList .promobar")
-                assert bars.count() == 1, f"{bars.count()} store offer lines (1 expected: the ended one must not show)"
+                assert bars.count() == 1, f"{bars.count()} store offer lines on a phone (1: not one that hasn't started, nor the USA side's)"
                 assert "TESTCODE" in bars.first.inner_text(), "the offer line doesn't show the code"
+                q.set_viewport_size({"width": 1280, "height": 900})          # computers show two
+                q.evaluate("renderAll()") if q.evaluate("typeof renderAll") == "function" else q.reload()
+                q.wait_for_timeout(800)
+                if bars.count() < 2:
+                    q.reload(wait_until="domcontentloaded")
+                    q.wait_for_selector("#dealList .promobar", state="attached", timeout=30000)
+                    q.wait_for_timeout(1500)
+                assert bars.count() == 2, f"{bars.count()} store offer lines on a computer (2 expected)"
+                auto = bars.nth(1).inner_text()
+                q.set_viewport_size({"width": 390, "height": 844})
+                q.reload(wait_until="domcontentloaded")
+                q.wait_for_selector("#dealList .promobar", state="attached", timeout=30000)
+                assert "homepage today" in auto and "Our check: 120 of the 400" in auto, f"a banner read off a homepage doesn't quote it + our check: {auto[:120]!r}"
                 bars.first.locator("[data-promo]").evaluate("e => e.click()")
                 q.wait_for_selector("#dealList .storebar", state="attached", timeout=20000)
                 for _ in range(12):            # full-price cards come after the store's sale ones: open "Show more" until one shows

@@ -975,7 +975,14 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   store's banner. Shows a line on top of the deals (max 2, `promoBar()`: "See <store>'s full-price gear in your size" -> store view + full price)
   and "+ Store offer: code X" on that store's FULL-PRICE cards only (`promoCard`; sale prices already carry the store's discount; codes have
   exclusions, so never taken off our prices). Analytics filter "promo|<store>", "promo-terms|<store>". Site test "Store offer: …".
-  Preview: PV_PROMOS='[...]' make_preview.py (embeds it; that store's full-price US items ride along). Automatic banner reading = backlog idea.
+  Preview: PV_PROMOS='[...]' make_preview.py (embeds it; that store's full-price US items ride along).
+  AUTOMATIC since Oct 27 (Bastien: "yes for the store offers"): refresh.yml step "Store offers" = tools/offer_scan.py site (morning: one visit
+  per SHOPIFY_STORES homepage, robots checked, honest UA; announcement-bar lines with a % or a code; SKIP member/sign-up/subscription/free
+  shipping; NOT_CODE "auto"; a sale banner our prices don't back (0 on sale there) stays off) or --carry (other runs: this morning's offers
+  from the live promos.json). Auto entries: auto, until=today, sale (banner about sale items -> "Our check: N of the M items we follow there
+  are on sale, most at X% off", button = that store's deals), cards (cart-wide offer/code -> "+ Store offer" on full-price cards, button =
+  full-price gear). Quoted word for word ("<Store>'s homepage today: “…”"; never translated). Hand offers: site/promos-hand.json (until).
+  Phones show 1 box, computers 2. Morning email: "Store offers on the site today: …" (Bastien replies "remove X"). First day: 2XU CA+US, Wigwam.
 - Canadian brands (Oct 7, Bastien): Filters chip "🍁 Canadian brands" (Canada side only, `view.cdn`, `?canadian` link for posts),
   box "Canadian companies, not always made in Canada", 🍁 after the brand on cards. List `CDN_BRANDS` in index.html, checked by hand
   (stores' own lines only when really theirs). Not "made in Canada" (no data; most are made overseas). Analytics: canadian {on|off|from}.
