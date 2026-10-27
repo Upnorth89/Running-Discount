@@ -2013,6 +2013,26 @@ def site_flow(base, per, accented):
             pg.evaluate("['gf-watch','gf-race-size','gf-shoe-size'].forEach(function(k){localStorage.removeItem(k)})")
             return f"{len(n)} items with picks, heart + shoe picker work, FR ok"
         check("Race gear page: picks in your size, Watch hearts in place, shoe + size")(race_page, pg)
+
+        def hub_search():       # Oct 27 (Bastien: "a search function for the race kits and the hiking planner")
+            out = []
+            for path in ("races/", "hikes/"):
+                if not site_get(path):
+                    continue
+                pg.goto(base + path, wait_until="domcontentloaded")
+                pg.wait_for_selector("#hubQ", timeout=8000)
+                first = pg.eval_on_selector("ul.cards li b", "e => e.textContent")
+                word = max(first.split(), key=len)
+                pg.fill("#hubQ", word.lower())
+                settle(pg, 300)
+                shown = pg.eval_on_selector_all("ul.cards li", "els => els.filter(l => l.offsetParent).map(l => l.querySelector('b').textContent)")
+                assert first in shown and len(shown) < pg.eval_on_selector_all("ul.cards li", "e => e.length"), f"{path}: searching '{word}' shows {shown[:3]}"
+                pg.fill("#hubQ", "zzqx")
+                settle(pg, 300)
+                assert pg.evaluate("!document.querySelector('.hnone').hidden"), f"{path}: no 'nothing matches' line"
+                out.append(f"{path} '{word}' -> {len(shown)}")
+            return "; ".join(out)
+        check("Race and trail hubs: search")(hub_search, pg)
         ctx2.close()
 
         # an American visitor (Oct 6, 2026): a US time zone opens the USA side; the switch goes back to Canada

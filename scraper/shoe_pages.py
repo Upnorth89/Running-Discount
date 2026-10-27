@@ -484,7 +484,7 @@ tr.yours td:first-child{font-weight:700;box-shadow:inset 4px 0 0 var(--hivis)}
 .alert form{display:flex;gap:8px}.alert input{flex:1;min-width:0;font:16px var(--body);border:0;border-radius:999px;padding:11px 14px}
 .alert button{flex:none;font:700 15px/1 var(--body);background:var(--hivis);color:var(--hivis-ink);border:0;border-radius:999px;padding:11px 16px;cursor:pointer}
 .alert .msg{margin:8px 0 0;font-size:14px}.alert .msg:empty{display:none}
-.boback form{flex-wrap:wrap}.boback .bor{display:flex;gap:8px;flex:1 1 100%}.boback select{flex:1;min-width:0;font:16px var(--body);border:0;border-radius:999px;padding:10px 12px;background:#fff;color:#17201c}
+.boback form{flex-wrap:wrap}.boback .bok{flex:1 1 100%;margin:0;font-weight:700}.boback .bok button{background:none;border:0;color:inherit;text-decoration:underline;font:inherit;font-weight:400;padding:0 0 0 2px;cursor:pointer}.boback .bor[hidden]{display:none}.boback .bor{display:flex;gap:8px;flex:1 1 100%}.boback select{flex:1;min-width:0;font:16px var(--body);border:0;border-radius:999px;padding:10px 12px;background:#fff;color:#17201c}
 .qs form{flex-direction:column}.qsrow{display:flex;gap:8px}.qs select{flex:1;min-width:0;font:16px var(--body);border:0;border-radius:999px;padding:11px 12px;background:#fff;color:#17201C}
 .qs .qsrow+.qsrow{flex-wrap:wrap}.qs .qsrow+.qsrow input{flex:1 1 100%}.qs .qsrow+.qsrow button{flex:1 1 100%}
 .qs .qsmore{margin:10px 0 0}.qs .qsmore a{color:var(--band-ink)}
@@ -810,6 +810,11 @@ fit.addEventListener("change",fill);
 var p0=get("rd-profile"),ss=get("gf-shoe-size"),g0=p0&&p0.gender==="women"?"women":p0&&p0.gender==="men"?"men":ss&&ss.g==="women"?"women":ss&&ss.g==="men"?"men":"",
   s0=(p0&&p0.sizes&&p0.sizes.shoes&&(p0.sizes.shoes.sizes||[])[0])||(ss&&ss.s)||"";
 if(g0){{fit.value=g0;fill();if(s0)sz.value=String(parseFloat(String(s0).replace(/^[MW]:/,"")))}}
+/* Oct 27 (Bastien: "wouldn't we know which size they clicked already"): sizes saved on this phone (main site or another shoe page)
+   = one line "Men's 11 · Change" instead of the two boxes */
+if(fit.value&&sz.value){{var bor=box.querySelector(".bor"),ln=document.createElement("p");ln.className="bok";
+  ln.innerHTML=fit.options[fit.selectedIndex].text+" "+sz.value+' · <button type="button">'+box.dataset.chg+"</button>";bor.hidden=true;bor.parentNode.insertBefore(ln,bor);
+  ln.querySelector("button").addEventListener("click",function(){{ln.remove();bor.hidden=false}})}}
 f.addEventListener("submit",function(e){{e.preventDefault();
   var em=f.querySelector("input").value.trim().replace(/^mailto:/i,"").replace(/^.*<([^>]+)>.*$/,"$1").replace(/\s+/g,"").replace(/\.+$/,"");
   if(!fit.value||!sz.value){{msg.textContent=box.dataset.pick;return}}
@@ -1216,7 +1221,7 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None,
         if not L.get("hike"):
             zs = lambda a, b: "".join(f'<option value="{z:g}">{z:g}</option>' for z in [x / 2 for x in range(a * 2, b * 2 + 1)])
             out.append(f'<section class="alert boback" id="backBox" data-key="page|{esc(slug)}" data-b="{esc(brand)}" data-n="{esc(name)}" '
-                       f'data-pick="{esc(L["boPick"])}" data-bad="{esc(L["alertBad"])}" data-ok="{esc(L["alertOk"])}" data-fail="{esc(L["alertFail"])}" data-done="{esc(L["alertDone"])}">'
+                       f'data-pick="{esc(L["boPick"])}" data-chg="{esc(L["change"])}" data-bad="{esc(L["alertBad"])}" data-ok="{esc(L["alertOk"])}" data-fail="{esc(L["alertFail"])}" data-done="{esc(L["alertDone"])}">'
                        f'<h2>{esc(L["boH"].format(name=name))}</h2><p class="fine">{L["boTxt"]}</p><form novalidate><div class="bor">'
                        f'<select data-fit aria-label="{esc(L["boFit"])}"><option value="">{esc(L["boFit"])}</option><option value="men">{esc(L["boMen"])}</option><option value="women">{esc(L["boWomen"])}</option></select>'
                        f'<select data-size aria-label="{esc(L["boSize"])}" data-m="{esc(zs(6, 15))}" data-w="{esc(zs(5, 12))}"><option value="">{esc(L["boSize"])}</option></select></div>'

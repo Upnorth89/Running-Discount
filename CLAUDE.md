@@ -403,6 +403,10 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   later (`_WX`); a whole-race weather kit (UTA pants + fleece, mozart cold/warm kit) uses `kits`. Fetched but not built yet (scratch
   notes): istria + eryri (lists behind per-race tabs/PDFs), kosciuszko (its table has 5 ticks for 4 races: recheck), chiangmai, restonica, nice, andorra,
   mallorca, tenerife.
+  Oct 27 (Bastien): hubs (/races/, /courses/, /us/races/, /hikes/…) have a search box (`hub_find()`, #hubQ: name/place/country/distance,
+  accents ignored, empty groups fold, "No race matches…" + our email; analytics filter "hubsearch|…"). Site test "Race and trail hubs: search".
+  Kit layout B (`KITB`, ?kit=b or gf-exp kit:B; mockup, waiting on Bastien): compact top + every line folded to one row (tick, name, level,
+  "From $X · N picks", tap = picks; class kopen, not "open" = See all). Sinister 7 4.6 -> 2.5 phone screens, UTMB 9.2 -> 4.0, Alum Cave 8.9 -> 4.1.
   Tracking (Oct 23, Bastien: "a tracker to see how and if people are using the gear checklist"): race pages send kind "filter" events
   "race|<race>|open|dist|have|unhave|complete|seeall|size|shoesize|<detail>" (`rt()` in race_pages.py; no new SQL kind) and deal clicks
   "store|<item kind>||race|<race>"; funnel.yml "RACE GEAR LISTS": sessions, first visits landing there, % that changed distance /

@@ -306,7 +306,8 @@ def page(h, L, items, stores, checked_on):
 <script id="shoes" type="application/json">[]</script>
 """
     fx = getattr(page, "fx", 1.0) if L == "us" else 1.0
-    return (head + body + script(L, fx) + FUEL_JS + page_foot(Tl).replace('"shoe-page"', '"hike-page"').replace("|shoes||shoe-page", "|gear||hike-page"))
+    kb = RP.S["en" if L == "us" else L]
+    return (head + body + RP.KITB.replace("$BEST", RP.esc(kb["kbBest"])).replace("$BESTN", RP.esc(kb["kbBestN"])) + script(L, fx) + FUEL_JS + page_foot(Tl).replace('"shoe-page"', '"hike-page"').replace("|shoes||shoe-page", "|gear||hike-page"))
 
 
 def fuel(h, L):
@@ -418,7 +419,10 @@ def hub(L, hikes):
     t, d = s["hubTitle"].format(n=len(hikes)), s["hubDesc"]
     head = (page_head(HL("us"), t, d, "/us/hikes/", "", f"<style>{RP.HUB_CSS}</style>").replace('class="sw" href="/shoes/"', 'class="sw" href="/hikes/"') if L == "us"
             else page_head(HL(L), t, d, "/hikes/", "/randonnees/", f"<style>{RP.HUB_CSS}</style>"))
-    return head + f'<h1 class="hubh">{esc(s["hubH1"])}</h1><p class="sub">{esc(s["hubIntro"])}</p>{rows}</ul>' + page_foot(Tl)
+    fr = L == "fr"
+    find = RP.hub_find("Trouvez un sentier : nom, parc ou région" if fr else "Find a trail: name, park or region",
+                       "Aucun sentier ne correspond à « {q} » pour l'instant." if fr else "No trail matches “{q}” yet.")
+    return head + f'<h1 class="hubh">{esc(s["hubH1"])}</h1><p class="sub">{esc(s["hubIntro"])}</p>{find}{rows}</ul>' + page_foot(Tl)
 
 
 LIVE = True       # Oct 25: Bastien OK'd ("Yes"); TRAIL_LIVE in index.html goes with it

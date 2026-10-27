@@ -1208,7 +1208,7 @@ S = {
         "qList": "What is the mandatory gear for the {short} {d}?", "aList": "{items}.",
         "qJacket": "Is a windbreaker enough for the {name}?", "aJacket": "No. The race asks for a jacket with an attached hood and a waterproof, breathable membrane (on the {dists}). Windbreakers aren't accepted.",
         "qCup": "Do the {name} aid stations have cups?", "aCup": "No. The aid stations have no cups: bring your own reusable cup.",
-        "aisle": "Race gear lists", "money": T["en"]["money"], "otherSide": "Shopping in the US? This list with US stores →",
+        "kbBest": "From {p} · {n} picks", "kbBestN": "Not in your size today", "aisle": "Race gear lists", "money": T["en"]["money"], "otherSide": "Shopping in the US? This list with US stores →",
     },
     "fr": {
         "dir": "courses", "title": "Matériel obligatoire {de}{name} ({short} {dists})",
@@ -1232,7 +1232,7 @@ S = {
         "qList": "Quel est le matériel obligatoire du {short} {d}?", "aList": "{items}.",
         "qJacket": "Un coupe-vent suffit-il pour {le}{name}?", "aJacket": "Non. La course demande un manteau avec capuchon attaché et une membrane imperméable et respirante (sur le {dists}). Les coupe-vent ne sont pas acceptés.",
         "qCup": "Y a-t-il des verres aux ravitaillements {de}{name}?", "aCup": "Non. Les ravitaillements n'ont pas de verres : apportez votre gobelet réutilisable.",
-        "aisle": "Listes de matériel de course", "money": T["fr"]["money"], "otherSide": "Vous magasinez aux États-Unis ? Cette liste avec les boutiques américaines →",
+        "kbBest": "Dès {p} · {n} choix", "kbBestN": "Rien dans votre taille aujourd'hui", "aisle": "Listes de matériel de course", "money": T["fr"]["money"], "otherSide": "Vous magasinez aux États-Unis ? Cette liste avec les boutiques américaines →",
     },
 }
 
@@ -1615,7 +1615,40 @@ def page(slug, race, L, items, stores, pages=None, fx=1.0):
 <script id="pools" type="application/json">{pj}</script>
 <script id="shoes" type="application/json">{sj}</script>
 """
-    return head + body + SCRIPT.replace("$LANG", "en" if L == "us" else L).replace("$CTRY", "us" if L == "us" else "ca").replace("$FX", str(fx)) + page_foot(Tl).replace('"shoe-page"', '"race-page"').replace("|shoes||shoe-page", "|gear||race-page")
+    return head + body + KITB.replace("$BEST", esc(s["kbBest"])).replace("$BESTN", esc(s["kbBestN"])) + SCRIPT.replace("$LANG", "en" if L == "us" else L).replace("$CTRY", "us" if L == "us" else "ca").replace("$FX", str(fx)) + page_foot(Tl).replace('"shoe-page"', '"race-page"').replace("|shoes||shoe-page", "|gear||race-page")
+
+
+# Oct 27 (Bastien: "the kit page is very long to scroll ... we can't have deals fall below the screen"): layout B (?kit=b, mockup;
+# A/B test 'kit' once agreed): a compact top (size + distance in two short rows, the US link moved under the list) and every gear
+# line folded to ONE row: tick, name, level and "From $50 · 10 picks"; a tap opens its picks. Sinister 7 went 4.6 -> ~2 phone screens.
+KITB = r"""<style>
+html.kitb .oside{display:none}html.kitb .rsize{padding:10px 12px;margin:8px 0}html.kitb .rsize p{font-size:14px;margin:0 0 6px}
+html.kitb .rsize button{min-height:34px;padding:5px 11px;font-size:14px}html.kitb .rsize .row{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+html.kitb .lbl{margin:8px 0 0}html.kitb .dists{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:4px 0 8px}html.kitb .dists button{min-height:38px;padding:6px 12px;font-size:14px}
+html.kitb .lnote,html.kitb .prog{font-size:13px;margin:2px 0 8px}
+html.kitb .gl{gap:6px}html.kitb .gi{padding:10px 12px}
+html.kitb .gi:not(.shoe) .hd{display:grid;grid-template-columns:24px 1fr 18px;column-gap:10px;row-gap:2px;cursor:pointer}
+html.kitb .gi:not(.shoe) .hd h3{grid-column:2;font-size:17px}html.kitb .gi:not(.shoe) .hd .have{grid-row:1/3;align-self:center}
+html.kitb .gi:not(.shoe) .hd .lv{grid-column:2;grid-row:2;justify-self:start;font-size:10px;padding:1px 6px;margin:0}
+html.kitb .gi:not(.shoe) .hd::after{content:"";grid-column:3;grid-row:1/3;align-self:center;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .15s}
+html.kitb .gi.kopen .hd::after{transform:rotate(-135deg)}
+html.kitb .gi .kb{grid-column:2;grid-row:3;font:600 14px var(--body);color:var(--moss,#2f6b3a)}html.kitb .gi .kb.no{color:var(--muted);font-weight:400}
+html.kitb .gi.mini .hd::after,html.kitb .gi.mini .kb{display:none}
+html.kitb .gi:not(.kopen):not(.shoe) .dl,html.kitb .gi:not(.kopen):not(.shoe) .ft,html.kitb .gi:not(.kopen):not(.shoe) .none,html.kitb .gi:not(.kopen):not(.shoe) .note{display:none}
+html.kitb .gi.got .kb{display:none}
+</style><script>
+(function(){var on=/[?&]kit=b\b/.test(location.search)||(function(){try{return JSON.parse(localStorage.getItem("gf-exp")||"{}").kit==="B"}catch(e){return false}})();
+if(!on)return;document.documentElement.classList.add("kitb");
+var gl=document.getElementById("gl"),os=document.querySelector(".oside");if(os&&gl){gl.parentNode.insertBefore(os,gl.nextSibling);os.style.cssText="display:block;margin:12px 0 0"}
+var best=function(){gl.querySelectorAll(".gi:not(.shoe):not(.mini)").forEach(function(li){var hd=li.querySelector(".hd");if(!hd)return;
+  var k=hd.querySelector(".kb");if(!k){k=document.createElement("span");k.className="kb";hd.appendChild(k)}
+  var ps=[].slice.call(li.querySelectorAll(".dl .pr b")).map(function(b){return parseFloat(b.textContent.replace(/[^0-9.,]/g,"").replace(",","."))}).filter(function(x){return x>0}),
+      shown=li.querySelector(".dl:not([hidden])");
+  if(ps.length&&shown){var m=Math.min.apply(null,ps),b0=[].slice.call(li.querySelectorAll(".dl .pr b")).filter(function(b){return parseFloat(b.textContent.replace(/[^0-9.,]/g,"").replace(",","."))===m})[0];
+    k.className="kb";k.textContent="$BEST".replace("{p}",b0?b0.textContent:m).replace("{n}",ps.length)}else{k.className="kb no";k.textContent="$BESTN"}})};
+gl.addEventListener("click",function(e){var hd=e.target.closest(".gi:not(.shoe):not(.mini) .hd");if(!hd||e.target.closest("input,button,a"))return;hd.parentNode.classList.toggle("kopen")});
+new MutationObserver(function(){clearTimeout(best.t);best.t=setTimeout(best,60)}).observe(gl,{childList:true,subtree:true});setTimeout(best,300)})();
+</script>"""
 
 
 # picks the deals in the visitor's fit and clothing size, remembers the distance and the ticks (this browser only)
@@ -1773,11 +1806,13 @@ HUB = {
     "en": {"title": "Race gear lists: mandatory gear, item by item", "h1": "Race gear lists",
            "desc": "Mandatory gear lists for trail and ultra races, item by item, with today's best prices in your size at Canadian stores.",
            "intro": "The mandatory gear for each race, as the race publishes it, with today's best prices in your size. More races coming soon.",
-           "go": "Mandatory gear list →", "goS": "Suggested gear list →", "dists": "{d} km"},
+           "go": "Mandatory gear list →", "goS": "Suggested gear list →", "dists": "{d} km",
+           "find": "Find your race: name, place or country", "findNone": "No race matches “{q}” yet. Tell us which one: hello@thegearfox.com"},
     "fr": {"title": "Listes de matériel de course : le matériel obligatoire, article par article", "h1": "Listes de matériel de course",
            "desc": "Le matériel obligatoire des courses en sentier et des ultras, article par article, avec les meilleurs prix du jour dans votre taille.",
            "intro": "Le matériel obligatoire de chaque course, tel que publié par la course, avec les meilleurs prix du jour dans votre taille. D'autres courses s'en viennent.",
-           "go": "Liste du matériel obligatoire →", "goS": "Liste du matériel suggéré →", "dists": "{d} km"},
+           "go": "Liste du matériel obligatoire →", "goS": "Liste du matériel suggéré →", "dists": "{d} km",
+           "find": "Trouvez votre course : nom, lieu ou pays", "findNone": "Aucune course ne correspond à « {q} » pour l'instant. Dites-nous laquelle : hello@thegearfox.com"},
 }
 HUB["us"] = dict(HUB["en"], desc="Mandatory gear lists for trail and ultra races, item by item, with today's best prices in your size at US stores.")
 HUB["en"]["groups"] = HUB["us"]["groups"] = {"ca": "Canada", "us": "United States", "fr": "France", "it": "Italy", "ch": "Switzerland",
@@ -1804,6 +1839,24 @@ HUB_CSS = (".hubh{margin-top:26px}.cards.rh .nm{min-width:0;max-width:100%}.card
            ".cards.rh .pr{text-align:left;white-space:normal;font:600 15px var(--body);color:var(--moss)}")
 
 
+# Oct 27 (Bastien: "add a search function for the race kits and the hiking planner"): a box on the hubs that filters the cards as
+# you type (name, place, country, distance; accents and capitals ignored); groups with no match fold away
+def hub_find(ph, none):
+    return (f'<div class="hfind"><input type="search" id="hubQ" placeholder="{esc(ph)}" aria-label="{esc(ph)}" autocomplete="off" enterkeyhint="search">'
+            f'<p class="hnone" hidden data-t="{esc(none)}"></p></div>'
+            '<style>.hfind{position:sticky;top:var(--hh,0px);z-index:5;background:var(--bg,#faf8f3);padding:8px 0 10px}'
+            '.hfind input{width:100%;box-sizing:border-box;font:16px var(--body);border:1.5px solid var(--line);border-radius:999px;padding:11px 16px;background:var(--card)}'
+            '.hnone{color:var(--muted);margin:8px 2px 0}ul.cards li[hidden],ul.cards[hidden],h2[hidden]{display:none!important}</style>'
+            '<script>(function(){var q=document.getElementById("hubQ"),no=document.querySelector(".hnone");if(!q)return;'
+            'var f=function(s){return (s||"").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase()};'
+            'var cards=null;'   # the cards come after this box in the page: read them on the first keystroke
+            'var run=function(){if(!cards){cards=[].slice.call(document.querySelectorAll("ul.cards li"));cards.forEach(function(li){li.dataset.h=f(li.textContent+" "+((li.closest("ul.cards").previousElementSibling||{}).textContent||""))})}var w=f(q.value).split(/\\s+/).filter(Boolean),n=0;cards.forEach(function(li){var ok=w.every(function(x){return li.dataset.h.indexOf(x)>=0});li.hidden=!ok;if(ok)n++});'
+            'document.querySelectorAll("ul.cards").forEach(function(u){var any=[].some.call(u.children,function(li){return !li.hidden});u.hidden=!any;var h=u.previousElementSibling;if(h&&/^H[23]$/.test(h.tagName))h.hidden=!any});'
+            'no.hidden=!!n||!w.length;no.textContent=no.dataset.t.replace("{q}",q.value.trim());'
+            'clearTimeout(run.t);run.t=setTimeout(function(){try{ana("filter","hubsearch|"+location.pathname.split("/")[1]+"|"+q.value.trim().toLowerCase().slice(0,40))}catch(e){}},1500)};'
+            'q.addEventListener("input",run)})();</script>')
+
+
 def hub(L):
     """/races/ + /courses/ (Oct 21, Bastien: a ☰ menu item "even if it's one; we will add more soon"); /us/races/ for the USA side."""
     h, Tl, LL = HUB[L], tl(L), "en" if L == "us" else L
@@ -1822,7 +1875,7 @@ def hub(L):
                   f'<link rel="alternate" hreflang="en-CA" href="{BASE}/races/">\n<link rel="alternate" hreflang="fr-CA" href="{BASE}/courses/">\n'
                   f'<link rel="alternate" hreflang="en-US" href="{BASE}/us/races/">\n<link rel="alternate" hreflang="x-default" href="{BASE}/races/">\n', head, count=1)
     return (head + f'<h1 class="hubh">{esc(h["h1"])}</h1><p class="sub">{esc(h["intro"])}</p>'
-            + f'<p class="fine">{esc(h["note"])} {esc(o[0])} <a href="{o[2]}">{esc(o[1])}</a></p>{rows}</ul>' + page_foot(Tl))
+            + f'<p class="fine">{esc(h["note"])} {esc(o[0])} <a href="{o[2]}">{esc(o[1])}</a></p>' + hub_find(h["find"], h["findNone"]) + f'{rows}</ul>' + page_foot(Tl))
 
 
 def add_to_sitemap(site):
