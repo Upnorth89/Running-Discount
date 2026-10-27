@@ -1807,6 +1807,41 @@ def site_flow(base, per, accented):
                 c.close()
         check("Race gear page: what visitors do is recorded")(race_tracking, pg)
 
+        def visit_resend():    # Oct 27 (Bastien: "Are we tracking numbers correctly?"): 28% of first visits had lost their first batch
+            got, n = [], [0]
+
+            def grab(route):
+                n[0] += 1
+                if n[0] == 1:
+                    return route.abort()          # the first send fails, like on those phones
+                try:
+                    got.extend(e.get("k") for e in json.loads(route.request.post_data or "{}").get("p_events", []))
+                except Exception:
+                    pass
+                route.fulfill(status=200, content_type="application/json", body="null")
+            out = []
+            hide = "Object.defineProperty(document,'visibilityState',{get:()=>'hidden',configurable:true});document.dispatchEvent(new Event('visibilitychange'))"
+            for path, poke in (("", hide), ("shoes/", hide)):   # leaving the tab sends the next batch
+                got.clear()
+                n[0] = 0
+                c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+                stub(c)
+                c.route("**/rest/v1/rpc/ana_track", grab)
+                q = c.new_page()
+                try:
+                    q.goto(base + path, wait_until="load")
+                    q.wait_for_timeout(7000)
+                    q.evaluate(poke)
+                    q.wait_for_timeout(7000)
+                    assert n[0] >= 2, f"/{path}: no second send ({n[0]})"
+                    assert "visit" in got, f"/{path}: the visit was lost with the first send ({got[:6]})"
+                    assert got.count("visit") == 1, f"/{path}: the visit was sent {got.count('visit')} times"
+                    out.append(f"/{path} ok")
+                finally:
+                    c.close()
+            return "; ".join(out)
+        check("Analytics: a first visit lost in the first send is sent again")(visit_resend, pg)
+
         def kit_test():        # Oct 27 (Bastien: "Yes race kit"): test 'kit' B = every gear line folded to one row; A = as before
             out = []
             for path in ("races/ultra-trail-harricana/", "races/sinister-7/"):   # trail gear lists share the same layout code (RP.KITB)

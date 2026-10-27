@@ -659,14 +659,21 @@ var ana=(function(){{var ls=function(k){{try{{return localStorage.getItem(k)}}ca
     old=JSON.parse(localStorage.getItem("gf-ref")||"null");ref=r0||old||null;
     if(r0&&!old)localStorage.setItem("gf-ref",JSON.stringify(r0))}}catch(e){{}}   /* kept like on the homepage (first link wins), so a
                                          sign-up after a Reddit -> shoe page -> homepage visit is credited to Reddit (Oct 6) */
-  function flush(k){{if(!Q.length)return;var ev=Q.splice(0,40);try{{fetch("{SB_URL}/rest/v1/rpc/ana_track",{{method:"POST",keepalive:!!k,headers:{{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"}},
-    body:JSON.stringify({{p_did:did,p_sid:sid,p_events:ev,p_lang:"{L['lang'][:2]}",p_ref:ref,p_dev:dev,p_nv:nv,p_tz:tz}})}}).catch(function(){{}})}}catch(e){{}}}}
+  /* Oct 27: the first batch (the visit) was being lost for ~28% of first visits: it waits in sessionStorage (gf-vq) and rides again
+     until a send of it is confirmed (same as the homepage); a prerendered page waits until it is opened */
+  var vBusy=false;
+  function flush(k){{if(!Q.length)return;if(document.prerendering){{if(!T)T=setTimeout(function(){{T=null;flush(false)}},3000);return}}
+    var pv=null;if(!vBusy||Date.now()-vBusy>8000)try{{pv=JSON.parse(ss("gf-vq")||"null")}}catch(e){{}}
+    var ev=Q.splice(0,pv?39:40),hasV;if(pv&&!ev.some(function(e){{return e.k==="visit"}}))ev.unshift(pv);hasV=ev.some(function(e){{return e.k==="visit"}});if(hasV)vBusy=Date.now();
+    try{{fetch("{SB_URL}/rest/v1/rpc/ana_track",{{method:"POST",keepalive:!!k,headers:{{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"}},
+    body:JSON.stringify({{p_did:did,p_sid:sid,p_events:ev,p_lang:"{L['lang'][:2]}",p_ref:ref,p_dev:dev,p_nv:nv,p_tz:tz}})}})
+    .then(function(r){{if(hasV){{vBusy=false;if(r.ok)try{{sessionStorage.removeItem("gf-vq")}}catch(e){{}}}}}}).catch(function(){{if(hasV)vBusy=false}})}}catch(e){{if(hasV)vBusy=false}}}}
   function add(k,d,n,p){{var e={{k:k}};if(d)e.d=String(d).slice(0,120);if(n!=null)e.n=n;if(p)e.p=p;Q.push(e);if(!T)T=setTimeout(function(){{T=null;flush(false)}},6000)}}
   var away=false,bye=function(){{if(away)return;away=true;add("leave",null,Math.round((Date.now()-t0)/1000));clearTimeout(T);T=null;flush(true)}};
   document.addEventListener("visibilitychange",function(){{if(document.visibilityState==="hidden")bye();else{{away=false;t0=Date.now()}}}});
   addEventListener("pagehide",bye);
   var em="";try{{em=(new URLSearchParams(location.search).get("em")||"").replace(/[^a-z-]/g,"").slice(0,20)}}catch(e){{}}   /* ?em=friday: from our emails */
-  if(fresh)add("visit",em?"email-"+em:document.referrer?new URL(document.referrer).hostname:"",null,location.pathname);
+  if(fresh){{add("visit",em?"email-"+em:document.referrer?new URL(document.referrer).hostname:"",null,location.pathname);try{{sessionStorage.setItem("gf-vq",JSON.stringify(Q[Q.length-1]))}}catch(e){{}}}}
   var m=location.pathname.match(/^\/(?:us\/)?(?:shoes|chaussures)\/([^\/]+)\/$/);add("shoe-page-view",m?m[1]:location.pathname);
   return add}})();
 /* Oct 23 (Bastien: "On some pages you get lost scrolling ... keep the header on all pages? So people can search and toggle menu or

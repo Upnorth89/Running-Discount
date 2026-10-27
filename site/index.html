@@ -698,9 +698,17 @@ const ANA=(()=>{const ls=k=>{try{return localStorage.getItem(k)}catch(e){return 
   const dev=touch&&w<600?"phone":touch&&w<1100?"tablet":"computer";
   let tz=null;try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||null}catch(e){}
   let Q=[],t0=Date.now(),maxScroll=0,timer=null;
-  const flush=(beacon)=>{if(!Q.length||typeof SB_URL==="undefined")return;const ev=Q.splice(0,40);
+  /* Oct 27: 28% of first visits had their first batch (the "visit": where they came from, where they landed) lost while later
+     batches arrived. The visit now waits in sessionStorage (gf-vq) and rides again with the next batch until a send of it is
+     confirmed; a page Chrome prerenders (Google results) waits until it is really opened. */
+  let vBusy=false;
+  const flush=(beacon)=>{if(!Q.length||typeof SB_URL==="undefined")return;
+    if(document.prerendering){if(!timer)timer=setTimeout(()=>{timer=null;flush(false)},3000);return}
+    let pv=null;if(!vBusy||Date.now()-vBusy>8000)try{pv=JSON.parse(ss("gf-vq")||"null")}catch(e){}
+    const ev=Q.splice(0,pv?39:40);if(pv&&!ev.some(e=>e.k==="visit"))ev.unshift(pv);const hasV=ev.some(e=>e.k==="visit");if(hasV)vBusy=Date.now();
     try{fetch(`${SB_URL}/rest/v1/rpc/ana_track`,{method:"POST",keepalive:!!beacon,headers:{apikey:SB_KEY,"Content-Type":"application/json"},
-      body:JSON.stringify({p_did:did,p_sid:sid,p_events:ev,p_lang:typeof LANG!=="undefined"?LANG:null,p_ref:typeof REF!=="undefined"?(REF||null):null,p_dev:dev,p_nv:nv,p_tz:tz})}).catch(()=>{})}catch(e){}
+      body:JSON.stringify({p_did:did,p_sid:sid,p_events:ev,p_lang:typeof LANG!=="undefined"?LANG:null,p_ref:typeof REF!=="undefined"?(REF||null):null,p_dev:dev,p_nv:nv,p_tz:tz})})
+      .then(r=>{if(hasV){vBusy=false;if(r.ok)try{sessionStorage.removeItem("gf-vq")}catch(e){}}}).catch(()=>{if(hasV)vBusy=false})}catch(e){if(hasV)vBusy=false}
     if(Q.length)flush(beacon)};
   const add=(k,d,n,p)=>{Q.push({k,...(d!=null&&d!==""?{d:String(d).slice(0,120)}:{}),...(n!=null?{n}:{}),...(p?{p}:{})});
     if(Q.length>=15){clearTimeout(timer);timer=null;flush(false)}else if(!timer)timer=setTimeout(()=>{timer=null;flush(false)},6000)};
@@ -727,6 +735,7 @@ const ANA=(()=>{const ls=k=>{try{return localStorage.getItem(k)}catch(e){return 
      // Oct 21: 'look' = sizes on each card + category photos + store names (B)   // Oct 20: 'welcome' and 'drops' ended (A won); 'layout' back as a 50/50 test
   if(fresh){TESTS.forEach(n=>add("signup-step",`exp|${n}|${arm(n)}`))}
   if(fresh)add("visit",em?"email-"+em:(matchMedia("(display-mode: standalone)").matches||navigator.standalone)?"home-screen app":document.referrer?new URL(document.referrer).hostname:"",null,location.pathname);
+  if(fresh)try{sessionStorage.setItem("gf-vq",JSON.stringify(Q.filter(e=>e.k==="visit")[0]))}catch(e){}
   return {add,nv:()=>nv,arm}})();
 const FILLER=new Set(["for","with","the","and","of","pour","avec","et","des","du"]);   // search words that never name gear ("on", "la", "le" are brands/stores: kept)
 function ana(k,d,n){try{ANA.add(k,d,n)}catch(e){}}

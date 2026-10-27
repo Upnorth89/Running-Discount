@@ -942,6 +942,10 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
 - Analytics kinds (Oct 8): the database drops any event kind not in `ana_kinds()` (store bar/Canadian/country were lost Oct 5–8);
   `tools/check.py` "Analytics events are all recorded" fails if the site sends one it doesn't list. New kind = SQL for Bastien.
   `load` = ms until the deals show (+ connection, data size); the funnel report shows load bands vs sizes picked.
+  Oct 27 (Bastien: "Are we tracking numbers correctly?"): 28% of first visits had lost their first batch (visit + welcome-view: no source,
+  no landing page; ~3% before Oct 22). Fix: the visit waits in sessionStorage `gf-vq` and rides again with the next send until a send of it is
+  confirmed (`vBusy`, 8 s), homepage ANA + shoe_pages page_foot `ana`; `document.prerendering` = wait. funnel "TRACKING CHECK" + "TODAY" lines;
+  site test "Analytics: a first visit lost in the first send is sent again". Funnel numbers Oct 22-27 undercount sources/landings.
 - Search help (Oct 8, Bastien: people searched "alphafly" and got nothing): `searchHelp()` in index.html. No deals in your sizes ->
   "Nothing in your size for X right now, but N in other sizes" + [Show all sizes] (`view.anySize`, reset on new text); a word that
   matches nothing -> "Did you mean …?" (`suggest()`: closest brand/model word in today's data, 1 typo under 7 letters, 2 above;

@@ -1639,7 +1639,7 @@ html.kitb .gi.got .kb{display:none}
 </style><script>
 (function(){var over={};try{over=JSON.parse(localStorage.getItem("gf-exp")||"{}")||{};var q=new URLSearchParams(location.search).get("exp");
   if(q){q.split(",").forEach(function(x){var a=x.split(":");if(a[0]&&/^[AB]$/.test(a[1]))over[a[0]]=a[1]});localStorage.setItem("gf-exp",JSON.stringify(over))}}catch(e){}
-var did="";try{did=localStorage.getItem("gf-did")||"";if(!did){did=(crypto.randomUUID?crypto.randomUUID():String(Math.random()).slice(2)+Date.now());localStorage.setItem("gf-did",did)}}catch(e){}
+var did="";try{did=localStorage.getItem("gf-did")||"";if(!did){did=(function(){try{return crypto.randomUUID()}catch(e){return "10000000-1000-4000-8000-100000000000".replace(/[018]/g,function(c){return (c^Math.random()*16>>c/4).toString(16)})}})();localStorage.setItem("gf-did",did)}}catch(e){}
 var arm=/[?&]kit=b\b/.test(location.search)?"B":over.kit||(function(){var h=2166136261,s=did+"|kit";for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return (h>>>0)%2?"B":"A"})();
 addEventListener("DOMContentLoaded",function(){try{if(!sessionStorage.getItem("gf-exp-kit")){sessionStorage.setItem("gf-exp-kit","1");ana("signup-step","exp|kit|"+arm)}}catch(e){}});
 if(arm!=="B")return;document.documentElement.classList.add("kitb");
