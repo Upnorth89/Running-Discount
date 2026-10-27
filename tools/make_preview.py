@@ -199,11 +199,14 @@ blob = json.dumps({"updated": data["updated"], "stores": data.get("stores", {}),
 sp_path = SITE / "shoes" / "pages.json"
 if sp_path.exists():   # the homepage picks the Canada or USA list (Oct 22: this line still matched the old Canada-only fetch)
     us_sp = SITE / "us" / "shoes" / "pages.json"
-    rep('fetch(US()?"us/shoes/pages.json":"shoes/pages.json").then(r=>r.ok?r.json():{})',
-        'Promise.resolve(US()?' + (us_sp.read_text() if us_sp.exists() else "{}").replace("</", "<\\/") + ':' + sp_path.read_text().replace("</", "<\\/") + ')')
+    rep('fetch(HIKE()?(US()?"us/hiking-boots/pages.json":"hiking-boots/pages.json"):US()?"us/shoes/pages.json":"shoes/pages.json").then(r=>r.ok?r.json():{})',
+        'Promise.resolve(HIKE()?{}:US()?' + (us_sp.read_text() if us_sp.exists() else "{}").replace("</", "<\\/") + ':' + sp_path.read_text().replace("</", "<\\/") + ')')
 rep('const loadData=f=>fetch(f,{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error(f);return r.json()});',
     'const loadData=f=>{const id=/-hike/.test(f)?"gfdata-hike":/-us/.test(f)&&document.getElementById("gfdata-us")?"gfdata-us":"gfdata",el=document.getElementById(id);'
     'return el?Promise.resolve(JSON.parse(el.textContent)):Promise.reject(new Error(f))};')
+# store offers (Oct 27): site/promos.json, or PV_PROMOS (JSON) for an example in the preview
+pv_promos = os.environ.get("PV_PROMOS") or ((SITE / "promos.json").read_text() if (SITE / "promos.json").exists() else "[]")
+rep('fetch("promos.json",{cache:"no-cache"}).then(r=>r.ok?r.json():[])', 'Promise.resolve(' + pv_promos.replace("</", "<\\/") + ')')
 # the Hiking tab (Oct 25): its sale items (Canada) with some photos, and the switch shown
 hike_path = SITE / "sale-hike.json"
 hike_blob = ""
@@ -232,13 +235,16 @@ if hike_path.exists():
     hike_blob = json.dumps({"updated": dh["updated"], "stores": dh.get("stores", {}), "n_stores": dh.get("n_stores"), "fx": dh.get("fx", {}),
                             "sport": "hike", "items": hitems}, separators=(",", ":")).replace("</", "<\\/")
     print(f"preview hiking: {len(hitems)} sale items, {sum(1 for v in hgot.values() if v)} photos", file=sys.stderr)
+# a store with an offer in the preview: its full-price items come along, so "See <store>'s full-price gear" has something to show
+pv_stores = {p.get("store", "") for p in json.loads(pv_promos) if p.get("side") == "us"}
+promo_store = lambda x: any(st and st in u for st in pv_stores for u in x.get("of", []))
 # the USA side (Oct 6, 2026): its items on sale, when the site folder has deals-us.json (kept small: sale items, no photos)
 us_path = SITE / "deals-us.json"
 us_blob = ""
 if us_path.exists():
     du = json.loads(us_path.read_text())
     us_blob = json.dumps({"updated": du["updated"], "stores": du.get("stores", {}), "n_stores": du.get("n_stores"), "fx": du.get("fx", {}),
-                          "items": pretend_history([{**{k: v for k, v in x.items() if k != "img"}, **({"img": "x"} if x.get("img") else {})} for x in du["items"] if on_sale(x)])},
+                          "items": pretend_history([{**{k: v for k, v in x.items() if k != "img"}, **({"img": "x"} if x.get("img") else {})} for x in du["items"] if on_sale(x) or promo_store(x)])},
                          separators=(",", ":")).replace("</", "<\\/")
 a = s.index("async function rpc(fn,args,bearer){")
 b = s.index("\n}\n", a) + 3
