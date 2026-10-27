@@ -227,6 +227,10 @@ def main():
     if not FORCE and now.astimezone(ZoneInfo(TZ)).weekday() == 4:
         print("Friday: no alerts today, the Friday email carries watchlist news")
         return 0
+    if now.astimezone(ZoneInfo(TZ)).weekday() == 5:     # Oct 27, test 'emailday': group B's weekly email comes Saturday, so no alert then
+        loc = now.astimezone(ZoneInfo(TZ)).date().isoformat()
+        if W.DAY_TEST[0] <= loc <= W.DAY_TEST[1]:
+            rows = [w for w in rows if W.day_arm(w["subscribers"]) != "B"]
     people = evaluate_sides(rows, by_key, by_us, now)
     updates = []
     for p in people.values():

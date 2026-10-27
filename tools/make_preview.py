@@ -204,6 +204,11 @@ if sp_path.exists():   # the homepage picks the Canada or USA list (Oct 22: this
 rep('const loadData=f=>fetch(f,{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error(f);return r.json()});',
     'const loadData=f=>{const id=/-hike/.test(f)?"gfdata-hike":/-us/.test(f)&&document.getElementById("gfdata-us")?"gfdata-us":"gfdata",el=document.getElementById(id);'
     'return el?Promise.resolve(JSON.parse(el.textContent)):Promise.reject(new Error(f))};')
+# popular searches (Oct 27, test 'popq'): site/popular.json, or PV_POPULAR (JSON) for the preview
+pv_pop = os.environ.get("PV_POPULAR") or ((SITE / "popular.json").read_text() if (SITE / "popular.json").exists() else "{}")
+rep('fetch("popular.json",{cache:"no-cache"}).then(r=>r.ok?r.json():{})', 'Promise.resolve(' + pv_pop.replace("</", "<\\/") + ')')
+if os.environ.get("PV_POPQ"):      # Oct 27: preview test 'popq' B (popular searches under an empty search box)
+    rep('ANA.arm("popq")!=="B"', 'false')
 # store offers (Oct 27): site/promos.json, or PV_PROMOS (JSON) for an example in the preview
 pv_promos = os.environ.get("PV_PROMOS") or ((SITE / "promos.json").read_text() if (SITE / "promos.json").exists() else "[]")
 rep('fetch("promos.json",{cache:"no-cache"}).then(r=>r.ok?r.json():[])', 'Promise.resolve(' + pv_promos.replace("</", "<\\/") + ')')

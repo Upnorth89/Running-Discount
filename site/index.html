@@ -348,6 +348,9 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
 .promobar p{margin:0;flex:1 1 240px}.promobar .ptag{font-weight:800;color:var(--moss)}.promobar code{font-weight:800;background:var(--bg,#f3f5f2);padding:1px 6px;border-radius:6px}
 .promobar button{border:1.5px solid var(--moss);background:transparent;color:var(--moss);border-radius:999px;padding:7px 12px;font:600 13px/1.2 var(--body);cursor:pointer}
 .deal .promo{font-size:12.5px;color:var(--moss);font-weight:600;margin-top:2px}
+.popq{position:fixed;z-index:60;background:var(--card,#fff);border:1px solid var(--line,#dde2dc);border-radius:12px;box-shadow:0 8px 24px rgba(23,35,43,.16);padding:10px 12px;box-sizing:border-box}
+.popq b{display:block;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--mute,#5c6660);margin:0 0 8px}.popq div{display:flex;flex-wrap:wrap;gap:6px}
+.popq button{font:600 14px/1 var(--body);border:1px solid var(--line,#dde2dc);background:transparent;color:inherit;border-radius:999px;padding:8px 12px;cursor:pointer}.popq[hidden]{display:none}
 .storebar{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--card);border:1.5px solid var(--hivis);border-radius:12px;padding:12px 14px;margin:0 0 16px}
 .storebar small{display:block;color:var(--muted);font-size:13px}
 .brand .leaf{font-size:.9em}
@@ -718,7 +721,8 @@ const ANA=(()=>{const ls=k=>{try{return localStorage.getItem(k)}catch(e){return 
   let over={};try{const q=new URLSearchParams(location.search).get("exp");over=JSON.parse(ls("gf-exp")||"{}");
     if(q){q.split(",").forEach(x=>{const [n,a]=x.split(":");if(n&&/^[AB]$/.test(a))over[n]=a});localStorage.setItem("gf-exp",JSON.stringify(over))}}catch(e){}
   const arm=n=>{if(over[n])return over[n];let h=2166136261;for(const c of did+"|"+n){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return (h>>>0)%2?"B":"A"};
-  const TESTS=["r100","run1st","cards2","short"];   // Oct 25: 'short' live (Bastien OK'd)   // Oct 25: 'short' B = first sizes screen asks only fit + shoe size (Bastien OK'd)
+  const TESTS=["r100","run1st","cards2","short","popq"];   // Oct 27: 'popq' B = popular searches under an empty search box
+    // Oct 25: 'short' live (Bastien OK'd)   // Oct 25: 'short' B = first sizes screen asks only fit + shoe size (Bastien OK'd)
     // Oct 22: 'run1st' = running gear leads the first rows (B)   // Oct 22: the redesign ('look' B) is the site for everyone (Bastien), 'runcard' ended (0 vs 2 sign-ups, too rare to decide), 'layout' ended Oct 19
      // Oct 21: 'look' = sizes on each card + category photos + store names (B)   // Oct 20: 'welcome' and 'drops' ended (A won); 'layout' back as a 50/50 test
   if(fresh){TESTS.forEach(n=>add("signup-step",`exp|${n}|${arm(n)}`))}
@@ -742,7 +746,8 @@ const REF=(()=>{let r="";try{r=(new URLSearchParams(location.search).get("ref")|
 const cleanMail=v=>String(v||"").trim().replace(/^mailto:/i,"").replace(/^.*<([^<>]+)>.*$/,"$1").replace(/\s+/g,"").replace(/[.,;]+$/,"").toLowerCase();
 const okMail=e=>/^[a-z0-9!#$%&'*+\/=?^_`{|}~-]+(\.[a-z0-9!#$%&'*+\/=?^_`{|}~-]+)*@([a-z0-9]([a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}$/.test(e)&&e.length<=254;
 window.gfMail={cleanMail,okMail};   // for the site test (tools/sitetest.py)
-const storeOf=u=>{try{return new URL(u).hostname.replace(/^www\./,"")}catch(e){return "unknown"}};
+const STORE_OF=new Map();   // Oct 27 (speed): the same ~20k store links are read on every render; parse each once
+const storeOf=u=>{let h=STORE_OF.get(u);if(h===undefined){try{h=new URL(u).hostname.replace(/^www\./,"")}catch(e){h="unknown"}STORE_OF.set(u,h)}return h};
 /* Affiliate links (Sovrn, Oct 3): store product page -> tracking link that redirects to that same page.
    Cards keep the store's own address for names and click counts (data-store). */
 const AFF={};   // no affiliate links until a network approves us (Oct 7, 2026: About/privacy say "none yet"; add here + update both pages the same day)
@@ -818,7 +823,7 @@ en:{
     kinds:{daily:"road shoes",race:"racing shoes",trail:"trail shoes",hike:"hiking & winter shoes",spike:"track spikes",tee:"t-shirt",layer:"long sleeve",jacket:"jacket",short:"shorts",tight:"tights",pant:"pants",light:"light",pole:"poles",bottle:"bottle",sun:"sunglasses"},
     sub2:(g,k)=>g?`${g} ${k}`:k[0].toUpperCase()+k.slice(1),cmp:"All sizes →",heroAt:(p,s)=>`${p} at ${s}`,menu:"Menu",mySizes:"My sizes"},
   watchlist:"Your watchlist",yourSizes:"Your sizes",menu:"Menu",mDeals:"Today's deals",mShoes:"Shoe prices by model",mRaces:"Race gear lists",mSizes:"My sizes",mAbout:"About The Gear Fox",mApp:"Add to your home screen",appTipH:"Get The Gear Fox on your home screen",appTipIos:"Tap the Share button {s} in Safari's bar",appTipIos2:"Scroll down and tap <b style=\"display:inline\">Add to Home Screen</b>",appTipAnd:"Tap the ⋮ menu at the top of Chrome",appTipAnd2:"Tap <b style=\"display:inline\">Add to Home screen</b>",appTipWhy:"It opens like an app, with your sizes ready.",gotIt:"Got it",mCur:"Prices in",langLabel:"Language",edit:"Edit",allDeals:"← All deals",categories:"Categories",
-  sort:"Sort",sortMatch:"Best match",sortDiscount:"Biggest discount",sortPrice:"Lowest price",search:"Search brand or model",searchShort:"Search gear",
+  popH:"Popular right now",sort:"Sort",sortMatch:"Best match",sortDiscount:"Biggest discount",sortPrice:"Lowest price",search:"Search brand or model",searchShort:"Search gear",
   get footer(){return 'The Gear Fox · Outfox full price · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="'+shoeDir()+'">'+this.mShoes+'</a> · <a href="about.html">About</a> · <a href="privacy.html">Privacy</a>'},close:"Close",fit:"Fit",
   men:"Men's",women:"Women's",both:"Both",menWomen:"Men's & women's",
   terrainH:"Where do you run? <small>for shoes</small>",terrainA:"Where do you run?",terrRoad:"Road",terrTrail:"Trail",terrBoth:"Both",
@@ -932,7 +937,7 @@ fr:{
     kinds:{daily:"chaussures de route",race:"chaussures de compétition",trail:"chaussures de sentier",hike:"chaussures de randonnée et d'hiver",spike:"pointes",tee:"t-shirt",layer:"manches longues",jacket:"manteau",short:"short",tight:"collant",pant:"pantalon",light:"frontale",pole:"bâtons",bottle:"gourde",sun:"lunettes de soleil"},
     sub2:(g,k)=>g?`${k[0].toUpperCase()+k.slice(1)} · ${g}`:k[0].toUpperCase()+k.slice(1),cmp:"Tailles →",heroAt:(p,s)=>`${p} chez ${s}`,menu:"Menu",mySizes:"Mes tailles"},
   watchlist:"Vos favoris",yourSizes:"Vos tailles",menu:"Menu",mDeals:"Aubaines du jour",mShoes:"Prix des chaussures par modèle",mRaces:"Listes de matériel de course",mSizes:"Mes tailles",mAbout:"À propos de The Gear Fox",mApp:"Ajouter à l'écran d'accueil",appTipH:"The Gear Fox sur votre écran d'accueil",appTipIos:"Touchez le bouton Partager {s} dans la barre de Safari",appTipIos2:"Descendez et touchez <b style=\"display:inline\">Sur l'écran d'accueil</b>",appTipAnd:"Touchez le menu ⋮ en haut de Chrome",appTipAnd2:"Touchez <b style=\"display:inline\">Ajouter à l'écran d'accueil</b>",appTipWhy:"Elle s'ouvre comme une appli, avec vos tailles prêtes.",gotIt:"Compris",mCur:"Prix en",langLabel:"Langue",edit:"Modifier",allDeals:"← Toutes les aubaines",categories:"Catégories",
-  sort:"Trier",sortMatch:"Meilleur choix",sortDiscount:"Plus gros rabais",sortPrice:"Prix le plus bas",search:"Chercher une marque ou un modèle",searchShort:"Chercher",
+  popH:"Populaire en ce moment",sort:"Trier",sortMatch:"Meilleur choix",sortDiscount:"Plus gros rabais",sortPrice:"Prix le plus bas",search:"Chercher une marque ou un modèle",searchShort:"Chercher",
   get footer(){return 'The Gear Fox · Flairez les aubaines · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="'+shoeDir()+'">'+this.mShoes+'</a> · <a href="about.html">À propos</a> · <a href="privacy.html">Confidentialité</a>'},close:"Fermer",fit:"Coupe",
   men:"Homme",women:"Femme",both:"Les deux",menWomen:"Homme et femme",
   terrainH:"Où courez-vous? <small>pour les chaussures</small>",terrainA:"Où courez-vous?",terrRoad:"Route",terrTrail:"Sentier",terrBoth:"Les deux",
@@ -1902,7 +1907,9 @@ function sizeLabel(s,g){const k=shoeKey(s);if(!k)return s;
 function sizeUrl(d,e){
   const u=d.of[e[2]]||d.of[0];if(!e||e.length<5||!u)return u;
   if(typeof e[4]==="string"&&/^https:\/\//.test(e[4]))return e[4];   // the store's own link for this size
-  try{const x=new URL(u);x.searchParams.set("variant",e[4]);return x.toString()}catch(err){return u}
+  // Oct 27 (speed): plain text instead of new URL() for each size of each card; same link (query before any #fragment)
+  const [a,h]=u.split("#"),v="variant="+encodeURIComponent(e[4]);
+  return (/[?&]variant=[^&]*/.test(a)?a.replace(/([?&])variant=[^&]*/,"$1"+v):a+(a.includes("?")?"&":"?")+v)+(h!==undefined?"#"+h:"")
 }
 /* Vests, belts, lights: when they come in letter sizes (S, M/L…) they follow your clothing size. */
 const LETTERS=new Set(["2XS","XS","S","M","L","XL","2XL","3XL"]);
@@ -2145,6 +2152,21 @@ $("toggles").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!
   else{view.fullPrice=!view.fullPrice;if(view.fullPrice)loadFull()}
   view.open={};renderAll()});
 $("sort").addEventListener("change",e=>{view.sort=e.target.value;view.open={};renderAll()});
+/* Popular searches (Oct 27, Bastien OK'd idea 4; test 'popq'): tap the empty search box -> what people searched most this week that
+   finds 5+ deals today (tools/popular_searches.py -> popular.json). Searchers came back 17% vs 5% (funnel Oct 13-27). Baymard: show
+   suggestions before typing. Metric: homepage first visits that search, decide ~Nov 24 or p<0.05 */
+let POPQ={};fetch("popular.json",{cache:"no-cache"}).then(r=>r.ok?r.json():{}).then(j=>{POPQ=j||{}}).catch(()=>{});
+function popShow(){const inp=$("dSearch"),list=(POPQ[US()?"us":"ca"]||[]).slice(0,6);let box=$("popq");
+  if(HIKE()||inp.value.trim()||!list.length||ANA.arm("popq")!=="B"){if(box)box.hidden=true;return}
+  if(!box){box=document.createElement("div");box.id="popq";box.className="popq";document.body.appendChild(box);
+    box.addEventListener("pointerdown",e=>e.preventDefault());   // keep the box open while tapping a chip
+    box.addEventListener("click",e=>{const c=e.target.closest("[data-pq]");if(!c)return;const q=c.dataset.pq;box.hidden=true;
+      inp.value=q;clearTimeout(searchT);view.q=q;view.open={};view.anySize=false;view.anyFit=false;ana("search","popular: "+q.toLowerCase(),0);
+      inp.blur();renderAll();if(typeof rdGoDeals==="function")rdGoDeals(true)})}
+  const r=inp.getBoundingClientRect();box.style.top=Math.round(r.bottom+6)+"px";box.style.left=Math.round(Math.max(8,r.left))+"px";box.style.width=Math.round(Math.min(innerWidth-16,Math.max(r.width,300)))+"px";
+  box.innerHTML=`<b>${t("popH")}</b><div>${list.map(q=>`<button type="button" data-pq="${esc(q)}">${esc(q)}</button>`).join("")}</div>`;box.hidden=false}
+$("dSearch").addEventListener("focus",popShow);$("dSearch").addEventListener("input",popShow);
+$("dSearch").addEventListener("blur",()=>{const b=$("popq");if(b)b.hidden=true});addEventListener("scroll",()=>{const b=$("popq");if(b&&!b.hidden&&document.activeElement!==$("dSearch"))b.hidden=true},{passive:true});
 let searchT;$("dSearch").addEventListener("input",e=>{clearTimeout(searchT);searchT=setTimeout(()=>{view.q=e.target.value;view.open={};view.anySize=false;view.anyFit=false;renderAll()},200)});
 let anaQ="",anaQT;$("dSearch").addEventListener("input",e=>{clearTimeout(anaQT);anaQT=setTimeout(()=>{const q=e.target.value.trim().toLowerCase();
   if(q.length<2||q===anaQ||!ITEMS.length||!document.querySelector("#dealList .deal,#dealList .searchhelp,#dealList .widen"))return;   // Oct 26: not before the deals have loaded

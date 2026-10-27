@@ -276,6 +276,17 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   A $3/$29, B $5/$49; gf-pro / gf-nopro; analytics signup-step pro-view|pro-join|pro-no; funnel "FOX PRO PRICE TEST"; `?pro=1` shows it any
   day (previews). A tap overstates paying: <5% at both prices = stop; else step 2 in early Dec = real founding payment (Stripe, 30-day refund).
   Site test "Fox Pro waitlist card (price test)".
+  Test 'emailday' (Oct 27, Bastien OK'd idea 5; weekend visits ~3x weekdays): weekly_email.py `day_arm()` (coin from the token, same every
+  week) B = the weekly email Saturday 7am local instead of Friday, DAY_TEST Oct 30 - Nov 21 (`send_day()`); Black Friday week on: Friday for all.
+  weekly-email.yml also runs Saturdays; supabase/saturday-timer-oct27.sql = the Saturday timer (Bastien to paste). Links carry em=friday /
+  em=saturday (`em_day()`); B gets no Saturday alert in the window. Copy says "this week" (not "since last Friday") for both. Funnel line
+  "EMAIL DAY TEST". Honest limit: ~40 subscribers a group x 4 sends: only a big difference (e.g. 11% -> 22% of sends bringing a visit) shows.
+  Test 'popq' (Oct 27, Bastien OK'd idea 4): B = tapping the EMPTY search box shows "Popular right now" chips (`popShow()`, #popq, fixed under
+  the box; max 6) from site/popular.json (tools/popular_searches.py, refresh step "Popular searches": the last 7 days' searches, once per
+  session, 2+ sessions, kept only if today's search finds 5+ sale deals on that side; casing from today's names). Tap = search + ana
+  "search" "popular: <q>". Why: searchers came back 17% vs 5% (funnel Oct 13-27), only ~5% of first-visit devices searched; Baymard:
+  show suggestions before typing. Metric: homepage first visits that search, baseline ~5% of devices; 5% -> 7.5% needs ~1,500 a group:
+  decide ~Nov 24 (or earlier if p<0.05). Preview: PV_POPQ=1 PV_POPULAR='{...}'. Site test "Popular searches under the search box".
   Parked: test 'card' (cleaner deal cards, ⋯ menu; commit 629e4d1, backlog). Site tests check each one. Correlations from the "RETENTION DRIVERS" lines are leads, never proof
   (Oct 17: "watchers come back 33%" was 9 devices).
 - **Own the design and product calls (Bastien, Oct 17: "You're supposed to optimize this to make it look the best and cleanest...

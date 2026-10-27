@@ -1745,6 +1745,36 @@ def site_flow(base, per, accented):
                 c.close()
         check("Store offer: line on top + note on that store's full-price cards")(store_offer, pg)
 
+        def pop_searches():      # Oct 27, test 'popq': B = popular searches when you tap the empty search box
+            c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+            stub(c)
+            c.route("**/popular.json*", lambda r: r.fulfill(status=200, content_type="application/json", body=json.dumps({"ca": ["Hoka", "Salomon"], "us": []})))
+            c.add_init_script("try{localStorage.setItem('gf-nosignup','1');localStorage.setItem('gf-peek','1');localStorage.setItem('rd-profile',JSON.stringify({gender:'men',terrain:'both',"
+                              "ships:'ca',country:'ca',groups:['shoes','tops','bottoms'],sizes:{shoes:{sizes:['11'],width:[]},tops:{sizes:['M']},"
+                              "bottoms:{sizes:['M']}},brands:[],lang:'en'}))}catch(e){}")
+            try:
+                q = c.new_page()
+                out = {}
+                for arm in ("A", "B"):
+                    q.goto(base + f"?exp=popq:{arm}", wait_until="domcontentloaded")
+                    q.wait_for_selector("section.grp .deal", timeout=30000)
+                    q.wait_for_timeout(800)
+                    q.focus("#dSearch")
+                    q.wait_for_timeout(400)
+                    out[arm] = q.evaluate("(()=>{const b=document.getElementById('popq');return b&&!b.hidden?b.querySelectorAll('button').length:0})()")
+                assert out["A"] == 0, "group A sees popular searches"
+                assert out["B"] == 2, f"group B: {out['B']} popular searches (2 expected)"
+                q.locator("#popq button", has_text="Hoka").click()
+                q.wait_for_timeout(1200)
+                assert q.input_value("#dSearch") == "Hoka", "tapping a popular search didn't search for it"
+                assert q.evaluate("document.getElementById('popq').hidden"), "the popular box stayed open after a tap"
+                names = q.eval_on_selector_all("#dealList .deal .name", "els => els.slice(0,6).map(e => e.textContent)")
+                assert names and all("hoka" in n.lower() for n in names), f"tapping 'Hoka' shows other brands: {names[:2]}"
+                return f"A none, B 2 chips; tapping 'Hoka' shows {len(names)}+ Hoka deals"
+            finally:
+                c.close()
+        check("Popular searches under the search box (test popq)")(pop_searches, pg)
+
         def race_tracking():   # Oct 23 (Bastien: "a tracker to see how and if people are using the gear checklist")
             got = []
 
