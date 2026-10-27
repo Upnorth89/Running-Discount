@@ -153,7 +153,9 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
     (site test "Lowest-price badge rule"): today's price in your size <= `lo`, `hd` >= 30, and `hi` (highest in the 60-day window) 2%+ above today: a real drop,
     not a price that never moved (Oct 6: 76% of sale items were "at their lowest", 15% with the drop rule). N is capped at 60.
     Shoe pages use the same rule. USA side: its own history lines ("us|" keys) in USD, so exchange rates never fake a low;
-    US badges can start ~Nov 5. Preview: FAKE_HISTORY=1 python tools/make_preview.py OUT gives ~1 deal in 6 pretend history.
+    US badges can start ~Nov 5. Hiking (Oct 27, `history.py ... --hike` in refresh.yml's hiking step, after the hiking files land): own keys "hike|" (CAD) and
+    "hikeus|" (USD), annotates deals/sale-hike(-us).json the same way; first day Oct 27 (17,633 CA + 16,026 US products), so hiking badges/BF
+    labels can show from ~Nov 26; hiking items join the rotating posts once they have a week of history (picks_cat still reads running only). Preview: FAKE_HISTORY=1 python tools/make_preview.py OUT gives ~1 deal in 6 pretend history.
 - **Site test** (`tools/sitetest.py`, Oct 5; Bastien: "these little glitches are being caught by users and not our own health
   check"): every refresh, after the shoe pages, a robot phone (Playwright) opens the freshly built site served locally (sign-up,
   analytics and Google calls answered by a stand-in, nothing reaches Supabase/Umami) and clicks through like a visitor: welcome ->

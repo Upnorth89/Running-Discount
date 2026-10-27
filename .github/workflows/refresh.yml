@@ -156,6 +156,8 @@ jobs:
             if [ -s /tmp/hike/$f.json ]; then cp /tmp/hike/$f.json site/; else curl -fsSL "https://thegearfox.com/$f.json" -o site/$f.json || true; fi
           done
           [ -s /tmp/hike/hike-offers.json ] && cp /tmp/hike/hike-offers.json site/ || true
+          # Oct 27: the hiking side's price history (badges + Black Friday labels on boots and jackets after 30 days)
+          [ -f hist/prices.jsonl ] && python scraper/history.py hist/prices.jsonl site --hike ${{ github.event_name == 'push' && '--no-save' || '' }} || echo "::warning::hiking price history failed"
           python scraper/shoe_pages.py site --hike || echo "::warning::boot pages failed"   # boot & hiking shoe price pages (Oct 25)
           python scraper/hike_pages.py site || echo "::warning::trail gear lists failed"   # trail gear lists (Oct 25): checked hikes only
       # a robot visitor clicks through today's site before it goes live: sizes, every category, one search per category,
