@@ -1663,6 +1663,40 @@ def site_flow(base, per, accented):
                     c.close()
         check("Watchlist: removed on one device stays removed on the other")(hearts_two_devices, pg)
 
+        def store_offer():           # Oct 27: a store's own site-wide code (promos.json): a line on top, a note on its full-price cards
+            c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+            stub(c)
+            offers = [{"store": "ca.shop.runningroom.com", "side": "ca", "en": "Test offer", "fr": "Offre test", "code": "TESTCODE", "until": "2099-12-31"},
+                      {"store": "sportchek.ca", "side": "ca", "en": "Old offer", "code": "OLD", "until": "2000-01-01"}]
+            c.route("**/promos.json*", lambda r: r.fulfill(status=200, content_type="application/json", body=json.dumps(offers)))
+            c.add_init_script("try{localStorage.setItem('gf-nosignup','1');localStorage.setItem('gf-peek','1');localStorage.setItem('rd-profile',JSON.stringify({gender:'men',terrain:'both',"
+                              "ships:'ca',country:'ca',groups:['shoes','tops','bottoms'],sizes:{shoes:{sizes:['11'],width:[]},tops:{sizes:['M']},"
+                              "bottoms:{sizes:['M']}},brands:[],lang:'en'}))}catch(e){}")
+            try:
+                q = c.new_page()
+                q.goto(base, wait_until="domcontentloaded")
+                q.wait_for_selector("#dealList .promobar", state="attached", timeout=30000)
+                bars = q.locator("#dealList .promobar")
+                assert bars.count() == 1, f"{bars.count()} store offer lines (1 expected: the ended one must not show)"
+                assert "TESTCODE" in bars.first.inner_text(), "the offer line doesn't show the code"
+                bars.first.locator("[data-promo]").evaluate("e => e.click()")
+                q.wait_for_selector("#dealList .storebar", state="attached", timeout=20000)
+                for _ in range(12):            # full-price cards come after the store's sale ones: open "Show more" until one shows
+                    q.wait_for_timeout(2500)
+                    if q.locator("#dealList .deal .promo").count():
+                        break
+                    for m in q.locator("#dealList button.more").all():
+                        m.evaluate("e => e.click()")
+                assert q.locator("#dealList .deal .promo").count(), "no full-price card at that store shows the offer note"
+                stores = q.eval_on_selector_all("#dealList .deal .store", "els => els.map(e => e.textContent)")
+                other = [s for s in stores if "Running Room" not in s]
+                assert stores and not other, f"the store's view shows other stores: {other[:2]}"
+                n = q.locator("#dealList .deal .promo").count()
+                return f"offer line + {n} full-price cards with the note, {len(stores)} Running Room cards"
+            finally:
+                c.close()
+        check("Store offer: line on top + note on that store's full-price cards")(store_offer, pg)
+
         def race_tracking():   # Oct 23 (Bastien: "a tracker to see how and if people are using the gear checklist")
             got = []
 
