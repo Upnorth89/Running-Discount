@@ -455,6 +455,99 @@ RACES.update({
     },
 })
 
+# Oct 27 (Bastien, via the growth chat, for his Sinister Sports call): the series' other races. Each one's own "Recommended Gear" list
+# (rules_gear pages, read Oct 27, 2026); no gear is mandatory but the bib + timing chip (+ the Death Race coin) the race hands out (P).
+# "suggested": every R reads "Suggested by the race", titles say "suggested gear list", a line on top says nothing is required.
+_SBIB = [(_SIN("bib", "Race bib and timing chip", "Dossard et puce", "Handed out by the race; wear them the whole race.",
+               "Remis par la course; portez-les toute la course."), "P", False)]
+_SBASE = lambda dark="after 8 pm", dfr="après 20 h": [
+    (_SIN("headlamp", "Headlamp", "Lampe frontale", f"Carry it {dark}.", f"À traîner {dfr}."), "R", True),
+    (_SIN("water", "2 L of fluid: bottles or a hydration pack", "2 L de liquide : gourdes ou sac d'hydratation",
+          "No cups at aid stations: bring something to drink from.", "Pas de verres aux ravitos : apportez de quoi boire."), "R", False),
+    (_SIN("jacket", "Wind and water resistant jacket", "Manteau coupe-vent et déperlant"), "R", True),
+    (_SIN("tuque", "Toque or warm hat", "Tuque ou chapeau chaud"), "R", False),
+    (_SIN("cap", "Sun hat", "Chapeau de soleil"), "R", False),
+    (_SIN("whistle", "Whistle", "Sifflet"), "R", False),
+    (_SIN("blanket", "Space blanket", "Couverture de survie"), "R", False),
+    (_SIN("bear", "Bear spray or bear banger", "Chasse-ours en aérosol ou pétard", "Only if you know how to use it.",
+          "Seulement si vous savez vous en servir."), "R", False),
+]
+_sin = lambda rows, n: [(k, lv * n, tx, sp) for (k, tx), lv, sp in rows]
+_SREAD = {"en": "October 27, 2026", "fr": "27 octobre 2026"}
+RACES.update({
+    "sinister-7": {
+        "name": "Sinister 7 Ultra", "short": "Sinister 7", "de": "du ", "le": "le ", "unit": "label", "suggested": True, "cupless": True,
+        "where": {"en": "Crowsnest Pass, AB", "fr": "Crowsnest Pass, Alb."}, "when": {"en": "July 10–11, 2027", "fr": "10 et 11 juillet 2027"},
+        "dists": ["100M", "50M", "50K", "HALF"], "default": "100M", "labels": {"HALF": {"en": "Half marathon", "fr": "Demi-marathon"}},
+        "src": "https://www.sinistersports.ca/sinister7/rules_gear", "read": _SREAD,
+        "items": _sin(_SBASE() + _SBIB, 4),
+    },
+    "canadian-death-race": {
+        "name": "Canadian Death Race", "short": "Death Race", "de": "de la ", "le": "la ", "unit": "label", "suggested": True,
+        "where": {"en": "Grande Cache, AB", "fr": "Grande Cache, Alb."}, "when": {"en": "July 31–August 1, 2027", "fr": "31 juillet et 1er août 2027"},
+        "dists": ["118K", "42K"], "default": "118K",
+        "src": "https://www.sinistersports.ca/deathrace/rules_gear", "read": _SREAD,
+        "items": _sin([
+            (_SIN("headlamp", "Headlamp with new batteries", "Lampe frontale avec piles neuves", "Carry it after 6 pm.", "À traîner après 18 h."), "R", True),
+            (_SIN("water", "Full water bottle or hydration pack", "Gourde pleine ou sac d'hydratation"), "R", False),
+            (_SIN("jacket", "Wind and water resistant jacket", "Manteau coupe-vent et déperlant"), "R", True),
+            (_SIN("tuque", "Toque or warm hat", "Tuque ou chapeau chaud"), "R", False),
+            (_SIN("cap", "Sun hat", "Chapeau de soleil"), "R", False),
+            (_SIN("sun", "Sunglasses", "Lunettes de soleil"), "R", False),
+            (_SIN("eyes", "Clear eye protection", "Lunettes à verres clairs", "For Leg 5's dense forest.", "Pour la forêt dense de l'étape 5."), "R", False),
+            (_SIN("whistle", "Whistle", "Sifflet"), "R", False),
+            (_SIN("blanket", "Space blanket", "Couverture de survie"), "R", False),
+            (_SIN("bear", "Bear spray or bear banger", "Chasse-ours en aérosol ou pétard", "Only if you know how to use it.",
+                  "Seulement si vous savez vous en servir."), "R", False),
+        ] + _SBIB + [(_SIN("coin", "Death Race coin", "Pièce de la Death Race", "Handed out at check-in; pay the ferryman with it at the river. Lose it and you can't finish.",
+                           "Remise à l'inscription; elle paie le passeur à la rivière. Perdue, vous ne pouvez pas finir."), "P", False)], 2),
+    },
+    "black-spur-ultra": {
+        "name": "Black Spur Ultra", "short": "Black Spur", "de": "du ", "le": "le ", "unit": "label", "suggested": True, "cupless": True,
+        "where": {"en": "Kimberley, BC", "fr": "Kimberley, C.-B."}, "when": {"en": "August 28–29, 2027", "fr": "28 et 29 août 2027"},
+        "dists": ["108K", "54K", "HALF"], "default": "108K", "labels": {"HALF": {"en": "Half marathon", "fr": "Demi-marathon"}},
+        "src": "https://www.sinistersports.ca/blackspur/rules_gear", "read": _SREAD,
+        "items": _sin(_SBASE() + _SBIB, 3),
+    },
+    "castle-alpine": {
+        "name": "Castle Alpine Trail", "short": "Castle Alpine", "de": "du ", "le": "le ", "unit": "label", "suggested": True, "cupless": True,
+        "where": {"en": "Castle Mountain Resort, AB", "fr": "Castle Mountain Resort, Alb."},
+        "when": {"en": "September (2027 date to come; 2026: Sept. 19)", "fr": "Septembre (date 2027 à venir; 2026 : 19 sept.)"},
+        "dists": ["28K"], "default": "28K",
+        "src": "https://www.sinistersports.ca/castlealpine/rules_gear", "read": _SREAD,
+        "items": _sin(_SBASE() + _SBIB, 1),
+    },
+    "vertical-vendetta": {
+        "name": "Vertical Vendetta", "short": "Vendetta", "de": "du ", "le": "le ", "unit": "label", "suggested": True,
+        "where": {"en": "Crowsnest Pass, AB (9.75 km, 1,000 m up)", "fr": "Crowsnest Pass, Alb. (9,75 km, 1 000 m D+)"}, "when": {"en": "May 29, 2027", "fr": "29 mai 2027"},
+        "dists": ["VK"], "default": "VK", "labels": {"VK": {"en": "Vertical K", "fr": "Kilomètre vertical"}},
+        "src": "https://www.sinistersports.ca/verticalvendetta/rules_gear", "read": _SREAD,
+        "items": _sin([
+            (_SIN("water", "1 to 2 L of fluid: bottles or a hydration pack", "1 à 2 L de liquide : gourdes ou sac d'hydratation"), "R", False),
+            (_SIN("jacket", "Wind and water resistant jacket", "Manteau coupe-vent et déperlant"), "R", True),
+            (_SIN("tuque", "Toque or warm hat", "Tuque ou chapeau chaud"), "R", False),
+            (_SIN("cap", "Sun hat", "Chapeau de soleil"), "R", False),
+            (_SIN("whistle", "Whistle", "Sifflet"), "R", False),
+            (_SIN("blanket", "Space blanket", "Couverture de survie"), "R", False),
+        ] + _SBIB, 1),
+    },
+    "the-dark-24": {
+        "name": "The Dark 24", "short": "The Dark", "de": "de ", "le": "", "unit": "label", "suggested": True,
+        "where": {"en": "Bellevue Underground Mine, Crowsnest Pass, AB", "fr": "Mine souterraine de Bellevue, Crowsnest Pass, Alb."},
+        "when": {"en": "Oct. 31–Nov. 1 (2027 date to come)", "fr": "31 oct. et 1er nov. (date 2027 à venir)"},
+        "dists": ["24h", "12h", "6h"], "default": "24h", "labels": {d: {"en": f"{d[:-1]}-hour", "fr": f"{d[:-1]} h"} for d in ("24h", "12h", "6h")},
+        "src": "https://www.sinistersports.ca/thedark/rules_gear", "read": _SREAD,
+        "items": _sin([
+            (_SIN("waistlight", "Waist light (optional)", "Lampe de ceinture (facultative)", "500 m loops in a mine shaft.", "Boucles de 500 m dans un puits de mine."), "R", False),
+            (_SIN("jacket", "Wind and water resistant jacket", "Manteau coupe-vent et déperlant"), "R", True),
+            (_SIN("tuque", "Toque or warm hat", "Tuque ou chapeau chaud"), "R", False),
+            (_SIN("blanket", "Space blanket", "Couverture de survie"), "R", False),
+            (_SIN("warmjacket", "Warm blanket and clothes for your breaks", "Couverture et vêtements chauds pour les pauses",
+                  "For the aid station when you stop.", "Pour le ravito quand vous arrêtez."), "R", False),
+        ] + _SBIB, 3),
+    },
+})
+
 # USA side (Oct 21): /us/races/, English, prices in US$ from deals-us.json
 US_EV = {
     "canyons": "v1787099482/canyons/2027%20PDFs/2026_and_2027_UTMB_MANDATORY_and_RECOMMENDED_EQUIPMENT_North_America_1_e562161c6e.pdf.pdf",
@@ -1146,6 +1239,21 @@ S = {
 S["us"] = dict(S["en"], dir="us/races", desc="The {name} mandatory gear list for the {dists}, item by item, with today's best prices on each in your size at US stores.",
                otherSide="Shopping in Canada? This list with Canadian stores →")
 
+# Oct 27: races whose whole list is suggested (Sinister Sports: "no mandatory gear" but the bib and chip it hands out)
+SUG = {
+    "en": {"title": "{name} gear list: what the race suggests ({short} {dists})",
+           "desc": "The gear the {name} suggests for the {dists}, item by item (none of it required), with today's best prices on each in your size at Canadian stores.",
+           "h1": "{name} suggested gear list", "R": "Suggested by the race",
+           "sNote": "The race suggests this gear; none of it is required. The only must-haves are what the race hands out (bib, timing chip).",
+           "qList": "Is any gear mandatory for the {short} {d}?", "aList": "No. The race suggests: {items}."},
+    "fr": {"title": "Matériel suggéré {de}{name} ({short} {dists})",
+           "desc": "Le matériel que suggère {le}{name} pour le {dists}, article par article (rien d'obligatoire), avec les meilleurs prix du jour dans votre taille dans les boutiques canadiennes.",
+           "h1": "Matériel suggéré {de}{name}", "R": "Suggéré par la course",
+           "sNote": "La course suggère ce matériel; rien n'y est obligatoire. Seul ce que la course remet (dossard, puce) est exigé.",
+           "qList": "Y a-t-il du matériel obligatoire pour {le}{short} {d}?", "aList": "Non. La course suggère : {items}."},
+}
+SUG["us"] = dict(SUG["en"], desc="The gear the {name} suggests for the {dists}, item by item (none of it required), with today's best prices on each in your size at US stores.")
+
 
 def twins(head, slug, race):
     """Oct 21 (Bastien: "people travel to races ... people need their gear locally even if the race is abroad"): every race has a
@@ -1159,6 +1267,8 @@ def twins(head, slug, race):
 
 def dlab(race, d, L):
     """A distance as people say it: "125 km" for Québec races, "100K" / "100 mi" for races named that way (UTMB, Fat Dog)."""
+    if d in race.get("labels", {}):   # Oct 27: "Half marathon", "24 hours", "Vertical K"
+        return race["labels"][d]["fr" if L == "fr" else "en"]
     if race.get("unit") != "label":
         return S[L]["km"].format(d=d)
     return f'{d[:-1]} {"milles" if L == "fr" else "mi"}' if d.endswith("M") else d
@@ -1410,7 +1520,7 @@ def deal_html(L, r):
 
 
 def page(slug, race, L, items, stores, pages=None, fx=1.0):
-    s, Tl = S[L], tl(L)
+    s, Tl = (dict(S[L], **SUG[L]) if race.get("suggested") else S[L]), tl(L)
     fmt = dict(name=race["name"], short=race["short"], dists=dlabs(race, L), where=race["where"][L if L != "us" else "en"],
                when=race["when"][L if L != "us" else "en"], de=race.get("de", "de l'"), le=race.get("le", "l'"))
     if L == "us":   # English, US stores; the "Canadian stores" switch goes to the same race with Canadian stores
@@ -1452,7 +1562,7 @@ def page(slug, race, L, items, stores, pages=None, fx=1.0):
     faq = []
     for i, d in enumerate(race["dists"]):
         inkit = {k for ks in (race.get("kits") or {}).values() for k in ks}
-        must = [txt["en" if L == "us" else L][0] for kind, lv, txt, _ in race["items"] if lv[i] == "M" and kind not in inkit]
+        must = [txt["en" if L == "us" else L][0] for kind, lv, txt, _ in race["items"] if lv[i] == ("R" if race.get("suggested") else "M") and kind not in inkit]
         prov = [txt["en" if L == "us" else L][0] for kind, lv, txt, _ in race["items"] if lv[i] == "P"]
         ans = (s["aList"].format(items=", ".join(must)) if must else "") + (" " if must and prov else "") + (s["aProv"].format(items=", ".join(prov)) if prov else "")
         faq.append((s["qList"].format(d=dlab(race, d, L), **fmt), ans))
@@ -1494,7 +1604,7 @@ def page(slug, race, L, items, stores, pages=None, fx=1.0):
 <p class="bym"><button type="button" data-byopen>{s['byOpen']}</button></p><div class="byrows" hidden>{by_rows}</div></section>
 <p class="lbl">{s['dist']}</p>
 <div class="dists" role="group" aria-label="{s['dist']}">{"".join(f'<button type="button" data-d="{d}" aria-pressed="{str(d == race["default"]).lower()}">{dlab(race, d, L)}</button>' for d in race["dists"])}</div>
-<p class="prog" id="prog" data-t="{esc(s['progress'])}" data-all="{esc(s['progressAll'])}"></p>{f'<p class="lnote">{esc(s["lNote"])}</p>' if any("L" in lv for _, lv, *_ in race["items"]) else ""}
+<p class="prog" id="prog" data-t="{esc(s['progress'])}" data-all="{esc(s['progressAll'])}"></p>{f'<p class="lnote">{esc(s["lNote"])}</p>' if any("L" in lv for _, lv, *_ in race["items"]) else ""}{f'<p class="lnote">{esc(s["sNote"])}</p>' if race.get("suggested") else ""}
 <ul class="gl" id="gl" data-race="{slug}" data-default="{race['default']}" data-lm="{s['M']}" data-lr="{s['R']}" data-la="{s['A']}" data-lp="{s['P']}" data-ll="{s['L']}"
  data-home="{Tl['home']}" data-watch="{esc(s['watch'])}" data-won="{esc(s['watchOn'])}" data-wmember="{esc(s['wMember'])}" data-wnew="{esc(s['wNew'])}" data-wpending="{esc(s['wPending'])}" data-wadd="{esc(s['wAdd'])}" data-woff="{esc(s['wOff'])}" data-moren="{esc(s['moreN'])}" data-dh="{esc(s['deals'])}" data-dhs="{esc(s['dealsSize'])}" data-none="{esc(s['noDeals'])}" data-few="{esc(s['few'])}" data-off="{esc(s['off'])}" data-ly="{esc(s['shTag'])}">{shoe_row}{"".join(rows)}</ul>
 <p class="srcb">{(s['src'] if race.get('updated') else s['srcRead']).format(date=(race.get('updated') or race['read'])["en" if L == "us" else L], link=f'<a href="{src}" rel="noopener">{s["srcLink"]}</a>')} {s['notAff']}</p>
@@ -1663,11 +1773,11 @@ HUB = {
     "en": {"title": "Race gear lists: mandatory gear, item by item", "h1": "Race gear lists",
            "desc": "Mandatory gear lists for trail and ultra races, item by item, with today's best prices in your size at Canadian stores.",
            "intro": "The mandatory gear for each race, as the race publishes it, with today's best prices in your size. More races coming soon.",
-           "go": "Mandatory gear list →", "dists": "{d} km"},
+           "go": "Mandatory gear list →", "goS": "Suggested gear list →", "dists": "{d} km"},
     "fr": {"title": "Listes de matériel de course : le matériel obligatoire, article par article", "h1": "Listes de matériel de course",
            "desc": "Le matériel obligatoire des courses en sentier et des ultras, article par article, avec les meilleurs prix du jour dans votre taille.",
            "intro": "Le matériel obligatoire de chaque course, tel que publié par la course, avec les meilleurs prix du jour dans votre taille. D'autres courses s'en viennent.",
-           "go": "Liste du matériel obligatoire →", "dists": "{d} km"},
+           "go": "Liste du matériel obligatoire →", "goS": "Liste du matériel suggéré →", "dists": "{d} km"},
 }
 HUB["us"] = dict(HUB["en"], desc="Mandatory gear lists for trail and ultra races, item by item, with today's best prices in your size at US stores.")
 HUB["en"]["groups"] = HUB["us"]["groups"] = {"ca": "Canada", "us": "United States", "fr": "France", "it": "Italy", "ch": "Switzerland",
@@ -1704,7 +1814,7 @@ def hub(L):
             rows += f'{"</ul>" if rows else ""}<h2>{esc(h["groups"][grp])}</h2><ul class="cards rh">'
         rows += (f'<li><a href="/{S[L]["dir"]}/{slug}/"><span class="nm"><b>{esc(r["name"])}</b>'
                  f'<small>{esc(r["where"][LL])} · {esc(r["when"][LL])} · {esc(dlabs(r, L))}</small></span>'
-                 f'<span class="pr">{h["go"]}</span></a></li>')
+                 f'<span class="pr">{h["goS"] if r.get("suggested") else h["go"]}</span></a></li>')
     o = OTHER[L]
     head = page_head(US, h["title"], h["desc"], "/us/races/", "", f"<style>{HUB_CSS}</style>").replace('class="sw" href="/shoes/"', 'class="sw" href="/races/"') if L == "us" else page_head(T[L], h["title"], h["desc"], "/races/", "/courses/", f"<style>{HUB_CSS}</style>")
     BASE = "https://thegearfox.com"
