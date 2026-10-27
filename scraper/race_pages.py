@@ -1618,8 +1618,8 @@ def page(slug, race, L, items, stores, pages=None, fx=1.0):
     return head + body + KITB.replace("$BEST", esc(s["kbBest"])).replace("$BESTN", esc(s["kbBestN"])) + SCRIPT.replace("$LANG", "en" if L == "us" else L).replace("$CTRY", "us" if L == "us" else "ca").replace("$FX", str(fx)) + page_foot(Tl).replace('"shoe-page"', '"race-page"').replace("|shoes||shoe-page", "|gear||race-page")
 
 
-# Oct 27 (Bastien: "the kit page is very long to scroll ... we can't have deals fall below the screen"): layout B (?kit=b, mockup;
-# A/B test 'kit' once agreed): a compact top (size + distance in two short rows, the US link moved under the list) and every gear
+# Oct 27 (Bastien: "the kit page is very long to scroll ... we can't have deals fall below the screen"): layout B. A/B test 'kit'
+# (Bastien: "Yes race kit", Oct 27): same coin as the homepage (device id + "kit"), "exp|kit|A/B" once per session; ?exp=kit:B or ?kit=b forces B: a compact top (size + distance in two short rows, the US link moved under the list) and every gear
 # line folded to ONE row: tick, name, level and "From $50 · 10 picks"; a tap opens its picks. Sinister 7 went 4.6 -> ~2 phone screens.
 KITB = r"""<style>
 html.kitb .oside{display:none}html.kitb .rsize{padding:10px 12px;margin:8px 0}html.kitb .rsize p{font-size:14px;margin:0 0 6px}
@@ -1637,8 +1637,12 @@ html.kitb .gi.mini .hd::after,html.kitb .gi.mini .kb{display:none}
 html.kitb .gi:not(.kopen):not(.shoe) .dl,html.kitb .gi:not(.kopen):not(.shoe) .ft,html.kitb .gi:not(.kopen):not(.shoe) .none,html.kitb .gi:not(.kopen):not(.shoe) .note{display:none}
 html.kitb .gi.got .kb{display:none}
 </style><script>
-(function(){var on=/[?&]kit=b\b/.test(location.search)||(function(){try{return JSON.parse(localStorage.getItem("gf-exp")||"{}").kit==="B"}catch(e){return false}})();
-if(!on)return;document.documentElement.classList.add("kitb");
+(function(){var over={};try{over=JSON.parse(localStorage.getItem("gf-exp")||"{}")||{};var q=new URLSearchParams(location.search).get("exp");
+  if(q){q.split(",").forEach(function(x){var a=x.split(":");if(a[0]&&/^[AB]$/.test(a[1]))over[a[0]]=a[1]});localStorage.setItem("gf-exp",JSON.stringify(over))}}catch(e){}
+var did="";try{did=localStorage.getItem("gf-did")||"";if(!did){did=(crypto.randomUUID?crypto.randomUUID():String(Math.random()).slice(2)+Date.now());localStorage.setItem("gf-did",did)}}catch(e){}
+var arm=/[?&]kit=b\b/.test(location.search)?"B":over.kit||(function(){var h=2166136261,s=did+"|kit";for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return (h>>>0)%2?"B":"A"})();
+addEventListener("DOMContentLoaded",function(){try{if(!sessionStorage.getItem("gf-exp-kit")){sessionStorage.setItem("gf-exp-kit","1");ana("signup-step","exp|kit|"+arm)}}catch(e){}});
+if(arm!=="B")return;document.documentElement.classList.add("kitb");
 var gl=document.getElementById("gl"),os=document.querySelector(".oside");if(os&&gl){gl.parentNode.insertBefore(os,gl.nextSibling);os.style.cssText="display:block;margin:12px 0 0"}
 var best=function(){gl.querySelectorAll(".gi:not(.shoe):not(.mini)").forEach(function(li){var hd=li.querySelector(".hd");if(!hd)return;
   var k=hd.querySelector(".kb");if(!k){k=document.createElement("span");k.className="kb";hd.appendChild(k)}

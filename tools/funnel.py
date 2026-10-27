@@ -563,6 +563,29 @@ try:
 except Exception as e:
     out.append(f"Hiking: couldn't read ({str(e)[:80]})")
 
+# KIT LAYOUT TEST (Oct 27, Bastien: "Yes race kit"): race + trail gear list sessions by test 'kit' group (B = every line folded to one
+# row). Metric: sessions that ticked an item or clicked a store (baseline ~4%); keep B only at p < 0.05.
+try:
+    LP = ("/races/", "/courses/", "/us/races/", "/hikes/", "/randonnees/", "/us/hikes/")
+    kg = {"A": [], "B": []}
+    for s in S.values():
+        if any(any((pth or "").startswith(x) for x in LP) for pth in s["pages"]):
+            a_ = next((x.split("|")[2] for x in s["steps"] if x and x.startswith("exp|kit|")), None)
+            if a_ in kg:
+                kg[a_].append(s)
+    if kg["A"] or kg["B"]:
+        import math as _mk
+        used = lambda s: any(x[1] == "have" for x in s["race"] + s["hike"]) or "deal-click" in s["kinds"]
+        yA, yB, nA, nB = sum(map(used, kg["A"])), sum(map(used, kg["B"])), len(kg["A"]), len(kg["B"])
+        pp = (yA + yB) / max(1, nA + nB)
+        se = _mk.sqrt(pp * (1 - pp) * (1 / max(1, nA) + 1 / max(1, nB))) or 1
+        pv = _mk.erfc(abs(yA / max(1, nA) - yB / max(1, nB)) / se / _mk.sqrt(2)) if nA and nB else 1.0
+        out.append(f"KIT LAYOUT TEST (race + trail list sessions that ticked an item or clicked a store): A {pct(yA, nA)} of {nA} | "
+                   f"B {pct(yB, nB)} of {nB} | p={pv:.3f} -> " + (("B WINS" if yB / nB > yA / nA else "A WINS") if pv < 0.05 else "not proven yet")
+                   + f" | clicked a store: A {pct(sum('deal-click' in s['kinds'] for s in kg['A']), nA)}, B {pct(sum('deal-click' in s['kinds'] for s in kg['B']), nB)}")
+except Exception as e:
+    out.append(f"Kit layout test: couldn't read ({str(e)[:80]})")
+
 # SCORECARD (Oct 24, Bastien: "weekly checkins ... to ensure we are optimizing the data we collect and where people drop off"):
 # the few numbers the Monday check-in starts from, against the Path to $300K milestones (plan doc). The store-commission line
 # is an estimate: $0.05-0.15 a click (Sovrn's quoted earnings per click ranged $0.04-0.33), and only stores in a program earn.

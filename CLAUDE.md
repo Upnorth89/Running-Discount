@@ -413,8 +413,11 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   mallorca, tenerife.
   Oct 27 (Bastien): hubs (/races/, /courses/, /us/races/, /hikes/…) have a search box (`hub_find()`, #hubQ: name/place/country/distance,
   accents ignored, empty groups fold, "No race matches…" + our email; analytics filter "hubsearch|…"). Site test "Race and trail hubs: search".
-  Kit layout B (`KITB`, ?kit=b or gf-exp kit:B; mockup, waiting on Bastien): compact top + every line folded to one row (tick, name, level,
-  "From $X · N picks", tap = picks; class kopen, not "open" = See all). Sinister 7 4.6 -> 2.5 phone screens, UTMB 9.2 -> 4.0, Alum Cave 8.9 -> 4.1.
+  Test 'kit' (Oct 27, Bastien: "Yes race kit"; LIVE 50/50 on race + trail gear lists): B = `KITB` compact top + every line folded to one row
+  (tick, name, level, "From $X · N picks", tap = picks; class kopen, not "open" = See all). Sinister 7 4.6 -> 2.5 phone screens, UTMB 9.2 -> 4.0,
+  Alum Cave 8.9 -> 4.1. Coin = homepage's (gf-did + "kit"), "exp|kit|A/B" once per session; ?exp=kit:B or ?kit=b forces B. Metric: list
+  sessions that tick an item or click a store (~4% baseline, funnel "KIT LAYOUT TEST"); 4% -> 8% needs ~550 sessions a group (~75 a week
+  each now): decide ~mid-Dec, earlier if p<0.05. Site test "Race kit layout test (kit)".
   Tracking (Oct 23, Bastien: "a tracker to see how and if people are using the gear checklist"): race pages send kind "filter" events
   "race|<race>|open|dist|have|unhave|complete|seeall|size|shoesize|<detail>" (`rt()` in race_pages.py; no new SQL kind) and deal clicks
   "store|<item kind>||race|<race>"; funnel.yml "RACE GEAR LISTS": sessions, first visits landing there, % that changed distance /

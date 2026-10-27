@@ -1423,6 +1423,7 @@ def site_flow(base, per, accented):
                 return "no trail gear lists in this build (skipped)"
             c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
             stub(c)
+            c.add_init_script("try{var o=JSON.parse(localStorage.getItem('gf-exp')||'{}')||{};if(!o.kit){o.kit='A';localStorage.setItem('gf-exp',JSON.stringify(o))}}catch(e){}")   # test 'kit': unfolded list
             q2 = c.new_page()
             errs = []
             q2.on("pageerror", lambda e: errs.append(str(e)))
@@ -1789,7 +1790,7 @@ def site_flow(base, per, accented):
             c.route("**/rest/v1/rpc/ana_track", grab)
             q = c.new_page()
             try:
-                q.goto(base + "races/ultra-trail-harricana/", wait_until="load")
+                q.goto(base + "races/ultra-trail-harricana/?exp=kit:A", wait_until="load")
                 q.wait_for_timeout(600)
                 q.locator(".dists button").nth(1).click()
                 q.locator(".gi:not([hidden]) input.have").first.check()
@@ -1799,10 +1800,40 @@ def site_flow(base, per, accented):
                 race = [d for d in got if d.startswith("race|")]
                 for w in ("open", "dist", "have"):
                     assert any(d.split("|")[2] == w for d in race), f"the race page didn't send '{w}' ({race[:4]})"
-                return f"{len(race)} race events sent ({', '.join(sorted({d.split('|')[2] for d in race}))})"
+                kit = [d for d in got if d.startswith("exp|kit|")]
+                assert kit, "the race page didn't say its 'kit' test group"
+                return f"{len(race)} race events sent ({', '.join(sorted({d.split('|')[2] for d in race}))}), {kit[0]}"
             finally:
                 c.close()
         check("Race gear page: what visitors do is recorded")(race_tracking, pg)
+
+        def kit_test():        # Oct 27 (Bastien: "Yes race kit"): test 'kit' B = every gear line folded to one row; A = as before
+            out = []
+            for path in ("races/ultra-trail-harricana/", "races/sinister-7/"):   # trail gear lists share the same layout code (RP.KITB)
+                for a in ("A", "B"):
+                    c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+                    stub(c)
+                    q = c.new_page()
+                    try:
+                        q.goto(base + path + f"?exp=kit:{a}", wait_until="load")
+                        q.wait_for_timeout(700)
+                        on = q.evaluate("document.documentElement.classList.contains('kitb')")
+                        assert on == (a == "B"), f"{path} group {a}: folded layout {'missing' if a == 'B' else 'showing'}"
+                        if a == "B":
+                            li = q.locator(".gi:not(.shoe):not(.mini):not([hidden])").first
+                            assert not li.locator(".dl").first.is_visible(), f"{path}: a folded line still shows its picks"
+                            assert li.locator(".kb").count(), f"{path}: no 'From $X' line on a folded row"
+                            li.locator(".hd h3").click()
+                            q.wait_for_timeout(200)
+                            assert "kopen" in (li.get_attribute("class") or ""), f"{path}: tapping a row doesn't open it"
+                            h = q.evaluate("document.documentElement.scrollHeight")
+                            out.append(f"{path} B {h}px")
+                        else:
+                            out.append(f"{path} A {q.evaluate('document.documentElement.scrollHeight')}px")
+                    finally:
+                        c.close()
+            return "; ".join(out)
+        check("Race kit layout test (kit): A as before, B folded rows")(kit_test, pg)
 
         def one_look():         # Oct 22 (Bastien: "Only the homepage is formatted in the way we want. All others are dark and still the
             # same"): on a phone set to dark mode, every page is light with the charcoal header, like the homepage, and fits the phone
@@ -1978,6 +2009,7 @@ def site_flow(base, per, accented):
         check("Black Friday page: sign up right here")(bf_quick, pg)
 
         def race_page():        # Oct 21: race gear lists: hub, size, 10 picks per item, Watch hearts in place, shoe + size picker, French
+            pg.evaluate("(function(){var o={};try{o=JSON.parse(localStorage.getItem('gf-exp')||'{}')||{}}catch(e){}o.kit='A';localStorage.setItem('gf-exp',JSON.stringify(o))})()")   # test 'kit': this check reads the unfolded list
             pg.evaluate("['gf-watch','gf-race-size','gf-shoe-size','gf-sub'].forEach(function(k){localStorage.removeItem(k)})")
             pg.goto(base + "races/", wait_until="domcontentloaded")
             pg.wait_for_selector("ul.cards a", timeout=8000)
