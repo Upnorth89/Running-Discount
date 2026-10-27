@@ -237,6 +237,34 @@ def src(s):
         "facebook" if "facebook" in v else v if v.startswith(("email-", "home-screen", "(none)")) else "other site"
 
 
+# TRACKING CHECK (Oct 27, Bastien: "Are we tracking numbers correctly?"): first visits whose session has no "visit" event have no
+# source or landing page (they count as "(none)" / "other ?"). Which kinds and pages they do send tells where the visit event is lost.
+try:
+    nov = [s for s in new if not s["entry"]]
+    if nov:
+        out.append(f"TRACKING CHECK: {pct(len(nov), len(new))} first visits have no 'visit' event (no source, no landing page); "
+                   f"their events: " + ", ".join(f"{k} {v}" for k, v in Counter(k for s in nov for k in s["kinds"]).most_common(10)))
+        out.append("  their pages: " + ", ".join(f"{k} {v}" for k, v in Counter(pg_ for s in nov for pg_ in (s["pages"] or {"(none)"})).most_common(8))
+                   + " | devices: " + ", ".join(f"{k} {v}" for k, v in Counter(s["dev"] for s in nov).most_common(3))
+                   + " | first event day: " + ", ".join(f"{k} {v}" for k, v in Counter(s.get("d") for s in nov).most_common(3)))
+except Exception as e:
+    out.append(f"Tracking check: couldn't compute ({str(e)[:80]})")
+# TODAY (Vancouver time, since midnight): where first visits came from and where they landed
+try:
+    from zoneinfo import ZoneInfo
+    t0 = datetime.now(ZoneInfo("America/Vancouver")).replace(hour=0, minute=0, second=0, microsecond=0).astimezone(timezone.utc).isoformat()
+    first_at = {}
+    for e in rows:
+        first_at.setdefault(e["sid"], e["at"])
+    tn = [s for sid, s in S.items() if s["nv"] == 1 and first_at.get(sid, "") >= t0]
+    tall = [sid for sid in S if first_at.get(sid, "") >= t0]
+    out.append(f"TODAY (since midnight Vancouver): {len(tall)} sessions, {len(tn)} first visits; from: "
+               + ", ".join(f"{k} {v}" for k, v in Counter(src(s) if s["entry"] else "(no visit event)" for s in tn).most_common(8)))
+    out.append("  sites that sent them: " + ", ".join(f"{k} {v}" for k, v in Counter(s.get("src") for s in tn if s["entry"] and s.get("src") != "(none)").most_common(10)))
+    out.append("  landed on: " + ", ".join(f"{k} {v}" for k, v in Counter(land(s) for s in tn).most_common(8))
+               + " | ?ref=: " + ", ".join(f"{k} {v}" for k, v in Counter(s["ref"] for s in tn if s["ref"]).most_common(8)))
+except Exception as e:
+    out.append(f"Today: couldn't compute ({str(e)[:80]})")
 out.append("FIRST VISITS BY SOURCE (picked a size / clicked a store / signed up / median seconds):")
 for k, n in Counter(src(s) for s in new).most_common(8):
     g = [s for s in new if src(s) == k]
