@@ -397,7 +397,8 @@ def site_flow(base, per, accented):
 
         def plural():   # Oct 24 (searches that found nothing: "saucony endorphins speed", "glycerine"): a trailing s or e is forgiven
             out = []
-            for written, typed in (("endorphin speed", "endorphins speed"), ("glycerin", "glycerine")):
+            # Oct 27: filler words ("running vest for women" found nothing because of "for")
+            for written, typed in (("endorphin speed", "endorphins speed"), ("glycerin", "glycerine"), ("running shorts men", "running shorts for men")):
                 all_gear()
                 page.fill("#dSearch", written)
                 settle(page, 900)
@@ -412,7 +413,7 @@ def site_flow(base, per, accented):
             page.fill("#dSearch", "")
             settle(page)
             return "; ".join(out) or "neither in these sizes today"
-        check("Search forgives a plural or an extra e")(plural, page)
+        check("Search forgives a plural, an extra e or a filler word")(plural, page)
 
         def nonsense():
             all_gear()

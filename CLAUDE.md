@@ -299,7 +299,14 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   Oct 24 baseline: 10% of searches found nothing (80/798; most = not on sale in their size, which the site already explains);
   46 duplicate shoe-card groups in Canada (fix parked on the side branch a5424a7: it changes ~40 shoe page slugs per side,
   needs a slug-stable display name first); 97.3% of shoe listings with readable sizes (REI "5 Mens/6.5 Womens" fixed).
-  Search forgives a trailing s/e (`qhas()` in index.html + search_check.py; site test "Search forgives a plural or an extra e").
+  Search forgives a trailing s/e (`qhas()` in index.html + search_check.py; site test "Search forgives a plural, an extra e or a filler word").
+  Oct 27: filler words (`FILLER`: for/with/the/and/of/pour/avec/et/des/du; never "on"/"la"/"le": brands, stores) are dropped when other words remain
+  ("running vest for women" found nothing). Load times: funnel had NONE since Oct 8 (ana-kinds-oct8.sql without 'load' pasted after
+  ana-load-oct8.sql): supabase/ana-kinds-oct27.sql = the full list, for Bastien to paste. Lab (Oct 27): a mid-range phone (CPU x4) needs 2.6 s
+  just to process sale.json (1.2 MB sent, 7.6 MB unpacked), before any download time.
+  Store offers reader: tools/offer_scan.py DEALS OUT (homepage bars of SHOPIFY_STORES, offer lines, our own sale share/median/max per store);
+  Oct 27 first read: 113 stores, 83 with a bar, real offers: 2XU "up to 50% off selected" (our prices: 50% of its items on sale, median 50%).
+  Not wired to the site yet (waiting on Bastien's yes).
 - **Answer, don't flip (Oct 24, Bastien: "You gave me advice, I then ask for clarification and then you just tell me the opposite").**
   I recommended brand+size pages, then reversed twice when he only asked questions. Before recommending: weigh costs/risks myself
   (near-copies, clutter, upkeep, real reach). A question from him = explain, not reverse. Change a recommendation only for a new

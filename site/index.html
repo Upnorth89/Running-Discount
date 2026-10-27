@@ -724,6 +724,7 @@ const ANA=(()=>{const ls=k=>{try{return localStorage.getItem(k)}catch(e){return 
   if(fresh){TESTS.forEach(n=>add("signup-step",`exp|${n}|${arm(n)}`))}
   if(fresh)add("visit",em?"email-"+em:(matchMedia("(display-mode: standalone)").matches||navigator.standalone)?"home-screen app":document.referrer?new URL(document.referrer).hostname:"",null,location.pathname);
   return {add,nv:()=>nv,arm}})();
+const FILLER=new Set(["for","with","the","and","of","pour","avec","et","des","du"]);   // search words that never name gear ("on", "la", "le" are brands/stores: kept)
 function ana(k,d,n){try{ANA.add(k,d,n)}catch(e){}}
 function track(name,data){try{if(window.umami&&umami.track)umami.track(name,data)}catch(e){}
   try{const o=data||{};
@@ -2425,6 +2426,7 @@ function renderAll(){
   const p={...toProfile(),store:view.store};
   const fold=x=>String(x).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();   // "naak" finds Näak, "zefal" Zéfal
   const q=fold(view.q.trim()).split(/\s+/).map(w=>/^[a-z0-9]+$/.test(w)?w.replace(/v(?=\d)/g,""):SQ(w)).filter(Boolean);
+  {const k=q.filter(w=>!FILLER.has(w));if(k.length&&k.length<q.length)q.splice(0,q.length,...k)}   // Oct 27: "running vest for women" found nothing because of "for"
   if(q.length&&!FULL)loadFull();     // a search looks at everything in your size, full price too (sale items first)
   // a search stays inside the categories picked (chips); only when nothing matches there does it look in every category
   const hit=d=>{const t=hayOf(fold,d);return q.every(w=>qhas(t,w))};
