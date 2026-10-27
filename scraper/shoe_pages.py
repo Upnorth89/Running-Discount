@@ -79,6 +79,7 @@ T = {
                    "Check the return policy: some sale items are final sale. We label them."],
         "bdTodayH": "Not Boxing Day yet: today's best running shoe deals ({date})", "bdCta": "Get the Boxing Day deals in your size",
         "bdOther": ("Before that:", "Black Friday running deals →", "/black-friday/"),
+        "bfLive": ("Is it a real deal?", "Today's Black Friday deal check: real drops, old “sales”, recent price rises →", "/black-friday/live/"),
         "bfTrackH": "We're tracking real prices before Black Friday",
         "bfTrackTxt": "Since October 2 we record the price of every running product we follow, every day: {n} products so far. So on Black Friday we'll know which deals are real and which prices went up in November just to come back down.",
         "bfDataH": "What our price data shows today ({date})",
@@ -191,6 +192,7 @@ T = {
                    "Vérifiez la politique de retour : certains articles en solde sont en vente finale. On les indique."],
         "bdTodayH": "Pas encore le Boxing Day : les meilleures aubaines du jour ({date})", "bdCta": "Recevez les aubaines du Boxing Day dans votre pointure",
         "bdOther": ("Avant ça :", "Les aubaines course du Vendredi fou →", "/vendredi-fou/"),
+        "bfLive": ("Vraie aubaine ou pas ?", "La vérification du jour : vraies baisses, vieux « soldes », hausses récentes →", "/vendredi-fou/direct/"),
         "bfTrackH": "On suit les vrais prix avant le Vendredi fou",
         "bfTrackTxt": "Depuis le 2 octobre, on note chaque jour le prix de chaque article de course qu'on suit : {n} articles jusqu'ici. Au Vendredi fou, on saura quelles aubaines sont vraies et quels prix ont monté en novembre pour mieux redescendre.",
         "bfDataH": "Ce que nos relevés de prix montrent aujourd'hui ({date})",
@@ -255,6 +257,7 @@ T = {
 }
 # the USA side (Oct 6, 2026): same pages in US English under /us/, from deals-us.json (US stores, US dollars)
 US = dict(T["en"])
+US["bfLive"] = None   # the live deal check is Canada only for now (Oct 27)
 US.update({
     "dir": "us/shoes", "lang": "en-US", "other": "en-CA", "q": "&c=us", "home": "/?c=us", "cur": "USD",
     "title": "{name} price: every size, every store",
@@ -1460,6 +1463,14 @@ def qs_box(L, head, ref):
             f'<p class="fine qsmore"><a href="{L["home"]}{"&" if "?" in L["home"] else "?"}ref={ref}">{esc(L["qsMore"])}</a></p></section>')
 
 
+def bf_live_line(L):
+    """Oct 27: the live deal check (scraper/bf_live.py), linked near the top of the Canadian Black Friday pages."""
+    if not L.get("bfLive"):
+        return ""
+    q, txt, href = L["bfLive"]
+    return f'<p class="bflive"><strong>{esc(q)}</strong> <a href="{href}">{esc(txt)}</a></p>'
+
+
 def bf_other(L):
     q, txt, href = L["bfOther"]
     return f'<p><strong>{esc(q)}</strong> <a href="{href}">{esc(txt)}</a></p>'
@@ -1621,12 +1632,12 @@ def main():
         bf = black_friday(today.year if today <= black_friday(today.year) + timedelta(days=4) else today.year + 1)
         if bf - timedelta(days=7) <= today <= bf + timedelta(days=4):     # Black Friday week to Cyber Monday: the real deals
             p.write_text(list_page(L, "/black-friday/", "/vendredi-fou/", L["bfTitle"], L["bfH1"], L["bfIntro"], real_first(bf_rows), brands,
-                                   bf_other(L) + real_line(L, bf_rows) + cta))
+                                   bf_live_line(L) + bf_other(L) + real_line(L, bf_rows) + cta))
         else:   # before: honest page, the price tracking + tips, and today's deals clearly labelled as today's (Bastien, Oct 4)
             tracked = sum(1 for i in items if i.get("hd"))
             if "bf_R" not in globals():
                 globals()["bf_R"] = bf_stats(site, today)
-            extra = (bf_other(L) + cta + f'<h2>{esc(L["bfTrackH"])}</h2><p>{esc(L["bfTrackTxt"].format(n=f"{tracked:,}".replace(",", " " if L is T["fr"] else ",")))}</p>'
+            extra = (bf_live_line(L) + bf_other(L) + cta + f'<h2>{esc(L["bfTrackH"])}</h2><p>{esc(L["bfTrackTxt"].format(n=f"{tracked:,}".replace(",", " " if L is T["fr"] else ",")))}</p>'
                      + bf_data(L, globals()["bf_R"])
                      + f'<h2>{esc(L["bfSpotH"])}</h2><ul>' + "".join(f"<li>{esc(x)}</li>" for x in L["bfSpot"]) + "</ul>"
                      + f'<h2>{esc(L["bfTodayH"].format(date=fmt_date(updated, L)))}</h2>')

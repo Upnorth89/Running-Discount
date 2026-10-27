@@ -92,6 +92,14 @@ scraper/shoe_pages.py    Google pages: one per popular shoe model (3+ Canadian s
                          BF price-data section (Oct 27, growth chat, Bastien OK'd, bb170cb): /black-friday/ + /vendredi-fou/ (pre-BF version) show
                          "What our price data shows today" from bf_stats()/bf_data() (tools/report_page.py compute(), HISTORY_FILE, back = 14 days):
                          % shoe models on sale, women's 8 / men's 9 share, % unchanged in 2 weeks, brands most/fewest on sale; no history = no section.
+                         Black Friday deal check, LIVE page (Oct 27, growth chat's spec, Bastien OK'd): scraper/bf_live.py (refresh step after the
+                         race pages) -> /black-friday/live/ + /vendredi-fou/direct/ (Canada; in the sitemap; linked near the top of both BF pages,
+                         `bf_live_line`, US has none yet): from hist/prices.jsonl (running keys), ca items with a photo, no spikes: real drops this
+                         week (changed in 7 days, lower than every price in the 30 before, 10% or $10, >= $5, 3+ sizes), not new (30%+ off,
+                         reg $60+, same price 21+ days), went up (+10% and +$10 vs 21 days ago; old < 60% of today = glitch, out); one per brand,
+                         12/12/8 shown; stats (all real drops, % of sale prices already this low 2 weeks ago, sale items). Shoes link to their
+                         page ?ref=bf-desk, others to the store. Ended sales are already out (featured_check runs before). Neutral wording.
+                         check.py "Black Friday deal check (live page)" (reads the history branch), site test "Black Friday deal check page".
                          Black Friday labels (Oct 23, Bastien OK'd): `low_days()` = the homepage badge rule (30+ days of history, today <= lo,
                          hi 2%+ above) per model at its best price -> summary `lowd` -> green "✓ Lowest price we've seen in N days" on every
                          list card (`card_list`); BF week (Nov 20-Dec 1) lists real drops first (`real_first`) + count line `bfReal`. check.py
@@ -759,6 +767,9 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   ignore "(trail/road) running shoe(s)", so stores' differently worded names merge. One spelling per brand (most common wins).
   Merge keys for shoes also ignore the colour after " — " (Fit First lists each colour) and width words on wide items;
   "(Men's)"/"Men’s" become " - Men's"; Québec stores' "- Large"/"(Large)" = wide. Hoka Ora Recovery = casual (dropped).
+- Gender words without the apostrophe (Oct 27, growth chat: VPO's "Rab Neutrino Pro Hoody - Mens" vs Monod's "- Men's" = two cards):
+  `tidy_name` turns "- Mens/Womens/Men/Women", "(Mens)", a bare trailing "Men's" and a season code after it ("Men's S26") into " - Men's" /
+  " - Women's" before the merge. Hiking CA 18,023 -> 17,735 cards. Canadian vs cross-border offers still stay separate cards (by design).
 - Clothing gender (Oct 6, a men's runner saw skirts/bras/high-rise leggings: 1 in 5 clothing items had no gender and showed to
   everyone): name first (`name_gender`), then the Shopify store's own tags/product type (`tag_gender`, clothing only, one gender
   only), then `clothing_gender` (bras group, WOMEN_ONLY words skirt/skort/dress/bra/high-rise/legging/capri/prenatal, WOMEN_BRANDS

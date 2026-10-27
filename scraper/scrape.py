@@ -3906,6 +3906,10 @@ def tidy_name(b, n):
     n = re.sub(r"\bUnisexe\b", "Unisex", n)
     n = re.sub(r"\b(Wom|M)en[’`´]s\b", r"\1en's", n)                                  # curly apostrophe
     n = re.sub(r"\s*\((Men's|Women's|Unisex)\)\s*$", r" - \1", n)                  # "Neo Vista (Men's)" -> "Neo Vista - Men's"
+    # Oct 27 (growth chat: VPO's "Rab Neutrino Pro Hoody - Mens" and Monod's "... - Men's" were two cards): no apostrophe = same gender
+    n = re.sub(r"\b(Men's|Women's|Mens|Womens)\s+[SF]2[4-9]$", r"\1", n)             # a season code after the gender ("Namche GTX Jacket Men's S26")
+    n = re.sub(r"(\s*-\s*|\s*\()(Mens|Womens|Men|Women)\)?\s*$", lambda m: " - Men's" if m.group(2).lower() in ("mens", "men") else " - Women's", n, flags=re.I)
+    n = re.sub(r"(?<=[a-z0-9)])\s+(Men's|Women's)$", r" - \1", n, flags=re.I)        # "Namche GTX Jacket Men's" (no dash)
     first = b.split(" ")[0] if b else ""
     toks = {b} | ({first} if len(first) >= 4 and first.lower() not in {"black", "blue", "north", "mountain", "outdoor"} else set())
     if b.lower() == "hoka":

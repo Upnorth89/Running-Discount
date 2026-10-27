@@ -189,6 +189,27 @@ def main():
         return f"{len(race_pages.RACES)} races, each EN + FR (Canadian stores) + US"
     step("Race gear pages", races)
 
+    def bf_live():      # Oct 27: the live Black Friday deal check, from the real price history (history branch)
+        hist = Path(tempfile.gettempdir()) / "gf-check-prices.jsonl"
+        r = subprocess.run("git fetch -q --depth=1 origin history && git show FETCH_HEAD:prices.jsonl", shell=True, cwd=ROOT, capture_output=True, text=True, timeout=300)
+        if r.returncode or len(r.stdout) < 1000:
+            return "skipped: no price history here"
+        hist.write_text(r.stdout)
+        r = subprocess.run([sys.executable, str(ROOT / "scraper" / "bf_live.py"), str(site)], capture_output=True, text=True, timeout=300,
+                           env={**os.environ, "HISTORY_FILE": str(hist)})
+        if r.returncode:
+            raise RuntimeError(r.stderr.strip().splitlines()[-1])
+        for path in ("black-friday/live/index.html", "vendredi-fou/direct/index.html"):
+            h = (site / path).read_text()
+            if "bfl-stats" not in h or 'class="bfl"' not in h:
+                raise RuntimeError(f"{path}: no stats or no list")
+            if re.search(r"undefined|NaN|\{[a-z]+\}", re.sub(r"(?s)<(script|style)\b.*?</\1>", "", h)):
+                raise RuntimeError(f"{path}: a placeholder or NaN shows")
+        if "/black-friday/live/" not in (site / "black-friday" / "index.html").read_text():
+            raise RuntimeError("the Black Friday page doesn't link the deal check")
+        return r.stdout.strip()[:160]
+    step("Black Friday deal check (live page)", bf_live)
+
     def same_names():   # the site links cards to shoe pages with a JS copy of base_model + slugify: they must agree (Oct 7)
         sys.path.insert(0, str(ROOT / "scraper"))
         import shoe_pages as SP

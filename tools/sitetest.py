@@ -2033,6 +2033,20 @@ def site_flow(base, per, accented):
                 out.append(f"{path} '{word}' -> {len(shown)}")
             return "; ".join(out)
         check("Race and trail hubs: search")(hub_search, pg)
+
+        def bf_live():          # Oct 27: Black Friday deal check, live (scraper/bf_live.py); its own check in check.py reads the history
+            h = site_get("black-friday/live/")
+            if not h:
+                return "not built here (needs the price history)"
+            pg.goto(base + "black-friday/live/", wait_until="domcontentloaded")
+            n = pg.eval_on_selector_all(".bfl li", "e => e.length")
+            assert n >= 3, f"only {n} items on the deal check"
+            w = pg.evaluate("document.documentElement.scrollWidth")
+            assert w <= 400, f"the deal check is wider than the phone ({w}px)"
+            pg.goto(base + "black-friday/", wait_until="domcontentloaded")
+            assert pg.locator('a[href="/black-friday/live/"]').count(), "the Black Friday page doesn't link the deal check"
+            return f"{n} items, linked from /black-friday/"
+        check("Black Friday deal check page")(bf_live, pg)
         ctx2.close()
 
         # an American visitor (Oct 6, 2026): a US time zone opens the USA side; the switch goes back to Canada

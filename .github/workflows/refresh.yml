@@ -136,6 +136,11 @@ jobs:
       - name: Race gear pages (EN/FR)
         continue-on-error: true
         run: python scraper/race_pages.py site
+      # Black Friday deal check, live (Oct 27, growth chat's spec, Bastien OK'd): real drops / not new / went up, from the price history;
+      # after the shoe pages (it adds itself to sitemap.xml) and after featured_check (ended sales are already out of sale.json)
+      - name: Black Friday deal check (EN/FR)
+        continue-on-error: true
+        run: python scraper/bf_live.py site
       # Pinterest feeds (Oct 26, 6-week test; tools/pin_feed.py): the morning adds today's real drops (same picks as the Bluesky
       # posts, confirmed on the store page) to site/pins/ca.xml + us.xml with a pin picture each; every other run puts yesterday's
       # feeds and pictures back, since a deploy replaces the whole site
