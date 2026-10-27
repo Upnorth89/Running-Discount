@@ -55,7 +55,7 @@ site/grab.html, grab.js  "Grab deals" bookmark for MEC/REI (Bastien saves their 
                          scrape.py grab_saves() reads the last 10 days like saved-pages files. After editing grab.js: python tools/make_grab.py
                          Oct 27: each part of a save used to start refresh.yml (one Backcountry save = ~15 runs in seconds, cancelling a push run);
                          supabase/refresh-debounce-oct27.sql: _gf_refresh_now() only flags 'refresh_wanted' (ana_settings), pg_cron 'gf-refresh-flush'
-                         (every minute) starts ONE run after 90 s of quiet. Catalog uploads go through it too. Needs Bastien to paste it.
+                         (every minute) starts ONE run after 90 s of quiet. Catalog uploads go through it too. Pasted Oct 27.
                          Oct 16: any MEC/REI list (sale or all running gear; MEC 80 pages, REI 150), only the fields the site reads;
                          grab-save.html sends big lists in parts of 200 (one 3,000-product save hit Supabase's statement timeout).
                          Backcountry (Oct 16): the bookmark reads a list + each product's page data: the WHOLE list (Bastien: "we want all
@@ -286,7 +286,7 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   Site test "Fox Pro waitlist card (price test)".
   Test 'emailday' (Oct 27, Bastien OK'd idea 5; weekend visits ~3x weekdays): weekly_email.py `day_arm()` (coin from the token, same every
   week) B = the weekly email Saturday 7am local instead of Friday, DAY_TEST Oct 30 - Nov 21 (`send_day()`); Black Friday week on: Friday for all.
-  weekly-email.yml also runs Saturdays; supabase/saturday-timer-oct27.sql = the Saturday timer (Bastien to paste). Links carry em=friday /
+  weekly-email.yml also runs Saturdays; supabase/saturday-timer-oct27.sql = the Saturday timer (pasted Oct 27). Links carry em=friday /
   em=saturday (`em_day()`); B gets no Saturday alert in the window. Copy says "this week" (not "since last Friday") for both. Funnel line
   "EMAIL DAY TEST". Honest limit: ~40 subscribers a group x 4 sends: only a big difference (e.g. 11% -> 22% of sends bringing a visit) shows.
   Test 'popq' (Oct 27, Bastien OK'd idea 4): B = tapping the EMPTY search box shows "Popular right now" chips (`popShow()`, #popq, fixed under
@@ -326,7 +326,7 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   Search forgives a trailing s/e (`qhas()` in index.html + search_check.py; site test "Search forgives a plural, an extra e or a filler word").
   Oct 27: filler words (`FILLER`: for/with/the/and/of/pour/avec/et/des/du; never "on"/"la"/"le": brands, stores) are dropped when other words remain
   ("running vest for women" found nothing). Load times: funnel had NONE since Oct 8 (ana-kinds-oct8.sql without 'load' pasted after
-  ana-load-oct8.sql): supabase/ana-kinds-oct27.sql = the full list, for Bastien to paste. Lab (Oct 27): a mid-range phone (CPU x4) needs 2.6 s
+  ana-load-oct8.sql): supabase/ana-kinds-oct27.sql = the full list (pasted Oct 27: load events flow again). Lab (Oct 27): a mid-range phone (CPU x4) needs 2.6 s
   just to process sale.json (1.2 MB sent, 7.6 MB unpacked), before any download time.
   Store offers reader: tools/offer_scan.py DEALS OUT (homepage bars of SHOPIFY_STORES, offer lines, our own sale share/median/max per store);
   Oct 27 first read: 113 stores, 83 with a bar, real offers: 2XU "up to 50% off selected" (our prices: 50% of its items on sale, median 50%).
