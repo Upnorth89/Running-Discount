@@ -962,6 +962,13 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   left only in odd sizes until a size is picked (`commonFit`). Returning visitor (6 h+): "Since your last visit (Tuesday): N new · deals
   you opened that dropped" (`sinceBar`, from gf-base + gf-clicks `p`; the new count is left out when the new-deals row shows it).
   Hearts work without an email; a non-member's watchlist has "Email me when these drop" (`#emailNext`, signup-step drop-ask).
+- Store offers (Oct 27, Bastien: "wouldn't that be an added bonus for people to know?"; shipped empty, "yes ship it"): site/promos.json =
+  [{store (the offer host exactly as in STORES/offers, e.g. "ca.shop.runningroom.com"), side ca|us, en, fr, code (optional: many are taken off in
+  the cart), until "YYYY-MM-DD" (gone the day after, Vancouver date), from?, url (the store's terms)}], added by hand from a screenshot of the
+  store's banner. Shows a line on top of the deals (max 2, `promoBar()`: "See <store>'s full-price gear in your size" -> store view + full price)
+  and "+ Store offer: code X" on that store's FULL-PRICE cards only (`promoCard`; sale prices already carry the store's discount; codes have
+  exclusions, so never taken off our prices). Analytics filter "promo|<store>", "promo-terms|<store>". Site test "Store offer: …".
+  Preview: PV_PROMOS='[...]' make_preview.py (embeds it; that store's full-price US items ride along). Automatic banner reading = backlog idea.
 - Canadian brands (Oct 7, Bastien): Filters chip "🍁 Canadian brands" (Canada side only, `view.cdn`, `?canadian` link for posts),
   box "Canadian companies, not always made in Canada", 🍁 after the brand on cards. List `CDN_BRANDS` in index.html, checked by hand
   (stores' own lines only when really theirs). Not "made in Canada" (no data; most are made overseas). Analytics: canadian {on|off|from}.
