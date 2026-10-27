@@ -260,6 +260,24 @@ try:
                    f"started: " + ", ".join(f"{k} {v}" for k, v in Counter(a[:10] for a in before.values()).most_common(6)))
 except Exception as e:
     out.append(f"Tracking check: couldn't compute ({str(e)[:80]})")
+# RIGHT NOW (Oct 27, Bastien: "umami shows 6 currently online, our tracker over 100"): the stats page's "Right now" = devices with any
+# event in the last 30 minutes (Umami: the last 5). Who they are: new or returning, what they sent, which pages, how long ago.
+try:
+    nowu = datetime.now(timezone.utc)
+    for mins in (30, 5):
+        cut = (nowu - timedelta(minutes=mins)).isoformat()
+        rr = requests.get(f"{SB}/rest/v1/ana_events", headers=H, timeout=60,
+                          params={"select": "did,sid,kind,page,dev,nv,at", "at": f"gte.{cut}", "order": "id", "limit": "5000"})
+        rr.raise_for_status()
+        ev = rr.json()
+        dids = {e["did"] for e in ev}
+        only_leave = {d for d in dids if {e["kind"] for e in ev if e["did"] == d} <= {"leave", "scroll"}}
+        out.append(f"RIGHT NOW (last {mins} min): {len(dids)} devices, {len({e['sid'] for e in ev})} sessions, {len(ev)} events; "
+                   f"devices that only sent 'left the tab' (a tab closed or switched away, not someone reading): {len(only_leave)}; "
+                   f"kinds: " + ", ".join(f"{k} {v}" for k, v in Counter(e["kind"] for e in ev).most_common(8))
+                   + " | devices: " + ", ".join(f"{k} {v}" for k, v in Counter(e["dev"] for e in {e["did"]: e for e in ev}.values()).most_common(3)))
+except Exception as e:
+    out.append(f"Right now: couldn't compute ({str(e)[:80]})")
 # TODAY (Vancouver time, since midnight): where first visits came from and where they landed
 try:
     from zoneinfo import ZoneInfo
