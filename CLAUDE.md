@@ -53,6 +53,9 @@ site/grab.html, grab.js  "Grab deals" bookmark for MEC/REI (Bastien saves their 
                          which takes the list by postMessage (only from mec.ca/rei.com/svpsports.ca) and calls Supabase grab_save()
                          (supabase/grab.sql; same private key as stats.html, gf-stats-key) -> table grab_saves + starts a refresh.
                          scrape.py grab_saves() reads the last 10 days like saved-pages files. After editing grab.js: python tools/make_grab.py
+                         Oct 27: each part of a save used to start refresh.yml (one Backcountry save = ~15 runs in seconds, cancelling a push run);
+                         supabase/refresh-debounce-oct27.sql: _gf_refresh_now() only flags 'refresh_wanted' (ana_settings), pg_cron 'gf-refresh-flush'
+                         (every minute) starts ONE run after 90 s of quiet. Catalog uploads go through it too. Needs Bastien to paste it.
                          Oct 16: any MEC/REI list (sale or all running gear; MEC 80 pages, REI 150), only the fields the site reads;
                          grab-save.html sends big lists in parts of 200 (one 3,000-product save hit Supabase's statement timeout).
                          Backcountry (Oct 16): the bookmark reads a list + each product's page data: the WHOLE list (Bastien: "we want all
