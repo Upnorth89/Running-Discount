@@ -1577,10 +1577,13 @@ DECATHLON_FILE = os.environ.get("DECATHLON_FILE", "/tmp/decathlon.json")
 class DecBusy(Exception):
     """Decathlon said "429 too many requests" even after waiting: stop asking for today."""
 
+DEC_LIST_STATS = {}      # Oct 26 (coverage): list path -> [items the list says it has, product links we collected from it]
+
+
 def dec_links(budget):
     t0, links = time.time(), []
     for path in DEC_LISTS:
-        start = 0
+        start, got = 0, set()
         while start < 2000 and time.time() - t0 < budget:
             try:
                 html = dec_get(f"{DEC_BASE}{path}?from={start}&size=40").text
@@ -1589,8 +1592,15 @@ def dec_links(budget):
                 if "429" in str(e):
                     raise DecBusy(str(e))
                 break                                     # keep what the other lists gave
-            new = [u for u in dict.fromkeys(re.findall(r'href="(/en/p/[^"]+)"', html)) if u not in links]
-            if not new:
+            if start == 0:
+                m = re.search(r'filter-bar__top-info[^>]*>\s*<span[^>]*>\s*([\d,]+)\s+items', html)
+                DEC_LIST_STATS[path] = [int(m.group(1).replace(",", "")) if m else None, 0]
+            found = list(dict.fromkeys(re.findall(r'href="(/en/p/[^"]+)"', html)))
+            got |= set(found)                                    # the list's "N items" counts each colour page
+            new = [u for u in found if u not in links]
+            if path in DEC_LIST_STATS:
+                DEC_LIST_STATS[path][1] = len(got)
+            if not found:
                 break
             links += new
             start += 40
@@ -4538,6 +4548,17 @@ def scrape_decathlon_saved():
         raise RuntimeError(f"Decathlon night read last worked {t:%b %d}" + (f" ({d['failed']})" if d.get("failed") else ""))
     # products read before Oct 20 may carry cross-sell sizes (see dec_offer): until re-read, one whose sizes differ in price
     # 2.5x+ is left out rather than shown at a wrong price
+    # Oct 26 (coverage): each running list's own "N items" vs the products we collected from it, and how many listed products
+    # were read in the last 14 days (a full round of the night read takes about a week)
+    lists = {k: v for k, v in (d.get("lists") or {}).items() if v and v[0]}
+    seen = {u.replace(DEC_BASE, ""): s for u, s in (d.get("seen") or {}).items()}
+    fresh = sum(1 for u in d.get("links") or [] if u in seen)
+    short = [f"{k.rsplit('/', 1)[-1]} {v[1]} of {v[0]}" for k, v in lists.items() if v[1] < v[0] * 0.97]
+    links_n = len(d.get("links") or [])
+    note = "; ".join(x for x in (("lists cut short: " + ", ".join(short)) if short else "",
+                                 f"{links_n - fresh} listed products not read in 14 days" if links_n and fresh < links_n * 0.97 else "") if x)
+    save_coverage("decathlon", sum(v[0] for v in lists.values()) if lists else links_n,
+                  sum(min(v[1], v[0]) for v in lists.values()) if lists else fresh, note)
     ok = [o for o in d["offers"] if o.get("own") or len(o["sz"]) < 2 or max(e[1] for e in o["sz"]) <= 2.5 * min(e[1] for e in o["sz"])]
     if len(ok) < len(d["offers"]):
         print(f"  decathlon: {len(d['offers']) - len(ok)} products held back until re-read (mixed-in sizes)", file=sys.stderr)
@@ -4603,7 +4624,8 @@ def decathlon_night(out):
     offers = {u: o for u, o in offers.items() if seen.get(u, today) >= cutoff}
     good = read >= 20 or (not note and cur >= len(links))
     d = {"updated": today if good else (prev.get("updated") or today), "offers": list(offers.values()), "links": links,
-         "cursor": cur, "listed": listed, "seen": {u: t for u, t in seen.items() if t >= cutoff}}
+         "cursor": cur, "listed": listed, "seen": {u: t for u, t in seen.items() if t >= cutoff},
+         "lists": DEC_LIST_STATS or prev.get("lists") or {}}
     if note:
         d["failed"] = note
     p.write_text(json.dumps(d, separators=(",", ":"), ensure_ascii=False))

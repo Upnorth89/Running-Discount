@@ -576,7 +576,8 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   vs read) and Running Room (feed files read + `RR_SKIP_CODES`: an unknown tax-class code with 20+ in-stock sizes = "new product codes we
   don't read yet" in the email). The Running Room check found codes 900/901 (Walking Room trail/hiking shoes: Speedgoat 6 Mid GTX, Ultra
   Flow, Lone Peak 9+, Timp 6), 211 (Garmin/Wahoo watches), 151/152/261 (running tops) silently dropped: now read (+265 products, 55 on sale).
-  Next: Decathlon.
+  Decathlon (Oct 26): each running list's own "N items" (`DEC_LIST_STATS`, saved as `lists` in decathlon.json when the list is
+  refreshed weekly) vs colour pages collected (59 of 59 on running-shoes), plus listed products read in the last 14 days (261 of 262).
 - Sport Chek (Oct 13; Bastien: "build the Sport Chek reader"): it stopped blocking (robots.txt allows products, llms.txt published),
   so `scrape_sportchek` reads it live with an honest bot name through the data its own pages use (public key in every page, no
   login): search of the Running section etc. (~1,090 products), price/stock per 500 colour+sizes, size details only for products in
