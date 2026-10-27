@@ -81,6 +81,11 @@ T = {
         "bdOther": ("Before that:", "Black Friday running deals →", "/black-friday/"),
         "bfTrackH": "We're tracking real prices before Black Friday",
         "bfTrackTxt": "Since October 2 we record the price of every running product we follow, every day: {n} products so far. So on Black Friday we'll know which deals are real and which prices went up in November just to come back down.",
+        "bfDataH": "What our price data shows today ({date})",
+        "bfData": ["{pct}% of running shoe models at Canadian stores are on sale right now ({on} of {shoes}, at {shops} stores).",
+                   "Your size is the catch: a women's size 8 can buy only {w8}% of those sale shoes, a men's size 9 only {m9}%.",
+                   "{same}% of the shoes on sale today were already at that price or lower two weeks ago ({back}). A \"sale\" is often not new.",
+                   "Brands with the most models on sale: {most}. The fewest: {least}."],
         "bfSpotH": "How to spot a real Black Friday deal",
         "bfSpot": ["Compare with the price of the last few weeks, not the \"was\" price on the tag.",
                    "Check your size: a big discount often only covers sizes nobody wears.",
@@ -186,6 +191,11 @@ T = {
         "bdOther": ("Avant ça :", "Les aubaines course du Vendredi fou →", "/vendredi-fou/"),
         "bfTrackH": "On suit les vrais prix avant le Vendredi fou",
         "bfTrackTxt": "Depuis le 2 octobre, on note chaque jour le prix de chaque article de course qu'on suit : {n} articles jusqu'ici. Au Vendredi fou, on saura quelles aubaines sont vraies et quels prix ont monté en novembre pour mieux redescendre.",
+        "bfDataH": "Ce que nos relevés de prix montrent aujourd'hui ({date})",
+        "bfData": ["{pct} % des modèles de chaussures de course dans les boutiques canadiennes sont en solde en ce moment ({on} sur {shoes}, dans {shops} boutiques).",
+                   "La pointure change tout : une femme qui chausse du 8 n'a accès qu'à {w8} % de ces soldes, un homme en 9, à {m9} %.",
+                   "{same} % des chaussures en solde aujourd'hui étaient déjà à ce prix, ou moins, il y a deux semaines ({back}). Un « solde » n'est souvent pas nouveau.",
+                   "Marques avec le plus de modèles en solde : {most}. Le moins : {least}."],
         "bfSpotH": "Comment reconnaître une vraie aubaine du Vendredi fou",
         "bfSpot": ["Comparez avec le prix des dernières semaines, pas avec le prix « avant » de l'étiquette.",
                    "Vérifiez votre pointure : un gros rabais ne couvre souvent que des tailles que personne ne porte.",
@@ -1346,6 +1356,38 @@ def real_line(L, rows):
     return f'<p class="realn">✓ {esc(L["bfReal"].format(n=n, t=len(rows)))}</p>' if n else ""
 
 
+def bf_stats(site, today):
+    """Black Friday page, before the week (Oct 27, growth chat + Bastien): today's numbers from our own price history, the same
+    method as the monthly report (tools/report_page.py compute: Canadian stores only, spikes out, 'on sale' = 1%+ under regular)."""
+    import os
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
+        import report_page as RP
+        hist = os.environ.get("HISTORY_FILE") or "hist/prices.jsonl"
+        if not Path(hist).exists():
+            return None
+        return RP.compute(str(site / "deals.json"), hist, (today - timedelta(days=14)).isoformat())
+    except Exception as e:
+        print(f"  ! Black Friday stats left out ({e})", file=sys.stderr)
+        return None
+
+
+def bf_data(L, R):
+    if not R or not R["shoes"] or not R["hist"]:
+        return ""
+    fr = L is T["fr"]
+    num = (lambda n: f"{n:,}".replace(",", "\u202f")) if fr else (lambda n: f"{n:,}")
+    sz = lambda g, s: next((v for k, v in R["sizes"][g][1] if k == s), 0)
+    big = [b for b in R["brands"] if b[1] >= 100]
+    most = ", ".join(f"{bname(b[0])} {b[2]}{' %' if fr else '%'}" for b in big[:3])
+    least = ", ".join(f"{bname(b[0])} {b[2]}{' %' if fr else '%'}" for b in big[-2:][::-1])
+    back = date.fromisoformat(R["back"])
+    vals = dict(pct=round(100 * R["on"] / R["shoes"]), on=num(R["on"]), shoes=num(R["shoes"]), shops=R["shops"], w8=sz("women", "8"),
+                m9=sz("men", "9"), same=round(100 * R["same"] / R["hist"]), back=fmt_date(back.isoformat() + "T18:00:00+00:00", L), most=most, least=least)
+    lines = [x.format(**vals) for x in L["bfData"]] if big else [x.format(**vals) for x in L["bfData"][:3]]
+    return (f'<h2>{esc(L["bfDataH"].format(date=fmt_date(R["day"] + "T18:00:00+00:00", L)))}</h2><ul>' + "".join(f"<li>{esc(x)}</li>" for x in lines) + "</ul>")
+
+
 def black_friday(year):
     """The fourth Friday of November."""
     d = date(year, 11, 1)
@@ -1531,7 +1573,10 @@ def main():
                                    bf_other(L) + real_line(L, bf_rows) + cta))
         else:   # before: honest page, the price tracking + tips, and today's deals clearly labelled as today's (Bastien, Oct 4)
             tracked = sum(1 for i in items if i.get("hd"))
+            if "bf_R" not in globals():
+                globals()["bf_R"] = bf_stats(site, today)
             extra = (bf_other(L) + cta + f'<h2>{esc(L["bfTrackH"])}</h2><p>{esc(L["bfTrackTxt"].format(n=f"{tracked:,}".replace(",", " " if L is T["fr"] else ",")))}</p>'
+                     + bf_data(L, globals()["bf_R"])
                      + f'<h2>{esc(L["bfSpotH"])}</h2><ul>' + "".join(f"<li>{esc(x)}</li>" for x in L["bfSpot"]) + "</ul>"
                      + f'<h2>{esc(L["bfTodayH"].format(date=fmt_date(updated, L)))}</h2>')
             p.write_text(list_page(L, "/black-friday/", "/vendredi-fou/", L["bfTitlePre"], L["bfH1Pre"].format(date=bf.day),
