@@ -247,6 +247,17 @@ try:
         out.append("  their pages: " + ", ".join(f"{k} {v}" for k, v in Counter(pg_ for s in nov for pg_ in (s["pages"] or {"(none)"})).most_common(8))
                    + " | devices: " + ", ".join(f"{k} {v}" for k, v in Counter(s["dev"] for s in nov).most_common(3))
                    + " | first event day: " + ", ".join(f"{k} {v}" for k, v in Counter(s.get("d") for s in nov).most_common(3)))
+        # was their visit event simply before this window (a phone tab left open and reopened days later keeps its session)?
+        ids = [sid for sid, s in S.items() if s in nov]
+        before = {}
+        for i in range(0, len(ids), 40):
+            rr = requests.get(f"{SB}/rest/v1/ana_events", headers=H, timeout=60,
+                              params={"select": "sid,at", "kind": "eq.visit", "sid": f"in.({','.join(ids[i:i + 40])})"})
+            rr.raise_for_status()
+            for x in rr.json():
+                before[x["sid"]] = min(before.get(x["sid"], x["at"]), x["at"])
+        out.append(f"  visit event found earlier (session started before this window, tab reopened later): {len(before)} of {len(ids)}; "
+                   f"started: " + ", ".join(f"{k} {v}" for k, v in Counter(a[:10] for a in before.values()).most_common(6)))
 except Exception as e:
     out.append(f"Tracking check: couldn't compute ({str(e)[:80]})")
 # TODAY (Vancouver time, since midnight): where first visits came from and where they landed
