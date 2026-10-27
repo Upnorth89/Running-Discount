@@ -1555,6 +1555,28 @@ def site_flow(base, per, accented):
             return f"{slug}: {msg[:60]}"
         check("Shoe page: email me when it drops")(shoe_alert, pg)
 
+        def shoe_back():        # Oct 27: pages with nothing in stock: "Email me when it's back in my size" watches the whole page
+            reg = site_json("shoes/pages.json") or {}
+            slug = next((k for k, v in reg.items() if isinstance(v, dict) and not v.get("to")
+                         and 'id="backBox"' in (site_get(f"shoes/{k}/") or "")), None)
+            if not slug:
+                return "every shoe page has something in stock today"
+            pg.goto(base + f"shoes/{slug}/", wait_until="domcontentloaded")
+            pg.wait_for_selector("#backBox form", timeout=8000)
+            prev = pg.evaluate("() => localStorage.getItem('gf-watch')")
+            pg.select_option("#backBox [data-fit]", "men")
+            pg.select_option("#backBox [data-size]", "10.5")
+            pg.fill("#backBox input", "robot@example.com")
+            pg.click("#backBox button")
+            settle(pg, 900)
+            msg = pg.inner_text("#backBox .msg")
+            w = json.loads(pg.evaluate("() => localStorage.getItem('gf-watch')") or "{}")
+            pg.evaluate("p => p === null ? localStorage.removeItem('gf-watch') : localStorage.setItem('gf-watch', p)", prev)
+            assert "robot@example.com" in msg, f"the box gave no answer ({msg!r})"
+            assert f"page|{slug}" in w, f"the page wasn't put on the watchlist: {list(w)[:3]}"
+            return f"{slug}: watched as page|{slug}"
+        check("Shoe page with nothing in stock: email me when it's back")(shoe_back, pg)
+
         def shoe_alts():        # Oct 22, test 'alts': B shows other shoes of the same kind on sale in your size under the size tables
             alts = site_json("shoes/alts.json") or {}
             assert alts and all(len(v) >= 3 for k, v in alts.items() if k != "hike"), f"shoes/alts.json is empty or thin: { {k: len(v) for k, v in alts.items()} }"

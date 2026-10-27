@@ -128,6 +128,8 @@ T = {
         "hdrSearch": "Search deals", "hdrSearchPh": "Shoes, brands, gear", "hdrSearchGo": "Search",
         "yourSize": "Your size", "at": "at", "see": "See it", "watch": "Watch the price", "alertH": "Email me when the {name} drops in my size",
         "alertTxt": "Free. One email when the price falls in your size, plus the Friday deals. Unsubscribe in one tap.", "alertBtn": "Email me",
+        "boH": "Email me when the {name} is back in my size", "boTxt": "Free. One email when a store we check has it in your size, plus the Friday deals. Unsubscribe in one tap.",
+        "boFit": "Fit", "boMen": "Men's", "boWomen": "Women's", "boSize": "Size", "boPick": "Pick your fit and size first.",
         "alertPick": "Pick your size above first, so we watch the right one.", "alertBad": "That email doesn't look right.",
         "alertOk": "Almost done: check your inbox for {email} and tap the link to confirm (look in Junk too).", "alertFail": "Couldn't sign you up right now. Try again in a minute.",
         "alertDone": "You're watching this shoe. We'll email you when it drops in your size.", "emailPh": "you@example.com", "pick": "Your size:", "pickPh": "Pick your size", "change": "Change", "allInSize": "See every deal in your size →",
@@ -237,6 +239,8 @@ T = {
         "hdrSearch": "Chercher des aubaines", "hdrSearchPh": "Chaussures, marques…", "hdrSearchGo": "Chercher",
         "yourSize": "Votre pointure", "at": "chez", "see": "Voir", "watch": "Suivre le prix", "alertH": "M'avertir quand {name} baisse dans ma pointure",
         "alertTxt": "Gratuit. Un courriel quand le prix baisse dans votre pointure, plus les aubaines du vendredi. Désabonnement en un clic.", "alertBtn": "M'avertir",
+        "boH": "Écrivez-moi quand le {name} revient dans ma pointure", "boTxt": "Gratuit. Un courriel quand une boutique que nous suivons l'a dans votre pointure, plus les aubaines du vendredi. Désabonnement en un clic.",
+        "boFit": "Coupe", "boMen": "Homme", "boWomen": "Femme", "boSize": "Pointure", "boPick": "Choisissez d'abord la coupe et la pointure.",
         "alertPick": "Choisissez d'abord votre pointure plus haut, pour qu'on suive la bonne.", "alertBad": "Ce courriel ne semble pas valide.",
         "alertOk": "Presque fini : ouvrez le courriel envoyé à {email} et touchez le lien pour confirmer (regardez aussi dans les indésirables).", "alertFail": "Inscription impossible pour le moment. Réessayez dans une minute.",
         "alertDone": "Vous suivez cette chaussure. On vous écrit quand elle baisse dans votre pointure.", "emailPh": "vous@exemple.com", "pick": "Votre pointure :", "pickPh": "Choisissez votre pointure", "change": "Modifier", "allInSize": "Voir toutes les aubaines dans votre pointure →",
@@ -480,6 +484,7 @@ tr.yours td:first-child{font-weight:700;box-shadow:inset 4px 0 0 var(--hivis)}
 .alert form{display:flex;gap:8px}.alert input{flex:1;min-width:0;font:16px var(--body);border:0;border-radius:999px;padding:11px 14px}
 .alert button{flex:none;font:700 15px/1 var(--body);background:var(--hivis);color:var(--hivis-ink);border:0;border-radius:999px;padding:11px 16px;cursor:pointer}
 .alert .msg{margin:8px 0 0;font-size:14px}.alert .msg:empty{display:none}
+.boback form{flex-wrap:wrap}.boback .bor{display:flex;gap:8px;flex:1 1 100%}.boback select{flex:1;min-width:0;font:16px var(--body);border:0;border-radius:999px;padding:10px 12px;background:#fff;color:#17201c}
 .qs form{flex-direction:column}.qsrow{display:flex;gap:8px}.qs select{flex:1;min-width:0;font:16px var(--body);border:0;border-radius:999px;padding:11px 12px;background:#fff;color:#17201C}
 .qs .qsrow+.qsrow{flex-wrap:wrap}.qs .qsrow+.qsrow input{flex:1 1 100%}.qs .qsrow+.qsrow button{flex:1 1 100%}
 .qs .qsmore{margin:10px 0 0}.qs .qsmore a{color:var(--band-ink)}
@@ -793,6 +798,36 @@ f.addEventListener("submit",function(e){{e.preventDefault();
     put("gf-watch",w);if(!get("rd-profile"))put("rd-profile",p);if(!(subd&&(subd.active||subd.key)))put("gf-sub",{{pending:em}});
     f.remove();msg.textContent=box.dataset.ok.replace("{{email}}",em);
     try{{ana("signup","shoe-page")}}catch(x){{}}try{{window.umami&&umami.track("signup",{{method:"email",where:"shoe-page",lang:fr?"fr":"en",ref:ref||"none"}})}}catch(x){{}}}})
+  .catch(function(){{btn.disabled=false;msg.textContent=box.dataset.fail}})}})}})();
+/* "Email me when it's back in my size" (Oct 27): pages with nothing in stock. The PAGE goes on the watchlist ("page|<slug>"); the
+   morning alerts send "Back in your size" when any shoe on it is in their size again */
+(function(){{var box=document.getElementById("backBox");if(!box)return;var f=box.querySelector("form"),msg=box.querySelector(".msg"),
+  fit=box.querySelector("[data-fit]"),sz=box.querySelector("[data-size]"),K=box.dataset.key;
+var get=function(k){{try{{return JSON.parse(localStorage.getItem(k)||"null")}}catch(e){{return null}}}},put=function(k,v){{try{{localStorage.setItem(k,JSON.stringify(v))}}catch(e){{}}}};
+var subd=get("gf-sub"),w0=get("gf-watch")||{{}};if(subd&&(subd.active||subd.key)&&w0[K]){{f.remove();msg.textContent=box.dataset.done;return}}
+var fill=function(){{var v=sz.value;sz.innerHTML=sz.options[0].outerHTML+(fit.value?(fit.value==="women"?sz.dataset.w:sz.dataset.m):"");sz.value=v}};
+fit.addEventListener("change",fill);
+var p0=get("rd-profile"),ss=get("gf-shoe-size"),g0=p0&&p0.gender==="women"?"women":p0&&p0.gender==="men"?"men":ss&&ss.g==="women"?"women":ss&&ss.g==="men"?"men":"",
+  s0=(p0&&p0.sizes&&p0.sizes.shoes&&(p0.sizes.shoes.sizes||[])[0])||(ss&&ss.s)||"";
+if(g0){{fit.value=g0;fill();if(s0)sz.value=String(parseFloat(String(s0).replace(/^[MW]:/,"")))}}
+f.addEventListener("submit",function(e){{e.preventDefault();
+  var em=f.querySelector("input").value.trim().replace(/^mailto:/i,"").replace(/^.*<([^>]+)>.*$/,"$1").replace(/\s+/g,"").replace(/\.+$/,"");
+  if(!fit.value||!sz.value){{msg.textContent=box.dataset.pick;return}}
+  if(!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{{2,}}$/.test(em)||/\.\./.test(em)){{msg.textContent=box.dataset.bad;return}}
+  var fr=document.documentElement.lang==="fr",us=/^\/us\//.test(location.pathname),tz=null,ref=get("gf-ref");try{{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||null}}catch(x){{}}
+  var p=get("rd-profile");
+  if(!(p&&p.sizes&&p.sizes.shoes&&(p.sizes.shoes.sizes||[]).length)){{
+    var G=["shoes","tops","bottoms","bras","socks","gloves","headwear","packs","gear","watches","nutrition"],S={{shoes:{{sizes:[sz.value],width:[]}}}};
+    G.slice(1).forEach(function(k){{S[k]={{sizes:[]}}}});
+    p={{lang:fr?"fr":"en",country:us?"us":"ca",tz:tz,name:"",email:em,gender:fit.value,terrain:"both",ships:"ca",groups:G,sizes:S,brands:[],activities:[]}};if(ref)p.ref=ref}}
+  p.email=em;
+  var meta={{b:box.dataset.b,n:box.dataset.n,g:"shoes",url:location.href,price:null,low:null,seen:null,gone:true,saved:new Date().toISOString()}},nw={{}};nw[K]=meta;
+  var w=get("gf-watch")||{{}};w[K]=meta;var btn=f.querySelector("button");btn.disabled=true;
+  fetch("{SB_URL}/rest/v1/rpc/subscribe",{{method:"POST",headers:{{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"}},
+    body:JSON.stringify({{p_email:em,p_profile:Object.assign({{}},p,{{watch_new:nw}})}})}}).then(function(r){{if(!r.ok)throw 0;
+    put("gf-watch",w);if(!get("rd-profile"))put("rd-profile",p);if(!(subd&&(subd.active||subd.key)))put("gf-sub",{{pending:em}});
+    f.remove();msg.textContent=box.dataset.ok.replace("{{email}}",em);
+    try{{ana("signup","shoe-page-back")}}catch(x){{}}try{{window.umami&&umami.track("signup",{{method:"email",where:"shoe-page-back",lang:fr?"fr":"en",ref:ref||"none"}})}}catch(x){{}}}})
   .catch(function(){{btn.disabled=false;msg.textContent=box.dataset.fail}})}})}})();
 /* wrong side (Oct 6, 2026): a visitor who picked USA on a Canadian page (or Canada on a US page) gets a bar to the same page
    on their side, when it exists (Google, old links and the menu's country link can lead to the other side) */
@@ -1176,6 +1211,17 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None,
                    f'<p class="facts">{L["facts"].format(sizes=len(allrows), stores=n_stores, date=fmt_date(updated, L))}</p></div></div>')
     else:
         out.append(f'<div class="hero"><div>{f"<span class=tag>{esc(t)}</span>" if t else ""}<p>{L["none"]}</p></div></div>')
+        # Oct 27 (Bastien OK'd idea 1: ~114 shoe pages say "Not in stock"; shoe pages bring most sign-ups): watch the PAGE ("page|<slug>",
+        # alerts.py matches any shoe on it in their size) and get the "Back in your size" email when a store has it again
+        if not L.get("hike"):
+            zs = lambda a, b: "".join(f'<option value="{z:g}">{z:g}</option>' for z in [x / 2 for x in range(a * 2, b * 2 + 1)])
+            out.append(f'<section class="alert boback" id="backBox" data-key="page|{esc(slug)}" data-b="{esc(brand)}" data-n="{esc(name)}" '
+                       f'data-pick="{esc(L["boPick"])}" data-bad="{esc(L["alertBad"])}" data-ok="{esc(L["alertOk"])}" data-fail="{esc(L["alertFail"])}" data-done="{esc(L["alertDone"])}">'
+                       f'<h2>{esc(L["boH"].format(name=name))}</h2><p class="fine">{L["boTxt"]}</p><form novalidate><div class="bor">'
+                       f'<select data-fit aria-label="{esc(L["boFit"])}"><option value="">{esc(L["boFit"])}</option><option value="men">{esc(L["boMen"])}</option><option value="women">{esc(L["boWomen"])}</option></select>'
+                       f'<select data-size aria-label="{esc(L["boSize"])}" data-m="{esc(zs(6, 15))}" data-w="{esc(zs(5, 12))}"><option value="">{esc(L["boSize"])}</option></select></div>'
+                       f'<input type="email" autocomplete="email" inputmode="email" placeholder="{esc(L["emailPh"])}" aria-label="Email" required>'
+                       f'<button type="submit">{L["alertBtn"]}</button></form><p class="msg" aria-live="polite"></p></section>')
     # "your size": the page reads the sizes saved on this phone (main site) and highlights them (script at the end)
     out.append(f'<div class="mine" id="mine" hidden data-your="{esc(L["yourSize"])}" data-at="{esc(L["at"])}" data-see="{esc(L["see"])}" '
                f'data-none="{esc(L["notInSize"])}" data-pick="{esc(L["pick"])}" data-pickph="{esc(L["pickPh"])}" data-chg="{esc(L["change"])}" '

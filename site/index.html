@@ -2299,7 +2299,10 @@ $("shareBtn").addEventListener("click",async()=>{
 let byKey={};
 /* What changed on the watchlist: price vs when saved, vs when last looked, lowest seen, back in size. */
 function watchStatus(k){
-  const w=watches[k];const m=matchItems({...toProfile(),groups:ORDER},byKey[k]||[]).sort((a,b)=>a.best-b.best);
+  const w=watches[k];
+  // Oct 27: "page|<slug>" = a whole shoe page watched from its "back in my size" box: any shoe on that page counts
+  const cands=k.startsWith("page|")?ITEMS.filter(d=>d.g==="shoes"&&slugify(d.b+" "+baseModel(d.n))===k.slice(5)):byKey[k]||[];
+  const m=matchItems({...toProfile(),groups:ORDER},cands).sort((a,b)=>a.best-b.best);
   const d=m[0]||null,cur=d?d.best:null;
   const since=w.seen!=null?w.seen:w.price;
   return {w,d,cur,

@@ -100,6 +100,11 @@ scraper/shoe_pages.py    Google pages: one per popular shoe model (3+ Canadian s
                          in pages.json, `stale()`, HIDE_DAYS) gets noindex,follow and leaves the sitemap (NOINDEX; page stays for visitors);
                          breadcrumb brand links to /brands/<b>/ when it has a page (+ BreadcrumbList); base_model/baseModel: "Gore-Tex" = "GTX",
                          New Balance "880 v15" = "880v15" (28 + 8 duplicate pages forwarded). check.py: no noindex page in the sitemap, every other shoe page in it.
+                         Back in my size (Oct 27, Bastien OK'd idea 1): a page with nothing in stock (not boot pages) shows #backBox (fit + size +
+                         email) that watches the PAGE: key "page|<slug>" (gf-watch + watch_new); alerts.py adds "page|"+slug for every
+                         build_models() page (running items, both sides), so the first shoe on it in their size sends "Back in your size";
+                         the homepage watchlist matches page keys the same way (watchStatus). Analytics signup "shoe-page-back".
+                         No A/B test: these pages had no sign-up at all (A = nothing); judged on its sign-ups. Site test "Shoe page with nothing in stock…".
                          Page photo (Oct 26 bug): model_page reassigned `first` to a per-table dict, so no shoe/boot page had a hero photo
                          or a Product `image`; now `photo` = first item photo (hero + JSON-LD image, needed for product results).
                          Price line (Oct 15, Bastien dropped the chart: "not make people feel like they missed a sale"): `price_chart()` under
