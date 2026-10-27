@@ -86,6 +86,9 @@ scraper/shoe_pages.py    Google pages: one per popular shoe model (3+ Canadian s
                          morning build writes today's top 12 + links there; one EN and one FR copy, CSS shows the one matching html[lang]).
                          Size pages (Oct 15): /running-shoes-sale/men/size-11/ … (FR /chaussures-course-solde/homme/pointure-10-5/, USA
                          /us/…): men 7-13 + 14, women 5-11, sale only, regular width; size menu on the men/women pages, qs_box after cards.
+                         BF price-data section (Oct 27, growth chat, Bastien OK'd, bb170cb): /black-friday/ + /vendredi-fou/ (pre-BF version) show
+                         "What our price data shows today" from bf_stats()/bf_data() (tools/report_page.py compute(), HISTORY_FILE, back = 14 days):
+                         % shoe models on sale, women's 8 / men's 9 share, % unchanged in 2 weeks, brands most/fewest on sale; no history = no section.
                          Black Friday labels (Oct 23, Bastien OK'd): `low_days()` = the homepage badge rule (30+ days of history, today <= lo,
                          hi 2%+ above) per model at its best price -> summary `lowd` -> green "✓ Lowest price we've seen in N days" on every
                          list card (`card_list`); BF week (Nov 20-Dec 1) lists real drops first (`real_first`) + count line `bfReal`. check.py
@@ -340,9 +343,15 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   the race's country. UTMB North America publishes ONE gear PDF for all its events (100M/100K/50K/20K categories + hot/cold kits;
   `utmb_race()`). Kinds can repeat with a number ("gloves3" = "gloves" rules, `kbase()`); identical pick lists are stored once per page.
   Checked and left out (no real mandatory list): Angeles Crest 100 (2026 race book: only "headlamps needed" at the start), Squamish 50
-  (headlamp only), Sinister 7 + Canadian Death Race ("suggested"), Lost Soul, Golden, Broken Goat, Knee Knacker, Hardrock (recommended
+  (headlamp only), Lost Soul, Golden, Broken Goat, Knee Knacker, Hardrock (recommended
   only), Wasatch, Mammoth Trailfest 50K ("No gear requirements"); Kodiak + Pacific Trails (kit only as images). Picks: eyewear under $15 or a spare
   lens/cleaner never shows (`min` per kind). Metric: Search Console + ref race-<slug> sign-ups; check mid-Jan + end of March (plan doc row).
+  Oct 27 (Bastien via the growth chat, for his Sinister Sports call Oct 28; "yes if that's what their website says"): races whose whole list
+  is suggested get `"suggested": True` (SUG strings: title/h1 "suggested gear list", every R = "Suggested by the race" / « Suggéré par la course »,
+  a line on top "none of it is required", FAQ "Is any gear mandatory…? No."; hub link "Suggested gear list →"): sinister-7, canadian-death-race,
+  black-spur-ultra, castle-alpine, vertical-vendetta, the-dark-24 (each from its own rules_gear page, read Oct 27) + soo-200, divide-200 switched.
+  `labels` in RACES = a distance's display name ("Half marathon", "24-hour", "Vertical K"). Advent (virtual) and Ultra Obscura (no list) left out.
+  sinistersports.ca asks Crawl-delay 10 and answers 429 to quick reads: read slowly.
   Oct 22 (Bastien: "Sinister SOO 200 and divide 200"): soo-200 + divide-200. Sinister Sports' lists mix levels, so two more labels:
   P = "Provided" / « Fourni » (inReach, battery, bib + chip, bivvy, blaze orange: no tick box, no picks, not in the mandatory count) and
   L = "Ask the race" / « À confirmer » (Divide lists them unmarked under "a mix of mandatory and recommended gear"; a line on top says to ask
