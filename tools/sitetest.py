@@ -649,6 +649,10 @@ def site_flow(base, per, accented):
                     return {tiles: t && t.offsetParent ? Math.round(t.getBoundingClientRect().bottom) : null, btn: !!(b && b.offsetParent), open: !!(f && f.classList.contains('open'))}}""")
                 if r["tiles"] is not None:
                     assert r["tiles"] <= 650, f"the category circles end at {r['tiles']}px, below a laptop screen (650px tall in the browser)"
+                gap = page.evaluate("""() => {const h = document.querySelector('.rdhero h1'), f = document.getElementById('rdSearch');
+                    return h && f && h.offsetParent && f.offsetParent ? Math.round(f.getBoundingClientRect().top - h.getBoundingClientRect().bottom) : null}""")
+                if gap is not None:   # Oct 28 (Bastien: "the Y bleeds into the search bar"): the headline's y/g hung into the search box
+                    assert gap >= 10, f"the headline sits {gap}px above the search box (its y touches the box)"
                 if r["btn"] and not r["open"]:
                     page.click("#filtBtn")
                     settle(page, 900)
