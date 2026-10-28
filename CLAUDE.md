@@ -964,7 +964,10 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   Oct 27 (Bastien: "Are we tracking numbers correctly?"): 28% of first visits had lost their first batch (visit + welcome-view: no source,
   no landing page; ~3% before Oct 22). Fix: the visit waits in sessionStorage `gf-vq` and rides again with the next send until a send of it is
   confirmed (`vBusy`, 8 s), homepage ANA + shoe_pages page_foot `ana`; `document.prerendering` = wait. funnel "TRACKING CHECK" + "TODAY" lines;
-  site test "Analytics: a first visit lost in the first send is sent again". Funnel numbers Oct 22-27 undercount sources/landings.
+  site test "Analytics: a first visit lost in the first send is sent again".
+  Oct 28: most of those were OUR ROBOTS: a keepalive send (the last one as a page closes) skips Playwright's routes, so site-test /
+  night-scan contexts leaked 'leave' events and 260 fake Fox Pro card views into ana_events. Every robot context adds
+  `NO_KEEPALIVE` (tools/visual_check.py; ig_reel.py has a copy): add it to any new Playwright context that opens our pages. Funnel numbers Oct 22-27 undercount sources/landings.
 - Search help (Oct 8, Bastien: people searched "alphafly" and got nothing): `searchHelp()` in index.html. No deals in your sizes ->
   "Nothing in your size for X right now, but N in other sizes" + [Show all sizes] (`view.anySize`, reset on new text); a word that
   matches nothing -> "Did you mean …?" (`suggest()`: closest brand/model word in today's data, 1 typo under 7 letters, 2 above;

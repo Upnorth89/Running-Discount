@@ -89,7 +89,7 @@ def phone_pass(urls, width=390, height=844, label="phone"):
     """A 390 px phone (or a 1366 px laptop) opens each page: script errors from our code, sideways scroll, leftovers after the scripts
     ran, and (Oct 28) letters touching things: text running into a box, words cut off (tools/visual_check.py)."""
     sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "tools"))
-    from visual_check import collisions
+    from visual_check import collisions, NO_KEEPALIVE
     from playwright.sync_api import sync_playwright
     found = {}
     exe = os.environ.get("CHROMIUM")
@@ -98,7 +98,8 @@ def phone_pass(urls, width=390, height=844, label="phone"):
         mob = width < 700
         ctx = b.new_context(viewport={"width": width, "height": height}, device_scale_factor=2 if mob else 1, is_mobile=mob, has_touch=mob,
                             ignore_https_errors=bool(os.environ.get("SITETEST_INSECURE")), user_agent=UA["User-Agent"] + (" Mobile" if mob else ""))
-        # analytics stay out of our own numbers
+        # analytics stay out of our own numbers (a keepalive send skips routes: NO_KEEPALIVE makes it a plain one, Oct 28)
+        ctx.add_init_script(NO_KEEPALIVE)
         ctx.route(re.compile(r"supabase\.co|umami|cloud\.umami|googletagmanager"), lambda r: r.fulfill(status=200, body="{}"))
         for url in urls:
             errs, pg = [], ctx.new_page()

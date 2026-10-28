@@ -135,6 +135,10 @@ async def record(w, lang, names, work):
                                   user_agent="Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 "
                                              "(KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1")
 
+        # a keepalive send (the site's last one as a page closes) skips routes: make it a plain request (Oct 28)
+        await ctx.add_init_script("try{const f=window.fetch;window.fetch=function(u,o){try{if(o&&o.keepalive&&/supabase\\.co/.test(String(u&&u.url||u)))"
+                                  "o=Object.assign({},o,{keepalive:false})}catch(e){}return f.apply(this,[u,o])}}catch(e){}")
+
         async def through(route):
             u = route.request.url
             if "/rpc/" in u or "umami" in u:            # no sign-in calls, no visit counts from the recording

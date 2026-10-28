@@ -34,7 +34,7 @@ import threading
 import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from visual_check import collisions   # noqa: E402  (Oct 28: letters touching things)
+from visual_check import collisions, NO_KEEPALIVE   # noqa: E402  (Oct 28: letters touching things)
 import unicodedata
 from collections import Counter, defaultdict
 from concurrent.futures import ThreadPoolExecutor
@@ -128,6 +128,7 @@ def serve():
 
 def stub(ctx):
     # sign-up/analytics functions answer "null" (nothing reaches Supabase); trackers and Google stay out; photos skipped (speed)
+    ctx.add_init_script(NO_KEEPALIVE)      # a keepalive send skips the routes below and reached the real database (Oct 28)
     ctx.route("**/rest/v1/rpc/**", lambda r: r.fulfill(status=200, content_type="application/json", body="null"))
     ctx.route(re.compile(r"umami|googletagmanager|accounts\.google|gstatic"), lambda r: r.abort())
     ctx.route(re.compile(r"^https?://(?!127\.0\.0\.1).*\.(jpe?g|png|webp|gif|avif)(\?.*)?$", re.I), lambda r: r.abort())

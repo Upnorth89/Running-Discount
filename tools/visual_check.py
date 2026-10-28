@@ -13,6 +13,13 @@ they float over the page on purpose. A page whose stylesheet didn't load answers
   from visual_check import collisions; collisions(page) -> ["headline 'Find running…' touches the search box (form#rdSearch) by 4px", ...]
 """
 
+# Oct 28: robots' browsers must never reach our analytics. A keepalive request (the site's last send as a page closes) skips
+# Playwright's routes, so robot visits landed in the real numbers (260 "Fox Pro card views" from the site test). Every robot context
+# adds this first: Supabase calls go out as plain requests, which the routes answer.
+NO_KEEPALIVE = ("try{const f=window.fetch;window.fetch=function(u,o){try{if(o&&o.keepalive&&/supabase\\.co/.test(String(u&&u.url||u)))"
+                "o=Object.assign({},o,{keepalive:false})}catch(e){}return f.apply(this,[u,o])}}catch(e){}")
+
+
 JS = r"""() => {
 // a stylesheet that didn't load (a network blip) draws everything unstyled: say so instead of listing a hundred "collisions"
 for (const l of document.querySelectorAll('link[rel=stylesheet]')) {
