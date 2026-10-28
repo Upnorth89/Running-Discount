@@ -599,6 +599,9 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   **Reddit = shoes only with shoe page links (Oct 24, Bastien: "Reddit is great for clicks but no sign ups"; 705 Reddit first visits in
   14 days, <1% signed up, 8 of 361 homepage landings picked sizes; shoe pages bring 24 of 61 sign-ups via "Email me when it drops"):
   `reddit_post.py --pages-only` (no ?q= searches, no gear). Compare sign-ups per post by ?ref.**
+  **Every post checks itself (Oct 28, Bastien: "I need you to double check your work before I push stuff"; a line said "$75 (was $150, −33%)"):
+  reddit_post.py ends with tools/post_check.py: each line must match a row on its live shoe page (price, was, %, 5+ sizes) or it exits 1
+  and says which; never send a post whose POST CHECK isn't "all lines match".**
   **Rule (Oct 17, Bastien: "the shoe name should be a clickable link. It makes it look cleaner"): item names are ALWAYS the
   link, never a bare address under the line.** His Markdown paste in Reddit's normal editor showed raw [..](..), so every post
   also gets `--html FILE` (a copy page: names as links + "Copy post" button that copies rich text, links survive a paste in
