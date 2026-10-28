@@ -306,7 +306,7 @@ def main():
     def sitetest():
         out = work / "sitetest.json"
         r = subprocess.run([sys.executable, str(ROOT / "tools" / "sitetest.py"), str(site), str(out)],
-                           capture_output=True, text=True, timeout=900)
+                           capture_output=True, text=True, timeout=1800)   # Oct 28: ~5 min on GitHub, 15+ in Claude's sandbox
         if not out.exists():
             raise RuntimeError((r.stderr or r.stdout).strip().splitlines()[-1])
         st = json.loads(out.read_text())

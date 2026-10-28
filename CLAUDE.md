@@ -188,6 +188,15 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   sizes, returning visit, shoe page) are retried once, then stop publishing (yesterday's site stays up). `tools/check.py` runs
   it too (locally: CHROMIUM=/opt/pw-browsers/chromium). When adding a feature, add its check to sitetest.py.
   First catch (Oct 5): after a heart, "My sizes"/Edit opened the email step instead of the sizes (`editSizes()`).
+  Letters touch nothing (Oct 28, Bastien: "I shouldn't have to see the y bleeding over. These details matter and should be caught in our scan"):
+  tools/visual_check.py `collisions(page)` = every visible line of text (its letters' own height, descenders included) against form boxes,
+  buttons, pictures and filled/bordered boxes that aren't its parent/child; words cut off by a clipping box (not "…" on purpose); page wider
+  than the screen. Fixed/sticky/absolute things (bars, dialogs, hearts and badges on cards/photos) are skipped; a stylesheet that didn't load
+  (or came back empty) answers "STYLES-MISSING" instead (retry). Site test "Letters touch nothing…": homepage at 320/390/768/1024/1366/1920
+  with every live test off (A) and on (B), other page types (FR homepage, shoes, BF, sale list, race hub + page, About, hikes) at 390 + 1366.
+  Night scan runs it on the hubs + 40 random pages on a phone AND a 1366 laptop. The first catch was the "y" itself (the computer headline
+  sat on the search box once sizes were picked: theme.css `.rd.rdsized .rdhero h1{margin-bottom:16px}`). check.py gives the site test
+  30 min locally (it takes ~5 min on GitHub, 15+ in Claude's sandbox).
 - **Noon check** (`noon-check.yml`, `scraper/noon_check.py`, Oct 8; Bastien: "2 health runs a day and a midday lite check"): 18:53 UTC
   (11:53am Vancouver), no store re-read: tools/sitetest.py in live mode (`sitetest.py https://thegearfox.com/ OUT`; files fetched over
   the web; failures re-run once, only twice-failed checks count) + featured_check.py on the live JSON. Emails ONLY when something is

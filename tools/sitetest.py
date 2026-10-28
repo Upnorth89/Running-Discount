@@ -32,6 +32,9 @@ import socketserver
 import sys
 import threading
 import time
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from visual_check import collisions   # noqa: E402  (Oct 28: letters touching things)
 import unicodedata
 from collections import Counter, defaultdict
 from concurrent.futures import ThreadPoolExecutor
@@ -1810,6 +1813,46 @@ def site_flow(base, per, accented):
             finally:
                 c.close()
         check("Race gear page: what visitors do is recorded")(race_tracking, pg)
+
+        def letters():       # Oct 28 (Bastien: "I shouldn't have to see the y bleeding over. These details matter and should be caught in our scan"):
+            # every kind of page at phone, tablet, laptop and wide-screen widths, every live test off (A) and on (B): no line of text
+            # touching a box it doesn't belong to, no words cut off, nothing wider than the screen (tools/visual_check.py)
+            prof = ("localStorage.setItem('gf-peek','1');localStorage.setItem('gf-nosignup','1');localStorage.setItem('rd-profile',JSON.stringify({gender:'men',"
+                    "terrain:'both',ships:'ca',country:'ca',groups:['shoes','tops','bottoms'],sizes:{shoes:{sizes:['11'],width:[]},tops:{sizes:['M']},"
+                    "bottoms:{sizes:['M']}},brands:[],lang:'en'}))")
+            allb = "localStorage.setItem('gf-exp',JSON.stringify({r100:'B',run1st:'B',cards2:'B',short:'B',popq:'B',kit:'B',alts:'B',welcome:'A',layout:'A'}))"
+            paths = ["", "?lang=fr", "shoes/", "black-friday/", "running-shoes-sale/", "races/", "races/ultra-trail-harricana/", "about.html"]
+            if site_get("hikes/"):
+                paths.append("hikes/")
+            bad, seen, skipped = [], 0, 0
+            for arm, extra in (("A", ""), ("B", allb)):
+                for w, h in ((320, 640), (390, 844), (768, 1024), (1024, 768), (1366, 768), (1920, 1080)):
+                    mob = w < 700
+                    c = br.new_context(viewport={"width": w, "height": h}, is_mobile=mob, has_touch=mob, ignore_https_errors=INSECURE, locale="en-CA")
+                    stub(c)
+                    c.add_init_script("try{" + prof + ";" + extra + "}catch(e){}")
+                    q = c.new_page()
+                    try:
+                        # the homepage at every width; other pages at a phone and a laptop (the night scan opens every page type nightly)
+                        for path in ([""] + ([p_ for p_ in paths if p_] if w in (390, 1366) and arm == "A" else [])):
+                            q.goto(base + path, wait_until="load")
+                            q.wait_for_timeout(900 if path else 1800)
+                            r = collisions(q)
+                            if r and r[0].startswith("STYLES-MISSING"):
+                                q.reload(wait_until="load")
+                                q.wait_for_timeout(900)
+                                r = collisions(q)
+                            if r and r[0].startswith("STYLES-MISSING"):
+                                skipped += 1
+                                continue
+                            seen += 1
+                            bad += [f"{w}px /{path} ({arm}): {x}" for x in r]
+                    finally:
+                        c.close()
+            assert not bad, f"{len(bad)} found: " + " | ".join(bad[:4])
+            assert seen >= 2 * skipped, f"only {seen} page views measured, {skipped} had no stylesheet"
+            return f"{seen} page views measured (6 widths, tests off and on; {skipped} skipped, stylesheet didn't load): no text touching anything, nothing cut off"
+        check("Letters touch nothing: every page, phone to wide screen (headline vs search box, cut-off words)")(letters, pg)
 
         def visit_resend():    # Oct 27 (Bastien: "Are we tracking numbers correctly?"): 28% of first visits had lost their first batch
             got, n = [], [0]
