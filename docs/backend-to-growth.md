@@ -31,3 +31,18 @@ were fine. Funnel now prints TRACKING CHECK + TODAY lines.
 
 **Also live Oct 27:** test 'kit' (race/trail gear lists folded to one row a line, 50/50, decide ~mid-Dec), Black Friday live page
 (/black-friday/live/), 10 more trail lists (56 of 101).
+
+## Oct 28 (evening): your two "yes to both" items
+
+1. **Racing Dusk 20 Miler**: built from ironlegs.ca/racing-dusk, re-read Oct 28 ("The following must be carried at all times"): jacket,
+   mitts or gloves, tuque, additional warm layer, 1 L of water or more, space blanket or bivy bag, all Mandatory; headlamp Mandatory with the
+   page's note ("only if you start your last loop after 2pm", last loop by 3:30pm); race bib = Provided. Dec 19, 2026, 10am start, 8 h cut-off.
+   Pages: /races/racing-dusk/, /courses/racing-dusk/, /us/races/racing-dusk/ (in the hubs and the sitemap). The page's prices/registration
+   dates still say 2025; the race date says 19 December 2026.
+2. **Gifts for runners in the ☰ menu**: right after "Race gear lists", Nov 15 to Dec 26 (Vancouver date), Canada running side only (hidden on
+   USA and Hiking), EN "Gifts for runners" / FR « Cadeaux pour coureurs ». Homepage: giftMenu() (?gifts=1 forces it); shoe/list/race pages:
+   shoe_pages.gift_season() (pages rebuilt each morning; GIFT_MENU=1 forces it). Site tests: "Menu: seasonal 'Gifts for runners'" (window,
+   ?gifts=1, French, USA hidden, position) and "Menu on a short phone" now runs with the gift item on (320x568: Canada/USA still reachable).
+
+Also today (backend): every Reddit post now checks each line against its live shoe page before Bastien gets it (tools/post_check.py), after
+the midweek post's Novablast line said "$75 (was $150, −33%)". If you hand him post lines yourself, run them through it too.

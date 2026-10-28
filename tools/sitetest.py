@@ -1526,10 +1526,11 @@ def site_flow(base, per, accented):
             c.add_init_script("""try{localStorage.setItem('gf-nosignup','1');localStorage.setItem('gf-peek','1');localStorage.setItem('rd-profile',JSON.stringify({gender:'men',terrain:'both',ships:'ca',country:'ca',groups:['shoes'],sizes:{shoes:{sizes:['11'],width:[]}},brands:[],lang:'en'}))}catch(e){}""")
             q2 = c.new_page()
             try:
-                q2.goto(base, wait_until="domcontentloaded")
+                q2.goto(base + "?gifts=1", wait_until="domcontentloaded")    # Oct 28: with the seasonal gift item in the menu too
                 q2.wait_for_selector("#dealList .rdc", timeout=30000)
                 q2.click("#menuBtn")
                 settle(q2, 500)
+                assert q2.locator("#mGifts").is_visible(), "the gift item isn't in the menu with ?gifts=1"
                 q2.locator("#menu [data-ctry=us]").scroll_into_view_if_needed(timeout=3000)
                 r = q2.evaluate("document.querySelector('#menu [data-ctry=us]').getBoundingClientRect().bottom")
                 assert r <= q2.evaluate("innerHeight"), f"USA button below the screen ({round(r)}px) and can't be reached"
@@ -1540,6 +1541,36 @@ def site_flow(base, per, accented):
                 c.close()
             return "Canada/USA reachable and working on a 320x568 phone"
         check("Menu on a short phone: Canada/USA reachable")(menu_short_phone, pg)
+
+        def gift_menu():          # Oct 28 (growth chat, Bastien OK'd): "Gifts for runners" in the ☰ menu Nov 15 - Dec 26, Canada running side only
+            import datetime as _dt
+            from zoneinfo import ZoneInfo
+            d = _dt.datetime.now(ZoneInfo("America/Vancouver")).strftime("%m-%d")
+            season = "11-15" <= d <= "12-26"
+            out = []
+            for q, lang, want in (("", "en", season), ("?gifts=1", "en", True), ("?gifts=1&lang=fr", "fr", True), ("?gifts=1&c=us", "en", False)):
+                c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+                stub(c)
+                c.add_init_script("""try{localStorage.setItem('gf-nosignup','1');localStorage.setItem('gf-peek','1');localStorage.setItem('rd-profile',JSON.stringify({gender:'men',terrain:'both',ships:'ca',country:'ca',groups:['shoes'],sizes:{shoes:{sizes:['11'],width:[]}},brands:[],lang:'""" + lang + """'}))}catch(e){}""")
+                q2 = c.new_page()
+                try:
+                    q2.goto(base + q, wait_until="domcontentloaded")
+                    q2.wait_for_selector("#dealList .rdc", timeout=30000)
+                    q2.click("#menuBtn")
+                    settle(q2, 400)
+                    vis = q2.locator("#mGifts").is_visible()
+                    assert vis == want, f"{q or 'no switch'}: gift item {'missing' if want else 'showing'} (today {d})"
+                    if vis:
+                        href, txt = q2.get_attribute("#mGifts", "href"), q2.inner_text("#mGifts")
+                        assert href == ("cadeaux-coureurs/" if lang == "fr" else "gifts-for-runners/"), f"gift item goes to {href}"
+                        assert ("Cadeaux" if lang == "fr" else "Gifts for runners") in txt, f"gift item reads {txt!r}"
+                        after = q2.evaluate("document.getElementById('mRaces').nextElementSibling.id")
+                        assert after == "mGifts", "the gift item isn't right after the race gear lists"
+                    out.append(f"{q or 'today'} {'on' if vis else 'off'}")
+                finally:
+                    c.close()
+            return "; ".join(out)
+        check("Menu: seasonal 'Gifts for runners' (Nov 15 - Dec 26, Canada)")(gift_menu, pg)
 
         def open_mail():     # Oct 11 (52% confirmed): "Check your inbox" opens their mail app
             pg.evaluate("localStorage.setItem('gf-sub',JSON.stringify({pending:'robot@gmail.com'}))")
@@ -2131,6 +2162,18 @@ def site_flow(base, per, accented):
             pg.click(b)
             settle(pg, 200)
             assert pg.evaluate("Object.keys(JSON.parse(localStorage.getItem('gf-watch')||'{}')).length") == 0, "a second tap didn't remove it"
+            # Oct 28 (Bastien: "when a race item is expanded to the 10 items there's no way to shrink it back"): See all, then Show fewer
+            li = pg.locator("#gl .gi:not(.mini):not(.shoe):not([hidden])").filter(has=pg.locator(".mored:not([hidden])")).first
+            if li.count():
+                li.locator(".mored").click()
+                settle(pg, 200)
+                shown = li.evaluate("l => [...l.querySelectorAll('.dl li')].filter(x => x.offsetParent).length")
+                assert shown > 3, f"'See all' shows only {shown} picks"
+                li.locator(".lessd").click()
+                settle(pg, 200)
+                back = li.evaluate("l => [...l.querySelectorAll('.dl li')].filter(x => x.offsetParent).length")
+                assert back == 3, f"'Show fewer' left {back} picks showing"
+                assert li.locator(".mored").is_visible(), "'See all' didn't come back after 'Show fewer'"
             pg.select_option("#shoeSz", "10")
             pg.fill("#shoeQ", "speedgoat")
             settle(pg, 200)

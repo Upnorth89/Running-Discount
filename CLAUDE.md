@@ -425,7 +425,7 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   Oct 28 (growth chat, Bastien OK'd; both re-read on the race's own site): `frosty-mountain-ultra` (Trail Whisperer's 2026 "MANDATORY CHECKLIST
   for 50K and 27K" PDF; 13K has no gear check; cup-less) and `iron-legs` (ironlegs.ca per-distance "Mandatory Gear" + "Suggested Gear"; relay's bear
   spray = L: page says suggested, 2026 guide says mandatory). Not built (no readable list): Steep Ultra, Gaspésia 100 (Canva blocks ClaudeBot),
-  Racing Dusk 20 Miler (Dec 19: maybe next).
+  Racing Dusk 20 Miler: built Oct 28 (`racing-dusk`, ironlegs.ca/racing-dusk: 7 mandatory, headlamp only if the last loop starts after 2pm, bib = P).
   Test 'kit' (Oct 27, Bastien: "Yes race kit"; LIVE 50/50 on race + trail gear lists): B = `KITB` compact top + every line folded to one row
   (tick, name, level, "From $X · N picks", tap = picks; class kopen, not "open" = See all). Sinister 7 4.6 -> 2.5 phone screens, UTMB 9.2 -> 4.0,
   Alum Cave 8.9 -> 4.1. Coin = homepage's (gf-did + "kit"), "exp|kit|A/B" once per session; ?exp=kit:B or ?kit=b forces B. Metric: list
@@ -494,6 +494,8 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   price" -> /?watch=<itemKey>&ref=gifts), one brand once per budget, max 3 of a kind among sale picks, Canadian stores, photos only. Odd prices out:
   "pack/bundle/set/kit" names and a regular price over 1.8x the brand's median for that kind (a goodr at $100). Linked from both Canadian BF pages
   (`bfGift` in bf_live_line). check.py "Gift page (EN/FR)", site test "Gift page: three budgets…". US version: not yet.
+  ☰ menu item "Gifts for runners" / « Cadeaux pour coureurs » (Oct 28, growth chat, Bastien OK'd): after Race gear lists, Nov 15 - Dec 26 Vancouver date,
+  Canada running side only; homepage `giftMenu()` (?gifts=1), shoe/race pages `gift_season()` (GIFT_MENU=1). Site test "Menu: seasonal 'Gifts for runners'".
 - **Clothing sizes per category** (Oct 21, a visitor: "medium in shorts, L in socks, small in t-shirts"): sizes screen keeps one quick
   "Clothing size" row + "Different size in shorts, socks or gloves?" (`#clothMore`/`#clothBy`, `state.clothBy` = only the categories that
   differ, `clothFor(g)`; bras follow tops, hats the main size). Profiles already kept a size per group (Friday email/alerts use them);

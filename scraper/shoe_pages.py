@@ -15,6 +15,7 @@ Usage: python scraper/shoe_pages.py SITE_DIR
 """
 import html
 import json
+import os
 import re
 import sys
 from collections import defaultdict
@@ -558,7 +559,15 @@ tr.yours td:first-child{font-weight:700;box-shadow:inset 4px 0 0 var(--hivis)}
 
 MENU_SVG = ('<svg class="mi" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" '
             'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{}</svg>')
-MENU_ICONS = {'🔥': '<path d="M3 12V4.5A1.5 1.5 0 0 1 4.5 3H12l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.4"/>', '👟': '<path d="M2.5 17v-6l3.5-3 3 2.5 2.5-2.5 4.5 4.5h3a2.5 2.5 0 0 1 2.5 2.5V17z"/><path d="M2.5 20.5h19"/>', '♡': '<path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 6.9 4.5c2.1 0 3.6 1.2 5.1 3 1.5-1.8 3-3 5.1-3 3.5 0 5.5 3.5 4.2 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/>', '✏️': '<path d="M4 20h4L19.5 8.5l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>', '🦊': '<circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><path d="M12 7.6v.1"/>', '📸': '<rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8v.1"/>', '🏁': '<path d="M5 21V3.5"/><path d="M5 4h12l-2.5 4L17 12H5"/>'}   # same line icons as the homepage menu
+MENU_ICONS = {'🎁': '<path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 21V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>', '🔥': '<path d="M3 12V4.5A1.5 1.5 0 0 1 4.5 3H12l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.4"/>', '👟': '<path d="M2.5 17v-6l3.5-3 3 2.5 2.5-2.5 4.5 4.5h3a2.5 2.5 0 0 1 2.5 2.5V17z"/><path d="M2.5 20.5h19"/>', '♡': '<path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 6.9 4.5c2.1 0 3.6 1.2 5.1 3 1.5-1.8 3-3 5.1-3 3.5 0 5.5 3.5 4.2 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/>', '✏️': '<path d="M4 20h4L19.5 8.5l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>', '🦊': '<circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><path d="M12 7.6v.1"/>', '📸': '<rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8v.1"/>', '🏁': '<path d="M5 21V3.5"/><path d="M5 4h12l-2.5 4L17 12H5"/>'}   # same line icons as the homepage menu
+
+
+def gift_season(today=None):
+    """Nov 15 - Dec 26 (Vancouver date): the gift page is in the ☰ menu. GIFT_MENU=1 forces it (previews, checks)."""
+    import datetime
+    from zoneinfo import ZoneInfo
+    d = today or datetime.datetime.now(ZoneInfo("America/Vancouver")).date()
+    return bool(os.environ.get("GIFT_MENU")) or (11, 15) <= (d.month, d.day) <= (12, 26)
 
 
 def menu_links(L, other_path):
@@ -574,6 +583,9 @@ def menu_links(L, other_path):
                          "Listes de matériel de randonnée" if fr else "Trail gear lists"))   # Oct 26 (Bastien: "the trail list still links to races")
     else:
         items.insert(2, ("/us/races/" if L["lang"] == "en-US" else "/courses/" if fr else "/races/", "🏁", L["mRaces"]))   # race gear lists (Oct 21; US races too)
+        # Oct 28 (growth chat, Bastien OK'd): "Gifts for runners" right after the race lists, Nov 15 - Dec 26, Canada only (pages are rebuilt every morning)
+        if L["lang"] != "en-US" and gift_season():
+            items.insert(3, ("/cadeaux-coureurs/" if fr else "/gifts-for-runners/", "🎁", "Cadeaux pour coureurs" if fr else "Gifts for runners"))
     out = "".join(f'<a href="{u}">{MENU_SVG.format(MENU_ICONS[i])}{esc(t)}</a>' for u, i, t in items)
     if L["lang"] == "en-US":
         return out + f'<a class="sw" href="{other_path}" hreflang="{L["other"]}">{L["switch"]}</a>'
