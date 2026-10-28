@@ -576,7 +576,7 @@ def menu_links(L, other_path):
     home = L["home"]
     items = [(home, "🔥", L["mDeals"]), (f"/{L['dir']}/", "👟", L["mShoes"]),
              (home + ("&" if "?" in home else "?") + "show=watch", "♡", L["mWatch"]), (home + ("&" if "?" in home else "?") + "show=sizes", "✏️", L["mSizes"]),
-             ("/about.html" + ("?lang=fr" if fr else ""), "🦊", L["mAbout"]), ("https://www.instagram.com/thegearfox/", "📸", "Instagram")]
+             ("/about.html" + ("?lang=fr" if fr else ""), "🦊", L["mAbout"])]   # Oct 28 (Bastien): no Instagram in the menu, it's in every footer
     if L.get("hike"):      # boot + trail list pages: menu goes to the hiking side, trail gear lists instead of race lists
         items[1] = (f"/{L['dir']}/", "👟", L["mShoes"])
         items.insert(2, ("/us/hikes/" if L["lang"] == "en-US" else "/randonnees/" if fr else "/hikes/", "🏁",

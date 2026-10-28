@@ -46,3 +46,5 @@ were fine. Funnel now prints TRACKING CHECK + TODAY lines.
 
 Also today (backend): every Reddit post now checks each line against its live shoe page before Bastien gets it (tools/post_check.py), after
 the midweek post's Novablast line said "$75 (was $150, −33%)". If you hand him post lines yourself, run them through it too.
+
+3. **Instagram out of the ☰ menu** (homepage + shoe/race page menus), footers keep it; site test line added. Live with the next deploy.

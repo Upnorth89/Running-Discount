@@ -1559,6 +1559,9 @@ def site_flow(base, per, accented):
                     q2.click("#menuBtn")
                     settle(q2, 400)
                     vis = q2.locator("#mGifts").is_visible()
+                    # Oct 28 (Bastien): Instagram left the menu ("it's at the bottom of the page"); the footer keeps it
+                    assert not q2.locator('#menu a[href*="instagram.com"]').count(), "Instagram is back in the ☰ menu"
+                    assert q2.locator('footer a[href*="instagram.com"], .foot a[href*="instagram.com"]').count(), "the footer lost its Instagram link"
                     assert vis == want, f"{q or 'no switch'}: gift item {'missing' if want else 'showing'} (today {d})"
                     if vis:
                         href, txt = q2.get_attribute("#mGifts", "href"), q2.inner_text("#mGifts")
