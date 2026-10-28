@@ -20,6 +20,8 @@ for (const l of document.querySelectorAll('link[rel=stylesheet]')) {
   if (!l.sheet) return ['STYLES-MISSING ' + l.href];
   try { if (!l.sheet.cssRules.length) return ['STYLES-MISSING ' + l.href] } catch (e) {}   // an error page served as CSS: empty; fonts (other site) can't be read
 }
+// every page of ours sets its own font: the browser's default serif means the page's styles never arrived
+if (/times|serif$/i.test(getComputedStyle(document.body).fontFamily.split(',')[0].replace(/["']/g, '').trim())) return ['STYLES-MISSING (default font)'];
 const vis = e => { if (!e || !e.getClientRects().length) return false; const s = getComputedStyle(e);
   return s.visibility !== 'hidden' && s.display !== 'none' && +s.opacity > 0.05 };
 const floating = e => { for (let x = e; x && x !== document.body; x = x.parentElement) { const p = getComputedStyle(x).position;
@@ -44,7 +46,14 @@ while ((n = tw.nextNode()) && count < 6000) {
   const el = n.parentElement; count++;
   if (!el || !vis(el) || floating(el) || el.closest('script,style,noscript,option,select,svg')) continue;
   const rg = document.createRange(); rg.selectNodeContents(n);
-  for (const r of rg.getClientRects()) {
+  // words clipped on purpose ("…", a box with overflow hidden) are measured only where they're drawn: inside the clipping box
+  let clip = null;
+  for (let x = el; x && x !== document.body; x = x.parentElement) { const cs = getComputedStyle(x);
+    if (/hidden|clip|auto|scroll/.test(cs.overflowX + cs.overflowY)) { clip = x.getBoundingClientRect(); break } }
+  for (const r0 of rg.getClientRects()) {
+    const r = clip ? { left: Math.max(r0.left, clip.left), right: Math.min(r0.right, clip.right), top: Math.max(r0.top, clip.top),
+                       bottom: Math.min(r0.bottom, clip.bottom), width: 0, height: 0 } : r0;
+    if (clip) { r.width = r.right - r.left; r.height = r.bottom - r.top }
     if (r.width < 2 || r.height < 4 || r.bottom < 0 || r.top > document.documentElement.scrollHeight) continue;
     for (const [s, b] of sb) {
       if (s === el || s.contains(el) || el.contains(s)) continue;
@@ -72,5 +81,13 @@ return out.slice(0, 12);
 
 
 def collisions(page):
-    """What looks broken on the page as drawn right now (empty list = clean)."""
-    return page.evaluate(JS)
+    """What looks broken on the page as drawn right now (empty list = clean). A page that moves on while we look (a redirect, a
+    script changing the address) is measured again once it settles."""
+    for i in range(3):
+        try:
+            return page.evaluate(JS)
+        except Exception as e:
+            if "context was destroyed" not in str(e) or i == 2:
+                raise
+            page.wait_for_load_state("load")
+            page.wait_for_timeout(1500)

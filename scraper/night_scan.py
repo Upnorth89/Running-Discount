@@ -215,6 +215,16 @@ def main():
     if os.environ.get("GITHUB_STEP_SUMMARY"):
         with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
             f.write("## Night scan\n" + summary + "\n" + "\n".join(lines[:200]) + "\n")
+    if os.environ.get("GITHUB_ACTIONS"):   # Oct 28: also as notices, so Claude can read the result from the run (like the funnel)
+        parts, cur = [], ""
+        for ln in [summary] + lines[:120]:
+            if len(cur) + len(ln) > 3500:
+                parts.append(cur)
+                cur = ""
+            cur += ln + "\n"
+        parts.append(cur)
+        for i, ptxt in enumerate(parts[:9], 1):
+            print(f"::notice title=Night scan {i}/{len(parts)}::" + ptxt.replace("%", "%25").replace("\r", "").replace("\n", "%0A"))
     if problems and os.environ.get("RESEND_API_KEY"):
         text = ("The night scan found things a visitor would trip on:\n\n" + "\n".join(lines[:60])
                 + (f"\n…and {len(lines) - 60} more (full list in the log)" if len(lines) > 60 else "") + "\n\n" + summary
