@@ -90,6 +90,10 @@ def fold(s):
 def check(name, critical=False):
     """check(name)(fn, page): runs fn, records ok / why. fn returns a short note, or raises AssertionError(why)."""
     def run(fn, page=None):
+        # SITETEST_ONLY="word|word" (Oct 28): run only the checks whose name has one of the words (+ the critical ones the rest needs)
+        only = os.environ.get("SITETEST_ONLY")
+        if only and not critical and not any(w.lower() in name.lower() for w in only.split("|")):
+            return True
         t = time.time()
         try:
             note = fn()
@@ -1573,8 +1577,14 @@ def site_flow(base, per, accented):
             pg.goto(base + f"shoes/{slug}/", wait_until="domcontentloaded")
             pg.wait_for_selector("#backBox form", timeout=8000)
             prev = pg.evaluate("() => localStorage.getItem('gf-watch')")
-            pg.select_option("#backBox [data-fit]", "men")
-            pg.select_option("#backBox [data-size]", "10.5")
+            # the page's own choices (a women's-only shoe has no men's fit; Oct 28 a fixed "men" timed out)
+            fits = pg.eval_on_selector_all("#backBox [data-fit] option", "os => os.map(o => o.value).filter(Boolean)")
+            if fits:
+                pg.select_option("#backBox [data-fit]", "men" if "men" in fits else fits[0])
+                pg.wait_for_timeout(200)
+            sizes = pg.eval_on_selector_all("#backBox [data-size] option", "os => os.map(o => o.value).filter(Boolean)")
+            assert sizes, "the box offers no sizes to pick"
+            pg.select_option("#backBox [data-size]", "10.5" if "10.5" in sizes else sizes[len(sizes) // 2])
             pg.fill("#backBox input", "robot@example.com")
             pg.click("#backBox button")
             settle(pg, 900)
@@ -1854,6 +1864,47 @@ def site_flow(base, per, accented):
             assert seen >= 2 * skipped, f"only {seen} page views measured, {skipped} had no stylesheet"
             return f"{seen} page views measured (6 widths, tests off and on; {skipped} skipped, stylesheet didn't load): no text touching anything, nothing cut off"
         check("Letters touch nothing: every page, phone to wide screen (headline vs search box, cut-off words)")(letters, pg)
+
+        def name_card():       # Oct 28 (Bastien OK'd the preview): test 'namecard' B = the sign-up card names a real deal in your size
+            out = []
+            for a in ("B", "A"):
+                c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+                stub(c)
+                q = c.new_page()
+                try:
+                    q.goto(base + f"?exp=namecard:{a}", wait_until="load")
+                    q.wait_for_selector("#saveSizes", state="visible", timeout=30000)
+                    q.click("#saveSizes")                       # a new visitor: welcome -> men's 11 / M
+                    q.wait_for_selector("#shoeSizes button", state="visible")
+                    q.click('#fit button[data-v="men"]')
+                    q.locator("#shoeSizes button", has_text=re.compile(r"^11$")).first.click()
+                    if q.locator("#moreSizes").is_visible():
+                        q.click("#moreSizes")
+                    q.locator("#clothSizes button", has_text=re.compile(r"^M$")).first.click()
+                    q.click("#saveSizes")
+                    q.wait_for_selector("section.grp .deal", timeout=20000)
+                    q.wait_for_timeout(800)
+                    if a == "A":
+                        assert not q.locator(".namecard").count() and q.locator(".signup .perks").count(), "group A lost the usual 'Free with your email' card"
+                        out.append("A: the usual card")
+                        continue
+                    nc = q.locator(".namecard")
+                    assert nc.count(), "group B shows no named-deal card"
+                    h = nc.locator("h3").inner_text()
+                    k = q.get_attribute("#suForm", "data-nc") or ""
+                    assert k and k.split("|")[0] in h.lower(), f"the card names '{h}' but would watch '{k}'"
+                    names = [x.inner_text().lower() for x in q.locator("section.grp").first.locator(".rdc .name, .deal .name").all()]
+                    assert any(k.split("|")[1][:12] in n_ for n_ in names), f"'{h}' isn't one of the Top deals on the page"
+                    q.fill("#suEmail", "robot@example.com")
+                    q.click(".namecard .primary")
+                    q.wait_for_timeout(1200)
+                    w = q.evaluate("Object.keys(JSON.parse(localStorage.getItem('gf-watch')||'{}'))")
+                    assert k in w, "signing up on the card didn't watch the deal it names"
+                    out.append(f"B: '{h}', watched on sign-up")
+                finally:
+                    c.close()
+            return "; ".join(out)
+        check("Sign-up card that names a deal (test namecard)")(name_card, pg)
 
         def visit_resend():    # Oct 27 (Bastien: "Are we tracking numbers correctly?"): 28% of first visits had lost their first batch
             got, n = [], [0]
