@@ -3608,7 +3608,11 @@ TYPES["shoes"] = [
     ("trail", r"norvan|speedgoat.*spike|norda|\bg\+|carbide|cross spike|mtn racer|\bice\b"),
     ("spike", r"spikes?\b(?<!cross spike)|\bpointes?\b|\bxc\d*\b|\bm?xcs\d|\bwxcs|zoom rival|\bavanti\b|sprintstar|evospeed|"
               r"\bja fly|maxfly|dragonfly|\bvictory\b|\b[LMS]D(-X)?\b|metaspeed (ld|md|sp)|ambition|\bdistance (nitro|11)\b|terminal vt|"
-              r"\bendorphin cheetah\b"),   # Oct 14: Saucony's track (Terminal VT) and XC (Endorphin Cheetah) spikes were typed road
+              r"\bendorphin cheetah\b|"   # Oct 14: Saucony's track (Terminal VT) and XC (Endorphin Cheetah) spikes were typed road
+              # Oct 28 (night scan): Brooks Wire 8 showed as "Unisex road shoes"; 76 spikes typed daily across both sides: Brooks Wire/Mach/
+              # ELMN8/QW-K, New Balance MD500/SD100/LD5000/MD800, ASICS Hypersprint, adidas Prime SP, Nike Superfly
+              r"\bbrooks .*\bwire\b|\bbrooks .*\bmach \d+\b|\belmn8\b|\bqw-?k\b|\bdraft xc\b|\b[lms]d ?\d{3,4}\b|hyper ?sprint|"
+              r"\bhyper (ld|md)\b|cosmoracer|zoom superfly|\bprime sp\b|\bxc seven\b|\bcrescendo (md|xc)\b"),
     ("hike", r"\bhik(e|er|ing)\b|\bboots?\b|\bbottes?\b|\bmid\b|chelsea|\bpolar\b|winter|hiver|snow ?boot|"
              r"approach(?!.*trail running)|toundra|\bkaha\b|\bmoab\b|targhee|x ultra|genesis mid|renegade|nabucco|sawtooth|"
              r"crosscut|\bbogs\b|cloudsoma|\btransport\b|\bax4\b|trailmaker|kopec|eastrail"),
@@ -3906,6 +3910,10 @@ def tidy_name(b, n):
     n = re.sub(r"\bUnisexe\b", "Unisex", n)
     n = re.sub(r"\b(Wom|M)en[’`´]s\b", r"\1en's", n)                                  # curly apostrophe
     n = re.sub(r"\s*\((Men's|Women's|Unisex)\)\s*$", r" - \1", n)                  # "Neo Vista (Men's)" -> "Neo Vista - Men's"
+    # Oct 27 (growth chat: VPO's "Rab Neutrino Pro Hoody - Mens" and Monod's "... - Men's" were two cards): no apostrophe = same gender
+    n = re.sub(r"\b(Men's|Women's|Mens|Womens)\s+[SF]2[4-9]$", r"\1", n)             # a season code after the gender ("Namche GTX Jacket Men's S26")
+    n = re.sub(r"(\s*-\s*|\s*\()(Mens|Womens|Men|Women)\)?\s*$", lambda m: " - Men's" if m.group(2).lower() in ("mens", "men") else " - Women's", n, flags=re.I)
+    n = re.sub(r"(?<=[a-z0-9)])\s+(Men's|Women's)$", r" - \1", n, flags=re.I)        # "Namche GTX Jacket Men's" (no dash)
     first = b.split(" ")[0] if b else ""
     toks = {b} | ({first} if len(first) >= 4 and first.lower() not in {"black", "blue", "north", "mountain", "outdoor"} else set())
     if b.lower() == "hoka":

@@ -632,6 +632,7 @@ html:not(.rd) .top .menu[open] summary{background:rgba(255,255,255,.16);color:#f
   .rd .rdhero{padding:22px 0 20px}
   .rd .rdhero h1,.rd.rdsized .rdhero h1{font-size:clamp(32px,3.3vw,44px);text-wrap:nowrap}   /* "2,092 deals in your size." on one line */
   .rd.rdsized .rdsub{display:none}   /* as on phones: once sizes are picked, the headline says it all */
+  .rd.rdsized .rdhero h1{margin-bottom:16px}   /* Oct 28 (Bastien: "the Y bleeds into the search bar"): with the line under it gone, the headline sat on the search box */
   .rd .rdsub{margin:10px 0 14px}
   .rd .rdfilters{margin-top:12px}
   .rd .rdhd .hi{aspect-ratio:auto;height:230px}

@@ -53,6 +53,9 @@ site/grab.html, grab.js  "Grab deals" bookmark for MEC/REI (Bastien saves their 
                          which takes the list by postMessage (only from mec.ca/rei.com/svpsports.ca) and calls Supabase grab_save()
                          (supabase/grab.sql; same private key as stats.html, gf-stats-key) -> table grab_saves + starts a refresh.
                          scrape.py grab_saves() reads the last 10 days like saved-pages files. After editing grab.js: python tools/make_grab.py
+                         Oct 27: each part of a save used to start refresh.yml (one Backcountry save = ~15 runs in seconds, cancelling a push run);
+                         supabase/refresh-debounce-oct27.sql: _gf_refresh_now() only flags 'refresh_wanted' (ana_settings), pg_cron 'gf-refresh-flush'
+                         (every minute) starts ONE run after 90 s of quiet. Catalog uploads go through it too. Pasted Oct 27.
                          Oct 16: any MEC/REI list (sale or all running gear; MEC 80 pages, REI 150), only the fields the site reads;
                          grab-save.html sends big lists in parts of 200 (one 3,000-product save hit Supabase's statement timeout).
                          Backcountry (Oct 16): the bookmark reads a list + each product's page data: the WHOLE list (Bastien: "we want all
@@ -86,6 +89,17 @@ scraper/shoe_pages.py    Google pages: one per popular shoe model (3+ Canadian s
                          morning build writes today's top 12 + links there; one EN and one FR copy, CSS shows the one matching html[lang]).
                          Size pages (Oct 15): /running-shoes-sale/men/size-11/ … (FR /chaussures-course-solde/homme/pointure-10-5/, USA
                          /us/…): men 7-13 + 14, women 5-11, sale only, regular width; size menu on the men/women pages, qs_box after cards.
+                         BF price-data section (Oct 27, growth chat, Bastien OK'd, bb170cb): /black-friday/ + /vendredi-fou/ (pre-BF version) show
+                         "What our price data shows today" from bf_stats()/bf_data() (tools/report_page.py compute(), HISTORY_FILE, back = 14 days):
+                         % shoe models on sale, women's 8 / men's 9 share, % unchanged in 2 weeks, brands most/fewest on sale; no history = no section.
+                         Black Friday deal check, LIVE page (Oct 27, growth chat's spec, Bastien OK'd): scraper/bf_live.py (refresh step after the
+                         race pages) -> /black-friday/live/ + /vendredi-fou/direct/ (Canada; in the sitemap; linked near the top of both BF pages,
+                         `bf_live_line`, US has none yet): from hist/prices.jsonl (running keys), ca items with a photo, no spikes: real drops this
+                         week (changed in 7 days, lower than every price in the 30 before, 10% or $10, >= $5, 3+ sizes), not new (30%+ off,
+                         reg $60+, same price 21+ days), went up (+10% and +$10 vs 21 days ago; old < 60% of today = glitch, out); one per brand,
+                         12/12/8 shown; stats (all real drops, % of sale prices already this low 2 weeks ago, sale items). Shoes link to their
+                         page ?ref=bf-desk, others to the store. Ended sales are already out (featured_check runs before). Neutral wording.
+                         check.py "Black Friday deal check (live page)" (reads the history branch), site test "Black Friday deal check page".
                          Black Friday labels (Oct 23, Bastien OK'd): `low_days()` = the homepage badge rule (30+ days of history, today <= lo,
                          hi 2%+ above) per model at its best price -> summary `lowd` -> green "✓ Lowest price we've seen in N days" on every
                          list card (`card_list`); BF week (Nov 20-Dec 1) lists real drops first (`real_first`) + count line `bfReal`. check.py
@@ -94,6 +108,11 @@ scraper/shoe_pages.py    Google pages: one per popular shoe model (3+ Canadian s
                          in pages.json, `stale()`, HIDE_DAYS) gets noindex,follow and leaves the sitemap (NOINDEX; page stays for visitors);
                          breadcrumb brand links to /brands/<b>/ when it has a page (+ BreadcrumbList); base_model/baseModel: "Gore-Tex" = "GTX",
                          New Balance "880 v15" = "880v15" (28 + 8 duplicate pages forwarded). check.py: no noindex page in the sitemap, every other shoe page in it.
+                         Back in my size (Oct 27, Bastien OK'd idea 1): a page with nothing in stock (not boot pages) shows #backBox (fit + size +
+                         email) that watches the PAGE: key "page|<slug>" (gf-watch + watch_new); alerts.py adds "page|"+slug for every
+                         build_models() page (running items, both sides), so the first shoe on it in their size sends "Back in your size";
+                         the homepage watchlist matches page keys the same way (watchStatus). Analytics signup "shoe-page-back".
+                         No A/B test: these pages had no sign-up at all (A = nothing); judged on its sign-ups. Site test "Shoe page with nothing in stock…".
                          Page photo (Oct 26 bug): model_page reassigned `first` to a per-table dict, so no shoe/boot page had a hero photo
                          or a Product `image`; now `photo` = first item photo (hero + JSON-LD image, needed for product results).
                          Price line (Oct 15, Bastien dropped the chart: "not make people feel like they missed a sale"): `price_chart()` under
@@ -169,6 +188,15 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   sizes, returning visit, shoe page) are retried once, then stop publishing (yesterday's site stays up). `tools/check.py` runs
   it too (locally: CHROMIUM=/opt/pw-browsers/chromium). When adding a feature, add its check to sitetest.py.
   First catch (Oct 5): after a heart, "My sizes"/Edit opened the email step instead of the sizes (`editSizes()`).
+  Letters touch nothing (Oct 28, Bastien: "I shouldn't have to see the y bleeding over. These details matter and should be caught in our scan"):
+  tools/visual_check.py `collisions(page)` = every visible line of text (its letters' own height, descenders included) against form boxes,
+  buttons, pictures and filled/bordered boxes that aren't its parent/child; words cut off by a clipping box (not "…" on purpose); page wider
+  than the screen. Fixed/sticky/absolute things (bars, dialogs, hearts and badges on cards/photos) are skipped; a stylesheet that didn't load
+  (or came back empty) answers "STYLES-MISSING" instead (retry). Site test "Letters touch nothing…": homepage at 320/390/768/1024/1366/1920
+  with every live test off (A) and on (B), other page types (FR homepage, shoes, BF, sale list, race hub + page, About, hikes) at 390 + 1366.
+  Night scan runs it on the hubs + 40 random pages on a phone AND a 1366 laptop. The first catch was the "y" itself (the computer headline
+  sat on the search box once sizes were picked: theme.css `.rd.rdsized .rdhero h1{margin-bottom:16px}`). check.py gives the site test
+  30 min locally (it takes ~5 min on GitHub, 15+ in Claude's sandbox).
 - **Noon check** (`noon-check.yml`, `scraper/noon_check.py`, Oct 8; Bastien: "2 health runs a day and a midday lite check"): 18:53 UTC
   (11:53am Vancouver), no store re-read: tools/sitetest.py in live mode (`sitetest.py https://thegearfox.com/ OUT`; files fetched over
   the web; failures re-run once, only twice-failed checks count) + featured_check.py on the live JSON. Emails ONLY when something is
@@ -265,6 +293,17 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   A $3/$29, B $5/$49; gf-pro / gf-nopro; analytics signup-step pro-view|pro-join|pro-no; funnel "FOX PRO PRICE TEST"; `?pro=1` shows it any
   day (previews). A tap overstates paying: <5% at both prices = stop; else step 2 in early Dec = real founding payment (Stripe, 30-day refund).
   Site test "Fox Pro waitlist card (price test)".
+  Test 'emailday' (Oct 27, Bastien OK'd idea 5; weekend visits ~3x weekdays): weekly_email.py `day_arm()` (coin from the token, same every
+  week) B = the weekly email Saturday 7am local instead of Friday, DAY_TEST Oct 30 - Nov 21 (`send_day()`); Black Friday week on: Friday for all.
+  weekly-email.yml also runs Saturdays; supabase/saturday-timer-oct27.sql = the Saturday timer (pasted Oct 27). Links carry em=friday /
+  em=saturday (`em_day()`); B gets no Saturday alert in the window. Copy says "this week" (not "since last Friday") for both. Funnel line
+  "EMAIL DAY TEST". Honest limit: ~40 subscribers a group x 4 sends: only a big difference (e.g. 11% -> 22% of sends bringing a visit) shows.
+  Test 'popq' (Oct 27, Bastien OK'd idea 4): B = tapping the EMPTY search box shows "Popular right now" chips (`popShow()`, #popq, fixed under
+  the box; max 6) from site/popular.json (tools/popular_searches.py, refresh step "Popular searches": the last 7 days' searches, once per
+  session, 2+ sessions, kept only if today's search finds 5+ sale deals on that side; casing from today's names). Tap = search + ana
+  "search" "popular: <q>". Why: searchers came back 17% vs 5% (funnel Oct 13-27), only ~5% of first-visit devices searched; Baymard:
+  show suggestions before typing. Metric: homepage first visits that search, baseline ~5% of devices; 5% -> 7.5% needs ~1,500 a group:
+  decide ~Nov 24 (or earlier if p<0.05). Preview: PV_POPQ=1 PV_POPULAR='{...}'. Site test "Popular searches under the search box".
   Parked: test 'card' (cleaner deal cards, ⋯ menu; commit 629e4d1, backlog). Site tests check each one. Correlations from the "RETENTION DRIVERS" lines are leads, never proof
   (Oct 17: "watchers come back 33%" was 9 devices).
 - **Own the design and product calls (Bastien, Oct 17: "You're supposed to optimize this to make it look the best and cleanest...
@@ -293,7 +332,14 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   Oct 24 baseline: 10% of searches found nothing (80/798; most = not on sale in their size, which the site already explains);
   46 duplicate shoe-card groups in Canada (fix parked on the side branch a5424a7: it changes ~40 shoe page slugs per side,
   needs a slug-stable display name first); 97.3% of shoe listings with readable sizes (REI "5 Mens/6.5 Womens" fixed).
-  Search forgives a trailing s/e (`qhas()` in index.html + search_check.py; site test "Search forgives a plural or an extra e").
+  Search forgives a trailing s/e (`qhas()` in index.html + search_check.py; site test "Search forgives a plural, an extra e or a filler word").
+  Oct 27: filler words (`FILLER`: for/with/the/and/of/pour/avec/et/des/du; never "on"/"la"/"le": brands, stores) are dropped when other words remain
+  ("running vest for women" found nothing). Load times: funnel had NONE since Oct 8 (ana-kinds-oct8.sql without 'load' pasted after
+  ana-load-oct8.sql): supabase/ana-kinds-oct27.sql = the full list (pasted Oct 27: load events flow again). Lab (Oct 27): a mid-range phone (CPU x4) needs 2.6 s
+  just to process sale.json (1.2 MB sent, 7.6 MB unpacked), before any download time.
+  Store offers reader: tools/offer_scan.py DEALS OUT (homepage bars of SHOPIFY_STORES, offer lines, our own sale share/median/max per store);
+  Oct 27 first read: 113 stores, 83 with a bar, real offers: 2XU "up to 50% off selected" (our prices: 50% of its items on sale, median 50%).
+  Not wired to the site yet (waiting on Bastien's yes).
 - **Answer, don't flip (Oct 24, Bastien: "You gave me advice, I then ask for clarification and then you just tell me the opposite").**
   I recommended brand+size pages, then reversed twice when he only asked questions. Before recommending: weigh costs/risks myself
   (near-copies, clutter, upkeep, real reach). A question from him = explain, not reverse. Change a recommendation only for a new
@@ -340,9 +386,15 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   the race's country. UTMB North America publishes ONE gear PDF for all its events (100M/100K/50K/20K categories + hot/cold kits;
   `utmb_race()`). Kinds can repeat with a number ("gloves3" = "gloves" rules, `kbase()`); identical pick lists are stored once per page.
   Checked and left out (no real mandatory list): Angeles Crest 100 (2026 race book: only "headlamps needed" at the start), Squamish 50
-  (headlamp only), Sinister 7 + Canadian Death Race ("suggested"), Lost Soul, Golden, Broken Goat, Knee Knacker, Hardrock (recommended
+  (headlamp only), Lost Soul, Golden, Broken Goat, Knee Knacker, Hardrock (recommended
   only), Wasatch, Mammoth Trailfest 50K ("No gear requirements"); Kodiak + Pacific Trails (kit only as images). Picks: eyewear under $15 or a spare
   lens/cleaner never shows (`min` per kind). Metric: Search Console + ref race-<slug> sign-ups; check mid-Jan + end of March (plan doc row).
+  Oct 27 (Bastien via the growth chat, for his Sinister Sports call Oct 28; "yes if that's what their website says"): races whose whole list
+  is suggested get `"suggested": True` (SUG strings: title/h1 "suggested gear list", every R = "Suggested by the race" / « Suggéré par la course »,
+  a line on top "none of it is required", FAQ "Is any gear mandatory…? No."; hub link "Suggested gear list →"): sinister-7, canadian-death-race,
+  black-spur-ultra, castle-alpine, vertical-vendetta, the-dark-24 (each from its own rules_gear page, read Oct 27) + soo-200, divide-200 switched.
+  `labels` in RACES = a distance's display name ("Half marathon", "24-hour", "Vertical K"). Advent (virtual) and Ultra Obscura (no list) left out.
+  sinistersports.ca asks Crawl-delay 10 and answers 429 to quick reads: read slowly.
   Oct 22 (Bastien: "Sinister SOO 200 and divide 200"): soo-200 + divide-200. Sinister Sports' lists mix levels, so two more labels:
   P = "Provided" / « Fourni » (inReach, battery, bib + chip, bivvy, blaze orange: no tick box, no picks, not in the mandatory count) and
   L = "Ask the race" / « À confirmer » (Divide lists them unmarked under "a mix of mandatory and recommended gear"; a line on top says to ask
@@ -368,6 +420,17 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   later (`_WX`); a whole-race weather kit (UTA pants + fleece, mozart cold/warm kit) uses `kits`. Fetched but not built yet (scratch
   notes): istria + eryri (lists behind per-race tabs/PDFs), kosciuszko (its table has 5 ticks for 4 races: recheck), chiangmai, restonica, nice, andorra,
   mallorca, tenerife.
+  Oct 27 (Bastien): hubs (/races/, /courses/, /us/races/, /hikes/…) have a search box (`hub_find()`, #hubQ: name/place/country/distance,
+  accents ignored, empty groups fold, "No race matches…" + our email; analytics filter "hubsearch|…"). Site test "Race and trail hubs: search".
+  Oct 28 (growth chat, Bastien OK'd; both re-read on the race's own site): `frosty-mountain-ultra` (Trail Whisperer's 2026 "MANDATORY CHECKLIST
+  for 50K and 27K" PDF; 13K has no gear check; cup-less) and `iron-legs` (ironlegs.ca per-distance "Mandatory Gear" + "Suggested Gear"; relay's bear
+  spray = L: page says suggested, 2026 guide says mandatory). Not built (no readable list): Steep Ultra, Gaspésia 100 (Canva blocks ClaudeBot),
+  Racing Dusk 20 Miler (Dec 19: maybe next).
+  Test 'kit' (Oct 27, Bastien: "Yes race kit"; LIVE 50/50 on race + trail gear lists): B = `KITB` compact top + every line folded to one row
+  (tick, name, level, "From $X · N picks", tap = picks; class kopen, not "open" = See all). Sinister 7 4.6 -> 2.5 phone screens, UTMB 9.2 -> 4.0,
+  Alum Cave 8.9 -> 4.1. Coin = homepage's (gf-did + "kit"), "exp|kit|A/B" once per session; ?exp=kit:B or ?kit=b forces B. Metric: list
+  sessions that tick an item or click a store (~4% baseline, funnel "KIT LAYOUT TEST"); 4% -> 8% needs ~550 sessions a group (~75 a week
+  each now): decide ~mid-Dec, earlier if p<0.05. Site test "Race kit layout test (kit)".
   Tracking (Oct 23, Bastien: "a tracker to see how and if people are using the gear checklist"): race pages send kind "filter" events
   "race|<race>|open|dist|have|unhave|complete|seeall|size|shoesize|<detail>" (`rt()` in race_pages.py; no new SQL kind) and deal clicks
   "store|<item kind>||race|<race>"; funnel.yml "RACE GEAR LISTS": sessions, first visits landing there, % that changed distance /
@@ -421,10 +484,16 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   reusing race_pages.py (size box, ticks, ♡ Watch, sign-up box; sign-ups here get `sport:"hike"`). Lines = hikes.gear_for() per trip length
   (`trips()`: day / 1 night / usual nights) with levels Essential (Y, counted) / Required (M) / Recommended (R); picks from the hiking files
   by group/type + a name rule per line (`NEED`, `NOT`, `PACK_BITS`: no watches, books, bells under safety lines); bear spray = checklist
-  line (no store ships it). Only `checked` hikes go live: hikes.VERIFIED (27 of 101 on Oct 25, 46 on Oct 26; 10 a day by the scheduled task "Daily: verify 10 more hikes" (9:37am Vancouver), trails in season first; each figure re-read on the park/trail page,
+  line (no store ships it). Only `checked` hikes go live: hikes.VERIFIED (27 of 101 on Oct 25, 46 on Oct 26, 56 on Oct 27; 10 a day by the scheduled task "Daily: verify 10 more hikes" (9:37am Vancouver), trails in season first; each figure re-read on the park/trail page,
   url kept; climb shown only when the page gives one, `gain_ok`). The other 74 need their trail page read by hand (Sépaq, PCTA, Yukon
-  block robots). Preview: `hike_pages.py DIR --all`. Food box (Oct 26, `fuel()`/FUEL_JS): LCDA (Looney 2022, the Army's successor to Pandolf; half up, half down the average grade; Cunningham resting) kcal/day from body + pack kg, hours, climb, or a GPX file read in the browser (gf-fuel). Trail list pages use the hiking menu (`HL()`: boot prices + trail lists, site test checks no /races/ link). check.py "Trail gear lists (checked hikes only)" (--force), site test "Trail gear list:
+  block robots). Preview: `hike_pages.py DIR --all`. Food box (Oct 26, `fuel()`/FUEL_JS): LCDA (Looney 2022, the Army's successor to Pandolf; half up, half down the average grade; Cunningham resting) kcal/day from body + pack kg, hours, climb, or a GPX file read in the browser (gf-fuel). kg | lb switch (Oct 27, Bastien: "some people use both"; `.fuu`, gf-fuel.u, converts body + pack, climb stays m/ft by side). Trail list pages use the hiking menu (`HL()`: boot prices + trail lists, site test checks no /races/ link). check.py "Trail gear lists (checked hikes only)" (--force), site test "Trail gear list:
   sizes, deals, ticks". Preview artifact: https://claude.ai/artifact/KdkvAVSK2eH9ApAXvTz5Yq
+- **Gift page** (Oct 28, growth chat's prototype, Bastien: "Ship it all except the fox pro"): `scraper/gift_pages.py site` (refresh step after the BF deal
+  check; adds itself to sitemap.xml) -> /gifts-for-runners/ + /cadeaux-coureurs/ (Canada side): size-free gifts (one size, or S+M+L / M+L in stock; hats,
+  gloves, socks, lights, bottles, sunglasses, hydration vests/belts, watches) under $25/$50/$100: 8 on sale (20%+ off) + 4 full price ("♡ Watch the
+  price" -> /?watch=<itemKey>&ref=gifts), one brand once per budget, max 3 of a kind among sale picks, Canadian stores, photos only. Odd prices out:
+  "pack/bundle/set/kit" names and a regular price over 1.8x the brand's median for that kind (a goodr at $100). Linked from both Canadian BF pages
+  (`bfGift` in bf_live_line). check.py "Gift page (EN/FR)", site test "Gift page: three budgets…". US version: not yet.
 - **Clothing sizes per category** (Oct 21, a visitor: "medium in shorts, L in socks, small in t-shirts"): sizes screen keeps one quick
   "Clothing size" row + "Different size in shorts, socks or gloves?" (`#clothMore`/`#clothBy`, `state.clothBy` = only the categories that
   differ, `clothFor(g)`; bras follow tops, hats the main size). Profiles already kept a size per group (Friday email/alerts use them);
@@ -720,6 +789,9 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   ignore "(trail/road) running shoe(s)", so stores' differently worded names merge. One spelling per brand (most common wins).
   Merge keys for shoes also ignore the colour after " — " (Fit First lists each colour) and width words on wide items;
   "(Men's)"/"Men’s" become " - Men's"; Québec stores' "- Large"/"(Large)" = wide. Hoka Ora Recovery = casual (dropped).
+- Gender words without the apostrophe (Oct 27, growth chat: VPO's "Rab Neutrino Pro Hoody - Mens" vs Monod's "- Men's" = two cards):
+  `tidy_name` turns "- Mens/Womens/Men/Women", "(Mens)", a bare trailing "Men's" and a season code after it ("Men's S26") into " - Men's" /
+  " - Women's" before the merge. Hiking CA 18,023 -> 17,735 cards. Canadian vs cross-border offers still stay separate cards (by design).
 - Clothing gender (Oct 6, a men's runner saw skirts/bras/high-rise leggings: 1 in 5 clothing items had no gender and showed to
   everyone): name first (`name_gender`), then the Shopify store's own tags/product type (`tag_gender`, clothing only, one gender
   only), then `clothing_gender` (bras group, WOMEN_ONLY words skirt/skort/dress/bra/high-rise/legging/capri/prenatal, WOMEN_BRANDS
@@ -889,6 +961,13 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
 - Analytics kinds (Oct 8): the database drops any event kind not in `ana_kinds()` (store bar/Canadian/country were lost Oct 5–8);
   `tools/check.py` "Analytics events are all recorded" fails if the site sends one it doesn't list. New kind = SQL for Bastien.
   `load` = ms until the deals show (+ connection, data size); the funnel report shows load bands vs sizes picked.
+  Oct 27 (Bastien: "Are we tracking numbers correctly?"): 28% of first visits had lost their first batch (visit + welcome-view: no source,
+  no landing page; ~3% before Oct 22). Fix: the visit waits in sessionStorage `gf-vq` and rides again with the next send until a send of it is
+  confirmed (`vBusy`, 8 s), homepage ANA + shoe_pages page_foot `ana`; `document.prerendering` = wait. funnel "TRACKING CHECK" + "TODAY" lines;
+  site test "Analytics: a first visit lost in the first send is sent again".
+  Oct 28: most of those were OUR ROBOTS: a keepalive send (the last one as a page closes) skips Playwright's routes, so site-test /
+  night-scan contexts leaked 'leave' events and 260 fake Fox Pro card views into ana_events. Every robot context adds
+  `NO_KEEPALIVE` (tools/visual_check.py; ig_reel.py has a copy): add it to any new Playwright context that opens our pages. Funnel numbers Oct 22-27 undercount sources/landings.
 - Search help (Oct 8, Bastien: people searched "alphafly" and got nothing): `searchHelp()` in index.html. No deals in your sizes ->
   "Nothing in your size for X right now, but N in other sizes" + [Show all sizes] (`view.anySize`, reset on new text); a word that
   matches nothing -> "Did you mean …?" (`suggest()`: closest brand/model word in today's data, 1 typo under 7 letters, 2 above;
@@ -950,6 +1029,20 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   left only in odd sizes until a size is picked (`commonFit`). Returning visitor (6 h+): "Since your last visit (Tuesday): N new · deals
   you opened that dropped" (`sinceBar`, from gf-base + gf-clicks `p`; the new count is left out when the new-deals row shows it).
   Hearts work without an email; a non-member's watchlist has "Email me when these drop" (`#emailNext`, signup-step drop-ask).
+- Store offers (Oct 27, Bastien: "wouldn't that be an added bonus for people to know?"; shipped empty, "yes ship it"): site/promos.json =
+  [{store (the offer host exactly as in STORES/offers, e.g. "ca.shop.runningroom.com"), side ca|us, en, fr, code (optional: many are taken off in
+  the cart), until "YYYY-MM-DD" (gone the day after, Vancouver date), from?, url (the store's terms)}], added by hand from a screenshot of the
+  store's banner. Shows a line on top of the deals (max 2, `promoBar()`: "See <store>'s full-price gear in your size" -> store view + full price)
+  and "+ Store offer: code X" on that store's FULL-PRICE cards only (`promoCard`; sale prices already carry the store's discount; codes have
+  exclusions, so never taken off our prices). Analytics filter "promo|<store>", "promo-terms|<store>". Site test "Store offer: …".
+  Preview: PV_PROMOS='[...]' make_preview.py (embeds it; that store's full-price US items ride along).
+  AUTOMATIC since Oct 27 (Bastien: "yes for the store offers"): refresh.yml step "Store offers" = tools/offer_scan.py site (morning: one visit
+  per SHOPIFY_STORES homepage, robots checked, honest UA; announcement-bar lines with a % or a code; SKIP member/sign-up/subscription/free
+  shipping; NOT_CODE "auto"; a sale banner our prices don't back (0 on sale there) stays off) or --carry (other runs: this morning's offers
+  from the live promos.json). Auto entries: auto, until=today, sale (banner about sale items -> "Our check: N of the M items we follow there
+  are on sale, most at X% off", button = that store's deals), cards (cart-wide offer/code -> "+ Store offer" on full-price cards, button =
+  full-price gear). Quoted word for word ("<Store>'s homepage today: “…”"; never translated). Hand offers: site/promos-hand.json (until).
+  Phones show 1 box, computers 2. Morning email: "Store offers on the site today: …" (Bastien replies "remove X"). First day: 2XU CA+US, Wigwam.
 - Canadian brands (Oct 7, Bastien): Filters chip "🍁 Canadian brands" (Canada side only, `view.cdn`, `?canadian` link for posts),
   box "Canadian companies, not always made in Canada", 🍁 after the brand on cards. List `CDN_BRANDS` in index.html, checked by hand
   (stores' own lines only when really theirs). Not "made in Canada" (no data; most are made overseas). Analytics: canadian {on|off|from}.

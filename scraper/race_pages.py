@@ -396,7 +396,7 @@ _SIN = lambda t, en, fr, enn="", frn="": (t, {"en": (en, enn), "fr": (fr, frn)})
 RACES.update({
     # sinistersports.ca/soo200/rules_gear, "Mandatory (Provided by Sinister Sports)" + "Recommended" (read Oct 22, 2026); one list for every distance
     "soo-200": {
-        "name": "SOO 200", "short": "SOO", "de": "du ", "le": "le ", "unit": "label",
+        "name": "SOO 200", "short": "SOO", "de": "du ", "le": "le ", "unit": "label", "suggested": True,
         "where": {"en": "Sault Ste. Marie, ON", "fr": "Sault-Sainte-Marie, Ont."},
         "when": {"en": "September 2027 (date to come; 2026: Sept. 11–15)", "fr": "Septembre 2027 (date à venir; 2026 : 11 au 15 sept.)"},
         "dists": ["200M", "100K", "50K"], "default": "200M", "cupless": True,
@@ -426,7 +426,7 @@ RACES.update({
     # sinistersports.ca/divide200/racer_information_package (read Oct 22, 2026). Oct 25, Kirsti (Sinister Sports) to Bastien: "We don't have
     # any mandatory gear. Other than ones bib and timing chip. And at the divide and SOO 200 the InReach": everything else = recommended
     "divide-200": {
-        "name": "Divide 200", "short": "Divide", "de": "de la ", "le": "la ", "unit": "label",
+        "name": "Divide 200", "short": "Divide", "de": "de la ", "le": "la ", "unit": "label", "suggested": True,
         "where": {"en": "Crowsnest Pass, AB", "fr": "Crowsnest Pass, Alb."},
         "when": {"en": "August 16–20, 2027", "fr": "16 au 20 août 2027"},
         "dists": ["200M", "100K"], "default": "200M", "cupless": True,
@@ -1185,6 +1185,81 @@ RACES.update({
     ], kits={"bad": ["jacket2", "cap2", "gloves2", "wind", "tuque", "pants", "warmjacket", "midlayer2", "gaiters"]}),
 })
 
+# Oct 28 (growth chat, Bastien OK'd; each list re-read on the race's own site Oct 28, 2026)
+_r = lambda rows: [(k, lv, tx, sp) for (k, tx), lv, sp in rows]
+RACES.update({
+    # Trail Whisperer's "MANDATORY CHECKLIST for 50K and 27K events" (PDF made Aug 6, 2026, linked from the race page): gear check
+    # before check-in; the 13K has no gear check. Cup-less event; poles allowed.
+    "frosty-mountain-ultra": {
+        "name": "Frosty Mountain Ultra", "short": "Frosty", "de": "du ", "le": "le ", "unit": "label", "cupless": True,
+        "where": {"en": "Manning Park, BC", "fr": "Parc Manning, C.-B."},
+        "when": {"en": "September (2027 date to come; 2026: Sept. 12)", "fr": "Septembre (date 2027 à venir; 2026 : 12 sept.)"},
+        "dists": ["50K", "27K", "13K"], "default": "50K",
+        "src": "https://trailwhispererbc.ca/r-frosty-mtn-ultra/",
+        "read": {"en": "October 28, 2026 (2026 checklist)", "fr": "28 octobre 2026 (liste 2026)"},
+        "items": _r([
+            (_SIN("headlamp", "Headlamp in working condition", "Lampe frontale fonctionnelle"), "MM ", True),
+            (_SIN("blanket", "Emergency survival blanket", "Couverture de survie"), "MM ", False),
+            (_SIN("whistle", "Whistle", "Sifflet", "Many race vests have one on the chest strap: check yours.",
+                  "Plusieurs vestes de course en ont un sur la sangle de poitrine : vérifiez la vôtre."), "MM ", False),
+            (_SIN("food", "400 calories of extra food", "400 calories de nourriture en plus", "Not to be eaten except in an emergency.",
+                  "À ne manger qu'en cas d'urgence."), "MM ", False),
+            (_SIN("jacket", "Waterproof jacket", "Manteau imperméable"), "MM ", True),
+            (_SIN("midlayer", "Insulating long-sleeve layer", "Couche isolante à manches longues"), "MM ", False),
+            (_SIN("gloves", "Gloves", "Gants"), "MM ", False),
+            (_SIN("cap", "Hat", "Chapeau"), "RR ", False),
+            (_SIN("water", "Bottles, soft flasks or a bladder: 2 L of fluid", "Gourdes, flasques ou réservoir : 2 L de liquide",
+                  "Four 500 ml soft flasks = 2 L.", "Quatre flasques de 500 ml = 2 L."), "RR ", False),
+            (_SIN("cup", "Collapsible cup", "Gobelet pliable", "A cup-less event: for drinks and food at every aid station.",
+                  "Course sans verres : pour boire et manger à chaque ravito."), "RRR", False),
+            (_SIN("headlamp2", "Spare batteries for your lights", "Piles de rechange pour vos lampes"), "RR ", False),
+            (_SIN("gps", "GPS or phone with the race route loaded", "GPS ou téléphone avec le tracé de la course", "Charged for the whole race.",
+                  "Chargé pour toute la course."), "RR ", False),
+            (_SIN("longpants", "Long running pants or waterproof pants", "Pantalon de course long ou imperméable"), "RR ", False),
+            (_SIN("filter", "Filter bottle or water treatment tablets", "Gourde filtrante ou pastilles de purification", "If you plan to drink from streams.",
+                  "Si vous comptez boire aux ruisseaux."), "RR ", False),
+            (_SIN("socks", "Extra pair of socks", "Paire de bas de rechange"), "RR ", False),
+            (_SIN("firstaid", "Compact first-aid and foot-care kit + a compression bandage", "Trousse de premiers soins et de soins des pieds + bandage compressif"), "RR ", False),
+            (_SIN("sunscreen", "Sunscreen and lip balm", "Crème solaire et baume à lèvres"), "RR ", False),
+            (_SIN("chafe", "Anti-chafe (Vaseline or similar)", "Anti-frottement (vaseline ou autre)"), "RR ", False),
+            (_SIN("bugs", "Bug spray", "Chasse-moustiques"), "RR ", False),
+            (_SIN("bear", "Bear spray or an air horn", "Chasse-ours en aérosol ou corne de brume", "If you are concerned about bears.",
+                  "Si les ours vous inquiètent."), "RR ", False),
+            (_SIN("dropbag", "Warm clothes for the finish, in a waterproof drop bag", "Vêtements chauds pour l'arrivée, dans un sac imperméable"), "RRR", False),
+        ]),
+    },
+    # ironlegs.ca/100km, /50mile, /partners (60 km), /20km (25 km night race), /relay "Mandatory Gear" + "Suggested Gear" (read Oct 28, 2026).
+    # Relay: bear spray is "suggested" on its page but mandatory in the 2026 Racer Guide -> L (ask the race). Every aid station is cupless.
+    "iron-legs": {
+        "name": "Iron Legs Mountain Races", "short": "Iron Legs", "de": "de l'", "le": "l'", "unit": "label", "cupless": True,
+        "where": {"en": "Kananaskis (Elbow Valley), AB", "fr": "Kananaskis (vallée de l'Elbow), Alb."},
+        "when": {"en": "August 7, 2027", "fr": "7 août 2027"},
+        "dists": ["100K", "50M", "60K", "25K", "RELAY"], "default": "100K",
+        "labels": {"25K": {"en": "25 km night race", "fr": "25 km de nuit"}, "RELAY": {"en": "50 mile relay", "fr": "Relais 50 milles"}},
+        "src": "https://www.ironlegs.ca/100km",
+        "read": {"en": "October 28, 2026", "fr": "28 octobre 2026"},
+        "items": _r([
+            (_SIN("headlamp", "Headlamp", "Lampe frontale", "Required after Powderface (aid station 4); the night race carries it from the start.",
+                  "Exigée après Powderface (ravito 4); dès le départ pour la course de nuit."), "MMMMM", True),
+            (_SIN("jacket", "Wind and water resistant jacket", "Manteau coupe-vent et déperlant", "Needed for the mountain ascents (relay: after aid station 4).",
+                  "Pour les montées en montagne (relais : après le ravito 4)."), "MMMRM", True),
+            (_SIN("water", "Hydration pack or bottles: 1.5 L or more", "Sac d'hydratation ou gourdes : 1,5 L ou plus", "1 L on the 25 km night race.",
+                  "1 L pour le 25 km de nuit."), "MMMMM", False),
+            (_SIN("bear", "Bear spray", "Chasse-ours en aérosol"), "MMMML", False),
+            (_SIN("bib", "Race bib", "Dossard", "Handed out by the race.", "Remis par la course."), "PPPPP", False),
+            (_SIN("cup", "Reusable cup", "Gobelet réutilisable", "The aid stations are cupless.", "Les ravitos n'ont pas de verres."), "RRRRR", False),
+            (_SIN("longpants", "Tights or pants", "Collant ou pantalon"), "RRRRR", False),
+            (_SIN("food", "Food", "Nourriture"), "RRRRR", False),
+            (_SIN("gloves", "Gloves", "Gants"), "RRRRR", False),
+            (_SIN("cap", "Hat", "Chapeau"), "RRRRR", False),
+            (_SIN("watch", "Watch", "Montre"), "RRRRR", False),
+            (_SIN("sun", "Sunglasses", "Lunettes de soleil"), "RRR R", False),
+            (_SIN("sunscreen", "Sunscreen", "Crème solaire"), "RRR R", False),
+            (_SIN("headlamp2", "Spare batteries or a spare headlamp", "Piles de rechange ou 2e lampe frontale"), "RRRRR", False),
+        ]),
+    },
+})
+
 S = {
     "en": {
         "dir": "races", "title": "{name} mandatory gear list ({short} {dists})",
@@ -1208,7 +1283,7 @@ S = {
         "qList": "What is the mandatory gear for the {short} {d}?", "aList": "{items}.",
         "qJacket": "Is a windbreaker enough for the {name}?", "aJacket": "No. The race asks for a jacket with an attached hood and a waterproof, breathable membrane (on the {dists}). Windbreakers aren't accepted.",
         "qCup": "Do the {name} aid stations have cups?", "aCup": "No. The aid stations have no cups: bring your own reusable cup.",
-        "aisle": "Race gear lists", "money": T["en"]["money"], "otherSide": "Shopping in the US? This list with US stores →",
+        "kbBest": "From {p} · {n} picks", "kbBestN": "Not in your size today", "aisle": "Race gear lists", "money": T["en"]["money"], "otherSide": "Shopping in the US? This list with US stores →",
     },
     "fr": {
         "dir": "courses", "title": "Matériel obligatoire {de}{name} ({short} {dists})",
@@ -1232,7 +1307,7 @@ S = {
         "qList": "Quel est le matériel obligatoire du {short} {d}?", "aList": "{items}.",
         "qJacket": "Un coupe-vent suffit-il pour {le}{name}?", "aJacket": "Non. La course demande un manteau avec capuchon attaché et une membrane imperméable et respirante (sur le {dists}). Les coupe-vent ne sont pas acceptés.",
         "qCup": "Y a-t-il des verres aux ravitaillements {de}{name}?", "aCup": "Non. Les ravitaillements n'ont pas de verres : apportez votre gobelet réutilisable.",
-        "aisle": "Listes de matériel de course", "money": T["fr"]["money"], "otherSide": "Vous magasinez aux États-Unis ? Cette liste avec les boutiques américaines →",
+        "kbBest": "Dès {p} · {n} choix", "kbBestN": "Rien dans votre taille aujourd'hui", "aisle": "Listes de matériel de course", "money": T["fr"]["money"], "otherSide": "Vous magasinez aux États-Unis ? Cette liste avec les boutiques américaines →",
     },
 }
 
@@ -1244,12 +1319,12 @@ SUG = {
     "en": {"title": "{name} gear list: what the race suggests ({short} {dists})",
            "desc": "The gear the {name} suggests for the {dists}, item by item (none of it required), with today's best prices on each in your size at Canadian stores.",
            "h1": "{name} suggested gear list", "R": "Suggested by the race",
-           "sNote": "The race suggests this gear; none of it is required. The only must-haves are what the race hands out (bib, timing chip).",
+           "sNote": "The race suggests this gear; none of it is required. The only must-haves are what the race hands out (marked Provided).",
            "qList": "Is any gear mandatory for the {short} {d}?", "aList": "No. The race suggests: {items}."},
     "fr": {"title": "Matériel suggéré {de}{name} ({short} {dists})",
            "desc": "Le matériel que suggère {le}{name} pour le {dists}, article par article (rien d'obligatoire), avec les meilleurs prix du jour dans votre taille dans les boutiques canadiennes.",
            "h1": "Matériel suggéré {de}{name}", "R": "Suggéré par la course",
-           "sNote": "La course suggère ce matériel; rien n'y est obligatoire. Seul ce que la course remet (dossard, puce) est exigé.",
+           "sNote": "La course suggère ce matériel; rien n'y est obligatoire. Seul ce que la course remet (marqué Fourni) est exigé.",
            "qList": "Y a-t-il du matériel obligatoire pour {le}{short} {d}?", "aList": "Non. La course suggère : {items}."},
 }
 SUG["us"] = dict(SUG["en"], desc="The gear the {name} suggests for the {dists}, item by item (none of it required), with today's best prices on each in your size at US stores.")
@@ -1615,7 +1690,44 @@ def page(slug, race, L, items, stores, pages=None, fx=1.0):
 <script id="pools" type="application/json">{pj}</script>
 <script id="shoes" type="application/json">{sj}</script>
 """
-    return head + body + SCRIPT.replace("$LANG", "en" if L == "us" else L).replace("$CTRY", "us" if L == "us" else "ca").replace("$FX", str(fx)) + page_foot(Tl).replace('"shoe-page"', '"race-page"').replace("|shoes||shoe-page", "|gear||race-page")
+    return head + body + KITB.replace("$BEST", esc(s["kbBest"])).replace("$BESTN", esc(s["kbBestN"])) + SCRIPT.replace("$LANG", "en" if L == "us" else L).replace("$CTRY", "us" if L == "us" else "ca").replace("$FX", str(fx)) + page_foot(Tl).replace('"shoe-page"', '"race-page"').replace("|shoes||shoe-page", "|gear||race-page")
+
+
+# Oct 27 (Bastien: "the kit page is very long to scroll ... we can't have deals fall below the screen"): layout B. A/B test 'kit'
+# (Bastien: "Yes race kit", Oct 27): same coin as the homepage (device id + "kit"), "exp|kit|A/B" once per session; ?exp=kit:B or ?kit=b forces B: a compact top (size + distance in two short rows, the US link moved under the list) and every gear
+# line folded to ONE row: tick, name, level and "From $50 · 10 picks"; a tap opens its picks. Sinister 7 went 4.6 -> ~2 phone screens.
+KITB = r"""<style>
+html.kitb .oside{display:none}html.kitb .rsize{padding:10px 12px;margin:8px 0}html.kitb .rsize p{font-size:14px;margin:0 0 6px}
+html.kitb .rsize button{min-height:34px;padding:5px 11px;font-size:14px}html.kitb .rsize .row{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+html.kitb .lbl{margin:8px 0 0}html.kitb .dists{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:4px 0 8px}html.kitb .dists button{min-height:38px;padding:6px 12px;font-size:14px}
+html.kitb .lnote,html.kitb .prog{font-size:13px;margin:2px 0 8px}
+html.kitb .gl{gap:6px}html.kitb .gi{padding:10px 12px}
+html.kitb .gi:not(.shoe) .hd{display:grid;grid-template-columns:24px 1fr 18px;column-gap:10px;row-gap:2px;cursor:pointer}
+html.kitb .gi:not(.shoe) .hd h3{grid-column:2;font-size:17px}html.kitb .gi:not(.shoe) .hd .have{grid-row:1/3;align-self:center}
+html.kitb .gi:not(.shoe) .hd .lv{grid-column:2;grid-row:2;justify-self:start;font-size:10px;padding:1px 6px;margin:0}
+html.kitb .gi:not(.shoe) .hd::after{content:"";grid-column:3;grid-row:1/3;align-self:center;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .15s}
+html.kitb .gi.kopen .hd::after{transform:rotate(-135deg)}
+html.kitb .gi .kb{grid-column:2;grid-row:3;font:600 14px var(--body);color:var(--moss,#2f6b3a)}html.kitb .gi .kb.no{color:var(--muted);font-weight:400}
+html.kitb .gi.mini .hd::after,html.kitb .gi.mini .kb{display:none}
+html.kitb .gi:not(.kopen):not(.shoe) .dl,html.kitb .gi:not(.kopen):not(.shoe) .ft,html.kitb .gi:not(.kopen):not(.shoe) .none,html.kitb .gi:not(.kopen):not(.shoe) .note{display:none}
+html.kitb .gi.got .kb{display:none}
+</style><script>
+(function(){var over={};try{over=JSON.parse(localStorage.getItem("gf-exp")||"{}")||{};var q=new URLSearchParams(location.search).get("exp");
+  if(q){q.split(",").forEach(function(x){var a=x.split(":");if(a[0]&&/^[AB]$/.test(a[1]))over[a[0]]=a[1]});localStorage.setItem("gf-exp",JSON.stringify(over))}}catch(e){}
+var did="";try{did=localStorage.getItem("gf-did")||"";if(!did){did=(function(){try{return crypto.randomUUID()}catch(e){return "10000000-1000-4000-8000-100000000000".replace(/[018]/g,function(c){return (c^Math.random()*16>>c/4).toString(16)})}})();localStorage.setItem("gf-did",did)}}catch(e){}
+var arm=/[?&]kit=b\b/.test(location.search)?"B":over.kit||(function(){var h=2166136261,s=did+"|kit";for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return (h>>>0)%2?"B":"A"})();
+addEventListener("DOMContentLoaded",function(){try{if(!sessionStorage.getItem("gf-exp-kit")){sessionStorage.setItem("gf-exp-kit","1");ana("signup-step","exp|kit|"+arm)}}catch(e){}});
+if(arm!=="B")return;document.documentElement.classList.add("kitb");
+var gl=document.getElementById("gl"),os=document.querySelector(".oside");if(os&&gl){gl.parentNode.insertBefore(os,gl.nextSibling);os.style.cssText="display:block;margin:12px 0 0"}
+var best=function(){gl.querySelectorAll(".gi:not(.shoe):not(.mini)").forEach(function(li){var hd=li.querySelector(".hd");if(!hd)return;
+  var k=hd.querySelector(".kb");if(!k){k=document.createElement("span");k.className="kb";hd.appendChild(k)}
+  var ps=[].slice.call(li.querySelectorAll(".dl .pr b")).map(function(b){return parseFloat(b.textContent.replace(/[^0-9.,]/g,"").replace(",","."))}).filter(function(x){return x>0}),
+      shown=li.querySelector(".dl:not([hidden])");
+  if(ps.length&&shown){var m=Math.min.apply(null,ps),b0=[].slice.call(li.querySelectorAll(".dl .pr b")).filter(function(b){return parseFloat(b.textContent.replace(/[^0-9.,]/g,"").replace(",","."))===m})[0];
+    k.className="kb";k.textContent="$BEST".replace("{p}",b0?b0.textContent:m).replace("{n}",ps.length)}else{k.className="kb no";k.textContent="$BESTN"}})};
+gl.addEventListener("click",function(e){var hd=e.target.closest(".gi:not(.shoe):not(.mini) .hd");if(!hd||e.target.closest("input,button,a"))return;hd.parentNode.classList.toggle("kopen")});
+new MutationObserver(function(){clearTimeout(best.t);best.t=setTimeout(best,60)}).observe(gl,{childList:true,subtree:true});setTimeout(best,300)})();
+</script>"""
 
 
 # picks the deals in the visitor's fit and clothing size, remembers the distance and the ticks (this browser only)
@@ -1773,11 +1885,13 @@ HUB = {
     "en": {"title": "Race gear lists: mandatory gear, item by item", "h1": "Race gear lists",
            "desc": "Mandatory gear lists for trail and ultra races, item by item, with today's best prices in your size at Canadian stores.",
            "intro": "The mandatory gear for each race, as the race publishes it, with today's best prices in your size. More races coming soon.",
-           "go": "Mandatory gear list →", "goS": "Suggested gear list →", "dists": "{d} km"},
+           "go": "Mandatory gear list →", "goS": "Suggested gear list →", "dists": "{d} km",
+           "find": "Find your race: name, place or country", "findNone": "No race matches “{q}” yet. Tell us which one: hello@thegearfox.com"},
     "fr": {"title": "Listes de matériel de course : le matériel obligatoire, article par article", "h1": "Listes de matériel de course",
            "desc": "Le matériel obligatoire des courses en sentier et des ultras, article par article, avec les meilleurs prix du jour dans votre taille.",
            "intro": "Le matériel obligatoire de chaque course, tel que publié par la course, avec les meilleurs prix du jour dans votre taille. D'autres courses s'en viennent.",
-           "go": "Liste du matériel obligatoire →", "goS": "Liste du matériel suggéré →", "dists": "{d} km"},
+           "go": "Liste du matériel obligatoire →", "goS": "Liste du matériel suggéré →", "dists": "{d} km",
+           "find": "Trouvez votre course : nom, lieu ou pays", "findNone": "Aucune course ne correspond à « {q} » pour l'instant. Dites-nous laquelle : hello@thegearfox.com"},
 }
 HUB["us"] = dict(HUB["en"], desc="Mandatory gear lists for trail and ultra races, item by item, with today's best prices in your size at US stores.")
 HUB["en"]["groups"] = HUB["us"]["groups"] = {"ca": "Canada", "us": "United States", "fr": "France", "it": "Italy", "ch": "Switzerland",
@@ -1804,6 +1918,24 @@ HUB_CSS = (".hubh{margin-top:26px}.cards.rh .nm{min-width:0;max-width:100%}.card
            ".cards.rh .pr{text-align:left;white-space:normal;font:600 15px var(--body);color:var(--moss)}")
 
 
+# Oct 27 (Bastien: "add a search function for the race kits and the hiking planner"): a box on the hubs that filters the cards as
+# you type (name, place, country, distance; accents and capitals ignored); groups with no match fold away
+def hub_find(ph, none):
+    return (f'<div class="hfind"><input type="search" id="hubQ" placeholder="{esc(ph)}" aria-label="{esc(ph)}" autocomplete="off" enterkeyhint="search">'
+            f'<p class="hnone" hidden data-t="{esc(none)}"></p></div>'
+            '<style>.hfind{position:sticky;top:var(--hh,0px);z-index:5;background:var(--bg,#faf8f3);padding:8px 0 10px}'
+            '.hfind input{width:100%;box-sizing:border-box;font:16px var(--body);border:1.5px solid var(--line);border-radius:999px;padding:11px 16px;background:var(--card)}'
+            '.hnone{color:var(--muted);margin:8px 2px 0}ul.cards li[hidden],ul.cards[hidden],h2[hidden]{display:none!important}</style>'
+            '<script>(function(){var q=document.getElementById("hubQ"),no=document.querySelector(".hnone");if(!q)return;'
+            'var f=function(s){return (s||"").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase()};'
+            'var cards=null;'   # the cards come after this box in the page: read them on the first keystroke
+            'var run=function(){if(!cards){cards=[].slice.call(document.querySelectorAll("ul.cards li"));cards.forEach(function(li){li.dataset.h=f(li.textContent+" "+((li.closest("ul.cards").previousElementSibling||{}).textContent||""))})}var w=f(q.value).split(/\\s+/).filter(Boolean),n=0;cards.forEach(function(li){var ok=w.every(function(x){return li.dataset.h.indexOf(x)>=0});li.hidden=!ok;if(ok)n++});'
+            'document.querySelectorAll("ul.cards").forEach(function(u){var any=[].some.call(u.children,function(li){return !li.hidden});u.hidden=!any;var h=u.previousElementSibling;if(h&&/^H[23]$/.test(h.tagName))h.hidden=!any});'
+            'no.hidden=!!n||!w.length;no.textContent=no.dataset.t.replace("{q}",q.value.trim());'
+            'clearTimeout(run.t);run.t=setTimeout(function(){try{ana("filter","hubsearch|"+location.pathname.split("/")[1]+"|"+q.value.trim().toLowerCase().slice(0,40))}catch(e){}},1500)};'
+            'q.addEventListener("input",run)})();</script>')
+
+
 def hub(L):
     """/races/ + /courses/ (Oct 21, Bastien: a ☰ menu item "even if it's one; we will add more soon"); /us/races/ for the USA side."""
     h, Tl, LL = HUB[L], tl(L), "en" if L == "us" else L
@@ -1822,7 +1954,7 @@ def hub(L):
                   f'<link rel="alternate" hreflang="en-CA" href="{BASE}/races/">\n<link rel="alternate" hreflang="fr-CA" href="{BASE}/courses/">\n'
                   f'<link rel="alternate" hreflang="en-US" href="{BASE}/us/races/">\n<link rel="alternate" hreflang="x-default" href="{BASE}/races/">\n', head, count=1)
     return (head + f'<h1 class="hubh">{esc(h["h1"])}</h1><p class="sub">{esc(h["intro"])}</p>'
-            + f'<p class="fine">{esc(h["note"])} {esc(o[0])} <a href="{o[2]}">{esc(o[1])}</a></p>{rows}</ul>' + page_foot(Tl))
+            + f'<p class="fine">{esc(h["note"])} {esc(o[0])} <a href="{o[2]}">{esc(o[1])}</a></p>' + hub_find(h["find"], h["findNone"]) + f'{rows}</ul>' + page_foot(Tl))
 
 
 def add_to_sitemap(site):

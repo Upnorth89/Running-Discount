@@ -46,9 +46,15 @@ def hay(d):
     return t + " " + " ".join(w) + " " + " ".join(pairs) + (" goretex gtx" if re.search(r"gore-?tex|\bgtx\b", t) else "") + " " + sq(fold(d["b"]))
 
 
+FILLER = {"for", "with", "the", "and", "of", "pour", "avec", "et", "des", "du"}   # same as the site's FILLER (Oct 27)
+
+
 def words(q):
-    """Same as the site: plain words lose a "v" before digits ("v15" = "15"), others lose punctuation ("arc'teryx")."""
-    return [x for x in (re.sub(r"v(?=\d)", "", w) if re.fullmatch(r"[a-z0-9]+", w) else sq(w) for w in fold(q.strip()).split()) if x]
+    """Same as the site: plain words lose a "v" before digits ("v15" = "15"), others lose punctuation ("arc'teryx");
+    filler words go when other words remain ("running vest for women" = "running vest women")."""
+    w = [x for x in (re.sub(r"v(?=\d)", "", w) if re.fullmatch(r"[a-z0-9]+", w) else sq(w) for w in fold(q.strip()).split()) if x]
+    k = [x for x in w if x not in FILLER]
+    return k if k else w
 
 
 def lev(a, b):

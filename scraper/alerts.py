@@ -205,6 +205,12 @@ def main():
     us_src = Path(src).with_name("deals-us.json")         # the USA side, for people who shop from the US
     for d in (json.loads(us_src.read_text()).get("items", []) if us_src.exists() else []):
         by_us.setdefault(item_key(d), []).append(d)
+    # Oct 27: a watch on a whole shoe PAGE ("page|<slug>", from the "back in my size" box on pages with nothing in stock) counts every
+    # shoe on that page (running side; added before the hiking files): the first one in their size sends "Back in your size"
+    import shoe_pages as SP
+    for by in (by_key, by_us):
+        for slug, its in SP.build_models([d for ds in list(by.values()) for d in ds]).items():
+            by.setdefault("page|" + slug, []).extend(its)
     # Oct 25: the Hiking tab's catalogue (scraper/hike.py): hiking items people watch get the same drop / back-in-size emails
     for name, by in (("deals-hike.json", by_key), ("deals-hike-us.json", by_us)):
         f = Path(src).with_name(name)
@@ -221,6 +227,10 @@ def main():
     if not FORCE and now.astimezone(ZoneInfo(TZ)).weekday() == 4:
         print("Friday: no alerts today, the Friday email carries watchlist news")
         return 0
+    if now.astimezone(ZoneInfo(TZ)).weekday() == 5:     # Oct 27, test 'emailday': group B's weekly email comes Saturday, so no alert then
+        loc = now.astimezone(ZoneInfo(TZ)).date().isoformat()
+        if W.DAY_TEST[0] <= loc <= W.DAY_TEST[1]:
+            rows = [w for w in rows if W.day_arm(w["subscribers"]) != "B"]
     people = evaluate_sides(rows, by_key, by_us, now)
     updates = []
     for p in people.values():

@@ -190,9 +190,9 @@ STR = {
                fine="Prices and stock change daily; the product page has the final price.<br>"
                     "You get this because you signed up for Friday deals on The Gear Fox. Outfox full price.",
                was="was", all_deals="All deals", logo="logo-email.png",
-               drops_head="Dropped this week in your size", wk_drop=lambda m: f"↓ {m} since last Friday",
+               drops_head="Dropped this week in your size", wk_drop=lambda m: f"↓ {m} this week",
                subject_drop=lambda name, m, n: f"{name} dropped {m} in your size" + (f", + {n} more this week" if n else ""),
-               intro_drop=lambda first, n: f"{first}, {n} {'thing' if n == 1 else 'things'} dropped in your sizes since last Friday. Here they are, then the week's best deals.",
+               intro_drop=lambda first, n: f"{first}, {n} {'thing' if n == 1 else 'things'} dropped in your sizes this week. Here they are, then the week's best deals.",
                see_all_btn=lambda n: f"See all {n} deals in your size"),
     "fr": dict(your_size="Votre taille : ", best_by="Meilleur avant le {}", all_sizes="Toutes les pointures et boutiques →",
                abroad="Expédié de l'extérieur du Canada · converti en $ CA, des droits peuvent s'appliquer",
@@ -212,9 +212,9 @@ STR = {
                fine="Les prix et les stocks changent chaque jour; le prix final est sur la page du produit.<br>"
                     "Vous recevez ce courriel parce que vous êtes abonné aux aubaines du vendredi de The Gear Fox. Flairez les aubaines.",
                was="avant", all_deals="Toutes les aubaines", logo="logo-email-fr.png",
-               drops_head="En baisse cette semaine à votre taille", wk_drop=lambda m: f"↓ {m} depuis vendredi dernier",
+               drops_head="En baisse cette semaine à votre taille", wk_drop=lambda m: f"↓ {m} cette semaine",
                subject_drop=lambda name, m, n: f"{name} : −{m} à votre taille" + (f", + {n} autres baisses cette semaine" if n else ""),
-               intro_drop=lambda first, n: f"{first}, {n} {'article a baissé' if n == 1 else 'articles ont baissé'} dans vos tailles depuis vendredi dernier. Les voici, puis les meilleures aubaines de la semaine.",
+               intro_drop=lambda first, n: f"{first}, {n} {'article a baissé' if n == 1 else 'articles ont baissé'} dans vos tailles cette semaine. Les voici, puis les meilleures aubaines de la semaine.",
                see_all_btn=lambda n: f"Voir les {n} aubaines à votre taille"),
 }
 
@@ -343,7 +343,7 @@ def shoe_page_url(d, lang):
     m = SHOE_PAGES.get(slug)
     if m and m.get("to"):
         slug, m = m["to"], SHOE_PAGES.get(m["to"])
-    return f'{SITE_URL}{"chaussures" if lang == "fr" else "shoes"}/{slug}/?em=friday' if m else ""
+    return f'{SITE_URL}{"chaussures" if lang == "fr" else "shoes"}/{slug}/?em={em_day()}' if m else ""
 
 def card(d, lang="en", wl=None):
     img = (f'<img src="{E(d["img"])}" width="84" height="84" alt="" '
@@ -389,7 +389,7 @@ def shop_link(p):
 
 def build(p, sale, watch=None):
     lang = lang_of(p)
-    shop = shop_link(p) + "&em=friday"      # Oct 8: visits from the Friday email show as "email-friday" in our analytics
+    shop = shop_link(p) + f"&em={em_day()}"      # Oct 8: visits from the Friday email show as "email-friday" (Oct 27: or "email-saturday")
     first = (p.get("name") or "").split(" ")[0] or tr(lang, "hi")
     sale.sort(key=lambda d: (-d["fav"], not d.get("img"), -score(d), d["best"]))   # photo-less deals last (Oct 8)
     sections, shown = [], 0
@@ -484,6 +484,26 @@ def subscribers():
 # Friday, 7am or later, and who haven't had this week's email (weekly_sent_at, saved after each send).
 # The time zone comes from the browser at sign-up (profile "tz"); without one: French -> Eastern, else Pacific.
 SEND_HOUR, SEND_DAY = 7, 4          # 7am, Friday (Monday = 0)
+# Test 'emailday' (Oct 27, Bastien OK'd idea 5: weekend visits are ~3x weekdays): half the subscribers (B, a coin from their token,
+# the same every week) get it Saturday 7am instead, Oct 31 - Nov 21. Black Friday week and after: Friday for everyone.
+DAY_TEST = ("2026-10-30", "2026-11-21")   # from the Friday before the first test Saturday
+
+
+def em_day():
+    from datetime import datetime, timezone
+    return "saturday" if datetime.now(timezone.utc).weekday() == 5 else "friday"
+
+
+def day_arm(p):
+    import hashlib
+    k = (p.get("token") or p.get("email") or "").lower()
+    return "B" if k and int(hashlib.sha256(("emailday|" + k).encode()).hexdigest(), 16) % 2 else "A"
+
+
+def send_day(p, t):
+    """Friday, or Saturday for group B while the test runs (t = the subscriber's local time)."""
+    return 5 if day_arm(p) == "B" and DAY_TEST[0] <= t.date().isoformat() <= DAY_TEST[1] else SEND_DAY
+
 def local_now(p, now=None):
     from datetime import datetime, timezone
     from zoneinfo import ZoneInfo
@@ -498,7 +518,7 @@ def due(p, now=None):
     from datetime import datetime, timezone, timedelta
     now = now or datetime.now(timezone.utc)
     t = local_now(p, now)
-    if t.weekday() != SEND_DAY or t.hour < SEND_HOUR:
+    if t.weekday() != send_day(p, t) or t.hour < SEND_HOUR:
         return False
     if not p.get("token"):                   # old file-based profiles: no record of sends, so only in the 7am hour
         return t.hour == SEND_HOUR
@@ -546,7 +566,8 @@ def main():
     if not SEND_TO:                          # the scheduled runs: only people for whom it's 7am (or later) now
         before = len(profiles)
         profiles = [p for p in profiles if due(p)]
-        print(f"{len(profiles)} of {before} subscribers are due now (Friday, 7am or later where they live)")
+        print(f"{len(profiles)} of {before} subscribers are due now (their send day, 7am or later where they live); "
+              f"test emailday: A {sum(1 for p in profiles if day_arm(p) == 'A')}, B {sum(1 for p in profiles if day_arm(p) == 'B')}")
     if not ADDRESS:
         print("WARNING: MAILING_ADDRESS is not set; CASL requires a postal address in the footer")
     if DEALS_URL:

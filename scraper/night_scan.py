@@ -5,8 +5,8 @@ The refresh runs the robot visitor test on the main paths twice a day; this walk
   1. every page in sitemap.xml: answers 200, has a title, no leftovers a visitor would see ("undefined", "NaN", "{name}",
      "[object Object]", a "$0.00" price), shoe/list/race pages show at least one price;
   2. every link and picture on our own site those pages point to: answers 200 (once per address);
-  3. a phone (390 px wide) opens the hubs + 40 random pages: no script errors from our own code, nothing wider than the
-     screen, no leftover words once the page's scripts have run.
+  3. a phone (390 px wide) and a laptop (1366 px) open the hubs + 40 random pages: no script errors from our own code, nothing wider
+     than the screen, no leftover words once the page's scripts have run, no letters touching a box or cut off (Oct 28).
 It emails only when something is wrong (like the noon check), with the page addresses to look at.
 
   python scraper/night_scan.py [BASE_URL] [OUT.json]     env: RESEND_API_KEY, HEALTH_EMAIL; NIGHT_SAMPLE=40
@@ -85,16 +85,21 @@ def page_check(url):
     return url, bad, links
 
 
-def phone_pass(urls):
-    """A 390 px phone opens each page: script errors from our code, sideways scroll, leftovers after the scripts ran."""
+def phone_pass(urls, width=390, height=844, label="phone"):
+    """A 390 px phone (or a 1366 px laptop) opens each page: script errors from our code, sideways scroll, leftovers after the scripts
+    ran, and (Oct 28) letters touching things: text running into a box, words cut off (tools/visual_check.py)."""
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "tools"))
+    from visual_check import collisions, NO_KEEPALIVE
     from playwright.sync_api import sync_playwright
     found = {}
     exe = os.environ.get("CHROMIUM")
     with sync_playwright() as p:
         b = p.chromium.launch(**({"executable_path": exe} if exe else {}))
-        ctx = b.new_context(viewport={"width": 390, "height": 844}, device_scale_factor=2, is_mobile=True, has_touch=True,
-                            ignore_https_errors=bool(os.environ.get("SITETEST_INSECURE")), user_agent=UA["User-Agent"] + " Mobile")
-        # analytics stay out of our own numbers
+        mob = width < 700
+        ctx = b.new_context(viewport={"width": width, "height": height}, device_scale_factor=2 if mob else 1, is_mobile=mob, has_touch=mob,
+                            ignore_https_errors=bool(os.environ.get("SITETEST_INSECURE")), user_agent=UA["User-Agent"] + (" Mobile" if mob else ""))
+        # analytics stay out of our own numbers (a keepalive send skips routes: NO_KEEPALIVE makes it a plain one, Oct 28)
+        ctx.add_init_script(NO_KEEPALIVE)
         ctx.route(re.compile(r"supabase\.co|umami|cloud\.umami|googletagmanager"), lambda r: r.fulfill(status=200, body="{}"))
         for url in urls:
             errs, pg = [], ctx.new_page()
@@ -108,16 +113,22 @@ def phone_pass(urls):
                 pg.wait_for_timeout(2500)
                 w = pg.evaluate("[document.documentElement.scrollWidth, innerWidth]")
                 txt = pg.evaluate("document.body ? document.body.innerText : ''")
+                look = collisions(pg)
+                if look and look[0].startswith("STYLES-MISSING"):     # a blip on the stylesheet: once more before judging the look
+                    pg.reload(wait_until="load")
+                    pg.wait_for_timeout(2500)
+                    look = collisions(pg)
             except Exception as e:
-                found[url] = [f"phone: didn't load ({str(e).splitlines()[0][:100]})"]
+                found[url] = [f"{label}: didn't load ({str(e).splitlines()[0][:100]})"]
                 pg.close()
                 continue
-            bad = [f"phone: script error: {e}" for e in errs[:2]]
+            bad = [f"{label}: script error: {e}" for e in errs[:2]]
             if w[0] > w[1] + 2:
-                bad.append(f"phone: wider than the screen ({w[0]} px on a {w[1]} px phone)")
+                bad.append(f"{label}: wider than the screen ({w[0]} px on a {w[1]} px screen)")
             for m in sorted(set(JUNK.findall(txt)))[:2]:
                 i = txt.find(m)
-                bad.append(f"phone: shows “{m}”: …{' '.join(txt[max(0, i - 50):i + 40].split())}…")
+                bad.append(f"{label}: shows “{m}”: …{' '.join(txt[max(0, i - 50):i + 40].split())}…")
+            bad += [f"{label}: {x}" for x in look[:3] if not x.startswith("page is ") and not x.startswith("STYLES-MISSING")]
             if bad:
                 found[url] = bad
             pg.close()
@@ -187,9 +198,15 @@ def main():
             problems.setdefault(u, []).extend(bad)
     except Exception as e:
         problems.setdefault("phone pass", []).append(f"couldn't run: {str(e).splitlines()[0][:160]}")
+    # Oct 28 (Bastien: "the Y bleeds into the search bar" on the computer): the same pages on a 1366 px laptop
+    try:
+        for u, bad in phone_pass(sample, 1366, 768, "laptop").items():
+            problems.setdefault(u, []).extend(bad)
+    except Exception as e:
+        problems.setdefault("laptop pass", []).append(f"couldn't run: {str(e).splitlines()[0][:160]}")
 
     n = sum(len(v) for v in problems.values())
-    summary = (f"Night scan: {len(pages)} pages, {len(todo)} other links and pictures, {len(sample)} pages opened on a phone; "
+    summary = (f"Night scan: {len(pages)} pages, {len(todo)} other links and pictures, {len(sample)} pages opened on a phone and a laptop; "
                f"{n} {'problem' if n == 1 else 'problems'} on {len(problems)} {'page' if len(problems) == 1 else 'pages'} "
                f"({round((time.time() - t0) / 60)} min)")
     lines = [f"- {u.replace(BASE, '/')}: " + "; ".join(v) for u, v in sorted(problems.items())]
@@ -199,6 +216,16 @@ def main():
     if os.environ.get("GITHUB_STEP_SUMMARY"):
         with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
             f.write("## Night scan\n" + summary + "\n" + "\n".join(lines[:200]) + "\n")
+    if os.environ.get("GITHUB_ACTIONS"):   # Oct 28: also as notices, so Claude can read the result from the run (like the funnel)
+        parts, cur = [], ""
+        for ln in [summary] + lines[:120]:
+            if len(cur) + len(ln) > 3500:
+                parts.append(cur)
+                cur = ""
+            cur += ln + "\n"
+        parts.append(cur)
+        for i, ptxt in enumerate(parts[:9], 1):
+            print(f"::notice title=Night scan {i}/{len(parts)}::" + ptxt.replace("%", "%25").replace("\r", "").replace("\n", "%0A"))
     if problems and os.environ.get("RESEND_API_KEY"):
         text = ("The night scan found things a visitor would trip on:\n\n" + "\n".join(lines[:60])
                 + (f"\n…and {len(lines) - 60} more (full list in the log)" if len(lines) > 60 else "") + "\n\n" + summary

@@ -136,6 +136,15 @@ jobs:
       - name: Race gear pages (EN/FR)
         continue-on-error: true
         run: python scraper/race_pages.py site
+      # Black Friday deal check, live (Oct 27, growth chat's spec, Bastien OK'd): real drops / not new / went up, from the price history;
+      # after the shoe pages (it adds itself to sitemap.xml) and after featured_check (ended sales are already out of sale.json)
+      - name: Black Friday deal check (EN/FR)
+        continue-on-error: true
+        run: python scraper/bf_live.py site
+      # Gifts for runners (Oct 28, growth chat's prototype, Bastien OK'd): size-free gifts under $25/$50/$100 from deals.json
+      - name: Gift page (EN/FR)
+        continue-on-error: true
+        run: python scraper/gift_pages.py site
       # Pinterest feeds (Oct 26, 6-week test; tools/pin_feed.py): the morning adds today's real drops (same picks as the Bluesky
       # posts, confirmed on the store page) to site/pins/ca.xml + us.xml with a pin picture each; every other run puts yesterday's
       # feeds and pictures back, since a deploy replaces the whole site
@@ -147,6 +156,22 @@ jobs:
         run: |
           pip install -q playwright && python -m playwright install --with-deps chromium > /dev/null
           python tools/pin_feed.py site ${{ needs.check.outputs.morning == 'true' && ' ' || '--carry' }}
+      # Store offers (Oct 27, Bastien: "we can't build a reader that does this every morning?"): the morning reads each Shopify store's
+      # homepage bar once (tools/offer_scan.py), keeps real store-wide offers, checks a sale banner against our own prices -> site/promos.json;
+      # every other run keeps this morning's offers. Hand-made offers: site/promos-hand.json (with an end date).
+      - name: Store offers
+        continue-on-error: true
+        run: |
+          curl -fsSL "https://thegearfox.com/promos.json" -o /tmp/promos-live.json || true
+          python tools/offer_scan.py site ${{ needs.check.outputs.morning == 'true' && ' ' || '--carry' }}
+      # Popular searches (Oct 27, test 'popq'): this week's most searched words that find 5+ deals today -> site/popular.json
+      - name: Popular searches
+        continue-on-error: true
+        env:
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+        run: |
+          curl -fsSL "https://thegearfox.com/popular.json" -o site/popular.json || true
+          python tools/popular_searches.py site
       - name: Hiking catalogue (finish and publish; yesterday's files if today's read didn't finish)
         continue-on-error: true
         run: |

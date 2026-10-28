@@ -197,6 +197,14 @@ if hv:
 # visits from our emails (Oct 8: links carry ?em=friday / ?em=alert)
 emv = Counter((e["detail"] or "") for e in rows if e["kind"] == "visit" and (e["detail"] or "").startswith("email-"))
 out.append("Visits from our emails: " + (", ".join(f"{k[6:]} {v}" for k, v in emv.most_common()) or "none yet"))
+# Oct 27, test 'emailday' (weekly email Friday for A, Saturday for B, Oct 31 - Nov 21): sessions and devices that came from each
+# day's email. Per send: divide by the subscribers in each group (the email workflow log prints "A n, B n" each run)
+try:
+    ed = {k: [e for e in rows if e["kind"] == "visit" and (e["detail"] or "") == f"email-{k}"] for k in ("friday", "saturday")}
+    out.append("EMAIL DAY TEST (Fri = A, Sat = B, from Oct 31): " + ", ".join(
+        f"{k} {len({e['sid'] for e in v})} sessions / {len({e.get('did') or e['sid'] for e in v})} devices" for k, v in ed.items()))
+except Exception as e:
+    out.append(f"EMAIL DAY TEST: couldn't read ({str(e)[:60]})")
 # coming back (Oct 8): devices by the day they first came, how many came back on a later day, by where they first came from
 try:
     dv, step = [], 1000
@@ -235,6 +243,63 @@ def src(s):
         "facebook" if "facebook" in v else v if v.startswith(("email-", "home-screen", "(none)")) else "other site"
 
 
+# TRACKING CHECK (Oct 27, Bastien: "Are we tracking numbers correctly?"): first visits whose session has no "visit" event have no
+# source or landing page (they count as "(none)" / "other ?"). Which kinds and pages they do send tells where the visit event is lost.
+try:
+    nov = [s for s in new if not s["entry"]]
+    if nov:
+        out.append(f"TRACKING CHECK: {pct(len(nov), len(new))} first visits have no 'visit' event (no source, no landing page); "
+                   f"their events: " + ", ".join(f"{k} {v}" for k, v in Counter(k for s in nov for k in s["kinds"]).most_common(10)))
+        out.append("  their pages: " + ", ".join(f"{k} {v}" for k, v in Counter(pg_ for s in nov for pg_ in (s["pages"] or {"(none)"})).most_common(8))
+                   + " | devices: " + ", ".join(f"{k} {v}" for k, v in Counter(s["dev"] for s in nov).most_common(3))
+                   + " | first event day: " + ", ".join(f"{k} {v}" for k, v in Counter(s.get("d") for s in nov).most_common(3)))
+        # was their visit event simply before this window (a phone tab left open and reopened days later keeps its session)?
+        ids = [sid for sid, s in S.items() if s in nov]
+        before = {}
+        for i in range(0, len(ids), 40):
+            rr = requests.get(f"{SB}/rest/v1/ana_events", headers=H, timeout=60,
+                              params={"select": "sid,at", "kind": "eq.visit", "sid": f"in.({','.join(ids[i:i + 40])})"})
+            rr.raise_for_status()
+            for x in rr.json():
+                before[x["sid"]] = min(before.get(x["sid"], x["at"]), x["at"])
+        out.append(f"  visit event found earlier (session started before this window, tab reopened later): {len(before)} of {len(ids)}; "
+                   f"started: " + ", ".join(f"{k} {v}" for k, v in Counter(a[:10] for a in before.values()).most_common(6)))
+except Exception as e:
+    out.append(f"Tracking check: couldn't compute ({str(e)[:80]})")
+# RIGHT NOW (Oct 27, Bastien: "umami shows 6 currently online, our tracker over 100"): the stats page's "Right now" = devices with any
+# event in the last 30 minutes (Umami: the last 5). Who they are: new or returning, what they sent, which pages, how long ago.
+try:
+    nowu = datetime.now(timezone.utc)
+    for mins in (30, 5):
+        cut = (nowu - timedelta(minutes=mins)).isoformat()
+        rr = requests.get(f"{SB}/rest/v1/ana_events", headers=H, timeout=60,
+                          params={"select": "did,sid,kind,page,dev,nv,at", "at": f"gte.{cut}", "order": "id", "limit": "5000"})
+        rr.raise_for_status()
+        ev = rr.json()
+        dids = {e["did"] for e in ev}
+        only_leave = {d for d in dids if {e["kind"] for e in ev if e["did"] == d} <= {"leave", "scroll"}}
+        out.append(f"RIGHT NOW (last {mins} min): {len(dids)} devices, {len({e['sid'] for e in ev})} sessions, {len(ev)} events; "
+                   f"devices that only sent 'left the tab' (a tab closed or switched away, not someone reading): {len(only_leave)}; "
+                   f"kinds: " + ", ".join(f"{k} {v}" for k, v in Counter(e["kind"] for e in ev).most_common(8))
+                   + " | devices: " + ", ".join(f"{k} {v}" for k, v in Counter(e["dev"] for e in {e["did"]: e for e in ev}.values()).most_common(3)))
+except Exception as e:
+    out.append(f"Right now: couldn't compute ({str(e)[:80]})")
+# TODAY (Vancouver time, since midnight): where first visits came from and where they landed
+try:
+    from zoneinfo import ZoneInfo
+    t0 = datetime.now(ZoneInfo("America/Vancouver")).replace(hour=0, minute=0, second=0, microsecond=0).astimezone(timezone.utc).isoformat()
+    first_at = {}
+    for e in rows:
+        first_at.setdefault(e["sid"], e["at"])
+    tn = [s for sid, s in S.items() if s["nv"] == 1 and first_at.get(sid, "") >= t0]
+    tall = [sid for sid in S if first_at.get(sid, "") >= t0]
+    out.append(f"TODAY (since midnight Vancouver): {len(tall)} sessions, {len(tn)} first visits; from: "
+               + ", ".join(f"{k} {v}" for k, v in Counter(src(s) if s["entry"] else "(no visit event)" for s in tn).most_common(8)))
+    out.append("  sites that sent them: " + ", ".join(f"{k} {v}" for k, v in Counter(s.get("src") for s in tn if s["entry"] and s.get("src") != "(none)").most_common(10)))
+    out.append("  landed on: " + ", ".join(f"{k} {v}" for k, v in Counter(land(s) for s in tn).most_common(8))
+               + " | ?ref=: " + ", ".join(f"{k} {v}" for k, v in Counter(s["ref"] for s in tn if s["ref"]).most_common(8)))
+except Exception as e:
+    out.append(f"Today: couldn't compute ({str(e)[:80]})")
 out.append("FIRST VISITS BY SOURCE (picked a size / clicked a store / signed up / median seconds):")
 for k, n in Counter(src(s) for s in new).most_common(8):
     g = [s for s in new if src(s) == k]
@@ -487,7 +552,8 @@ try:
     did = {}
     for e in rows:
         d_ = e.get("detail") or ""
-        if e["kind"] == "signup-step" and d_.startswith(("pro-view|", "pro-join|", "pro-no|")):
+        # before Nov 2 only robots saw the card (site test ?pro=1; their keepalive sends leaked past the stand-in until Oct 28)
+        if e["kind"] == "signup-step" and d_.startswith(("pro-view|", "pro-join|", "pro-no|")) and str(e["at"])[:10] >= "2026-11-02":
             k, a_ = d_.split("|")[:2]
             dev_ = e["sid"]            # one session = one device here (sessions don't carry the device id)
             {"pro-view": view, "pro-join": join, "pro-no": no}[k].setdefault(a_, set()).add(dev_)
@@ -560,6 +626,29 @@ try:
         out.append("  trails opened (sessions): " + ", ".join(f"{k} {v}" for k, v in per.most_common(12)))
 except Exception as e:
     out.append(f"Hiking: couldn't read ({str(e)[:80]})")
+
+# KIT LAYOUT TEST (Oct 27, Bastien: "Yes race kit"): race + trail gear list sessions by test 'kit' group (B = every line folded to one
+# row). Metric: sessions that ticked an item or clicked a store (baseline ~4%); keep B only at p < 0.05.
+try:
+    LP = ("/races/", "/courses/", "/us/races/", "/hikes/", "/randonnees/", "/us/hikes/")
+    kg = {"A": [], "B": []}
+    for s in S.values():
+        if any(any((pth or "").startswith(x) for x in LP) for pth in s["pages"]):
+            a_ = next((x.split("|")[2] for x in s["steps"] if x and x.startswith("exp|kit|")), None)
+            if a_ in kg:
+                kg[a_].append(s)
+    if kg["A"] or kg["B"]:
+        import math as _mk
+        used = lambda s: any(x[1] == "have" for x in s["race"] + s["hike"]) or "deal-click" in s["kinds"]
+        yA, yB, nA, nB = sum(map(used, kg["A"])), sum(map(used, kg["B"])), len(kg["A"]), len(kg["B"])
+        pp = (yA + yB) / max(1, nA + nB)
+        se = _mk.sqrt(pp * (1 - pp) * (1 / max(1, nA) + 1 / max(1, nB))) or 1
+        pv = _mk.erfc(abs(yA / max(1, nA) - yB / max(1, nB)) / se / _mk.sqrt(2)) if nA and nB else 1.0
+        out.append(f"KIT LAYOUT TEST (race + trail list sessions that ticked an item or clicked a store): A {pct(yA, nA)} of {nA} | "
+                   f"B {pct(yB, nB)} of {nB} | p={pv:.3f} -> " + (("B WINS" if yB / nB > yA / nA else "A WINS") if pv < 0.05 else "not proven yet")
+                   + f" | clicked a store: A {pct(sum('deal-click' in s['kinds'] for s in kg['A']), nA)}, B {pct(sum('deal-click' in s['kinds'] for s in kg['B']), nB)}")
+except Exception as e:
+    out.append(f"Kit layout test: couldn't read ({str(e)[:80]})")
 
 # SCORECARD (Oct 24, Bastien: "weekly checkins ... to ensure we are optimizing the data we collect and where people drop off"):
 # the few numbers the Monday check-in starts from, against the Path to $300K milestones (plan doc). The store-commission line

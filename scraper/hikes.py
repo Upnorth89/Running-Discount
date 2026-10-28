@@ -319,6 +319,17 @@ VERIFIED = {
     "stawamus-chief": (3.6, 630, "https://bcparks.ca/stawamus-chief-park/", {"name": "Stawamus Chief (Third Peak)"}),   # "Third Peak 1.8km trail, elevation gain of 630m"
     "grouse-grind": (2.5, 800, "https://www.metrovancouver.org/current-conditions/grouse-grind-trail", {"oneway": True}),   # 300 m to 1,100 m over ~2.5 km (down by gondola)
     "west-coast-trail": (75, None, "https://parks.canada.ca/pn-np/bc/pacificrim/activ/SCO-WCT", {"oneway": True}),   # "Spanning 75 kilometres from Pachena Bay to Gordon River"
+    # Oct 27 (in season now or the last weeks of fall first)
+    "larch-valley-sentinel": (11.2, 750, f"{PC}/ab/banff/activ/randonnee-hiking", {}),   # Sentinel Pass via Larch Valley: 5.6 km one way, 750 m
+    "skoki": (23, 835, f"{PC}/ab/banff/activ/randonnee-hiking", {"name": "Skoki Valley (to Deception Pass)"}),   # Deception Pass Trail 11.5 km one way, 835 m
+    "east-coast-trail": (336, None, "https://eastcoasttrail.com/", {"oneway": True}),   # "270 kilometres of coastal hiking paths and 66 kilometres of community walks"
+    "humphreys-peak": (16.9, 1040, "https://www.fs.usda.gov/r03/coconino/recreation/trails/humphreys-trail-no-151", {}),   # "5 to 5.5 miles" one way, gain 3,420 ft
+    "harding-icefield": (12.6, None, "https://www.nps.gov/kefj/planyourvisit/harding_icefield_trail.htm", {}),   # "7.8-mile round trip"
+    "lassen-peak": (8, 596, "https://www.nps.gov/thingstodo/hikelassenpeak.htm", {}),   # "Round-Trip Distance: 5 miles (8 km)", gain 1,957 ft (596 m)
+    "mount-washburn": (9.6, None, "https://www.nps.gov/thingstodo/yell-trail-dunraven-pass-mount-washburn.htm", {"name": "Mount Washburn (from Dunraven Pass)"}),   # "6-mile (9.6-kilometer) there-and-back"
+    "bruce-peninsula-grotto": (3, None, "https://parks.canada.ca/pn-np/on/bruce/activ/sentiers-trails", {}),   # "Georgian Bay - Marr Lake Trail to Indian Head Cove and the Grotto 3km"
+    "grinnell-glacier": (16, 791, "https://www.nps.gov/places/grinnell-glacier-trailhead.htm", {}),   # viewpoint 5.0 mi (8.0 km) one way, gain 2,596 ft (791 m)
+    "cascade-canyon": (15.1, 450, "https://www.nps.gov/thingstodo/cascadecanyon.htm", {"name": "Cascade Canyon (to the Forks, by shuttle boat)"}),   # 9.4 mi (15.1 km) RT, 1,480 ft (450 m)
 }
 for s, (km, gain, url, extra) in VERIFIED.items():
     h = BY[s]

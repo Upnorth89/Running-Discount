@@ -79,8 +79,15 @@ T = {
                    "Check the return policy: some sale items are final sale. We label them."],
         "bdTodayH": "Not Boxing Day yet: today's best running shoe deals ({date})", "bdCta": "Get the Boxing Day deals in your size",
         "bdOther": ("Before that:", "Black Friday running deals →", "/black-friday/"),
+        "bfLive": ("Is it a real deal?", "Today's Black Friday deal check: real drops, old “sales”, recent price rises →", "/black-friday/live/"),
+        "bfGift": ("Shopping for someone else?", "Gifts for runners under $25, $50 and $100, no size needed →", "/gifts-for-runners/"),
         "bfTrackH": "We're tracking real prices before Black Friday",
         "bfTrackTxt": "Since October 2 we record the price of every running product we follow, every day: {n} products so far. So on Black Friday we'll know which deals are real and which prices went up in November just to come back down.",
+        "bfDataH": "What our price data shows today ({date})",
+        "bfData": ["{pct}% of running shoe models at Canadian stores are on sale right now ({on} of {shoes}, at {shops} stores).",
+                   "Your size is the catch: a women's size 8 can buy only {w8}% of those sale shoes, a men's size 9 only {m9}%.",
+                   "{same}% of the shoes on sale today were already at that price or lower two weeks ago ({back}). A \"sale\" is often not new.",
+                   "Brands with the most models on sale: {most}. The fewest: {least}."],
         "bfSpotH": "How to spot a real Black Friday deal",
         "bfSpot": ["Compare with the price of the last few weeks, not the \"was\" price on the tag.",
                    "Check your size: a big discount often only covers sizes nobody wears.",
@@ -123,6 +130,8 @@ T = {
         "hdrSearch": "Search deals", "hdrSearchPh": "Shoes, brands, gear", "hdrSearchGo": "Search",
         "yourSize": "Your size", "at": "at", "see": "See it", "watch": "Watch the price", "alertH": "Email me when the {name} drops in my size",
         "alertTxt": "Free. One email when the price falls in your size, plus the Friday deals. Unsubscribe in one tap.", "alertBtn": "Email me",
+        "boH": "Email me when the {name} is back in my size", "boTxt": "Free. One email when a store we check has it in your size, plus the Friday deals. Unsubscribe in one tap.",
+        "boFit": "Fit", "boMen": "Men's", "boWomen": "Women's", "boSize": "Size", "boPick": "Pick your fit and size first.",
         "alertPick": "Pick your size above first, so we watch the right one.", "alertBad": "That email doesn't look right.",
         "alertOk": "Almost done: check your inbox for {email} and tap the link to confirm (look in Junk too).", "alertFail": "Couldn't sign you up right now. Try again in a minute.",
         "alertDone": "You're watching this shoe. We'll email you when it drops in your size.", "emailPh": "you@example.com", "pick": "Your size:", "pickPh": "Pick your size", "change": "Change", "allInSize": "See every deal in your size →",
@@ -184,8 +193,15 @@ T = {
                    "Vérifiez la politique de retour : certains articles en solde sont en vente finale. On les indique."],
         "bdTodayH": "Pas encore le Boxing Day : les meilleures aubaines du jour ({date})", "bdCta": "Recevez les aubaines du Boxing Day dans votre pointure",
         "bdOther": ("Avant ça :", "Les aubaines course du Vendredi fou →", "/vendredi-fou/"),
+        "bfLive": ("Vraie aubaine ou pas ?", "La vérification du jour : vraies baisses, vieux « soldes », hausses récentes →", "/vendredi-fou/direct/"),
+        "bfGift": ("Un cadeau à faire ?", "Cadeaux pour coureurs à moins de 25 $, 50 $ et 100 $, sans souci de taille →", "/cadeaux-coureurs/"),
         "bfTrackH": "On suit les vrais prix avant le Vendredi fou",
         "bfTrackTxt": "Depuis le 2 octobre, on note chaque jour le prix de chaque article de course qu'on suit : {n} articles jusqu'ici. Au Vendredi fou, on saura quelles aubaines sont vraies et quels prix ont monté en novembre pour mieux redescendre.",
+        "bfDataH": "Ce que nos relevés de prix montrent aujourd'hui ({date})",
+        "bfData": ["{pct} % des modèles de chaussures de course dans les boutiques canadiennes sont en solde en ce moment ({on} sur {shoes}, dans {shops} boutiques).",
+                   "La pointure change tout : une femme qui chausse du 8 n'a accès qu'à {w8} % de ces soldes, un homme en 9, à {m9} %.",
+                   "{same} % des chaussures en solde aujourd'hui étaient déjà à ce prix, ou moins, il y a deux semaines ({back}). Un « solde » n'est souvent pas nouveau.",
+                   "Marques avec le plus de modèles en solde : {most}. Le moins : {least}."],
         "bfSpotH": "Comment reconnaître une vraie aubaine du Vendredi fou",
         "bfSpot": ["Comparez avec le prix des dernières semaines, pas avec le prix « avant » de l'étiquette.",
                    "Vérifiez votre pointure : un gros rabais ne couvre souvent que des tailles que personne ne porte.",
@@ -227,6 +243,8 @@ T = {
         "hdrSearch": "Chercher des aubaines", "hdrSearchPh": "Chaussures, marques…", "hdrSearchGo": "Chercher",
         "yourSize": "Votre pointure", "at": "chez", "see": "Voir", "watch": "Suivre le prix", "alertH": "M'avertir quand {name} baisse dans ma pointure",
         "alertTxt": "Gratuit. Un courriel quand le prix baisse dans votre pointure, plus les aubaines du vendredi. Désabonnement en un clic.", "alertBtn": "M'avertir",
+        "boH": "Écrivez-moi quand le {name} revient dans ma pointure", "boTxt": "Gratuit. Un courriel quand une boutique que nous suivons l'a dans votre pointure, plus les aubaines du vendredi. Désabonnement en un clic.",
+        "boFit": "Coupe", "boMen": "Homme", "boWomen": "Femme", "boSize": "Pointure", "boPick": "Choisissez d'abord la coupe et la pointure.",
         "alertPick": "Choisissez d'abord votre pointure plus haut, pour qu'on suive la bonne.", "alertBad": "Ce courriel ne semble pas valide.",
         "alertOk": "Presque fini : ouvrez le courriel envoyé à {email} et touchez le lien pour confirmer (regardez aussi dans les indésirables).", "alertFail": "Inscription impossible pour le moment. Réessayez dans une minute.",
         "alertDone": "Vous suivez cette chaussure. On vous écrit quand elle baisse dans votre pointure.", "emailPh": "vous@exemple.com", "pick": "Votre pointure :", "pickPh": "Choisissez votre pointure", "change": "Modifier", "allInSize": "Voir toutes les aubaines dans votre pointure →",
@@ -241,6 +259,7 @@ T = {
 }
 # the USA side (Oct 6, 2026): same pages in US English under /us/, from deals-us.json (US stores, US dollars)
 US = dict(T["en"])
+US["bfLive"] = None   # the live deal check is Canada only for now (Oct 27)
 US.update({
     "dir": "us/shoes", "lang": "en-US", "other": "en-CA", "q": "&c=us", "home": "/?c=us", "cur": "USD",
     "title": "{name} price: every size, every store",
@@ -470,6 +489,7 @@ tr.yours td:first-child{font-weight:700;box-shadow:inset 4px 0 0 var(--hivis)}
 .alert form{display:flex;gap:8px}.alert input{flex:1;min-width:0;font:16px var(--body);border:0;border-radius:999px;padding:11px 14px}
 .alert button{flex:none;font:700 15px/1 var(--body);background:var(--hivis);color:var(--hivis-ink);border:0;border-radius:999px;padding:11px 16px;cursor:pointer}
 .alert .msg{margin:8px 0 0;font-size:14px}.alert .msg:empty{display:none}
+.boback form{flex-wrap:wrap}.boback .bok{flex:1 1 100%;margin:0;font-weight:700}.boback .bok button{background:none;border:0;color:inherit;text-decoration:underline;font:inherit;font-weight:400;padding:0 0 0 2px;cursor:pointer}.boback .bor[hidden]{display:none}.boback .bor{display:flex;gap:8px;flex:1 1 100%}.boback select{flex:1;min-width:0;font:16px var(--body);border:0;border-radius:999px;padding:10px 12px;background:#fff;color:#17201c}
 .qs form{flex-direction:column}.qsrow{display:flex;gap:8px}.qs select{flex:1;min-width:0;font:16px var(--body);border:0;border-radius:999px;padding:11px 12px;background:#fff;color:#17201C}
 .qs .qsrow+.qsrow{flex-wrap:wrap}.qs .qsrow+.qsrow input{flex:1 1 100%}.qs .qsrow+.qsrow button{flex:1 1 100%}
 .qs .qsmore{margin:10px 0 0}.qs .qsmore a{color:var(--band-ink)}
@@ -641,14 +661,21 @@ var ana=(function(){{var ls=function(k){{try{{return localStorage.getItem(k)}}ca
     old=JSON.parse(localStorage.getItem("gf-ref")||"null");ref=r0||old||null;
     if(r0&&!old)localStorage.setItem("gf-ref",JSON.stringify(r0))}}catch(e){{}}   /* kept like on the homepage (first link wins), so a
                                          sign-up after a Reddit -> shoe page -> homepage visit is credited to Reddit (Oct 6) */
-  function flush(k){{if(!Q.length)return;var ev=Q.splice(0,40);try{{fetch("{SB_URL}/rest/v1/rpc/ana_track",{{method:"POST",keepalive:!!k,headers:{{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"}},
-    body:JSON.stringify({{p_did:did,p_sid:sid,p_events:ev,p_lang:"{L['lang'][:2]}",p_ref:ref,p_dev:dev,p_nv:nv,p_tz:tz}})}}).catch(function(){{}})}}catch(e){{}}}}
+  /* Oct 27: the first batch (the visit) was being lost for ~28% of first visits: it waits in sessionStorage (gf-vq) and rides again
+     until a send of it is confirmed (same as the homepage); a prerendered page waits until it is opened */
+  var vBusy=false;
+  function flush(k){{if(!Q.length)return;if(document.prerendering){{if(!T)T=setTimeout(function(){{T=null;flush(false)}},3000);return}}
+    var pv=null;if(!vBusy||Date.now()-vBusy>8000)try{{pv=JSON.parse(ss("gf-vq")||"null")}}catch(e){{}}
+    var ev=Q.splice(0,pv?39:40),hasV;if(pv&&!ev.some(function(e){{return e.k==="visit"}}))ev.unshift(pv);hasV=ev.some(function(e){{return e.k==="visit"}});if(hasV)vBusy=Date.now();
+    try{{fetch("{SB_URL}/rest/v1/rpc/ana_track",{{method:"POST",keepalive:!!k,headers:{{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"}},
+    body:JSON.stringify({{p_did:did,p_sid:sid,p_events:ev,p_lang:"{L['lang'][:2]}",p_ref:ref,p_dev:dev,p_nv:nv,p_tz:tz}})}})
+    .then(function(r){{if(hasV){{vBusy=false;if(r.ok)try{{sessionStorage.removeItem("gf-vq")}}catch(e){{}}}}}}).catch(function(){{if(hasV)vBusy=false}})}}catch(e){{if(hasV)vBusy=false}}}}
   function add(k,d,n,p){{var e={{k:k}};if(d)e.d=String(d).slice(0,120);if(n!=null)e.n=n;if(p)e.p=p;Q.push(e);if(!T)T=setTimeout(function(){{T=null;flush(false)}},6000)}}
   var away=false,bye=function(){{if(away)return;away=true;add("leave",null,Math.round((Date.now()-t0)/1000));clearTimeout(T);T=null;flush(true)}};
   document.addEventListener("visibilitychange",function(){{if(document.visibilityState==="hidden")bye();else{{away=false;t0=Date.now()}}}});
   addEventListener("pagehide",bye);
   var em="";try{{em=(new URLSearchParams(location.search).get("em")||"").replace(/[^a-z-]/g,"").slice(0,20)}}catch(e){{}}   /* ?em=friday: from our emails */
-  if(fresh)add("visit",em?"email-"+em:document.referrer?new URL(document.referrer).hostname:"",null,location.pathname);
+  if(fresh){{add("visit",em?"email-"+em:document.referrer?new URL(document.referrer).hostname:"",null,location.pathname);try{{sessionStorage.setItem("gf-vq",JSON.stringify(Q[Q.length-1]))}}catch(e){{}}}}
   var m=location.pathname.match(/^\/(?:us\/)?(?:shoes|chaussures)\/([^\/]+)\/$/);add("shoe-page-view",m?m[1]:location.pathname);
   return add}})();
 /* Oct 23 (Bastien: "On some pages you get lost scrolling ... keep the header on all pages? So people can search and toggle menu or
@@ -783,6 +810,41 @@ f.addEventListener("submit",function(e){{e.preventDefault();
     put("gf-watch",w);if(!get("rd-profile"))put("rd-profile",p);if(!(subd&&(subd.active||subd.key)))put("gf-sub",{{pending:em}});
     f.remove();msg.textContent=box.dataset.ok.replace("{{email}}",em);
     try{{ana("signup","shoe-page")}}catch(x){{}}try{{window.umami&&umami.track("signup",{{method:"email",where:"shoe-page",lang:fr?"fr":"en",ref:ref||"none"}})}}catch(x){{}}}})
+  .catch(function(){{btn.disabled=false;msg.textContent=box.dataset.fail}})}})}})();
+/* "Email me when it's back in my size" (Oct 27): pages with nothing in stock. The PAGE goes on the watchlist ("page|<slug>"); the
+   morning alerts send "Back in your size" when any shoe on it is in their size again */
+(function(){{var box=document.getElementById("backBox");if(!box)return;var f=box.querySelector("form"),msg=box.querySelector(".msg"),
+  fit=box.querySelector("[data-fit]"),sz=box.querySelector("[data-size]"),K=box.dataset.key;
+var get=function(k){{try{{return JSON.parse(localStorage.getItem(k)||"null")}}catch(e){{return null}}}},put=function(k,v){{try{{localStorage.setItem(k,JSON.stringify(v))}}catch(e){{}}}};
+var subd=get("gf-sub"),w0=get("gf-watch")||{{}};if(subd&&(subd.active||subd.key)&&w0[K]){{f.remove();msg.textContent=box.dataset.done;return}}
+var fill=function(){{var v=sz.value;sz.innerHTML=sz.options[0].outerHTML+(fit.value?(fit.value==="women"?sz.dataset.w:sz.dataset.m):"");sz.value=v}};
+fit.addEventListener("change",fill);
+var p0=get("rd-profile"),ss=get("gf-shoe-size"),g0=p0&&p0.gender==="women"?"women":p0&&p0.gender==="men"?"men":ss&&ss.g==="women"?"women":ss&&ss.g==="men"?"men":"",
+  s0=(p0&&p0.sizes&&p0.sizes.shoes&&(p0.sizes.shoes.sizes||[])[0])||(ss&&ss.s)||"";
+if(g0){{fit.value=g0;fill();if(s0)sz.value=String(parseFloat(String(s0).replace(/^[MW]:/,"")))}}
+/* Oct 27 (Bastien: "wouldn't we know which size they clicked already"): sizes saved on this phone (main site or another shoe page)
+   = one line "Men's 11 · Change" instead of the two boxes */
+if(fit.value&&sz.value){{var bor=box.querySelector(".bor"),ln=document.createElement("p");ln.className="bok";
+  ln.innerHTML=fit.options[fit.selectedIndex].text+" "+sz.value+' · <button type="button">'+box.dataset.chg+"</button>";bor.hidden=true;bor.parentNode.insertBefore(ln,bor);
+  ln.querySelector("button").addEventListener("click",function(){{ln.remove();bor.hidden=false}})}}
+f.addEventListener("submit",function(e){{e.preventDefault();
+  var em=f.querySelector("input").value.trim().replace(/^mailto:/i,"").replace(/^.*<([^>]+)>.*$/,"$1").replace(/\s+/g,"").replace(/\.+$/,"");
+  if(!fit.value||!sz.value){{msg.textContent=box.dataset.pick;return}}
+  if(!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{{2,}}$/.test(em)||/\.\./.test(em)){{msg.textContent=box.dataset.bad;return}}
+  var fr=document.documentElement.lang==="fr",us=/^\/us\//.test(location.pathname),tz=null,ref=get("gf-ref");try{{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||null}}catch(x){{}}
+  var p=get("rd-profile");
+  if(!(p&&p.sizes&&p.sizes.shoes&&(p.sizes.shoes.sizes||[]).length)){{
+    var G=["shoes","tops","bottoms","bras","socks","gloves","headwear","packs","gear","watches","nutrition"],S={{shoes:{{sizes:[sz.value],width:[]}}}};
+    G.slice(1).forEach(function(k){{S[k]={{sizes:[]}}}});
+    p={{lang:fr?"fr":"en",country:us?"us":"ca",tz:tz,name:"",email:em,gender:fit.value,terrain:"both",ships:"ca",groups:G,sizes:S,brands:[],activities:[]}};if(ref)p.ref=ref}}
+  p.email=em;
+  var meta={{b:box.dataset.b,n:box.dataset.n,g:"shoes",url:location.href,price:null,low:null,seen:null,gone:true,saved:new Date().toISOString()}},nw={{}};nw[K]=meta;
+  var w=get("gf-watch")||{{}};w[K]=meta;var btn=f.querySelector("button");btn.disabled=true;
+  fetch("{SB_URL}/rest/v1/rpc/subscribe",{{method:"POST",headers:{{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"}},
+    body:JSON.stringify({{p_email:em,p_profile:Object.assign({{}},p,{{watch_new:nw}})}})}}).then(function(r){{if(!r.ok)throw 0;
+    put("gf-watch",w);if(!get("rd-profile"))put("rd-profile",p);if(!(subd&&(subd.active||subd.key)))put("gf-sub",{{pending:em}});
+    f.remove();msg.textContent=box.dataset.ok.replace("{{email}}",em);
+    try{{ana("signup","shoe-page-back")}}catch(x){{}}try{{window.umami&&umami.track("signup",{{method:"email",where:"shoe-page-back",lang:fr?"fr":"en",ref:ref||"none"}})}}catch(x){{}}}})
   .catch(function(){{btn.disabled=false;msg.textContent=box.dataset.fail}})}})}})();
 /* wrong side (Oct 6, 2026): a visitor who picked USA on a Canadian page (or Canada on a US page) gets a bar to the same page
    on their side, when it exists (Google, old links and the menu's country link can lead to the other side) */
@@ -1166,6 +1228,17 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None,
                    f'<p class="facts">{L["facts"].format(sizes=len(allrows), stores=n_stores, date=fmt_date(updated, L))}</p></div></div>')
     else:
         out.append(f'<div class="hero"><div>{f"<span class=tag>{esc(t)}</span>" if t else ""}<p>{L["none"]}</p></div></div>')
+        # Oct 27 (Bastien OK'd idea 1: ~114 shoe pages say "Not in stock"; shoe pages bring most sign-ups): watch the PAGE ("page|<slug>",
+        # alerts.py matches any shoe on it in their size) and get the "Back in your size" email when a store has it again
+        if not L.get("hike"):
+            zs = lambda a, b: "".join(f'<option value="{z:g}">{z:g}</option>' for z in [x / 2 for x in range(a * 2, b * 2 + 1)])
+            out.append(f'<section class="alert boback" id="backBox" data-key="page|{esc(slug)}" data-b="{esc(brand)}" data-n="{esc(name)}" '
+                       f'data-pick="{esc(L["boPick"])}" data-chg="{esc(L["change"])}" data-bad="{esc(L["alertBad"])}" data-ok="{esc(L["alertOk"])}" data-fail="{esc(L["alertFail"])}" data-done="{esc(L["alertDone"])}">'
+                       f'<h2>{esc(L["boH"].format(name=name))}</h2><p class="fine">{L["boTxt"]}</p><form novalidate><div class="bor">'
+                       f'<select data-fit aria-label="{esc(L["boFit"])}"><option value="">{esc(L["boFit"])}</option><option value="men">{esc(L["boMen"])}</option><option value="women">{esc(L["boWomen"])}</option></select>'
+                       f'<select data-size aria-label="{esc(L["boSize"])}" data-m="{esc(zs(6, 15))}" data-w="{esc(zs(5, 12))}"><option value="">{esc(L["boSize"])}</option></select></div>'
+                       f'<input type="email" autocomplete="email" inputmode="email" placeholder="{esc(L["emailPh"])}" aria-label="Email" required>'
+                       f'<button type="submit">{L["alertBtn"]}</button></form><p class="msg" aria-live="polite"></p></section>')
     # "your size": the page reads the sizes saved on this phone (main site) and highlights them (script at the end)
     out.append(f'<div class="mine" id="mine" hidden data-your="{esc(L["yourSize"])}" data-at="{esc(L["at"])}" data-see="{esc(L["see"])}" '
                f'data-none="{esc(L["notInSize"])}" data-pick="{esc(L["pick"])}" data-pickph="{esc(L["pickPh"])}" data-chg="{esc(L["change"])}" '
@@ -1346,6 +1419,38 @@ def real_line(L, rows):
     return f'<p class="realn">✓ {esc(L["bfReal"].format(n=n, t=len(rows)))}</p>' if n else ""
 
 
+def bf_stats(site, today):
+    """Black Friday page, before the week (Oct 27, growth chat + Bastien): today's numbers from our own price history, the same
+    method as the monthly report (tools/report_page.py compute: Canadian stores only, spikes out, 'on sale' = 1%+ under regular)."""
+    import os
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
+        import report_page as RP
+        hist = os.environ.get("HISTORY_FILE") or "hist/prices.jsonl"
+        if not Path(hist).exists():
+            return None
+        return RP.compute(str(site / "deals.json"), hist, (today - timedelta(days=14)).isoformat())
+    except Exception as e:
+        print(f"  ! Black Friday stats left out ({e})", file=sys.stderr)
+        return None
+
+
+def bf_data(L, R):
+    if not R or not R["shoes"] or not R["hist"]:
+        return ""
+    fr = L is T["fr"]
+    num = (lambda n: f"{n:,}".replace(",", "\u202f")) if fr else (lambda n: f"{n:,}")
+    sz = lambda g, s: next((v for k, v in R["sizes"][g][1] if k == s), 0)
+    big = [b for b in R["brands"] if b[1] >= 100]
+    most = ", ".join(f"{bname(b[0])} {b[2]}{' %' if fr else '%'}" for b in big[:3])
+    least = ", ".join(f"{bname(b[0])} {b[2]}{' %' if fr else '%'}" for b in big[-2:][::-1])
+    back = date.fromisoformat(R["back"])
+    vals = dict(pct=round(100 * R["on"] / R["shoes"]), on=num(R["on"]), shoes=num(R["shoes"]), shops=R["shops"], w8=sz("women", "8"),
+                m9=sz("men", "9"), same=round(100 * R["same"] / R["hist"]), back=fmt_date(back.isoformat() + "T18:00:00+00:00", L), most=most, least=least)
+    lines = [x.format(**vals) for x in L["bfData"]] if big else [x.format(**vals) for x in L["bfData"][:3]]
+    return (f'<h2>{esc(L["bfDataH"].format(date=fmt_date(R["day"] + "T18:00:00+00:00", L)))}</h2><ul>' + "".join(f"<li>{esc(x)}</li>" for x in lines) + "</ul>")
+
+
 def black_friday(year):
     """The fourth Friday of November."""
     d = date(year, 11, 1)
@@ -1365,6 +1470,16 @@ def qs_box(L, head, ref):
             f'<div class="qsrow"><input type="email" autocomplete="email" inputmode="email" placeholder="{esc(L["emailPh"])}" aria-label="Email" required>'
             f'<button type="submit">{esc(L["qsBtn"])}</button></div></form><p class="msg" aria-live="polite"></p>'
             f'<p class="fine qsmore"><a href="{L["home"]}{"&" if "?" in L["home"] else "?"}ref={ref}">{esc(L["qsMore"])}</a></p></section>')
+
+
+def bf_live_line(L):
+    """Oct 27: the live deal check (scraper/bf_live.py), linked near the top of the Canadian Black Friday pages."""
+    if not L.get("bfLive"):
+        return ""
+    q, txt, href = L["bfLive"]
+    gift = (f'<p class="bflive"><strong>{esc(L["bfGift"][0])}</strong> <a href="{L["bfGift"][2]}">{esc(L["bfGift"][1])}</a></p>'
+            if L.get("bfGift") else "")   # Oct 28: the gift page (scraper/gift_pages.py)
+    return f'<p class="bflive"><strong>{esc(q)}</strong> <a href="{href}">{esc(txt)}</a></p>' + gift
 
 
 def bf_other(L):
@@ -1528,10 +1643,13 @@ def main():
         bf = black_friday(today.year if today <= black_friday(today.year) + timedelta(days=4) else today.year + 1)
         if bf - timedelta(days=7) <= today <= bf + timedelta(days=4):     # Black Friday week to Cyber Monday: the real deals
             p.write_text(list_page(L, "/black-friday/", "/vendredi-fou/", L["bfTitle"], L["bfH1"], L["bfIntro"], real_first(bf_rows), brands,
-                                   bf_other(L) + real_line(L, bf_rows) + cta))
+                                   bf_live_line(L) + bf_other(L) + real_line(L, bf_rows) + cta))
         else:   # before: honest page, the price tracking + tips, and today's deals clearly labelled as today's (Bastien, Oct 4)
             tracked = sum(1 for i in items if i.get("hd"))
-            extra = (bf_other(L) + cta + f'<h2>{esc(L["bfTrackH"])}</h2><p>{esc(L["bfTrackTxt"].format(n=f"{tracked:,}".replace(",", " " if L is T["fr"] else ",")))}</p>'
+            if "bf_R" not in globals():
+                globals()["bf_R"] = bf_stats(site, today)
+            extra = (bf_live_line(L) + bf_other(L) + cta + f'<h2>{esc(L["bfTrackH"])}</h2><p>{esc(L["bfTrackTxt"].format(n=f"{tracked:,}".replace(",", " " if L is T["fr"] else ",")))}</p>'
+                     + bf_data(L, globals()["bf_R"])
                      + f'<h2>{esc(L["bfSpotH"])}</h2><ul>' + "".join(f"<li>{esc(x)}</li>" for x in L["bfSpot"]) + "</ul>"
                      + f'<h2>{esc(L["bfTodayH"].format(date=fmt_date(updated, L)))}</h2>')
             p.write_text(list_page(L, "/black-friday/", "/vendredi-fou/", L["bfTitlePre"], L["bfH1Pre"].format(date=bf.day),

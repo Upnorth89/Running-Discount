@@ -314,6 +314,13 @@ def main():
     cov_line, cov_probs = coverage_check()
     cat_line += cov_line
     problems += cov_probs
+    # store offers on the site today (Oct 27, tools/offer_scan.py): one line so Bastien can say "remove X" if one reads wrong
+    try:
+        pr = json.loads((SITE / "promos.json").read_text())
+        if pr:
+            cat_line += "\nStore offers on the site today: " + "; ".join(f"{p['store']} ({p['side'].upper()}): \"{p['en'][:70]}\"" for p in pr)
+    except Exception:
+        pass
     # searches that found nothing in the last 24 h, sorted by why (scraper/search_check.py, Oct 10); morning report only
     import search_check
     search_text, search_probs = ("", []) if os.environ.get("HEALTH_WHEN") == "midday" else search_check.run(SITE)

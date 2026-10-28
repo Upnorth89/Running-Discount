@@ -100,7 +100,7 @@ S["us"] = dict(S["en"], dir="us/hikes", desc="What to bring for {name} ({where})
 # of the day at 1.2 x resting (sleep + camp chores).
 FUEL = {
     "en": dict(fu_fuelH="Calories and food for this trip", fu_fuelTxt="Your numbers stay on this device.", fu_body="Your weight", fu_pack="Pack weight",
-               fu_hours="Hours of walking a day", fu_climb="Total climb", fu_kg="kg", fu_lb="lb", fu_m="m", fu_ft="ft",
+               fu_hours="Hours of walking a day", fu_climb="Total climb", fu_kg="kg", fu_lb="lb", fu_m="m", fu_ft="ft", fu_units="Weight in",
                fu_trail="On the trail: about {k} kcal a day ({h} kcal an hour).",
                fu_day="Whole day, camp included: about {k} kcal.",
                fu_food="Food to carry: about {f} a day of dense trail food (about 4,400 kcal per kg), {t} for the trip.",
@@ -110,7 +110,7 @@ FUEL = {
                fu_gpx="Hiking your own route? Load its GPX file (AllTrails, Gaia GPS, Strava and Garmin all export one)",
                fu_gpxOk="Your route: {km} km, {m} m of climb.", fu_gpxBad="We couldn't read that file. Try a GPX export."),
     "fr": dict(fu_fuelH="Calories et nourriture pour cette sortie", fu_fuelTxt="Vos chiffres restent sur cet appareil.", fu_body="Votre poids", fu_pack="Poids du sac",
-               fu_hours="Heures de marche par jour", fu_climb="Dénivelé total", fu_kg="kg", fu_lb="lb", fu_m="m", fu_ft="pi",
+               fu_hours="Heures de marche par jour", fu_climb="Dénivelé total", fu_kg="kg", fu_lb="lb", fu_m="m", fu_ft="pi", fu_units="Poids en",
                fu_trail="En sentier : environ {k} kcal par jour ({h} kcal à l'heure).",
                fu_day="Journée complète, camp compris : environ {k} kcal.",
                fu_food="Nourriture à apporter : environ {f} par jour d'aliments denses (environ 4 400 kcal par kg), {t} pour la sortie.",
@@ -306,7 +306,8 @@ def page(h, L, items, stores, checked_on):
 <script id="shoes" type="application/json">[]</script>
 """
     fx = getattr(page, "fx", 1.0) if L == "us" else 1.0
-    return (head + body + script(L, fx) + FUEL_JS + page_foot(Tl).replace('"shoe-page"', '"hike-page"').replace("|shoes||shoe-page", "|gear||hike-page"))
+    kb = RP.S["en" if L == "us" else L]
+    return (head + body + RP.KITB.replace("$BEST", RP.esc(kb["kbBest"])).replace("$BESTN", RP.esc(kb["kbBestN"])) + script(L, fx) + FUEL_JS + page_foot(Tl).replace('"shoe-page"', '"hike-page"').replace("|shoes||shoe-page", "|gear||hike-page"))
 
 
 def fuel(h, L):
@@ -317,10 +318,13 @@ def fuel(h, L):
     km = h["km"]
     nc = "" if gain else f'<p class="fine">{esc(s["fu_noclimb"])}</p>'
     num = lambda k, v, step, unit: (f'<label class="fu"><span>{s[k]}</span><span class="fi"><input type="number" inputmode="decimal" min="0" '
-                                    f'step="{step}" data-f="{k}" value="{v}"><em>{unit}</em></span></label>')
+                                    f'step="{step}" data-f="{k}" value="{v}"><em{" data-w" if unit in (s["fu_kg"], s["fu_lb"]) else ""}>{unit}</em></span></label>')
+    # Oct 27 (Bastien: "some people use both"): kg | lb for body + pack + food, whatever the side; climb stays m (Canada) / ft (USA)
+    units = (f'<div class="fuu" role="group" aria-label="{esc(s["fu_units"])}">'
+             + "".join(f'<button type="button" data-u="{u}" aria-pressed="{str((u == "lb") == us).lower()}">{s["fu_" + u]}</button>' for u in ("kg", "lb")) + '</div>')
     return (f'<section class="fuel" id="fuel" data-km="{km:g}" data-gain="{gain}" data-us="{1 if us else 0}" data-l="{"fr" if L == "fr" else "en"}"'
             f' data-trail="{esc(s["fu_trail"])}" data-day="{esc(s["fu_day"])}" data-food="{esc(s["fu_food"])}" data-snack="{esc(s["fu_snack"])}">'
-            f'<h2>{esc(s["fu_fuelH"])}</h2><p class="fine">{esc(s["fu_fuelTxt"])}</p><div class="fus">'
+            f'<h2>{esc(s["fu_fuelH"])}</h2><p class="fine">{esc(s["fu_fuelTxt"])}</p>{units}<div class="fus">'
             + num("fu_body", 165 if us else 75, 1, s["fu_lb"] if us else s["fu_kg"])
             + num("fu_pack", "", 0.5, s["fu_lb"] if us else s["fu_kg"])
             + num("fu_hours", "", 0.5, "h")
@@ -332,17 +336,18 @@ def fuel(h, L):
 FUEL_CSS = """.fuel{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:14px;margin:18px 0}
 .fuel h2{margin:0 0 4px;font-size:18px}.fus{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
 .fu{display:flex;flex-direction:column;gap:3px;font-size:13px;font-weight:600}.fu input{font:inherit;font-weight:400;padding:8px;border:1.5px solid var(--line);border-radius:10px;width:100%;box-sizing:border-box}
-.fi{display:flex;align-items:center;gap:6px}.fu em{font-style:normal;font-weight:400;color:var(--mute,#5c6660);font-size:12px}.gpx{display:flex;flex-direction:column;gap:4px;font-size:13px;margin:4px 0}.gpx input{font-size:13px;max-width:100%}.fo p{margin:6px 0}.fo b{font-size:17px}"""
+.fi{display:flex;align-items:center;gap:6px}.fu em{font-style:normal;font-weight:400;color:var(--mute,#5c6660);font-size:12px}.gpx{display:flex;flex-direction:column;gap:4px;font-size:13px;margin:4px 0}.gpx input{font-size:13px;max-width:100%}.fo p{margin:6px 0}.fo b{font-size:17px}
+.fuu{display:inline-flex;border:1.5px solid var(--line);border-radius:999px;overflow:hidden;margin:8px 0 0}.fuu button{font:600 13px/1 var(--body);padding:7px 14px;border:0;background:transparent;color:inherit;cursor:pointer}.fuu button[aria-pressed=true]{background:var(--ink,#17201c);color:#fff}"""
 
 FUEL_JS = """<script>(function(){var b=document.getElementById("fuel");if(!b)return;
-var us=b.dataset.us==="1",fr=b.dataset.l==="fr",km=+b.dataset.km;
+var us=b.dataset.us==="1",fr=b.dataset.l==="fr",km=+b.dataset.km,lb=us;
 function days(){var x=document.querySelector(".dists button[aria-pressed=true]");return x?+x.dataset.d:1}
 function inp(k){return b.querySelector('[data-f="'+k+'"]')}
 function num(v,d){return (Math.round(v/d)*d).toLocaleString(fr?"fr-CA":"en-CA")}
 function fill(){var d=days(),g=+inp("fu_climb").value*(us?0.3048:1),h=(km/4+g/600)/d;   // 4 km/h + 1 h per 600 m (Naismith at a loaded pace)
   if(!inp("fu_hours").dataset.own)inp("fu_hours").value=Math.max(1,Math.round(h*2)/2);
-  if(!inp("fu_pack").dataset.own)inp("fu_pack").value=us?(d>1?(d>3?31:24):13):(d>1?(d>3?14:11):6)}
-function calc(){var d=days(),k=us?0.4536:1,W=+inp("fu_body").value*k,L=+inp("fu_pack").value*k,H=+inp("fu_hours").value,
+  if(!inp("fu_pack").dataset.own)inp("fu_pack").value=lb?(d>1?(d>3?31:24):13):(d>1?(d>3?14:11):6)}
+function calc(){var d=days(),k=lb?0.4536:1,W=+inp("fu_body").value*k,L=+inp("fu_pack").value*k,H=+inp("fu_hours").value,
   g=+inp("fu_climb").value*(us?0.3048:1),o=b.querySelector(".fo");
   if(!(W>20&&H>0)){o.innerHTML="";return}
   var V=Math.max(0.3,Math.min(2,(km*1000/d)/(H*3600))),G=Math.min(40,g/(km*1000/2)*100)||0,n=1.2,
@@ -350,7 +355,7 @@ function calc(){var d=days(),k=us?0.4536:1,W=+inp("fu_body").value*k,L=+inp("fu_
       P=function(G){var mg=0.34*V*G*(1-Math.pow(1.05,1-Math.pow(1.1,G+32)));   // LCDA (Looney 2022), W per kg of body weight
         return W*(R+Math.max(0,0.19+n*1.78*Math.pow(V,0.58)+0.27*Math.pow(V,4)+mg)*(1+1.96*Math.pow(L/W,1.36)))},
       kh=(P(G)+P(-G))/2*3600/4184,tr=kh*H,all=tr+Math.max(0,24-H)*R*1.2*W*3600/4184,t=function(s,o){return s.replace(/\{(\w)\}/g,function(_,x){return o[x]})},
-      wt=function(kg){return us?num(kg*2.2046,0.1)+" lb":num(kg,0.1)+" kg"};
+      wt=function(kg){return lb?num(kg*2.2046,0.1)+" lb":num(kg,0.1)+" kg"};
   var out="<p><b>"+t(b.dataset.trail,{k:num(tr,10),h:num(kh,10)})+"</b></p>";
   if(d>1){var f=all/4400;out+="<p>"+t(b.dataset.day,{k:num(all,50)})+"</p><p>"+t(b.dataset.food,{f:wt(f),t:wt(f*d)})+"</p>"}
   else out+="<p>"+t(b.dataset.snack,{a:num(H*200,50),b:num(H*300,50)})+"</p>";
@@ -367,8 +372,13 @@ gf.addEventListener("change",function(){var f=gf.files&&gf.files[0];if(!f)return
     km=Math.round(d/100)/10;inp("fu_climb").value=Math.round(us?up*3.281:up);inp("fu_climb").dataset.own=1;inp("fu_hours").dataset.own="";
     gm.textContent=gf.dataset.ok.replace("{km}",km.toLocaleString(fr?"fr-CA":"en-CA")).replace("{m}",Math.round(up).toLocaleString(fr?"fr-CA":"en-CA"));
     fill();calc()}catch(e){gm.textContent=gf.dataset.bad}};r.readAsText(f)});
-try{var p=JSON.parse(localStorage.getItem("gf-fuel")||"null");if(p&&p.b)inp("fu_body").value=p.b}catch(e){}
-inp("fu_body").addEventListener("change",function(){try{localStorage.setItem("gf-fuel",JSON.stringify({b:inp("fu_body").value}))}catch(e){}});
+function save(){try{localStorage.setItem("gf-fuel",JSON.stringify({b:inp("fu_body").value,u:lb?"lb":"kg"}))}catch(e){}}
+function unit(u,conv){var to=u==="lb";if(conv&&to!==lb)["fu_body","fu_pack"].forEach(function(f){var x=inp(f);if(x.value!=="")x.value=Math.round(+x.value*(to?2.2046:0.4536)*(f==="fu_pack"?2:1))/(f==="fu_pack"?2:1)});
+  lb=to;b.querySelectorAll(".fuu button").forEach(function(x){x.setAttribute("aria-pressed",String(x.dataset.u===u))});
+  b.querySelectorAll("em[data-w]").forEach(function(x){x.textContent=u})}
+b.querySelectorAll(".fuu button").forEach(function(x){x.addEventListener("click",function(){unit(x.dataset.u,true);save();calc()})});
+try{var p=JSON.parse(localStorage.getItem("gf-fuel")||"null");if(p&&p.b){var pu=p.u||(us?"lb":"kg");unit(pu,false);inp("fu_body").value=p.b}}catch(e){}
+inp("fu_body").addEventListener("change",save);
 fill();calc()})();</script>"""
 
 
@@ -409,7 +419,10 @@ def hub(L, hikes):
     t, d = s["hubTitle"].format(n=len(hikes)), s["hubDesc"]
     head = (page_head(HL("us"), t, d, "/us/hikes/", "", f"<style>{RP.HUB_CSS}</style>").replace('class="sw" href="/shoes/"', 'class="sw" href="/hikes/"') if L == "us"
             else page_head(HL(L), t, d, "/hikes/", "/randonnees/", f"<style>{RP.HUB_CSS}</style>"))
-    return head + f'<h1 class="hubh">{esc(s["hubH1"])}</h1><p class="sub">{esc(s["hubIntro"])}</p>{rows}</ul>' + page_foot(Tl)
+    fr = L == "fr"
+    find = RP.hub_find("Trouvez un sentier : nom, parc ou région" if fr else "Find a trail: name, park or region",
+                       "Aucun sentier ne correspond à « {q} » pour l'instant." if fr else "No trail matches “{q}” yet.")
+    return head + f'<h1 class="hubh">{esc(s["hubH1"])}</h1><p class="sub">{esc(s["hubIntro"])}</p>{find}{rows}</ul>' + page_foot(Tl)
 
 
 LIVE = True       # Oct 25: Bastien OK'd ("Yes"); TRAIL_LIVE in index.html goes with it
