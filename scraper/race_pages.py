@@ -1185,6 +1185,81 @@ RACES.update({
     ], kits={"bad": ["jacket2", "cap2", "gloves2", "wind", "tuque", "pants", "warmjacket", "midlayer2", "gaiters"]}),
 })
 
+# Oct 28 (growth chat, Bastien OK'd; each list re-read on the race's own site Oct 28, 2026)
+_r = lambda rows: [(k, lv, tx, sp) for (k, tx), lv, sp in rows]
+RACES.update({
+    # Trail Whisperer's "MANDATORY CHECKLIST for 50K and 27K events" (PDF made Aug 6, 2026, linked from the race page): gear check
+    # before check-in; the 13K has no gear check. Cup-less event; poles allowed.
+    "frosty-mountain-ultra": {
+        "name": "Frosty Mountain Ultra", "short": "Frosty", "de": "du ", "le": "le ", "unit": "label", "cupless": True,
+        "where": {"en": "Manning Park, BC", "fr": "Parc Manning, C.-B."},
+        "when": {"en": "September (2027 date to come; 2026: Sept. 12)", "fr": "Septembre (date 2027 à venir; 2026 : 12 sept.)"},
+        "dists": ["50K", "27K", "13K"], "default": "50K",
+        "src": "https://trailwhispererbc.ca/r-frosty-mtn-ultra/",
+        "read": {"en": "October 28, 2026 (2026 checklist)", "fr": "28 octobre 2026 (liste 2026)"},
+        "items": _r([
+            (_SIN("headlamp", "Headlamp in working condition", "Lampe frontale fonctionnelle"), "MM ", True),
+            (_SIN("blanket", "Emergency survival blanket", "Couverture de survie"), "MM ", False),
+            (_SIN("whistle", "Whistle", "Sifflet", "Many race vests have one on the chest strap: check yours.",
+                  "Plusieurs vestes de course en ont un sur la sangle de poitrine : vérifiez la vôtre."), "MM ", False),
+            (_SIN("food", "400 calories of extra food", "400 calories de nourriture en plus", "Not to be eaten except in an emergency.",
+                  "À ne manger qu'en cas d'urgence."), "MM ", False),
+            (_SIN("jacket", "Waterproof jacket", "Manteau imperméable"), "MM ", True),
+            (_SIN("midlayer", "Insulating long-sleeve layer", "Couche isolante à manches longues"), "MM ", False),
+            (_SIN("gloves", "Gloves", "Gants"), "MM ", False),
+            (_SIN("cap", "Hat", "Chapeau"), "RR ", False),
+            (_SIN("water", "Bottles, soft flasks or a bladder: 2 L of fluid", "Gourdes, flasques ou réservoir : 2 L de liquide",
+                  "Four 500 ml soft flasks = 2 L.", "Quatre flasques de 500 ml = 2 L."), "RR ", False),
+            (_SIN("cup", "Collapsible cup", "Gobelet pliable", "A cup-less event: for drinks and food at every aid station.",
+                  "Course sans verres : pour boire et manger à chaque ravito."), "RRR", False),
+            (_SIN("headlamp2", "Spare batteries for your lights", "Piles de rechange pour vos lampes"), "RR ", False),
+            (_SIN("gps", "GPS or phone with the race route loaded", "GPS ou téléphone avec le tracé de la course", "Charged for the whole race.",
+                  "Chargé pour toute la course."), "RR ", False),
+            (_SIN("longpants", "Long running pants or waterproof pants", "Pantalon de course long ou imperméable"), "RR ", False),
+            (_SIN("filter", "Filter bottle or water treatment tablets", "Gourde filtrante ou pastilles de purification", "If you plan to drink from streams.",
+                  "Si vous comptez boire aux ruisseaux."), "RR ", False),
+            (_SIN("socks", "Extra pair of socks", "Paire de bas de rechange"), "RR ", False),
+            (_SIN("firstaid", "Compact first-aid and foot-care kit + a compression bandage", "Trousse de premiers soins et de soins des pieds + bandage compressif"), "RR ", False),
+            (_SIN("sunscreen", "Sunscreen and lip balm", "Crème solaire et baume à lèvres"), "RR ", False),
+            (_SIN("chafe", "Anti-chafe (Vaseline or similar)", "Anti-frottement (vaseline ou autre)"), "RR ", False),
+            (_SIN("bugs", "Bug spray", "Chasse-moustiques"), "RR ", False),
+            (_SIN("bear", "Bear spray or an air horn", "Chasse-ours en aérosol ou corne de brume", "If you are concerned about bears.",
+                  "Si les ours vous inquiètent."), "RR ", False),
+            (_SIN("dropbag", "Warm clothes for the finish, in a waterproof drop bag", "Vêtements chauds pour l'arrivée, dans un sac imperméable"), "RRR", False),
+        ]),
+    },
+    # ironlegs.ca/100km, /50mile, /partners (60 km), /20km (25 km night race), /relay "Mandatory Gear" + "Suggested Gear" (read Oct 28, 2026).
+    # Relay: bear spray is "suggested" on its page but mandatory in the 2026 Racer Guide -> L (ask the race). Every aid station is cupless.
+    "iron-legs": {
+        "name": "Iron Legs Mountain Races", "short": "Iron Legs", "de": "de l'", "le": "l'", "unit": "label", "cupless": True,
+        "where": {"en": "Kananaskis (Elbow Valley), AB", "fr": "Kananaskis (vallée de l'Elbow), Alb."},
+        "when": {"en": "August 7, 2027", "fr": "7 août 2027"},
+        "dists": ["100K", "50M", "60K", "25K", "RELAY"], "default": "100K",
+        "labels": {"25K": {"en": "25 km night race", "fr": "25 km de nuit"}, "RELAY": {"en": "50 mile relay", "fr": "Relais 50 milles"}},
+        "src": "https://www.ironlegs.ca/100km",
+        "read": {"en": "October 28, 2026", "fr": "28 octobre 2026"},
+        "items": _r([
+            (_SIN("headlamp", "Headlamp", "Lampe frontale", "Required after Powderface (aid station 4); the night race carries it from the start.",
+                  "Exigée après Powderface (ravito 4); dès le départ pour la course de nuit."), "MMMMM", True),
+            (_SIN("jacket", "Wind and water resistant jacket", "Manteau coupe-vent et déperlant", "Needed for the mountain ascents (relay: after aid station 4).",
+                  "Pour les montées en montagne (relais : après le ravito 4)."), "MMMRM", True),
+            (_SIN("water", "Hydration pack or bottles: 1.5 L or more", "Sac d'hydratation ou gourdes : 1,5 L ou plus", "1 L on the 25 km night race.",
+                  "1 L pour le 25 km de nuit."), "MMMMM", False),
+            (_SIN("bear", "Bear spray", "Chasse-ours en aérosol"), "MMMML", False),
+            (_SIN("bib", "Race bib", "Dossard", "Handed out by the race.", "Remis par la course."), "PPPPP", False),
+            (_SIN("cup", "Reusable cup", "Gobelet réutilisable", "The aid stations are cupless.", "Les ravitos n'ont pas de verres."), "RRRRR", False),
+            (_SIN("longpants", "Tights or pants", "Collant ou pantalon"), "RRRRR", False),
+            (_SIN("food", "Food", "Nourriture"), "RRRRR", False),
+            (_SIN("gloves", "Gloves", "Gants"), "RRRRR", False),
+            (_SIN("cap", "Hat", "Chapeau"), "RRRRR", False),
+            (_SIN("watch", "Watch", "Montre"), "RRRRR", False),
+            (_SIN("sun", "Sunglasses", "Lunettes de soleil"), "RRR R", False),
+            (_SIN("sunscreen", "Sunscreen", "Crème solaire"), "RRR R", False),
+            (_SIN("headlamp2", "Spare batteries or a spare headlamp", "Piles de rechange ou 2e lampe frontale"), "RRRRR", False),
+        ]),
+    },
+})
+
 S = {
     "en": {
         "dir": "races", "title": "{name} mandatory gear list ({short} {dists})",

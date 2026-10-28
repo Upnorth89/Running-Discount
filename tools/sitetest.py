@@ -1821,7 +1821,7 @@ def site_flow(base, per, accented):
                     "terrain:'both',ships:'ca',country:'ca',groups:['shoes','tops','bottoms'],sizes:{shoes:{sizes:['11'],width:[]},tops:{sizes:['M']},"
                     "bottoms:{sizes:['M']}},brands:[],lang:'en'}))")
             allb = "localStorage.setItem('gf-exp',JSON.stringify({r100:'B',run1st:'B',cards2:'B',short:'B',popq:'B',kit:'B',alts:'B',welcome:'A',layout:'A'}))"
-            paths = ["", "?lang=fr", "shoes/", "black-friday/", "running-shoes-sale/", "races/", "races/ultra-trail-harricana/", "about.html"]
+            paths = ["", "?lang=fr", "shoes/", "black-friday/", "running-shoes-sale/", "races/", "races/ultra-trail-harricana/", "about.html", "gifts-for-runners/"]
             if site_get("hikes/"):
                 paths.append("hikes/")
             bad, seen, skipped = [], 0, 0
@@ -2161,6 +2161,26 @@ def site_flow(base, per, accented):
             assert pg.locator('a[href="/black-friday/live/"]').count(), "the Black Friday page doesn't link the deal check"
             return f"{n} items, linked from /black-friday/"
         check("Black Friday deal check page")(bf_live, pg)
+
+        def gifts():            # Oct 28: gifts for runners (scraper/gift_pages.py): three budgets, sale + full-price picks, Watch goes to the homepage
+            if not site_get("gifts-for-runners/"):
+                return "not built here"
+            pg.goto(base + "gifts-for-runners/", wait_until="domcontentloaded")
+            n = pg.eval_on_selector_all(".gf", "e => e.length")
+            assert n >= 18, f"only {n} gifts on the page"
+            prices = pg.eval_on_selector_all(".gf .pr", "e => e.map(x => parseFloat(x.textContent.replace(/[^0-9.]/g, ' ').trim().split(' ')[0]))")
+            assert all(p <= 100 for p in prices if p == p), f"a gift over $100: {max(prices)}"
+            w = pg.locator(".gf a.wt").first
+            href = w.get_attribute("href") or ""
+            assert "watch=" in href, f"'Watch the price' doesn't watch: {href}"
+            wide = pg.evaluate("document.documentElement.scrollWidth")
+            assert wide <= 400, f"the gift page is wider than the phone ({wide}px)"
+            pg.goto(base + "cadeaux-coureurs/", wait_until="domcontentloaded")
+            assert "Cadeaux pour coureurs" in pg.inner_text("h1"), "the French gift page isn't in French"
+            pg.goto(base + "black-friday/", wait_until="domcontentloaded")
+            assert pg.locator('a[href="/gifts-for-runners/"]').count(), "the Black Friday page doesn't link the gift page"
+            return f"{n} gifts, Watch links work, FR ok, linked from /black-friday/"
+        check("Gift page: three budgets, Watch the price, French")(gifts, pg)
         ctx2.close()
 
         # an American visitor (Oct 6, 2026): a US time zone opens the USA side; the switch goes back to Canada

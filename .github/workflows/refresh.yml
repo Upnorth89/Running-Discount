@@ -141,6 +141,10 @@ jobs:
       - name: Black Friday deal check (EN/FR)
         continue-on-error: true
         run: python scraper/bf_live.py site
+      # Gifts for runners (Oct 28, growth chat's prototype, Bastien OK'd): size-free gifts under $25/$50/$100 from deals.json
+      - name: Gift page (EN/FR)
+        continue-on-error: true
+        run: python scraper/gift_pages.py site
       # Pinterest feeds (Oct 26, 6-week test; tools/pin_feed.py): the morning adds today's real drops (same picks as the Bluesky
       # posts, confirmed on the store page) to site/pins/ca.xml + us.xml with a pin picture each; every other run puts yesterday's
       # feeds and pictures back, since a deploy replaces the whole site

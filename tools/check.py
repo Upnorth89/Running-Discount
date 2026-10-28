@@ -210,6 +210,24 @@ def main():
         return r.stdout.strip()[:160]
     step("Black Friday deal check (live page)", bf_live)
 
+    def gifts():        # Oct 28: gifts for runners under $25/$50/$100 (scraper/gift_pages.py)
+        r = subprocess.run([sys.executable, str(ROOT / "scraper" / "gift_pages.py"), str(site)], capture_output=True, text=True, timeout=300)
+        if r.returncode:
+            raise RuntimeError(r.stderr.strip().splitlines()[-1])
+        for path in ("gifts-for-runners/index.html", "cadeaux-coureurs/index.html"):
+            h = (site / path).read_text()
+            n = h.count('class="gf"')
+            if n < 18:
+                raise RuntimeError(f"{path}: only {n} gifts")
+            if re.search(r"undefined|NaN|\{[a-z]+\}", re.sub(r"(?s)<(script|style)\b.*?</\1>", "", h)):
+                raise RuntimeError(f"{path}: a placeholder or NaN shows")
+            if "watch=" not in h:
+                raise RuntimeError(f"{path}: no Watch the price link")
+        if "/gifts-for-runners/" not in (site / "sitemap.xml").read_text():
+            raise RuntimeError("the gift page isn't in the sitemap")
+        return r.stdout.strip()[:160]
+    step("Gift page (EN/FR)", gifts)
+
     def same_names():   # the site links cards to shoe pages with a JS copy of base_model + slugify: they must agree (Oct 7)
         sys.path.insert(0, str(ROOT / "scraper"))
         import shoe_pages as SP

@@ -80,6 +80,7 @@ T = {
         "bdTodayH": "Not Boxing Day yet: today's best running shoe deals ({date})", "bdCta": "Get the Boxing Day deals in your size",
         "bdOther": ("Before that:", "Black Friday running deals →", "/black-friday/"),
         "bfLive": ("Is it a real deal?", "Today's Black Friday deal check: real drops, old “sales”, recent price rises →", "/black-friday/live/"),
+        "bfGift": ("Shopping for someone else?", "Gifts for runners under $25, $50 and $100, no size needed →", "/gifts-for-runners/"),
         "bfTrackH": "We're tracking real prices before Black Friday",
         "bfTrackTxt": "Since October 2 we record the price of every running product we follow, every day: {n} products so far. So on Black Friday we'll know which deals are real and which prices went up in November just to come back down.",
         "bfDataH": "What our price data shows today ({date})",
@@ -193,6 +194,7 @@ T = {
         "bdTodayH": "Pas encore le Boxing Day : les meilleures aubaines du jour ({date})", "bdCta": "Recevez les aubaines du Boxing Day dans votre pointure",
         "bdOther": ("Avant ça :", "Les aubaines course du Vendredi fou →", "/vendredi-fou/"),
         "bfLive": ("Vraie aubaine ou pas ?", "La vérification du jour : vraies baisses, vieux « soldes », hausses récentes →", "/vendredi-fou/direct/"),
+        "bfGift": ("Un cadeau à faire ?", "Cadeaux pour coureurs à moins de 25 $, 50 $ et 100 $, sans souci de taille →", "/cadeaux-coureurs/"),
         "bfTrackH": "On suit les vrais prix avant le Vendredi fou",
         "bfTrackTxt": "Depuis le 2 octobre, on note chaque jour le prix de chaque article de course qu'on suit : {n} articles jusqu'ici. Au Vendredi fou, on saura quelles aubaines sont vraies et quels prix ont monté en novembre pour mieux redescendre.",
         "bfDataH": "Ce que nos relevés de prix montrent aujourd'hui ({date})",
@@ -1475,7 +1477,9 @@ def bf_live_line(L):
     if not L.get("bfLive"):
         return ""
     q, txt, href = L["bfLive"]
-    return f'<p class="bflive"><strong>{esc(q)}</strong> <a href="{href}">{esc(txt)}</a></p>'
+    gift = (f'<p class="bflive"><strong>{esc(L["bfGift"][0])}</strong> <a href="{L["bfGift"][2]}">{esc(L["bfGift"][1])}</a></p>'
+            if L.get("bfGift") else "")   # Oct 28: the gift page (scraper/gift_pages.py)
+    return f'<p class="bflive"><strong>{esc(q)}</strong> <a href="{href}">{esc(txt)}</a></p>' + gift
 
 
 def bf_other(L):

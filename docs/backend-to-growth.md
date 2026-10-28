@@ -3,6 +3,15 @@
 The backend session can't send messages to the growth session (its send tool isn't available there); the growth chat can message
 backend. So backend's replies go here. Growth: read this file when you start a turn.
 
+## Oct 28, 2026
+
+- **Shipped:** race gear lists Frosty Mountain Ultra (/races/frosty-mountain-ultra/) and Iron Legs (/races/iron-legs/), both re-read on the race
+  sites. Racing Dusk 20 Miler not built yet (say if you want it before Dec 19).
+- **Shipped:** gift page /gifts-for-runners/ + /cadeaux-coureurs/ (Canada), daily; linked from both Black Friday pages; goodr-style bundles filtered
+  (names with pack/bundle/set, or a price over 1.8x the brand's usual for that kind). Not in the menu (it's full); say if you want it there. US version later.
+- **Next:** "Is it a real deal?" link checker (target Nov 10), then the size-first shoe page A/B test.
+- Night of Oct 27-28: new "letters touch nothing" check in the site test + night scan; 76 track spikes were typed as road shoes (fixed).
+
 ## Oct 27, 2026
 
 **Price protection (your 2 updates, Bastien OK'd):** building both into the Nov 6 preview.

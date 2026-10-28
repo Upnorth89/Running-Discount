@@ -422,6 +422,10 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   mallorca, tenerife.
   Oct 27 (Bastien): hubs (/races/, /courses/, /us/races/, /hikes/…) have a search box (`hub_find()`, #hubQ: name/place/country/distance,
   accents ignored, empty groups fold, "No race matches…" + our email; analytics filter "hubsearch|…"). Site test "Race and trail hubs: search".
+  Oct 28 (growth chat, Bastien OK'd; both re-read on the race's own site): `frosty-mountain-ultra` (Trail Whisperer's 2026 "MANDATORY CHECKLIST
+  for 50K and 27K" PDF; 13K has no gear check; cup-less) and `iron-legs` (ironlegs.ca per-distance "Mandatory Gear" + "Suggested Gear"; relay's bear
+  spray = L: page says suggested, 2026 guide says mandatory). Not built (no readable list): Steep Ultra, Gaspésia 100 (Canva blocks ClaudeBot),
+  Racing Dusk 20 Miler (Dec 19: maybe next).
   Test 'kit' (Oct 27, Bastien: "Yes race kit"; LIVE 50/50 on race + trail gear lists): B = `KITB` compact top + every line folded to one row
   (tick, name, level, "From $X · N picks", tap = picks; class kopen, not "open" = See all). Sinister 7 4.6 -> 2.5 phone screens, UTMB 9.2 -> 4.0,
   Alum Cave 8.9 -> 4.1. Coin = homepage's (gf-did + "kit"), "exp|kit|A/B" once per session; ?exp=kit:B or ?kit=b forces B. Metric: list
@@ -484,6 +488,12 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   url kept; climb shown only when the page gives one, `gain_ok`). The other 74 need their trail page read by hand (Sépaq, PCTA, Yukon
   block robots). Preview: `hike_pages.py DIR --all`. Food box (Oct 26, `fuel()`/FUEL_JS): LCDA (Looney 2022, the Army's successor to Pandolf; half up, half down the average grade; Cunningham resting) kcal/day from body + pack kg, hours, climb, or a GPX file read in the browser (gf-fuel). kg | lb switch (Oct 27, Bastien: "some people use both"; `.fuu`, gf-fuel.u, converts body + pack, climb stays m/ft by side). Trail list pages use the hiking menu (`HL()`: boot prices + trail lists, site test checks no /races/ link). check.py "Trail gear lists (checked hikes only)" (--force), site test "Trail gear list:
   sizes, deals, ticks". Preview artifact: https://claude.ai/artifact/KdkvAVSK2eH9ApAXvTz5Yq
+- **Gift page** (Oct 28, growth chat's prototype, Bastien: "Ship it all except the fox pro"): `scraper/gift_pages.py site` (refresh step after the BF deal
+  check; adds itself to sitemap.xml) -> /gifts-for-runners/ + /cadeaux-coureurs/ (Canada side): size-free gifts (one size, or S+M+L / M+L in stock; hats,
+  gloves, socks, lights, bottles, sunglasses, hydration vests/belts, watches) under $25/$50/$100: 8 on sale (20%+ off) + 4 full price ("♡ Watch the
+  price" -> /?watch=<itemKey>&ref=gifts), one brand once per budget, max 3 of a kind among sale picks, Canadian stores, photos only. Odd prices out:
+  "pack/bundle/set/kit" names and a regular price over 1.8x the brand's median for that kind (a goodr at $100). Linked from both Canadian BF pages
+  (`bfGift` in bf_live_line). check.py "Gift page (EN/FR)", site test "Gift page: three budgets…". US version: not yet.
 - **Clothing sizes per category** (Oct 21, a visitor: "medium in shorts, L in socks, small in t-shirts"): sizes screen keeps one quick
   "Clothing size" row + "Different size in shorts, socks or gloves?" (`#clothMore`/`#clothBy`, `state.clothBy` = only the categories that
   differ, `clothFor(g)`; bras follow tops, hats the main size). Profiles already kept a size per group (Friday email/alerts use them);
