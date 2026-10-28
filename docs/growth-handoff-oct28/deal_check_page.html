@@ -1,0 +1,92 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Is it a real deal? Price check | The Gear Fox</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F5F6F2;--ink:#14201C;--tx:#3A4542;--mu:#6B7572;--ln:#DDE0D8;--g:#1D3A30;--gl:#E3EEE6;--o:#F97637;--am:#FFF3D6;--amk:#7A5200}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Inter,system-ui,sans-serif}
+header{background:#17201C;color:#fff;padding:12px 16px;display:flex;align-items:center;gap:10px}header img{width:34px;height:34px;border-radius:50%}header b{font-size:15px}
+header .lg{margin-left:auto;background:none;border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:99px;padding:5px 11px;font:600 13px Inter}
+main{max-width:640px;margin:0 auto;padding:22px 16px 40px}
+h1{font:800 34px/1.05 Inter;letter-spacing:-.03em;margin:0 0 10px}
+.sub{color:var(--tx);margin:0 0 18px}
+form{display:flex;gap:8px;flex-direction:column}
+input{min-height:52px;border:1.5px solid #C9CDC4;border-radius:12px;padding:0 14px;font:16px Inter;background:#fff;width:100%}
+input:focus{outline:2px solid var(--g);outline-offset:1px}
+button.go{min-height:52px;border:0;border-radius:12px;background:var(--o);color:var(--ink);font:700 17px Inter;padding:0 22px}
+@media(min-width:560px){form{flex-direction:row}input{flex:1}}
+.ex{margin:12px 0 0;font-size:13.5px;color:var(--mu)}.ex button{font:inherit;background:#fff;border:1px solid var(--ln);border-radius:99px;padding:5px 11px;margin:4px 4px 0 0;color:var(--tx);cursor:pointer}
+.res{margin-top:22px}
+.card{background:#fff;border:1px solid var(--ln);border-radius:16px;padding:16px;overflow:hidden}
+.top{display:flex;gap:14px;align-items:center}.top img{width:96px;height:96px;object-fit:contain;border-radius:10px;background:#F2F2EE;flex:none}
+.top .b{font-size:13px;color:var(--mu);font-weight:600;text-transform:uppercase;letter-spacing:.04em}.top .n{font-weight:700;font-size:17px;line-height:1.25}
+.top .at{font-size:14px;color:var(--tx);margin-top:2px}
+.vd{margin:14px 0 4px;border-radius:12px;padding:12px 14px;font-size:15px}.vd b{display:block;font-size:17px;margin-bottom:2px}
+.vd.good{background:var(--gl);color:#163327}.vd.warn{background:var(--am);color:#4A3200}.vd.meh{background:#EEF0EC;color:#2C3532}
+.lab{font-size:13px;font-weight:600;color:var(--mu);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.05em}
+.sz{display:flex;flex-wrap:wrap;gap:6px}.sz button{min-width:46px;min-height:40px;border:1px solid var(--ln);background:#fff;border-radius:10px;font:600 14px Inter;color:var(--ink);cursor:pointer;padding:0 10px}
+.sz button[aria-pressed=true]{background:var(--g);border-color:var(--g);color:#fff}
+table{width:100%;border-collapse:collapse;font-size:15px;margin-top:6px}td{padding:9px 0;border-top:1px solid #EEF0EA}td:last-child{text-align:right;font-weight:700}tr.me td{color:var(--mu);font-weight:500}tr.me td:last-child{font-weight:600}
+tr.best td:first-child:after{content:" · lowest";color:#2E7D4F;font-weight:600;font-size:13px}html[lang=fr] tr.best td:first-child:after{content:" · le plus bas"}
+.hist{font-size:14px;color:var(--tx);margin:12px 0 0}
+.cta{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}.cta a{flex:1;text-align:center;min-height:46px;display:flex;align-items:center;justify-content:center;border-radius:12px;font:700 15px Inter;text-decoration:none;padding:0 14px}
+.cta .w{background:var(--g);color:#fff}.cta .s{background:#fff;border:1px solid var(--ln);color:var(--ink)}
+.none{background:#fff;border:1px dashed #C9CDC4;border-radius:16px;padding:16px;color:var(--tx)}
+.foot{margin-top:28px;font-size:13px;color:var(--mu)}
+</style></head><body>
+<header><img src="fox-face.webp" alt="The Gear Fox"><b>The Gear Fox</b><button class="lg" id="lg">FR</button></header>
+<main>
+<h1 id="h1"></h1><p class="sub" id="sub"></p>
+<form id="f"><label for="u" style="position:absolute;left:-9999px" id="ul"></label><input id="u" type="url" inputmode="url" autocomplete="off" placeholder="https://"><button class="go" id="go"></button></form>
+<p class="ex" id="ex"></p>
+<div class="res" id="res" aria-live="polite"></div>
+<p class="foot" id="foot"></p>
+</main>
+<script>
+let LANG=(new URLSearchParams(location.search).get("lang")||"en");
+const T={en:{h1:"Is it a real deal?",sub:"Paste a product link from any of the {n} Canadian stores we check every day. See if the price is really low, and whether another store has it for less in your size.",ul:"Product link",go:"Check",ex:"Try one:",exa:["Racing shoe","Trail shoe","Quarter-zip"],more:n=>`+ ${n} more stores`,
+ at:s=>`At ${s}`,from:p=>`from ${p}`,good:"Real drop",goodT:n=>`The lowest price we've seen at any store in the last ${n} days.`,warn:"Cheaper at another store",warnT:(s,p,d)=>`${s} has it for ${p} (${d} less) in at least one size.`,
+ meh:"Not a special price",mehT:p=>`It's been as low as ${p} at another store recently. Watch it and we'll email you when it drops.`,flat:"No change lately",flatT:n=>`Same price for the ${n} days we've been checking.`,
+ new:"Too new to tell",newT:"We started following this item less than 2 weeks ago.",pick:"Your size",here:"This store",lo:(p,n)=>`Lowest at any store in ${n} days: ${p}`,watch:"♡ Watch the price",see:"See every store",
+ none:"We don't follow that page yet. It may be a store we don't check, an item that's sold out, or a kids/casual product. Try another link.",bad:"That doesn't look like a link. Paste the full address, starting with https://",
+ foot:"Prices are read every morning from the stores' own websites. Nothing on The Gear Fox earns us money.",lang:"FR",cur:p=>"$"+p.toFixed(2)},
+ fr:{h1:"Vraie aubaine ou pas ?",sub:"Collez le lien d'un produit de l'une des {n} boutiques canadiennes que nous vérifions chaque jour. Voyez si le prix est vraiment bas, et si une autre boutique l'a pour moins cher dans votre taille.",ul:"Lien du produit",go:"Vérifier",ex:"Essayez :",exa:["Chaussure de course","Chaussure de sentier","Chandail 1/4 zip"],more:n=>`+ ${n} autres boutiques`,
+ at:s=>`Chez ${s}`,from:p=>`à partir de ${p}`,good:"Vraie baisse",goodT:n=>`Le prix le plus bas vu dans une boutique au cours des ${n} derniers jours.`,warn:"Moins cher ailleurs",warnT:(s,p,d)=>`${s} l'offre à ${p} (${d} de moins) dans au moins une taille.`,
+ meh:"Pas un prix spécial",mehT:p=>`Il a été aussi bas que ${p} dans une autre boutique récemment. Suivez-le : on vous écrit quand il baisse.`,flat:"Aucun changement",flatT:n=>`Même prix depuis ${n} jours.`,
+ new:"Trop tôt pour dire",newT:"On suit cet article depuis moins de 2 semaines.",pick:"Votre taille",here:"Cette boutique",lo:(p,n)=>`Plus bas prix vu en ${n} jours : ${p}`,watch:"♡ Suivre le prix",see:"Voir toutes les boutiques",
+ none:"On ne suit pas encore cette page. Boutique non vérifiée, article épuisé ou produit pour enfants. Essayez un autre lien.",bad:"Ce n'est pas un lien. Collez l'adresse complète, qui commence par https://",
+ foot:"Les prix sont lus chaque matin sur les sites des boutiques. Rien sur The Gear Fox ne nous rapporte d'argent.",lang:"EN",cur:p=>p.toFixed(2).replace(".",",")+" $"}};
+const EX=["https://blacktoerunning.com/products/nike-womens-vaporfly-4","https://fitfirst.ca/products/altra-mens-voyager-agave-green-flint-grey","https://frontrunners.ca/products/m-new-balance-space-dye-1-4-zip"];
+let HOSTS=null,cur=null,sel=null;
+const t=k=>T[LANG][k],$=id=>document.getElementById(id);
+function keyOf(u){let p;try{p=new URL(u.trim())}catch(e){return null}const h=p.hostname.toLowerCase().replace(/^www\./,"");let path=p.pathname.toLowerCase().replace(/\/+$/,"");if(path.includes("/products/"))path="products/"+path.split("/products/").pop();return [h,path]}
+function nm(h){return (HOSTS.names&&HOSTS.names[h])||h}
+function txt(){document.documentElement.lang=LANG;$("h1").textContent=t("h1");$("sub").textContent=t("sub").replace("{n}",HOSTS?HOSTS.hosts.length:"80+");$("ul").textContent=t("ul");$("go").textContent=t("go");$("lg").textContent=t("lang");$("foot").textContent=t("foot");
+ $("ex").innerHTML=t("ex")+" "+EX.map((u,i)=>`<button type="button" data-u="${u}">${t("exa")[i]}</button>`).join("");if(cur)render()}
+async function check(u){const k=keyOf(u);if(!k){$("res").innerHTML=`<div class="none">${t("bad")}</div>`;return}
+ if(!HOSTS.hosts.includes(k[0])){$("res").innerHTML=`<div class="none">${t("none")}</div>`;return}
+ const sh=await (await fetch(`out/${k[0]}.json`)).json();const i=sh.k[k[1]];
+ if(i===undefined){$("res").innerHTML=`<div class="none">${t("none")}</div>`;return}
+ cur={h:k[0],it:sh.i[i],u};let prof=null;try{prof=JSON.parse(localStorage.getItem("rd-profile")||"null")}catch(e){}
+ const mine=prof&&prof.sizes?Object.values(prof.sizes).flat().map(String):[];sel=(cur.it.me.find(s=>mine.includes(String(s[0])))||[null])[0];render()}
+function render(){const {it,h}=cur,C=t("cur");const prices=it.me.map(s=>s[1]),p=Math.min(...prices);
+ const oth=it.ot.flatMap(o=>o[1].filter(s=>!sel||String(s[0])===String(sel)).map(s=>({h:o[0],s:s[0],p:s[1]})));const best=oth.length?oth.reduce((a,b)=>b.p<a.p?b:a):null;
+ const mp=sel?(it.me.find(s=>String(s[0])===String(sel))||[0,p])[1]:p;
+ let v;if(best&&best.p<mp-0.5)v=["warn",t("warn"),t("warnT")(nm(best.h),C(best.p),C(mp-best.p))];
+ else if(!it.hd||it.hd<14)v=["meh",t("new"),t("newT")];
+ else if(it.lo&&mp<=it.lo+0.01&&it.hi>=mp*1.02)v=["good",t("good"),t("goodT")(Math.min(it.hd,60))];
+ else if(it.lo&&it.lo<mp-0.5)v=["meh",t("meh"),t("mehT")(C(it.lo))];else v=["meh",t("flat"),t("flatT")(it.hd)];
+ const sizes=[...new Set(it.me.map(s=>String(s[0])))];
+ const by={};for(const o of it.ot){if(o[0]===h)continue;const ss=o[1].filter(s=>!sel||String(s[0])===String(sel));if(!ss.length)continue;const m=Math.min(...ss.map(s=>s[1]));if(!(o[0] in by)||m<by[o[0]])by[o[0]]=m}
+ let rows=[{h,p:mp,me:1},...Object.entries(by).map(([hh,pp])=>({h:hh,p:pp}))].sort((a,b)=>a.p-b.p);const more=Math.max(0,rows.length-6);if(more){const keep=rows.slice(0,6);if(!keep.some(r=>r.me))keep[5]=rows.find(r=>r.me);rows=keep}
+ const q=encodeURIComponent((it.b+" "+it.n.replace(/ - (Men's|Women's|Unisex)$/,"")).trim());
+ $("res").innerHTML=`<div class="card"><div class="top">${it.img?`<img src="${it.img}" alt="" onerror="this.remove()">`:""}<div><div class="b">${it.b}</div><div class="n">${it.n}</div><div class="at">${t("at")(nm(h))} · ${sel?C(mp):t("from")(C(p))}</div></div></div>
+ <div class="vd ${v[0]}"><b>${v[1]}</b>${v[2]}</div>
+ ${sizes.length>1?`<div class="lab">${t("pick")}</div><div class="sz">${sizes.map(s=>`<button type="button" data-s="${s}" aria-pressed="${s===String(sel)}">${s.replace(/^[MW]:/,"").replace("~W"," W")}</button>`).join("")}</div>`:""}
+ <table>${rows.map(r=>`<tr class="${r.me?"me":""}${r===rows[0]&&rows.length>1?" best":""}"><td>${r.me?t("here")+" ("+nm(r.h)+")":nm(r.h)}</td><td>${C(r.p)}</td></tr>`).join("")}</table>${more?`<p class="hist">${t("more")(more)}</p>`:""}
+ ${it.lo&&it.hd>=14?`<p class="hist">${t("lo")(C(it.lo),Math.min(it.hd,60))}</p>`:""}
+ <div class="cta"><a class="w" href="/?q=${q}&ref=deal-check">${t("watch")}</a><a class="s" href="/?q=${q}&full=1&ref=deal-check">${t("see")}</a></div></div>`}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-u]");if(b){$("u").value=b.dataset.u;check(b.dataset.u)}const s=e.target.closest("[data-s]");if(s){sel=s.dataset.s===String(sel)?null:s.dataset.s;render()}});
+$("f").addEventListener("submit",e=>{e.preventDefault();check($("u").value)});
+$("lg").onclick=()=>{LANG=LANG==="en"?"fr":"en";txt()};
+fetch("out/hosts.json").then(r=>r.json()).then(j=>{HOSTS=j;txt()});txt();
+</script></body></html>

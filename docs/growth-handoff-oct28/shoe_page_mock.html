@@ -1,0 +1,36 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Nike Pegasus 41: price in your size</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><style>
+*{box-sizing:border-box}body{margin:0;background:#F5F6F2;color:#14201C;font:16px/1.5 Inter,system-ui,sans-serif}
+header{background:#17201C;color:#fff;padding:12px 16px;display:flex;align-items:center;gap:10px}header img{width:34px;height:34px;border-radius:50%}
+main{max-width:640px;margin:0 auto;padding:14px 16px 40px}.bc{font-size:13.5px;color:#6B7572}.bc a{color:inherit}
+.hero{display:flex;gap:14px;align-items:center;margin:10px 0 16px}.hero img{width:120px;height:90px;object-fit:contain;background:#fff;border-radius:12px;border:1px solid #E3E5DE;flex:none}
+h1{font:800 28px/1.1 Inter;letter-spacing:-.03em;margin:0}.meta{font-size:14px;color:#55605C;margin-top:4px}
+.box{background:#fff;border:1px solid #DDE0D8;border-radius:16px;padding:16px}
+.q{font:700 18px/1.2 Inter;margin:0 0 10px}.fit{display:inline-flex;background:#EEF0EA;border-radius:99px;padding:3px;margin-bottom:12px}.fit button{border:0;background:none;border-radius:99px;padding:7px 14px;font:600 14px Inter;color:#3A4542}.fit button[aria-pressed=true]{background:#fff;color:#14201C;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.sz{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}.sz button{min-height:44px;border:1px solid #D7DAD2;background:#fff;border-radius:10px;font:600 15px Inter;color:#14201C}.sz button[aria-pressed=true]{background:#1D3A30;border-color:#1D3A30;color:#fff}.sz button .d{display:block;font-size:10.5px;font-weight:600;color:#2E7D4F;line-height:1}.sz button[aria-pressed=true] .d{color:#BFE6CC}
+.ans{margin-top:14px;border-top:1px solid #EEF0EA;padding-top:14px}.big{font:800 34px/1 Inter;letter-spacing:-.02em}.big s{font:400 16px Inter;color:#8A918E;margin-left:6px}.off{color:#1D6B45;font-weight:700;font-size:15px;margin-left:6px}
+.at{color:#3A4542;margin:6px 0 12px}.go{display:flex;align-items:center;justify-content:center;min-height:52px;border-radius:12px;background:#F97637;color:#14201C;font:700 17px Inter;text-decoration:none}
+.watch{display:block;text-align:center;margin-top:10px;font-weight:600;color:#1D3A30}
+.hint{font-size:14px;color:#55605C;margin-top:12px}
+details{margin-top:14px;background:#fff;border:1px solid #DDE0D8;border-radius:16px;padding:0 16px}summary{padding:14px 0;font-weight:700;cursor:pointer}
+table{width:100%;border-collapse:collapse;font-size:15px;margin-bottom:12px}td{padding:8px 0;border-top:1px solid #EEF0EA}td.p{font-weight:700}td.p s{font-weight:400;color:#8A918E;font-size:13px;margin-left:4px}td.st{text-align:right}td.st a{color:#14201C}
+.lab{font-size:12.5px;color:#6B7572;text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin:6px 0}
+</style></head><body><header><img src="fox-face.webp" alt=""><b>The Gear Fox</b></header><main>
+<div class="bc"><a href="#">All shoe models</a> › <a href="#">Nike</a></div>
+<div class="hero"><img id="ph" alt=""><div><h1>Nike Pegasus 41</h1><div class="meta" id="meta"></div></div></div>
+<div class="box"><p class="q">What's your size?</p><div class="fit"><button data-g="men" aria-pressed="true">Men's</button><button data-g="women" aria-pressed="false">Women's</button></div>
+<div class="sz" id="sz"></div><div id="ans"></div></div>
+<details id="all"><summary>Every size and store</summary><div id="tab"></div></details>
+</main><script src="pegdata.js"></script><script>
+let g="men",sel=null;const C=v=>"$"+v.toFixed(2),$=id=>document.getElementById(id);
+function low(rows){return Math.min(...rows.map(r=>r[1]))}
+function draw(){const d=DATA[g];$("ph").src=d.img;const all=[...DATA.men.rows,...DATA.women.rows];
+ $("meta").textContent=`${all.length} sizes in stock · ${new Set(all.map(r=>r[3])).size} stores · checked this morning`;
+ document.querySelectorAll(".fit button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.g===g));
+ $("sz").innerHTML=d.rows.map(r=>`<button data-s="${r[0]}" aria-pressed="${r[0]===sel}">${r[0]}${r[2]&&r[1]<r[2]?`<span class="d">−${Math.round((1-r[1]/r[2])*100)}%</span>`:""}</button>`).join("");
+ const r=d.rows.find(x=>x[0]===sel);
+ $("ans").innerHTML=r?`<div class="ans"><div class="big">${C(r[1])}${r[2]&&r[1]<r[2]?`<s>${C(r[2])}</s><span class="off">−${Math.round((1-r[1]/r[2])*100)}%</span>`:""}</div><div class="at">Lowest price in ${g==="men"?"men's":"women's"} size ${r[0]}, at <b>${r[3]}</b> today.</div><a class="go" href="#">See it at ${r[3]} →</a><a class="watch" href="#">♡ Email me when it drops in size ${r[0]}</a></div>`
+ :`<p class="hint">Tap your size: we'll show the lowest price for it and where. ${g==="men"?"Men's":"Women's"} from <b>${C(low(d.rows))}</b>.</p>`;
+ $("tab").innerHTML=["men","women"].map(k=>`<div class="lab">${k==="men"?"Men's":"Women's"}</div><table>${DATA[k].rows.map(r=>`<tr><td>${r[0]}</td><td class="p">${C(r[1])}${r[2]&&r[1]<r[2]?`<s>${C(r[2])}</s>`:""}</td><td class="st"><a href="#">${r[3]}</a></td></tr>`).join("")}</table>`).join("")}
+document.addEventListener("click",e=>{const f=e.target.closest("[data-g]");if(f){g=f.dataset.g;sel=null;draw()}const s=e.target.closest("[data-s]");if(s){sel=s.dataset.s;draw()}});draw();
+</script></body></html>
