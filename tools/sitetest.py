@@ -780,6 +780,25 @@ def site_flow(base, per, accented):
             return "B $5/$49, A $3/$29, 'No thanks' hides it, nothing outside the test window"
         check("Fox Pro waitlist card (price test)")(pro_card, page)
 
+        def pro_poll():   # Oct 28 (Bastien: "put all 6 together"): after joining the waitlist, "What would you use most?" with 6 Pro ideas
+            page.goto(base + "?propoll=1", wait_until="domcontentloaded")
+            page.wait_for_selector("section.grp .deal", timeout=20000)
+            if not page.locator(".propoll").count():
+                return "no card slot on this visit: skipped"
+            n = page.locator(".propoll .ppo").count()
+            assert n == 6, f"{n} choices instead of 6"
+            page.locator(".propoll .ppo").nth(0).click(); page.locator(".propoll .ppo").nth(4).click()
+            pressed = page.locator('.propoll .ppo[aria-pressed="true"]').count()
+            assert pressed == 2, f"{pressed} choices ticked after 2 taps"
+            page.click("#ppGo"); page.wait_for_timeout(400)
+            saved = page.evaluate("() => JSON.parse(localStorage.getItem('gf-prowant') || 'null')")
+            gone = not page.locator(".propoll").count()
+            page.evaluate("() => localStorage.removeItem('gf-prowant')")
+            assert saved == ["codes", "passport"], f"saved {saved!r}"
+            assert gone, "the question stayed after Send"
+            return "6 choices, 2 ticked and saved, card closes after Send"
+        check("Fox Pro waitlist: what would you use most?")(pro_poll, page)
+
         def compact_cards():   # Oct 25 (Bastien: "more items would be better on a screen"): test 'cards2' B = slimmer two-per-row phone cards,
             # last line = your size / "S/M/L" on the left + "♡ Watch" on the right, 6 top deals; A = as before
             out = {}
