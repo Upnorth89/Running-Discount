@@ -330,6 +330,17 @@ VERIFIED = {
     "bruce-peninsula-grotto": (3, None, "https://parks.canada.ca/pn-np/on/bruce/activ/sentiers-trails", {}),   # "Georgian Bay - Marr Lake Trail to Indian Head Cove and the Grotto 3km"
     "grinnell-glacier": (16, 791, "https://www.nps.gov/places/grinnell-glacier-trailhead.htm", {}),   # viewpoint 5.0 mi (8.0 km) one way, gain 2,596 ft (791 m)
     "cascade-canyon": (15.1, 450, "https://www.nps.gov/thingstodo/cascadecanyon.htm", {"name": "Cascade Canyon (to the Forks, by shuttle boat)"}),   # 9.4 mi (15.1 km) RT, 1,480 ft (450 m)
+    # Oct 28: 10 more, each figure read on the park's / trail's own page
+    "ha-ling": (7.8, 810, "https://albertaparks.ca/parks/kananaskis/kananaskis-country/advisories-and-public-safety/trail-reports/canmore-and-area/ha-ling/", {}),   # "3.9 km to the summit", "Elevation: 810 m"
+    "katahdin": (16.7, 1277, "https://baxterstatepark.org/general-info/", {}),        # Hunt Trail "5.2 miles one-way", "Elevation gain 4,188 ft"
+    "hoh-river": (56, None, "https://www.nps.gov/olym/planyourvisit/hoh-river-trail.htm", {}),   # "17.4 miles to Glacier Meadows" (one way); elevation only as a range
+    "long-trail": (438, None, "https://www.greenmountainclub.org/the-long-trail/", {"oneway": True}),   # "runs north-south 272 miles"
+    "tahoe-rim-trail": (265, None, "https://tahoerimtrail.org/", {}),                # "165 mile thru hike" (loop)
+    "appalachian-trail": (3525, None, "https://appalachiantrail.org/explore/hike-the-a-t/thru-hiking/", {"oneway": True}),   # "more than 2,190 miles"
+    "highline-trail": (19, 728, "https://www.nps.gov/places/highline-trailhead.htm", {"oneway": True}),   # "11.8 miles (19 km), one way", gain 2,388 ft (728 m)
+    "mount-whitney": (34.2, None, "https://www.nps.gov/seki/planyourvisit/whitney.htm", {}),   # "10.7 mile (17.1 km) trail from Whitney Portal"; no gain figure
+    "timberline-trail": (64, None, "https://www.fs.usda.gov/r06/mthood/recreation/trails/timberline-trail-600", {}),   # "~40-mile trail" around Mt. Hood
+    "teton-crest": (62.8, 2743, "https://www.nps.gov/grte/planyourvisit/backcountryroutesandzones.htm", {"oneway": True}),   # "39-mile point to point", "over 9000' of elevation gain"
 }
 for s, (km, gain, url, extra) in VERIFIED.items():
     h = BY[s]
