@@ -558,6 +558,11 @@ try:
             se = _m.sqrt(p_ * (1 - p_) * (1 / n1 + 1 / n2)) or 1
             return _m.erfc(abs(y1 / n1 - y2 / n2) / se / _m.sqrt(2))
         nA, nB, jA, jB = len(view["A"]), len(view["B"]), len(join["A"] & view["A"]), len(join["B"] & view["B"])
+        # the card must not show before Nov 2 (only ?pro=1 previews): where do early views come from?
+        _pv = [e for e in rows if e["kind"] == "signup-step" and (e["detail"] or "").startswith("pro-view|")]
+        _c = lambda f: ", ".join(f"{k} {v}" for k, v in Counter(f(e) for e in _pv).most_common(6))
+        out.append(f"FOX PRO card views by day: {_c(lambda e: str(e['at'])[:10])} | page: {_c(lambda e: e.get('page') or '?')} | "
+                   f"ref: {_c(lambda e: e.get('ref') or '-')} | visit no.: {_c(lambda e: e.get('nv'))} | device: {_c(lambda e: e.get('dev'))}")
         out.append(f"FOX PRO PRICE TEST (sessions that saw the card): $3/$29 (A) {pct(jA, nA)} joined of {nA}, 'No thanks' {len(no['A'])} | "
                    f"$5/$49 (B) {pct(jB, nB)} joined of {nB}, 'No thanks' {len(no['B'])} | difference p={zt(jA, nA, jB, nB):.3f} "
                    f"| rule: build at a price where 5%+ join")
