@@ -2,7 +2,7 @@
 """Run before every push to main: rebuilds what the morning update builds, from today's live data, in a scratch
 folder, and stops at the first thing that crashes or comes out empty. Nothing ships unless this says ALL GOOD.
 
-  python tools/check.py            (about 3 minutes; needs internet for today's live offers.json)
+  python tools/check.py            (needs internet for today's live files; RAW_OFFERS=<offers.json> to also remerge)
 
 Checks: every Python file compiles · every script in the site pages parses (node --check) · deals merge from today's
 offers · shoe pages, list pages, Black Friday and sitemap get built (350+ models) · the Friday email matches and draws
@@ -23,6 +23,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 LIVE = "https://thegearfox.com/"
+NO_RAW = []   # Oct 29: set when the raw store file (offers.json) can't be had: the merge step is skipped
 fails = []
 
 
@@ -90,16 +91,34 @@ def main():
         return f"{len(sent)} kinds, all accepted"
     step("Analytics events are all recorded", ana_kinds)
 
-    def fetch():        # Oct 21: big files sometimes arrive cut short ("retrieval incomplete"): up to 3 tries each
-        for f in ("offers.json", "deals.json"):
-            for i in range(3):
-                try:
-                    urllib.request.urlretrieve(LIVE + f, site / f)
-                    break
-                except Exception:
-                    if i == 2:
-                        raise
-                    time.sleep(5)
+    def grab(f):         # Oct 21: big files sometimes arrive cut short ("retrieval incomplete"): up to 3 tries each
+        for i in range(3):
+            try:
+                urllib.request.urlretrieve(LIVE + f, site / f)
+                return
+            except Exception:
+                if i == 2:
+                    raise
+                time.sleep(5)
+
+    def fetch():
+        # Oct 29 (Bastien via growth: stop other bots copying our data): offers.json (every store's raw listings) isn't published
+        # any more; it lives in the refresh's private cache. RAW_OFFERS=<file> = a local copy; without one the merge is skipped
+        # (today's live merged files are used) and the refresh's own run tests the merge before anything is published.
+        raw = os.environ.get("RAW_OFFERS")
+        if raw and Path(raw).exists():
+            shutil.copy(raw, site / "offers.json")
+        elif raw == "none":       # RAW_OFFERS=none: act as if no raw file can be had (tests the skip)
+            NO_RAW.append(1)
+        else:
+            try:
+                grab("offers.json")
+            except Exception:
+                NO_RAW.append(1)
+        grab("deals.json")
+        if NO_RAW:
+            for f in ("sale.json", "deals-us.json", "sale-us.json"):
+                grab(f)
         # Oct 25: the Hiking tab's files (scraper/hike.py), live once launched; before that HIKE_DIR = a local read
         got = []
         for f in ("sale-hike.json", "deals-hike.json", "sale-hike-us.json", "deals-hike-us.json"):
@@ -111,10 +130,13 @@ def main():
                 if src.exists():
                     shutil.copy(src, site / f)
                     got.append(f)
-        return "offers.json + deals.json" + (f" + {len(got)} hiking files" if got else "")
+        return ("deals.json + sale/USA files (no raw store file: merge skipped)" if NO_RAW else "offers.json + deals.json") + (f" + {len(got)} hiking files" if got else "")
     step("Download today's live data", fetch)
 
     def merge():
+        if NO_RAW:
+            n = len(json.loads((site / "deals.json").read_text())["items"])
+            return f"skipped: no raw store file here (set RAW_OFFERS=<file> to remerge); today's live {n} items used"
         r = subprocess.run([sys.executable, str(ROOT / "scraper" / "scrape.py"), str(site / "deals.json"), "--remerge"],
                            capture_output=True, text=True, timeout=900)
         if r.returncode:

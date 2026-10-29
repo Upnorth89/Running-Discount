@@ -69,13 +69,23 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -r scraper/requirements.txt
+      # Oct 29 (Bastien via growth: "stop other bots copying our data"): the raw per-store files (offers.json, hike-offers.json)
+      # are no longer published; the last run's copies live in this repo's Actions cache (not public) and come back here
+      - name: Yesterday's raw store files (private cache)
+        continue-on-error: true
+        uses: actions/cache/restore@v4
+        with:
+          path: /tmp/rawcache
+          key: raw-offers-${{ github.run_id }}
+          restore-keys: raw-offers-
       # start from the live file so a store that fails today keeps yesterday's deals
       - name: Fetch yesterday's data
         continue-on-error: true
         run: |
           BASE="https://thegearfox.com"
           curl -fsSL "$BASE/deals.json" -o site/deals.json || true
-          curl -fsSL "$BASE/offers.json" -o site/offers.json || true
+          # raw per-store listings: from the private cache; the live copy only while it's still published (transition, Oct 29)
+          if [ -s /tmp/rawcache/offers.json.gz ]; then gunzip -c /tmp/rawcache/offers.json.gz > site/offers.json; else curl -fsSL "$BASE/offers.json" -o site/offers.json || true; fi
           curl -fsSL "$BASE/health.json" -o site/health.json || true
           mkdir -p site/shoes && curl -fsSL "$BASE/shoes/pages.json" -o site/shoes/pages.json || true   # models that have a page (pages never disappear)
           mkdir -p site/us/shoes && curl -fsSL "$BASE/us/shoes/pages.json" -o site/us/shoes/pages.json || true   # same for the USA side
@@ -90,7 +100,9 @@ jobs:
           curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/history/brands.json" -o /tmp/brands.json || true
           curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/history/fleetfeet.json" -o /tmp/fleetfeet.json || true
           curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/history/deadlinks.json" -o /tmp/deadlinks.json || true   # last night's link check
-          mkdir -p /tmp/hike && curl -fsSL "$BASE/hike-offers.json" -o /tmp/hike/hike-offers.json || true   # yesterday's hiking read (a store that fails keeps it)
+          mkdir -p /tmp/hike   # yesterday's hiking read (a store that fails keeps it): private cache first, like offers.json
+          if [ -s /tmp/rawcache/hike-offers.json.gz ]; then gunzip -c /tmp/rawcache/hike-offers.json.gz > /tmp/hike/hike-offers.json; else curl -fsSL "$BASE/hike-offers.json" -o /tmp/hike/hike-offers.json || true; fi
+          ls -la site/offers.json /tmp/hike/hike-offers.json 2>/dev/null || echo "::warning::no raw store files from yesterday: every store reads fresh, a failed one has no fallback today"
           mkdir -p /tmp/prev && cp site/deals.json site/offers.json site/health.json /tmp/prev/ 2>/dev/null || true
       - name: Keep the subscriber database awake
         continue-on-error: true
@@ -180,7 +192,7 @@ jobs:
           for f in deals-hike sale-hike deals-hike-us sale-hike-us; do
             if [ -s /tmp/hike/$f.json ]; then cp /tmp/hike/$f.json site/; else curl -fsSL "https://thegearfox.com/$f.json" -o site/$f.json || true; fi
           done
-          [ -s /tmp/hike/hike-offers.json ] && cp /tmp/hike/hike-offers.json site/ || true
+          # (Oct 29: hike-offers.json is no longer published; it goes to the private cache below)
           # Oct 27: the hiking side's price history (badges + Black Friday labels on boots and jackets after 30 days)
           [ -f hist/prices.jsonl ] && python scraper/history.py hist/prices.jsonl site --hike ${{ github.event_name == 'push' && '--no-save' || '' }} || echo "::warning::hiking price history failed"
           python scraper/shoe_pages.py site --hike || echo "::warning::boot pages failed"   # boot & hiking shoe price pages (Oct 25)
@@ -247,6 +259,21 @@ jobs:
           HEALTH_WHEN: ${{ (github.event.schedule == '17 23 * * *' || inputs.afternoon) && 'midday' || 'morning' }}
           HEALTH_EMAIL: ${{ secrets.HEALTH_EMAIL }}
         run: python scraper/health.py /tmp/prev site
+      # Oct 29: today's raw store files go to the private cache for tomorrow's fallback, and leave the site before it's published
+      - name: Raw store files -> private cache (not published)
+        continue-on-error: true
+        run: |
+          mkdir -p /tmp/rawcache
+          [ -s site/offers.json ] && gzip -c site/offers.json > /tmp/rawcache/offers.json.gz
+          [ -s /tmp/hike/hike-offers.json ] && gzip -c /tmp/hike/hike-offers.json > /tmp/rawcache/hike-offers.json.gz
+          ls -la /tmp/rawcache
+          rm -f site/offers.json site/hike-offers.json
+      - name: Save the raw store files
+        continue-on-error: true
+        uses: actions/cache/save@v4
+        with:
+          path: /tmp/rawcache
+          key: raw-offers-${{ github.run_id }}
       - name: Keep yesterday's site if the shoe pages didn't build or the site test failed
         # the shoe pages step may fail quietly (continue-on-error); publishing without it would 404 every shoe page,
         # list page and the sitemap (Oct 4, 2026). Stopping here keeps the last good site live; the health email says why.
@@ -258,6 +285,8 @@ jobs:
           if [ -f /tmp/sitetest.json ]; then
             python3 -c "import json,sys; c=json.load(open('/tmp/sitetest.json'))['critical']; c and print('::error::Site test: ' + ', '.join(c) + ': not publishing'); sys.exit(1 if c else 0)"
           fi
+      - name: Nothing raw gets published
+        run: rm -f site/offers.json site/hike-offers.json
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site

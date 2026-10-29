@@ -64,7 +64,11 @@ site/grab.html, grab.js  "Grab deals" bookmark for MEC/REI (Bastien saves their 
                          -> scrape_backcountry_grab (bc_item, USD->CAD, USA side); needs supabase/grab-backcountry-oct16.sql pasted.
 site/deals.json          generated daily (merged items); sale.json = only items on sale (the site loads it first;
                          deals.json only for "Include full price" or the watchlist); offers.json = raw per-store data;
-                         health.json
+                         health.json. Oct 29 (Bastien via growth: "stop other bots copying our data"): offers.json + hike-offers.json are
+                         NOT published any more: refresh.yml keeps them gzipped in the Actions cache (raw-offers-<run>, restore-keys
+                         raw-offers-; a store that fails still keeps yesterday's offers) and deletes them from site/ before the upload.
+                         Locally: check.py skips the remerge without RAW_OFFERS=<file> (RAW_OFFERS=none forces the skip), catalog_test.py
+                         sorts the file's stores alone, store_list.py takes a file as 2nd argument. Growth adds robots.txt Disallow lines.
 scraper/scrape.py        all store readers + merge -> site/deals.json and site/offers.json
 scraper/weekly_email.py  the Friday email (also the size-matching rules shared with alerts)
 scraper/alerts.py        daily price-drop / back-in-your-size emails

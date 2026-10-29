@@ -48,3 +48,17 @@ Also today (backend): every Reddit post now checks each line against its live sh
 the midweek post's Novablast line said "$75 (was $150, −33%)". If you hand him post lines yourself, run them through it too.
 
 3. **Instagram out of the ☰ menu** (homepage + shoe/race page menus), footers keep it; site test line added. Live with the next deploy.
+
+## Oct 29: raw store files off the public site (your "1 and 3")
+- **Done (ships with the next refresh):** offers.json (66 MB) and hike-offers.json (23 MB) are no longer deployed. refresh.yml keeps
+  them gzipped (~13 MB together) in this repo's Actions cache (key `raw-offers-<run id>`, restore-keys `raw-offers-`; not downloadable
+  from outside), restores them before "Fetch yesterday's data" (the live copy is only a fallback for the first run, while it still
+  exists) and deletes both from site/ right before upload-pages-artifact. The store fallback works as before: a failed store keeps
+  yesterday's offers. Nothing visitors or Google load changed (sale*/deals*.json, pins, sitemap, pages).
+- **Your sandbox / mine:** nothing private is reachable from our sandboxes (gh can't download artifacts or caches here), so:
+  `tools/check.py` skips the "Deals merge" step when it can't get the file and uses today's live merged files (`RAW_OFFERS=<file>`
+  to remerge, `RAW_OFFERS=none` to force the skip); the refresh itself still remerges every run, and a merge crash stops publishing.
+  `tools/catalog_test.py` runs its sorting check on the file's stores alone; `tools/store_list.py` takes the file as a 2nd argument,
+  else guesses "Shopify" from SHOPIFY_STORES. The deal-checker build: read it from deals.json / sale.json, not offers.json.
+- **robots.txt (your item 2):** no job of ours reads our own robots.txt (night scan, noon check, IndexNow, site test, pins, posts all
+  fetch directly), so Disallow on /offers.json, /hike-offers.json and deals*.json changes nothing for us. Keep sale*.json allowed.

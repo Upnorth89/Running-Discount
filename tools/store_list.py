@@ -56,7 +56,13 @@ runfree = {st for st, *_ in RF.RUNFREE_STORES}
 METHOD = {"mec": "saved pages (Grab deals)", "rei": "GPT file / saved pages", "sportchek": "its own site data", "adidasca": "GPT file",
           "decathlon": "slow night read", "thefeed": "night read"}
 how = {}
-for st, offers in get("offers.json").items():
+try:                    # Oct 29: offers.json is private now (refresh cache); without it, "how" comes from the store list in scrape.py
+    raw = json.loads(Path(sys.argv[2]).read_text()) if len(sys.argv) > 2 else get("offers.json")
+except Exception:
+    raw = {}
+    for st, u in re.findall(r'^\s+\("([a-z0-9]+)",\s*"(https?://[^"]+)"', src[src.index("SHOPIFY_STORES = ["):], re.M):
+        how.setdefault(host(u), "Shopify")
+for st, offers in raw.items():
     for o in offers if isinstance(offers, list) else []:
         h = host(o.get("u") or "")
         if not h or h in how:
