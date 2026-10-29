@@ -103,7 +103,8 @@ begin
   if p_profile is null or jsonb_typeof(p_profile) <> 'object' or octet_length(p_profile::text) > 20000 then
     raise exception 'invalid profile'; end if;
 
-  select count(*) into recent from public.subscribers where last_mail_at > now() - interval '1 hour';
+  -- Oct 29 fix: count new sign-ups in the last hour (not emails sent: the 30-day catch-up's welcome emails blocked every sign-up for an hour)
+  select count(*) into recent from public.subscribers where created_at > now() - interval '1 hour';
   if recent >= 40 then raise exception 'too many sign-ups right now, try again in a few minutes'; end if;
 
   prof := p_profile - 'email' - 'consent';
@@ -197,6 +198,7 @@ begin
            consent_via = 'form-before-oct29', updated_at = now()
      where id = s.id;
     perform public._gf_welcome(s.id);
+    update public.subscribers set last_mail_at = null where id = s.id;   -- the catch-up never counts toward the sign-up limit
     perform pg_sleep(1);
   end loop;
 end $$;
