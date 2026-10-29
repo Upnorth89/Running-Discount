@@ -3603,7 +3603,7 @@ TYPES = {
 #   daily  everything else: road shoes for everyday and long runs (cushioned, stability)
 # Order matters (first match wins). Colour names are cut off first ("GT-2000 — Winter Sea" is not a winter shoe).
 TYPES["shoes"] = [
-    ("race", r"phantasm|s/lab pulsar|aero blaze"),      # Salomon's road racers ("S/Lab" otherwise means trail)
+    ("race", r"phantasm|s/lab pulsar|aero blaze(?!.*grvl)"),      # Salomon's road racers ("S/Lab" otherwise means trail); Oct 29: Aero Blaze GRVL = trail
     # winter trail shoes with ice studs ("Speedgoat GTX Spike", "Norda G+ Spike") and "Norvan LD" (long distance) are trail
     ("trail", r"norvan|speedgoat.*spike|norda|\bg\+|carbide|cross spike|mtn racer|\bice\b"),
     ("spike", r"spikes?\b(?<!cross spike)|\bpointes?\b|\bxc\d*\b|\bm?xcs\d|\bwxcs|zoom rival|\bavanti\b|sprintstar|evospeed|"

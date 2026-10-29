@@ -386,7 +386,7 @@ def site_flow(base, per, accented):
 
         def punctuation():   # Oct 10 (stats: "arcteryx" and "goretex" found nothing): punctuation and spaces don't matter
             out = []
-            for written, typed in (("arc'teryx", "arcteryx"), ("gore-tex", "goretex")):
+            for written, typed in (("arc'teryx", "arcteryx"), ("gore-tex", "goretex"), ("zoom fly", "zoomfly")):   # Oct 29: "nike zoomfly" found nothing
                 all_gear()
                 page.fill("#dSearch", written)
                 settle(page, 900)
@@ -396,7 +396,8 @@ def site_flow(base, per, accented):
                 page.fill("#dSearch", typed)
                 settle(page, 900)
                 m = len(cards(page))
-                assert m >= n, f"searching '{typed}' finds {m} deals, '{written}' finds {n}"
+                # "zoom fly" as two words also finds names where they sit apart ("Zoom … Flyknit"): "zoomfly" only has to find the Zoom Flys
+                assert (m > 0) if typed == "zoomfly" else (m >= n), f"searching '{typed}' finds {m} deals, '{written}' finds {n}"
                 out.append(f"'{typed}' {m} (>= '{written}' {n})")
             page.fill("#dSearch", "")
             settle(page)
@@ -1076,6 +1077,9 @@ def site_flow(base, per, accented):
             assert pg.locator(".browsebar").count(), "browsing without sizes doesn't offer to pick a size"
             assert "Sizes on sale" in pg.inner_text("section.grp:not(.new)") or "every size" in pg.inner_text(".browsebar").lower(), \
                 "nothing says the deals show every size"   # Oct 22: the redesign says it once, in the bar above the deals
+            # Oct 29 (two "wrong size" reports): with every size showing, a price that isn't the same in every size says "From"
+            froms = pg.locator("section.grp .deal .price .from").count()
+            assert froms, "no card says 'From' while browsing every size (prices differ by size on many shoes)"
             pg.reload(wait_until="domcontentloaded")
             pg.wait_for_selector("section.grp .deal", timeout=20000)
             assert pg.locator("#sheet").is_hidden(), "a browsing visitor gets the welcome screen again on reload"
