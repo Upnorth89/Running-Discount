@@ -2384,6 +2384,10 @@ def site_flow(base, per, accented):
                 settle(pg, 300)
                 shown = pg.eval_on_selector_all("ul.cards li", "els => els.filter(l => l.offsetParent).map(l => l.querySelector('b').textContent)")
                 assert first in shown and len(shown) < pg.eval_on_selector_all("ul.cards li", "e => e.length"), f"{path}: searching '{word}' shows {shown[:3]}"
+                if path == "hikes/":   # Oct 29: trails grouped by province/state, folded; a search opens the groups it finds
+                    groups = pg.eval_on_selector_all("details.rg", "e => e.length")
+                    assert groups >= 3, f"hikes/: only {groups} province/state groups"
+                    assert pg.evaluate("[...document.querySelectorAll('details.rg')].every(d => d.hidden || d.open)"), "hikes/: a group with a match stayed closed"
                 pg.fill("#hubQ", "zzqx")
                 settle(pg, 300)
                 assert pg.evaluate("!document.querySelector('.hnone').hidden"), f"{path}: no 'nothing matches' line"
