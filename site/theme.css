@@ -200,6 +200,9 @@ html.rd,html:root.rd{color-scheme:light;
 @media(max-width:899px){.rd .rdhp .note{display:none}}
 .rd:not(.rdw) #pageTitle,.rd .toprow,.rd #lede,.rd #sizePill{display:none}
 .rd.rdw .rdhero,.rd.rdw .rdtiles,.rd.rdw .rdwhy{display:none}
+/* Oct 29: the watchlist says what happens next (alerts on / confirm / add your email + button); #lede was hidden on every view */
+.rd.rdw #lede{display:block;margin:4px 0 18px;font-size:15px;line-height:1.45;color:var(--muted)}
+.rd.rdw #lede .btn{display:flex;width:100%;justify-content:center;margin-top:12px}
 
 /* category tiles */
 .rd .rdtiles{display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 20px)/2.4);gap:10px;overflow-x:auto;scrollbar-width:none;margin:18px -16px 6px;padding:2px 16px 4px}

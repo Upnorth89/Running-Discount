@@ -137,7 +137,7 @@ def stub(ctx):
     ctx.route(re.compile(r"umami|googletagmanager|accounts\.google|gstatic"), lambda r: r.abort())
     ctx.route(re.compile(r"^https?://(?!127\.0\.0\.1).*\.(jpe?g|png|webp|gif|avif)(\?.*)?$", re.I), lambda r: r.abort())
     # A/B tests (Oct 18): the robot is group A unless a check asks otherwise (test "welcome" B skips the welcome screen)
-    ctx.add_init_script("try{if(!localStorage.getItem('gf-exp'))localStorage.setItem('gf-exp',JSON.stringify({welcome:'A',layout:'A',short:'A',namecard:'A'}))}catch(e){}")
+    ctx.add_init_script("try{if(!localStorage.getItem('gf-exp'))localStorage.setItem('gf-exp',JSON.stringify({welcome:'A',layout:'A',short:'A',namecard:'A',watchsheet:'A'}))}catch(e){}")
 
 
 # ---------- what today's data says we should see ----------
@@ -1888,7 +1888,7 @@ def site_flow(base, per, accented):
             prof = ("localStorage.setItem('gf-peek','1');localStorage.setItem('gf-nosignup','1');localStorage.setItem('rd-profile',JSON.stringify({gender:'men',"
                     "terrain:'both',ships:'ca',country:'ca',groups:['shoes','tops','bottoms'],sizes:{shoes:{sizes:['11'],width:[]},tops:{sizes:['M']},"
                     "bottoms:{sizes:['M']}},brands:[],lang:'en'}))")
-            allb = "localStorage.setItem('gf-exp',JSON.stringify({r100:'B',run1st:'B',cards2:'B',short:'B',popq:'B',kit:'B',alts:'B',namecard:'B',welcome:'A',layout:'A'}))"
+            allb = "localStorage.setItem('gf-exp',JSON.stringify({r100:'B',run1st:'B',cards2:'B',short:'B',popq:'B',kit:'B',alts:'B',namecard:'B',watchsheet:'B',welcome:'A',layout:'A'}))"
             paths = ["", "?lang=fr", "shoes/", "black-friday/", "running-shoes-sale/", "races/", "races/ultra-trail-harricana/", "about.html", "gifts-for-runners/"]
             if site_get("hikes/"):
                 paths.append("hikes/")
@@ -1962,6 +1962,48 @@ def site_flow(base, per, accented):
                     c.close()
             return "; ".join(out)
         check("Sign-up card that names a deal (test namecard)")(name_card, pg)
+
+        def watch_sheet():     # Oct 29 (Bastien: "ship both and test"): 'watchsheet' B = the email step after a Watch tap names the item;
+            # and a watchlist with no email asks for one (it used to say "Confirm your email" to people who never gave one)
+            out = []
+            for a in ("B", "A"):
+                c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+                stub(c)
+                q = c.new_page()
+                try:
+                    q.goto(base + f"?exp=watchsheet:{a}", wait_until="load")
+                    q.wait_for_selector("#saveSizes", state="visible", timeout=30000)
+                    q.click("#saveSizes")
+                    q.wait_for_selector("#shoeSizes button", state="visible")
+                    q.click('#fit button[data-v="men"]')
+                    q.locator("#shoeSizes button", has_text=re.compile(r"^11$")).first.click()
+                    q.click("#saveSizes")
+                    q.wait_for_selector("section.grp .deal", timeout=20000)
+                    q.wait_for_timeout(600)
+                    h = q.locator("section.grp .heart").first
+                    brand = h.locator("xpath=ancestor::*[contains(@class,'dw')][1]").locator(".brand").first.inner_text().replace("🍁", "").strip()
+                    h.click()
+                    q.wait_for_selector("#sheet", state="visible", timeout=5000)
+                    title, btn = q.inner_text("#sheetTitle"), q.inner_text("#saveSizes")
+                    if a == "B":
+                        assert brand.lower() in title.lower() and "drops" in title.lower(), f"group B's email step says '{title}' after watching a {brand} item"
+                        assert "show my deals" not in btn.lower(), f"group B's button still says '{btn}'"
+                    else:
+                        assert "where should we send" in title.lower(), f"group A's email step changed: '{title}'"
+                    q.click("#closeSheet")
+                    q.wait_for_timeout(400)
+                    q.click("#openWatch")
+                    q.wait_for_timeout(800)
+                    lede = q.inner_text("#lede")
+                    assert "confirm your email" not in lede.lower(), f"the watchlist tells someone who never gave an email: '{lede}'"
+                    assert q.locator("#watchEmail").is_visible(), "the watchlist has no button to add an email"
+                    q.click("#watchEmail")
+                    q.wait_for_selector("#sheet", state="visible", timeout=5000)
+                    out.append(f"{a}: '{title}'")
+                finally:
+                    c.close()
+            return "; ".join(out) + "; watchlist asks for the email"
+        check("Email step after a Watch tap (test watchsheet) + watchlist email ask")(watch_sheet, pg)
 
         def visit_resend():    # Oct 27 (Bastien: "Are we tracking numbers correctly?"): 28% of first visits had lost their first batch
             got, n = [], [0]

@@ -733,7 +733,7 @@ const ANA=(()=>{const ls=k=>{try{return localStorage.getItem(k)}catch(e){return 
   let over={};try{const q=new URLSearchParams(location.search).get("exp");over=JSON.parse(ls("gf-exp")||"{}");
     if(q){q.split(",").forEach(x=>{const [n,a]=x.split(":");if(n&&/^[AB]$/.test(a))over[n]=a});localStorage.setItem("gf-exp",JSON.stringify(over))}}catch(e){}
   const arm=n=>{if(over[n])return over[n];let h=2166136261;for(const c of did+"|"+n){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return (h>>>0)%2?"B":"A"};
-  const TESTS=["r100","run1st","cards2","short","popq","namecard"];   // Oct 28: 'namecard' B = the sign-up card names a real deal in your size   // Oct 27: 'popq' B = popular searches under an empty search box
+  const TESTS=["r100","run1st","cards2","short","popq","namecard","watchsheet"];   // Oct 29: 'watchsheet' B = the email step after a Watch tap names that item   // Oct 28: 'namecard' B = the sign-up card names a real deal in your size   // Oct 27: 'popq' B = popular searches under an empty search box
     // Oct 25: 'short' live (Bastien OK'd)   // Oct 25: 'short' B = first sizes screen asks only fit + shoe size (Bastien OK'd)
     // Oct 22: 'run1st' = running gear leads the first rows (B)   // Oct 22: the redesign ('look' B) is the site for everyone (Bastien), 'runcard' ended (0 vs 2 sign-ups, too rare to decide), 'layout' ended Oct 19
      // Oct 21: 'look' = sizes on each card + category photos + store names (B)   // Oct 20: 'welcome' and 'drops' ended (A won); 'layout' back as a 50/50 test
@@ -879,6 +879,8 @@ en:{
   goneTxt:"Not in stock in your size right now. We'll email you when it's back.",
   watchLedeOn:"We'll email you when any of these drop in price or come back in your size.",
   watchLedeOff:"Confirm your email to get alerts when these drop in price or come back in your size.",
+  watchLedeAdd:"Add your email and we'll tell you when these drop in price or come back in your size.",watchEmailGo:"Email me when these drop",
+  wsTitle:n=>`Email me when the ${n} drops`,wsIntro:"We'll email you if its price drops in your size, plus your best deals every Friday morning.",wsGo:"Email me when it drops",
   watchEmpty:"Tap the ♡ on any deal to watch it. We'll email you when it drops in price or comes back in your size.",
   pricesChange:"Prices and stock change every day. The store's page has the final price.",
   newSince:n=>`<b>${n}</b> new since your last visit`,show:"Show",
@@ -993,6 +995,8 @@ fr:{
   goneTxt:"Pas en stock dans votre taille pour l'instant. On vous écrit dès que ça revient.",
   watchLedeOn:"On vous écrit quand l'un de ces articles baisse de prix ou revient dans votre taille.",
   watchLedeOff:"Confirmez votre courriel pour être avisé quand ces articles baissent de prix ou reviennent dans votre taille.",
+  watchLedeAdd:"Ajoutez votre courriel et on vous avertit quand ces articles baissent de prix ou reviennent dans votre taille.",watchEmailGo:"M'avertir des baisses de prix",
+  wsTitle:n=>`M'avertir quand ${n} baisse de prix`,wsIntro:"On vous écrit si son prix baisse dans votre taille, et on vous envoie vos meilleures aubaines chaque vendredi matin.",wsGo:"M'avertir d'une baisse de prix",
   watchEmpty:"Touchez le ♡ sur une aubaine pour l'ajouter à vos favoris. On vous écrit quand le prix baisse ou quand votre taille revient.",
   pricesChange:"Les prix et les stocks changent tous les jours. Le prix final est sur la page de la boutique.",
   newSince:n=>`<b>${n}</b> ${PL(n,"nouveauté","nouveautés")} depuis votre dernière visite`,show:"Voir",
@@ -1333,7 +1337,10 @@ function openSheet(){lastFocus=document.activeElement;renderSheet();
     else if(FLOW==="C"&&step===1){showSizes=false;title=t("cTitle");intro=t("cIntro");btn=t("cContinue")}
     else if(FLOW==="C"&&step===2){showGate=false;title=t("s1Title");intro=gSession?t("gSigned",esc(gSession.email))+" "+t("cSizesIntro"):t("cSizesIntro");btn=t("subscribeShow")}
     else if(step===1){showGate=false;title=t("s1Title");intro=gSession?t("gSigned",esc(gSession.email))+" "+t("cSizesIntro"):t("s1Intro");btn=gSession?t("subscribeShow"):FLOW==="D"?t("showDeals"):t("next")}
-    else {showSizes=false;title=t("s2Title");intro=t("s2Intro");btn=t("subscribeShow")}
+    else {showSizes=false;title=t("s2Title");intro=t("s2Intro");btn=t("subscribeShow");
+      // Oct 29 (Bastien: "ship both and test"; daily review): the email step right after a Watch tap said "Where should we send your
+      // deals?" + "Subscribe & show my deals" (the deals already show). B names the item just watched. A = as before.
+      if(wsItem&&ANA.arm("watchsheet")==="B"){const [m]=rdModel(wsItem);title=t("wsTitle",`${wsItem.b} ${m}`);intro=t("wsIntro");btn=t("wsGo")}}
   }
   if(si){title=t("signinTitle");intro=t("signinIntro");btn=t("emailLink")}
   $("sizesPart").classList.toggle("hidden",!showSizes);$("welcomePart").classList.toggle("hidden",!showWelcome);
@@ -2269,7 +2276,7 @@ function toggleWatch(k,quiet){     // quiet: the come-back bar asks for the emai
   if(sub&&sub.key&&sub.active){rpc("watch_add",{p_token:sub.key,p_key:k,p_meta:watches[k]}).then(()=>{if(watches[k]){watches[k].sv=1;saveWatches()}}).catch(()=>{});
     toast(t("watching"))}
   else if(!quiet&&!peeking())toast(sub&&sub.pending?t("watchingPending"):t("watchingSignup"));   // Oct 18: when the email sheet opens it says it; the toast sat on its button
-  if(peeking()&&!quiet){step=2;openSheet();$("panel").scrollTop=0}
+  if(peeking()&&!quiet){wsItem=d;step=2;openSheet();$("panel").scrollTop=0}
 }
 /* Oct 23 (Bastien: "I keep taking 2 items off the list and it inputs them back"): a member's list lives on the server AND on each
    device (phone browser, home-screen app, computer). Sync used to upload every item this device had and the server didn't, so a
@@ -2382,7 +2389,7 @@ function renderWatchButton(){
     const ask=!(sub&&(sub.active||sub.pending))?`<button type="button" class="btn" id="emailNext">${t("emailNext")}</button>`:"";   // Oct 8: ask for the email when a heart drops
     box.innerHTML=CALM?`<span>${t("watchShort",drops,backs)}</span><button type="button" class="btn" id="seeWatch">${t("see")}</button>${ask}`
       :`<span><b>${t("goodNews")}</b> ${txt}.</span><button type="button" class="btn" id="seeWatch">${t("seeThem")}</button>${ask}`;
-    if(ask)$("emailNext").addEventListener("click",()=>{ana("signup-step","drop-ask");step=2;openSheet();$("panel").scrollTop=0});
+    if(ask)$("emailNext").addEventListener("click",()=>{ana("signup-step","drop-ask");wsItem=null;step=2;openSheet();$("panel").scrollTop=0});
     box.classList.remove("hidden");$("seeWatch").addEventListener("click",()=>setWatchView(true));
   }else box.classList.add("hidden");
 }
@@ -2405,7 +2412,11 @@ function renderWatch(){
       <div class="gonetxt">${t("goneTxt")}</div></a>${heartBtn(k,true,{b:w.b||"",n:w.n||""})}</div>`;
   });
   const n=keys.length;
-  $("lede").textContent=n?(sub&&sub.active?t("watchLedeOn"):t("watchLedeOff")):"";
+  // Oct 29 (daily review): someone who never gave an email was told to "Confirm your email", with no way to add one on this page
+  const mem=sub&&sub.active,pend=sub&&sub.pending;
+  $("lede").innerHTML=!n?"":mem?esc(t("watchLedeOn")):pend?esc(t("watchLedeOff"))
+    :`${esc(t("watchLedeAdd"))} <button type="button" class="btn" id="watchEmail">${esc(t("watchEmailGo"))}</button>`;
+  const we=$("watchEmail");if(we)we.addEventListener("click",()=>{ana("signup-step","watchlist-ask");wsItem=null;step=2;openSheet();$("panel").scrollTop=0});
   saveWatches();renderWatchButton();
   $("dealList").innerHTML=n?`<div class="grid">${cards.join("")}</div>`
     :`<div class="empty">${t("watchEmpty")}</div>`;
@@ -2660,7 +2671,7 @@ function signupHTML0(){
 }
 /* Test 'runcard' (Oct 18): the sign-up card asks one concrete thing, "What do you run in?", and watches that shoe.
    Metric: homepage visitors who sign up (about 1% of first visits; ~2,300 a group to see 2%, decide ~Nov 15). */
-let RC_SHOE="",RC_FOCUS="",NC=null;
+let RC_SHOE="",RC_FOCUS="",NC=null,wsItem=null;   // wsItem: the item whose Watch tap opened the email step
 // Oct 18 (Bastien: "people should be able to type their shoe and then it auto populates. People won't scroll down that menu"):
 // our own suggestions under the box (iPhone shows a <datalist> as a menu to scroll): every typed word starts a word of the model
 const rcFold=x=>x.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9 ]+/g," ").trim();
@@ -2730,7 +2741,7 @@ function bindSignup(){
     if(RC_FOCUS){const x=$(RC_FOCUS);if(x){x.focus({preventScroll:true});const n=x.value.length;try{x.setSelectionRange(n,n)}catch(e){}if(x.id==="rcShoe")rcShow()}}   // a redraw (full list arriving) keeps the typing going
     if(!FULL)setTimeout(loadFull,1500)}      // the shoe list wants full-price models too (the shoe you run in may not be on sale)
   const no=$("suNo");if(no)no.addEventListener("click",()=>{LS.set("gf-nosignup",1);ana("signup-step","no-thanks");renderAll()});
-  const sg=$("suGoogle");if(sg)sg.addEventListener("click",()=>{step=2;openSheet();$("panel").scrollTop=0});
+  const sg=$("suGoogle");if(sg)sg.addEventListener("click",()=>{wsItem=null;step=2;openSheet();$("panel").scrollTop=0});
   const r=$("suRetry");if(r)r.addEventListener("click",()=>{setSub(null);renderAll();openSheet();setTimeout(()=>$("gateEmail").focus(),60)});
   const rs=$("suResend");if(rs)rs.addEventListener("click",async()=>{     // same email again (the server waits 2 min between sends)
     if(resentAt&&Date.now()-resentAt<120e3){toast(t("resendWait"));return}

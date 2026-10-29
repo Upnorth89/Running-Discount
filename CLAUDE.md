@@ -309,6 +309,13 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   drops"; `NC`, `.namecard`; the deal rides with the sign-up as a watch). A = "Free with your email" (core list: Bastien OK'd B replacing it for half).
   Metric: homepage first visits that sign up, baseline 1%; 1% -> 2% needs ~2,300 a group: decide ~Nov 20. Robots default to A (stub); ?exp=namecard:B,
   PV_NAMECARD=1. Site test "Sign-up card that names a deal (test namecard)".
+  Test 'watchsheet' (Oct 29, Bastien: "ship both and test"; daily review): B = the email step after a Watch tap names the item ("Email me when the
+  Hoka Cielo X1 2.0 drops" / « M'avertir quand … baisse de prix », button "Email me when it drops"; `wsItem` set in toggleWatch, cleared by other openers);
+  A = "Where should we send your deals?" + "Subscribe & show my deals". Metric: sign-ups from the sheet among Watch-tap sessions (~1 in 5 now,
+  ~46 Watch-tap sessions a week): 20% -> 35% needs ~140 a group = ~6 weeks, decide ~Dec 10, earlier if p<0.05. Same day, a fix for everyone
+  (no test): the watchlist's line (#lede) was hidden by the redesign and said "Confirm your email" to people who never gave one; now
+  members / pending / "Add your email…" + [Email me when these drop] (#watchEmail, signup-step watchlist-ask), theme.css `.rd.rdw #lede`.
+  Site test "Email step after a Watch tap (test watchsheet) + watchlist email ask".
   Store offers ranked (Oct 29, same OK): `promoRanked()` = most deals in your size at that store first (storeCounts), then the checked median %;
   phones show 1 + "+ N more store offers today" (`view.promoAll`, analytics filter promo-more).
   Race list items link to their category (Oct 29, same OK): `CAT_LINK`/`cat_link()` in race_pages.py -> "See more jackets on sale →" under the
