@@ -341,6 +341,17 @@ VERIFIED = {
     "mount-whitney": (34.2, None, "https://www.nps.gov/seki/planyourvisit/whitney.htm", {}),   # "10.7 mile (17.1 km) trail from Whitney Portal"; no gain figure
     "timberline-trail": (64, None, "https://www.fs.usda.gov/r06/mthood/recreation/trails/timberline-trail-600", {}),   # "~40-mile trail" around Mt. Hood
     "teton-crest": (62.8, 2743, "https://www.nps.gov/grte/planyourvisit/backcountryroutesandzones.htm", {"oneway": True}),   # "39-mile point to point", "over 9000' of elevation gain"
+    # Oct 29: 9 more (Mount Si, Mount Marcy, Quandary, Berg Lake, Tonquin, Lake O'Hara: the official page gives no clear total or says
+    # one-way for a trail whose far trailhead is closed; Colorado Trail 403, NY DEC robots.txt disallows: left unchecked)
+    "sunshine-coast-trail": (180, None, "https://sunshinecoast-trail.com/", {"oneway": True}),   # "a 180-kilometre back country hiking experience ... from Sarah Point ... to Saltery Bay"
+    "sentier-des-caps": (51, None, "https://www.sentierdescaps.com/le-sentier/", {"oneway": True}),   # "le sentier principal longe sur la majorité de ses 51 km, les caps"
+    "traversee-de-charlevoix": (105, 3336, "https://traverseedecharlevoix.qc.ca/randonnees/la-traversee-complete/", {"oneway": True}),   # "La longue randonnée de 105 km", "Dénivelé total + 3336 m / – 3686 m"
+    "bruce-trail": (900, None, "https://brucetrail.org/explore-the-trail/", {"oneway": True}),   # "over 900 km of main Trail and over 450 km of side trails"
+    "lake-superior-coastal": (65, None, "https://www.ontarioparks.ca/park/lakesuperior/activities", {"oneway": True}),   # "Coastal Very Demanding; 65 km (40 mi) linear; 5 - 7 days"
+    "pukaskwa-coastal": (60, None, "https://parks.canada.ca/pn-np/on/pukaskwa/activ/experience/arriere-back", {"oneway": True}),   # "Pukaskwa National Park's 60 km Coastal Hiking Trail"
+    "jasper-skyline": (44.1, None, "https://parks.canada.ca/pn-np/ab/jasper/activ/passez-stay/arrierepays-backcountry/sugg-sentiers_trip-ideas/skyline", {"oneway": True}),   # "44.1 km one-way", "2 - 3 days"
+    "burstall-pass": (14.8, 470, "https://albertaparks.ca/parks/kananaskis/kananaskis-country/advisories-and-public-safety/trail-reports/peter-lougheed/burstall-pass/", {}),   # "Length 7.4 km one-way", "Elevation: 470 m"
+    "rae-lakes-loop": (66.6, None, "https://www.nps.gov/seki/planyourvisit/rae-lakes-loop.htm", {}),   # "The loop is 41.4 miles long"; only trailhead and pass heights, no total gain
 }
 for s, (km, gain, url, extra) in VERIFIED.items():
     h = BY[s]
