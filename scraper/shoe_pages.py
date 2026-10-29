@@ -658,7 +658,7 @@ def page_head(L, title, desc, path_en, path_fr, extra=""):
 def page_foot(L):
     priv = "/privacy.html" + ("?lang=fr" if L["lang"] == "fr-CA" else "")
     # deal clicks count toward the monthly report (same anonymous counter as the site: store + category, nothing personal)
-    return f"""<p class="foot">{esc(L['foot'])} · <a href="https://www.instagram.com/thegearfox/" rel="noopener">@thegearfox</a> · <a href="{priv}">{L['privacy']}</a></p>
+    return f"""<p class="foot">{esc(L['foot'])} · <a href="https://www.instagram.com/thegearfox/" rel="noopener">@thegearfox</a> · <a href="{priv}">{L['privacy']}</a> · <a href="/terms.html{'?lang=fr' if L['lang'] == 'fr-CA' else ''}">{'Conditions' if L['lang'] == 'fr-CA' else 'Terms'}</a></p>
 </main>
 <script>
 /* our own analytics (same as the homepage, supabase/analytics.sql): what people do, never who they are */
@@ -1690,7 +1690,7 @@ def main():
         (site / L["dir"] / "index.html").write_text(index_page(L, entries, updated))
     reg_path.write_text(json.dumps(known, ensure_ascii=False, separators=(",", ":")))
     day = (updated or datetime.now(timezone.utc).isoformat())[:10]
-    urls = ["/", "/shoes/", "/chaussures/", "/about.html", "/privacy.html"] + extra_urls
+    urls = ["/", "/shoes/", "/chaussures/", "/about.html", "/privacy.html", "/terms.html"] + extra_urls
     urls += [f"/{d}/{s}/" for s in known_live for d in ("shoes", "chaussures")]
     us_urls, us_home = build_us(site, stores, set(known_live), {slugify(b) for b in brands})
     urls += us_urls
