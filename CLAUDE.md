@@ -304,6 +304,16 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   "search" "popular: <q>". Why: searchers came back 17% vs 5% (funnel Oct 13-27), only ~5% of first-visit devices searched; Baymard:
   show suggestions before typing. Metric: homepage first visits that search, baseline ~5% of devices; 5% -> 7.5% needs ~1,500 a group:
   decide ~Nov 24 (or earlier if p<0.05). Preview: PV_POPQ=1 PV_POPULAR='{...}'. Site test "Popular searches under the search box".
+  Test 'namecard' (Oct 29, Bastien: "ship all 3"; daily review Oct 28: Watch-price taps convert ~1 in 5 to sign-ups, the generic card 5 of 1,776
+  sessions): B = the sign-up card names the first shoe in the visitor's Top deals ("Watch the X in your size · Now $Y, was $Z" + "Email me if it
+  drops"; `NC`, `.namecard`; the deal rides with the sign-up as a watch). A = "Free with your email" (core list: Bastien OK'd B replacing it for half).
+  Metric: homepage first visits that sign up, baseline 1%; 1% -> 2% needs ~2,300 a group: decide ~Nov 20. Robots default to A (stub); ?exp=namecard:B,
+  PV_NAMECARD=1. Site test "Sign-up card that names a deal (test namecard)".
+  Store offers ranked (Oct 29, same OK): `promoRanked()` = most deals in your size at that store first (storeCounts), then the checked median %;
+  phones show 1 + "+ N more store offers today" (`view.promoAll`, analytics filter promo-more).
+  Race list items link to their category (Oct 29, same OK): `CAT_LINK`/`cat_link()` in race_pages.py -> "See more jackets on sale →" under the
+  picks, /?cat=<group>&t=<type>&ref=race-<slug>; homepage ?cat= opens that category like its circle (BROWSE when no sizes; analytics category
+  "link|g:t", race event "catall"). Race lists only (trail lists have their own builder).
   Parked: test 'card' (cleaner deal cards, ⋯ menu; commit 629e4d1, backlog). Site tests check each one. Correlations from the "RETENTION DRIVERS" lines are leads, never proof
   (Oct 17: "watchers come back 33%" was 9 devices).
 - **Own the design and product calls (Bastien, Oct 17: "You're supposed to optimize this to make it look the best and cleanest...

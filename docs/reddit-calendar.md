@@ -19,6 +19,8 @@ Weeks: B = the week of Mon Oct 19, 2026, then C (Oct 26), D (Nov 2), A (Nov 9), 
 Never: r/BuyCanadian (removed us), r/trailrunning (Oct 23: 24 first visits, 0 sign-ups; Oct 29 skipped, only 1 US trail shoe passed the line check), r/RunningShoeGeeks (no self-promotion), the same items twice in a sub (`--exclude`).
 Every 4 weeks: drop a sub that brought no visitors (funnel.yml first visits by ?ref=reddit-<sub>), try a new one in its slot.
 
+Nov 4 r/ultrarunning: use the drafted gear-list post in docs/reddit-drafts/ultrarunning-nov4.md (Bastien, Oct 29: "not a shoe list").
+
 ## Log (newest first)
 | Date | Sub | Posted? | Visits from it (7 days) |
 |------|-----|---------|-------------------------|

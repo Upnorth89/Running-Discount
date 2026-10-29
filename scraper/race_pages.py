@@ -1293,7 +1293,7 @@ S = {
         "have": "I have it", "progress": "You have {h} of {n} mandatory items. Tick what you already own.", "progressAll": "You have every mandatory item. See you at the start.",
         "deals": "On sale now", "dealsSize": "On sale now in your size", "noDeals": "None in stock in your size today. We check every morning.", "few": "Only {n} in {fit} {size} today. We check every morning.",
         "notSold": "The stores we check don't sell this.", "spec": "Check the spec before you buy.",
-        "more": "See more on sale →", "moreN": "See all {n}", "less": "Show fewer", "shH": "Trail running shoes", "shTag": "Your pick", "shPh": "What do you race in?", "shSize": "Size", "shGone": "Not in stock in size {s} today. We'll tell you when it's back.", "shPickSize": "Pick your size too.", "shPickFit": "Pick Men's or Women's above first.", "shFrom": "{p} in size {s} today", "shPage": "Every size & store", "shNone": "Not in our trail shoe list. Try the brand name.", "shRm": "Remove", "watch": "Watch", "watchOn": "Watching", "watchL": "Watch the price", "wMember": "Watching. We'll email you when it drops in your size.", "wNew": "Watching, on this phone. Add your email and we'll tell you when it drops.", "wPending": "Watching. Confirm your email (check your inbox) to get the drop emails.", "wAdd": "Add my email", "wOff": "Removed from your watchlist.", "sizeH": "Your size", "sizeTxt": "Pick it once to see deals that fit you.",
+        "more": "See more on sale →", "moreN": "See all {n}", "less": "Show fewer", "catAll": "See more {w} on sale →", "shH": "Trail running shoes", "shTag": "Your pick", "shPh": "What do you race in?", "shSize": "Size", "shGone": "Not in stock in size {s} today. We'll tell you when it's back.", "shPickSize": "Pick your size too.", "shPickFit": "Pick Men's or Women's above first.", "shFrom": "{p} in size {s} today", "shPage": "Every size & store", "shNone": "Not in our trail shoe list. Try the brand name.", "shRm": "Remove", "watch": "Watch", "watchOn": "Watching", "watchL": "Watch the price", "wMember": "Watching. We'll email you when it drops in your size.", "wNew": "Watching, on this phone. Add your email and we'll tell you when it drops.", "wPending": "Watching. Confirm your email (check your inbox) to get the drop emails.", "wAdd": "Add my email", "wOff": "Removed from your watchlist.", "sizeH": "Your size", "sizeTxt": "Pick it once to see deals that fit you.",
         "men": "Men's", "women": "Women's", "change": "Change", "off": "off",
         "kit_bad": "Bad-weather kit", "kit_hot": "Hot-weather kit", "kitWhen": "Only if the race calls it, usually a few days before the start.",
         "kit_bag": "Compulsory, can stay in your TORX bag", "kitWhen_bag": "You may leave these in your TORX bag at the Life Bases, but the race can make you carry or wear them when conditions get tough (bad weather, snow, ice). Pack for the time between Life Bases, the altitude and the forecast.",
@@ -1317,7 +1317,7 @@ S = {
         "have": "Je l'ai", "progress": "Vous avez {h} des {n} articles obligatoires. Cochez ce que vous avez déjà.", "progressAll": "Vous avez tout le matériel obligatoire. On se voit au départ.",
         "deals": "En solde maintenant", "dealsSize": "En solde dans votre taille", "noDeals": "Rien en stock dans votre taille aujourd'hui. On vérifie chaque matin.", "few": "Seulement {n} en {size} {fit} aujourd'hui. On vérifie chaque matin.",
         "notSold": "Les boutiques que nous suivons n'en vendent pas.", "spec": "Vérifiez les caractéristiques avant d'acheter.",
-        "more": "Voir plus d'aubaines →", "moreN": "Voir les {n}", "less": "Voir moins", "shH": "Chaussures de course en sentier", "shTag": "Votre choix", "shPh": "Vos chaussures de course ?", "shSize": "Pointure", "shGone": "Pas en stock en pointure {s} aujourd'hui. On vous avertit dès son retour.", "shPickSize": "Choisissez aussi votre pointure.", "shPickFit": "Choisissez d'abord Homme ou Femme plus haut.", "shFrom": "{p} en pointure {s} aujourd'hui", "shPage": "Toutes les pointures et boutiques", "shNone": "Pas dans notre liste de chaussures de sentier. Essayez le nom de la marque.", "shRm": "Retirer", "watch": "Suivre", "watchOn": "Suivi", "watchL": "Suivre le prix", "wMember": "Suivi. On vous écrit quand il baisse dans votre taille.", "wNew": "Suivi, sur ce téléphone. Ajoutez votre courriel et on vous avertira quand il baisse.", "wPending": "Suivi. Confirmez votre courriel (voyez votre boîte de réception) pour recevoir les alertes.", "wAdd": "Ajouter mon courriel", "wOff": "Retiré de vos favoris.", "sizeH": "Votre taille", "sizeTxt": "Choisissez-la une fois pour voir les aubaines à votre taille.",
+        "more": "Voir plus d'aubaines →", "moreN": "Voir les {n}", "less": "Voir moins", "catAll": "Voir plus d'aubaines : {w} →", "shH": "Chaussures de course en sentier", "shTag": "Votre choix", "shPh": "Vos chaussures de course ?", "shSize": "Pointure", "shGone": "Pas en stock en pointure {s} aujourd'hui. On vous avertit dès son retour.", "shPickSize": "Choisissez aussi votre pointure.", "shPickFit": "Choisissez d'abord Homme ou Femme plus haut.", "shFrom": "{p} en pointure {s} aujourd'hui", "shPage": "Toutes les pointures et boutiques", "shNone": "Pas dans notre liste de chaussures de sentier. Essayez le nom de la marque.", "shRm": "Retirer", "watch": "Suivre", "watchOn": "Suivi", "watchL": "Suivre le prix", "wMember": "Suivi. On vous écrit quand il baisse dans votre taille.", "wNew": "Suivi, sur ce téléphone. Ajoutez votre courriel et on vous avertira quand il baisse.", "wPending": "Suivi. Confirmez votre courriel (voyez votre boîte de réception) pour recevoir les alertes.", "wAdd": "Ajouter mon courriel", "wOff": "Retiré de vos favoris.", "sizeH": "Votre taille", "sizeTxt": "Choisissez-la une fois pour voir les aubaines à votre taille.",
         "men": "Homme", "women": "Femme", "change": "Modifier", "off": "de rabais",
         "kit_bad": "Kit mauvais temps", "kit_hot": "Kit chaleur", "kitWhen": "Seulement si la course l'annonce, habituellement quelques jours avant le départ.",
         "kit_bag": "Obligatoire, peut rester dans votre sac TORX", "kitWhen_bag": "Vous pouvez les laisser dans votre sac TORX aux bases de vie, mais la course peut vous obliger à les porter ou les transporter quand les conditions se corsent (mauvais temps, neige, glace). Prévoyez selon le temps entre les bases de vie, l'altitude et la météo.",
@@ -1437,6 +1437,7 @@ p.sub{overflow-wrap:anywhere}   /* Oct 23: only the subtitle (".gl.sub" is the k
 @media (max-width:400px){.dl .wl{display:none}.dl .wt{font-size:18px;padding:0 9px}.dl .nm{font-size:13px;overflow-wrap:anywhere}.dl .pr s{display:block}.dl img{width:46px;height:46px}.dl a.dg{gap:8px}}
 .mored{font:600 14px var(--body);color:var(--moss);background:none;border:0;padding:4px 0;cursor:pointer;text-decoration:underline}
 .gi.open .mored{display:none}.gi.got .mored{display:none}
+.catall{margin:4px 0 0;font-size:14px}.catall a{color:var(--moss);font-weight:600}
 .lessd{display:none;font:600 14px var(--body);color:var(--moss);background:none;border:0;padding:4px 0;cursor:pointer;text-decoration:underline}.gi.open .lessd{display:inline}.gi.got .lessd{display:none}
 .gi.mini{padding:9px 14px}.gi.mini .hd h3{font:600 16px/1.3 var(--body)}.gi.mini .note{font-size:13px;margin:2px 0 0 34px}
 .rsize.set .row,.rsize.set>p{display:none}.rsize .cur{display:none;margin:0;font-size:16px}.rsize.set .cur{display:block}
@@ -1617,6 +1618,27 @@ def deal_html(L, r):
             f'<span class="hh">♡</span><span class="wl"> {S[L]["watch"]}</span></button></li>')
 
 
+# Oct 29 (Bastien: "hyper link the title items to the category on the website if people want to see the whole catalog"): under each
+# item's picks, "See more jackets on sale →" opens the homepage on that category (?cat=&t=); kinds without one category (water, food) get none
+CAT_LINK = {"jacket": ("tops", "jacket", "jackets", "manteaux"), "warmjacket": ("tops", "jacket", "jackets", "manteaux"),
+            "wind": ("tops", "jacket", "jackets", "manteaux"), "midlayer": ("tops", "layer", "layers", "couches"),
+            "tuque": ("headwear", "", "hats and tuques", "tuques et casquettes"), "cap": ("headwear", "", "hats and tuques", "tuques et casquettes"),
+            "gloves": ("gloves", "", "gloves", "gants"), "pants": ("bottoms", "pant", "pants", "pantalons"),
+            "longpants": ("bottoms", "", "tights and pants", "collants et pantalons"), "vest": ("packs", "", "vests and packs", "vestes d'hydratation et sacs"),
+            "socks": ("socks", "", "socks", "bas"), "sun": ("gear", "sun", "sunglasses", "lunettes de soleil"),
+            "headlamp": ("gear", "light", "headlamps and lights", "lampes frontales"), "poles": ("gear", "pole", "poles", "bâtons")}
+
+
+def cat_link(kind, L, s, Tl, slug):
+    c = CAT_LINK.get(kbase(kind))
+    if not c:
+        return ""
+    g, t, en, fr = c
+    home = Tl["home"]
+    q = f'{"&" if "?" in home else "?"}cat={g}' + (f"&t={t}" if t else "") + f"&ref=race-{slug}"
+    return f'<p class="catall"><a href="{home}{q}" data-cat="{g}">{esc(s["catAll"].format(w=fr if L == "fr" else en))}</a></p>'
+
+
 def page(slug, race, L, items, stores, pages=None, fx=1.0):
     s, Tl = (dict(S[L], **SUG[L]) if race.get("suggested") else S[L]), tl(L)
     fmt = dict(name=race["name"], short=race["short"], dists=dlabs(race, L), where=race["where"][L if L != "us" else "en"],
@@ -1643,7 +1665,7 @@ def page(slug, race, L, items, stores, pages=None, fx=1.0):
                      f'<p class="none"{" hidden" if top else ""}>{s["noDeals"]}</p>'
                      f'<p class="ft"><button type="button" class="mored" data-n="{s["moreN"]}" {"" if len(top) > FIRST else " hidden"}>{s["moreN"].format(n=len(top))}</button>'
                      f'<button type="button" class="lessd">{s["less"]}</button>'
-                     + (f'<span class="spec">{s["spec"]}</span>' if spec else "") + "</p>")
+                     + (f'<span class="spec">{s["spec"]}</span>' if spec else "") + "</p>" + cat_link(kind, L, s, Tl, slug))
         else:
             deals = ""
         kit = next((k for k, ks in (race.get("kits") or {}).items() if kind in ks), "")
@@ -1821,6 +1843,7 @@ document.querySelector(".dists").addEventListener("click",function(e){var b=e.ta
 gl.addEventListener("change",function(e){var li=e.target.closest(".gi");if(!li||!e.target.classList.contains("have"))return;have[li.dataset.k]=e.target.checked;st.have=have;put("gf-race-"+race,st);render();
   rt(e.target.checked?"have":"unhave",li.dataset.k);if(e.target.checked)checkDone()});
 gl.addEventListener("click",function(e){var b=e.target.closest(".mored");if(b){b.closest(".gi").classList.add("open");rt("seeall",b.closest(".gi").dataset.k)}
+  var ca=e.target.closest(".catall a");if(ca)rt("catall",ca.dataset.cat);   // Oct 29: "See more jackets on sale" -> homepage category
   var c=e.target.closest(".lessd");if(c){var g=c.closest(".gi");g.classList.remove("open");var r=g.getBoundingClientRect();if(r.top<0)window.scrollBy({top:r.top-70});rt("seefewer",g.dataset.k)}});   // Oct 28: fold the 10 back to 3, back to the line's top
 document.getElementById("rsize").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;
   if(b.hasAttribute("data-chg")){this.dataset.open="1";render();return}if(b.dataset.s&&fit)delete this.dataset.open;

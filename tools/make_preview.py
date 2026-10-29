@@ -135,7 +135,8 @@ def pretend_history(xs):
     return xs
 
 
-items = pretend_history([{**{k: v for k, v in x.items() if k != "img"}, **({"img": "x"} if x.get("img") else {})} for x in data["items"] if x.get("ca") is not False or on_sale(x)])
+items = pretend_history([{**{k: v for k, v in x.items() if k != "img"}, **({"img": "x"} if x.get("img") else {})} for x in data["items"] if (x.get("ca") is not False and not os.environ.get("PV_SALEONLY")) or on_sale(x)])
+# PV_SALEONLY=1 (Oct 28): sale items only, when today's catalogue makes the page too big for an artifact (16 MB)
 # PV_PHOTOS=N (Oct 22, 2026; the redesign is built around photos and an artifact can't load the stores' pictures): sale items only,
 # with N product photos copied into the page as small JPEGs (known brands and the biggest discounts first; the rest show the brand
 # name). PV_LOOK=B shows test 'look' B (the redesign) to everyone.
@@ -209,6 +210,8 @@ pv_pop = os.environ.get("PV_POPULAR") or ((SITE / "popular.json").read_text() if
 rep('fetch("popular.json",{cache:"no-cache"}).then(r=>r.ok?r.json():{})', 'Promise.resolve(' + pv_pop.replace("</", "<\\/") + ')')
 if os.environ.get("PV_POPQ"):      # Oct 27: preview test 'popq' B (popular searches under an empty search box)
     rep('ANA.arm("popq")!=="B"', 'false')
+if os.environ.get("PV_NAMECARD"):  # Oct 28: preview test 'namecard' B (the sign-up card names a real deal in your size)
+    rep('NC&&ANA.arm("namecard")==="B"', 'NC')
 # store offers (Oct 27): site/promos.json, or PV_PROMOS (JSON) for an example in the preview
 pv_promos = os.environ.get("PV_PROMOS") or ((SITE / "promos.json").read_text() if (SITE / "promos.json").exists() else "[]")
 rep('fetch("promos.json",{cache:"no-cache"}).then(r=>r.ok?r.json():[])', 'Promise.resolve(' + pv_promos.replace("</", "<\\/") + ')')
