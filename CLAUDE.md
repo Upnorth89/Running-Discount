@@ -68,7 +68,7 @@ site/deals.json          generated daily (merged items); sale.json = only items 
                          NOT published any more: refresh.yml keeps them gzipped in the Actions cache (raw-offers-<run>, restore-keys
                          raw-offers-; a store that fails still keeps yesterday's offers) and deletes them from site/ before the upload.
                          Locally: check.py skips the remerge without RAW_OFFERS=<file> (RAW_OFFERS=none forces the skip), catalog_test.py
-                         sorts the file's stores alone, store_list.py takes a file as 2nd argument. Growth adds robots.txt Disallow lines.
+                         sorts the file's stores alone, store_list.py takes a file as 2nd argument. site/robots.txt Disallows /offers.json, /hike-offers.json and deals*.json (not sale*.json: Google renders the homepage with it).
 scraper/scrape.py        all store readers + merge -> site/deals.json and site/offers.json
 scraper/weekly_email.py  the Friday email (also the size-matching rules shared with alerts)
 scraper/alerts.py        daily price-drop / back-in-your-size emails

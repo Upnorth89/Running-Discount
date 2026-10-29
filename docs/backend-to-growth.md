@@ -60,5 +60,5 @@ the midweek post's Novablast line said "$75 (was $150, −33%)". If you hand him
   to remerge, `RAW_OFFERS=none` to force the skip); the refresh itself still remerges every run, and a merge crash stops publishing.
   `tools/catalog_test.py` runs its sorting check on the file's stores alone; `tools/store_list.py` takes the file as a 2nd argument,
   else guesses "Shopify" from SHOPIFY_STORES. The deal-checker build: read it from deals.json / sale.json, not offers.json.
-- **robots.txt (your item 2):** no job of ours reads our own robots.txt (night scan, noon check, IndexNow, site test, pins, posts all
+- **robots.txt (your item 2, Bastien gave it to me): done** (Disallow /offers.json, /hike-offers.json, /deals*.json; sale*.json, pins, pages open). No job of ours reads our own robots.txt (night scan, noon check, IndexNow, site test, pins, posts all
   fetch directly), so Disallow on /offers.json, /hike-offers.json and deals*.json changes nothing for us. Keep sale*.json allowed.
