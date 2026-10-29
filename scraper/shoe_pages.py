@@ -310,7 +310,7 @@ def base_model(n):
     n = re.sub(r"\s*(-\s*|\()(Men|Women)[’']s\)?$|\s*(-\s*|\()Unisex\)?$", "", n)
     n = re.split(r"\s+[—·]\s+", n)[0]                                    # "Clifton 10 — White/White"
     n = re.sub(r"\s*[\[(](x-?wide|extra wide|wide|2e|4e|d|ee|large)[\])]\s*|\s+\b(extra wide|x-?wide|wide)\b", " ", n, flags=re.I)
-    n = re.sub(r"\b((trail|road) )?running shoes?\b|\bhiking shoes?\b|\bshoes?\b", "", n, flags=re.I)
+    n = re.sub(r"\b((trail|road)[ -])?running shoes?\b|\bhiking shoes?\b|\bshoes?\b", "", n, flags=re.I)   # Oct 29: REI's "Trail-Running Shoes"
     n = re.sub(r"^\s*(M|W|U|Unisex|All[- ]Gender|Men[’']?s|Women[’']?s)\s+", "", n, flags=re.I)        # "M Ghost 18" (Oct 7)
     n = re.sub(r"\s+(running road|road racing|road running|road)\s*$", "", n.strip(" -"), flags=re.I)   # "Ghost 17 Road"
     # Oct 8 (Search Console skipped near-copies): Nike's long names and athlete editions share one page

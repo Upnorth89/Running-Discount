@@ -1445,7 +1445,7 @@ function baseModel(n){
   n=n.replace(/\s*(-\s*|\()(Men|Women)[’']s\)?$|\s*(-\s*|\()Unisex\)?$/,"");
   n=n.split(/\s+[—·]\s+/)[0];
   n=n.replace(/\s*[\[(](x-?wide|extra wide|wide|2e|4e|d|ee|large)[\])]\s*|\s+\b(extra wide|x-?wide|wide)\b/gi," ");
-  n=n.replace(/\b((trail|road) )?running shoes?\b|\bhiking shoes?\b|\bshoes?\b/gi,"");
+  n=n.replace(/\b((trail|road)[ -])?running shoes?\b|\bhiking shoes?\b|\bshoes?\b/gi,"");   // Oct 29: REI's "Trail-Running Shoes"
   n=n.replace(/^\s*(M|W|U|Unisex|All[- ]Gender|Men[’']?s|Women[’']?s)\s+/i,"");
   n=n.replace(/^[ -]+|[ -]+$/g,"").replace(/\s+(running road|road racing|road running|road)\s*$/i,"");
   n=n.replace(/\b(ZoomX|Air Zoom|Zoom)\s+(?=(Vaporfly|Alphafly|Pegasus|Streakfly|Invincible)\b)/gi,"")   // Oct 8: one page per Nike shoe
