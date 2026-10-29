@@ -298,7 +298,7 @@ def page(h, L, items, stores, checked_on):
 <div hidden id="shoeBox" data-root="" data-dir="" data-pickfit="" data-from="" data-page="" data-none="" data-rm="" data-gone="" data-picksize=""><input id="shoeQ"><ul id="shoeSug"></ul><ul id="shoeMine"></ul></div>
 {fuel(h, L)}
 <p class="srcb">{src} {s['notAff']}</p>
-<section class="alert" id="raceBox" data-ref="hike-{slug}" data-bad="{esc(Tl['alertBad'])}" data-ok="{esc(Tl['alertOk'])}" data-fail="{esc(Tl['alertFail'])}" data-pick="{esc(s['sizeTxt'])}">
+<section class="alert" id="raceBox" data-ref="hike-{slug}" data-bad="{esc(Tl['alertBad'])}" data-ok="{esc(Tl['alertOk'])}" data-in="{esc(Tl['alertIn'])}" data-fail="{esc(Tl['alertFail'])}" data-pick="{esc(s['sizeTxt'])}">
 <h2>{esc(s['boxH'])}</h2><p class="fine">{esc(s['boxTxt'])}</p><form novalidate><input type="email" autocomplete="email" inputmode="email" placeholder="{esc(Tl['emailPh'])}" aria-label="Email" required><button type="submit">{esc(s['boxBtn'])}</button></form><p class="msg" aria-live="polite"></p></section>
 <section class="faq"><h2>{s['faqH']}</h2>{"".join(f'<details><summary>{esc(q)}</summary><p>{esc(a)}</p></details>' for q, a in faq)}</section>
 <script type="application/ld+json">{json.dumps(ld, ensure_ascii=False)}</script>

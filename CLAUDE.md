@@ -984,6 +984,12 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   pasted); Friday email cards have "♡ Watch the price" -> shop link + &watch=<itemKey>. Site tests "Come-back bar after a deal click"
   (watch offer first), "Cards have a 'Watch price' button", "Fits a small phone (320px)", "Check your inbox: open my mail",
   "Post link (?q=): deal, then a sign-up line".
+- Single opt-in (Oct 29, Bastien via growth: "Yes on each"; ~half of email sign-ups never confirmed): supabase/single-optin-oct29.sql
+  (subscribe() returns 'k:<key>' = a member now; welcome email `_gf_welcome`; consent_text/welcomed_at/bounced_at/complained_at; a member on
+  another device or someone who unsubscribed still gets a link to their inbox; 30-day catch-up). Site: `joinedAs()` (homepage), `gfIn()`
+  (shoe/race/trail/list pages, data-in text, watch_add right away); "Continue with Google" first on the sign-up card (`gCard()`, gBtnCard).
+  Bounces/complaints: scraper/mail_health.py (morning health email + Monday report; >4% bounces or any complaint = flag; those addresses
+  get unsubscribed_at). Preview: PV_OPTIN=1. Site test "Sign-up = member at once (single opt-in) + Google first".
 - Analytics kinds (Oct 8): the database drops any event kind not in `ana_kinds()` (store bar/Canadian/country were lost Oct 5–8);
   `tools/check.py` "Analytics events are all recorded" fails if the site sends one it doesn't list. New kind = SQL for Bastien.
   `load` = ms until the deals show (+ connection, data size); the funnel report shows load bands vs sizes picked.

@@ -668,7 +668,7 @@ body.locked #langPick,body.locked #curBtn,body.locked #openWatch,body.locked #me
       <div class="gwrap hidden" id="gUp"><div class="gbtn" id="gBtnUp"></div><p class="or"><span data-i18n="orEmail">or type your email</span></p></div>
       <p class="gsigned hidden" id="gSigned"></p>
       <input id="gateEmail" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" data-i18n-ph="emailPh">
-      <p class="fine" data-i18n="gateFine">You'll get one email every Friday with the best deals in your sizes, plus occasional news from The Gear Fox. We'll send a link to confirm first. Unsubscribe with one tap. <a href="privacy.html">Privacy</a></p>
+      <p class="fine" data-i18n="gateFine">You'll get one email every Friday with the best deals in your sizes, plus occasional news from The Gear Fox. Unsubscribe with one tap. <a href="privacy.html">Privacy</a></p>
     </div>
     </div>
     <div class="sheetfoot">
@@ -852,7 +852,7 @@ en:{
   favBrands:'Favourite brands <span style="font-weight:400;color:var(--muted);margin-left:6px">optional</span>',favIntro:"These go to the top of your list.",
   addBrand:"Add another brand",add:"Add",emailPh:"you@example.com",
   gateEmailH:'<label for="gateEmail">Your email</label> <small>for your deals and the Friday email</small>',
-  gateFine:'You\'ll get one email every Friday with the best deals in your sizes, plus occasional news from The Gear Fox. We\'ll send a link to confirm first. Unsubscribe with one tap. <a href="privacy.html">Privacy</a>',
+  gateFine:'You\'ll get one email every Friday with the best deals in your sizes, plus occasional news from The Gear Fox. Unsubscribe with one tap. <a href="privacy.html">Privacy</a>',
   sheetGateTitle:"Deals in your size",sheetTitle:"What fits you?",
   sheetGateIntro:"Pick what fits and add your email. We'll show every deal in your size, from stores across Canada.",
   sheetIntro:"A few taps and we'll hide everything that won't fit.",
@@ -904,7 +904,7 @@ en:{
   resend:"Send it again",resendFail:"Couldn't send just now. Try again in a minute.",resent:"Sent again. Give it a minute.",resendWait:"Just sent. Give it a minute, then check Junk.",
   otherEmail:"Use a different email",getDeals:"Get deals like these every Friday",
   ppH:"You're on the list! What would you use most?",ppSub:"Pick as many as you like. We'll build the most wanted ones first.",pw_codes:"An alert when a store code works on something I watch",pw_last:"A warning when my size is almost sold out",pw_returns:"A reminder before my return window closes",pw_replace:"A heads-up when my shoes are worn out and the new ones are on sale",pw_passport:"My size for each brand, so every deal really fits",pw_check:"A deal check right on store websites",ppGo:"Send",ppSkip:"Skip",ppThanks:"Thanks! That helps us decide what to build first.",getDealsTxt:"One email, Friday morning, only gear on sale in your sizes.",proArtAlt:"Example: you paid $499, the same store sells it for $420 today, potential refund $79.",proEmailPh:"Email for early access",proFineOpen:"We'll email you when Fox Pro opens, plus the Friday deals in your size.",proH1:"Money back<br><span class=\"ul\">after<svg viewBox=\"0 0 100 12\" preserveAspectRatio=\"none\" aria-hidden=\"true\"><path d=\"M2 8C25 3 70 2 98 5\" fill=\"none\" stroke=\"#FF6A13\" stroke-width=\"5\" stroke-linecap=\"round\"/></svg></span> you buy.",proNew:"New price",proNoPay:"No payment now.",proRef:"Potential refund",proS1h:"You buy",proS2h:"We watch",proS3h:"You claim",proSoon:"Coming soon",perksTitle:"Free with your email",proH:"Fox Pro · coming soon",pro1:"Money back after you buy",pro2:"Phone app alerts the moment we see a watched item drop in your size",pro3:"No limit on your watchlist: follow whole models and brands",proSub:"Some retailers refund price drops after purchase. Fox Pro watches for them so you don't have to.",proEx:"Example",proIt:"Your down jacket",proItS:"size M · bought Nov 3",proPaid:"You paid",proNow:"Same store, today",proOwe:"You're owed",proLeft:"11 days left to claim it",proS1:"Bought something through us? Tap “I bought it”. That's it.",proS2:"Every morning we check that store's price, in your size.",proS3:"If it drops while the store still refunds the difference, we email you how much and exactly how to claim it.",proProof:"In October, <b>1 in 13 items over $100 got $10+ cheaper</b> within 2 weeks. Typical drop: <b>$34</b>.",proAlso:"Also in Pro:",proA:"phone alerts the moment a watched item drops · no limit on your watchlist",proPrice:(m,y)=>`$${m}/month or $${y}/year`,proFound:"Founding price, yours for as long as you stay.",proJoin:"Get early access →",proFine:"No payment now. We'll email you when it opens.",proFineNew:"No payment now. We'll email you when it opens, plus the Friday deals in your size (unsubscribe in one tap).",proThanks:"You're on the Fox Pro waitlist. We'll email you when it opens.",ncH:n=>`Watch the ${n} in your size`,ncTxt:(now,was)=>`Now ${now}, was ${was}. We'll email you if it drops again, plus your best deals every Friday.`,ncGo:"Email me if it drops",rcH:"What do you run in?",rcTxt:"Pick your shoe: we'll email you when it drops in your size. Plus your best deals every Friday.",rcPh:"Your shoe, e.g. Pegasus 41",rcGo:"Email me when it drops",perk1:"An alert when gear you heart drops in price",perk2:"Your best deals every Friday morning",perk3:"Your sizes and hearts on all your devices",noThanks:"No thanks",peekTitle:n=>`${n} deals in your size today`,peekTxt:"Add your email to see them all, get price-drop alerts on deals you heart, and the best ones every Friday.",peekG:"or continue with Google",email:"Email",signUp:"Sign up",
-  signupFine:'We\'ll email you to confirm. Unsubscribe with one tap. <a href="privacy.html">Privacy</a>',
+  signupFine:'One email a week with the deals in your sizes. Unsubscribe with one tap. <a href="privacy.html">Privacy</a>',
   badEmail:"That email doesn't look right.",signupFail:m=>`Couldn't sign you up just now: ${m}`,
   emailOn:e=>`Friday email on for ${e} · <button type="button" id="stopEmail">Stop it</button>`,
   emailStopped:"Friday email stopped. Sign up again anytime from the shop.",serverDown:"Couldn't reach the server. Try again.",
@@ -933,7 +933,8 @@ en:{
   reportThanks:"Thanks! We'll check it today.",promoH:"Store offer",promoUntil:d=>`until ${d}`,promoTerms:"details",promoSee:s=>`See ${s}'s full-price gear in your size`,promoCard:(l,c)=>`+ Store offer${c?`: code ${c}`:""}`,promoHome:s=>`${s}'s homepage today`,promoChk:(on,n,m)=>`Our check: ${on} of the ${n} ${n===1?"item":"items"} we follow there ${on===1?"is":"are"} on sale, most at ${m}% off.`,promoSeeSale:s=>`See ${s}'s deals in your size`,promoMore:n=>`+ ${n} more store offer${n===1?"":"s"} today`,storeH:"Shopping one store",storeCount:n=>`${n} ${n===1?"deal":"deals"} in your size`,storeBack:"× All stores",bsuH:"Found something?",bsuTxt:"Get deals like this in your size every Friday, and an email when a shoe you watch drops. Free.",bsuGo:"Sign me up",cdnChip:"🍁 Canadian brands",cdnH:"Canadian brands only",cdnB:"Brands based in Canada",cdnNote:"Canadian companies, not always made in Canada",cdnBack:"× All brands",cdnTip:"Canadian brand",backBar:(n,s)=>`Filling a cart at <b>${s}</b>? See their ${n} deals in your size.`,backGo:"Show",spCardTxt:"Every size, every store in Canada",spCardGo:"Prices →",wOr:"or with Google, one tap",wOnSale:"on sale today",wFrom:(s,n)=>`Prices from ${s} and ${n} more stores`,wCatH:"Shop by category",wCat:{road:"Road shoes",trail:"Trail shoes",tops:"Tops & jackets",packs:"Vests & packs"},wCatN:n=>`${n} on sale`,szYou:"your size",yourSize:s=>`✓ Size ${s} in stock`,yourSizes:s=>`✓ Sizes ${s} in stock`,wUpTo:p=>`up to ${p}%`,wOff:"off right now",wStores:"stores checked daily",
   liveAll:n=>`<b>${n}</b> deals on sale today`,liveYou:n=>`<b>${n}</b> deals on sale in your size right now`,
   seeN:n=>`See my ${n} deals`,
-  orEmail:"or type your email",orLink:"or get a link by email",
+  orEmail:"or use your email",orLink:"or get a link by email",orUseEmail:"or use your email",
+  joinedNote:e=>`<b>You're in.</b> A welcome note is on its way to ${e}, and your first deals email arrives this week.`,
   gSigned:e=>`Signed in with Google as <b>${e}</b>.`,
   gateFineG:'You\'ll get one email every Friday with the best deals in your sizes, plus occasional news from The Gear Fox. Unsubscribe with one tap. <a href="privacy.html">Privacy</a>',gPick:"Pick your fit and at least one size, then tap the orange button.",
   gWelcome:"<b>Welcome back.</b> Your sizes and watchlist are loaded on this device.",gFail:"Google sign-in didn't work. Use your email instead.",
@@ -968,7 +969,7 @@ fr:{
   favBrands:'Marques préférées <span style="font-weight:400;color:var(--muted);margin-left:6px">facultatif</span>',favIntro:"Elles s'affichent en premier dans votre liste.",
   addBrand:"Ajouter une autre marque",add:"Ajouter",emailPh:"vous@exemple.com",
   gateEmailH:'<label for="gateEmail">Votre courriel</label> <small>pour vos aubaines et le courriel du vendredi</small>',
-  gateFine:'Vous recevrez un courriel chaque vendredi avec les meilleures aubaines dans vos tailles, et à l\'occasion des nouvelles de The Gear Fox. On vous envoie d\'abord un lien de confirmation. Désabonnement en un clic. <a href="privacy.html">Confidentialité</a>',
+  gateFine:'Vous recevrez un courriel chaque vendredi avec les meilleures aubaines dans vos tailles, et à l\'occasion des nouvelles de The Gear Fox. Désabonnement en un clic. <a href="privacy.html">Confidentialité</a>',
   sheetGateTitle:"Des aubaines à votre taille",sheetTitle:"Qu'est-ce qui vous va?",
   sheetGateIntro:"Choisissez vos tailles et entrez votre courriel. On vous montre toutes les aubaines à votre taille, dans les boutiques partout au Canada.",
   sheetIntro:"Quelques clics et on cache tout ce qui ne vous va pas.",
@@ -1020,7 +1021,7 @@ fr:{
   resend:"Renvoyer",resendFail:"Envoi impossible pour l'instant. Réessayez dans une minute.",resent:"Renvoyé. Laissez-lui une minute.",resendWait:"Tout juste envoyé. Donnez-lui une minute, puis vérifiez les indésirables.",
   otherEmail:"Utiliser un autre courriel",getDeals:"Recevez des aubaines comme celles-ci chaque vendredi",
   ppH:"Vous êtes sur la liste! Qu'est-ce qui vous servirait le plus?",ppSub:"Choisissez-en autant que vous voulez. On bâtit d'abord les plus demandés.",pw_codes:"Une alerte quand un code promo s'applique à un article que je suis",pw_last:"Un avertissement quand ma taille est presque épuisée",pw_returns:"Un rappel avant la fin de mon délai de retour",pw_replace:"Un rappel quand mes chaussures sont usées et que les nouvelles sont en solde",pw_passport:"Ma taille pour chaque marque, pour que chaque aubaine me fasse vraiment",pw_check:"La vérification d'aubaine directement sur les sites des boutiques",ppGo:"Envoyer",ppSkip:"Passer",ppThanks:"Merci! Ça nous aide à choisir quoi bâtir en premier.",getDealsTxt:"Un courriel le vendredi matin, seulement des articles en solde dans vos tailles.",proArtAlt:"Exemple : vous avez payé 499 $, la même boutique le vend 420 $ aujourd'hui, remboursement possible de 79 $.",proEmailPh:"Votre courriel",proFineOpen:"On vous écrit à l'ouverture de Fox Pro, avec les aubaines du vendredi dans votre taille.",proH1:"De l'argent remis<br><span class=\"ul\">après<svg viewBox=\"0 0 100 12\" preserveAspectRatio=\"none\" aria-hidden=\"true\"><path d=\"M2 8C25 3 70 2 98 5\" fill=\"none\" stroke=\"#FF6A13\" stroke-width=\"5\" stroke-linecap=\"round\"/></svg></span> l'achat.",proNew:"Nouveau prix",proNoPay:"Aucun paiement maintenant.",proRef:"Remboursement possible",proS1h:"Vous achetez",proS2h:"On surveille",proS3h:"Vous réclamez",proSoon:"Bientôt",perksTitle:"Gratuit avec votre courriel",proH:"Fox Pro · bientôt",pro1:"De l'argent remis après l'achat",pro2:"Alertes dans l'appli sur votre téléphone dès qu'un article suivi baisse",pro3:"Liste de suivi sans limite : suivez des modèles et des marques entiers",proSub:"Certaines boutiques remboursent la différence si le prix baisse après l'achat. Fox Pro surveille pour vous.",proEx:"Exemple",proIt:"Votre manteau en duvet",proItS:"taille M · acheté le 3 nov.",proPaid:"Vous avez payé",proNow:"Même boutique, aujourd'hui",proOwe:"On vous doit",proLeft:"Encore 11 jours pour le réclamer",proS1:"Vous avez acheté en passant par nous? Touchez « Je l'ai acheté ». C'est tout.",proS2:"Chaque matin, on vérifie le prix de cette boutique, dans votre taille.",proS3:"S'il baisse pendant que la boutique rembourse encore la différence, on vous écrit combien et comment le réclamer.",proProof:"En octobre, <b>1 article de plus de 100 $ sur 13 a baissé de 10 $ ou plus</b> en 2 semaines. Baisse typique : <b>34 $</b>.",proAlso:"Aussi dans Pro :",proA:"alertes sur votre téléphone dès qu'un article suivi baisse · liste de suivi sans limite",proPrice:(m,y)=>`${m} $/mois ou ${y} $/an`,proFound:"Prix fondateur, garanti tant que vous restez.",proJoin:"Accès anticipé →",proFine:"Aucun paiement maintenant. On vous écrit à l'ouverture.",proFineNew:"Aucun paiement maintenant. On vous écrit à l'ouverture, avec les aubaines du vendredi dans votre taille (désabonnement en un clic).",proThanks:"Vous êtes sur la liste d'attente de Fox Pro. On vous écrit à l'ouverture.",ncH:n=>`Suivre le prix : ${n}, dans votre taille`,ncTxt:(now,was)=>`Maintenant ${now}, avant ${was}. On vous écrit s'il baisse encore, avec vos meilleures aubaines chaque vendredi.`,ncGo:"M'avertir d'une baisse",rcH:"Vous courez avec quoi?",rcTxt:"Choisissez votre chaussure : on vous écrit quand elle baisse à votre taille. En prime, vos meilleures aubaines chaque vendredi.",rcPh:"Votre chaussure (ex. Pegasus 41)",rcGo:"M'avertir d'une baisse",perk1:"Une alerte quand un coup de cœur baisse de prix",perk2:"Vos meilleures aubaines chaque vendredi matin",perk3:"Vos tailles et vos coups de cœur sur tous vos appareils",noThanks:"Non merci",peekTitle:n=>`${n} aubaines dans vos tailles aujourd'hui`,peekTxt:"Entrez votre courriel pour toutes les voir, être averti des baisses de prix sur vos coups de cœur et recevoir les meilleures chaque vendredi.",peekG:"ou continuer avec Google",email:"Courriel",signUp:"M'abonner",
-  signupFine:'On vous écrit pour confirmer. Désabonnement en un clic. <a href="privacy.html">Confidentialité</a>',
+  signupFine:'Un courriel par semaine avec les aubaines dans vos tailles. Désabonnement en un clic. <a href="privacy.html">Confidentialité</a>',
   badEmail:"Ce courriel ne semble pas valide.",signupFail:m=>`Impossible de vous abonner pour l'instant : ${m}`,
   emailOn:e=>`Courriel du vendredi activé pour ${e} · <button type="button" id="stopEmail">L'arrêter</button>`,
   emailStopped:"Courriel du vendredi arrêté. Vous pouvez vous réabonner en tout temps depuis la boutique.",serverDown:"Impossible de joindre le serveur. Réessayez.",
@@ -1049,7 +1050,8 @@ fr:{
   reportThanks:"Merci! On vérifie aujourd'hui.",promoH:"Offre de la boutique",promoUntil:d=>`jusqu'au ${d}`,promoTerms:"conditions",promoSee:s=>`Voir les articles à prix régulier de ${s} dans votre taille`,promoCard:(l,c)=>`+ Offre de la boutique${c?` : code ${c}`:""}`,promoHome:s=>`Page d'accueil de ${s} aujourd'hui`,promoChk:(on,n,m)=>`Notre vérification : ${on} des ${n} articles suivis chez eux sont en solde, la plupart à ${m} % de rabais.`,promoSeeSale:s=>`Voir les aubaines de ${s} dans votre taille`,promoMore:n=>`+ ${n} autre${n===1?"":"s"} offre${n===1?"":"s"} de boutique aujourd'hui`,storeH:"Une seule boutique",storeCount:n=>`${n} ${n===1?"aubaine":"aubaines"} à votre taille`,storeBack:"× Toutes les boutiques",bsuH:"Une trouvaille?",bsuTxt:"Recevez des aubaines comme celle-ci à votre taille chaque vendredi, et un courriel quand une chaussure suivie baisse. Gratuit.",bsuGo:"Je m'inscris",cdnChip:"🍁 Marques canadiennes",cdnH:"Marques canadiennes seulement",cdnB:"Marques d'ici",cdnNote:"Des entreprises canadiennes, pas toujours fabriqué au Canada",cdnBack:"× Toutes les marques",cdnTip:"Marque canadienne",backBar:(n,s)=>`Vous remplissez un panier chez <b>${s}</b> ? Voyez leurs ${n} aubaines à votre taille.`,backGo:"Voir",cmpLink:"Toutes les pointures et boutiques →",spCardTxt:"Chaque pointure, chaque boutique au Canada",spCardGo:"Prix →",wOr:"ou avec Google, en un clic",wOnSale:"en solde aujourd'hui",wFrom:(s,n)=>`Les prix de ${s} et ${n} autres boutiques`,wCatH:"Magasinez par catégorie",wCat:{road:"Chaussures de route",trail:"Chaussures de sentier",tops:"Hauts et manteaux",packs:"Vestes et sacs"},wCatN:n=>`${n} en solde`,szYou:"votre taille",yourSize:s=>`✓ Taille ${s} en stock`,yourSizes:s=>`✓ Tailles ${s} en stock`,wUpTo:p=>`jusqu'à ${p} %`,wOff:"de rabais en ce moment",wStores:"boutiques vérifiées chaque jour",
   liveAll:n=>`<b>${n}</b> aubaines en solde aujourd'hui`,liveYou:n=>`<b>${n}</b> aubaines en solde dans votre taille en ce moment`,
   seeN:n=>`Voir mes ${n} aubaines`,
-  orEmail:"ou entrez votre courriel",orLink:"ou recevez un lien par courriel",
+  orEmail:"ou utilisez votre courriel",orLink:"ou recevez un lien par courriel",orUseEmail:"ou utilisez votre courriel",
+  joinedNote:e=>`<b>C'est fait.</b> Un mot de bienvenue s'en va à ${e}, et votre premier courriel d'aubaines arrive cette semaine.`,
   gSigned:e=>`Connecté avec Google : <b>${e}</b>.`,
   gateFineG:'Vous recevrez un courriel chaque vendredi avec les meilleures aubaines dans vos tailles, et à l\'occasion des nouvelles de The Gear Fox. Désabonnement en un clic. <a href="privacy.html">Confidentialité</a>',gPick:"Choisissez votre coupe et au moins une taille, puis touchez le bouton orange.",
   gWelcome:"<b>Bon retour!</b> Vos tailles et vos favoris sont chargés sur cet appareil.",gFail:"La connexion Google n'a pas fonctionné. Utilisez plutôt votre courriel.",
@@ -1420,10 +1422,11 @@ $("saveSizes").addEventListener("click",async()=>{
     if(!okMail(email)){gateErr(t("errEmail"),$("gateEmail"));setTimeout(()=>$("gateEmail").focus({preventScroll:true}),400);return}
     const btn=$("saveSizes");btn.disabled=true;btn.textContent=t("oneMoment");gateErr("");
     state.email=email;const p=toProfile();LS.set("rd-profile",p);
-    try{await rpc("subscribe",{p_email:email,p_profile:subProfile(p)});setSub({pending:email});track("signup",{method:"email",lang:LANG,where:"sheet",ref:REF||"none"})}
+    let joined=false;
+    try{const r=await rpc("subscribe",{p_email:email,p_profile:subProfile(p,"sheet")});track("signup",{method:"email",lang:LANG,where:"sheet",ref:REF||"none"});joined=joinedAs(email,r)}
     catch(e){btn.disabled=false;btn.textContent=t("subscribeShow");return gateErr(t("errServer"))}
     btn.disabled=false;closeSheet();view.open={};renderAll();window.scrollTo({top:0});
-    notice(t("hereDeals",esc(email)));
+    notice(joined?t("joinedNote",esc(email)):t("hereDeals",esc(email)));
     return;
   }
   if(!state.gender){state.gender="any"}
@@ -2591,7 +2594,16 @@ function setSub(v){sub=v;LS.set("gf-sub",v)}
 /* the hearts picked before signing up ride along with the sign-up (watch_new) and come back with the confirm link, even when
    it's opened on another device (Oct 8: shoe pages and the come-back bar sign people up before they ever reach the homepage) */
 function withSport(p){if(!state.signSport)state.signSport=HIKE()?"hike":"run";return {...p,sport:state.signSport}}   // Oct 25 (Bastien): the side they signed up on picks the Friday email's items
-function subProfile(p){p=withSport(p);const w=Object.entries(watches).slice(0,10);return w.length?{...p,watch_new:Object.fromEntries(w)}:p}
+function subProfile(p,where){p=withSport(p);const w=Object.entries(watches).slice(0,10);
+  // Oct 29 (single opt-in): CASL proof of consent = the words the form showed, kept with the sign-up (consent_text)
+  const fine=where==="sheet"?t("gateFine"):t("signupFine");p={...p,consent:`${where||"card"} (${LANG}): ${String(fine).replace(/<[^>]+>/g,"").trim()}`.slice(0,1000)};
+  return w.length?{...p,watch_new:Object.fromEntries(w)}:p}
+/* Oct 29 (Bastien: "Yes on each", single opt-in): subscribe answers "k:<key>" when the person is a member right away (a welcome
+   email instead of a confirmation link): link this device like a confirmed email. "sent" (a member on another device, someone who
+   unsubscribed, or the database before the change) = the old "check your inbox" path. */
+function joinedAs(email,r){const k=typeof r==="string"&&r.startsWith("k:")?r.slice(2):"";
+  if(!/^[0-9a-f-]{36}$/i.test(k)){setSub({pending:email});return false}
+  setSub({key:k,email,active:true});track("signup-confirmed",{via:"instant"});setTimeout(()=>syncWatches(),0);return true}
 let signupErr="",resentAt=0;
 /* Fox Pro price test (Oct 25, Bastien: "yes run the Pro price test from Nov 2"): from Nov 2 to Nov 16, returning visitors see a
    waitlist card in the sign-up slot. Half the devices see $3/month or $29/year (A), half $5/month or $49/year (B): ANA.arm("pro").
@@ -2638,6 +2650,9 @@ function proPollHTML(){
     <p class="proprice"><button type="button" id="ppGo" class="ppgo">${t("ppGo")}</button><button type="button" id="ppSkip" class="linkbtn">${t("ppSkip")}</button></p></section>`;
 }
 function signupHTML(){return proPollHTML()+signupHTML0()}
+/* Oct 29 (Bastien: "Yes on each"): "Continue with Google" first and full width on the sign-up card (a member in one tap, no email
+   step), then "or use your email". Drawn by Google's script once it's loaded (G.render); until then the old link line shows. */
+const gCard=()=>G.ready?`<div class="gwrap gcard"><div class="gbtn" id="gBtnCard"></div><p class="or"><span>${t("orUseEmail")}</span></p></div>`:"";
 function signupHTML0(){
   if(sub&&sub.active)return proHTML(true);
   if(sub&&sub.pending)return `<div class="signup"><h3>${t("checkInbox")}</h3><p style="margin:0">${sub.signin?t("signinCard",esc(sub.pending)):t("checkInboxTxt",esc(sub.pending))}</p>
@@ -2654,19 +2669,21 @@ function signupHTML0(){
   if(NC&&ANA.arm("namecard")==="B"){const [m]=rdModel(NC),nm=`${NC.b} ${m}`;
     return `<div class="signup namecard"><div class="nchd">${NC.img?`<img src="${esc(NC.img)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">`:""}<h3>${esc(t("ncH",nm))}</h3></div>
     <p>${t("ncTxt",money(NC.best)+" "+curTag().replace(/<[^>]+>/g,"").trim(),money(NC.reg))}</p>
+    ${gCard()}
     <form id="suForm" novalidate data-nc="${esc(itemKey(NC))}"><label for="suEmail" class="hidden">${t("email")}</label>
       <input id="suEmail" type="email" autocomplete="email" inputmode="email" placeholder="${t("emailPh")}" value="${esc(state.email)}" required>
       <button class="primary" type="submit">${t("ncGo")}</button></form>
     ${signupErr?`<p class="err">${esc(signupErr)}</p>`:""}
-    <p class="fine"><button type="button" id="suGoogle" class="linkbtn">${t("peekG")}</button></p>
+    ${G.ready?"":`<p class="fine"><button type="button" id="suGoogle" class="linkbtn">${t("peekG")}</button></p>`}
     <p class="fine">${t("signupFine")} · <button type="button" id="suNo" class="linkbtn">${t("noThanks")}</button></p></div>`}
   return `<div class="signup"><h3>${t("perksTitle")}</h3>
     <ul class="perks"><li>${t("perk1")}</li><li>${t("perk2")}</li><li>${t("perk3")}</li></ul>
+    ${gCard()}
     <form id="suForm" novalidate><label for="suEmail" class="hidden">${t("email")}</label>
       <input id="suEmail" type="email" autocomplete="email" inputmode="email" placeholder="${t("emailPh")}" value="${esc(state.email)}" required>
       <button class="primary" type="submit">${t("signUp")}</button></form>
     ${signupErr?`<p class="err">${esc(signupErr)}</p>`:""}
-    <p class="fine"><button type="button" id="suGoogle" class="linkbtn">${t("peekG")}</button></p>
+    ${G.ready?"":`<p class="fine"><button type="button" id="suGoogle" class="linkbtn">${t("peekG")}</button></p>`}
     <p class="fine">${t("signupFine")} · <button type="button" id="suNo" class="linkbtn">${t("noThanks")}</button></p></div>`;
 }
 /* Test 'runcard' (Oct 18): the sign-up card asks one concrete thing, "What do you run in?", and watches that shoe.
@@ -2699,10 +2716,11 @@ function runCardHTML(){
       <input id="suEmail" type="email" autocomplete="email" inputmode="email" placeholder="${t("emailPh")}" value="${esc(state.email)}" required>
       <button class="primary" type="submit">${t("rcGo")}</button></form>
     ${signupErr?`<p class="err">${esc(signupErr)}</p>`:""}
-    <p class="fine"><button type="button" id="suGoogle" class="linkbtn">${t("peekG")}</button></p>
+    ${G.ready?"":`<p class="fine"><button type="button" id="suGoogle" class="linkbtn">${t("peekG")}</button></p>`}
     <p class="fine">${t("signupFine")} · <button type="button" id="suNo" class="linkbtn">${t("noThanks")}</button></p></div>`;
 }
 function bindSignup(){
+  if(G.ready&&$("gBtnCard"))setTimeout(()=>G.render(),0);   // Oct 29: Google first on the sign-up card
   const pj=()=>{proJust=true;const [m,y]=proPrices();LS.set("gf-pro",{m,y,arm:proArm(),at:new Date().toISOString().slice(0,10)});ana("signup-step",`pro-join|${proArm()}`)};
   const pb=$("proJoin");if(pb)pb.addEventListener("click",()=>{pj();saveProfile();toast(t("proThanks"));renderAll()});
   const pf=$("proForm");if(pf)pf.addEventListener("submit",async e=>{
@@ -2710,7 +2728,7 @@ function bindSignup(){
     if(!okMail(email)){proErr=t("badEmail");renderAll();$("proEmail").focus();return}
     const btn=pf.querySelector("button");btn.disabled=true;btn.textContent="…";
     pj();state.email=email;const p=toProfile();LS.set("rd-profile",p);
-    try{await rpc("subscribe",{p_email:email,p_profile:subProfile(p)});proErr="";setSub({pending:email});track("signup",{method:"email",lang:LANG,where:"pro",ref:REF||"none"})}
+    try{const r=await rpc("subscribe",{p_email:email,p_profile:subProfile(p,"pro")});proErr="";track("signup",{method:"email",lang:LANG,where:"pro",ref:REF||"none"});joinedAs(email,r)}
     catch(err){LS.set("gf-pro",null);proErr=t("signupFail",err.message)}
     renderAll()});
   const pn=$("proNo");if(pn)pn.addEventListener("click",()=>{LS.set("gf-nopro",1);ana("signup-step",`pro-no|${proArm()}`);renderAll()});
@@ -2728,9 +2746,10 @@ function bindSignup(){
     if(rs&&rs.value.trim())ana("signup-step",pick?"runcard-shoe":"runcard-shoe-unknown");
     if(pick&&!watches[itemKey(pick)])toggleWatch(itemKey(pick),true);
     const nk=f.dataset.nc;if(nk&&!watches[nk])toggleWatch(nk,true);   // test 'namecard' B: the deal the card names rides with the sign-up
-    try{await rpc("subscribe",{p_email:email,p_profile:subProfile(p)});signupErr="";setSub({pending:email});track("signup",{method:"email",lang:LANG,where:rs?"runcard":nk?"namecard":"card",ref:REF||"none"})}
+    let joined=false;
+    try{const r=await rpc("subscribe",{p_email:email,p_profile:subProfile(p,"card")});signupErr="";track("signup",{method:"email",lang:LANG,where:rs?"runcard":nk?"namecard":"card",ref:REF||"none"});joined=joinedAs(email,r)}
     catch(err){signupErr=t("signupFail",err.message)}
-    renderAll();
+    renderAll();if(joined)notice(t("joinedNote",esc(email)));
   });
   const rcs=$("rcShoe");if(rcs){
     rcs.addEventListener("focus",()=>ana("signup-step","runcard-focus"),{once:true});
@@ -2746,7 +2765,7 @@ function bindSignup(){
   const rs=$("suResend");if(rs)rs.addEventListener("click",async()=>{     // same email again (the server waits 2 min between sends)
     if(resentAt&&Date.now()-resentAt<120e3){toast(t("resendWait"));return}
     resentAt=Date.now();track("resend",{lang:LANG,signin:!!sub.signin});
-    try{if(sub.signin)await rpc("send_link",{p_email:sub.pending,p_lang:LANG});else await rpc("subscribe",{p_email:sub.pending,p_profile:subProfile(toProfile())});toast(t("resent"))}
+    try{if(sub.signin)await rpc("send_link",{p_email:sub.pending,p_lang:LANG});else{const em=sub.pending,r=await rpc("subscribe",{p_email:em,p_profile:subProfile(toProfile(),"card")});if(joinedAs(em,r)){renderAll();notice(t("joinedNote",esc(em)));return}}toast(t("resent"))}
     catch(e){resentAt=0;toast(t("resendFail"))}});
 }
 function renderSubLine(){
@@ -2786,7 +2805,8 @@ async function linkFromEmail(){
     if(!r){notice(t("linkExpired"));return false}
     applyProfile({...r.profile,email:r.email});LS.set("rd-profile",toProfile());
     setSub({key:tok,email:r.email,active:!!r.subscribed});
-    if(conf&&r.profile&&r.profile.watch_new&&typeof r.profile.watch_new==="object"){   // hearts from before the sign-up
+    if(r.profile&&r.profile.watch_new&&typeof r.profile.watch_new==="object"){   // Oct 29: also from ?k= (members since the single opt-in never tap a confirm link)
+        // hearts from before the sign-up
       for(const [k,m] of Object.entries(r.profile.watch_new).slice(0,10))if(!watches[k]&&m&&typeof m==="object")watches[k]=m;
       saveWatches()}
     if(conf){notice(t("youreIn"));track("signup-confirmed")}
@@ -2828,9 +2848,10 @@ const G={ready:false,nonce:"",
       auto_select:false,cancel_on_tap_outside:true,use_fedcm_for_prompt:true,itp_support:true,context:"signin"});
     G.ready=true;
     if(!$("sheet").classList.contains("hidden"))openSheet();
+    if(document.querySelector(".signup #suForm"))renderAll();      // the sign-up card now leads with the Google button
   },
   render(){
-    ["gBtnW","gBtnUp","gBtnIn"].forEach(id=>{const el=$(id);if(!el||el.offsetParent===null)return;el.innerHTML="";
+    ["gBtnW","gBtnUp","gBtnIn","gBtnCard"].forEach(id=>{const el=$(id);if(!el||el.offsetParent===null)return;el.innerHTML="";
       google.accounts.id.renderButton(el,{theme:"outline",size:"large",shape:"pill",text:"continue_with",
         width:Math.min(400,el.clientWidth||320),locale:LANG==="fr"?"fr_CA":"en"})});
   },

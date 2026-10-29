@@ -2005,6 +2005,63 @@ def site_flow(base, per, accented):
             return "; ".join(out) + "; watchlist asks for the email"
         check("Email step after a Watch tap (test watchsheet) + watchlist email ask")(watch_sheet, pg)
 
+        def instant_member():  # Oct 29 (Bastien: "Yes on each"): single opt-in = a sign-up is a member at once; Google first on the card
+            KEY = "11111111-2222-4333-8444-555555555555"
+            fake_gsi = ("window.google={accounts:{id:{initialize:function(){},prompt:function(){},"
+                        "renderButton:function(el){el.innerHTML='<div role=\"button\" class=\"fakeg\">Continue with Google</div>'}}}};")
+            out = []
+            c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+            stub(c)
+            c.route("**/gsi/client*", lambda r: r.fulfill(status=200, content_type="application/javascript", body=fake_gsi))   # last route wins
+            c.route("**/rest/v1/rpc/subscribe", lambda r: r.fulfill(status=200, content_type="application/json", body=json.dumps("k:" + KEY)))
+            q = c.new_page()
+            try:
+                q.goto(base, wait_until="load")
+                q.wait_for_selector("#saveSizes", state="visible", timeout=30000)
+                q.click("#saveSizes")
+                q.wait_for_selector("#shoeSizes button", state="visible")
+                q.click('#fit button[data-v="men"]')
+                q.locator("#shoeSizes button", has_text=re.compile(r"^11$")).first.click()
+                q.click("#saveSizes")
+                q.wait_for_selector("section.grp .deal", timeout=20000)
+                q.wait_for_selector(".signup #suForm", timeout=8000)
+                q.wait_for_timeout(600)
+                order = q.evaluate("""() => {const c = document.querySelector('.signup'), g = c && c.querySelector('.gcard'), f = c && c.querySelector('#suForm');
+                    return g && f ? [!!(g.compareDocumentPosition(f) & Node.DOCUMENT_POSITION_FOLLOWING), (g.querySelector('.fakeg') || {}).textContent || ''] : null}""")
+                assert order, "the sign-up card has no Google button"
+                assert order[0], "the Google button isn't above the email box"
+                assert "google" in order[1].lower(), "the Google button wasn't drawn on the card"
+                out.append("Google first on the card")
+                q.fill("#suEmail", "robot@example.com")
+                q.locator(".signup #suForm button").first.click()
+                q.wait_for_timeout(1200)
+                sub = q.evaluate("JSON.parse(localStorage.getItem('gf-sub')||'null')")
+                assert sub and sub.get("active") and sub.get("key") == KEY, f"the sign-up didn't make this device a member: {sub}"
+                note = q.inner_text("#notice") if q.locator("#notice").is_visible() else ""
+                assert "you're in" in note.lower(), f"no 'You're in' after signing up (notice: {note[:80]!r})"
+                assert not q.locator(".signup #suForm").count(), "the sign-up card still asks for an email after joining"
+                out.append("card sign-up = member at once")
+                reg = site_json("shoes/pages.json")
+                slug = next((k for k, v in list(reg.items())[:40] if not (isinstance(v, dict) and v.get("to"))
+                             and 'id="alertBox"' in (site_get(f"shoes/{k}/") or "")), None)
+                if slug:
+                    q.evaluate("localStorage.removeItem('gf-sub')")
+                    q.goto(base + f"shoes/{slug}/", wait_until="domcontentloaded")
+                    q.wait_for_selector("#alertBox form", timeout=8000)
+                    q.fill("#alertBox input", "robot@example.com")
+                    q.click("#alertBox button")
+                    q.wait_for_timeout(1000)
+                    msg = q.inner_text("#alertBox .msg")
+                    sub = q.evaluate("JSON.parse(localStorage.getItem('gf-sub')||'null')")
+                    if "pick" not in msg.lower() and "size" not in msg.lower()[:12]:
+                        assert "you're in" in msg.lower(), f"the shoe page box says {msg!r} after an instant sign-up"
+                        assert sub and sub.get("active"), "the shoe page sign-up didn't make this device a member"
+                        out.append("shoe page box too")
+            finally:
+                c.close()
+            return "; ".join(out)
+        check("Sign-up = member at once (single opt-in) + Google first")(instant_member, pg)
+
         def visit_resend():    # Oct 27 (Bastien: "Are we tracking numbers correctly?"): 28% of first visits had lost their first batch
             got, n = [], [0]
 

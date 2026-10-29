@@ -134,7 +134,8 @@ T = {
         "boH": "Email me when the {name} is back in my size", "boTxt": "Free. One email when a store we check has it in your size, plus the Friday deals. Unsubscribe in one tap.",
         "boFit": "Fit", "boMen": "Men's", "boWomen": "Women's", "boSize": "Size", "boPick": "Pick your fit and size first.",
         "alertPick": "Pick your size above first, so we watch the right one.", "alertBad": "That email doesn't look right.",
-        "alertOk": "Almost done: check your inbox for {email} and tap the link to confirm (look in Junk too).", "alertFail": "Couldn't sign you up right now. Try again in a minute.",
+        "alertOk": "Almost done: check your inbox for {email} and tap the link to confirm (look in Junk too).",
+        "alertIn": "You're in. A welcome note is on its way to {email}, and your deals in your size come every week.", "alertFail": "Couldn't sign you up right now. Try again in a minute.",
         "alertDone": "You're watching this shoe. We'll email you when it drops in your size.", "emailPh": "you@example.com", "pick": "Your size:", "pickPh": "Pick your size", "change": "Change", "allInSize": "See every deal in your size →",
         "notInSize": "Not in stock in your size right now. Watch it and we'll email you when it's back or drops.",
         "find": "Search a model (e.g. Clifton)", "noMatch": "No model matches. Try the brand name, or a shorter word.",
@@ -247,7 +248,8 @@ T = {
         "boH": "Écrivez-moi quand le {name} revient dans ma pointure", "boTxt": "Gratuit. Un courriel quand une boutique que nous suivons l'a dans votre pointure, plus les aubaines du vendredi. Désabonnement en un clic.",
         "boFit": "Coupe", "boMen": "Homme", "boWomen": "Femme", "boSize": "Pointure", "boPick": "Choisissez d'abord la coupe et la pointure.",
         "alertPick": "Choisissez d'abord votre pointure plus haut, pour qu'on suive la bonne.", "alertBad": "Ce courriel ne semble pas valide.",
-        "alertOk": "Presque fini : ouvrez le courriel envoyé à {email} et touchez le lien pour confirmer (regardez aussi dans les indésirables).", "alertFail": "Inscription impossible pour le moment. Réessayez dans une minute.",
+        "alertOk": "Presque fini : ouvrez le courriel envoyé à {email} et touchez le lien pour confirmer (regardez aussi dans les indésirables).",
+        "alertIn": "C'est fait. Un mot de bienvenue s'en va à {email}, et vos aubaines dans votre taille arrivent chaque semaine.", "alertFail": "Inscription impossible pour le moment. Réessayez dans une minute.",
         "alertDone": "Vous suivez cette chaussure. On vous écrit quand elle baisse dans votre pointure.", "emailPh": "vous@exemple.com", "pick": "Votre pointure :", "pickPh": "Choisissez votre pointure", "change": "Modifier", "allInSize": "Voir toutes les aubaines dans votre pointure →",
         "notInSize": "Pas en stock dans votre pointure en ce moment. Suivez-la et on vous écrira dès qu'elle revient ou baisse.",
         "find": "Chercher un modèle (ex. Clifton)", "noMatch": "Aucun modèle trouvé. Essayez le nom de la marque ou un mot plus court.",
@@ -661,6 +663,14 @@ def page_foot(L):
     return f"""<p class="foot">{esc(L['foot'])} · <a href="https://www.instagram.com/thegearfox/" rel="noopener">@thegearfox</a> · <a href="{priv}">{L['privacy']}</a> · <a href="/terms.html{'?lang=fr' if L['lang'] == 'fr-CA' else ''}">{'Conditions' if L['lang'] == 'fr-CA' else 'Terms'}</a></p>
 </main>
 <script>
+/* Oct 29 (single opt-in): subscribe answers "k:<key>" = a member now. Link this device like the homepage does and put the watched
+   item(s) on the member's server watchlist right away (alerts read the server list) */
+function gfIn(res,em,nw){{var k=typeof res==="string"&&/^k:[0-9a-f-]{{36}}$/i.test(res)?res.slice(2):"";if(!k)return false;
+  try{{localStorage.setItem("gf-sub",JSON.stringify({{key:k,email:em,active:true}}))}}catch(e){{}}
+  var w={{}};try{{w=JSON.parse(localStorage.getItem("gf-watch")||"{{}}")||{{}}}}catch(e){{}}
+  Object.keys(nw||{{}}).slice(0,10).forEach(function(key){{fetch("{SB_URL}/rest/v1/rpc/watch_add",{{method:"POST",headers:{{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"}},
+    body:JSON.stringify({{p_token:k,p_key:key,p_meta:nw[key]}})}}).then(function(r){{if(r.ok&&w[key]){{w[key].sv=1;try{{localStorage.setItem("gf-watch",JSON.stringify(w))}}catch(e){{}}}}}}).catch(function(){{}})}});
+  try{{ana("signup-step","instant")}}catch(e){{}}return true}}
 /* our own analytics (same as the homepage, supabase/analytics.sql): what people do, never who they are */
 var ana=(function(){{var ls=function(k){{try{{return localStorage.getItem(k)}}catch(e){{return null}}}},ss=function(k){{try{{return sessionStorage.getItem(k)}}catch(e){{return null}}}};
   var uid=function(){{try{{return crypto.randomUUID()}}catch(e){{return "10000000-1000-4000-8000-100000000000".replace(/[018]/g,function(c){{return (c^Math.random()*16>>c/4).toString(16)}})}}}};
@@ -818,9 +828,9 @@ f.addEventListener("submit",function(e){{e.preventDefault();
   var w=get("gf-watch")||{{}};w[t.dataset.key]=meta;
   var nw={{}};nw[t.dataset.key]=meta;var btn=f.querySelector("button");btn.disabled=true;
   fetch("{SB_URL}/rest/v1/rpc/subscribe",{{method:"POST",headers:{{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"}},
-    body:JSON.stringify({{p_email:em,p_profile:Object.assign({{}},p,{{watch_new:nw}})}})}}).then(function(r){{if(!r.ok)throw 0;
-    put("gf-watch",w);if(!get("rd-profile"))put("rd-profile",p);if(!(subd&&(subd.active||subd.key)))put("gf-sub",{{pending:em}});
-    f.remove();msg.textContent=box.dataset.ok.replace("{{email}}",em);
+    body:JSON.stringify({{p_email:em,p_profile:Object.assign({{}},p,{{watch_new:nw,consent:"shoe-page: "+((box.querySelector(".fine")||{{}}).textContent||"").trim().slice(0,900)}})}})}}).then(function(r){{if(!r.ok)throw 0;return r.json()}}).then(function(res){{
+    put("gf-watch",w);if(!get("rd-profile"))put("rd-profile",p);var IN=gfIn(res,em,nw);if(!IN&&!(subd&&(subd.active||subd.key)))put("gf-sub",{{pending:em}});
+    f.remove();msg.textContent=(IN?box.dataset.in:box.dataset.ok).replace("{{email}}",em);
     try{{ana("signup","shoe-page")}}catch(x){{}}try{{window.umami&&umami.track("signup",{{method:"email",where:"shoe-page",lang:fr?"fr":"en",ref:ref||"none"}})}}catch(x){{}}}})
   .catch(function(){{btn.disabled=false;msg.textContent=box.dataset.fail}})}})}})();
 /* "Email me when it's back in my size" (Oct 27): pages with nothing in stock. The PAGE goes on the watchlist ("page|<slug>"); the
@@ -853,9 +863,9 @@ f.addEventListener("submit",function(e){{e.preventDefault();
   var meta={{b:box.dataset.b,n:box.dataset.n,g:"shoes",url:location.href,price:null,low:null,seen:null,gone:true,saved:new Date().toISOString()}},nw={{}};nw[K]=meta;
   var w=get("gf-watch")||{{}};w[K]=meta;var btn=f.querySelector("button");btn.disabled=true;
   fetch("{SB_URL}/rest/v1/rpc/subscribe",{{method:"POST",headers:{{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"}},
-    body:JSON.stringify({{p_email:em,p_profile:Object.assign({{}},p,{{watch_new:nw}})}})}}).then(function(r){{if(!r.ok)throw 0;
-    put("gf-watch",w);if(!get("rd-profile"))put("rd-profile",p);if(!(subd&&(subd.active||subd.key)))put("gf-sub",{{pending:em}});
-    f.remove();msg.textContent=box.dataset.ok.replace("{{email}}",em);
+    body:JSON.stringify({{p_email:em,p_profile:Object.assign({{}},p,{{watch_new:nw,consent:"shoe-page: "+((box.querySelector(".fine")||{{}}).textContent||"").trim().slice(0,900)}})}})}}).then(function(r){{if(!r.ok)throw 0;return r.json()}}).then(function(res){{
+    put("gf-watch",w);if(!get("rd-profile"))put("rd-profile",p);var IN=gfIn(res,em,nw);if(!IN&&!(subd&&(subd.active||subd.key)))put("gf-sub",{{pending:em}});
+    f.remove();msg.textContent=(IN?box.dataset.in:box.dataset.ok).replace("{{email}}",em);
     try{{ana("signup","shoe-page-back")}}catch(x){{}}try{{window.umami&&umami.track("signup",{{method:"email",where:"shoe-page-back",lang:fr?"fr":"en",ref:ref||"none"}})}}catch(x){{}}}})
   .catch(function(){{btn.disabled=false;msg.textContent=box.dataset.fail}})}})}})();
 /* wrong side (Oct 6, 2026): a visitor who picked USA on a Canadian page (or Canada on a US page) gets a bar to the same page
@@ -920,9 +930,9 @@ f.addEventListener("submit",function(e){{e.preventDefault();
     p={{lang:fr?"fr":"en",country:us?"us":"ca",tz:tz,name:"",gender:g.value,terrain:"both",ships:"ca",groups:G,sizes:sz,brands:[],activities:[]}}}}
   p.email=em;if(!p.ref)p.ref=get("gf-ref")||box.dataset.ref;var btn=f.querySelector("button");btn.disabled=true;
   fetch("{SB_URL}/rest/v1/rpc/subscribe",{{method:"POST",headers:{{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"}},
-    body:JSON.stringify({{p_email:em,p_profile:p}})}}).then(function(r){{if(!r.ok)throw 0;
-    put("gf-sub",{{pending:em}});if(!p0)put("rd-profile",p);put("gf-shoe-size",{{g:g.value,s:s.value}});
-    f.remove();msg.textContent=box.dataset.ok.replace("{{email}}",em);
+    body:JSON.stringify({{p_email:em,p_profile:Object.assign({{}},p,{{consent:(box.dataset.ref||"list")+": "+((box.querySelector(".fine")||{{}}).textContent||"").trim().slice(0,900)}})}})}}).then(function(r){{if(!r.ok)throw 0;return r.json()}}).then(function(res){{
+    var IN=gfIn(res,em,{{}});if(!IN)put("gf-sub",{{pending:em}});if(!p0)put("rd-profile",p);put("gf-shoe-size",{{g:g.value,s:s.value}});
+    f.remove();msg.textContent=(IN?box.dataset.in:box.dataset.ok).replace("{{email}}",em);
     try{{ana("signup",box.dataset.ref)}}catch(x){{}}try{{window.umami&&umami.track("signup",{{method:"email",where:box.dataset.ref,lang:fr?"fr":"en"}})}}catch(x){{}}}})
   .catch(function(){{btn.disabled=false;msg.textContent=box.dataset.fail}})}})}})();
 document.addEventListener("click",function(e){{var a=e.target.closest("a[data-store]");if(!a)return;
@@ -1245,7 +1255,7 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None,
         if not L.get("hike"):
             zs = lambda a, b: "".join(f'<option value="{z:g}">{z:g}</option>' for z in [x / 2 for x in range(a * 2, b * 2 + 1)])
             out.append(f'<section class="alert boback" id="backBox" data-key="page|{esc(slug)}" data-b="{esc(brand)}" data-n="{esc(name)}" '
-                       f'data-pick="{esc(L["boPick"])}" data-chg="{esc(L["change"])}" data-bad="{esc(L["alertBad"])}" data-ok="{esc(L["alertOk"])}" data-fail="{esc(L["alertFail"])}" data-done="{esc(L["alertDone"])}">'
+                       f'data-pick="{esc(L["boPick"])}" data-chg="{esc(L["change"])}" data-bad="{esc(L["alertBad"])}" data-ok="{esc(L["alertOk"])}" data-in="{esc(L["alertIn"])}" data-fail="{esc(L["alertFail"])}" data-done="{esc(L["alertDone"])}">'
                        f'<h2>{esc(L["boH"].format(name=name))}</h2><p class="fine">{L["boTxt"]}</p><form novalidate><div class="bor">'
                        f'<select data-fit aria-label="{esc(L["boFit"])}"><option value="">{esc(L["boFit"])}</option><option value="men">{esc(L["boMen"])}</option><option value="women">{esc(L["boWomen"])}</option></select>'
                        f'<select data-size aria-label="{esc(L["boSize"])}" data-m="{esc(zs(6, 15))}" data-w="{esc(zs(5, 12))}"><option value="">{esc(L["boSize"])}</option></select></div>'
@@ -1257,7 +1267,7 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None,
                f'data-all="{esc(L["allInSize"])}" data-home="/?ref=shoe-size{L["q"]}"></div>')
     # Oct 8 (funnel: 209 first visits from Google in 14 days, 11% reached the homepage, no way to sign up here): sign up right here
     if any(first[lab].get("of") for lab in merged):
-        out.append(f'<section class="alert" id="alertBox" data-pick="{esc(L["alertPick"])}" data-bad="{esc(L["alertBad"])}" data-ok="{esc(L["alertOk"])}" '
+        out.append(f'<section class="alert" id="alertBox" data-pick="{esc(L["alertPick"])}" data-bad="{esc(L["alertBad"])}" data-ok="{esc(L["alertOk"])}" data-in="{esc(L["alertIn"])}" '
                    f'data-fail="{esc(L["alertFail"])}" data-done="{esc(L["alertDone"])}" data-backh="{esc(L["backH"])}" '
                    f'data-backtxt="{esc(L["backTxt"].format(name=name))}" data-backbtn="{esc(L["backBtn"])}" data-backno="{esc(L["backNo"])}">'
                    f'<h2>{esc(L["alertH"].format(name=name))}</h2><p class="fine">{L["alertTxt"]}</p>'
@@ -1475,7 +1485,7 @@ def qs_box(L, head, ref):
     men = "".join(f'<option value="{v:g}">{v:g}</option>' for v in [x / 2 for x in range(12, 31)])
     women = "".join(f'<option value="{v:g}">{v:g}</option>' for v in [x / 2 for x in range(10, 25)])
     return (f'<section class="alert qs" id="qsBox" data-ref="{ref}" data-pick="{esc(L["qsPick"])}" data-bad="{esc(L["alertBad"])}" '
-            f'data-ok="{esc(L["alertOk"])}" data-fail="{esc(L["alertFail"])}"><h2>{esc(head)}</h2><p class="fine">{esc(L["qsTxt"])}</p>'
+            f'data-ok="{esc(L["alertOk"])}" data-in="{esc(L["alertIn"])}" data-fail="{esc(L["alertFail"])}"><h2>{esc(head)}</h2><p class="fine">{esc(L["qsTxt"])}</p>'
             f'<form novalidate><div class="qsrow"><select class="qsg" aria-label="Fit"><option value="men">{esc(L["qsMen"])}</option>'
             f'<option value="women">{esc(L["qsWomen"])}</option></select><select class="qss" aria-label="{esc(L["qsSize"])}">'
             f'<option value="">{esc(L["qsSize"])}</option><optgroup data-g="men">{men}</optgroup><optgroup data-g="women" hidden disabled>{women}</optgroup></select></div>'
