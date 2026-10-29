@@ -198,13 +198,22 @@ def check():
                     problems.append((f"report:{x[:60]}", f"A visitor says: {x.replace('|', ' · ')}"))
         except Exception as e:
             print(f"visitor reports skipped: {e}")
+    # Oct 29 (single opt-in): bounces and complaints from Resend; bad addresses are stopped (scraper/mail_health.py)
+    mail_line = ""
+    if os.environ.get("HEALTH_WHEN", "morning") != "midday":
+        try:
+            import mail_health
+            mail_line, mprobs = mail_health.summary()
+            problems.extend(mprobs)
+        except Exception as e:
+            print(f"mail health skipped: {e}")
     sale = lambda its: sum(1 for i in its if any(len(e) > 3 and e[1] < e[3] * 0.99 for e in i.get("sz", [])))
     fresh_stores = sum(1 for st in offers if (t := when(stamps.get(st, ""))) and NOW - t <= timedelta(hours=30))
     moves = sorted(((st, len(offers.get(st, [])), len(offers0.get(st, []))) for st in set(offers) | set(offers0)),
                    key=lambda x: -abs(x[1] - x[2]))
     return problems, {"items": items, "items0": items0, "sale": sale(deals.get("items", [])), "sale0": sale(deals0.get("items", [])),
                       "stores": {st: len(v) for st, v in offers.items()}, "stores_ok": fresh_stores, "stores_n": len(offers),
-                      "moves": [m for m in moves if abs(m[1] - m[2]) >= 10][:5], "subscribers": subs, "signups_24h": new,
+                      "moves": [m for m in moves if abs(m[1] - m[2]) >= 10][:5], "subscribers": subs, "signups_24h": new, "mail": mail_line or "",
                       "sitetest": st, "featured": fc}
 
 
@@ -362,6 +371,7 @@ def main():
                site_line(stats["sitetest"]) + featured_line(stats.get("featured") or {}) + cat_line + \
                (f"- {stats['subscribers']} subscribers, {stats['signups_24h']} new sign-ups in the last 24 hours\n"
                 if stats["subscribers"] is not None else "") + \
+               stats.get("mail", "") + \
                ("\nBiggest changes by store:\n" + "\n".join(f"- {st}: {a:,} products (was {b:,})" for st, a, b in stats["moves"]) + "\n"
                 if stats["moves"] else "") + \
                search_text + \

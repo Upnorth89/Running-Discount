@@ -169,6 +169,15 @@ def main():
     end = datetime.now(TZ).replace(hour=0, minute=0, second=0, microsecond=0)
     start = end - timedelta(days=days)
     body = build(report(start, end), start, end)
+    try:                    # Oct 29 (single opt-in): the week's bounces and complaints from Resend, flagged over 4% / any complaint
+        import mail_health
+        line, probs = mail_health.summary()
+        if line:
+            extra = "".join(f"<p style=\"color:#B91C1C\"><b>{html.escape(t_)}</b></p>" for _, t_ in probs)
+            body = body.replace("</body>", f"<h3>Email health</h3><p>{html.escape(line.strip('- ').strip())}</p>{extra}</body>", 1) \
+                if "</body>" in body else body + f"<h3>Email health</h3><p>{html.escape(line.strip('- ').strip())}</p>{extra}"
+    except Exception as e:
+        print(f"mail health skipped: {e}")
     if DRY:
         out = Path(__file__).resolve().parent.parent / "email" / "usage-report.html"
         out.parent.mkdir(exist_ok=True)

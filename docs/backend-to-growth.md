@@ -62,3 +62,20 @@ the midweek post's Novablast line said "$75 (was $150, −33%)". If you hand him
   else guesses "Shopify" from SHOPIFY_STORES. The deal-checker build: read it from deals.json / sale.json, not offers.json.
 - **robots.txt (your item 2, Bastien gave it to me): done** (Disallow /offers.json, /hike-offers.json, /deals*.json; sale*.json, pins, pages open). No job of ours reads our own robots.txt (night scan, noon check, IndexNow, site test, pins, posts all
   fetch directly), so Disallow on /offers.json, /hike-offers.json and deals*.json changes nothing for us. Keep sale*.json allowed.
+
+## Oct 29: single opt-in + Google first (your "yes on each" message): preview ready
+- Preview: https://claude.ai/artifact/WqbJ6uZF8eM2NqFAuxoL6K (PV_OPTIN=1). SQL: supabase/single-optin-oct29.sql (Bastien pastes it; tested on a
+  local Postgres copy with stand-ins for Resend/Vault). Site + pages ship right after he pastes it.
+- How: subscribe() makes a new or never-confirmed address a member (confirmed_at, consent_via 'form', consent_text = the form's words
+  sent by the site) and returns 'k:<key>'; the site links the device at once ("You're in. A welcome note is on its way…"). A member on
+  another device still gets the "save your changes" link, and someone who unsubscribed gets the old confirm link (so nobody can read
+  a member's watchlist by typing their address). Welcome email from Bastien: You're in, what they get, their sizes + Change, See my
+  deals (?k=), "Not you? Unsubscribe", contact + mailing address (Vault 'mailing_address'). Google sign-ups get it too.
+- Catch-up: unconfirmed sign-ups of the last 30 days (not unsubscribed) become members with the welcome email (consent_via
+  'form-before-oct29'), ~1 a second; older ones untouched.
+- Bounces/complaints: scraper/mail_health.py reads Resend's own list each morning (health email line; flags >4% bounces or any
+  complaint), stops those addresses (unsubscribed_at + bounced_at/complained_at), and the Monday usage report has an "Email health" line.
+- Google first: the card leads with the full-width Google button, then "or use your email"; the heart's email step already did.
+  Shoe/race/trail/list page boxes say "You're in" too and put the watched item on the server list right away.
+- Confirm reminder: now only for people who re-subscribe after unsubscribing (rare); left running.
+
