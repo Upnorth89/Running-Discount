@@ -1864,10 +1864,10 @@ def build_us(site, stores, ca_models, ca_brands):
     p.parent.mkdir(parents=True, exist_ok=True)
     if bf - timedelta(days=7) <= today <= bf + timedelta(days=4):
         p.write_text(list_page(L, own, "/black-friday/", L["bfTitle"], L["bfH1"], L["bfIntro"], real_first(bf_rows), brands,
-                               bf_other(L) + real_line(L, bf_rows) + cta))
+                               bf_live_line(L) + bf_other(L) + real_line(L, bf_rows) + cta))
     else:
         tracked = sum(1 for i in items if i.get("hd"))
-        extra = (bf_other(L) + cta + f'<h2>{esc(L["bfTrackH"])}</h2><p>{esc(L["bfTrackTxt"].format(n=f"{tracked:,}"))}</p>'
+        extra = (bf_live_line(L) + bf_other(L) + cta + f'<h2>{esc(L["bfTrackH"])}</h2><p>{esc(L["bfTrackTxt"].format(n=f"{tracked:,}"))}</p>'
                  + f'<h2>{esc(L["bfSpotH"])}</h2><ul>' + "".join(f"<li>{esc(x)}</li>" for x in L["bfSpot"]) + "</ul>"
                  + f'<h2>{esc(L["bfTodayH"].format(date=fmt_date(updated, L)))}</h2>')
         p.write_text(list_page(L, own, "/black-friday/", L["bfTitlePre"], L["bfH1Pre"].format(date=bf.day),
