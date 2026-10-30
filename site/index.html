@@ -2030,7 +2030,7 @@ function matchItems(p,list){
     const best=pick[1], reg=Math.max(pick[3]||best,best);
     const pct=reg>best?Math.round(100*(1-best/reg)):0;
     const ns=ok.filter(e=>(e[3]||0)>e[1]*1.01).length;
-    out.push({...d,best,reg,pct,ok,ns,any,url:sizeUrl(d,pick),img:(d.oi&&d.oi[pick[2]])||d.img,fin:finalSale(d,pick),fav:favs.includes(d.b.toLowerCase())});
+    out.push({...d,best,reg,pct,ok,ns,any,url:sizeUrl(d,pick),img:(d.si&&d.ci&&d.ci[d.si[pick[0]]])||(d.oi&&d.oi[pick[2]])||d.img,fin:finalSale(d,pick),fav:favs.includes(d.b.toLowerCase())});
   }
   return out;
 }

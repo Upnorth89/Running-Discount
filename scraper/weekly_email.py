@@ -169,7 +169,8 @@ def match(items, p):
         pct = round(100 * (1 - best / reg)) if reg > best else 0
         out.append({**d, "best": best, "reg": reg, "pct": pct, "ok": ok,
                     "url": size_url(d, pick), "fin": final_sale(d, pick),
-                    "img": (d.get("oi") or {}).get(str(pick[2])) or d.get("img"),     # the photo of the store with the price
+                    "img": (d["ci"][d["si"][pick[0]]] if pick[0] in (d.get("si") or {}) else None)
+                           or (d.get("oi") or {}).get(str(pick[2])) or d.get("img"),   # the colour + store with the price
                     "fav": d["b"].lower() in favs})
     return out
 

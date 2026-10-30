@@ -1460,14 +1460,18 @@ def product(base, slug, st, g, img):
             # the product page opens on this colour and size (?color=…&size=…, checked in a browser Oct 1, 2026)
             q = {"color": attr(v["attributesRaw"], "color"), "size": attr(v["attributesRaw"], "size") or raw}
             link = f"{base}/p/{slug}?" + urlencode({k: x for k, x in q.items() if isinstance(x, str) and x}, quote_via=quote)
-            sizes[sz] = (price, reg, link)
+            # Oct 30 (Bastien: the norda 002 card showed The Last Hunt's black shoe; his size's price was the white Moonbeam, "it goes
+            # to the last hunt but in white"): each size keeps its own colour's photo, so the card shows what that price buys
+            vimg = (((v.get("assets") or [{}])[0].get("sources") or [{}])[0]).get("uri")
+            sizes[sz] = (price, reg, link, vimg)
     if not sizes:
         return None                      # nothing in stock
     if not img:
         a = (mv.get("assets") or [{}])[0].get("sources") or [{}]
         img = a[0].get("uri")
     return {"st": st, "b": attr(A, "brand_name") or "", "n": name, "u": f"{base}/p/{slug}", "g": g,
-            "sx": sx, "w": wide, "img": img, "lp": lp, "bb": None, "sz": [[k, pr, rg, u] for k, (pr, rg, u) in sizes.items()]}
+            "sx": sx, "w": wide, "img": img, "lp": lp, "bb": None, "sz": [[k, pr, rg, u] for k, (pr, rg, u, _) in sizes.items()],
+            "szimg": {k: vi for k, (_, _, _, vi) in sizes.items() if vi}}
 
 def scrape_commercetools(st, base):
     listing, listed = list_catalogue(base)
@@ -4353,6 +4357,7 @@ def merge(offers):
                 pref = it["g"] != "nutrition"
                 if cur is None or (pref and it["_ca"][oi], -price) > (pref and it["_ca"][cur[1]], -cur[0]):
                     it["sz"][k] = (price, oi, reg, vid)
+                    it.setdefault("_si", {})[k] = (o.get("szimg") or {}).get(size)    # that size's colour photo (or none)
     # one spelling per brand ("adidas"/"Adidas", "SmartWool"/"Smartwool"): the most common one, all-capitals last
     spell = collections.defaultdict(collections.Counter)
     for it in items.values():
@@ -4382,6 +4387,7 @@ def merge(offers):
             cur = a["sz"].get(k)
             if cur is None or (a["_ca"][oi + off], -price) > (a["_ca"][cur[1]], -cur[0]):
                 a["sz"][k] = (price, oi + off, r, v)
+                a.setdefault("_si", {})[k] = (it.get("_si") or {}).get(k)
     for key in list(items):
         it = items[key]
         if it["g"] != "shoes":
@@ -4449,6 +4455,12 @@ def merge(offers):
         oi = {str(i): u for i, u in enumerate(im) if u and u != it["img"] and i in wins}
         if oi:
             it["oi"] = oi
+        # Oct 30: a size whose colour photo differs from its store's photo shows that colour (si = {size: photo})
+        si = it.pop("_si", {})
+        si = {e[0]: si[e[0]] for e in it["sz"] if si.get(e[0]) and si[e[0]] != (oi.get(str(e[2])) or it["img"])}
+        if si:                         # each photo once ("ci"), sizes point to it ("si": {size: index}): sale.json stays small
+            ci = list(dict.fromkeys(si.values()))
+            it["ci"], it["si"] = ci, {k: ci.index(u) for k, u in si.items()}
         # Oct 24 (sorting check): the last word, after every store's offers are in. MEC's Bridgedale "3/4 Crew" (a sock) was
         # still a top on the live site; US shops' "Gel Heel Cups" were food
         if it["g"] in ("tops", "bottoms") and it["b"].lower() in SOCK_BRANDS and CLOTH_SOCK_SHAPE.search(it["n"]) \
