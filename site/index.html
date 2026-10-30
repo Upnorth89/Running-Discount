@@ -1718,7 +1718,8 @@ const RDI={search:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" s
   why:['<path d="M3 12V4.5A1.5 1.5 0 0 1 4.5 3H12l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.4"/>',
     '<path d="M2.5 17v-6l3.5-3 3 2.5 2.5-2.5 4.5 4.5h3a2.5 2.5 0 0 1 2.5 2.5V17z"/><path d="M2.5 20.5h19"/><path d="M9 13l1.5 1.5M12 11.5l1.5 1.5"/>',
     '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>',
-    '<path d="M12 21v-4.5M12 16.5l-6 1 1-2.5-4-3.5 2-.5-1-3.5 3 1 .5-1.5L11 9 10 3.5l2 1.5 2-1.5L13 9l3.5-2.5.5 1.5 3-1-1 3.5 2 .5-4 3.5 1 2.5z"/>']};
+    /* Oct 30 (Bastien): "Canada & USA" had a maple leaf (Canada only): a globe now */
+    '<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a13.5 13.5 0 0 1 0 18a13.5 13.5 0 0 1 0-18z"/>']};
 var view_rd={brand:"",max:0};
 const rdM=v=>LANG==="fr"?v+" $":"$"+v;
 const rdDisp=d=>CUR==="USD"?d.best/usdRate():d.best;
@@ -1909,8 +1910,8 @@ function rdCard(d,extra,real){
   const sized=SIZED.has(d.g)||accLetters(d);
   return `<div class="dw rdc${sp?" hascmp":""}"><a class="deal" href="${esc(affUrl(d.url))}" data-store="${esc(h)}" target="_blank" rel="noopener">
     <div class="pic${d.img?"":" nopic"}" data-b="${esc(d.b)}">${d.img?`<img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="if(this.parentNode)this.parentNode.classList.add('nopic');this.remove()">`:""}${d.pct?`<span class="pct">${offTag(d)}</span>`:""}${lowDays(d)?`<span class="lostamp" aria-hidden="true"><span>${t("lowL1")}</span><span>${t("lowStampDays",lowDays(d))}</span></span>`:""}</div>
-    <div class="name"><span class="brand">${esc(d.b)}</span>${d.fav?" ★":""}${cdnBrand(d)?`&nbsp;<span class="leaf" title="${t("cdnTip")}" aria-label="${t("cdnTip")}">🍁</span>`:""} ${esc(m)}</div>
-    <div class="kind">${esc(sub)}</div>
+    <div class="name"><span class="brand">${esc(d.b)}</span>${d.fav?" ★":""} ${esc(m)}</div>
+    <div class="kind${cdnBrand(d)?" kf":""}">${cdnBrand(d)?`<span class="kt">${esc(sub)}</span><span class="kl">&nbsp;·&nbsp;<span class="leaf" title="${t("cdnTip")}" aria-label="${t("cdnTip")}">🍁</span></span>`:esc(sub)}</div>
     <div class="price">${fromTag(d)}<b>${money(d.best)}</b>${curTag()}${d.pct?`<s>${money(d.reg)}</s>`:""}</div>
     ${lowDays(d)?`<span class="badge lo30" title="${esc(t("lowDaysTip"))}" aria-label="${esc(t("lowDays",lowDays(d)))}"><span class="l1">${t("lowL1")}</span> <span class="l2">${t("lowL2",lowDays(d))}</span></span>`:""}
     ${extra||""}${!extra&&NEWSET.has(k)?`<span class="badge new">${t("isNew")}</span>`:""}

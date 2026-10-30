@@ -1080,7 +1080,7 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   full-price gear). Quoted word for word ("<Store>'s homepage today: “…”"; never translated). Hand offers: site/promos-hand.json (until).
   Phones show 1 box, computers 2. Morning email: "Store offers on the site today: …" (Bastien replies "remove X"). First day: 2XU CA+US, Wigwam.
 - Canadian brands (Oct 7, Bastien): Filters chip "🍁 Canadian brands" (Canada side only, `view.cdn`, `?canadian` link for posts),
-  box "Canadian companies, not always made in Canada", 🍁 after the brand on cards. List `CDN_BRANDS` in index.html, checked by hand
+  box "Canadian companies, not always made in Canada", 🍁 at the end of the card's grey kind line (Oct 30: was after the brand, split names; `.kind.kf`, leaf never cut off). List `CDN_BRANDS` in index.html, checked by hand
   (stores' own lines only when really theirs). Not "made in Canada" (no data; most are made overseas). Analytics: canadian {on|off|from}.
   Site test "Canadian brands filter". Add brands only when confirmed Canadian.
 - Final sale (Oct 4): FINAL_SALE store rules in scrape.py + tagged items -> "fs" per offer; label on cards, shoe pages, Friday email;
