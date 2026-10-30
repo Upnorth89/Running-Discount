@@ -97,14 +97,24 @@
       say("Backcountry: reading the list…");
       const first = pp(await fetchDoc(location.href));
       const cat = (((first.plpData || {}).data || {}).category) || {};
-      const last = Math.min((((cat.pageInfo || {}).lastPage) || {}).value || 1, 150);   // whole running sections, same as REI (Bastien: "at least like rei")
+      // Oct 30 (Bastien: "only grabbing 42 products. even though theres 1000+ on the deal page"): the deals page doesn't say
+      // how many pages it has (no lastPage), so only page 1 was read. Now: keep opening the next page while it brings new
+      // products (up to 150 pages), whatever the page count says; "page" first, "p" if "page" brings nothing new.
+      const pi = cat.pageInfo || {};
+      const said = (pi.lastPage || {}).value || pi.totalPages || (pi.total && pi.pageSize ? Math.ceil(pi.total / pi.pageSize) : 0) || 0;
       const urls = new Map();
-      const add = p => { for (const [k, v] of Object.entries(p.__APOLLO_STATE__ || {})) if (k.startsWith("Product:") && v.url && !/stroller|kids'|\bkids\b|toddler/i.test(v.name || "")) urls.set(v.url, (urls.get(v.url) || 0) + (((v.aggregates || {}).variationsOnSale || 0) > 0 ? 1 : 0)); };
+      const add = p => { let fresh = 0; for (const [k, v] of Object.entries(p.__APOLLO_STATE__ || {})) if (k.startsWith("Product:") && v.url && !/stroller|kids'|\bkids\b|toddler/i.test(v.name || "")) { if (!urls.has(v.url)) fresh++; urls.set(v.url, (urls.get(v.url) || 0) + (((v.aggregates || {}).variationsOnSale || 0) > 0 ? 1 : 0)); } return fresh; };
       add(first);
-      for (let n = 2; n <= last; n++) {
-        say(`Backcountry: list page ${n} of ${last}…`); await sleep(1500);
-        const u = new URL(location.href); u.searchParams.set("page", n);
-        add(pp(await fetchDoc(u)));
+      let param = null;
+      for (let n = 2; n <= 150; n++) {
+        say(`Backcountry: list page ${n}${said ? ` of ${said}` : ""} (${urls.size} products so far)…`); await sleep(1500);
+        let fresh = 0;
+        for (const k of param ? [param] : ["page", "p"]) {
+          const u = new URL(location.href); u.searchParams.set(k, n);
+          try { fresh = add(pp(await fetchDoc(u))); } catch (e) { fresh = 0; }
+          if (fresh) { param = k; break; }
+        }
+        if (!fresh) break;          // a page with nothing new = the end of the list
       }
       // Oct 16 (Bastien: "25/900 after 1 min ... I can't keep my phone open for the whole day", then "we want all the catalog as
       // always, so people can heart and watch stuff drop"): the whole list, sale items first, 4 product pages at a time, and it
