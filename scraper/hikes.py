@@ -352,6 +352,17 @@ VERIFIED = {
     "jasper-skyline": (44.1, None, "https://parks.canada.ca/pn-np/ab/jasper/activ/passez-stay/arrierepays-backcountry/sugg-sentiers_trip-ideas/skyline", {"oneway": True}),   # "44.1 km one-way", "2 - 3 days"
     "burstall-pass": (14.8, 470, "https://albertaparks.ca/parks/kananaskis/kananaskis-country/advisories-and-public-safety/trail-reports/peter-lougheed/burstall-pass/", {}),   # "Length 7.4 km one-way", "Elevation: 470 m"
     "rae-lakes-loop": (66.6, None, "https://www.nps.gov/seki/planyourvisit/rae-lakes-loop.htm", {}),   # "The loop is 41.4 miles long"; only trailhead and pass heights, no total gain
+    # Oct 30 (daily check):
+    "havasu-falls": (25.7, 608, "https://theofficialhavasupaitribe.com/Havasupai-FAQ/havasupai-faq.html",
+                     {"name": "Havasu Falls (Hualapai Hilltop to Supai Village and back)"}),   # "an 8-mile hike"; Hilltop 5,200 ft, Supai 3,205 ft
+    "berg-lake": (42, 790, "https://bcparks.ca/mount-robson-park/berg-lake-trail/", {"name": "Berg Lake Trail (to Berg Lake campground)"}),
+                 # official trail map PDF: Berg Lake campground km 21; trailhead 853 m, Berg Lake 1641 m
+    "mount-assiniboine": (54, None, "https://bcparks.ca/mount-assiniboine-park/hiking/", {}),   # "From Sunshine Village ... to Magog Lake ... a distance
+                 # of 27 km"; the page gives "an elevation change of 488 metres", not the climb of a return trip: left out
+    "tonquin-valley": (43.1, None, PC + "/ab/jasper/activ/passez-stay/arrierepays-backcountry/sugg-sentiers_trip-ideas/tonquin",
+                       {"name": "Tonquin Valley (Astoria to Portal, one way)", "oneway": True}),   # "43.1 km one way", 2-3 days; Oct 30: Astoria trailhead closed, Portal open
+    "continental-divide-trail": (4989, None, "https://continentaldividetrail.org/", {}),   # "spans 3,100 miles between Mexico and Canada"
+    "sia-gaspesie": (650, None, "https://www.sia-iat.com/", {}),   # "Le Sentier International des Appalaches au Québec couvre plus de 650 km"
 }
 for s, (km, gain, url, extra) in VERIFIED.items():
     h = BY[s]
