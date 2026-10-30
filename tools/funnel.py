@@ -641,6 +641,15 @@ try:
         out.append(f"KIT LAYOUT TEST (race + trail list sessions that ticked an item or clicked a store): A {pct(yA, nA)} of {nA} | "
                    f"B {pct(yB, nB)} of {nB} | p={pv:.3f} -> " + (("B WINS" if yB / nB > yA / nA else "A WINS") if pv < 0.05 else "not proven yet")
                    + f" | clicked a store: A {pct(sum('deal-click' in s['kinds'] for s in kg['A']), nA)}, B {pct(sum('deal-click' in s['kinds'] for s in kg['B']), nB)}")
+        # Oct 30 (growth chat: 18 A vs 4 B sessions looked like a broken coin): the coin is per DEVICE, the counts above are sessions,
+        # so one device opening the list 10 times tilts them. Devices per group, and the busiest device's share of its group:
+        sd = globals().get("sid_did") or {}
+        sid_of = {id(s_): k_ for k_, s_ in S.items()}
+        for g_ in ("A", "B"):
+            ds = Counter(sd.get(sid_of[id(s_)]) for s_ in kg[g_])
+            ds.pop(None, None)
+            if ds:
+                out.append(f"  kit {g_}: {len(ds)} devices; busiest device {ds.most_common(1)[0][1]} of {len(kg[g_])} sessions")
 except Exception as e:
     out.append(f"Kit layout test: couldn't read ({str(e)[:80]})")
 

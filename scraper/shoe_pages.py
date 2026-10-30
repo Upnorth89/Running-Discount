@@ -312,6 +312,10 @@ def base_model(n):
     n = re.sub(r"\s*(-\s*|\()(Men|Women)[’']s\)?$|\s*(-\s*|\()Unisex\)?$", "", n)
     n = re.split(r"\s+[—·]\s+", n)[0]                                    # "Clifton 10 — White/White"
     n = re.sub(r"\s*[\[(](x-?wide|extra wide|wide|2e|4e|d|ee|large)[\])]\s*|\s+\b(extra wide|x-?wide|wide)\b", " ", n, flags=re.I)
+    # Oct 30 (growth chat: /shoes/hoka-rocket-x/ showed the Rocket X TRAIL under the road racer's name): "Trail" stays where it names
+    # another shoe than the road model of the same name (Hoka Rocket X Trail, Brooks Ghost Trail); scrape.py's OK_TWINS keeps their cards apart
+    n = re.sub(r"\b(Rocket|Tecton|Mafate) X(\d)\b", r"\1 X \2", n, flags=re.I)    # Oct 30: "Rocket X3" = "Rocket X 3" (two pages)
+    n = re.sub(r"\b(Rocket X|Ghost)\s+Trail(?:[ -]running)?(?:\s+shoes?)?\b", r"\1 Trail", n, flags=re.I)
     n = re.sub(r"\b((trail|road)[ -])?running shoes?\b|\bhiking shoes?\b|\bshoes?\b", "", n, flags=re.I)   # Oct 29: REI's "Trail-Running Shoes"
     n = re.sub(r"^\s*(M|W|U|Unisex|All[- ]Gender|Men[’']?s|Women[’']?s)\s+", "", n, flags=re.I)        # "M Ghost 18" (Oct 7)
     n = re.sub(r"\s+(running road|road racing|road running|road)\s*$", "", n.strip(" -"), flags=re.I)   # "Ghost 17 Road"
@@ -321,6 +325,9 @@ def base_model(n):
     n = re.sub(r"\s+(Keely Hodgkinson|H\.?\s?Koumori)\b.*$", "", n, flags=re.I)
     # Oct 24 (28 shoes had a "Gore-Tex" page AND a "GTX" page competing on Google): one page each
     n = re.sub(r"\bGore[- ]?Tex\b", "GTX", n, flags=re.I)
+    # Oct 30 (12 "(Available in Widths)" + 4 "GTX Waterproof" pages twinned another page): one page per shoe
+    n = re.sub(r"\(?\bavailable\s+in\s+(wide\s+)?widths?\b\)?", " ", n, flags=re.I)
+    n = re.sub(r"\bGTX\s+Waterproof\b", "GTX", n, flags=re.I)
     n = re.sub(r"^((?:Fresh\s?Foam(?:\s+X)?|FuelCell)\s+)?(\d{3,4})\s+v(\d+)\b", r"\1\2v\3", n.strip(), flags=re.I)   # New Balance "880 v15" = "880v15"
     return re.sub(r"\s+", " ", n).strip(" -")
 
@@ -1736,6 +1743,11 @@ def forward_old(known, models, site, dirs):
     forwards to it: noindex, canonical, out of the sitemap."""
     for slug in [s_ for s_, v in known.items() if NOT_SHOE_PAGE.search(v["n"]) and s_ not in models]:
         del known[slug]                # a cleaning kit that was filed as a shoe: no page (it never was one)
+    for slug in models:                # Oct 30: a forwarded page whose name has shoes again is a live page again (hoka-rocket-x-trail)
+        if slug in known:
+            known[slug].pop("to", None)
+            if models[slug] and models[slug][0].get("t"):          # the kind follows today's shoes (hoka-rocket-x: trail -> race)
+                known[slug]["t"] = models[slug][0]["t"]
     for slug, meta in known.items():
         if meta.get("to") or slug in models:
             continue

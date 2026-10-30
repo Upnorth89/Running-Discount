@@ -79,3 +79,35 @@ the midweek post's Novablast line said "$75 (was $150, −33%)". If you hand him
   Shoe/race/trail/list page boxes say "You're in" too and put the watched item on the server list right away.
 - Confirm reminder: now only for people who re-subscribe after unsubscribing (rare); left running.
 
+
+## Oct 30 night: 5 maintenance tasks (backend), for Bastien's morning note
+
+1. **Phone saves showed 0 products (MEC, REI, Backcountry all at 0; Backcountry "had 2,159 yesterday").** Every save's contents came
+   down in ONE request; when it failed, all three stores went to 0 together. Now: the list of saves first, then each save alone (3 tries);
+   a store whose saves can't be read keeps yesterday's products (log says so) instead of vanishing. (The run log itself wasn't readable
+   from here, so "that one request failed" is the reading that fits all three going to 0 at once, not a quote from the log.)
+2. **Backcountry bookmark read 42 of 1,000+** (Bastien's report): the deals page doesn't say how many pages it has, so it read page 1 only.
+   Now it keeps opening the next page while new products appear (up to 150). Fake 3-page list: 144 of 144 (was 48). Shipped earlier tonight;
+   Bastien re-copies the bookmark from thegearfox.com/grab.html.
+3. **Bluesky post refused (Oct 29 run red):** the pants post was 327 characters, Bluesky takes 300 (long ?q= search link). The post now shows
+   a short readable link label (thegearfox.com/?q=2xu form stash hi-rise…) that still opens the full tracked link; trims if still long. The two
+   shoe posts that day went out fine.
+4. **Twin shoe pages:** 12 "(Available in Widths)" pages and 4 "GTX Waterproof" pages were copies of another page (Ghost 18, Glycerin 23,
+   Clifton 11 GTX…), splitting Google's attention and showing twin cards. Name tidying now drops both (Python + the site's JS copy, checked
+   identical by check.py); old pages forward to the main one (noindex, canonical), like the Gore-Tex/GTX cleanup.
+   Also checked: the noindex rule for "Not in stock" pages works (13 pages out 14+ days are out of the sitemap with noindex; 6 more
+   out < 14 days stay indexed by design).
+5. **Site test false alarm in the morning email** ("Shoe page with nothing in stock… select_option timeout"): when an earlier check had saved
+   a size, the box correctly showed "Men's 11 · Change" and hid the menus; the robot tried the hidden menu. It taps Change first now.
+   Also checked: raw store files restore from the private cache on every run since Oct 29 (all cache steps green).
+6. **(your report) /shoes/hoka-rocket-x/ showed the Rocket X TRAIL under the road racer's name.** Cause: the name tidier drops
+   "Trail Running Shoes" as one filler phrase, so "Rocket X Trail Running Shoes" read as "Rocket X" (same for Brooks "Ghost Trail" ->
+   page titled "Brooks Ghost"). Now "Trail" stays for those two (Python + site JS, checked identical), a forwarded page that has shoes
+   again becomes live again (hoka-rocket-x-trail, brooks-ghost-trail); brooks-ghost forwards to Ghost Trail, and hoka-rocket-x now
+   shows the real ROAD Rocket X (Sport Chek sells it, $300, kind = race). Rebuilt from tonight's data and the live page list: all checked.
+   "Rocket X3" = "Rocket X 3" (also Tecton/Mafate): hoka-rocket-x3 forwards to hoka-rocket-x-3. Other trail pages that forward to the
+   same name without "Trail" were checked: same shoe (Speedgoat 7, Cascadia 19…), left alone.
+7. **(your report) kit test 18 A vs 4 B sessions.** The coin code has one version since launch (Oct 27 17:45): a per-device FNV coin,
+   same as the homepage tests; the only overrides (?exp=kit:B, ?kit=b) push toward B, nothing pushes toward A. Likely reading: the coin is
+   per DEVICE but the line counts SESSIONS, so one device reopening the list (Bastien, an organizer) stacks A. funnel.py now adds
+   "kit A: N devices; busiest device X of Y sessions" under the KIT line. Agree: don't read "B WINS" on 4 sessions.

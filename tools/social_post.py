@@ -287,10 +287,21 @@ def bluesky(p, body, link):
                 card["thumb"] = b["blob"]
         except Exception:
             pass
-    i = body.find(link)
+    # Oct 29: a 327-character post (a long ?q= search link) got "400 Bad Request": Bluesky takes 300. The text shows a short
+    # label for the link (thegearfox.com/shoes/<slug>/ or thegearfox.com/?q=…) and the tap still opens the full tracked link.
+    from urllib.parse import unquote
+    short = unquote(re.sub(r"^https?://", "", link).split("&ref=")[0].split("?ref=")[0])
+    if len(short) > 56:
+        short = short[:54] + "…"
+    body = body.replace(link, short)
+    if len(body) > 300:                        # still too long: shorten the first line, keep the link line whole
+        head, _, tail = body.partition("\n")
+        body = head[:300 - len(tail) - 2].rstrip() + "…\n" + tail
+    link_text = short
+    i = body.find(link_text)
     rec = {"$type": "app.bsky.feed.post", "text": body, "createdAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
            "langs": ["en"], "embed": {"$type": "app.bsky.embed.external", "external": card},
-           "facets": [{"index": {"byteStart": len(body[:i].encode()), "byteEnd": len(body[:i + len(link)].encode())},
+           "facets": [{"index": {"byteStart": len(body[:i].encode()), "byteEnd": len(body[:i + len(link_text)].encode())},
                        "features": [{"$type": "app.bsky.richtext.facet#link", "uri": link}]}]}
     r = requests.post("https://bsky.social/xrpc/com.atproto.repo.createRecord", headers=H, timeout=30,
                       json={"repo": s["did"], "collection": "app.bsky.feed.post", "record": rec})

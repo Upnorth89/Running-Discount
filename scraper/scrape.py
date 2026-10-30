@@ -2497,6 +2497,7 @@ def _file_age_days(path):
     return (time.time() - ts) / 86400
 
 _grabbed = []
+GRAB_FAILED = set()      # stores whose phone saves couldn't be downloaded this run ("*" = none could)
 def outdoor_list(d):
     """Oct 25 (Bastien: hiking tab ~Nov 17; MEC/REI hiking lists through the same bookmark): a saved list whose page address is a
     hiking / camping list belongs to the hidden hiking files, never to the running site."""
@@ -2512,19 +2513,46 @@ def grab_saves():
     import tempfile
     out, sb, key = [], os.environ.get("SUPABASE_URL", "").rstrip("/"), os.environ.get("SUPABASE_SECRET_KEY", "")
     if sb and key:
-        try:
-            since = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=SAVED_MAX_DAYS)).strftime("%Y-%m-%dT%H:%M:%SZ")
-            r = requests.get(f"{sb}/rest/v1/grab_saves", params={"select": "id,store,at,data", "at": f"gte.{since}",
-                             "order": "at.desc"}, headers={"apikey": key, "Authorization": f"Bearer {key}"}, timeout=120)
-            r.raise_for_status()
+        # Oct 30: one request for every save's contents (a Backcountry list = dozens of 200-product parts) failed and MEC, REI and
+        # Backcountry all showed 0 products ("had 2159 yesterday"). Now: the list of saves first (small), then each save alone,
+        # 3 tries each; a store whose saves couldn't all be read is in GRAB_FAILED, so run() keeps yesterday's listings for it.
+        H = {"apikey": key, "Authorization": f"Bearer {key}"}
+        since = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=SAVED_MAX_DAYS)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        rows = None
+        for attempt in range(3):
+            try:
+                r = requests.get(f"{sb}/rest/v1/grab_saves", params={"select": "id,store,at", "at": f"gte.{since}", "order": "at.desc"},
+                                 headers=H, timeout=60)
+                r.raise_for_status()
+                rows = r.json()
+                break
+            except Exception as e:
+                print(f"  phone grabs: list try {attempt + 1} failed ({str(e)[:80]})", file=sys.stderr)
+                time.sleep(5 * (attempt + 1))
+        if rows is None:
+            GRAB_FAILED.add("*")
+        else:
+            import tempfile
             d = Path(tempfile.mkdtemp(prefix="grab-"))
-            for row in r.json():
+            for row in rows:
+                data = None
+                for attempt in range(3):
+                    try:
+                        r = requests.get(f"{sb}/rest/v1/grab_saves", params={"select": "data", "id": f"eq.{row['id']}"}, headers=H, timeout=120)
+                        r.raise_for_status()
+                        data = (r.json() or [{}])[0].get("data")
+                        break
+                    except Exception as e:
+                        print(f"  phone grabs: {row['store']} save {row['id']} try {attempt + 1} failed ({str(e)[:80]})", file=sys.stderr)
+                        time.sleep(5 * (attempt + 1))
+                if data is None:
+                    GRAB_FAILED.add(row["store"])
+                    continue
                 f = d / f"{row['store']}-grab-{row['id']}.json"
-                f.write_text(json.dumps({**row["data"], "store": row["store"], "saved": row["at"]}))
+                f.write_text(json.dumps({**data, "store": row["store"], "saved": row["at"]}))
                 out.append(f)
-            print(f"  phone grabs: {len(out)} from the last {SAVED_MAX_DAYS} days", file=sys.stderr)
-        except Exception as e:
-            print(f"  phone grabs: couldn't read them ({str(e)[:80]})", file=sys.stderr)
+            print(f"  phone grabs: {len(out)} of {len(rows)} from the last {SAVED_MAX_DAYS} days"
+                  + (f"; couldn't read {', '.join(sorted(GRAB_FAILED))}: their listings stay as yesterday" if GRAB_FAILED else ""), file=sys.stderr)
     _grabbed.append(out)
     return out
 
@@ -4450,6 +4478,8 @@ def main():
             return prev_offers.get(st, []), None, None
         try:
             got = fn()
+            if st in ("mec", "rei", "backcountry") and ("*" in GRAB_FAILED or st in GRAB_FAILED):
+                raise RuntimeError("no phone saves: couldn't download them from Supabase")   # keeps yesterday's (Oct 30)
             if not got and st not in dict((x[0], 1) for x in SHOPIFY_STORES) and st not in SAVED_STORES:
                 raise RuntimeError("0 items")
             if not got and len(prev_offers.get(st, [])) >= 20 and st not in SAVED_STORES:   # a store rarely empties

@@ -1465,12 +1465,15 @@ function baseModel(n){
   n=n.replace(/\s*(-\s*|\()(Men|Women)[’']s\)?$|\s*(-\s*|\()Unisex\)?$/,"");
   n=n.split(/\s+[—·]\s+/)[0];
   n=n.replace(/\s*[\[(](x-?wide|extra wide|wide|2e|4e|d|ee|large)[\])]\s*|\s+\b(extra wide|x-?wide|wide)\b/gi," ");
+  n=n.replace(/\b(Rocket|Tecton|Mafate) X(\d)\b/gi,"$1 X $2");   // Oct 30: "Rocket X3" = "Rocket X 3"
+  n=n.replace(/\b(Rocket X|Ghost)\s+Trail(?:[ -]running)?(?:\s+shoes?)?\b/gi,"$1 Trail");   // Oct 30: Rocket X Trail / Ghost Trail are their own shoes
   n=n.replace(/\b((trail|road)[ -])?running shoes?\b|\bhiking shoes?\b|\bshoes?\b/gi,"");   // Oct 29: REI's "Trail-Running Shoes"
   n=n.replace(/^\s*(M|W|U|Unisex|All[- ]Gender|Men[’']?s|Women[’']?s)\s+/i,"");
   n=n.replace(/^[ -]+|[ -]+$/g,"").replace(/\s+(running road|road racing|road running|road)\s*$/i,"");
   n=n.replace(/\b(ZoomX|Air Zoom|Zoom)\s+(?=(Vaporfly|Alphafly|Pegasus|Streakfly|Invincible)\b)/gi,"")   // Oct 8: one page per Nike shoe
     .replace(/\b(Vaporfly|Alphafly)\s+Next\s*%?\s*/gi,"$1 ").replace(/\s+(Keely Hodgkinson|H\.?\s?Koumori)\b.*$/i,"");
   n=n.replace(/\bGore[- ]?Tex\b/gi,"GTX")   // Oct 24: one page per shoe
+    .replace(/\(?\bavailable\s+in\s+(wide\s+)?widths?\b\)?/gi," ").replace(/\bGTX\s+Waterproof\b/gi,"GTX")   // Oct 30: same
     .trim().replace(/^((?:Fresh\s?Foam(?:\s+X)?|FuelCell)\s+)?(\d{3,4})\s+v(\d+)\b/i,"$1$2v$3");
   return n.replace(/\s+/g," ").replace(/^[ -]+|[ -]+$/g,"");
 }

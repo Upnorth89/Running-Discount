@@ -1634,6 +1634,10 @@ def site_flow(base, per, accented):
             pg.goto(base + f"shoes/{slug}/", wait_until="domcontentloaded")
             pg.wait_for_selector("#backBox form", timeout=8000)
             prev = pg.evaluate("() => localStorage.getItem('gf-watch')")
+            # Oct 30 (morning email: select_option timed out): a size saved by an earlier check shows "Men's 11 · Change" and hides
+            # the two menus, as it should for a visitor; tap Change first
+            if pg.locator("#backBox .bok button").count():
+                pg.click("#backBox .bok button")
             # the page's own choices (a women's-only shoe has no men's fit; Oct 28 a fixed "men" timed out)
             fits = pg.eval_on_selector_all("#backBox [data-fit] option", "os => os.map(o => o.value).filter(Boolean)")
             if fits:
