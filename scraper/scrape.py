@@ -3870,7 +3870,8 @@ BRAND_CANON = {"hoka one one": "Hoka", "hoka": "Hoka", "asics": "ASICS", "satisf
 
 # US shops often list the parent company or distributor as the vendor (Oct 6, 2026: "Asics Corp." on all 480 US ASICS items,
 # "Brooks Sports, Inc. #105856", "Ing Source, Inc" = Injinji, "Medi USA" = CEP): company words go, then this map
-BRAND_ALIAS = {"cure hydration": "Cure", "balmoral sports": "Balmoral", "inner self": "Inner Self", "krono nutrition": "Krono", "kronobar": "Krono", "grynd food": "Grynd", "grynd food inc": "Grynd", "fast bundle": "Upika", "upika": "Upika", "brix rechargé par la nature": "Brix", "brix recharge par la nature": "Brix", "asics america": "ASICS", "asics": "ASICS", "brooks sports": "Brooks", "nike usa": "Nike", "nike team sale": "Nike",
+BRAND_ALIAS = {"kuhl": "KÜHL", "kühl": "KÜHL",   # Oct 30: KÜHL (79) = KUHL (32) on the USA side
+               "cure hydration": "Cure", "balmoral sports": "Balmoral", "inner self": "Inner Self", "krono nutrition": "Krono", "kronobar": "Krono", "grynd food": "Grynd", "grynd food inc": "Grynd", "fast bundle": "Upika", "upika": "Upika", "brix rechargé par la nature": "Brix", "brix recharge par la nature": "Brix", "asics america": "ASICS", "asics": "ASICS", "brooks sports": "Brooks", "nike usa": "Nike", "nike team sale": "Nike",
                "on shoes": "On", "on footwear": "On", "on-running": "On", "gu energy": "GU", "gu energy labs": "GU", "gu sports": "GU",
                "gu nutrition": "GU", "gu energy gel": "GU", "ing source": "Injinji", "medi usa": "CEP", "medi": "CEP",
                "cep / medi usa": "CEP", "cep/medi usa": "CEP", "medi usa (cep)": "CEP", "medi/cep": "CEP", "medi usa - cep": "CEP", "craft sportswear": "Craft", "craft sportsware usa": "Craft",
@@ -4405,6 +4406,25 @@ def merge(offers):
         a = trails.get((page(it), tuple(sorted(it["sx"])), it["w"], it["ca"]))
         if a is None or a is it:
             continue
+        join(a, it)
+        del items[key]
+        merged += 1
+    # Oct 30 (morning email: 10 USA twins, "Lone Peak 9 Waterproof Low" trail + "… Hiking Shoes" hike, "Anacapa 2 Low GTX" daily + hike):
+    # a store's "Hiking Shoes" wording made its card a hike shoe; on the EXACT same page it is the same shoe. It joins the card with
+    # more stores; a plain-named 'daily' card that has a hiking twin is a hiking shoe (Anacapa), a trail card stays trail (Lone Peak).
+    others = {}
+    for it in items.values():
+        if it["g"] == "shoes" and it.get("t") in ("trail", "daily"):
+            others.setdefault((page(it), tuple(sorted(it["sx"])), it["w"], it["ca"]), it)
+    for key in list(items):
+        it = items.get(key)
+        if not it or it["g"] != "shoes" or it.get("t") != "hike" or not re.search(r"\bhiking\s+shoes?\b", it["n"], re.I):
+            continue
+        a = others.get((page(it), tuple(sorted(it["sx"])), it["w"], it["ca"]))
+        if a is None or a is it:
+            continue
+        if a.get("t") == "daily":
+            a["t"] = "hike"
         join(a, it)
         del items[key]
         merged += 1
