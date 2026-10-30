@@ -1906,8 +1906,8 @@ function rdCard(d,extra,real){
   const sized=SIZED.has(d.g)||accLetters(d);
   return `<div class="dw rdc${sp?" hascmp":""}"><a class="deal" href="${esc(affUrl(d.url))}" data-store="${esc(h)}" target="_blank" rel="noopener">
     <div class="pic${d.img?"":" nopic"}" data-b="${esc(d.b)}">${d.img?`<img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="if(this.parentNode)this.parentNode.classList.add('nopic');this.remove()">`:""}${d.pct?`<span class="pct">${offTag(d)}</span>`:""}${lowDays(d)?`<span class="lostamp" aria-hidden="true"><span>${t("lowL1")}</span><span>${t("lowStampDays",lowDays(d))}</span></span>`:""}</div>
-    <div class="name"><span class="brand">${esc(d.b)}</span>${d.fav?" ★":""}${cdnBrand(d)?`&nbsp;<span class="leaf" title="${t("cdnTip")}" aria-label="${t("cdnTip")}">🍁</span>`:""} ${esc(m)}</div>
-    <div class="kind">${esc(sub)}</div>
+    <div class="name"><span class="brand">${esc(d.b)}</span>${d.fav?" ★":""} ${esc(m)}</div>
+    <div class="kind${cdnBrand(d)?" kf":""}">${cdnBrand(d)?`<span class="kt">${esc(sub)}</span><span class="kl">&nbsp;·&nbsp;<span class="leaf" title="${t("cdnTip")}" aria-label="${t("cdnTip")}">🍁</span></span>`:esc(sub)}</div>
     <div class="price">${fromTag(d)}<b>${money(d.best)}</b>${curTag()}${d.pct?`<s>${money(d.reg)}</s>`:""}</div>
     ${lowDays(d)?`<span class="badge lo30" title="${esc(t("lowDaysTip"))}" aria-label="${esc(t("lowDays",lowDays(d)))}"><span class="l1">${t("lowL1")}</span> <span class="l2">${t("lowL2",lowDays(d))}</span></span>`:""}
     ${extra||""}${!extra&&NEWSET.has(k)?`<span class="badge new">${t("isNew")}</span>`:""}

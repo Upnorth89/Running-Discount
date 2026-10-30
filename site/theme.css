@@ -241,6 +241,8 @@ html.rd,html:root.rd{color-scheme:light;
 .rd .rdc .name{font:600 15px/1.3 var(--body);color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .rd .rdc .name .brand{font:inherit;color:inherit;text-transform:none;letter-spacing:0}
 .rd .rdc .kind{font:400 13.5px/1.3 var(--body);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Oct 30 (Bastien): the Canadian-brand leaf ends this line instead of splitting the name; the words cut off, never the leaf */
+.rd .rdc .kind.kf{display:flex}.rd .rdc .kind .kt{overflow:hidden;text-overflow:ellipsis}.rd .rdc .kind .kl{flex:none}
 .rd .rdc .price{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 8px;margin:10px 0 6px}
 .rd .rdc .price b{font:700 23px/1.1 var(--body);color:var(--price);letter-spacing:-.01em}
 .rd .rdc .price .cur{font:600 11px var(--body);color:var(--muted);margin-left:-5px}
