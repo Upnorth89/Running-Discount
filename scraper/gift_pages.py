@@ -3,6 +3,7 @@
 size, or small/medium/large all in stock. Three budgets (under $25 / $50 / $100), each with up to 8 on sale (20%+ off) and 4
 full-price picks people can watch ("Full price · ♡ Watch the price" -> /?watch=<item key>, the homepage's watch link). One brand
 once per budget, no more than 3 of a kind among the sale picks, Canadian stores only, photos only.
+A card whose photo doesn't load removes itself (Oct 30: REI's photos came up as empty boxes for our robot).
 Odd prices are left out: a pack or bundle, or a price far above the brand's usual for that kind (a goodr at $100 = a multi-pack).
 
 USA: deals-us.json (where `ca` = ships from the US), US English, no Boxing Day box (a link to the US Black Friday page instead).
@@ -149,7 +150,7 @@ def page(lang, data):
             watch = "" if c["sale"] else (f'<a class="wt" href="{L["home"]}{"&" if "?" in L["home"] else "?"}watch={quote(item_key(d))}&amp;ref=gifts">'
                                           f'{SP.esc(s["watch"])}</a>')
             html.append(f'<div class="gf"><a class="go" href="{SP.esc(c["url"])}" target="_blank" rel="noopener nofollow" data-store="{SP.esc(SP.host(c["url"]))}">'
-                        f'<span class="ph"><img src="{SP.esc(d["img"])}" alt="" loading="lazy" referrerpolicy="no-referrer"></span>'
+                        f'<span class="ph"><img src="{SP.esc(d["img"])}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="var g=this.closest(`.gf`);if(g)g.remove()"></span>'
                         f'<span class="k">{SP.esc(KIND[c["k"]][1 if lang == "fr" else 0])}</span><b>{SP.esc(d["b"])}</b><span class="n">{SP.esc(name)}</span>'
                         f'<span class="pr">{pr}</span><span class="st">{SP.esc((data.get("names", {}).get(SP.host(c["url"])) or [SP.host(c["url"]).replace("www.", "")])[0])}</span></a>{watch}</div>')
         return '<div class="gf-grid">' + "".join(html) + "</div>"
