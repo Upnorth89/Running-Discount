@@ -8,6 +8,7 @@ on the homepage only. Prints the result, and as a GitHub notice (readable from t
   SUPABASE_URL=... SUPABASE_SECRET_KEY=... python tools/funnel.py [DAYS]     (workflow: .github/workflows/funnel.yml)
 """
 import os
+import re
 import sys
 from collections import Counter, defaultdict
 from datetime import datetime, timedelta, timezone
@@ -508,9 +509,23 @@ try:
     conf = cnt({"created_at": f"gte.{since}", "confirmed_at": "not.is.null"})
     live = cnt({"confirmed_at": "not.is.null", "unsubscribed_at": "is.null"})
     unsub = cnt({"unsubscribed_at": "not.is.null"})
-    SC["members"] = live
+    # Oct 30 (Bastien: "I don't see 154 subscribers"): the list includes test addresses and the Oct 29 catch-up. Same rule as the
+    # stats page (supabase/ana-members-oct30.sql): a test = @thegearfox.com / @example.com, any "+tag" address, and the plain
+    # address those +tags belong to. No address in the code (public repo).
+    rr = requests.get(f"{SB}/rest/v1/subscribers", headers=H, timeout=30,
+                      params={"select": "email,consent_via", "confirmed_at": "not.is.null", "unsubscribed_at": "is.null"})
+    rr.raise_for_status()
+    act = rr.json()
+    low = lambda e: (e or "").lower()
+    plus_bases = {re.sub(r"\+[^@]*@", "@", low(x["email"])) for x in act if re.search(r"\+[^@]*@", low(x["email"]))}
+    test = lambda e: low(e).endswith(("@thegearfox.com", "@example.com")) or bool(re.search(r"\+[^@]*@", low(e))) or low(e) in plus_bases
+    tests = sum(1 for x in act if test(x["email"]))
+    catch = sum(1 for x in act if not test(x["email"]) and x.get("consent_via") == "form-before-oct29")
+    real = len(act) - tests
+    SC["members"] = real
     out.append(f"EMAIL: sign-ups in this window {made}, confirmed {conf} ({round(100 * conf / max(1, made))}%); "
-               f"active subscribers now {live}; unsubscribed ever {unsub}")
+               f"REAL SUBSCRIBERS NOW {real} (list {live} = {real} real + {tests} test addresses; {catch} of the real ones joined "
+               f"through the Oct 29 catch-up); unsubscribed ever {unsub}")
 except Exception as e:
     out.append(f"Email numbers: couldn't read ({str(e)[:80]})")
 

@@ -336,7 +336,11 @@ def week_drop(d):
 def short_name(d, lang):
     n = re.sub(r"\s+-\s+(Men's|Women's|Unisex|Homme|Femme|Unisexe)$", "", nm(d["n"], lang))
     if d["g"] == "shoes":
-        n = re.sub(r"\s+((road|trail)\s+)?(running\s+)?(racing\s+)?shoes?\b", "", n, flags=re.I)
+        # Oct 30 (today's subject said "Hoka Rocket X dropped $150" for the Rocket X TRAIL): the shoe pages' own tidier, which keeps
+        # "Trail" where it names another shoe (Rocket X Trail, Ghost Trail) and drops the rest of "Trail Running Shoes"
+        import shoe_pages as SP
+        n = SP.base_model(n) or n
+        n = re.sub(r"\s+(racing\s+)?shoes?\b|\s+racing$", "", n, flags=re.I)
     return f'{d["b"]} {n}'.strip()
 
 
