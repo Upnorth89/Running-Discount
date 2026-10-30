@@ -42,7 +42,7 @@ COMPANY = re.compile(r"\b(inc|corp|llc|ltd|usa|us|outlet|vermont|optics|nutritio
 # checked by hand and fine (brand + name start): a cap whose colour is "Leather Jacket", a bug jacket sold with mitts
 OK = re.compile(r"^(SOAR Running Artefact Cap|Ben's InvisiNet|Aetrex L\d|Satisfy (TheRocker|Adizero)|rabbit (High Country|Dream Chaser)|"
                 r"Tracksmith Eliot|Tortoise & Hare Trofeo|City Park Runners XACT|CEP Pro Run Optaspeed|.*Mystery Nutrition|"
-                r"BlackToe Mix Pack|Craft (Nordlite|Xplor)|Saucony Endorphin Pro \d+ Speed-lace|CEP (Pro Run )?Omnispeed|Merrell Silvo Lace)", re.I)   # Omnispeed: CEP's running shoe; Silvo Lace: a hiking shoe (Oct 20)   # Speed-lace = the shoe with quick laces
+                r"BlackToe Mix Pack|Craft (Nordlite|Xplor)|Saucony Endorphin Pro \d+ Speed-lace|CEP (Pro Run )?Omnispeed|Merrell Silvo Lace|Craft Thermal Base Layer Set)", re.I)   # Oct 30: a top + bottom sold together (filed with bottoms)   # Omnispeed: CEP's running shoe; Silvo Lace: a hiking shoe (Oct 20)   # Speed-lace = the shoe with quick laces
 
 
 # two cards on one shoe page that really are two shoes (base_model gives them one page): Hoka's road Rocket X vs Rocket X Trail

@@ -3246,6 +3246,15 @@ def qc_prods(st, prods):
             t = re.sub(r"\s+(unisex|unisexe)\b", "", t, flags=re.I).strip() + gen
         elif st == "33off":                                                        # "Men's Asics Gel-Kayano 32 Flash Red/Beet Juice"
             t = re.sub(r"\s*[|·].*$", "", re.sub(r"\s+", " ", t)).strip()
+            # Oct 30 (a visitor: "size" on a women's Nimbus 22 shown to everyone as one size): some products ARE one size, named in
+            # the title with no size option ("Women's GEL-Nimbus 22 (D) SIZE 12"): that size becomes the variant's ("D" = wide on women)
+            ms = re.search(r"\bsize (\d+(?:\.5)?)\b", t, re.I)
+            vs = p.get("variants") or []
+            if ms and len(vs) == 1 and (vs[0].get("title") or "").lower() == "default title":
+                wide = re.search(r"\(d\)", t, re.I) and re.match(r"wom", t, re.I) or re.search(r"\(2e\)|\(4e\)|large", t, re.I)
+                lab = ("Wide / " if wide else "") + ms.group(1)
+                vs[0]["title"] = vs[0]["option1"] = lab
+                p["options"] = [{"name": "Size", "position": 1, "values": [lab]}]
             t = re.sub(r"^Mens['’]s\b|^Men['’](?=\s)", "Men's", t)
             t = re.sub(r"\s*\((large )?d\)|\s*\bsize \d+(\.5)?\b", "", t, flags=re.I)        # "(LARGE D)", "SIZE 12"
             m = re.match(r"^(?:\S+\s+)?(Mizuno|Saucony|Salomon|Altra|Brooks|Hoka|On|Lowa|Merrell)\b", t)
@@ -3525,7 +3534,8 @@ def tidy_food(offers):
         if o.get("g") in ("shoes", "tops", "bottoms", "bras", "packs") and o.get("sz"):   # Oct 17: The Trail Runner Store lists
             o["sz"] = [e for e in o["sz"] if not (len(e) > 1 and e[1] is not None and e[1] < 2)]   # Patagonia pants at "$1": a placeholder
         o["n"] = re.sub(r"\s*\(needs description\)", "", o["n"], flags=re.I)   # a store's note to itself (Run Uphill)
-        if BYOB.search(o["n"]) or re.fullmatch(r"(?=.*\d)[A-Z0-9-]{6,}", o["n"].strip()):   # a code, not a name ("MRCXLB4")
+        if BYOB.search(o["n"]) or re.fullmatch(r"(?=.*\d)[A-Z0-9-]{6,}", o["n"].strip()) \
+                or re.search(r"\btest product\b", o["n"], re.I):   # Oct 30: Satisfy's "TEST PRODUCT WOMEN" at $542
             o["g"] = "_drop"           # other shoppers' saved bundles ("Build Your Own Bundle · Bundle20740_2026-09-14T17:33")
             continue
         b = tidy_brand(o["b"]).lower()        # "Darn Tough Vermont" -> "darn tough"
