@@ -2483,7 +2483,7 @@ def scrape_sportinglife():
 # browser (Cmd+S, "Webpage, HTML only") and upload them to the saved-pages/ folder in the repo.
 # Files older than SAVED_MAX_DAYS are ignored so stale prices never linger.
 SAVED_DIR = Path(__file__).resolve().parents[1] / "saved-pages"
-SAVED_MAX_DAYS = 10
+SAVED_MAX_DAYS = 5     # Oct 30 (Bastien: "down to 5 for everyone we grab deal"): a REI save 6-10 days old showed sold-out sizes
 
 def _file_age_days(path):
     """Age from the git commit that last touched the file (upload date on GitHub); falls back to mtime."""
@@ -2505,7 +2505,7 @@ def outdoor_list(d):
     return bool(re.search(r"hik|\bcamp|trek|backpacking|mountaineer|randonn|\btentes?\b|\btents?\b|sleeping|sac-de-couchage", path, re.I))
 
 def grab_saves():
-    """Lists sent from the phone bookmark (Oct 8: thegearfox.com/grab-save.html -> Supabase grab_saves, last 10 days),
+    """Lists sent from the phone bookmark (Oct 8: thegearfox.com/grab-save.html -> Supabase grab_saves, last SAVED_MAX_DAYS days),
     written to a temp folder as the same JSON files the bookmark downloads. Needs SUPABASE_URL + SUPABASE_SECRET_KEY."""
     if _grabbed:
         return _grabbed[0]

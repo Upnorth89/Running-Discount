@@ -103,7 +103,7 @@ def check():
             problems.append((f"zero:{st}", f"{st}: no catalog file from the last 3 days, so its deals are hidden. "
                                            f"Upload a fresh Running_Gear_Catalog.xlsx at thegearfox.com/catalog.html to bring them back."))
         elif st in SAVED and n == 0:
-            problems.append((f"zero:{st}", f"{st}: no saved pages from the last 10 days, so its deals are hidden. "
+            problems.append((f"zero:{st}", f"{st}: no saved pages from the last 5 days, so its deals are hidden. "
                                            f"Save fresh pages to bring them back."))
         elif stale:
             pass

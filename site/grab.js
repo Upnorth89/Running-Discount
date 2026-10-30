@@ -109,7 +109,7 @@
       // Oct 16 (Bastien: "25/900 after 1 min ... I can't keep my phone open for the whole day", then "we want all the catalog as
       // always, so people can heart and watch stuff drop"): the whole list, sale items first, 4 product pages at a time, and it
       // picks up where it stopped: products read in the last 7 days are skipped (sale items are always read again: prices move).
-      // "Send what's read so far" at any moment; the site keeps every send for 10 days, so a few short sessions cover everything.
+      // "Send what's read so far" at any moment; the site keeps every send for 5 days, so a few short sessions cover everything.
       let seen = {};
       try { seen = JSON.parse(localStorage.getItem("gf-bc-read") || "{}"); } catch (e) {}
       const week = Date.now() - 7 * 864e5;

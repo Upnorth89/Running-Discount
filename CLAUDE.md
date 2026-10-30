@@ -52,7 +52,7 @@ site/grab.html, grab.js  "Grab deals" bookmark for MEC/REI (Bastien saves their 
                          Phone version (Oct 8): after reading, the bookmark shows "Send to The Gear Fox" -> opens site/grab-save.html,
                          which takes the list by postMessage (only from mec.ca/rei.com/svpsports.ca) and calls Supabase grab_save()
                          (supabase/grab.sql; same private key as stats.html, gf-stats-key) -> table grab_saves + starts a refresh.
-                         scrape.py grab_saves() reads the last 10 days like saved-pages files. After editing grab.js: python tools/make_grab.py
+                         scrape.py grab_saves() reads the last 5 days like saved-pages files (SAVED_MAX_DAYS; 10 until Oct 30, Bastien: "down to 5"). After editing grab.js: python tools/make_grab.py
                          Oct 27: each part of a save used to start refresh.yml (one Backcountry save = ~15 runs in seconds, cancelling a push run);
                          supabase/refresh-debounce-oct27.sql: _gf_refresh_now() only flags 'refresh_wanted' (ana_settings), pg_cron 'gf-refresh-flush'
                          (every minute) starts ONE run after 90 s of quiet. Catalog uploads go through it too. Pasted Oct 27.
@@ -147,7 +147,7 @@ supabase/analytics.sql   own product analytics (Oct 4): ana_events (raw, 45 days
 supabase/personal-emails.sql  confirmation/sign-in emails from "Bastien from The Gear Fox" <bastien@>, branded design
                          (applied). Keep Resend open/click tracking OFF: with it on, Gmail files them in Promotions
 tools/make_preview.py    builds the playable preview artifact from site/index.html
-saved-pages/             MEC/REI files from the Grab deals bookmark (ignored after 10 days)
+saved-pages/             MEC/REI files from the Grab deals bookmark (ignored after 5 days)
 ```
 
 ## Daily and weekly jobs (GitHub Actions)
