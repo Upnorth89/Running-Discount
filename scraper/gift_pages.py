@@ -3,7 +3,7 @@
 size, or small/medium/large all in stock. Three budgets (under $25 / $50 / $100), each with up to 8 on sale (20%+ off) and 4
 full-price picks people can watch ("Full price · ♡ Watch the price" -> /?watch=<item key>, the homepage's watch link). One brand
 once per budget, no more than 3 of a kind among the sale picks, Canadian stores only, photos only.
-A card whose photo doesn't load removes itself (Oct 30: REI's photos came up as empty boxes for our robot).
+A photo that doesn't load leaves the brand name in its box, never an empty white box (Oct 30: REI's photos for our robot).
 Odd prices are left out: a pack or bundle, or a price far above the brand's usual for that kind (a goodr at $100 = a multi-pack).
 
 USA: deals-us.json (where `ca` = ships from the US), US English, no Boxing Day box (a link to the US Black Friday page instead).
@@ -50,7 +50,7 @@ CSS = """<style>.gf-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1f
 @media(min-width:720px){.gf-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(min-width:1000px){.gf-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .gf{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:2px;min-width:0}
 .gf a.go{color:var(--ink);text-decoration:none;display:flex;flex-direction:column;gap:2px;flex:1}
-.gf .ph{aspect-ratio:1;background:#fff;border-radius:10px;display:grid;place-items:center;overflow:hidden;margin-bottom:6px}.gf .ph img{width:100%;height:100%;object-fit:contain}
+.gf .ph{aspect-ratio:1;background:#fff;border-radius:10px;display:grid;place-items:center;overflow:hidden;margin-bottom:6px}.gf .ph img{width:100%;height:100%;object-fit:contain}.gf .ph.nop{background:var(--mist)}.gf .ph.nop::after{content:attr(data-b);font:700 15px var(--body);color:var(--muted);padding:8px;text-align:center}
 .gf .k{font-size:11.5px;color:var(--moss,#2f6b3a);font-weight:700;text-transform:uppercase;letter-spacing:.04em}.gf b{font-size:14px}
 .gf .n{font-size:13.5px;color:var(--muted);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .gf .pr{margin-top:auto;padding-top:6px;font-weight:700}.gf .pr s{color:var(--muted);font-weight:400;font-size:13px}.gf .pr em{font-style:normal;color:#1D6B45;font-size:13px}
@@ -150,7 +150,7 @@ def page(lang, data):
             watch = "" if c["sale"] else (f'<a class="wt" href="{L["home"]}{"&" if "?" in L["home"] else "?"}watch={quote(item_key(d))}&amp;ref=gifts">'
                                           f'{SP.esc(s["watch"])}</a>')
             html.append(f'<div class="gf"><a class="go" href="{SP.esc(c["url"])}" target="_blank" rel="noopener nofollow" data-store="{SP.esc(SP.host(c["url"]))}">'
-                        f'<span class="ph"><img src="{SP.esc(d["img"])}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="var g=this.closest(`.gf`);if(g)g.remove()"></span>'
+                        f'<span class="ph" data-b="{SP.esc(d["b"])}"><img src="{SP.esc(d["img"])}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.add(`nop`);this.remove()"></span>'
                         f'<span class="k">{SP.esc(KIND[c["k"]][1 if lang == "fr" else 0])}</span><b>{SP.esc(d["b"])}</b><span class="n">{SP.esc(name)}</span>'
                         f'<span class="pr">{pr}</span><span class="st">{SP.esc((data.get("names", {}).get(SP.host(c["url"])) or [SP.host(c["url"]).replace("www.", "")])[0])}</span></a>{watch}</div>')
         return '<div class="gf-grid">' + "".join(html) + "</div>"
