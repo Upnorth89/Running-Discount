@@ -2430,8 +2430,19 @@ def site_flow(base, per, accented):
             assert "Cadeaux pour coureurs" in pg.inner_text("h1"), "the French gift page isn't in French"
             pg.goto(base + "black-friday/", wait_until="domcontentloaded")
             assert pg.locator('a[href="/gifts-for-runners/"]').count(), "the Black Friday page doesn't link the gift page"
-            return f"{n} gifts, Watch links work, FR ok, linked from /black-friday/"
-        check("Gift page: three budgets, Watch the price, French")(gifts, pg)
+            us = ""
+            if site_get("us/gifts-for-runners/"):   # Oct 30: USA side (US stores, US$), linked from /us/black-friday/
+                pg.goto(base + "us/gifts-for-runners/", wait_until="domcontentloaded")
+                nu = pg.eval_on_selector_all(".gf", "e => e.length")
+                assert nu >= 18, f"only {nu} gifts on the US page"
+                assert "c=us" in (pg.locator(".gf a.wt").first.get_attribute("href") or ""), "the US page's Watch link doesn't open the USA side"
+                wide = pg.evaluate("document.documentElement.scrollWidth")
+                assert wide <= 400, f"the US gift page is wider than the phone ({wide}px)"
+                pg.goto(base + "us/black-friday/", wait_until="domcontentloaded")
+                assert pg.locator('a[href="/us/gifts-for-runners/"]').count(), "the US Black Friday page doesn't link the US gift page"
+                us = f", USA {nu} gifts"
+            return f"{n} gifts, Watch links work, FR ok, linked from /black-friday/{us}"
+        check("Gift page: three budgets, Watch the price, French, USA")(gifts, pg)
         ctx2.close()
 
         # an American visitor (Oct 6, 2026): a US time zone opens the USA side; the switch goes back to Canada

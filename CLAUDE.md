@@ -514,7 +514,10 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   gloves, socks, lights, bottles, sunglasses, hydration vests/belts, watches) under $25/$50/$100: 8 on sale (20%+ off) + 4 full price ("♡ Watch the
   price" -> /?watch=<itemKey>&ref=gifts), one brand once per budget, max 3 of a kind among sale picks, Canadian stores, photos only. Odd prices out:
   "pack/bundle/set/kit" names and a regular price over 1.8x the brand's median for that kind (a goodr at $100). Linked from both Canadian BF pages
-  (`bfGift` in bf_live_line). check.py "Gift page (EN/FR)", site test "Gift page: three budgets…". US version: not yet.
+  (`bfGift` in bf_live_line). check.py "Gift page (EN/FR + USA)", site test "Gift page: three budgets…".
+  USA (Oct 30, Bastien: "Yes ship it"): /us/gifts-for-runners/ from deals-us.json (prices shown in US$ = CAD / fx, budgets in US$), US stores, no Boxing Day
+  box (links /us/black-friday/), linked from the US BF page (`US["bfGift"]`; bf_live_line shows the gift line even without a live check), hreflang
+  en-US <-> en-CA. Cards name the store (STORES map via SP.store_names) instead of its web address, both sides.
   ☰ menu item "Gifts for runners" / « Cadeaux pour coureurs » (Oct 28, growth chat, Bastien OK'd): after Race gear lists, Nov 15 - Dec 26 Vancouver date,
   Canada running side only; homepage `giftMenu()` (?gifts=1), shoe/race pages `gift_season()` (GIFT_MENU=1). Site test "Menu: seasonal 'Gifts for runners'".
 - **Clothing sizes per category** (Oct 21, a visitor: "medium in shorts, L in socks, small in t-shirts"): sizes screen keeps one quick
