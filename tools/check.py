@@ -236,7 +236,7 @@ def main():
         r = subprocess.run([sys.executable, str(ROOT / "scraper" / "gift_pages.py"), str(site)], capture_output=True, text=True, timeout=300)
         if r.returncode:
             raise RuntimeError(r.stderr.strip().splitlines()[-1])
-        for path in ("gifts-for-runners/index.html", "cadeaux-coureurs/index.html"):
+        for path in ("gifts-for-runners/index.html", "cadeaux-coureurs/index.html", "us/gifts-for-runners/index.html"):   # Oct 30: + USA
             h = (site / path).read_text()
             n = h.count('class="gf"')
             if n < 18:
@@ -247,8 +247,10 @@ def main():
                 raise RuntimeError(f"{path}: no Watch the price link")
         if "/gifts-for-runners/" not in (site / "sitemap.xml").read_text():
             raise RuntimeError("the gift page isn't in the sitemap")
+        if "/us/gifts-for-runners/" not in (site / "sitemap.xml").read_text():
+            raise RuntimeError("the US gift page isn't in the sitemap")
         return r.stdout.strip()[:160]
-    step("Gift page (EN/FR)", gifts)
+    step("Gift page (EN/FR + USA)", gifts)
 
     def same_names():   # the site links cards to shoe pages with a JS copy of base_model + slugify: they must agree (Oct 7)
         sys.path.insert(0, str(ROOT / "scraper"))

@@ -263,6 +263,7 @@ T = {
 # the USA side (Oct 6, 2026): same pages in US English under /us/, from deals-us.json (US stores, US dollars)
 US = dict(T["en"])
 US["bfLive"] = None   # the live deal check is Canada only for now (Oct 27)
+US["bfGift"] = ("Shopping for someone else?", "Gifts for runners under $25, $50 and $100, no size needed →", "/us/gifts-for-runners/")   # Oct 30
 US.update({
     "dir": "us/shoes", "lang": "en-US", "other": "en-CA", "q": "&c=us", "home": "/?c=us", "cur": "USD",
     "title": "{name} price: every size, every store",
@@ -612,7 +613,7 @@ def alternates(L, path_en, path_fr):
         twin = (f'\n<link rel="alternate" hreflang="en-CA" href="{BASE}{path_fr}">\n<link rel="alternate" hreflang="x-default" href="{BASE}{path_fr}">'
                 if path_fr else "")
         return f'<link rel="alternate" hreflang="en-US" href="{BASE}{path_en}">{twin}'
-    us = "/us" + path_en if path_en == "/black-friday/" or path_en.startswith("/running-shoes-sale/") else ""   # pages that always have a US twin
+    us = "/us" + path_en if path_en in ("/black-friday/", "/gifts-for-runners/") or path_en.startswith("/running-shoes-sale/") else ""   # pages that always have a US twin
     return (f'<link rel="alternate" hreflang="en-CA" href="{BASE}{path_en}">\n<link rel="alternate" hreflang="fr-CA" href="{BASE}{path_fr}">\n'
             + (f'<link rel="alternate" hreflang="en-US" href="{BASE}{us}">\n' if us else "")
             + f'<link rel="alternate" hreflang="x-default" href="{BASE}{path_en}">')
@@ -1503,11 +1504,11 @@ def qs_box(L, head, ref):
 
 def bf_live_line(L):
     """Oct 27: the live deal check (scraper/bf_live.py), linked near the top of the Canadian Black Friday pages."""
-    if not L.get("bfLive"):
-        return ""
-    q, txt, href = L["bfLive"]
     gift = (f'<p class="bflive"><strong>{esc(L["bfGift"][0])}</strong> <a href="{L["bfGift"][2]}">{esc(L["bfGift"][1])}</a></p>'
-            if L.get("bfGift") else "")   # Oct 28: the gift page (scraper/gift_pages.py)
+            if L.get("bfGift") else "")   # Oct 28: the gift page (scraper/gift_pages.py); Oct 30: the US BF page links its own
+    if not L.get("bfLive"):
+        return gift
+    q, txt, href = L["bfLive"]
     return f'<p class="bflive"><strong>{esc(q)}</strong> <a href="{href}">{esc(txt)}</a></p>' + gift
 
 
@@ -1863,10 +1864,10 @@ def build_us(site, stores, ca_models, ca_brands):
     p.parent.mkdir(parents=True, exist_ok=True)
     if bf - timedelta(days=7) <= today <= bf + timedelta(days=4):
         p.write_text(list_page(L, own, "/black-friday/", L["bfTitle"], L["bfH1"], L["bfIntro"], real_first(bf_rows), brands,
-                               bf_other(L) + real_line(L, bf_rows) + cta))
+                               bf_live_line(L) + bf_other(L) + real_line(L, bf_rows) + cta))
     else:
         tracked = sum(1 for i in items if i.get("hd"))
-        extra = (bf_other(L) + cta + f'<h2>{esc(L["bfTrackH"])}</h2><p>{esc(L["bfTrackTxt"].format(n=f"{tracked:,}"))}</p>'
+        extra = (bf_live_line(L) + bf_other(L) + cta + f'<h2>{esc(L["bfTrackH"])}</h2><p>{esc(L["bfTrackTxt"].format(n=f"{tracked:,}"))}</p>'
                  + f'<h2>{esc(L["bfSpotH"])}</h2><ul>' + "".join(f"<li>{esc(x)}</li>" for x in L["bfSpot"]) + "</ul>"
                  + f'<h2>{esc(L["bfTodayH"].format(date=fmt_date(updated, L)))}</h2>')
         p.write_text(list_page(L, own, "/black-friday/", L["bfTitlePre"], L["bfH1Pre"].format(date=bf.day),
