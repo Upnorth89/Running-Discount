@@ -40,6 +40,7 @@ FROM = os.environ.get("FROM_EMAIL", "The Gear Fox <deals@thegearfox.com>")
 # Free Resend plan: 100 emails a day, 3,000 a month. Weekly email = 1 per subscriber per Friday.
 WEEKLY_SUBS_WARN = 500      # ~650 subscribers x 4.3 Fridays = the monthly cap
 DAILY_SIGNUPS_WARN = 60     # confirmation emails + alerts share the 100/day cap
+PARKED = {"adidasca", "catalog"}   # catalog-file stores Bastien let go (Oct 30); silent while empty
 SAVED = {"mec", "rei", "adidasca"}   # (Sport Chek read live since Oct 13)       # (SVP parked Oct 6)      # stores read from pages you save by hand (their sites block automated access)
 
 
@@ -91,6 +92,8 @@ def check():
     for st in sorted(set(offers) | set(offers0)):
         today, before = offers.get(st, []), offers0.get(st, [])
         n, n0 = len(today), len(before)
+        if st in PARKED and n == 0:
+            continue          # Oct 30 (Bastien: "let adidas stay off. we'll try later"): no daily line; a new upload brings it back
         t = when(stamps.get(st, ""))
         stale = t is None or NOW - t > timedelta(hours=30)
         if stale:
@@ -231,7 +234,7 @@ def catalog_check():
     for w in c.get("warnings") or []:
         probs.append((f"catalog-warn:{w[:40]}", f"Catalog file: {w}"))
     out, leaving = c.get("out") or {}, c.get("leaving") or {}
-    if out or leaving:                           # one line, not one per store (Oct 14)
+    if (out or leaving) and c.get("used"):       # one line, not one per store (Oct 14); no file in use = parked (Oct 30)
         parts = []
         if out:
             parts.append("no deals from " + ", ".join(out) + f" (last read {min(out.values())})")

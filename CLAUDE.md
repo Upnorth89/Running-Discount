@@ -1048,6 +1048,8 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   adidas/New Balance/Sport Chek rows were 3.5 days old. Every ROW older than CATALOG_MAX_DAYS now leaves (not just the whole file);
   the morning email says it in ONE line (Oct 14, it was 15): "Catalog: no deals from X, Y (last read Oct 9). Leaving today: …
   Leaving tomorrow: …" (catalog-check.json `out`/`leaving`; stores halved only because rows aged out aren't flagged again).
+  PARKED Oct 30 (Bastien: "let adidas stay off. we'll try later"): no uploads since Oct 26; health.py `PARKED` keeps the email quiet while
+  adidasca/catalog are empty; an upload brings both back with no code change.
   First file checked by hand on 9 random sale sizes: 9 right. SAVED_STORES expire (no keeping yesterday's deals). Health email:
   "Catalog file is N days old" the day before it runs out. No photos in the file (cards show text only).
 - Shipping countries (Oct 8, Bastien spotted 2XU: 2xu.com is the Australian store): the Shopify reader reads each store's

@@ -52,6 +52,12 @@ PER_GROUP, TOTAL, DROPS = 4, 20, 6     # Oct 18: shorter (was 6 a group, 36 in a
 WORD = {"ONE SIZE": "OS", "O/S": "OS", "X-SMALL": "XS", "XSMALL": "XS", "SMALL": "S", "MEDIUM": "M",
         "LARGE": "L", "X-LARGE": "XL", "XLARGE": "XL",
         "SM": "S", "MD": "M", "MED": "M", "LG": "L", "LRG": "L", "XLG": "XL", "XXLARGE": "2XL", "XX-LARGE": "2XL"}   # same as the site
+
+def mask(e):
+    """'ma…@gmail.com': Actions logs of this public repo are readable by anyone (Oct 30), so no whole address is ever printed."""
+    u, _, d = (e or "").partition("@")
+    return (u[:2] + "…@" + d) if d else "?"
+
 def norm(s):
     s = str(s).strip().upper()
     s = WORD.get(s, s)
@@ -539,7 +545,7 @@ def mark_sent(p):
         import alerts as A
         A.sb("PATCH", f"subscribers?token=eq.{p['token']}", json={"weekly_sent_at": datetime.now(timezone.utc).isoformat()})
     except Exception as e:
-        print(f"  could not record the send for {p['email']}: {e}")
+        print(f"  could not record the send for {mask(p['email'])}: {e}")
 
 def main():
     profiles = []
@@ -559,7 +565,7 @@ def main():
         profiles = [p for p in profiles if (p.get("email") or "").lower() in want]
         missing = want - {p["email"].lower() for p in profiles}
         for e in sorted(missing):
-            print(f"{e}: not a confirmed subscriber, so no email. Sign up on the site and confirm first.")
+            print(f"{mask(e)}: not a confirmed subscriber, so no email. Sign up on the site and confirm first.")
         print(f"TEST SEND to {len(profiles)} of the subscribers only")
         if not profiles:
             return 1
@@ -633,20 +639,20 @@ def main():
         watch = watch_news.get(p.get("token"))
         has_watch = bool(watch and (watch["drops"] or watch["backs"]))
         if not sale and not has_watch:
-            print(f"{who}: nothing on sale in their sizes this week, no email sent")
+            print(f"{mask(who)}: nothing on sale in their sizes this week, no email sent")
             continue
         subject, body, text = build(p, sale, watch)
         if DRY:
             out = ROOT / "email" / "preview.html"
             out.write_text(body)
-            print(f"{who}: DRY RUN, {len(sale)} deals, subject: {subject!r}, wrote {out}")
+            print(f"{mask(who)}: DRY RUN, {len(sale)} deals, subject: {subject!r}, wrote {out}")
             continue
         r = requests.post("https://api.resend.com/emails", timeout=60,
                           headers={"Authorization": f"Bearer {os.environ['RESEND_API_KEY']}"},
                           json={"from": FROM, "to": [who], "subject": subject, "html": body, "text": text,
                                 **({"headers": {"List-Unsubscribe": f"<{SITE_URL}?unsub={p['token']}>"}} if p.get("token") else {})})
         if r.ok:
-            print(f"{who}: sent {len(sale)} deals" + (" + watchlist news" if has_watch else ""))
+            print(f"{mask(who)}: sent {len(sale)} deals" + (" + watchlist news" if has_watch else ""))
             if not SEND_TO:
                 mark_sent(p)
             if watch:
@@ -658,7 +664,7 @@ def main():
                         print(f"  could not update watch {wid}: {e}")
         else:
             failed += 1
-            print(f"{who}: FAILED {r.status_code} {r.text[:300]}")
+            print(f"{mask(who)}: FAILED {r.status_code} {r.text[:300]}")
     return 1 if failed else 0
 
 if __name__ == "__main__":

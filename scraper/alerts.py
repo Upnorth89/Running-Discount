@@ -34,6 +34,12 @@ E = W.E
 ALL_GROUPS = list(W.GROUP_LABEL)
 
 
+
+def mask(e):
+    """'ma…@gmail.com': Actions logs of this public repo are readable by anyone (Oct 30), so no whole address is ever printed."""
+    u, _, d = (e or "").partition("@")
+    return (u[:2] + "…@" + d) if d else "?"
+
 def item_key(d):
     """Stable id for a product across days; the site builds the same string."""
     return f"{d['b']}|{d['n']}|{d['g']}|{1 if d.get('w') else 0}".lower()
@@ -243,7 +249,7 @@ def main():
         who = p["sub"]["email"]
         if DRY:
             (W.ROOT / "email" / "alert-preview.html").write_text(body)
-            print(f"{who}: DRY RUN {subject!r}")
+            print(f"{mask(who)}: DRY RUN {subject!r}")
             continue
         r = requests.post("https://api.resend.com/emails", timeout=60,
                           headers={"Authorization": f"Bearer {os.environ['RESEND_API_KEY']}"},
@@ -251,10 +257,10 @@ def main():
                                 "headers": {"List-Unsubscribe": f"<{W.SITE_URL}?unsub={tok}>"}})
         if r.ok:
             sent += 1
-            print(f"{who}: sent {len(p['drops'])} drops, {len(p['backs'])} back in size")
+            print(f"{mask(who)}: sent {len(p['drops'])} drops, {len(p['backs'])} back in size")
         else:
             failed += 1
-            print(f"{who}: FAILED {r.status_code} {r.text[:200]}")
+            print(f"{mask(who)}: FAILED {r.status_code} {r.text[:200]}")
             # keep their notified prices as they were so tomorrow retries
             ids = {i for i, _ in p["updates"]}
             updates = [(i, u) for i, u in updates if i not in ids]
