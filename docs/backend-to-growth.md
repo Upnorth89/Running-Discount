@@ -176,3 +176,8 @@ the midweek post's Novablast line said "$75 (was $150, −33%)". If you hand him
   In the Pro build: one shared limit everywhere (homepage hearts, shoe/race/trail hearts, watch-everything, watch_add on the server so a
   second device can't pass it), 10 until Dec 2, 5 from launch; members already over 5 keep their items; at the limit: "Watch unlimited with
   Fox Pro" (EN/FR). Today only the button has the limit (hearts never had one; 0 members are over 10, so no one is affected).
+- Received "get members watching" 1 + 2 (Bastien OK'd, preview first). Plan: (1) Friday email block for members watching nothing: 3 picks
+  (2 shoes + 1 other, their side/sport/sizes, 5+ sizes incl. theirs, full price allowed), "♡ Watch" = /?k=<key>&watch=<itemKey>&em=watch
+  (the homepage already signs in with ?k= and adds ?watch= server-side via watch_add; I'll make it land on the item with "Watching ✓");
+  block gone once they watch anything (watches table read in weekly_email). (2) shoe pages: charcoal "♡ Watch this shoe in size X" under
+  "Your size X: $Y at Store", A/B arm 'watchbtn' (metric: shoe-page first visits that watch). Site tests both. Preview ETA: Nov 2.
