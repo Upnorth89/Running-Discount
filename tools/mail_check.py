@@ -104,6 +104,9 @@ try:
         wk = (datetime.fromisoformat(x["created_at"].replace("Z", "+00:00")) - timedelta(days=datetime.fromisoformat(x["created_at"].replace("Z", "+00:00")).weekday())).strftime("week of %b %d")
         byw.setdefault(wk, {}).setdefault(prov, 0)
         byw[wk][prov] += 1
+    others = sorted({(x["email"].partition("@")[2], str(x.get("created_at"))[:10], "member" if x.get("confirmed_at") else "not member")
+                     for x in rows if x.get("created_at", "") >= since30 and not re.search(r"@(gmail|googlemail)\.com$", x["email"] or "")}, key=lambda z: z[1])
+    out.append("  non-Gmail new rows (domain, day): " + "; ".join(f"{d} {day} {m}" for d, day, m in others))
     for wk in sorted(byw):
         out.append(f"  new rows {wk}: " + ", ".join(f"{k} {v}" for k, v in sorted(byw[wk].items(), key=lambda kv: -kv[1])))
     for x in ms:
