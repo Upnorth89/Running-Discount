@@ -2531,6 +2531,16 @@ def site_flow(base, per, accented):
             assert n >= 3, f"only {n} items on the deal check"
             w = pg.evaluate("document.documentElement.scrollWidth")
             assert w <= 400, f"the deal check is wider than the phone ({w}px)"
+            # Oct 31: 4 per list, the rest behind "Show all N" (it was 7.3 phone screens)
+            shown = pg.eval_on_selector_all(".bfl", "e => e.map(u => [...u.children].filter(x => x.offsetParent).length)")
+            assert all(x <= 4 for x in shown), f"a list shows more than 4 rows before 'Show all' ({shown})"
+            if pg.locator(".bflm").count():
+                k = pg.locator(".bflm").first
+                k.click()
+                settle(pg, 200)
+                first = pg.eval_on_selector(".bfl", "u => [...u.children].filter(x => x.offsetParent).length + '/' + u.children.length")
+                a, b_ = first.split("/")
+                assert a == b_, f"'Show all' didn't open the whole list ({first})"
             pg.goto(base + "black-friday/", wait_until="domcontentloaded")
             assert pg.locator('a[href="/black-friday/live/"]').count(), "the Black Friday page doesn't link the deal check"
             return f"{n} items, linked from /black-friday/"
