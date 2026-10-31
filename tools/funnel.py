@@ -525,9 +525,9 @@ try:
     srt = sorted(n)
     out.append(f"WATCHLIST SIZE (members now, {len(real)} real members): {band(n)} | over 3: {sum(1 for x in n if x > 3)}, over 5: "
                f"{sum(1 for x in n if x > 5)}, over 10: {sum(1 for x in n if x > 10)}; most watched by one member: {max(n) if n else 0}")
-    dev = Counter(e["did"] for e in rows if e["kind"] == "watch-add" and e.get("did"))
+    dev = Counter(e["sid"] for e in rows if e["kind"] == "watch-add")
     d = list(dev.values())
-    out.append(f"  Watch taps per device (last {DAYS} days, every visitor, adds only): {len(d)} devices tapped Watch; {band(d)}")
+    out.append(f"  Watch taps per visit (last {DAYS} days, every visitor, adds only): {len(d)} visits tapped Watch; {band(d)}")
 except Exception as e:
     out.append(f"Watchlist size: couldn't compute ({str(e)[:80]})")
 # confirmations: of the sign-ups in this window, how many confirmed the email (double opt-in)
