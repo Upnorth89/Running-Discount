@@ -125,3 +125,16 @@ the midweek post's Novablast line said "$75 (was $150, −33%)". If you hand him
   Tracking: race events "remind|new/member/pending" -> funnel "race reminders asked"; health email line "Race reminders: due/sent".
   Ship order: his yes -> he pastes the SQL -> I push (the page needs race_save/race_get) -> robot test email to HEALTH_EMAIL
   (`race_remind.py site --send-test <slug>`).
+
+## Oct 31: race reminder SHIPPED; Fox Pro build order received
+- Race reminder: live (8965a1a, Bastien "yes lets ship it", SQL pasted and checked: race_get/race_save answer). Robot test email sent to
+  HEALTH_EMAIL through Resend (200) from today's live data (race-remind-test.yml, manual). First real send possible Nov 19 (Racing Dusk).
+- Fox Pro: got it, starting now. Plan and ETA:
+  1. Week of Nov 2: Supabase side (pro flag, plan, founding price id, purchases table for "I bought it", store price-match table for the
+     25 stores, each read on the store's own policy page), Stripe Checkout + webhook in TEST mode, the BF-week waitlist card (EN/FR).
+  2. Week of Nov 9: "I bought it" (come-back moment + watchlist), the daily price-protection check + claim email (dry run), dated price
+     record page, Pro perks gate (same-morning alerts, unlimited watchlist, full history), About/Terms/privacy EN/FR.
+  3. Preview for Bastien: Fri Nov 13 (ahead of Nov 16). Site test + check.py steps for card, checkout (test mode), I-bought-it, claim email.
+  Blocker only Bastien can clear: a Stripe account (business details + bank, Canada; verification can take a few days) and, when it's
+  ready, the secret key + webhook secret into GitHub secrets / Supabase Vault himself (names: STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET).
+  Test mode keys are enough until the preview. If price protection isn't solid by Nov 13 I'll say so then (fallback Jan 5).
