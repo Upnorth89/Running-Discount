@@ -111,3 +111,9 @@ the midweek post's Novablast line said "$75 (was $150, −33%)". If you hand him
    same as the homepage tests; the only overrides (?exp=kit:B, ?kit=b) push toward B, nothing pushes toward A. Likely reading: the coin is
    per DEVICE but the line counts SESSIONS, so one device reopening the list (Bastien, an organizer) stacks A. funnel.py now adds
    "kit A: N devices; busiest device X of Y sessions" under the KIT line. Agree: don't read "B WINS" on 4 sessions.
+
+## Oct 31: race reminder ("Remind me 30 days before the race") - backend started
+- Building it now from your spec. Order: race dates (from RACES 'when', checked) -> SQL (race_save, profile.races; tested on the local
+  Postgres copy) -> race page box + ticks sync -> reminder email job (dry run first) -> site test + check.py -> preview.
+- ETA: preview link for Bastien within ~a day; nothing live until a robot test reminder goes end to end (his rule). The SQL file comes
+  with the preview, as a one-tap copy page.
