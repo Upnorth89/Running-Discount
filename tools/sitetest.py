@@ -1960,6 +1960,22 @@ def site_flow(base, per, accented):
                 c.close()
         check("Race gear page: 'Watch everything I'm missing'")(race_watchall, pg)
 
+        def sheet_hero():   # Oct 31 (mystery-shop walk): the hero headline peeked above the sizes sheet, cut in half
+            c = br.new_context(viewport={"width": 390, "height": 560}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+            stub(c)
+            q = c.new_page()
+            try:
+                q.goto(base, wait_until="load")
+                q.wait_for_selector("#saveSizes", state="visible", timeout=30000)
+                q.click("#saveSizes")
+                q.wait_for_selector("#shoeSizes button", state="visible")
+                v = q.evaluate("(()=>{const h=document.querySelector('.rdhero h1');return h?getComputedStyle(h).visibility:'none'})()")
+                assert v in ("hidden", "none"), f"the headline behind the open sizes sheet is {v}"
+                return "headline hidden behind the open sheet"
+            finally:
+                c.close()
+        check("Sizes sheet: nothing peeks above it on a short phone")(sheet_hero, pg)
+
         def letters():       # Oct 28 (Bastien: "I shouldn't have to see the y bleeding over. These details matter and should be caught in our scan"):
             # every kind of page at phone, tablet, laptop and wide-screen widths, every live test off (A) and on (B): no line of text
             # touching a box it doesn't belong to, no words cut off, nothing wider than the screen (tools/visual_check.py)

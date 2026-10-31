@@ -704,3 +704,6 @@ html.hike #terrain,html.hike h3[data-i18n="terrainH"]{display:none}
 html:not(.hike) .hk{display:none!important}
 .euline{font-size:14px;line-height:1.45}
 .euline small{display:block;color:var(--muted,#56626A);font-size:12.5px}
+/* Oct 31 (mystery-shop walk, 390 phone): with a sheet open (sizes, email, Filters) the hero headline peeked above the panel through the
+   scrim, its second line cut in half (iPhone Safari's shorter screen puts the panel lower). Phones hide the hero text while a sheet is up. */
+@media(max-width:599px){.rd body.locked .rdhero h1,.rd body.locked .rdhero p{visibility:hidden}}

@@ -215,3 +215,28 @@ Checked and fine:
   skipped by robots for this ad-hoc check (the daily readers have their own rules). Real fix found: The Feed (above).
 - Accessibility: no input without a label, no image without alt, no unnamed visible control. Contrast: only the orange "size." in the
   homepage headline (2.8:1 vs 3:1 for big text) -- a brand colour call, left for Bastien.
+
+## Oct 31: stats page + "what we don't measure" (Bastien: "track more or better data ... funnel people to a sign up or a fox pro")
+Built WITH the members-watching batch (preview Nov 2), because they share the numbers. One SQL file for Bastien to paste.
+Stats page (site/stats.html, new SQL ana_growth(p_key), same private key; no IP, no email, nothing new recorded about people):
+1. **Members watching**: real members (ana_members rule) watching 1+ item, as a % and a weekly line (goal number for the 3 changes).
+2. **Watch taps by spot**: homepage card / shoe page / race + trail list (incl. "Watch everything") / Friday email / gift page, and the share
+   of each spot's watchers who then sign up (today's #1 sign-up source: the email sheet after a Watch tap, 21 of 59 in 14 days).
+3. **Journey per device** (first visit -> sizes -> watch -> sign-up -> came back), with the median days between steps and the step where
+   most people stop, by source (Google / Reddit / Bluesky / Pinterest / email / direct).
+4. **Retention cohorts** by week of first visit: came back by day 1 / 7 / 30, watched vs didn't.
+5. **Emails**: per send (Friday/Saturday arms, alerts, race reminders, welcome), % of recipients who visited (em= visits; opens stay off on
+   purpose), and which block brought them (drops / watch block / reminder).
+6. **Fox Pro readiness** (fills as it goes live): waitlist size, waitlist -> founder %, founders by source/page, refunds, referrals
+   pending/earned.
+What we don't measure today that would change decisions:
+- Which SPOT a watch came from: ana "watch-add" carries only the category, so "watch taps by spot" needs a spot tag (homepage card,
+  shoe page button/table link, race list, email, return line). No new kind: a detail on the existing watch-add.
+- Welcome email visits (no em=welcome on its link; SQL change in the same file).
+- Race reminders asked vs sent vs visits from them (asked: race events; sent: race_reminders table; visits: em=race to add on its links).
+- Search -> watch -> sign-up: whether a search session watches anything (searchers came back 17% vs 5%).
+Cleanest path to sign-up / Fox Pro (from our own numbers): the Watch tap is the doorway (it converts ~1 in 5 to a sign-up; the generic
+card ~0.3%). So: (1) more Watch taps where intent is high (shoe pages, race lists, Friday email = the Nov 2 batch); (2) the email step right
+after the tap names the item (watchsheet test, running); (3) members who watch get drop emails = the habit; (4) Pro is sold at the moment
+watching hits its limit (5 from Dec 2: "Watch unlimited with Fox Pro") and after a purchase ("I bought it" -> price protection), never as
+a cold card. The stats page will show each of these steps so we can see which one leaks.
