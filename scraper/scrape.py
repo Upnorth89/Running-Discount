@@ -543,8 +543,8 @@ def _rf_cards(h):
     return out
 
 
-def _rf_pages(path):
-    """Every page of one listing (96 a page)."""
+def _rf_pages(path, skipped=None):
+    """Every page of one listing (96 a page). With `skipped` (a list), a later page that won't load is noted there and skipped."""
     h = _rf_get(f"{path}/?pp=96")
     if h is None:
         raise RuntimeError(f"Running Free: {path} didn't load")
@@ -553,7 +553,13 @@ def _rf_pages(path):
     for n in range(2, min(int(m.group(1)) if m else 1, 60) + 1):
         h = _rf_get(f"{path}/{n}/?pp=96")
         if h is None:
-            raise RuntimeError(f"Running Free: {path} page {n} didn't load")
+            if skipped is None or len(skipped) >= 10:
+                raise RuntimeError(f"Running Free: {path} page {n} didn't load")
+            # Oct 31 (afternoon email: one men's/women's list page answered 500/503 four times and the whole 2-hour read was lost):
+            # skip it; its products still come in through the size pages, which list every product in stock in each size
+            skipped.append(f"{path} page {n}")
+            print(f"::warning::Running Free: {path} page {n} didn't load, skipped", file=sys.stderr)
+            continue
         yield h
 
 
@@ -562,7 +568,7 @@ def runningfree_night(out, hours=4.5):
     start, prods, brands, failed = time.time(), {}, set(), []
     for gender, root in RF_ROOTS.items():
         sizes = []
-        for i, h in enumerate(_rf_pages(root)):
+        for i, h in enumerate(_rf_pages(root, failed)):
             if i == 0:
                 slugs = set(re.findall(rf'href="/products/{root}/([A-Za-z0-9-]+-\d+)/"', h))
                 sizes = sorted(x for x in slugs if RF_SHOE.match(x) or x.rsplit("-", 1)[0] in RF_CLOTH)
@@ -3875,6 +3881,7 @@ BRAND_CANON = {"hoka one one": "Hoka", "hoka": "Hoka", "asics": "ASICS", "satisf
 # US shops often list the parent company or distributor as the vendor (Oct 6, 2026: "Asics Corp." on all 480 US ASICS items,
 # "Brooks Sports, Inc. #105856", "Ing Source, Inc" = Injinji, "Medi USA" = CEP): company words go, then this map
 BRAND_ALIAS = {"kuhl": "KÜHL", "kühl": "KÜHL",   # Oct 30: KÜHL (79) = KUHL (32) on the USA side
+               "o'neill sunglasses": "O'Neill", "o’neill sunglasses": "O'Neill", "o'neill": "O'Neill", "o’neill": "O'Neill",   # Oct 31
                "cure hydration": "Cure", "balmoral sports": "Balmoral", "inner self": "Inner Self", "krono nutrition": "Krono", "kronobar": "Krono", "grynd food": "Grynd", "grynd food inc": "Grynd", "fast bundle": "Upika", "upika": "Upika", "brix rechargé par la nature": "Brix", "brix recharge par la nature": "Brix", "asics america": "ASICS", "asics": "ASICS", "brooks sports": "Brooks", "nike usa": "Nike", "nike team sale": "Nike",
                "on shoes": "On", "on footwear": "On", "on-running": "On", "gu energy": "GU", "gu energy labs": "GU", "gu sports": "GU",
                "gu nutrition": "GU", "gu energy gel": "GU", "ing source": "Injinji", "medi usa": "CEP", "medi": "CEP",
