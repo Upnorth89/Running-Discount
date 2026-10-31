@@ -125,3 +125,46 @@ the midweek post's Novablast line said "$75 (was $150, −33%)". If you hand him
   Tracking: race events "remind|new/member/pending" -> funnel "race reminders asked"; health email line "Race reminders: due/sent".
   Ship order: his yes -> he pastes the SQL -> I push (the page needs race_save/race_get) -> robot test email to HEALTH_EMAIL
   (`race_remind.py site --send-test <slug>`).
+
+## Oct 31: race reminder SHIPPED; Fox Pro build order received
+- Race reminder: live (8965a1a, Bastien "yes lets ship it", SQL pasted and checked: race_get/race_save answer). Robot test email sent to
+  HEALTH_EMAIL through Resend (200) from today's live data (race-remind-test.yml, manual). First real send possible Nov 19 (Racing Dusk).
+- Fox Pro: got it, starting now. Plan and ETA:
+  1. Week of Nov 2: Supabase side (pro flag, plan, founding price id, purchases table for "I bought it", store price-match table for the
+     25 stores, each read on the store's own policy page), Stripe Checkout + webhook in TEST mode, the BF-week waitlist card (EN/FR).
+  2. Week of Nov 9: "I bought it" (come-back moment + watchlist), the daily price-protection check + claim email (dry run), dated price
+     record page, Pro perks gate (same-morning alerts, unlimited watchlist, full history), About/Terms/privacy EN/FR.
+  3. Preview for Bastien: Fri Nov 13 (ahead of Nov 16). Site test + check.py steps for card, checkout (test mode), I-bought-it, claim email.
+  Blocker only Bastien can clear: a Stripe account (business details + bank, Canada; verification can take a few days) and, when it's
+  ready, the secret key + webhook secret into GitHub secrets / Supabase Vault himself (names: STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET).
+  Test mode keys are enough until the preview. If price protection isn't solid by Nov 13 I'll say so then (fallback Jan 5).
+- Addendum received (waitlist line on BF pages + live deal check Nov 20 - Dec 1 EN/FR CA/US; one line + button in the Nov 20 + 27 weekly
+  emails (note: the emailday test's B group gets the Nov 20 one on Saturday Nov 21); founder referral link = friend's first month free +
+  founder a free month (Stripe coupon / customer balance credit); organizer "first month free" code (Stripe promotion code per race)).
+  Folded into the same preview, Fri Nov 13. The waitlist line on BF pages + emails ships first (needed by Nov 20), its own preview ~Nov 6.
+- Referral change received (replaces (c)): every Pro member gets a personal link; each friend who starts a PAID Pro subscription = 1 free
+  month for the referrer, up to 12; the friend's first month free; credited only after the friend's first real payment clears (Stripe
+  invoice.paid after the trial, not the $0 trial invoice); member page shows "N friends joined: N free months". Same Nov 13 preview.
+- Pricing change received (Bastien "yes confirm"): YEARLY ONLY. Regular $45/yr ("$3.75/month, billed yearly ($45)"), founding $36/yr for
+  life from Dec 2 ("$3/month, billed yearly ($36)"), same numbers in CAD and USD. 30-day full refund on the card, at checkout, in Terms.
+  Stripe: 4 prices (founding/regular x CAD/USD), yearly. Friend = 30-day trial then yearly; referrer credit = +1 month on the renewal date
+  (trial_end / billing anchor pushed 1 month per paid friend, max 12) once the friend's first yearly invoice is paid. Same preview.
+  Note a 30-day trial and a 30-day refund overlap for referred friends: refund window starts at their first real charge (Terms will say so).
+- Referral abuse rules received: cancel in the trial = never charged, no credit; credit only at day 60 (trial 30 + refund window 30 after
+  the first charge; matches my Terms note), removed if refunded anyway (charge.refunded webhook); one trial per email AND per card
+  fingerprint (checked in the webhook on the setup/payment method; a repeat card's subscription gets trial_end=now); same card behind
+  referrer and friend = no credit; member page shows "pending" until day 60 (daily job settles credits). Same preview.
+- Received: Founding Fox badge (fox face + gold ring on My account + beside "My account" in ☰, one line in their emails) and the
+  members-only My account page (status, renewal, badge, referral link + friends earned/pending (first name or "a friend"), I-bought-it
+  items + claims, Stripe portal link, sizes, watchlist, Friday email / alerts on-off; EN/FR, phone first, site test). Same preview.
+  Scope check: this is now a big batch for Nov 13 (payments, price protection, referrals with day-60 settling, account page, badge,
+  legal pages). Order if time runs short: payments + waitlist + account page + legal first (needed Dec 2); price protection and
+  referral settling can follow in December without changing the Dec 2 date (referral credits only settle at day 60 = late Jan anyway).
+- Received: personal referral code per Pro member (FOX-<FIRSTNAME>, + 2 digits if taken, no email in it), typed at checkout (Stripe
+  promotion code tied to the referrer), same day-60 rules as the link; on My account with a copy button. Same preview.
+- My account look received (phone mockup agreed with Bastien): orange ONLY for "Claim $X"; referral bar + "+1 month" = green #1D6B45; code
+  box grey dashed #9AA39E; Share = charcoal #17201C white text, Copy = white outline; switches charcoal on / light grey off. Order: Founding
+  Fox card (dark green gradient, fox face + gold ring, "Member since Dec 2026 · $36/year, locked for life", gold FOUNDING MEMBER tag) ·
+  Your plan · Invite friends (rule line, code, Share/Copy, "3 of 12 free months earned · 1 pending", friends green/amber, fine print) ·
+  Things you bought, we're watching (bought line, watching-until line, green "Now $Y: dropped $Z" + orange Claim) · Settings (sizes,
+  watchlist, Friday email, same-morning alerts, race reminders) · "Signed in as b•••@… · Sign out". EN/FR. Building to this.

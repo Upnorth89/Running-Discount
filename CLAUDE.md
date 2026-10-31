@@ -297,6 +297,11 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   A $3/$29, B $5/$49; gf-pro / gf-nopro; analytics signup-step pro-view|pro-join|pro-no; funnel "FOX PRO PRICE TEST"; `?pro=1` shows it any
   day (previews). A tap overstates paying: <5% at both prices = stop; else step 2 in early Dec = real founding payment (Stripe, 30-day refund).
   Site test "Fox Pro waitlist card (price test)".
+  Oct 31 (Bastien + growth chat): PRICE LOCKED, test not run: Fox Pro = YEARLY ONLY, $45/year ("$3.75/month, billed yearly"); founding
+  round opens Dec 2 with NO end date (2 weeks' notice before it ends): $36/year for life ("$3/month, billed yearly"); 30-day full refund.
+  Referral: each friend who joins Pro (first payment cleared) = 1 free month added to the referrer's year, up to 12; friend's first month free.
+  Plan: 6-month plan doc "Fox Pro launch plan" + "Founding round: how we get traction"; backend builds Stripe + "I bought it" price protection (preview Nov 16). Value = same-morning alerts + unlimited watchlist + price history +
+  price-protection watching after you buy ("You buy, we watch, you claim"). The card no longer switches itself on (proOn = ?pro=1 only).
   Test 'emailday' (Oct 27, Bastien OK'd idea 5; weekend visits ~3x weekdays): weekly_email.py `day_arm()` (coin from the token, same every
   week) B = the weekly email Saturday 7am local instead of Friday, DAY_TEST Oct 30 - Nov 21 (`send_day()`); Black Friday week on: Friday for all.
   weekly-email.yml also runs Saturdays; supabase/saturday-timer-oct27.sql = the Saturday timer (pasted Oct 27). Links carry em=friday /
@@ -457,7 +462,7 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   "store|<item kind>||race|<race>"; funnel.yml "RACE GEAR LISTS": sessions, first visits landing there, % that changed distance /
   ticked / ticked every mandatory item / See all / size / store click / watch / sign-up / another page, by race, by ?ref=, items ticked,
   store clicks by item. Site test "Race gear page: what visitors do is recorded".
-  **Race reminders** (Oct 31, Bastien: "lets build it now"; WAITING on his OK + SQL paste, preview https://claude.ai/artifact/4J5rH87Hiy7viE64Niz8Cb):
+  **Race reminders** (Oct 31, Bastien: "lets build it now", then "yes lets ship it"; LIVE Oct 31, preview https://claude.ai/artifact/4J5rH87Hiy7viE64Niz8Cb):
   `race_date()`/`remind_day()` in race_pages.py read RACES `when` (firm dates only; "to come"/"to be confirmed" = none). Dated races' #raceBox =
   "Don't miss a thing on race day" (data-rm = reminder day): visitors sign up with profile.races [{slug,dist,side,ticks}] (a trigger moves it to
   table race_lists), members tap once (race_save); members' ticks/distance sync (race_get on load, newer side wins, race_save 1.2 s after a change).
@@ -592,7 +597,7 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   never ending on "with"/"and". "Most popular" = the non-shoe category with the most deal clicks in 7 days (clicks record the category,
   not the item; needs SUPABASE_SECRET_KEY, else any category). Refs: bluesky-shoes / bluesky-<cat>, pinterest-shoes / pinterest-<cat>.
   Nov 17: rotating posts bring clicks but no sign-ups vs shoe posts = back to shoes only.
-- **Pinterest feeds** (Oct 26, growth chat + Bastien: 6-week test, stop if <30 first visits with ?ref=pinterest by mid-Dec): `tools/pin_feed.py`
+- **Pinterest feeds** (Oct 26, growth chat + Bastien: 6-week test, stop if <30 first visits with ?ref=pinterest by mid-Dec; Bastien connected both feeds in Pinterest Settings > Auto-publish on Oct 31 (needs the claimed website); before that no pin was ever created): `tools/pin_feed.py`
   (refresh.yml step "Pinterest feeds" after the race pages): morning = today's real drops from social_post.picks (side ca/us; US prices in US$
   against the "us|" history), livecheck-confirmed, 5 per side, each shoe once per 21 days (the feed is the memory), last 50 kept ->
   site/pins/ca.xml + us.xml (RSS 2.0, enclosure + media:content + <img> in the description, link = shoe page ?ref=pinterest) + a 1000x1500
