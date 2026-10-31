@@ -297,8 +297,10 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   A $3/$29, B $5/$49; gf-pro / gf-nopro; analytics signup-step pro-view|pro-join|pro-no; funnel "FOX PRO PRICE TEST"; `?pro=1` shows it any
   day (previews). A tap overstates paying: <5% at both prices = stop; else step 2 in early Dec = real founding payment (Stripe, 30-day refund).
   Site test "Fox Pro waitlist card (price test)".
-  Oct 31 (Bastien + growth chat): PRICE LOCKED, test not run: Fox Pro = $5/month or $45/year; founding members $3/month for life during a
-  1-2 month founding round at launch, then the price goes up to $5. Value = same-morning alerts + unlimited watchlist + price history +
+  Oct 31 (Bastien + growth chat): PRICE LOCKED, test not run: Fox Pro = YEARLY ONLY, $45/year ("$3.75/month, billed yearly"); founding
+  round opens Dec 2 with NO end date (2 weeks' notice before it ends): $36/year for life ("$3/month, billed yearly"); 30-day full refund.
+  Referral: each friend who joins Pro (first payment cleared) = 1 free month added to the referrer's year, up to 12; friend's first month free.
+  Plan: 6-month plan doc "Fox Pro launch plan" + "Founding round: how we get traction"; backend builds Stripe + "I bought it" price protection (preview Nov 16). Value = same-morning alerts + unlimited watchlist + price history +
   price-protection watching after you buy ("You buy, we watch, you claim"). The card no longer switches itself on (proOn = ?pro=1 only).
   Test 'emailday' (Oct 27, Bastien OK'd idea 5; weekend visits ~3x weekdays): weekly_email.py `day_arm()` (coin from the token, same every
   week) B = the weekly email Saturday 7am local instead of Friday, DAY_TEST Oct 30 - Nov 21 (`send_day()`); Black Friday week on: Friday for all.
