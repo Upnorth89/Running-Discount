@@ -1932,6 +1932,34 @@ def site_flow(base, per, accented):
             return f"/races/{slug}/: " + "; ".join(out)
         check("Race gear page: 'Remind me 30 days before'")(race_remind, pg)
 
+        def race_watchall():   # Oct 31 (Bastien: "yes lets add that"): one tap watches the first pick of every unticked line
+            c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+            stub(c)
+            q = c.new_page()
+            try:
+                q.goto(base + "races/ultra-trail-harricana/?exp=kit:A", wait_until="load")
+                q.wait_for_timeout(600)
+                assert q.evaluate("document.getElementById('watchAll').hidden"), "the button shows before a size is picked"
+                q.click('#rsize button[data-g="men"]')
+                q.click('#rsize button[data-s="M"]')
+                q.wait_for_timeout(300)
+                label = q.inner_text("#watchAll")
+                n = int(re.search(r"\d+", label).group()) if re.search(r"\d+", label) else 1
+                assert "missing" in label, f"button label: {label!r}"
+                q.click("#watchAll")
+                q.wait_for_timeout(300)
+                got = q.evaluate("Object.keys(JSON.parse(localStorage.getItem('gf-watch')||'{}')).length")
+                assert got == min(n, 10), f"'{label}' watched {got} items"
+                assert "Undo" in q.inner_text("#watchAll"), "no Undo after watching"
+                q.click("#watchAll")
+                q.wait_for_timeout(300)
+                left = q.evaluate("Object.keys(JSON.parse(localStorage.getItem('gf-watch')||'{}')).length")
+                assert left == 0, f"Undo left {left} items watched"
+                return f"'{label}' watched {got}, Undo cleared them"
+            finally:
+                c.close()
+        check("Race gear page: 'Watch everything I'm missing'")(race_watchall, pg)
+
         def letters():       # Oct 28 (Bastien: "I shouldn't have to see the y bleeding over. These details matter and should be caught in our scan"):
             # every kind of page at phone, tablet, laptop and wide-screen widths, every live test off (A) and on (B): no line of text
             # touching a box it doesn't belong to, no words cut off, nothing wider than the screen (tools/visual_check.py)
