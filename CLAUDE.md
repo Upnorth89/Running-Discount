@@ -1017,6 +1017,10 @@ profiles, pick stores/brands, Strava mileage + "Replace my shoe", later phone no
   got 41 x 429 (fixed by tools/welcome_resend.py + welcome-resend.yml, 41/41 sent) and stamped last_mail_at, which the 40/hour limit
   counted, blocking all sign-ups (supabase/optin-fix-oct29.sql, pasted: the limit counts created_at). Never send a batch from SQL again.
   Trail hub (Oct 29, Bastien OK'd): grouped by province/state, folded (`HUB_JS`, HOME_TZ opens the visitor's own). Site test "Sign-up = member at once (single opt-in) + Google first".
+- Sign-up failures (Oct 31; a Hotmail runner's 3 sign-ups never reached the database and nothing said why): every failed or refused
+  sign-up sends signup-step "fail|<where>|<domain>|<why>" (`suFail()` in index.html; shoe/race/trail page forms too; domain only, never the
+  address); funnel "SIGN-UP FAILURES"; site test "Sign-up that fails is recorded". tools/mail_check.py: Microsoft addresses + sign-ups per week by
+  provider, and mail-check.yml input `find` = sha256 of an address (or of the part before @) looks one person up (never type the address: public repo).
 - Analytics kinds (Oct 8): the database drops any event kind not in `ana_kinds()` (store bar/Canadian/country were lost Oct 5–8);
   `tools/check.py` "Analytics events are all recorded" fails if the site sends one it doesn't list. New kind = SQL for Bastien.
   `load` = ms until the deals show (+ connection, data size); the funnel report shows load bands vs sizes picked.

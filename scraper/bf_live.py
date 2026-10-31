@@ -28,7 +28,7 @@ S = {
         h2="Not new: same “sale” price for weeks", s2="30%+ off the tag, at the same price for at least 3 weeks. Not a bad price, just not a Black Friday price.",
         h3="Went up lately: watch for a “drop” back", s3="Up 10%+ in the last 3 weeks. If it “drops” on Black Friday, it may just be back where it was.",
         was="Was {p} before {d}", same="Same price since {d}", start="Same price since we started tracking ({d})", up="Was {p} on {d}",
-        at="{p} CAD at {s}", sizes=lambda n, shoe: f"{n} sizes", none="Nothing in this list today.",
+        at="{p} CAD at {s}", sizes=lambda n, shoe: f"{n} sizes", none="Nothing in this list today.", more="Show all {n}",
         jH="For journalists", j="Free to quote with a link to this page. Need a cut by store, brand or category for your Black Friday story? Email hello@thegearfox.com.",
         mH="How we check", m="We record the best price of every product at {n} stores twice a day since Oct. 2, size by size. A “real drop” must be lower than every price in the 30 days before it. We don't judge stores: a price that hasn't moved can still be a good one.",
         free="Free, no affiliate links, no store pays to be listed.", watch="♡ Watch any item on the site and we email you when it really drops.",
@@ -40,7 +40,7 @@ S = {
         h2="Pas nouveau : le même prix « en solde » depuis des semaines", s2="30 % et plus de rabais sur l’étiquette, au même prix depuis au moins 3 semaines. Pas un mauvais prix, juste pas un prix du Vendredi fou.",
         h3="En hausse récemment : attention à une « baisse » de retour", s3="Plus de 10 % de hausse dans les 3 dernières semaines. S’il « baisse » au Vendredi fou, il revient peut-être juste à son prix d’avant.",
         was="Était à {p} avant le {d}", same="Même prix depuis le {d}", start="Même prix depuis le début de notre suivi ({d})", up="{p} le {d}",
-        at="{p} CAD chez {s}", sizes=lambda n, shoe: f"{n} {'pointures' if shoe else 'tailles'}", none="Rien dans cette liste aujourd’hui.",
+        at="{p} CAD chez {s}", sizes=lambda n, shoe: f"{n} {'pointures' if shoe else 'tailles'}", none="Rien dans cette liste aujourd’hui.", more="Voir les {n}",
         jH="Pour les journalistes", j="Libre de citer avec un lien vers cette page. Besoin des chiffres par boutique, marque ou catégorie pour votre reportage? Écrivez à hello@thegearfox.com.",
         mH="Notre méthode", m="On note le meilleur prix de chaque produit dans {n} boutiques deux fois par jour depuis le 2 octobre, pointure par pointure. Une « vraie baisse » doit être plus basse que tous les prix des 30 jours précédents. On ne juge pas les boutiques : un prix qui ne bouge pas peut quand même être bon.",
         free="Gratuit, sans liens affiliés, aucune boutique ne paie pour y être.", watch="♡ Suivez n’importe quel article sur le site et on vous écrit quand il baisse vraiment.",
@@ -53,7 +53,11 @@ CSS = """<style>.bfl-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:
 .bfl img{width:64px;height:64px;object-fit:contain;background:#fff;border-radius:8px;flex:none}.bfl .t{display:inline-block;font:800 13px var(--body);border-radius:6px;padding:2px 7px;margin-bottom:3px}
 .bfl .dn{background:#2f6b3a;color:#fff}.bfl .fl{background:var(--mist);color:var(--ink);border:1px solid var(--line)}.bfl .upt{background:#8a2a12;color:#fff}
 .bfl .nm{display:block;font-weight:700;line-height:1.25}.bfl small{display:block;color:var(--muted);font-size:13px;line-height:1.3}
-.bfl-sub{color:var(--muted);margin:2px 0 0}@media (max-width:420px){.bfl-stats b{font-size:22px}}</style>"""
+.bfl-sub{color:var(--muted);margin:2px 0 0}@media (max-width:420px){.bfl-stats b{font-size:22px}}
+.bfl-stats span{display:block;line-height:1.3}.bfl:not(.all) .bx{display:none}
+.bflm{margin:8px 0 0;font:700 15px var(--body);color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:9px 16px;min-height:44px;cursor:pointer}</style>
+<script>document.addEventListener("click",function(e){var b=e.target.closest(".bflm");if(!b)return;var u=b.previousElementSibling;u.classList.add("all");b.remove();
+try{ana("filter","bflive|more|"+b.dataset.k)}catch(x){}});</script>"""
 
 
 def d0(s):
@@ -152,6 +156,10 @@ def build(site):
                 n_stores=sale.get("n_stores") or len(names), reg=reg)
 
 
+# Oct 31 (daily review: the page was 7.3 phone screens, 32 rows at once): 4 per list, the rest behind "Show all N"
+SHOW = 4
+
+
 def link(r, lang):
     d = r["d"]
     if d["g"] == "shoes":
@@ -175,7 +183,7 @@ def page(lang, data):
         if not rows:
             return f'<p class="bfl-sub">{s["none"]}</p>'
         out = []
-        for r in rows:
+        for i, r in enumerate(rows):
             d = r["d"]
             r["reg"] = data["reg"]
             tag = (f'↓ {money(r["gap"]).replace(".00", "")} ' + ("cette semaine" if lang == "fr" else "this week") if kind == "real"
@@ -185,12 +193,14 @@ def page(lang, data):
                     else s["up"].format(p=money(r["was"]), d=sd(r["day"])))
             href = link(r, lang)
             ext = "" if href.startswith("/") else ' target="_blank" rel="noopener nofollow"'
-            out.append(f'<li><a href="{SP.esc(href)}"{ext} data-store="{SP.esc(SP.host(r["url"]))}"><img src="{SP.esc(d["img"])}" alt="" loading="lazy" referrerpolicy="no-referrer">'
+            bx = ' class="bx"' if i >= SHOW else ""
+            out.append(f'<li{bx}><a href="{SP.esc(href)}"{ext} data-store="{SP.esc(SP.host(r["url"]))}"><img src="{SP.esc(d["img"])}" alt="" loading="lazy" referrerpolicy="no-referrer">'
                        f'<span><span class="t {"dn" if kind == "real" else "fl" if kind == "flat" else "upt"}">{SP.esc(tag)}</span>'
                        f'<span class="nm">{SP.esc(show_name(d, lang))}</span>'
                        f'<small>{SP.esc(s["at"].format(p=money(r["best"]), s=r["store"]))}</small><small>{SP.esc(line)}</small>'
                        f'<small>{SP.esc(s["sizes"](r["n"], d["g"] == "shoes"))}</small></span></a></li>')
-        return '<ul class="bfl">' + "".join(out) + "</ul>"
+        more = f'<button type="button" class="bflm" data-k="{kind}">{SP.esc(s["more"].format(n=len(rows)))}</button>' if len(rows) > SHOW else ""
+        return '<ul class="bfl">' + "".join(out) + "</ul>" + more
     pct = round(100 * data["n_flat"] / data["n_old"]) if data["n_old"] else 0
     num = (lambda n: f"{n:,}".replace(",", " ")) if lang == "fr" else (lambda n: f"{n:,}")
     lead = s["lead"].format(n=data["n_stores"])
