@@ -138,3 +138,7 @@ the midweek post's Novablast line said "$75 (was $150, −33%)". If you hand him
   Blocker only Bastien can clear: a Stripe account (business details + bank, Canada; verification can take a few days) and, when it's
   ready, the secret key + webhook secret into GitHub secrets / Supabase Vault himself (names: STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET).
   Test mode keys are enough until the preview. If price protection isn't solid by Nov 13 I'll say so then (fallback Jan 5).
+- Addendum received (waitlist line on BF pages + live deal check Nov 20 - Dec 1 EN/FR CA/US; one line + button in the Nov 20 + 27 weekly
+  emails (note: the emailday test's B group gets the Nov 20 one on Saturday Nov 21); founder referral link = friend's first month free +
+  founder a free month (Stripe coupon / customer balance credit); organizer "first month free" code (Stripe promotion code per race)).
+  Folded into the same preview, Fri Nov 13. The waitlist line on BF pages + emails ships first (needed by Nov 20), its own preview ~Nov 6.
