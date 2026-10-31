@@ -110,7 +110,7 @@ def cdn_brands():
 
 # Oct 17 (Bastien, r/runTO: "Put best deals around Toronto"): stores with shops in Toronto / the GTA
 TORONTO = ["runningfree.com", "runningroom.com", "blacktoerunning.com", "sportinglife.ca", "mec.ca", "sportchek.ca",
-           "decathlon.ca", "footlocker.ca", "arcteryx.com"]
+           "decathlon.ca", "footlocker.ca", "arcteryx.com", "jdsports.ca"]
 # Stores per place (--city): Toronto = shops in the city; Québec and BC = based in the province
 CITIES = {"toronto": TORONTO,
           # Oct 18 (Bastien: "local means Quebec province", the Montréal-Québec City corridor): Québec-based stores and brands, + MEC (stores in Montréal and Québec City)

@@ -3089,6 +3089,8 @@ SHOPIFY_STORES = [
     ("sail",           "https://www.sail.ca/en-ca",          "gear"),   # SAIL plein air (QC/ON chain): its running section only
     ("svp",            "https://www.svpsports.ca",           "gear"),   # SVP Sports (Ontario chain): its running section only. Its feed
                                                                         # answers again (Cloudflare check gone, Oct 12, 2026); robots allow it
+    ("jdsports",       "https://www.jdsports.ca",            "gear"),   # JD Sports Canada (Oct 31, Bastien: "Yes add it"): its running-shoes
+                                                                        # collection only (mostly lifestyle sneakers: filtered); jdsports.com (US) answers 403 = no
     # US running shops (Oct 6, 2026): the USA side of the site only (they may not ship to Canada); read in their US market
     ("pacers",         "https://pacersrunning.com",          "gear"),   # Pacers Running (Washington DC area)
     ("portlandrun",    "https://portlandrunningcompany.com", "gear"),   # Portland Running Company (Oregon)
@@ -3234,7 +3236,7 @@ US_SHOPS = {"fleetfeet", "theloop", "fit2run", "skirack", "pacers", "portlandrun
             "scrantonrun", "trailheadrun", "prrunwalk", "performancerun", "fitnesssports", "athleticannex", "annarborrun",
             "tworivers", "xtramile", "lukeslocker", "sfrunco", "backcountry", "rei",
             "territory", "pathprojects", "ombraz", "2xuus", "paragon"} | set(RUNFREE_US)   # REI ships within the US only
-US_COLLECTIONS = {"paragon": ["running-shoes", "running"], "sportsbasement": ["running"], "sail": ["outdoor-gear-running"], "svp": ["running-collection"], "humaca": ["nutrition"], "boutiquedulac": ["chaussures", "course-a-pied", "nutrition"], "skirack": ["run"]}   # (Canadian stores too: SAIL)   # general stores: their running section only (Sports Basement also sells
+US_COLLECTIONS = {"paragon": ["running-shoes", "running"], "sportsbasement": ["running"], "sail": ["outdoor-gear-running"], "svp": ["running-collection"], "jdsports": ["running-shoes"], "humaca": ["nutrition"], "boutiquedulac": ["chaussures", "course-a-pied", "nutrition"], "skirack": ["run"]}   # (Canadian stores too: SAIL)   # general stores: their running section only (Sports Basement also sells
                                                    # snowboards, swimwear, tennis: those topped the US deals, Oct 6, 2026)
 # Shoebacca was tried and dropped (Oct 6, 2026): mostly PUMA/adidas/Diadora budget and gym shoes, no Hoka/Brooks/ASICS/Nike
 NO_CART = {"svp"}      # robots.txt forbids /cart.js: the currency comes from meta.json only (SVP: CAD)
@@ -3351,6 +3353,54 @@ def tidy_svp(items):
         out.append(o)
     return out
 
+# JD Sports Canada (Oct 31, 2026; Bastien: "Yes add it"): its running-shoes collection is ~2/3 lifestyle sneakers (Air Max, 530,
+# 9060, GEL-1130, Kayano 14) and kids' shoes, every product tagged "lifestyleshoe", and the colour sits in the title
+# ("ASICS Women's NOVABLAST 5 White / Lilac Hint"). So: adults only (its own "Department:" tag also gives the gender), running
+# models only (JD_RUN, a list of current performance lines), colour words taken off the end of the name.
+JD_RUN = re.compile(r"pegasus|vomero (1[7-9]|plus|premium)|structure|invincible|zoomx|vaporfly|alphafly|streakfly|winflo|"
+                    r"clifton|bondi|arahi|mach|rincon|skyflow|speedgoat|challenger|gaviota|"
+                    r"novablast|gel-?kayano (2[89]|3\d)|nimbus|gel-?cumulus (2[5-9]|3\d)|gt-?2000|superblast|megablast|gel-?excite|"
+                    r"ghost|glycerin|adrenaline|hyperion|"
+                    r"\b1080|\b880|fuelcell|fresh foam x|"
+                    r"\bride 1|triumph|endorphin|guide 1|kinvara|"
+                    r"adizero|supernova|ultraboost 5|"
+                    r"\bon cloud|cloud(monster|surfer|flow|eclipse|runner|boom|stratus|go|vista|ultra)|"
+                    r"wave (rider|inspire|sky)|agility peak|velocity nitro|deviate nitro|magnify nitro", re.I)
+JD_SUFFIX = {"trail", "plus", "premium", "max", "elite", "pro", "sr", "x", "next", "waterproof", "wp", "hike", "speed", "flyease", "wide"}
+JD_NOT = re.compile(r"\bog\b|b3ls|gore-?tex|gtx|\bgs\b|\bps\b|\btd\b|junior|kids|toddler|\bslide|\bmule", re.I)
+def jd_prods(prods):
+    words = set()
+    for p in prods:                 # colour words = whatever JD writes after the " / " in its titles, plus its colour options
+        if " / " in p["title"]:
+            words |= {w.lower() for w in re.split(r"[\s/-]+", p["title"].split(" / ", 1)[1]) if w}
+        for o in p.get("options") or []:
+            if o.get("name", "").lower() in ("color", "colour"):
+                words |= {w.lower() for v in o.get("values") or [] for w in v.split()}
+    words |= {"grey", "gray", "two", "three", "one", "mist", "brume", "ox", "white", "black", "silver", "metallic"}   # Oct 31: "Evo SL Grey Two", "Cloudsoma Hike Brume"
+    out = []
+    for p in prods:
+        dep = next((t.split(":", 1)[1] for t in p.get("tags") or [] if t.startswith("Department:")), "")
+        sex = "Women's" if dep.startswith("Womens") else "Men's" if dep.startswith("Mens") else None
+        t = p["title"]
+        name = t.split(" / ", 1)[0].split()
+        name = [w for w in name if not re.fullmatch(r"(?i)(wo)?men[’']?s|[MWU]", w)]      # "Women's", "Cloudmonster 1 M", "HOKA U Bondi"
+        num = [k for k, w in enumerate(name) if k and re.search(r"\d", w)]
+        if num:         # "Rincon 4 Tan", "Vomero 18 Summit": the colour starts after the model number (known suffixes stay)
+            k = num[-1] + 1
+            while k < len(name) and name[k].lower() in JD_SUFFIX:
+                k += 1
+            name = name[:k]
+        while len(name) > 2 and name[-1].lower() in words and name[-1].lower() not in JD_SUFFIX and not re.search(r"\d", name[-1]):
+            name.pop()
+        name = [w for w in name if w != "1"]       # "On Cloudmonster 1 Waterproof": every other store writes "Cloudmonster"
+        n = " ".join(name)
+        if not sex or not JD_RUN.search(n) or JD_NOT.search(n) or LIFESTYLE_SHOE.search(n):
+            continue
+        q = dict(p)
+        q["title"] = n + f" - {sex}"
+        out.append(q)
+    return out
+
 PARAGON_FEET = {"RUN/TRAIN FOOTWEAR", "OUTDOOR FOOTWEAR"}
 def paragon_prods(prods):
     """Paragon Sports (NYC, Oct 19, 2026; Bastien: "have we been adding stores in NYC?"). Its store system writes
@@ -3423,6 +3473,8 @@ def make_shopify_scraper(st, base, kind):
             prods = shopify_products(base, max_pages=SHOPIFY_MAX_PAGES, cookies=cookies)
         if st == "paragon":
             prods = paragon_prods(prods)
+        if st == "jdsports":
+            prods = jd_prods(prods)
         if st in ("boutiquedulac", "fauxmouvement", "aupiedsportif", "borealrunning", "33off", "foveo"):
             prods = qc_prods(st, prods)
         fx = fx_to_cad(cur)

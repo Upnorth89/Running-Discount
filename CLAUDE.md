@@ -725,6 +725,9 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   SVP Sports (Ontario chain, 13 stores; Shopify): Cloudflare blocked it Oct 4 (saved pages, parked Oct 6); since Oct 12 read LIVE (the check is
   gone, robots allow): SHOPIFY_STORES "svp", only /collections/running-collection (US_COLLECTIONS), no cart.js (robots forbid it:
   `NO_CART`), `tidy_svp` ("adidas - Men's X Shoes (CODE)" -> "Men's X", sizes "M11" -> 11, "(Wide)", yoga/maternity/track suits out).
+- JD Sports Canada (Oct 31, Bastien: "Yes add it"): SHOPIFY_STORES "jdsports", only /collections/running-shoes (US_COLLECTIONS); `jd_prods()` keeps adults
+  ("Department:Mens/Womens Footwear" tag = gender) and current running models (JD_RUN; JD_NOT/LIFESTYLE_SHOE out), cuts the colour off the title
+  ("NOVABLAST 5 White / Lilac Hint" -> "NOVABLAST 5 - Women's"; JD_SUFFIX keeps Trail/Plus/Premium…). 48 cards Oct 31. jdsports.com (US) = 403.
 - Running Free (Oct 9; Ontario chain, own shop system, no feed): `runningfree_night` in scrape.py, runfree.yml job "runningfree"
   (~2 h, one page every 30 s = its robots.txt Crawl-delay). Listing pages (96 a page) of the men's/women's sections give name,
   "Mens Black" gender+colour, photo, regular + sale price; size filter pages ("10-Regular-66612", "Medium-45397") list only what's
