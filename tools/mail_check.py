@@ -91,6 +91,21 @@ try:
             seen.add(x["email"])
             ms.append(x)
     out.append(f"MICROSOFT ADDRESSES (hotmail/outlook/live/msn), last 30 days in the database: {len(ms)}")
+    # every new row of the last 30 days by week and by mail provider (is one provider missing since a date?)
+    byw = {}
+    for x in {x["email"]: x for x in rows}.values():
+        if not x.get("created_at") or x["created_at"] < since30:
+            continue
+        d = (x["email"].partition("@")[2] or "?").lower()
+        prov = "microsoft" if MS.search(x["email"]) else "gmail" if d in ("gmail.com", "googlemail.com") else \
+               "yahoo" if d.startswith(("yahoo.", "ymail.", "rocketmail.")) else "apple" if d in ("icloud.com", "me.com", "mac.com") else \
+               "proton" if "proton" in d else "videotron/bell/rogers/shaw/telus" if re.search(r"videotron|bell|sympatico|rogers|shaw|telus|cogeco", d) else "other"
+        wk = datetime.fromisoformat(x["created_at"].replace("Z", "+00:00")).strftime("%m-%d")
+        wk = (datetime.fromisoformat(x["created_at"].replace("Z", "+00:00")) - timedelta(days=datetime.fromisoformat(x["created_at"].replace("Z", "+00:00")).weekday())).strftime("week of %b %d")
+        byw.setdefault(wk, {}).setdefault(prov, 0)
+        byw[wk][prov] += 1
+    for wk in sorted(byw):
+        out.append(f"  new rows {wk}: " + ", ".join(f"{k} {v}" for k, v in sorted(byw[wk].items(), key=lambda kv: -kv[1])))
     for x in ms:
         out.append("  " + mask(x["email"]) + "  " + "  ".join(f"{k}={str(x.get(k))[:16]}" for k in
                    ("created_at", "confirmed_at", "welcomed_at", "last_mail_at", "bounced_at", "complained_at", "unsubscribed_at", "consent_via") if k in x))
