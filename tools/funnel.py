@@ -356,6 +356,16 @@ out.append(f"SIGN-UP CARD: sessions that saw deals {len(saw_deals)}; 'No thanks'
            f"sign-ups total {sum(wh.values())}, by where: " + (", ".join(f"{k} {v}" for k, v in wh.most_common(8)) or "none"))
 shoe_signup = sum(1 for s in alls if "signup" in s["kinds"] and (s["entry"] or "").startswith(("/shoes", "/us/shoes", "/chaussures")))
 out.append(f"  sessions that landed on a shoe page and signed up: {shoe_signup}")
+# Oct 31 (a Hotmail user "signed up 3 times with no emails", nothing reached the database): failed or refused sign-ups,
+# "fail|<where>|<domain>|<why>" (only the address's domain is sent)
+fails = [e["detail"].split("|") for e in rows if e["kind"] == "signup-step" and (e["detail"] or "").startswith("fail|")]
+if fails:
+    out.append(f"SIGN-UP FAILURES: {len(fails)} in {len({e['sid'] for e in rows if e['kind'] == 'signup-step' and (e['detail'] or '').startswith('fail|')})} sessions; "
+               "by why: " + ", ".join(f"{k} {v}" for k, v in Counter((f + ['', '', ''])[3] or '?' for f in fails).most_common(6))
+               + " | by domain: " + ", ".join(f"{k} {v}" for k, v in Counter((f + ['', '', ''])[2] for f in fails).most_common(8))
+               + " | where: " + ", ".join(f"{k} {v}" for k, v in Counter((f + ['', ''])[1] for f in fails).most_common(6)))
+else:
+    out.append("SIGN-UP FAILURES: none recorded (recorded since Oct 31)")
 
 # deal clicks per store (Oct 11: the affiliate pitch quotes each store's clicks): this window from analytics, and this month
 # so far from our own click table (the monthly report's numbers)

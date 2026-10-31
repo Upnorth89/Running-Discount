@@ -2016,12 +2016,12 @@ if(sub&&(sub.active||sub.key)){
       st.rm=1;put("gf-race-"+race,st);render();done();if(st.at&&row.at<st.at)save()}   // another device's ticks are newer: take them; ours are newer: send them
     else if(row===null&&st.rm)save()}).catch(function(){});
   f.addEventListener("submit",function(e){e.preventDefault();var btn=f.querySelector("button");btn.disabled=true;
-    rpc("race_save",{p_token:sub.key,p_race:mine()}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(ok){if(!ok)throw 0;
-      st.rm=1;put("gf-race-"+race,st);done();rt("remind","member")}).catch(function(){btn.disabled=false;msg.textContent=box.dataset.fail})});
+    rpc("race_save",{p_token:sub.key,p_race:mine()}).then(function(r){if(!r.ok)throw "HTTP "+r.status;return r.json()}).then(function(ok){if(!ok)throw 0;
+      st.rm=1;put("gf-race-"+race,st);done();rt("remind","member")}).catch(function(x){try{ana("signup-step","fail|"+location.pathname.split("/")[1]+"|"+(String(typeof em!=="undefined"?em:"").split("@")[1]||"?")+"|"+String(x&&x.message||x).slice(0,60))}catch(y){}btn.disabled=false;msg.textContent=box.dataset.fail})});
   return}
 f.addEventListener("submit",function(e){e.preventDefault();
   var em=f.querySelector("input").value.trim().replace(/^mailto:/i,"").replace(/^.*<([^>]+)>.*$/,"$1").replace(/\s+/g,"").replace(/\.+$/,"");
-  if(!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$/.test(em)||/\.\./.test(em)){msg.textContent=box.dataset.bad;return}
+  if(!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$/.test(em)||/\.\./.test(em)){try{ana("signup-step","fail|"+location.pathname.split("/")[1]+"|"+(em.split("@")[1]||"?").slice(0,40)+"|bad-email")}catch(y){}msg.textContent=box.dataset.bad;return}
   if(!fit||!size){msg.textContent=box.dataset.pick;document.getElementById("rsize").scrollIntoView({block:"center"});return}
   var tz=null;try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||null}catch(x){}
   var G=["shoes","tops","bottoms","bras","socks","gloves","headwear","packs","gear","watches","nutrition"],p;
@@ -2032,11 +2032,11 @@ f.addEventListener("submit",function(e){e.preventDefault();
   if(ssel.value&&!(p.sizes.shoes&&(p.sizes.shoes.sizes||[]).length))p.sizes.shoes={sizes:[ssel.value],width:[]};
   p.email=em;if(!p.ref)p.ref=get("gf-ref")||box.dataset.ref;if(RM)p.races=[mine()];var btn=f.querySelector("button");btn.disabled=true;
   fetch("https://krwymmkauwqqxjxbvkyq.supabase.co/rest/v1/rpc/subscribe",{method:"POST",headers:{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"},
-    body:JSON.stringify({p_email:em,p_profile:Object.assign({},p,{watch_new:get("gf-watch")||{},consent:(box.dataset.ref||"race")+": "+((box.querySelector(".fine")||{}).textContent||"").trim().slice(0,900)})})}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(res){
+    body:JSON.stringify({p_email:em,p_profile:Object.assign({},p,{watch_new:get("gf-watch")||{},consent:(box.dataset.ref||"race")+": "+((box.querySelector(".fine")||{}).textContent||"").trim().slice(0,900)})})}).then(function(r){if(!r.ok)throw "HTTP "+r.status;return r.json()}).then(function(res){
     var IN=gfIn(res,em,get("gf-watch")||{});if(!IN)put("gf-sub",{pending:em});if(!prof)put("rd-profile",Object.assign({},p,{races:undefined}));f.remove();msg.textContent=(IN?box.dataset.in:box.dataset.ok).replace("{email}",em);
     if(RM){rt("remind",IN?"new":"pending");if(IN){sub=get("gf-sub");st.rm=1;put("gf-race-"+race,st);done();raceSync=function(){save();done()}}else msg.textContent=box.dataset.rmpend.replace("{email}",em)}
     try{ana("signup",box.dataset.ref)}catch(x){}try{window.umami&&umami.track("signup",{method:"email",where:box.dataset.ref,lang:fr?"fr":"en"})}catch(x){}})
-  .catch(function(){btn.disabled=false;msg.textContent=box.dataset.fail})})})();
+  .catch(function(x){try{ana("signup-step","fail|"+location.pathname.split("/")[1]+"|"+(String(typeof em!=="undefined"?em:"").split("@")[1]||"?")+"|"+String(x&&x.message||x).slice(0,60))}catch(y){}btn.disabled=false;msg.textContent=box.dataset.fail})})})();
 })();
 </script>
 """

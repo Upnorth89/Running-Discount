@@ -2191,6 +2191,39 @@ def site_flow(base, per, accented):
             return "; ".join(out)
         check("Analytics: a first visit lost in the first send is sent again")(visit_resend, pg)
 
+        def signup_fail():      # Oct 31 (a Hotmail user "signed up 3 times with no emails"): a failed sign-up is recorded (domain only)
+            got = []
+
+            def grab2(route):
+                try:
+                    got.extend(e.get("d") or "" for e in json.loads(route.request.post_data or "{}").get("p_events", []))
+                except Exception:
+                    pass
+                route.fulfill(status=200, content_type="application/json", body="null")
+            c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+            stub(c)
+            c.route("**/rest/v1/rpc/ana_track", grab2)
+            c.route("**/rest/v1/rpc/subscribe", lambda r: r.fulfill(status=500, content_type="application/json", body='{"message":"test failure"}'))
+            q = c.new_page()
+            try:
+                q.goto(base + "?lang=en", wait_until="domcontentloaded")
+                q.wait_for_selector("#wDeals .wdeal", state="visible", timeout=30000)
+                q.click("#wBrowseB")
+                q.wait_for_selector("#suEmail", timeout=20000)
+                q.fill("#suEmail", "test.runner@hotmail.com")
+                q.locator("#suForm button").first.click()
+                q.wait_for_timeout(800)
+                assert q.locator(".err").count(), "a failed sign-up shows no message"
+                q.evaluate("Object.defineProperty(document,'visibilityState',{get:()=>'hidden',configurable:true});document.dispatchEvent(new Event('visibilitychange'))")
+                q.wait_for_timeout(1500)
+                f = [d for d in got if d.startswith("fail|")]
+                assert f, "the failed sign-up wasn't recorded"
+                assert "hotmail.com" in f[0] and "test.runner" not in f[0], f"recorded as {f[0]!r} (domain only, never the address)"
+                return f[0]
+            finally:
+                c.close()
+        check("Sign-up that fails is recorded (domain only)")(signup_fail, pg)
+
         def kit_test():        # Oct 27 (Bastien: "Yes race kit"): test 'kit' B = every gear line folded to one row; A = as before
             out = []
             for path in ("races/ultra-trail-harricana/", "races/sinister-7/"):   # trail gear lists share the same layout code (RP.KITB)
