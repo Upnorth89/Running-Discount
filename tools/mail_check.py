@@ -135,6 +135,48 @@ try:
 except Exception as e:
     out.append(f"Microsoft check: failed ({str(e)[:160]})")
 
+# 4. Oct 31: one person, found by the sha256 of their address (or of the part before @), so the address never appears here
+FIND = (os.environ.get("FIND") or "").strip().lower()
+if FIND:
+    import hashlib
+    hx = lambda s: hashlib.sha256(s.encode()).hexdigest()
+    try:
+        allrows, step = [], 1000
+        while True:
+            r = requests.get(f"{sb}/rest/v1/subscribers", headers={**SH, "Range": f"{len(allrows)}-{len(allrows) + step - 1}"}, timeout=30,
+                             params={"select": "*", "order": "created_at"})
+            r.raise_for_status()
+            b = r.json()
+            allrows += b
+            if len(b) < step:
+                break
+        hit = [x for x in allrows if FIND in (hx((x.get("email") or "").lower()), hx((x.get("email") or "").lower().partition("@")[0]))]
+        out.append(f"LOOK-UP: {len(hit)} of {len(allrows)} database rows match")
+        for x in hit:
+            out.append("  " + mask(x["email"]) + "  " + "  ".join(f"{k}={str(x.get(k))[:19]}" for k in
+                       ("created_at", "confirmed_at", "welcomed_at", "last_mail_at", "confirm_reminded_at", "weekly_sent_at", "bounced_at",
+                        "complained_at", "unsubscribed_at", "consent_via") if k in x)
+                       + f"  profile lang={(x.get('profile') or {}).get('lang')} pending_profile={'yes' if x.get('pending_profile') else 'no'}")
+        n, after, got2 = 0, None, set()
+        for page in range(20):
+            r = requests.get("https://api.resend.com/emails", headers=H, params={"limit": 100, **({"after": after} if after else {})}, timeout=30)
+            if not r.ok:
+                break
+            js = r.json()
+            data = [m for m in (js.get("data") or []) if m.get("id") not in got2]
+            got2 |= {m.get("id") for m in data}
+            for m in data:
+                to = ((m.get("to") or [""])[0] or "").lower()
+                if FIND in (hx(to), hx(to.partition("@")[0])):
+                    n += 1
+                    out.append(f"  Resend {m.get('created_at', '')[:16]}  {m.get('last_event', '?'):>10}  to {mask(to)}  '{(m.get('subject') or '')[:50]}'")
+            if not js.get("has_more") or not data:
+                break
+            after = data[-1].get("id")
+        out.append(f"LOOK-UP in Resend's log ({len(got2)} emails read): {n} to this person")
+    except Exception as e:
+        out.append(f"LOOK-UP: failed ({str(e)[:160]})")
+
 text = "\n".join(out)
 print(text)
 if os.environ.get("GITHUB_ACTIONS"):

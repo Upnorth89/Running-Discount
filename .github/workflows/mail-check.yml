@@ -4,6 +4,11 @@ name: Mail check
 # sign-up attempts (tools/mail_check.py). Run by hand; Claude reads the result from the run's annotations.
 on:
   workflow_dispatch:
+    inputs:
+      find:
+        description: "Look one person up: sha256 of their address, or of the part before @ (never the address itself: the repo is public)"
+        required: false
+        default: ""
 
 jobs:
   check:
@@ -20,4 +25,5 @@ jobs:
           OWN_EMAIL: ${{ secrets.HEALTH_EMAIL }}
           SUPABASE_URL: "https://krwymmkauwqqxjxbvkyq.supabase.co"
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          FIND: ${{ inputs.find }}
         run: python tools/mail_check.py
