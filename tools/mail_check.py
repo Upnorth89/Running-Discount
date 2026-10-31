@@ -177,6 +177,24 @@ if FIND:
     except Exception as e:
         out.append(f"LOOK-UP: failed ({str(e)[:160]})")
 
+# 5. Oct 31 (Bastien: "Can't see the stats page anymore"): call the stats page's own functions with the real key (never printed)
+if os.environ.get("STATS"):
+    try:
+        r = requests.get(f"{sb}/rest/v1/ana_settings", headers=SH, params={"select": "*"}, timeout=30)
+        rows_s = r.json() if r.ok else []
+        keyv = next((x.get("value") for x in rows_s if x.get("key") == "dashboard_key"), None) if isinstance(rows_s, list) else None
+        out.append(f"STATS: ana_settings HTTP {r.status_code}, dashboard_key {'found' if keyv else 'MISSING'}")
+        PH = {"apikey": "sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2", "Content-Type": "application/json"}
+        for fn, body in (("ana_dashboard", {"p_key": keyv, "p_days": 30}), ("ana_dashboard", {"p_key": keyv, "p_days": 7}),
+                         ("ana_dashboard", {"p_key": keyv, "p_days": 1}), ("ana_members", {"p_key": keyv})):
+            import time
+            t0 = time.time()
+            r = requests.post(f"{sb}/rest/v1/rpc/{fn}", headers=PH, json=body, timeout=120)
+            msg = r.text[:300] if not r.ok else f"{len(r.text)} bytes, keys " + (", ".join(list(r.json().keys())[:12]) if isinstance(r.json(), dict) else type(r.json()).__name__)
+            out.append(f"  {fn}({body.get('p_days', '')}): HTTP {r.status_code} in {time.time() - t0:.1f}s: {msg}")
+    except Exception as e:
+        out.append(f"STATS: failed ({str(e)[:200]})")
+
 text = "\n".join(out)
 print(text)
 if os.environ.get("GITHUB_ACTIONS"):
