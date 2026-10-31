@@ -640,7 +640,7 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   site first. **Give posts right in the chat as hyperlinked items only** ("easier for me to copy paste. Only put the items"): no title,
   no footer, no files. `--toronto` (Oct 17, r/runTO, mod approved): only deals whose best price is at a store with Toronto shops
   (TORONTO: Running Free, Running Room, BlackToe, Sporting Life, MEC, Sport Chek, Decathlon, Foot Locker, Arc'teryx), "at <store>"
-  on each line; an item whose ?q= link would find other models too is skipped. Put the Markdown inside ONE code block (copying rendered chat links loses them; Oct 13: "It doesn't
+  on each line; an item whose ?q= link would find other models too is skipped. Oct 31: city posts take each line's price, sizes and store from ONE shop (`store_band`; a line once named BlackToe with Sport Chek's price); post_check checks the named store's rows. Put the Markdown inside ONE code block (copying rendered chat links loses them; Oct 13: "It doesn't
   work"); he pastes it in Reddit's Markdown mode.
   **Reddit = shoes only with shoe page links (Oct 24, Bastien: "Reddit is great for clicks but no sign ups"; 705 Reddit first visits in
   14 days, <1% signed up, 8 of 361 homepage landings picked sizes; shoe pages bring 24 of 61 sign-ups via "Email me when it drops"):
