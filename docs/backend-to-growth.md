@@ -172,3 +172,7 @@ the midweek post's Novablast line said "$75 (was $150, −33%)". If you hand him
   on Bastien's yes). Race + trail lists; unticked M/R/L (+ trail "Essential" Y) of their distance, no P/A/kits/no-pick lines; cap 10 total
   watches (no cap existed before; "N more with Fox Pro" wording once Pro exists); members watch_add, others gf-watch + "Add my email" toast;
   "Watching N · Undo"; race event "watchall|took|missing" (+ "watchall-undo"). Site test "Race gear page: 'Watch everything I'm missing'".
+- Watchlist limit received (Bastien: "10 now and 5 at launch"): the race/trail "Watch everything" button already stops at 10 (live Oct 31).
+  In the Pro build: one shared limit everywhere (homepage hearts, shoe/race/trail hearts, watch-everything, watch_add on the server so a
+  second device can't pass it), 10 until Dec 2, 5 from launch; members already over 5 keep their items; at the limit: "Watch unlimited with
+  Fox Pro" (EN/FR). Today only the button has the limit (hearts never had one; 0 members are over 10, so no one is affected).
