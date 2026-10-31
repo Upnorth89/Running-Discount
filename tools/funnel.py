@@ -248,6 +248,10 @@ try:
         out.append("  their pages: " + ", ".join(f"{k} {v}" for k, v in Counter(pg_ for s in nov for pg_ in (s["pages"] or {"(none)"})).most_common(8))
                    + " | devices: " + ", ".join(f"{k} {v}" for k, v in Counter(s["dev"] for s in nov).most_common(3))
                    + " | first event day: " + ", ".join(f"{k} {v}" for k, v in Counter(s.get("d") for s in nov).most_common(3)))
+        # Oct 31: every day, oldest first, with that day's share of first visits: the Oct 27 fix should show as a drop to ~0
+        allday = Counter(s.get("d") for s in new)
+        out.append("  by day (missing / first visits): " + ", ".join(
+            f"{str(k)[5:]} {v}/{allday[k]}" for k, v in sorted(Counter(s.get("d") for s in nov).items(), key=lambda x: str(x[0]))))
         # was their visit event simply before this window (a phone tab left open and reopened days later keeps its session)?
         ids = [sid for sid, s in S.items() if s in nov]
         before = {}
