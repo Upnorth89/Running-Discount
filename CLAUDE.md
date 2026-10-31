@@ -300,6 +300,8 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   Oct 31 (Bastien + growth chat): PRICE LOCKED, test not run: Fox Pro = YEARLY ONLY, $45/year ("$3.75/month, billed yearly"); founding
   round opens Dec 2 with NO end date (2 weeks' notice before it ends): $36/year for life ("$3/month, billed yearly"); 30-day full refund.
   Referral: each friend who joins Pro (first payment cleared) = 1 free month added to the referrer's year, up to 12; friend's first month free.
+  Free watchlist limit (Oct 31, Bastien: "10 now and 5 at launch"): 10 until the Dec 2 Pro launch, then 5 free / unlimited Pro. Data (funnel
+  WATCHLIST SIZE, Oct 31): of 150 real members 112 watch nothing, 21 one item, 10 more than 3, 7 more than 5, 0 more than 10.
   Plan: 6-month plan doc "Fox Pro launch plan" + "Founding round: how we get traction"; backend builds Stripe + "I bought it" price protection (preview Nov 16). Value = same-morning alerts + unlimited watchlist + price history +
   price-protection watching after you buy ("You buy, we watch, you claim"). The card no longer switches itself on (proOn = ?pro=1 only).
   Test 'emailday' (Oct 27, Bastien OK'd idea 5; weekend visits ~3x weekdays): weekly_email.py `day_arm()` (coin from the token, same every
