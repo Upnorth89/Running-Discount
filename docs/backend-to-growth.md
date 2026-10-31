@@ -154,3 +154,9 @@ the midweek post's Novablast line said "$75 (was $150, −33%)". If you hand him
   the first charge; matches my Terms note), removed if refunded anyway (charge.refunded webhook); one trial per email AND per card
   fingerprint (checked in the webhook on the setup/payment method; a repeat card's subscription gets trial_end=now); same card behind
   referrer and friend = no credit; member page shows "pending" until day 60 (daily job settles credits). Same preview.
+- Received: Founding Fox badge (fox face + gold ring on My account + beside "My account" in ☰, one line in their emails) and the
+  members-only My account page (status, renewal, badge, referral link + friends earned/pending (first name or "a friend"), I-bought-it
+  items + claims, Stripe portal link, sizes, watchlist, Friday email / alerts on-off; EN/FR, phone first, site test). Same preview.
+  Scope check: this is now a big batch for Nov 13 (payments, price protection, referrals with day-60 settling, account page, badge,
+  legal pages). Order if time runs short: payments + waitlist + account page + legal first (needed Dec 2); price protection and
+  referral settling can follow in December without changing the Dec 2 date (referral credits only settle at day 60 = late Jan anyway).
