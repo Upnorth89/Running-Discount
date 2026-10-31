@@ -210,6 +210,12 @@ def check():
             problems.extend(mprobs)
         except Exception as e:
             print(f"mail health skipped: {e}")
+        rr = load(Path("/tmp/race-remind.json"))   # Oct 31: race list reminders (scraper/race_remind.py, the step before)
+        if rr.get("races"):
+            mail_line = (mail_line + " · " if mail_line else "") + (f"Race reminders ({', '.join(rr['races'])}): {rr['due']} due, {rr['sent']} sent"
+                         + (f", {rr['ticked']} had everything ticked" if rr.get("ticked") else "") + (", dry run" if rr.get("dry") else ""))
+            if rr.get("failed"):
+                problems.append(("race-remind", f"Race reminders: {rr['failed']} of {rr['due']} failed to send (they retry tomorrow)"))
     sale = lambda its: sum(1 for i in its if any(len(e) > 3 and e[1] < e[3] * 0.99 for e in i.get("sz", [])))
     fresh_stores = sum(1 for st in offers if (t := when(stamps.get(st, ""))) and NOW - t <= timedelta(hours=30))
     moves = sorted(((st, len(offers.get(st, [])), len(offers0.get(st, []))) for st in set(offers) | set(offers0)),

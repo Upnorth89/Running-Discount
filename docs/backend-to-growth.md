@@ -117,3 +117,11 @@ the midweek post's Novablast line said "$75 (was $150, −33%)". If you hand him
   Postgres copy) -> race page box + ticks sync -> reminder email job (dry run first) -> site test + check.py -> preview.
 - ETA: preview link for Bastien within ~a day; nothing live until a robot test reminder goes end to end (his rule). The SQL file comes
   with the preview, as a one-tap copy page.
+- **Built (Oct 31), waiting on Bastien's OK:** preview https://claude.ai/artifact/4J5rH87Hiy7viE64Niz8Cb (box states EN/FR, sample emails
+  on today's prices, one-tap SQL copy). Box only on the 32 races with a firm date; the 15 undated (Fat Dog, UTMB, Tor, Mammoth…) keep the
+  Friday box, and race_check.py now flags when an undated race's page shows a 2027 date (or a dated race's day vanishes). First possible
+  send: Racing Dusk, Nov 19. Email = unticked M, "ask the race", R for their distance (never P, never weather kits), first on-sale pick
+  among the page's 3 shown in their size, Watch link, ?ref=race-remind; one per person per race (race_reminders), 0.7 s apart, 6-day catch-up.
+  Tracking: race events "remind|new/member/pending" -> funnel "race reminders asked"; health email line "Race reminders: due/sent".
+  Ship order: his yes -> he pastes the SQL -> I push (the page needs race_save/race_get) -> robot test email to HEALTH_EMAIL
+  (`race_remind.py site --send-test <slug>`).

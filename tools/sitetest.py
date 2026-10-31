@@ -1886,6 +1886,52 @@ def site_flow(base, per, accented):
                 c.close()
         check("Race gear page: what visitors do is recorded")(race_tracking, pg)
 
+        def race_remind():   # Oct 31 (Bastien: "lets build it now"): "Remind me 30 days before the race"
+            sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scraper"))
+            import race_pages as RPG
+            slug = next((k for k, r in RPG.RACES.items() if RPG.remind_day(r)), None)
+            if not slug:
+                return "no race with a date ahead: nothing to check"
+            KEY, calls = "22222222-3333-4444-8555-666666666666", []
+
+            def rpc(route):
+                name = route.request.url.split("/rpc/")[-1].split("?")[0]
+                calls.append((name, route.request.post_data or ""))
+                body = {"subscribe": json.dumps("k:" + KEY), "race_save": "true"}.get(name, "null")   # race_get: nothing saved yet
+                route.fulfill(status=200, content_type="application/json", body=body)
+            out = []
+            for who in ("new", "member"):
+                c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+                stub(c)
+                c.route("**/rest/v1/rpc/**", rpc)
+                if who == "member":
+                    c.add_init_script(f"localStorage.setItem('gf-sub', JSON.stringify({{key:'{KEY}',active:true}}))")
+                q = c.new_page()
+                try:
+                    q.goto(base + f"races/{slug}/?exp=kit:A", wait_until="load")
+                    q.wait_for_timeout(800)
+                    box = q.locator("#raceBox")
+                    assert box.count(), f"{who}: no reminder box on /races/{slug}/"
+                    txt = box.inner_text()
+                    assert "30 days before" in txt, f"{who}: the box doesn't offer the reminder: {txt[:80]!r}"
+                    del calls[:]
+                    if who == "new":
+                        q.click('#rsize button[data-g="men"]')
+                        q.click('#rsize button[data-s="M"]')
+                        q.locator(".gi:not([hidden]) input.have").first.check()
+                        q.fill("#raceBox input[type=email]", "robot@example.com")
+                    q.locator("#raceBox button").first.click()
+                    q.wait_for_timeout(1000)
+                    done = box.inner_text()
+                    assert "You're set" in done, f"{who}: no 'You're set' after Remind me: {done[:80]!r}"
+                    sent = [b for n, b in calls if n in ("subscribe", "race_save")]
+                    assert sent and f'"slug":"{slug}"' in sent[0], f"{who}: the race list didn't ride with the request ({[n for n, _ in calls]})"
+                    out.append(f"{who}: {'subscribe' if who == 'new' else 'race_save'} carried the list, 'You're set' shown")
+                finally:
+                    c.close()
+            return f"/races/{slug}/: " + "; ".join(out)
+        check("Race gear page: 'Remind me 30 days before'")(race_remind, pg)
+
         def letters():       # Oct 28 (Bastien: "I shouldn't have to see the y bleeding over. These details matter and should be caught in our scan"):
             # every kind of page at phone, tablet, laptop and wide-screen widths, every live test off (A) and on (B): no line of text
             # touching a box it doesn't belong to, no words cut off, nothing wider than the screen (tools/visual_check.py)
