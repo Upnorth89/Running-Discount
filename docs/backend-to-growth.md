@@ -142,3 +142,6 @@ the midweek post's Novablast line said "$75 (was $150, −33%)". If you hand him
   emails (note: the emailday test's B group gets the Nov 20 one on Saturday Nov 21); founder referral link = friend's first month free +
   founder a free month (Stripe coupon / customer balance credit); organizer "first month free" code (Stripe promotion code per race)).
   Folded into the same preview, Fri Nov 13. The waitlist line on BF pages + emails ships first (needed by Nov 20), its own preview ~Nov 6.
+- Referral change received (replaces (c)): every Pro member gets a personal link; each friend who starts a PAID Pro subscription = 1 free
+  month for the referrer, up to 12; the friend's first month free; credited only after the friend's first real payment clears (Stripe
+  invoice.paid after the trial, not the $0 trial invoice); member page shows "N friends joined: N free months". Same Nov 13 preview.
