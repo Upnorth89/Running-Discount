@@ -162,3 +162,9 @@ the midweek post's Novablast line said "$75 (was $150, −33%)". If you hand him
   referral settling can follow in December without changing the Dec 2 date (referral credits only settle at day 60 = late Jan anyway).
 - Received: personal referral code per Pro member (FOX-<FIRSTNAME>, + 2 digits if taken, no email in it), typed at checkout (Stripe
   promotion code tied to the referrer), same day-60 rules as the link; on My account with a copy button. Same preview.
+- My account look received (phone mockup agreed with Bastien): orange ONLY for "Claim $X"; referral bar + "+1 month" = green #1D6B45; code
+  box grey dashed #9AA39E; Share = charcoal #17201C white text, Copy = white outline; switches charcoal on / light grey off. Order: Founding
+  Fox card (dark green gradient, fox face + gold ring, "Member since Dec 2026 · $36/year, locked for life", gold FOUNDING MEMBER tag) ·
+  Your plan · Invite friends (rule line, code, Share/Copy, "3 of 12 free months earned · 1 pending", friends green/amber, fine print) ·
+  Things you bought, we're watching (bought line, watching-until line, green "Now $Y: dropped $Z" + orange Claim) · Settings (sizes,
+  watchlist, Friday email, same-morning alerts, race reminders) · "Signed in as b•••@… · Sign out". EN/FR. Building to this.
