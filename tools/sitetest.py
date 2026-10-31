@@ -2570,8 +2570,11 @@ def site_flow(base, per, accented):
                 n_us = pu.inner_text("#lede")
                 pu.click("#menuBtn")
                 pu.click('#menu [data-ctry="ca"]')
-                pu.wait_for_function("document.querySelector('#lede') && document.querySelector('#lede').textContent !== " + json.dumps(n_us), timeout=20000)
-                pu.wait_for_selector("section.grp .deal", timeout=20000)
+                # Oct 31: both sides had exactly 8,222 sale deals, so waiting for the count line to change timed out: wait for the
+                # Canadian cards (CAD) instead; the count line only has to have been redrawn
+                pu.wait_for_function("(() => { const s = document.querySelector('section.grp:not(.new)'); return s && s.querySelector('.deal')"
+                                     " && /CAD/.test(s.innerText) && !/USD/.test(s.innerText) })()", timeout=20000)
+                assert pu.inner_text("#lede").strip(), f"the count line is empty after switching to Canada (was {n_us!r})"
                 assert "CAD" in pu.inner_text("section.grp:not(.new)"), "switching to Canada didn't switch to Canadian dollars"
                 return f"{len(cs)} deals in USD, then Canada"
             check("USA side (US time zone) and back to Canada")(usa, pu)
