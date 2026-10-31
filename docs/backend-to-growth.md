@@ -160,3 +160,5 @@ the midweek post's Novablast line said "$75 (was $150, −33%)". If you hand him
   Scope check: this is now a big batch for Nov 13 (payments, price protection, referrals with day-60 settling, account page, badge,
   legal pages). Order if time runs short: payments + waitlist + account page + legal first (needed Dec 2); price protection and
   referral settling can follow in December without changing the Dec 2 date (referral credits only settle at day 60 = late Jan anyway).
+- Received: personal referral code per Pro member (FOX-<FIRSTNAME>, + 2 digits if taken, no email in it), typed at checkout (Stripe
+  promotion code tied to the referrer), same day-60 rules as the link; on My account with a copy button. Same preview.
