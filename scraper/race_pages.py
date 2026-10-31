@@ -1309,6 +1309,8 @@ S = {
         "qJacket": "Is a windbreaker enough for the {name}?", "aJacket": "No. The race asks for a jacket with an attached hood and a waterproof, breathable membrane (on the {dists}). Windbreakers aren't accepted.",
         "qCup": "Do the {name} aid stations have cups?", "aCup": "No. The aid stations have no cups: bring your own reusable cup.",
         "kbBest": "From {p} · {n} picks", "kbBestN": "Not in your size today", "aisle": "Race gear lists",
+        "waOne": "Watch the 1 thing I'm missing", "waN": "Watch the {n} things I'm missing", "waDone": "Watching {n} · Undo",
+        "waCap": "Your free watchlist holds {cap} items: we watched the first {n}.", "waSize": "Pick your size above to watch what you're missing.", "waMember": "Watching. We'll email you when they drop in your size.", "waNew": "Watching, on this phone. Add your email and we'll tell you when they drop.",
         "rmH": "Don't miss a thing on race day",
         "rmTxt": "Tick what you already have. On {rday}, 30 days before {short} ({rdate}), we'll email you what's still missing, each with the best price in your size that day. You'll also get the Friday deals email. Free, unsubscribe in one tap.",
         "rmBtn": "Remind me", "rmMember": "One tap: we'll use the email you signed up with.",
@@ -1339,6 +1341,8 @@ S = {
         "qJacket": "Un coupe-vent suffit-il pour {le}{name}?", "aJacket": "Non. La course demande un manteau avec capuchon attaché et une membrane imperméable et respirante (sur le {dists}). Les coupe-vent ne sont pas acceptés.",
         "qCup": "Y a-t-il des verres aux ravitaillements {de}{name}?", "aCup": "Non. Les ravitaillements n'ont pas de verres : apportez votre gobelet réutilisable.",
         "kbBest": "Dès {p} · {n} choix", "kbBestN": "Rien dans votre taille aujourd'hui", "aisle": "Listes de matériel de course",
+        "waOne": "Suivre le seul article qui me manque", "waN": "Suivre les {n} articles qui me manquent", "waDone": "Suivi : {n} · Annuler",
+        "waCap": "Votre liste gratuite compte {cap} articles : on a suivi les {n} premiers.", "waSize": "Choisissez votre taille plus haut pour suivre ce qui vous manque.", "waMember": "Suivis. On vous écrit quand ils baissent dans votre taille.", "waNew": "Suivis, sur ce téléphone. Ajoutez votre courriel et on vous avertira quand ils baissent.",
         "rmH": "Rien d'oublié le jour de la course",
         "rmTxt": "Cochez ce que vous avez déjà. Le {rday}, 30 jours avant {le}{short} ({rdate}), on vous écrit ce qui vous manque encore, chaque article avec le meilleur prix du jour dans votre taille. Vous recevrez aussi le courriel d'aubaines du vendredi. Gratuit, désabonnement en un clic.",
         "rmBtn": "Me le rappeler", "rmMember": "Un clic : on utilise le courriel de votre inscription.",
@@ -1438,7 +1442,9 @@ def tl(L):
     return US if L == "us" else T[L]
 
 
-CSS = """
+CSS = """.wall{margin:14px 0 4px}.wall button{font-family:inherit;font-weight:700;font-size:15px;line-height:1.2;background:#17201C;color:#fff;border:0;border-radius:10px;padding:12px 16px;cursor:pointer;max-width:100%}
+.wall button.on{background:#fff;color:#17201C;border:2px solid #17201C}.wall .wsz{font-size:14px;color:#5C6660}
+
 p.sub{overflow-wrap:anywhere}   /* Oct 23: only the subtitle (".gl.sub" is the kit list: it squeezed the pick names) */
 .dists{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 12px}
 .dists button{font:700 15px var(--body);color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:8px 12px;min-height:44px;cursor:pointer;white-space:nowrap}
@@ -1793,6 +1799,7 @@ def page(slug, race, L, items, stores, pages=None, fx=1.0):
 <p class="prog" id="prog" data-t="{esc(s['progress'])}" data-all="{esc(s['progressAll'])}"></p>{f'<p class="lnote">{esc(s["lNote"])}</p>' if any("L" in lv for _, lv, *_ in race["items"]) else ""}{f'<p class="lnote">{esc(s["sNote"])}</p>' if race.get("suggested") else ""}
 <ul class="gl" id="gl" data-race="{slug}" data-default="{race['default']}" data-lm="{s['M']}" data-lr="{s['R']}" data-la="{s['A']}" data-lp="{s['P']}" data-ll="{s['L']}"
  data-home="{Tl['home']}" data-watch="{esc(s['watch'])}" data-won="{esc(s['watchOn'])}" data-wmember="{esc(s['wMember'])}" data-wnew="{esc(s['wNew'])}" data-wpending="{esc(s['wPending'])}" data-wadd="{esc(s['wAdd'])}" data-woff="{esc(s['wOff'])}" data-moren="{esc(s['moreN'])}" data-dh="{esc(s['deals'])}" data-dhs="{esc(s['dealsSize'])}" data-none="{esc(s['noDeals'])}" data-few="{esc(s['few'])}" data-off="{esc(s['off'])}" data-ly="{esc(s['shTag'])}">{shoe_row}{"".join(rows)}</ul>
+<p class="wall"><button type="button" id="watchAll" hidden data-one="{esc(s['waOne'])}" data-n="{esc(s['waN'])}" data-done="{esc(s['waDone'])}" data-cap="{esc(s['waCap'])}" data-member="{esc(s['waMember'])}" data-new="{esc(s['waNew'])}"></button><span class="wsz" hidden>{esc(s['waSize'])}</span></p>
 <p class="srcb">{(s['src'] if race.get('updated') else s['srcRead']).format(date=(race.get('updated') or race['read'])["en" if L == "us" else L], link=f'<a href="{src}" rel="noopener">{s["srcLink"]}</a>')} {s['notAff']}</p>
 {box}
 <section class="faq"><h2>{s['faqH']}</h2>{"".join(f'<details><summary>{esc(q)}</summary><p>{esc(a)}</p></details>' for q, a in faq)}</section>
@@ -1861,7 +1868,7 @@ var ALIAS={"XXS":"2XS","XXL":"2XL","X-SMALL":"XS","SMALL":"S","MEDIUM":"M","LARG
 var norm=function(z){z=String(z).toUpperCase().trim();return ALIAS[z]||z};
 var fits=function(lab,z){if(!z)return true;var l=norm(lab);if(l==="OS"||l==="OSFA"||l==="OSZ")return true;
   return l.split(/\s*[\/|]\s*/).map(norm).indexOf(norm(z))>=0};
-var SIZED={tops:1,bottoms:1,gloves:1,headwear:1,socks:1},SHOWN={};
+var SIZED={tops:1,bottoms:1,gloves:1,headwear:1,socks:1},SHOWN={},FIRST={};
 function render(){
   [].forEach.call(document.querySelectorAll(".dists button"),function(b){b.setAttribute("aria-pressed",String(b.dataset.d===dist))});
   var n=0,h=0;
@@ -1887,6 +1894,7 @@ function render(){
     ul.hidden=!picks.length;none.hidden=!!picks.length;mb.hidden=picks.length<=3;mb.textContent=mb.dataset.n.replace("{n}",picks.length);
     var few=li.querySelector(".few");if(!few){few=document.createElement("span");few.className="few";mb.after(few)}   // Oct 20: fewer than 10 in this size = say so
     few.hidden=!(picks.length&&picks.length<10&&SIZED[p[0].g]&&sizeFor(p[0].g));few.textContent=gl.dataset.few.replace("{n}",picks.length).replace("{fit}",(fit?document.getElementById("rsize").dataset[fit]:"")).replace("{size}",sizeFor(p[0].g));
+    FIRST[k]=picks.length?picks[0]:null;
     SHOWN[k]=picks.slice(0,3).map(function(x){return x[0].n});if(!picks.length)return;
     ul.innerHTML=picks.map(function(x){var r=x[0],e=x[1];
       var pr=e[2]>e[1]*1.01?'<b>'+money(e[1])+'</b><s>'+money(e[2])+'</s> <span class="off">−'+Math.round(100*(1-e[1]/e[2]))+'%</span>':'<b>'+money(e[1])+'</b>',h=gl.dataset.home;
@@ -1968,7 +1976,28 @@ sug.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)
   sq.value="";sug.innerHTML="";shoeMine()});
 mine.addEventListener("click",function(e){var b=e.target.closest("button[data-rm]");if(!b)return;var w=get("gf-watch")||{},sub=get("gf-sub")||{};
   delete w[b.dataset.rm];put("gf-watch",w);if(sub.key)rpc("watch_remove",{p_token:sub.key,p_key:b.dataset.rm}).catch(function(){});shoeMine();say(gl.dataset.woff)});
-var render0=render;render=function(){render0();hearts();sizeMenu();shoeMine()};
+/* Oct 31 (Bastien: "yes lets add that"): one tap watches the first pick in their fit + size for every unticked M/R/L line of their
+   distance (never P, never the weather kits, never a line with no pick in their size). Free watchlist cap: 10 items. */
+var WA=document.getElementById("watchAll"),WCAP=10,waDone=null;
+function missing(){var out=[];if(!WA)return out;var w=get("gf-watch")||{};
+  [].forEach.call(gl.querySelectorAll(".gi"),function(li){var k=li.dataset.k,lv=li.getAttribute("data-l"+dist)||"";
+    if(k==="shoes"||li.dataset.kit||!/^[YMRL]$/.test(lv)||have[k]||!FIRST[k])return;var r=FIRST[k][0];
+    if(!w[r.k]&&!out.some(function(x){return x[0].k===r.k}))out.push(FIRST[k])});return out}
+function waShow(){if(!WA)return;var sz=WA.parentNode.querySelector(".wsz");
+  if(waDone){WA.hidden=false;sz.hidden=true;WA.classList.add("on");WA.textContent=WA.dataset.done.replace("{n}",waDone.length);return}
+  WA.classList.remove("on");var m=missing();sz.hidden=!!(fit&&size)||!gl.querySelector('.gi[data-l'+dist+']');WA.hidden=!m.length;
+  WA.textContent=m.length===1?WA.dataset.one:WA.dataset.n.replace("{n}",m.length)}
+if(WA)WA.addEventListener("click",function(){var w=get("gf-watch")||{},sub=get("gf-sub")||{};
+  if(waDone){waDone.forEach(function(k){delete w[k];if(sub.key)rpc("watch_remove",{p_token:sub.key,p_key:k}).catch(function(){})});put("gf-watch",w);
+    waDone=null;hearts();waShow();say(gl.dataset.woff);rt("watchall-undo");return}
+  var m=missing(),room=Math.max(0,WCAP-Object.keys(w).length),take=m.slice(0,room),now=new Date().toISOString();
+  take.forEach(function(x){var r=x[0],e=x[1];w[r.k]={b:r.b,n:r.n,g:r.g,url:e[3],price:e[1],low:e[1],seen:e[1],gone:false,saved:now}});put("gf-watch",w);
+  waDone=take.map(function(x){return x[0].k});hearts();waShow();rt("watchall",take.length+"|"+m.length);
+  try{ana("watch-add","race-all")}catch(x){}
+  var capTxt=take.length<m.length?" "+WA.dataset.cap.replace("{cap}",WCAP).replace("{n}",take.length):"";
+  if(sub.key&&sub.active){take.forEach(function(x){rpc("watch_add",{p_token:sub.key,p_key:x[0].k,p_meta:w[x[0].k]}).catch(function(){})});say(WA.dataset.member+capTxt)}
+  else if(sub.pending)say(gl.dataset.wpending+capTxt);else say(WA.dataset.new+capTxt,!!document.getElementById("raceBox"))});
+var render0=render;render=function(){render0();hearts();sizeMenu();shoeMine();waShow()};
 render();
 (function(){var box=document.getElementById("raceBox"),f=box.querySelector("form"),msg=box.querySelector(".msg"),RM=box.dataset.rm;
 var sub=get("gf-sub");

@@ -471,6 +471,10 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   --sample SLUG [--fr|--us] OUT.html, --send-test SLUG (to HEALTH_EMAIL). /tmp/race-remind.json -> health line. race_check.py flags date changes
   and new dates. Funnel "race reminders asked" (race event "remind|new/member/pending"). Site test "Race gear page: 'Remind me 30 days before'",
   check.py "Race reminders: box + sample email (EN/FR/US)".
+  **Watch everything I'm missing** (Oct 31, Bastien: "yes lets add that", then "ship it"): button #watchAll under race AND trail lists (race_pages.py
+  page() + hike_pages.py, logic in SCRIPT: `missing()`/`waShow()`, `FIRST[k]` = each line's first pick in fit+size): unticked Y/M/R/L lines of the
+  distance (never P/A, kits, or lines with no pick), cap WCAP=10 total watches (cap line; "N more with Fox Pro" once Pro exists), members watch_add,
+  others gf-watch + "Add my email" toast; "Watching N · Undo". Race event "watchall|took|missing", "watchall-undo". Site test "Race gear page: 'Watch everything I'm missing'".
   **Race list check** (race-check.yml, the 3rd of each month, scraper/race_check.py): rereads every race's `src`/`src_fr` (pages + PDFs),
   keeps the gear lines + linked PDFs/list pictures, compares with race-check.json on the history branch; emails ONLY when a list changed
   (+/- lines) or a page stopped answering. Then update that race in RACES from its own list.
