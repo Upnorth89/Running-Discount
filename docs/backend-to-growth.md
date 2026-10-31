@@ -168,3 +168,7 @@ the midweek post's Novablast line said "$75 (was $150, −33%)". If you hand him
   Your plan · Invite friends (rule line, code, Share/Copy, "3 of 12 free months earned · 1 pending", friends green/amber, fine print) ·
   Things you bought, we're watching (bought line, watching-until line, green "Now $Y: dropped $Z" + orange Claim) · Settings (sizes,
   watchlist, Friday email, same-morning alerts, race reminders) · "Signed in as b•••@… · Sign out". EN/FR. Building to this.
+- "Watch everything I'm missing": built, preview https://claude.ai/artifact/HZuH8X5LYm1jVsysRujzZs (parked on the side branch, 94a7db7, waiting
+  on Bastien's yes). Race + trail lists; unticked M/R/L (+ trail "Essential" Y) of their distance, no P/A/kits/no-pick lines; cap 10 total
+  watches (no cap existed before; "N more with Fox Pro" wording once Pro exists); members watch_add, others gf-watch + "Add my email" toast;
+  "Watching N · Undo"; race event "watchall|took|missing" (+ "watchall-undo"). Site test "Race gear page: 'Watch everything I'm missing'".
