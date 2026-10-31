@@ -91,7 +91,8 @@ def group_of(*texts):
             return g
     return None
 
-WORD = {"ONE SIZE": "OS", "O/S": "OS", "NA": "OS", "": "OS", "X-SMALL": "XS", "SMALL": "S", "MEDIUM": "M",
+WORD = {"ONE SIZE": "OS", "O/S": "OS", "NA": "OS", "": "OS", "ONESIZE": "OS", "ONE-SIZE": "OS", "OSFA": "OS", "OSFM": "OS",   # Oct 31: hats said "One Size Fits Most" on French cards
+        "ONE SIZE FITS MOST": "OS", "ONE SIZE FITS ALL": "OS", "TAILLE UNIQUE": "OS", "X-SMALL": "XS", "SMALL": "S", "MEDIUM": "M",
         "LARGE": "L", "X-LARGE": "XL", "XX-LARGE": "2XL", "XXL": "2XL", "XXXL": "3XL", "XXS": "2XS",
         "EXTRA SMALL": "XS", "EXTRA LARGE": "XL", "EXTRA EXTRA LARGE": "2XL", "EXTRA EXTRA SMALL": "2XS",
         "SM": "S", "MD": "M", "MED": "M", "LG": "L", "LRG": "L", "XLG": "XL", "XLARGE": "XL", "XSMALL": "XS", "XXLARGE": "2XL"}

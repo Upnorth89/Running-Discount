@@ -116,6 +116,7 @@ input:focus-visible,button:focus-visible,summary:focus-visible,select:focus-visi
 .seo-today p{margin:0 0 6px;line-height:1.6}
 html[lang=fr] .seo-today .seo-en,html:not([lang=fr]) .seo-today .seo-fr{display:none}
 html.us .seo-today .seo-en,html.us .seo-today .seo-fr,html:not(.us) .seo-today .seo-us{display:none}   /* USA side: its own copy */
+html.us[lang=fr] .seo-today .seo-us{display:none}   /* Oct 31 night walk: the USA block is English only (its links go to English US pages) */
 html.hike .seo-today:not(.seo-hike),html:not(.hike) .seo-hike{display:none}   /* Oct 25: the hiking side shows its own block (boots) */
 .wline{margin:8px 0 2px;font-size:15px;color:var(--muted)}
 .wline b{color:var(--ink)}
@@ -347,6 +348,10 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
 .dw .repbox button{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:3px 10px;cursor:pointer}.searchhelp button{font:inherit;font-weight:700;color:var(--moss);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}
 .promobar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;background:var(--card);border:1.5px dashed var(--moss);border-radius:12px;padding:10px 14px;margin:0 0 14px;font-size:14px}
 .promobar p{margin:0;flex:1 1 240px}.promobar .ptag{font-weight:800;color:var(--moss)}.promobar code{font-weight:800;background:var(--bg,#f3f5f2);padding:1px 6px;border-radius:6px}
+/* Oct 31 night sweep (tap targets): small text controls get an invisible tap zone of ~44px, nothing moves */
+.cmp::after,.dw .rep::after{content:"";position:absolute;inset:-9px -6px}
+.dw .heart::after{content:"";position:absolute;inset:-6px -2px}
+.promomore{position:relative}.promomore::after,.rd .rdmore::after{content:"";position:absolute;inset:-9px -4px}.rd .rdmore{position:relative}
 .promomore{display:block;margin:-6px 0 14px;padding:4px 2px;border:0;background:none;color:var(--moss);font:600 14px/1.3 var(--body);text-decoration:underline;cursor:pointer}
 .promobar button{border:1.5px solid var(--moss);background:transparent;color:var(--moss);border-radius:999px;padding:7px 12px;font:600 13px/1.2 var(--body);cursor:pointer}
 .deal .promo{font-size:12.5px;color:var(--moss);font-weight:600;margin-top:2px}
@@ -760,7 +765,7 @@ const cleanMail=v=>String(v||"").trim().replace(/^mailto:/i,"").replace(/^.*<([^
 const okMail=e=>/^[a-z0-9!#$%&'*+\/=?^_`{|}~-]+(\.[a-z0-9!#$%&'*+\/=?^_`{|}~-]+)*@([a-z0-9]([a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}$/.test(e)&&e.length<=254;
 window.gfMail={cleanMail,okMail};   // for the site test (tools/sitetest.py)
 const STORE_OF=new Map();   // Oct 27 (speed): the same ~20k store links are read on every render; parse each once
-const storeOf=u=>{let h=STORE_OF.get(u);if(h===undefined){try{h=new URL(u).hostname.replace(/^www\./,"")}catch(e){h="unknown"}STORE_OF.set(u,h)}return h};
+const storeOf=u=>{let h=STORE_OF.get(u);if(h===undefined){const m=/^https?:\/\/(?:[^@\/?#]*@)?([^\/?#:]+)/i.exec(u||"");h=m?m[1].toLowerCase().replace(/^www\./,""):"unknown";STORE_OF.set(u,h)}return h};   // Oct 31 (speed): a pattern, not new URL() (0.13 s on a slow phone)
 /* Affiliate links (Sovrn, Oct 3): store product page -> tracking link that redirects to that same page.
    Cards keep the store's own address for names and click counts (data-store). */
 const AFF={};   // no affiliate links until a network approves us (Oct 7, 2026: About/privacy say "none yet"; add here + update both pages the same day)
@@ -1616,7 +1621,7 @@ const PAGE=8, MORE=24;
 const CARDS=LS0("gf-cards")||"compact";                    // "compact" (phones: photo beside the text) or "big"
 if(CARDS==="compact")document.body.classList.add("compact");
 const PAGE_CAT=CARDS==="compact"?4:PAGE;                  // each category starts short; "Show more" opens it
-const WORD={"ONE SIZE":"OS","O/S":"OS","X-SMALL":"XS","XSMALL":"XS","SMALL":"S","MEDIUM":"M","LARGE":"L","X-LARGE":"XL","XLARGE":"XL",
+const WORD={"ONE SIZE":"OS","O/S":"OS","ONESIZE":"OS","ONE-SIZE":"OS","OSFA":"OS","OSFM":"OS","ONE SIZE FITS MOST":"OS","ONE SIZE FITS ALL":"OS","TAILLE UNIQUE":"OS","X-SMALL":"XS","XSMALL":"XS","SMALL":"S","MEDIUM":"M","LARGE":"L","X-LARGE":"XL","XLARGE":"XL",
   "SM":"S","MD":"M","MED":"M","LG":"L","LRG":"L","XLG":"XL","XXLARGE":"2XL","XX-LARGE":"2XL"};   // Oct 7: socks labelled SM/MD/LG never matched
 function norm(s){s=String(s).trim().toUpperCase();s=WORD[s]||s;return s.replace("XXXL","3XL").replace("XXL","2XL").replace("XXS","2XS")}
 let NARROW=false;   // only some categories picked (see renderAll)
@@ -1959,7 +1964,11 @@ function sizeLabel(s,g){const k=shoeKey(s);if(!k)return s;
   if(k.g==="E")return "EU "+k.n+(k.w==="W"?(LANG==="fr"?" large":" wide"):"");
   return (k.g&&g!=="men"&&g!=="women"?k.g:"")+k.n+(k.w==="W"?(LANG==="fr"?" large":" wide"):"")}
 /* Open the product with the shopper's size already picked when the store gives each size its own link. */
+const SZU=new WeakMap();   // Oct 31 (speed): each size's link is built once per page, not on every match pass
 function sizeUrl(d,e){
+  if(e&&typeof e==="object"){const c=SZU.get(e);if(c!==undefined&&c.d===d)return c.u;const u=sizeUrl0(d,e);SZU.set(e,{d,u});return u}
+  return sizeUrl0(d,e)}
+function sizeUrl0(d,e){
   const u=d.of[e[2]]||d.of[0];if(!e||e.length<5||!u)return u;
   if(typeof e[4]==="string"&&/^https:\/\//.test(e[4]))return e[4];   // the store's own link for this size
   // Oct 27 (speed): plain text instead of new URL() for each size of each card; same link (query before any #fragment)

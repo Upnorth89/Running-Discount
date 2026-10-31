@@ -185,3 +185,33 @@ the midweek post's Novablast line said "$75 (was $150, −33%)". If you hand him
   fades, once per visit, not stacked: the store offer waits; hidden if already watched / at the cap; signup-step "return-watch|view|tap").
   Note for the record: decisions.md has the Oct 22 removal of offerWatch (382 shown, 0 sign-ups) — that measured SIGN-UPS from non-members;
   this one is members-only and measured on watching, so it's a different test. Same Nov 2 preview.
+
+## Night of Oct 31: the 5 maintenance jobs (for Bastien's morning)
+Shipped tonight (bugs, no visible redesign), after tools/check.py:
+- **The Feed's deals were being pulled off the site.** The Feed now runs a headless Shopify front: every product's .js answers 404 while
+  the page itself is fine, so livecheck said "sale ended" and featured_check REMOVED its featured deals each morning (and the IG/Pinterest/
+  Bluesky checks skipped them). livecheck: a 404 only means "gone" when the product page is gone too; otherwise "can't tell" (kept).
+- **French + USA homepage showed an English block** at the bottom ("Today's best running shoe deals", links to English US pages): hidden on FR+US.
+- **"One Size Fits Most" / "OSFA" / "ONESIZE"** hats kept the raw store label (English on French cards, and not counted as one size):
+  now the standard one-size key (scrape.py + site).
+- **Speed:** store-name reading uses a pattern instead of new URL() (checked identical on all 20,476 links) and each size's link is built
+  once per page instead of on every pass: ~0.4 s of the slow-phone profile gone (sizeUrl 271 ms + URL 131 ms). JSON.parse is NOT the
+  problem (0.2 s for 7.8 MB at 4x CPU); the time is the page's own work: open->welcome 4.2-4.9 s at 4x CPU, matchItems runs 7 times
+  before the welcome screen and 4 more after sizes. Next lever (needs a careful change + preview): remember matchItems results per
+  profile so repeated passes are free (~0.3-0.5 s more). Not done overnight on purpose.
+- **Tap targets:** invisible ~44 px tap zones (nothing moves) on "Wrong price or size?", "All sizes →", the card Watch pill, "View all",
+  "+ N more store offers", shoe pages' "♡ Watch the price", race lists' "See all 10". Checked: no zone covers another control.
+Checked and fine:
+- Real flow (390 iPhone + 360 Android, EN/FR, CA/US): welcome -> sizes -> deals -> Watch -> email -> "You're in" everywhere; Google
+  button on the card; ?k= on a second device brings the sizes; unsubscribe link confirms (EN + FR). No dead end, no double ask.
+- Emails (Friday EN/FR, drop alert, welcome, race reminder) at 360 + 600: nothing wider than the screen, buttons 46-64 px, every site
+  link tagged (em=/ref=/k=). Logo PNG has a solid background (safe when Gmail darkens). Two notes, not fixed:
+  (a) Running Free's product photos don't load in a headless browser (they do with a plain download); if Gmail's image proxy is refused
+      too, those cards show no photo. Worth a look in a real Friday email.
+  (b) the welcome email's "See my deals" link has ?k= but no em=welcome, so its visits count as plain visits (SQL change; small).
+- Deal links, 10 sale links per store (66 stores; robots respected): most stores 9-10/10 confirmed. My sandbox isn't in Canada/US, so
+  Running Free (geo wall), Altra/Smartwool (/en-us redirect, USD) and norda/Trail Runner Store (product hidden outside their market)
+  looked "ended" from here but aren't (products present in their data). Sport Chek, MEC, Altitude, Decathlon, Sporting Life, Running Room
+  skipped by robots for this ad-hoc check (the daily readers have their own rules). Real fix found: The Feed (above).
+- Accessibility: no input without a label, no image without alt, no unnamed visible control. Contrast: only the orange "size." in the
+  homepage headline (2.8:1 vs 3:1 for big text) -- a brand colour call, left for Bastien.
