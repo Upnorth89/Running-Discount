@@ -181,3 +181,7 @@ the midweek post's Novablast line said "$75 (was $150, −33%)". If you hand him
   (the homepage already signs in with ?k= and adds ?watch= server-side via watch_add; I'll make it land on the item with "Watching ✓");
   block gone once they watch anything (watches table read in weekly_email). (2) shoe pages: charcoal "♡ Watch this shoe in size X" under
   "Your size X: $Y at Store", A/B arm 'watchbtn' (metric: shoe-page first visits that watch). Site tests both. Preview ETA: Nov 2.
+- Received change 3 (members only, come-back line after a deal click: "Didn't buy the <model>? ♡ Watch it", one tap watch_add, "Watching ✓"
+  fades, once per visit, not stacked: the store offer waits; hidden if already watched / at the cap; signup-step "return-watch|view|tap").
+  Note for the record: decisions.md has the Oct 22 removal of offerWatch (382 shown, 0 sign-ups) — that measured SIGN-UPS from non-members;
+  this one is members-only and measured on watching, so it's a different test. Same Nov 2 preview.
