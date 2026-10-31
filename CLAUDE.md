@@ -457,6 +457,15 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   "store|<item kind>||race|<race>"; funnel.yml "RACE GEAR LISTS": sessions, first visits landing there, % that changed distance /
   ticked / ticked every mandatory item / See all / size / store click / watch / sign-up / another page, by race, by ?ref=, items ticked,
   store clicks by item. Site test "Race gear page: what visitors do is recorded".
+  **Race reminders** (Oct 31, Bastien: "lets build it now"; WAITING on his OK + SQL paste, preview https://claude.ai/artifact/4J5rH87Hiy7viE64Niz8Cb):
+  `race_date()`/`remind_day()` in race_pages.py read RACES `when` (firm dates only; "to come"/"to be confirmed" = none). Dated races' #raceBox =
+  "Don't miss a thing on race day" (data-rm = reminder day): visitors sign up with profile.races [{slug,dist,side,ticks}] (a trigger moves it to
+  table race_lists), members tap once (race_save); members' ticks/distance sync (race_get on load, newer side wins, race_save 1.2 s after a change).
+  supabase/race-remind-oct31.sql. scraper/race_remind.py (refresh.yml morning step "Race reminders"): races at today-30 (+6 days catch-up), one email per
+  person+race (race_reminders), unticked M/L/R for their distance (no P, no kits), first on-sale pick among the page's first 3 in their fit+size;
+  --sample SLUG [--fr|--us] OUT.html, --send-test SLUG (to HEALTH_EMAIL). /tmp/race-remind.json -> health line. race_check.py flags date changes
+  and new dates. Funnel "race reminders asked" (race event "remind|new/member/pending"). Site test "Race gear page: 'Remind me 30 days before'",
+  check.py "Race reminders: box + sample email (EN/FR/US)".
   **Race list check** (race-check.yml, the 3rd of each month, scraper/race_check.py): rereads every race's `src`/`src_fr` (pages + PDFs),
   keeps the gear lines + linked PDFs/list pictures, compares with race-check.json on the history branch; emails ONLY when a list changed
   (+/- lines) or a page stopped answering. Then update that race in RACES from its own list.

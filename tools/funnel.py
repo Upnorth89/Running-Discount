@@ -597,6 +597,9 @@ try:
                    f"picked a size {pct(sum(did(s, 'size') or did(s, 'shoesize') for s in rs), n)}, clicked a store {pct(len(rclick), n)}, "
                    f"watched an item {pct(sum('watch-add' in s['kinds'] for s in rs), n)}, signed up {pct(sum('signup' in s['kinds'] for s in rs), n)}, "
                    f"went on to another of our pages {pct(len(other), n)}")
+        rm = Counter(x[2] for s in rs for x in s["race"] if x[1] == "remind")   # Oct 31: "Remind me 30 days before" (new / member / pending)
+        out.append(f"  race reminders asked: {sum(rm.values())} ({', '.join(f'{k} {v}' for k, v in rm.most_common()) or 'none yet'}), "
+                   f"in {pct(sum(did(s, 'remind') for s in rs), n)} of the sessions")
         per = Counter(pth.strip("/").split("/")[-1] for s in rs for pth in s["pages"] if isrp(pth or ""))
         out.append("  by race (sessions): " + ", ".join(f"{k} {v}" for k, v in per.most_common(12)))
         refs = Counter(s["ref"] for s in rs if s["ref"])

@@ -211,6 +211,33 @@ def main():
         return f"{len(race_pages.RACES)} races, each EN + FR (Canadian stores) + US"
     step("Race gear pages", races)
 
+    def race_remind():  # Oct 31: "Remind me 30 days before the race": box on dated races, and a sample email from today's data
+        sys.path.insert(0, str(ROOT / "scraper"))
+        import race_pages
+        dated = [k for k, r in race_pages.RACES.items() if race_pages.remind_day(r)]
+        if not dated:
+            return "no race with a date ahead"
+        for k in dated:
+            for d in ("races", "courses", "us/races"):
+                if 'data-rm="' not in (site / d / k / "index.html").read_text():
+                    raise RuntimeError(f"/{d}/{k}/ has a date but no reminder box")
+        out = []
+        for args in ([], ["--fr"], ["--us"]):
+            f = Path(tempfile.mkdtemp()) / "rr.html"
+            r = subprocess.run([sys.executable, str(ROOT / "scraper" / "race_remind.py"), str(site), "--sample", dated[0], *args, str(f)],
+                               capture_output=True, text=True, timeout=300, env={**os.environ, "SITE_URL": "https://thegearfox.com/", "RESEND_API_KEY": ""})
+            if r.returncode or not f.exists():
+                raise RuntimeError((r.stderr or r.stdout).strip().splitlines()[-1])
+            h = f.read_text()
+            for bad in (r">\s*None\s*<", r">[^<]*\bundefined\b", r">[^<]*\bnan\b", r">[^<]*[{}]", r">[^<]*\$0\.00\b"):
+                if re.search(bad, h):
+                    raise RuntimeError(f"sample email {args}: '{bad}' in the text")
+            if h.count("Watch") + h.count("Suivre") < 1:
+                raise RuntimeError(f"sample email {args}: no pick with a Watch link")
+            out.append(r.stdout.strip().split("'")[1] if "'" in r.stdout else r.stdout.strip())
+        return f"{len(dated)} dated races have the box; sample: {out[0]}"
+    step("Race reminders: box + sample email (EN/FR/US)", race_remind)
+
     def bf_live():      # Oct 27: the live Black Friday deal check, from the real price history (history branch)
         hist = Path(tempfile.gettempdir()) / "gf-check-prices.jsonl"
         r = subprocess.run("git fetch -q --depth=1 origin history && git show FETCH_HEAD:prices.jsonl", shell=True, cwd=ROOT, capture_output=True, text=True, timeout=300)
