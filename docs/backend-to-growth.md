@@ -145,3 +145,8 @@ the midweek post's Novablast line said "$75 (was $150, −33%)". If you hand him
 - Referral change received (replaces (c)): every Pro member gets a personal link; each friend who starts a PAID Pro subscription = 1 free
   month for the referrer, up to 12; the friend's first month free; credited only after the friend's first real payment clears (Stripe
   invoice.paid after the trial, not the $0 trial invoice); member page shows "N friends joined: N free months". Same Nov 13 preview.
+- Pricing change received (Bastien "yes confirm"): YEARLY ONLY. Regular $45/yr ("$3.75/month, billed yearly ($45)"), founding $36/yr for
+  life from Dec 2 ("$3/month, billed yearly ($36)"), same numbers in CAD and USD. 30-day full refund on the card, at checkout, in Terms.
+  Stripe: 4 prices (founding/regular x CAD/USD), yearly. Friend = 30-day trial then yearly; referrer credit = +1 month on the renewal date
+  (trial_end / billing anchor pushed 1 month per paid friend, max 12) once the friend's first yearly invoice is paid. Same preview.
+  Note a 30-day trial and a 30-day refund overlap for referred friends: refund window starts at their first real charge (Terms will say so).
