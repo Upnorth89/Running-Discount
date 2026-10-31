@@ -763,7 +763,10 @@ const REF=(()=>{let r="";try{r=(new URLSearchParams(location.search).get("ref")|
    clean common paste mistakes, then only plain addresses Resend accepts */
 const cleanMail=v=>String(v||"").trim().replace(/^mailto:/i,"").replace(/^.*<([^<>]+)>.*$/,"$1").replace(/\s+/g,"").replace(/[.,;]+$/,"").toLowerCase();
 const okMail=e=>/^[a-z0-9!#$%&'*+\/=?^_`{|}~-]+(\.[a-z0-9!#$%&'*+\/=?^_`{|}~-]+)*@([a-z0-9]([a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}$/.test(e)&&e.length<=254;
-window.gfMail={cleanMail,okMail};   // for the site test (tools/sitetest.py)
+window.gfMail={cleanMail,okMail};
+/* Oct 31 (Bastien: a Hotmail user "signed up 3 times with no emails"; nothing reached our database and the site never said why):
+   every sign-up that fails or is refused as a bad address is recorded, with only the address's domain (never the address) */
+const suFail=(where,em,why)=>{try{ana("signup-step",`fail|${where}|${(String(em||"").split("@")[1]||"?").slice(0,40)}|${String(why||"").slice(0,60)}`)}catch(e){}};   // for the site test (tools/sitetest.py)
 const STORE_OF=new Map();   // Oct 27 (speed): the same ~20k store links are read on every render; parse each once
 const storeOf=u=>{let h=STORE_OF.get(u);if(h===undefined){const m=/^https?:\/\/(?:[^@\/?#]*@)?([^\/?#:]+)/i.exec(u||"");h=m?m[1].toLowerCase().replace(/^www\./,""):"unknown";STORE_OF.set(u,h)}return h};   // Oct 31 (speed): a pattern, not new URL() (0.13 s on a slow phone)
 /* Affiliate links (Sovrn, Oct 3): store product page -> tracking link that redirects to that same page.
@@ -1411,7 +1414,7 @@ $("saveSizes").addEventListener("click",async()=>{
     }else if(FLOW==="C"&&step===1){                              // C: account first
       if(gSession)return nextStep();
       const email=cleanMail($("gateEmail").value);
-      if(!okMail(email)){gateErr(t("errEmail"),$("gateEmail"));return}
+      if(!okMail(email)){suFail("sheet",email,"bad-email");gateErr(t("errEmail"),$("gateEmail"));return}
       state.email=email;return nextStep();
     }
   }
@@ -1429,7 +1432,7 @@ $("saveSizes").addEventListener("click",async()=>{
     state.email=email;const p=toProfile();LS.set("rd-profile",p);
     let joined=false;
     try{const r=await rpc("subscribe",{p_email:email,p_profile:subProfile(p,"sheet")});track("signup",{method:"email",lang:LANG,where:"sheet",ref:REF||"none"});joined=joinedAs(email,r)}
-    catch(e){btn.disabled=false;btn.textContent=t("subscribeShow");return gateErr(t("errServer"))}
+    catch(e){suFail("sheet",email,e.message);btn.disabled=false;btn.textContent=t("subscribeShow");return gateErr(t("errServer"))}
     btn.disabled=false;closeSheet();view.open={};renderAll();window.scrollTo({top:0});
     notice(joined?t("joinedNote",esc(email)):t("hereDeals",esc(email)));
     return;
@@ -2750,11 +2753,11 @@ function bindSignup(){
   const pb=$("proJoin");if(pb)pb.addEventListener("click",()=>{pj();saveProfile();toast(t("proThanks"));renderAll()});
   const pf=$("proForm");if(pf)pf.addEventListener("submit",async e=>{
     e.preventDefault();if(!pf.classList.contains("open")){pf.classList.add("open");ana("signup-step",`pro-open|${proArm()}`);$("proEmail").focus();return}const email=cleanMail($("proEmail").value);
-    if(!okMail(email)){proErr=t("badEmail");renderAll();$("proEmail").focus();return}
+    if(!okMail(email)){suFail("pro",email,"bad-email");proErr=t("badEmail");renderAll();$("proEmail").focus();return}
     const btn=pf.querySelector("button");btn.disabled=true;btn.textContent="…";
     pj();state.email=email;const p=toProfile();LS.set("rd-profile",p);
     try{const r=await rpc("subscribe",{p_email:email,p_profile:subProfile(p,"pro")});proErr="";track("signup",{method:"email",lang:LANG,where:"pro",ref:REF||"none"});joinedAs(email,r)}
-    catch(err){LS.set("gf-pro",null);proErr=t("signupFail",err.message)}
+    catch(err){suFail("pro",email,err.message);LS.set("gf-pro",null);proErr=t("signupFail",err.message)}
     renderAll()});
   const pn=$("proNo");if(pn)pn.addEventListener("click",()=>{LS.set("gf-nopro",1);ana("signup-step",`pro-no|${proArm()}`);renderAll()});
   document.querySelectorAll(".ppo").forEach(b=>b.addEventListener("click",()=>{const k=b.dataset.pw;proPick=proPick.includes(k)?proPick.filter(x=>x!==k):[...proPick,k];b.setAttribute("aria-pressed",proPick.includes(k))}));
@@ -2764,7 +2767,7 @@ function bindSignup(){
   const f=$("suForm");
   if(f)f.addEventListener("submit",async e=>{
     e.preventDefault();const email=cleanMail($("suEmail").value);
-    if(!okMail(email)){signupErr=t("badEmail");renderAll();$("suEmail").focus();return}
+    if(!okMail(email)){suFail("card",email,"bad-email");signupErr=t("badEmail");renderAll();$("suEmail").focus();return}
     const btn=f.querySelector("button");btn.disabled=true;btn.textContent="…";
     state.email=email;const p=toProfile();LS.set("rd-profile",p);
     const rs=$("rcShoe"),pick=rs&&rs.value.trim()?runModels().get(rs.value.trim()):null;
@@ -2773,7 +2776,7 @@ function bindSignup(){
     const nk=f.dataset.nc;if(nk&&!watches[nk])toggleWatch(nk,true);   // test 'namecard' B: the deal the card names rides with the sign-up
     let joined=false;
     try{const r=await rpc("subscribe",{p_email:email,p_profile:subProfile(p,"card")});signupErr="";track("signup",{method:"email",lang:LANG,where:rs?"runcard":nk?"namecard":"card",ref:REF||"none"});joined=joinedAs(email,r)}
-    catch(err){signupErr=t("signupFail",err.message)}
+    catch(err){suFail("card",email,err.message);signupErr=t("signupFail",err.message)}
     renderAll();if(joined)notice(t("joinedNote",esc(email)));
   });
   const rcs=$("rcShoe");if(rcs){
@@ -2791,7 +2794,7 @@ function bindSignup(){
     if(resentAt&&Date.now()-resentAt<120e3){toast(t("resendWait"));return}
     resentAt=Date.now();track("resend",{lang:LANG,signin:!!sub.signin});
     try{if(sub.signin)await rpc("send_link",{p_email:sub.pending,p_lang:LANG});else{const em=sub.pending,r=await rpc("subscribe",{p_email:em,p_profile:subProfile(toProfile(),"card")});if(joinedAs(em,r)){renderAll();notice(t("joinedNote",esc(em)));return}}toast(t("resent"))}
-    catch(e){resentAt=0;toast(t("resendFail"))}});
+    catch(e){suFail("resend",sub&&sub.pending,e.message);resentAt=0;toast(t("resendFail"))}});
 }
 function renderSubLine(){
   const el=$("subLine");

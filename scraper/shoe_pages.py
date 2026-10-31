@@ -815,7 +815,7 @@ var subd=get("gf-sub");if(subd&&(subd.active||subd.key)){{var w0=get("gf-watch")
   if(t0&&w0[t0.dataset.key]){{box.querySelector("form").remove();msg.textContent=box.dataset.done;return}}}}
 f.addEventListener("submit",function(e){{e.preventDefault();
   var em=f.querySelector("input").value.trim().replace(/^mailto:/i,"").replace(/^.*<([^>]+)>.*$/,"$1").replace(/\s+/g,"").replace(/\.+$/,"");
-  if(!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{{2,}}$/.test(em)||/\.\./.test(em)){{msg.textContent=box.dataset.bad;return}}
+  if(!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{{2,}}$/.test(em)||/\.\./.test(em)){{try{{ana("signup-step","fail|"+location.pathname.split("/")[1]+"|"+(em.split("@")[1]||"?").slice(0,40)+"|bad-email")}}catch(y){{}}msg.textContent=box.dataset.bad;return}}
   var p=get("rd-profile"),ss=get("gf-shoe-size"),tables=[].slice.call(document.querySelectorAll("table[data-key]")),t=null,g=null,size=null;
   if(p&&p.sizes&&p.sizes.shoes&&(p.sizes.shoes.sizes||[]).length){{g=p.gender||"any";
     t=tables.filter(function(x){{return x.dataset.g===g}})[0]||tables.filter(function(x){{return x.dataset.g==="unisex"}})[0]||tables[0]}}
@@ -836,11 +836,11 @@ f.addEventListener("submit",function(e){{e.preventDefault();
   var w=get("gf-watch")||{{}};w[t.dataset.key]=meta;
   var nw={{}};nw[t.dataset.key]=meta;var btn=f.querySelector("button");btn.disabled=true;
   fetch("{SB_URL}/rest/v1/rpc/subscribe",{{method:"POST",headers:{{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"}},
-    body:JSON.stringify({{p_email:em,p_profile:Object.assign({{}},p,{{watch_new:nw,consent:"shoe-page: "+((box.querySelector(".fine")||{{}}).textContent||"").trim().slice(0,900)}})}})}}).then(function(r){{if(!r.ok)throw 0;return r.json()}}).then(function(res){{
+    body:JSON.stringify({{p_email:em,p_profile:Object.assign({{}},p,{{watch_new:nw,consent:"shoe-page: "+((box.querySelector(".fine")||{{}}).textContent||"").trim().slice(0,900)}})}})}}).then(function(r){{if(!r.ok)throw "HTTP "+r.status;return r.json()}}).then(function(res){{
     put("gf-watch",w);if(!get("rd-profile"))put("rd-profile",p);var IN=gfIn(res,em,nw);if(!IN&&!(subd&&(subd.active||subd.key)))put("gf-sub",{{pending:em}});
     f.remove();msg.textContent=(IN?box.dataset.in:box.dataset.ok).replace("{{email}}",em);
     try{{ana("signup","shoe-page")}}catch(x){{}}try{{window.umami&&umami.track("signup",{{method:"email",where:"shoe-page",lang:fr?"fr":"en",ref:ref||"none"}})}}catch(x){{}}}})
-  .catch(function(){{btn.disabled=false;msg.textContent=box.dataset.fail}})}})}})();
+  .catch(function(x){{try{{ana("signup-step","fail|"+location.pathname.split("/")[1]+"|"+(String(typeof em!=="undefined"?em:"").split("@")[1]||"?")+"|"+String(x&&x.message||x).slice(0,60))}}catch(y){{}}btn.disabled=false;msg.textContent=box.dataset.fail}})}})}})();
 /* "Email me when it's back in my size" (Oct 27): pages with nothing in stock. The PAGE goes on the watchlist ("page|<slug>"); the
    morning alerts send "Back in your size" when any shoe on it is in their size again */
 (function(){{var box=document.getElementById("backBox");if(!box)return;var f=box.querySelector("form"),msg=box.querySelector(".msg"),
@@ -860,7 +860,7 @@ if(fit.value&&sz.value){{var bor=box.querySelector(".bor"),ln=document.createEle
 f.addEventListener("submit",function(e){{e.preventDefault();
   var em=f.querySelector("input").value.trim().replace(/^mailto:/i,"").replace(/^.*<([^>]+)>.*$/,"$1").replace(/\s+/g,"").replace(/\.+$/,"");
   if(!fit.value||!sz.value){{msg.textContent=box.dataset.pick;return}}
-  if(!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{{2,}}$/.test(em)||/\.\./.test(em)){{msg.textContent=box.dataset.bad;return}}
+  if(!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{{2,}}$/.test(em)||/\.\./.test(em)){{try{{ana("signup-step","fail|"+location.pathname.split("/")[1]+"|"+(em.split("@")[1]||"?").slice(0,40)+"|bad-email")}}catch(y){{}}msg.textContent=box.dataset.bad;return}}
   var fr=document.documentElement.lang==="fr",us=/^\/us\//.test(location.pathname),tz=null,ref=get("gf-ref");try{{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||null}}catch(x){{}}
   var p=get("rd-profile");
   if(!(p&&p.sizes&&p.sizes.shoes&&(p.sizes.shoes.sizes||[]).length)){{
@@ -871,11 +871,11 @@ f.addEventListener("submit",function(e){{e.preventDefault();
   var meta={{b:box.dataset.b,n:box.dataset.n,g:"shoes",url:location.href,price:null,low:null,seen:null,gone:true,saved:new Date().toISOString()}},nw={{}};nw[K]=meta;
   var w=get("gf-watch")||{{}};w[K]=meta;var btn=f.querySelector("button");btn.disabled=true;
   fetch("{SB_URL}/rest/v1/rpc/subscribe",{{method:"POST",headers:{{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"}},
-    body:JSON.stringify({{p_email:em,p_profile:Object.assign({{}},p,{{watch_new:nw,consent:"shoe-page: "+((box.querySelector(".fine")||{{}}).textContent||"").trim().slice(0,900)}})}})}}).then(function(r){{if(!r.ok)throw 0;return r.json()}}).then(function(res){{
+    body:JSON.stringify({{p_email:em,p_profile:Object.assign({{}},p,{{watch_new:nw,consent:"shoe-page: "+((box.querySelector(".fine")||{{}}).textContent||"").trim().slice(0,900)}})}})}}).then(function(r){{if(!r.ok)throw "HTTP "+r.status;return r.json()}}).then(function(res){{
     put("gf-watch",w);if(!get("rd-profile"))put("rd-profile",p);var IN=gfIn(res,em,nw);if(!IN&&!(subd&&(subd.active||subd.key)))put("gf-sub",{{pending:em}});
     f.remove();msg.textContent=(IN?box.dataset.in:box.dataset.ok).replace("{{email}}",em);
     try{{ana("signup","shoe-page-back")}}catch(x){{}}try{{window.umami&&umami.track("signup",{{method:"email",where:"shoe-page-back",lang:fr?"fr":"en",ref:ref||"none"}})}}catch(x){{}}}})
-  .catch(function(){{btn.disabled=false;msg.textContent=box.dataset.fail}})}})}})();
+  .catch(function(x){{try{{ana("signup-step","fail|"+location.pathname.split("/")[1]+"|"+(String(typeof em!=="undefined"?em:"").split("@")[1]||"?")+"|"+String(x&&x.message||x).slice(0,60))}}catch(y){{}}btn.disabled=false;msg.textContent=box.dataset.fail}})}})}})();
 /* wrong side (Oct 6, 2026): a visitor who picked USA on a Canadian page (or Canada on a US page) gets a bar to the same page
    on their side, when it exists (Google, old links and the menu's country link can lead to the other side) */
 (function(){{var c=null;try{{c=JSON.parse(localStorage.getItem("gf-country")||"null")||(JSON.parse(localStorage.getItem("rd-profile")||"null")||{{}}).country||null}}catch(e){{}}
@@ -929,7 +929,7 @@ if(ss&&ss.s){{g.value=ss.g==="women"?"women":"men";showG();s.value=String(ss.s)}
 g.addEventListener("change",showG);
 f.addEventListener("submit",function(e){{e.preventDefault();
   var em=f.querySelector("input").value.trim().replace(/^mailto:/i,"").replace(/^.*<([^>]+)>.*$/,"$1").replace(/\s+/g,"").replace(/\.+$/,"");
-  if(!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{{2,}}$/.test(em)||/\.\./.test(em)){{msg.textContent=box.dataset.bad;return}}
+  if(!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{{2,}}$/.test(em)||/\.\./.test(em)){{try{{ana("signup-step","fail|"+location.pathname.split("/")[1]+"|"+(em.split("@")[1]||"?").slice(0,40)+"|bad-email")}}catch(y){{}}msg.textContent=box.dataset.bad;return}}
   if(!s.value){{msg.textContent=box.dataset.pick;s.focus();return}}
   var fr=document.documentElement.lang==="fr",us=/^\/us\//.test(location.pathname),tz=null;try{{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||null}}catch(x){{}}
   var G=["shoes","tops","bottoms","bras","socks","gloves","headwear","packs","gear","watches","nutrition"],p;
@@ -938,11 +938,11 @@ f.addEventListener("submit",function(e){{e.preventDefault();
     p={{lang:fr?"fr":"en",country:us?"us":"ca",tz:tz,name:"",gender:g.value,terrain:"both",ships:"ca",groups:G,sizes:sz,brands:[],activities:[]}}}}
   p.email=em;if(!p.ref)p.ref=get("gf-ref")||box.dataset.ref;var btn=f.querySelector("button");btn.disabled=true;
   fetch("{SB_URL}/rest/v1/rpc/subscribe",{{method:"POST",headers:{{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"}},
-    body:JSON.stringify({{p_email:em,p_profile:Object.assign({{}},p,{{consent:(box.dataset.ref||"list")+": "+((box.querySelector(".fine")||{{}}).textContent||"").trim().slice(0,900)}})}})}}).then(function(r){{if(!r.ok)throw 0;return r.json()}}).then(function(res){{
+    body:JSON.stringify({{p_email:em,p_profile:Object.assign({{}},p,{{consent:(box.dataset.ref||"list")+": "+((box.querySelector(".fine")||{{}}).textContent||"").trim().slice(0,900)}})}})}}).then(function(r){{if(!r.ok)throw "HTTP "+r.status;return r.json()}}).then(function(res){{
     var IN=gfIn(res,em,{{}});if(!IN)put("gf-sub",{{pending:em}});if(!p0)put("rd-profile",p);put("gf-shoe-size",{{g:g.value,s:s.value}});
     f.remove();msg.textContent=(IN?box.dataset.in:box.dataset.ok).replace("{{email}}",em);
     try{{ana("signup",box.dataset.ref)}}catch(x){{}}try{{window.umami&&umami.track("signup",{{method:"email",where:box.dataset.ref,lang:fr?"fr":"en"}})}}catch(x){{}}}})
-  .catch(function(){{btn.disabled=false;msg.textContent=box.dataset.fail}})}})}})();
+  .catch(function(x){{try{{ana("signup-step","fail|"+location.pathname.split("/")[1]+"|"+(String(typeof em!=="undefined"?em:"").split("@")[1]||"?")+"|"+String(x&&x.message||x).slice(0,60))}}catch(y){{}}btn.disabled=false;msg.textContent=box.dataset.fail}})}})}})();
 document.addEventListener("click",function(e){{var a=e.target.closest("a[data-store]");if(!a)return;
 try{{fetch("{SB_URL}/rest/v1/rpc/log_event",{{method:"POST",keepalive:true,headers:{{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"}},
 body:JSON.stringify({{p_kind:"click",p_store:a.dataset.store,p_group:"shoes",p_ref:"shoe-page",p_lang:"{L['lang'][:2]}"}})}})}}catch(x){{}}
