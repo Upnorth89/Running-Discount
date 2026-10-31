@@ -1,0 +1,34 @@
+name: Race reminder test
+
+# Oct 31 (Bastien's rule: nothing live until a robot test reminder goes end to end): sends ONE sample race reminder,
+# built from today's live data, to HEALTH_EMAIL (subject starts with [TEST]). Run by hand; nothing goes to subscribers.
+on:
+  workflow_dispatch:
+    inputs:
+      race:
+        description: "Race slug (e.g. racing-dusk)"
+        default: "racing-dusk"
+      lang:
+        description: "en or fr"
+        default: "en"
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - name: Today's live data
+        run: |
+          for f in deals.json deals-us.json; do curl -sf "https://thegearfox.com/$f" -o "site/$f"; done
+      - env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          HEALTH_EMAIL: ${{ secrets.HEALTH_EMAIL }}
+          SITE_URL: "https://thegearfox.com/"
+          FROM_EMAIL: "The Gear Fox <deals@thegearfox.com>"
+          MAILING_ADDRESS: ${{ secrets.MAILING_ADDRESS }}
+        run: python scraper/race_remind.py site --send-test "${{ inputs.race }}" ${{ inputs.lang == 'fr' && '--fr' || '' }}
