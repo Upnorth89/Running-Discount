@@ -182,7 +182,7 @@ if os.environ.get("STATS"):
     try:
         r = requests.get(f"{sb}/rest/v1/ana_settings", headers=SH, params={"select": "*"}, timeout=30)
         rows_s = r.json() if r.ok else []
-        keyv = next((x.get("value") for x in rows_s if x.get("key") == "dashboard_key"), None) if isinstance(rows_s, list) else None
+        keyv = next((x.get("value") for x in rows_s if x.get("name") == "dashboard_key"), None) if isinstance(rows_s, list) else None
         out.append(f"STATS: ana_settings HTTP {r.status_code}, dashboard_key {'found' if keyv else 'MISSING'}")
         PH = {"apikey": "sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2", "Content-Type": "application/json"}
         for fn, body in (("ana_dashboard", {"p_key": keyv, "p_days": 30}), ("ana_dashboard", {"p_key": keyv, "p_days": 7}),
