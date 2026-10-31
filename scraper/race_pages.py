@@ -1499,7 +1499,7 @@ p.sub{overflow-wrap:anywhere}   /* Oct 23: only the subtitle (".gl.sub" is the k
 .wtoast button{font:700 15px var(--body);background:var(--hivis);color:var(--hivis-ink);border:0;border-radius:999px;padding:8px 14px;margin-top:8px;cursor:pointer}
 .wtoast[hidden]{display:none}
 @media (max-width:400px){.dl .wl{display:none}.dl .wt{font-size:18px;padding:0 9px}.dl .nm{font-size:13px;overflow-wrap:anywhere}.dl .pr s{display:block}.dl img{width:46px;height:46px}.dl a.dg{gap:8px}}
-.mored{font:600 14px var(--body);color:var(--moss);background:none;border:0;padding:4px 0;cursor:pointer;text-decoration:underline}
+.mored{font:600 14px var(--body);color:var(--moss);background:none;border:0;padding:4px 0;cursor:pointer;text-decoration:underline;position:relative}.mored::after{content:"";position:absolute;inset:-9px -4px}
 .gi.open .mored{display:none}.gi.got .mored{display:none}
 .catall{margin:4px 0 0;font-size:14px}.catall a{color:var(--moss);font-weight:600}
 .lessd{display:none;font:600 14px var(--body);color:var(--moss);background:none;border:0;padding:4px 0;cursor:pointer;text-decoration:underline}.gi.open .lessd{display:inline}.gi.got .lessd{display:none}

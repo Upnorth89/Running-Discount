@@ -485,7 +485,7 @@ td.p s{color:var(--muted);font-size:13px;margin-left:4px}
 .fin{display:block;font-size:12px;font-weight:600;color:var(--ink)}
 .gts{display:flex;flex-direction:column}
 .th2{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
-.watch{font:600 14px var(--body);color:var(--moss);white-space:nowrap}
+.watch{font:600 14px var(--body);color:var(--moss);white-space:nowrap;position:relative}.watch::after{content:"";position:absolute;inset:-12px -4px}
 tr.yours td{background:rgba(242,106,27,.14)}
 tr.yours td:first-child{font-weight:700;box-shadow:inset 4px 0 0 var(--hivis)}
 .side{background:#17201C;color:#fff;border-radius:12px;padding:12px 14px;margin:0 0 14px;font-size:15px}

@@ -74,6 +74,49 @@ try:
 except Exception as e:
     out.append(f"Resend email list: failed ({e})")
 
+# 3. Oct 31 (Bastien: "Hotmail users aren't getting emails, a person signed up 3 times with no emails"): every Microsoft
+#    address (hotmail/outlook/live/msn) in the last 30 days, in the database and in Resend's log (what Microsoft answered)
+MS = re.compile(r"@(hotmail|outlook|live|msn|windowslive|passport)\.", re.I)
+try:
+    since30 = (datetime.now(timezone.utc) - timedelta(days=30)).isoformat()
+    rows = []
+    for col in ("created_at", "last_mail_at"):
+        r = requests.get(f"{sb}/rest/v1/subscribers", headers=SH, timeout=30, params={
+            "select": "*", col: f"gte.{since30}", "order": f"{col}.desc", "limit": "1000"})
+        r.raise_for_status()
+        rows += r.json()
+    seen, ms = set(), []
+    for x in rows:
+        if MS.search(x.get("email") or "") and x["email"] not in seen:
+            seen.add(x["email"])
+            ms.append(x)
+    out.append(f"MICROSOFT ADDRESSES (hotmail/outlook/live/msn), last 30 days in the database: {len(ms)}")
+    for x in ms:
+        out.append("  " + mask(x["email"]) + "  " + "  ".join(f"{k}={str(x.get(k))[:16]}" for k in
+                   ("created_at", "confirmed_at", "welcomed_at", "last_mail_at", "bounced_at", "complained_at", "unsubscribed_at", "consent_via") if k in x))
+    seen_ids, n_ms, events, got = None, 0, {}, set()
+    for page in range(10):                                  # Resend's log, newest first, 100 at a time
+        r = requests.get("https://api.resend.com/emails", headers=H, params={"limit": 100, **({"after": seen_ids} if seen_ids else {})}, timeout=30)
+        if not r.ok:
+            out.append(f"Resend log page {page}: HTTP {r.status_code} {r.text[:120]}")
+            break
+        js = r.json()
+        data = [m for m in (js.get("data") or []) if m.get("id") not in got]     # a page seen twice = no paging: stop
+        got |= {m.get("id") for m in data}
+        for m in data:
+            to = (m.get("to") or [""])[0]
+            if MS.search(to):
+                n_ms += 1
+                events[m.get("last_event", "?")] = events.get(m.get("last_event", "?"), 0) + 1
+                if n_ms <= 25:
+                    out.append(f"  Resend {m.get('created_at', '')[:16]}  {m.get('last_event', '?'):>10}  to {mask(to)}  '{(m.get('subject') or '')[:45]}'")
+        if not js.get("has_more") or not data:
+            break
+        seen_ids = data[-1].get("id")
+    out.append(f"Resend: {n_ms} emails to Microsoft addresses in the pages read; last status: " + (", ".join(f"{k} {v}" for k, v in events.items()) or "none"))
+except Exception as e:
+    out.append(f"Microsoft check: failed ({str(e)[:160]})")
+
 text = "\n".join(out)
 print(text)
 if os.environ.get("GITHUB_ACTIONS"):

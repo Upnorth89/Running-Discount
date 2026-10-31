@@ -168,3 +168,75 @@ the midweek post's Novablast line said "$75 (was $150, −33%)". If you hand him
   Your plan · Invite friends (rule line, code, Share/Copy, "3 of 12 free months earned · 1 pending", friends green/amber, fine print) ·
   Things you bought, we're watching (bought line, watching-until line, green "Now $Y: dropped $Z" + orange Claim) · Settings (sizes,
   watchlist, Friday email, same-morning alerts, race reminders) · "Signed in as b•••@… · Sign out". EN/FR. Building to this.
+- "Watch everything I'm missing": built, preview https://claude.ai/artifact/HZuH8X5LYm1jVsysRujzZs (parked on the side branch, 94a7db7, waiting
+  on Bastien's yes). Race + trail lists; unticked M/R/L (+ trail "Essential" Y) of their distance, no P/A/kits/no-pick lines; cap 10 total
+  watches (no cap existed before; "N more with Fox Pro" wording once Pro exists); members watch_add, others gf-watch + "Add my email" toast;
+  "Watching N · Undo"; race event "watchall|took|missing" (+ "watchall-undo"). Site test "Race gear page: 'Watch everything I'm missing'".
+- Watchlist limit received (Bastien: "10 now and 5 at launch"): the race/trail "Watch everything" button already stops at 10 (live Oct 31).
+  In the Pro build: one shared limit everywhere (homepage hearts, shoe/race/trail hearts, watch-everything, watch_add on the server so a
+  second device can't pass it), 10 until Dec 2, 5 from launch; members already over 5 keep their items; at the limit: "Watch unlimited with
+  Fox Pro" (EN/FR). Today only the button has the limit (hearts never had one; 0 members are over 10, so no one is affected).
+- Received "get members watching" 1 + 2 (Bastien OK'd, preview first). Plan: (1) Friday email block for members watching nothing: 3 picks
+  (2 shoes + 1 other, their side/sport/sizes, 5+ sizes incl. theirs, full price allowed), "♡ Watch" = /?k=<key>&watch=<itemKey>&em=watch
+  (the homepage already signs in with ?k= and adds ?watch= server-side via watch_add; I'll make it land on the item with "Watching ✓");
+  block gone once they watch anything (watches table read in weekly_email). (2) shoe pages: charcoal "♡ Watch this shoe in size X" under
+  "Your size X: $Y at Store", A/B arm 'watchbtn' (metric: shoe-page first visits that watch). Site tests both. Preview ETA: Nov 2.
+- Received change 3 (members only, come-back line after a deal click: "Didn't buy the <model>? ♡ Watch it", one tap watch_add, "Watching ✓"
+  fades, once per visit, not stacked: the store offer waits; hidden if already watched / at the cap; signup-step "return-watch|view|tap").
+  Note for the record: decisions.md has the Oct 22 removal of offerWatch (382 shown, 0 sign-ups) — that measured SIGN-UPS from non-members;
+  this one is members-only and measured on watching, so it's a different test. Same Nov 2 preview.
+
+## Night of Oct 31: the 5 maintenance jobs (for Bastien's morning)
+Shipped tonight (bugs, no visible redesign), after tools/check.py:
+- **The Feed's deals were being pulled off the site.** The Feed now runs a headless Shopify front: every product's .js answers 404 while
+  the page itself is fine, so livecheck said "sale ended" and featured_check REMOVED its featured deals each morning (and the IG/Pinterest/
+  Bluesky checks skipped them). livecheck: a 404 only means "gone" when the product page is gone too; otherwise "can't tell" (kept).
+- **French + USA homepage showed an English block** at the bottom ("Today's best running shoe deals", links to English US pages): hidden on FR+US.
+- **"One Size Fits Most" / "OSFA" / "ONESIZE"** hats kept the raw store label (English on French cards, and not counted as one size):
+  now the standard one-size key (scrape.py + site).
+- **Speed:** store-name reading uses a pattern instead of new URL() (checked identical on all 20,476 links) and each size's link is built
+  once per page instead of on every pass: ~0.4 s of the slow-phone profile gone (sizeUrl 271 ms + URL 131 ms). JSON.parse is NOT the
+  problem (0.2 s for 7.8 MB at 4x CPU); the time is the page's own work: open->welcome 4.2-4.9 s at 4x CPU, matchItems runs 7 times
+  before the welcome screen and 4 more after sizes. Next lever (needs a careful change + preview): remember matchItems results per
+  profile so repeated passes are free (~0.3-0.5 s more). Not done overnight on purpose.
+- **Tap targets:** invisible ~44 px tap zones (nothing moves) on "Wrong price or size?", "All sizes →", the card Watch pill, "View all",
+  "+ N more store offers", shoe pages' "♡ Watch the price", race lists' "See all 10". Checked: no zone covers another control.
+Checked and fine:
+- Real flow (390 iPhone + 360 Android, EN/FR, CA/US): welcome -> sizes -> deals -> Watch -> email -> "You're in" everywhere; Google
+  button on the card; ?k= on a second device brings the sizes; unsubscribe link confirms (EN + FR). No dead end, no double ask.
+- Emails (Friday EN/FR, drop alert, welcome, race reminder) at 360 + 600: nothing wider than the screen, buttons 46-64 px, every site
+  link tagged (em=/ref=/k=). Logo PNG has a solid background (safe when Gmail darkens). Two notes, not fixed:
+  (a) Running Free's product photos don't load in a headless browser (they do with a plain download); if Gmail's image proxy is refused
+      too, those cards show no photo. Worth a look in a real Friday email.
+  (b) the welcome email's "See my deals" link has ?k= but no em=welcome, so its visits count as plain visits (SQL change; small).
+- Deal links, 10 sale links per store (66 stores; robots respected): most stores 9-10/10 confirmed. My sandbox isn't in Canada/US, so
+  Running Free (geo wall), Altra/Smartwool (/en-us redirect, USD) and norda/Trail Runner Store (product hidden outside their market)
+  looked "ended" from here but aren't (products present in their data). Sport Chek, MEC, Altitude, Decathlon, Sporting Life, Running Room
+  skipped by robots for this ad-hoc check (the daily readers have their own rules). Real fix found: The Feed (above).
+- Accessibility: no input without a label, no image without alt, no unnamed visible control. Contrast: only the orange "size." in the
+  homepage headline (2.8:1 vs 3:1 for big text) -- a brand colour call, left for Bastien.
+
+## Oct 31: stats page + "what we don't measure" (Bastien: "track more or better data ... funnel people to a sign up or a fox pro")
+Built WITH the members-watching batch (preview Nov 2), because they share the numbers. One SQL file for Bastien to paste.
+Stats page (site/stats.html, new SQL ana_growth(p_key), same private key; no IP, no email, nothing new recorded about people):
+1. **Members watching**: real members (ana_members rule) watching 1+ item, as a % and a weekly line (goal number for the 3 changes).
+2. **Watch taps by spot**: homepage card / shoe page / race + trail list (incl. "Watch everything") / Friday email / gift page, and the share
+   of each spot's watchers who then sign up (today's #1 sign-up source: the email sheet after a Watch tap, 21 of 59 in 14 days).
+3. **Journey per device** (first visit -> sizes -> watch -> sign-up -> came back), with the median days between steps and the step where
+   most people stop, by source (Google / Reddit / Bluesky / Pinterest / email / direct).
+4. **Retention cohorts** by week of first visit: came back by day 1 / 7 / 30, watched vs didn't.
+5. **Emails**: per send (Friday/Saturday arms, alerts, race reminders, welcome), % of recipients who visited (em= visits; opens stay off on
+   purpose), and which block brought them (drops / watch block / reminder).
+6. **Fox Pro readiness** (fills as it goes live): waitlist size, waitlist -> founder %, founders by source/page, refunds, referrals
+   pending/earned.
+What we don't measure today that would change decisions:
+- Which SPOT a watch came from: ana "watch-add" carries only the category, so "watch taps by spot" needs a spot tag (homepage card,
+  shoe page button/table link, race list, email, return line). No new kind: a detail on the existing watch-add.
+- Welcome email visits (no em=welcome on its link; SQL change in the same file).
+- Race reminders asked vs sent vs visits from them (asked: race events; sent: race_reminders table; visits: em=race to add on its links).
+- Search -> watch -> sign-up: whether a search session watches anything (searchers came back 17% vs 5%).
+Cleanest path to sign-up / Fox Pro (from our own numbers): the Watch tap is the doorway (it converts ~1 in 5 to a sign-up; the generic
+card ~0.3%). So: (1) more Watch taps where intent is high (shoe pages, race lists, Friday email = the Nov 2 batch); (2) the email step right
+after the tap names the item (watchsheet test, running); (3) members who watch get drop emails = the habit; (4) Pro is sold at the moment
+watching hits its limit (5 from Dec 2: "Watch unlimited with Fox Pro") and after a purchase ("I bought it" -> price protection), never as
+a cold card. The stats page will show each of these steps so we can see which one leaks.

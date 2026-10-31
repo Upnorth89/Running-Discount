@@ -254,6 +254,10 @@ try:
         out.append("  their pages: " + ", ".join(f"{k} {v}" for k, v in Counter(pg_ for s in nov for pg_ in (s["pages"] or {"(none)"})).most_common(8))
                    + " | devices: " + ", ".join(f"{k} {v}" for k, v in Counter(s["dev"] for s in nov).most_common(3))
                    + " | first event day: " + ", ".join(f"{k} {v}" for k, v in Counter(s.get("d") for s in nov).most_common(3)))
+        # Oct 31: every day, oldest first, with that day's share of first visits: the Oct 27 fix should show as a drop to ~0
+        allday = Counter(s.get("d") for s in new)
+        out.append("  by day (missing / first visits): " + ", ".join(
+            f"{str(k)[5:]} {v}/{allday[k]}" for k, v in sorted(Counter(s.get("d") for s in nov).items(), key=lambda x: str(x[0]))))
         # was their visit event simply before this window (a phone tab left open and reopened days later keeps its session)?
         ids = [sid for sid, s in S.items() if s in nov]
         before = {}
@@ -504,6 +508,38 @@ try:
                    f"{sess(lambda e: e['kind'] == 'signup-step' and (e['detail'] or '').startswith('open-mail'))}")
 except Exception as e:
     out.append(f"Week vs week: couldn't compute ({str(e)[:80]})")
+# watchlist size (Oct 31, Bastien: should the free watchlist be 3 or 5 items? "yes pull the numbers"): members' watched items on the
+# server (watches table, test addresses left out) + every device's Watch taps in this window (non-members' lists live only on their device)
+try:
+    ws, step = [], 1000
+    while True:
+        rr = requests.get(f"{SB}/rest/v1/watches", headers={**H, "Range": f"{len(ws)}-{len(ws) + step - 1}"}, timeout=60,
+                          params={"select": "subscriber_id,item_key"})
+        rr.raise_for_status()
+        part = rr.json()
+        ws += part
+        if len(part) < step:
+            break
+    rr = requests.get(f"{SB}/rest/v1/subscribers", headers=H, timeout=30, params={"select": "id,email", "confirmed_at": "not.is.null", "unsubscribed_at": "is.null"})
+    rr.raise_for_status()
+    subs = rr.json()
+    low = lambda e: (e or "").lower()
+    pb = {re.sub(r"\+[^@]*@", "@", low(x["email"])) for x in subs if re.search(r"\+[^@]*@", low(x["email"]))}
+    tst = lambda e: low(e).endswith(("@thegearfox.com", "@example.com")) or bool(re.search(r"\+[^@]*@", low(e))) or low(e) in pb
+    real = {x["id"] for x in subs if not tst(x["email"])}
+    per = Counter(w["subscriber_id"] for w in ws if w["subscriber_id"] in real and not (w["item_key"] or "").startswith("page|"))
+    n = [per.get(i, 0) for i in real]
+    band = lambda xs: (f"0: {sum(1 for x in xs if x == 0)}, 1: {sum(1 for x in xs if x == 1)}, 2: {sum(1 for x in xs if x == 2)}, "
+                       f"3: {sum(1 for x in xs if x == 3)}, 4-5: {sum(1 for x in xs if 4 <= x <= 5)}, 6-10: {sum(1 for x in xs if 6 <= x <= 10)}, "
+                       f"11+: {sum(1 for x in xs if x > 10)}")
+    srt = sorted(n)
+    out.append(f"WATCHLIST SIZE (members now, {len(real)} real members): {band(n)} | over 3: {sum(1 for x in n if x > 3)}, over 5: "
+               f"{sum(1 for x in n if x > 5)}, over 10: {sum(1 for x in n if x > 10)}; most watched by one member: {max(n) if n else 0}")
+    dev = Counter(e["sid"] for e in rows if e["kind"] == "watch-add")
+    d = list(dev.values())
+    out.append(f"  Watch taps per visit (last {DAYS} days, every visitor, adds only): {len(d)} visits tapped Watch; {band(d)}")
+except Exception as e:
+    out.append(f"Watchlist size: couldn't compute ({str(e)[:80]})")
 # confirmations: of the sign-ups in this window, how many confirmed the email (double opt-in)
 try:
     hh = {**H, "Prefer": "count=exact", "Range": "0-0"}

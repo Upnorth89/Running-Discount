@@ -300,6 +300,8 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   Oct 31 (Bastien + growth chat): PRICE LOCKED, test not run: Fox Pro = YEARLY ONLY, $45/year ("$3.75/month, billed yearly"); founding
   round opens Dec 2 with NO end date (2 weeks' notice before it ends): $36/year for life ("$3/month, billed yearly"); 30-day full refund.
   Referral: each friend who joins Pro (first payment cleared) = 1 free month added to the referrer's year, up to 12; friend's first month free.
+  Free watchlist limit (Oct 31, Bastien: "10 now and 5 at launch"): 10 until the Dec 2 Pro launch, then 5 free / unlimited Pro. Data (funnel
+  WATCHLIST SIZE, Oct 31): of 150 real members 112 watch nothing, 21 one item, 10 more than 3, 7 more than 5, 0 more than 10.
   Plan: 6-month plan doc "Fox Pro launch plan" + "Founding round: how we get traction"; backend builds Stripe + "I bought it" price protection (preview Nov 16). Value = same-morning alerts + unlimited watchlist + price history +
   price-protection watching after you buy ("You buy, we watch, you claim"). The card no longer switches itself on (proOn = ?pro=1 only).
   Test 'emailday' (Oct 27, Bastien OK'd idea 5; weekend visits ~3x weekdays): weekly_email.py `day_arm()` (coin from the token, same every
@@ -471,6 +473,10 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   --sample SLUG [--fr|--us] OUT.html, --send-test SLUG (to HEALTH_EMAIL). /tmp/race-remind.json -> health line. race_check.py flags date changes
   and new dates. Funnel "race reminders asked" (race event "remind|new/member/pending"). Site test "Race gear page: 'Remind me 30 days before'",
   check.py "Race reminders: box + sample email (EN/FR/US)".
+  **Watch everything I'm missing** (Oct 31, Bastien: "yes lets add that", then "ship it"): button #watchAll under race AND trail lists (race_pages.py
+  page() + hike_pages.py, logic in SCRIPT: `missing()`/`waShow()`, `FIRST[k]` = each line's first pick in fit+size): unticked Y/M/R/L lines of the
+  distance (never P/A, kits, or lines with no pick), cap WCAP=10 total watches (cap line; "N more with Fox Pro" once Pro exists), members watch_add,
+  others gf-watch + "Add my email" toast; "Watching N · Undo". Race event "watchall|took|missing", "watchall-undo". Site test "Race gear page: 'Watch everything I'm missing'".
   **Race list check** (race-check.yml, the 3rd of each month, scraper/race_check.py): rereads every race's `src`/`src_fr` (pages + PDFs),
   keeps the gear lines + linked PDFs/list pictures, compares with race-check.json on the history branch; emails ONLY when a list changed
   (+/- lines) or a page stopped answering. Then update that race in RACES from its own list.
@@ -519,7 +525,7 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   reusing race_pages.py (size box, ticks, ♡ Watch, sign-up box; sign-ups here get `sport:"hike"`). Lines = hikes.gear_for() per trip length
   (`trips()`: day / 1 night / usual nights) with levels Essential (Y, counted) / Required (M) / Recommended (R); picks from the hiking files
   by group/type + a name rule per line (`NEED`, `NOT`, `PACK_BITS`: no watches, books, bells under safety lines); bear spray = checklist
-  line (no store ships it). Only `checked` hikes go live: hikes.VERIFIED (27 of 101 on Oct 25, 46 on Oct 26, 56 on Oct 27, 66 on Oct 28, 75 on Oct 29, 81 on Oct 30; 10 a day by the scheduled task "Daily: verify 10 more hikes" (9:37am Vancouver), trails in season first; each figure re-read on the park/trail page,
+  line (no store ships it). Only `checked` hikes go live: hikes.VERIFIED (27 of 101 on Oct 25, 46 on Oct 26, 56 on Oct 27, 66 on Oct 28, 75 on Oct 29, 81 on Oct 30, 85 on Oct 31; 10 a day by the scheduled task "Daily: verify 10 more hikes" (9:37am Vancouver), trails in season first; each figure re-read on the park/trail page,
   url kept; climb shown only when the page gives one, `gain_ok`). The other 74 need their trail page read by hand (Sépaq, PCTA, Yukon
   block robots). Preview: `hike_pages.py DIR --all`. Food box (Oct 26, `fuel()`/FUEL_JS): LCDA (Looney 2022, the Army's successor to Pandolf; half up, half down the average grade; Cunningham resting) kcal/day from body + pack kg, hours, climb, or a GPX file read in the browser (gf-fuel). kg | lb switch (Oct 27, Bastien: "some people use both"; `.fuu`, gf-fuel.u, converts body + pack, climb stays m/ft by side). Trail list pages use the hiking menu (`HL()`: boot prices + trail lists, site test checks no /races/ link). check.py "Trail gear lists (checked hikes only)" (--force), site test "Trail gear list:
   sizes, deals, ticks". Preview artifact: https://claude.ai/artifact/KdkvAVSK2eH9ApAXvTz5Yq

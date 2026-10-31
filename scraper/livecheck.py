@@ -33,7 +33,12 @@ def _shopify(url, price, variant, us=False, tol=0.01):
     if r.status_code in (202, 403, 406, 429) or r.status_code >= 500:     # the store said no (Oct 10: Running Warehouse 406s
         return None                                                     # us): can't tell, never "sale ended"
     if r.status_code != 200:
-        return False                    # 404: the product is gone
+        # Oct 31: The Feed moved to a headless Shopify front (Next.js): every product.js 404s while the product page is fine,
+        # so all its featured deals read "sale ended". A 404 only means "gone" when the product page is gone too.
+        p = S.get(url, cookies=None if us else CA_COOKIES, timeout=30)
+        return None if p.status_code == 200 else False
+    if "json" not in (r.headers.get("content-type") or "") and not r.text.lstrip().startswith("{"):
+        return None
     vs = r.json().get("variants") or []
     if variant:
         vs = [v for v in vs if str(v.get("id")) == str(variant)]
