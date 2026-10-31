@@ -2625,10 +2625,11 @@ let signupErr="",resentAt=0;
    No payment, no wall. Members join in one tap (saved in their profile: pro_wait); others leave their email (that's a normal
    sign-up, said on the card). Analytics signup-step pro-view|A, pro-join|A, pro-no|A; funnel.py "FOX PRO PRICE TEST".
    Decision rule (plan doc): build Pro if 5%+ of the visitors who saw the card join at a price. ?pro=1 shows it any day (previews). */
-const PRO_FROM="2026-11-02",PRO_TO="2026-11-16";
+/* Oct 31 (Bastien: "lets lock in 5$ a month, founding members at 3$. We dont need to push the test card"): price decided, no test;
+   the card no longer switches itself on (it only shows with ?pro=1, for previews) until Pro launches. */
 let proSeen=false,proErr="";
-function proOn(){const q=/[?&]pro=1\b/.test(location.search),d=new Date().toISOString().slice(0,10);
-  return (q||(d>=PRO_FROM&&d<=PRO_TO&&ANA.nv()>=2))&&!LS.get("gf-pro")&&!LS.get("gf-nopro")}
+function proOn(){const q=/[?&]pro=1\b/.test(location.search);
+  return q&&!LS.get("gf-pro")&&!LS.get("gf-nopro")}
 const proArm=()=>ANA.arm("pro"),proPrices=()=>proArm()==="B"?[5,49]:[3,29];
 function proHTML(member){
   if(!proOn())return "";const [m,y]=proPrices();
