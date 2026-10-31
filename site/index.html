@@ -1730,10 +1730,20 @@ function rdSource(p){   // today's sale deals in your sizes, every category (til
   const mine=matchItems({...p,store:"",groups:ORDER});let src=mine.filter(d=>d.pct>0);if(view.cdn&&!US())src=src.filter(cdnBrand);
   src.sort(SORTS.match);const tiles={};
   for(const [k,gs] of Object.entries(RD_TILES))tiles[k]={n:src.filter(d=>gs.includes(d.g)).length};
-  const hero=src.find(d=>d.g==="shoes"&&d.img&&d.pct>=25&&d.pct<=60&&!SPIKE.test(d.n)&&(HIKE()||d.t!=="hike")&&d.ok.length>=1&&(d.any||d.ok.length>=1))||null;
+  const heroes=src.filter(d=>d.g==="shoes"&&d.img&&d.pct>=25&&d.pct<=60&&!SPIKE.test(d.n)&&(HIKE()||d.t!=="hike")&&d.ok.length>=1&&(d.any||d.ok.length>=1)).slice(0,12);
+  const hero=heroes.find(d=>!HERO_BAD.has(d.img))||null;
   // Oct 23 (Bastien: "it shows only 1 norda even though I clicked full price"): brand counts follow "Include full price"
   const bc={};(view.fullPrice?mine.filter(d=>!view.cdn||US()||cdnBrand(d)):src).forEach(d=>{bc[d.b]=(bc[d.b]||0)+1});
-  RDC={key,src,tiles,hero,brands:Object.entries(bc).sort((a,b)=>b[1]-a[1])};return RDC}
+  RDC={key,src,tiles,hero,heroes,brands:Object.entries(bc).sort((a,b)=>b[1]-a[1])};return RDC}
+/* Oct 31 (Bastien: a grey store photo on the computer's big deal, "the background doesn't match", and "it looked better when it blended
+   into the background"): the big photo blends into the cream, which hides only a WHITE background. Its corners are checked; a grey one
+   is skipped for the next good deal. A photo that can't be read (no CORS) or a transparent one is kept as before. */
+const HERO_OK=new Set(),HERO_BAD=new Set();
+function heroWhite(u){return new Promise(res=>{if(HERO_OK.has(u))return res(true);if(HERO_BAD.has(u))return res(false);
+  const i=new Image();i.crossOrigin="anonymous";i.referrerPolicy="no-referrer";i.onerror=()=>res(null);
+  i.onload=()=>{try{const w=i.naturalWidth,h=i.naturalHeight,c=document.createElement("canvas");c.width=w;c.height=h;const x=c.getContext("2d");x.drawImage(i,0,0);
+    const ok=[[1,1],[w-2,1],[1,h-2],[w-2,h-2]].every(([a,b])=>{const q=x.getImageData(a,b,1,1).data;return q[3]<10||(q[0]>=251&&q[1]>=251&&q[2]>=251)});
+    (ok?HERO_OK:HERO_BAD).add(u);res(ok)}catch(e){res(null)}};i.src=u})}
 function rdModel(d){const full=nm(d.n),m=full.match(/^(.*?) - (Men's|Women's|Unisex|Homme|Femme|Unisexe)$/);return m?[m[1],m[2]]:[full,""]}
 function rdBuild(){
   const R=t("rd");document.documentElement.classList.add("rd");
@@ -1855,6 +1865,7 @@ function rdUpdate(all,p){   // hero, dropdowns, tiles, why: from today's data, e
     $("rdHp").innerHTML=`<a class="rdhd" href="${esc(affUrl(d.url))}" data-store="${esc(storeOf(d.url))}" target="_blank" rel="noopener"><span class="hi"><img src="${esc(d.img)}" alt="${esc(d.b+" "+m)}" referrerpolicy="no-referrer" onerror="this.remove()"></span>
       <span class="upto">−${d.pct}%</span><span class="cap">${esc(R.heroAt(d.b+" "+m+" · "+money(d.best),s))}</span></a><p class="note" aria-hidden="true">${R.note.map(esc).join("<br>")}</p>`}
   else $("rdHp").innerHTML="";
+  if(d&&!HERO_OK.has(d.img))heroWhite(d.img).then(ok=>{if(ok===false&&RDC===C&&C.hero===d){C.hero=C.heroes.find(x=>!HERO_BAD.has(x.img))||null;rdUpdate(all,p)}});
   $("rdWhy").innerHTML=`<h2>${esc(R.whyH)}</h2><div class="wl">${R.why.map(([h,b],i)=>`<div class="wi"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${RDI.why[i]}</svg><div><b>${esc(h)}</b><p>${esc(b(n))}</p></div></div>`).join("")}</div>`;
   document.documentElement.classList.toggle("rdw",!!view.watch);document.documentElement.classList.toggle("rdsized",hasSizes());
   const nf=[view_rd.brand,view_rd.max,view.store,state.groups.length===1,view.fullPrice,state.ships==="all",view.cdn,view.sort!=="match"].filter(Boolean).length;$("rdBarN").textContent=$("rdQFN").textContent=$("hFiltN").textContent=nf||"";
