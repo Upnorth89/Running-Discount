@@ -4,6 +4,7 @@ database for recent sign-up attempts. Prints as a GitHub notice; email addresses
 
   RESEND_API_KEY=... SUPABASE_URL=... SUPABASE_SECRET_KEY=... python tools/mail_check.py   (workflow: mail-check.yml)
 """
+import json
 import os
 import re
 from datetime import datetime, timedelta, timezone
@@ -192,6 +193,25 @@ if os.environ.get("STATS"):
             r = requests.post(f"{sb}/rest/v1/rpc/{fn}", headers=PH, json=body, timeout=120)
             msg = r.text[:300] if not r.ok else f"{len(r.text)} bytes, keys " + (", ".join(list(r.json().keys())[:12]) if isinstance(r.json(), dict) else type(r.json()).__name__)
             out.append(f"  {fn}({body.get('p_days', '')}): HTTP {r.status_code} in {time.time() - t0:.1f}s: {msg}")
+        # draw the live page with the real key in a throwaway browser: any error while drawing shows the key box
+        try:
+            from playwright.sync_api import sync_playwright
+            with sync_playwright() as p:
+                b = p.chromium.launch()
+                for vw in ({"width": 390, "height": 844}, {"width": 1366, "height": 800}):
+                    c = b.new_context(viewport=vw)
+                    c.add_init_script("try{localStorage.setItem('gf-stats-key'," + json.dumps(keyv) + ")}catch(e){}")
+                    pg = c.new_page()
+                    errs = []
+                    pg.on("pageerror", lambda e: errs.append(str(e)[:200]))
+                    pg.on("console", lambda m: m.type == "error" and errs.append("console: " + m.text[:200]))
+                    pg.goto("https://thegearfox.com/stats.html", wait_until="load")
+                    pg.wait_for_timeout(8000)
+                    out.append(f"  page at {vw['width']}px: dashboard shown={pg.is_visible('#dash')}, key box shown={pg.is_visible('#keybox')}, errors={errs[:4]}")
+                    c.close()
+                b.close()
+        except Exception as e:
+            out.append(f"  page draw: couldn't run ({str(e)[:160]})")
     except Exception as e:
         out.append(f"STATS: failed ({str(e)[:200]})")
 

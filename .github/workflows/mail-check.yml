@@ -24,6 +24,8 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install requests
+      - if: ${{ inputs.stats != '' }}
+        run: pip install playwright && python -m playwright install --with-deps chromium
       - env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           OWN_EMAIL: ${{ secrets.HEALTH_EMAIL }}
