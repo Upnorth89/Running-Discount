@@ -150,3 +150,7 @@ the midweek post's Novablast line said "$75 (was $150, −33%)". If you hand him
   Stripe: 4 prices (founding/regular x CAD/USD), yearly. Friend = 30-day trial then yearly; referrer credit = +1 month on the renewal date
   (trial_end / billing anchor pushed 1 month per paid friend, max 12) once the friend's first yearly invoice is paid. Same preview.
   Note a 30-day trial and a 30-day refund overlap for referred friends: refund window starts at their first real charge (Terms will say so).
+- Referral abuse rules received: cancel in the trial = never charged, no credit; credit only at day 60 (trial 30 + refund window 30 after
+  the first charge; matches my Terms note), removed if refunded anyway (charge.refunded webhook); one trial per email AND per card
+  fingerprint (checked in the webhook on the setup/payment method; a repeat card's subscription gets trial_end=now); same card behind
+  referrer and friend = no credit; member page shows "pending" until day 60 (daily job settles credits). Same preview.
