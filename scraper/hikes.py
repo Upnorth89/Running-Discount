@@ -363,6 +363,15 @@ VERIFIED = {
                        {"name": "Tonquin Valley (Astoria to Portal, one way)", "oneway": True}),   # "43.1 km one way", 2-3 days; Oct 30: Astoria trailhead closed, Portal open
     "continental-divide-trail": (4989, None, "https://continentaldividetrail.org/", {}),   # "spans 3,100 miles between Mexico and Canada"
     "sia-gaspesie": (650, None, "https://www.sia-iat.com/", {}),   # "Le Sentier International des Appalaches au Québec couvre plus de 650 km"
+    # Oct 31 (daily check; only 4: the other unchecked hikes' official pages give no total distance, or block robots):
+    "crow-pass": (37.2, 640, "https://dnr.alaska.gov/parks/brochures/crowpass.pdf", {"oneway": True}),
+                 # Alaska State Parks brochure: "Distance: 23.1 miles, one way, as measured by GPS", "Elevation Gain: 2,100 ft. from Crow Creek"
+    "four-pass-loop": (42, None, "https://www.fs.usda.gov/r02/whiteriver/recreation/four-pass-loop-west-maroon-buckskin", {}),
+                 # "This 26-mile (42 km) circuit climbs over four mountain passes higher than 12,000 ft" (no climb total given)
+    "alice-toxaway": (29, None, "https://www.fs.usda.gov/sites/nfs/files/publication/20260722-SNRATrailReport_0.pdf", {}),
+                 # Sawtooth NRA trail report (Jul 22, 2026): "Alice -Toxaway Loop ... 18" miles, starts and ends at Pettit Lake (Tin Cup TH)
+    "fundy-footpath": (64.3, None, "https://fundyhikingtrails.com/fhta-new-fundy-footpath/", {"oneway": True}),
+                 # Fundy Hiking Trail Association: "Together with park approaches, the association's safety guide describes a 64.3 km journey"
 }
 for s, (km, gain, url, extra) in VERIFIED.items():
     h = BY[s]
