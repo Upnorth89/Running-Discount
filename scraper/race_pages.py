@@ -12,9 +12,12 @@ not affiliated with the race. A test: judged on Search Console clicks + sign-ups
 Usage: python scraper/race_pages.py SITE_DIR [SALE_JSON]
 """
 import json
+import os
 import re
 import sys
+from datetime import date, datetime, timedelta
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from shoe_pages import base_model, slugify
@@ -1258,6 +1261,28 @@ RACES.update({
             (_SIN("headlamp2", "Spare batteries or a spare headlamp", "Piles de rechange ou 2e lampe frontale"), "RRRRR", False),
         ]),
     },
+    # ironlegs.ca/racing-dusk "Mandatory Gear: The following must be carried at all times" (read Oct 28, 2026; growth chat, Bastien OK'd):
+    # 3 loops from West Bragg Creek in any order, Dec 19, 2026, 10am start, 8 h cut-off; "Headlamp required if starting after 2pm".
+    "racing-dusk": {
+        "name": "Racing Dusk 20 Miler", "short": "Racing Dusk", "de": "du ", "le": "le ", "unit": "label",
+        "where": {"en": "West Bragg Creek, AB", "fr": "West Bragg Creek, Alb."},
+        "when": {"en": "December 19, 2026", "fr": "19 décembre 2026"},
+        "dists": ["20M"], "default": "20M",
+        "labels": {"20M": {"en": "20 miles", "fr": "20 milles"}},
+        "src": "https://www.ironlegs.ca/racing-dusk",
+        "read": {"en": "October 28, 2026", "fr": "28 octobre 2026"},
+        "items": _r([
+            (_SIN("jacket", "Jacket", "Manteau"), "M", True),
+            (_SIN("gloves", "Mitts or gloves", "Mitaines ou gants"), "M", True),
+            (_SIN("tuque", "Tuque", "Tuque"), "M", True),
+            (_SIN("midlayer", "Additional warm layer", "Couche chaude de plus"), "M", True),
+            (_SIN("water", "Water: 1 litre or more", "Eau : 1 litre ou plus"), "M", False),
+            (_SIN("blanket", "Space blanket or bivy bag", "Couverture de survie ou sac bivy"), "M", False),
+            (_SIN("headlamp", "Headlamp", "Lampe frontale", "Only if you start your last loop after 2pm (last loop must start by 3:30pm).",
+                  "Seulement si votre dernière boucle part après 14 h (départ de la dernière boucle avant 15 h 30)."), "M", True),
+            (_SIN("bib", "Race bib", "Dossard", "Handed out by the race.", "Remis par la course."), "P", False),
+        ]),
+    },
 })
 
 S = {
@@ -1271,7 +1296,7 @@ S = {
         "have": "I have it", "progress": "You have {h} of {n} mandatory items. Tick what you already own.", "progressAll": "You have every mandatory item. See you at the start.",
         "deals": "On sale now", "dealsSize": "On sale now in your size", "noDeals": "None in stock in your size today. We check every morning.", "few": "Only {n} in {fit} {size} today. We check every morning.",
         "notSold": "The stores we check don't sell this.", "spec": "Check the spec before you buy.",
-        "more": "See more on sale →", "moreN": "See all {n}", "shH": "Trail running shoes", "shTag": "Your pick", "shPh": "What do you race in?", "shSize": "Size", "shGone": "Not in stock in size {s} today. We'll tell you when it's back.", "shPickSize": "Pick your size too.", "shPickFit": "Pick Men's or Women's above first.", "shFrom": "{p} in size {s} today", "shPage": "Every size & store", "shNone": "Not in our trail shoe list. Try the brand name.", "shRm": "Remove", "watch": "Watch", "watchOn": "Watching", "watchL": "Watch the price", "wMember": "Watching. We'll email you when it drops in your size.", "wNew": "Watching, on this phone. Add your email and we'll tell you when it drops.", "wPending": "Watching. Confirm your email (check your inbox) to get the drop emails.", "wAdd": "Add my email", "wOff": "Removed from your watchlist.", "sizeH": "Your size", "sizeTxt": "Pick it once to see deals that fit you.",
+        "more": "See more on sale →", "moreN": "See all {n}", "less": "Show fewer", "catAll": "See more {w} on sale →", "shH": "Trail running shoes", "shTag": "Your pick", "shPh": "What do you race in?", "shSize": "Size", "shGone": "Not in stock in size {s} today. We'll tell you when it's back.", "shPickSize": "Pick your size too.", "shPickFit": "Pick Men's or Women's above first.", "shFrom": "{p} in size {s} today", "shPage": "Every size & store", "shNone": "Not in our trail shoe list. Try the brand name.", "shRm": "Remove", "watch": "Watch", "watchOn": "Watching", "watchL": "Watch the price", "wMember": "Watching. We'll email you when it drops in your size.", "wNew": "Watching, on this phone. Add your email and we'll tell you when it drops.", "wPending": "Watching. Confirm your email (check your inbox) to get the drop emails.", "wAdd": "Add my email", "wOff": "Removed from your watchlist.", "sizeH": "Your size", "sizeTxt": "Pick it once to see deals that fit you.",
         "men": "Men's", "women": "Women's", "change": "Change", "off": "off",
         "kit_bad": "Bad-weather kit", "kit_hot": "Hot-weather kit", "kitWhen": "Only if the race calls it, usually a few days before the start.",
         "kit_bag": "Compulsory, can stay in your TORX bag", "kitWhen_bag": "You may leave these in your TORX bag at the Life Bases, but the race can make you carry or wear them when conditions get tough (bad weather, snow, ice). Pack for the time between Life Bases, the altitude and the forecast.",
@@ -1283,7 +1308,13 @@ S = {
         "qList": "What is the mandatory gear for the {short} {d}?", "aList": "{items}.",
         "qJacket": "Is a windbreaker enough for the {name}?", "aJacket": "No. The race asks for a jacket with an attached hood and a waterproof, breathable membrane (on the {dists}). Windbreakers aren't accepted.",
         "qCup": "Do the {name} aid stations have cups?", "aCup": "No. The aid stations have no cups: bring your own reusable cup.",
-        "kbBest": "From {p} · {n} picks", "kbBestN": "Not in your size today", "aisle": "Race gear lists", "money": T["en"]["money"], "otherSide": "Shopping in the US? This list with US stores →",
+        "kbBest": "From {p} · {n} picks", "kbBestN": "Not in your size today", "aisle": "Race gear lists",
+        "rmH": "Don't miss a thing on race day",
+        "rmTxt": "Tick what you already have. On {rday}, 30 days before {short} ({rdate}), we'll email you what's still missing, each with the best price in your size that day. You'll also get the Friday deals email. Free, unsubscribe in one tap.",
+        "rmBtn": "Remind me", "rmMember": "One tap: we'll use the email you signed up with.",
+        "rmDone": "You're set ✓ We'll email you on {rday} with what's still missing from your {short} list ({dist}). Tick things off anytime: the email only lists what's left.",
+        "rmSync": "Your ticks are saved to your account: open this page on any device where you're signed in.",
+        "rmPending": "Almost done: check your inbox for {email} and tap the link. Your {short} list (with your ticks) is saved once you do.", "money": T["en"]["money"], "otherSide": "Shopping in the US? This list with US stores →",
     },
     "fr": {
         "dir": "courses", "title": "Matériel obligatoire {de}{name} ({short} {dists})",
@@ -1295,7 +1326,7 @@ S = {
         "have": "Je l'ai", "progress": "Vous avez {h} des {n} articles obligatoires. Cochez ce que vous avez déjà.", "progressAll": "Vous avez tout le matériel obligatoire. On se voit au départ.",
         "deals": "En solde maintenant", "dealsSize": "En solde dans votre taille", "noDeals": "Rien en stock dans votre taille aujourd'hui. On vérifie chaque matin.", "few": "Seulement {n} en {size} {fit} aujourd'hui. On vérifie chaque matin.",
         "notSold": "Les boutiques que nous suivons n'en vendent pas.", "spec": "Vérifiez les caractéristiques avant d'acheter.",
-        "more": "Voir plus d'aubaines →", "moreN": "Voir les {n}", "shH": "Chaussures de course en sentier", "shTag": "Votre choix", "shPh": "Vos chaussures de course ?", "shSize": "Pointure", "shGone": "Pas en stock en pointure {s} aujourd'hui. On vous avertit dès son retour.", "shPickSize": "Choisissez aussi votre pointure.", "shPickFit": "Choisissez d'abord Homme ou Femme plus haut.", "shFrom": "{p} en pointure {s} aujourd'hui", "shPage": "Toutes les pointures et boutiques", "shNone": "Pas dans notre liste de chaussures de sentier. Essayez le nom de la marque.", "shRm": "Retirer", "watch": "Suivre", "watchOn": "Suivi", "watchL": "Suivre le prix", "wMember": "Suivi. On vous écrit quand il baisse dans votre taille.", "wNew": "Suivi, sur ce téléphone. Ajoutez votre courriel et on vous avertira quand il baisse.", "wPending": "Suivi. Confirmez votre courriel (voyez votre boîte de réception) pour recevoir les alertes.", "wAdd": "Ajouter mon courriel", "wOff": "Retiré de vos favoris.", "sizeH": "Votre taille", "sizeTxt": "Choisissez-la une fois pour voir les aubaines à votre taille.",
+        "more": "Voir plus d'aubaines →", "moreN": "Voir les {n}", "less": "Voir moins", "catAll": "Voir plus d'aubaines : {w} →", "shH": "Chaussures de course en sentier", "shTag": "Votre choix", "shPh": "Vos chaussures de course ?", "shSize": "Pointure", "shGone": "Pas en stock en pointure {s} aujourd'hui. On vous avertit dès son retour.", "shPickSize": "Choisissez aussi votre pointure.", "shPickFit": "Choisissez d'abord Homme ou Femme plus haut.", "shFrom": "{p} en pointure {s} aujourd'hui", "shPage": "Toutes les pointures et boutiques", "shNone": "Pas dans notre liste de chaussures de sentier. Essayez le nom de la marque.", "shRm": "Retirer", "watch": "Suivre", "watchOn": "Suivi", "watchL": "Suivre le prix", "wMember": "Suivi. On vous écrit quand il baisse dans votre taille.", "wNew": "Suivi, sur ce téléphone. Ajoutez votre courriel et on vous avertira quand il baisse.", "wPending": "Suivi. Confirmez votre courriel (voyez votre boîte de réception) pour recevoir les alertes.", "wAdd": "Ajouter mon courriel", "wOff": "Retiré de vos favoris.", "sizeH": "Votre taille", "sizeTxt": "Choisissez-la une fois pour voir les aubaines à votre taille.",
         "men": "Homme", "women": "Femme", "change": "Modifier", "off": "de rabais",
         "kit_bad": "Kit mauvais temps", "kit_hot": "Kit chaleur", "kitWhen": "Seulement si la course l'annonce, habituellement quelques jours avant le départ.",
         "kit_bag": "Obligatoire, peut rester dans votre sac TORX", "kitWhen_bag": "Vous pouvez les laisser dans votre sac TORX aux bases de vie, mais la course peut vous obliger à les porter ou les transporter quand les conditions se corsent (mauvais temps, neige, glace). Prévoyez selon le temps entre les bases de vie, l'altitude et la météo.",
@@ -1307,7 +1338,13 @@ S = {
         "qList": "Quel est le matériel obligatoire du {short} {d}?", "aList": "{items}.",
         "qJacket": "Un coupe-vent suffit-il pour {le}{name}?", "aJacket": "Non. La course demande un manteau avec capuchon attaché et une membrane imperméable et respirante (sur le {dists}). Les coupe-vent ne sont pas acceptés.",
         "qCup": "Y a-t-il des verres aux ravitaillements {de}{name}?", "aCup": "Non. Les ravitaillements n'ont pas de verres : apportez votre gobelet réutilisable.",
-        "kbBest": "Dès {p} · {n} choix", "kbBestN": "Rien dans votre taille aujourd'hui", "aisle": "Listes de matériel de course", "money": T["fr"]["money"], "otherSide": "Vous magasinez aux États-Unis ? Cette liste avec les boutiques américaines →",
+        "kbBest": "Dès {p} · {n} choix", "kbBestN": "Rien dans votre taille aujourd'hui", "aisle": "Listes de matériel de course",
+        "rmH": "Rien d'oublié le jour de la course",
+        "rmTxt": "Cochez ce que vous avez déjà. Le {rday}, 30 jours avant {le}{short} ({rdate}), on vous écrit ce qui vous manque encore, chaque article avec le meilleur prix du jour dans votre taille. Vous recevrez aussi le courriel d'aubaines du vendredi. Gratuit, désabonnement en un clic.",
+        "rmBtn": "Me le rappeler", "rmMember": "Un clic : on utilise le courriel de votre inscription.",
+        "rmDone": "C'est noté ✓ On vous écrit le {rday} avec ce qui manque encore à votre liste {de}{short} ({dist}). Cochez au fur et à mesure : le courriel ne liste que ce qui reste.",
+        "rmSync": "Vos cases cochées sont enregistrées dans votre compte : ouvrez cette page sur tout appareil où vous êtes connecté.",
+        "rmPending": "Presque fini : ouvrez le courriel envoyé à {email} et touchez le lien. Votre liste {de}{short} (avec vos cases cochées) sera enregistrée à ce moment-là.", "money": T["fr"]["money"], "otherSide": "Vous magasinez aux États-Unis ? Cette liste avec les boutiques américaines →",
     },
 }
 
@@ -1338,6 +1375,49 @@ def twins(head, slug, race):
            f'<link rel="alternate" hreflang="en-US" href="{BASE}/us/races/{slug}/">\n'
            f'<link rel="alternate" hreflang="x-default" href="{BASE}{"/us" if race.get("side") == "us" else ""}/races/{slug}/">')
     return re.sub(r'(<link rel="alternate" hreflang="[^"]+" href="[^"]+">\n?)+', alt + "\n", head, count=1)
+
+
+# Oct 31 (Bastien: "lets build it now"): "Remind me 30 days before the race". Only races with a firm date in `when` get it
+# ("Late August 2027 (date to come)" doesn't); scraper/race_remind.py emails what's still unticked on that day.
+REMIND_DAYS = 30
+_MON = {m: i + 1 for i, m in enumerate(("january", "february", "march", "april", "may", "june", "july", "august", "september",
+                                        "october", "november", "december"))}
+_MON.update({m[:3]: i for m, i in list(_MON.items())})
+_MON.update({"sept": 9})
+_MON_FR = ("janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre")
+
+
+def race_date(race):
+    """The race's first day (a date), or None when the race hasn't fixed it."""
+    w = (race.get("when") or {}).get("en", "")
+    if re.search(r"to come|to be confirmed|\btbc\b|\btbd\b", w, re.I):
+        return None
+    m = re.match(r"\s*([A-Za-z]+)\.?\s+(\d{1,2})\b.*?(\d{4})", w)
+    if not m or m.group(1).lower() not in _MON:
+        return None
+    try:
+        return date(int(m.group(3)), _MON[m.group(1).lower()], int(m.group(2)))
+    except ValueError:
+        return None
+
+
+def today():
+    t = os.environ.get("RACE_TODAY")   # tests: pretend it's another day
+    return date.fromisoformat(t) if t else datetime.now(ZoneInfo("America/Vancouver")).date()
+
+
+def remind_day(race, now=None):
+    """The day the reminder goes out, or None (no firm date, or that day already passed)."""
+    d = race_date(race)
+    if not d:
+        return None
+    r = d - timedelta(days=REMIND_DAYS)
+    return r if r > (now or today()) else None
+
+
+def day_txt(d, L, year=True):
+    y = f" {d.year}" if year else ""
+    return f"{d.day}{'er' if d.day == 1 else ''} {_MON_FR[d.month - 1]}{y}" if L == "fr" else f"{d:%B} {d.day}{',' + y if year else ''}"
 
 
 def dlab(race, d, L):
@@ -1415,6 +1495,8 @@ p.sub{overflow-wrap:anywhere}   /* Oct 23: only the subtitle (".gl.sub" is the k
 @media (max-width:400px){.dl .wl{display:none}.dl .wt{font-size:18px;padding:0 9px}.dl .nm{font-size:13px;overflow-wrap:anywhere}.dl .pr s{display:block}.dl img{width:46px;height:46px}.dl a.dg{gap:8px}}
 .mored{font:600 14px var(--body);color:var(--moss);background:none;border:0;padding:4px 0;cursor:pointer;text-decoration:underline}
 .gi.open .mored{display:none}.gi.got .mored{display:none}
+.catall{margin:4px 0 0;font-size:14px}.catall a{color:var(--moss);font-weight:600}
+.lessd{display:none;font:600 14px var(--body);color:var(--moss);background:none;border:0;padding:4px 0;cursor:pointer;text-decoration:underline}.gi.open .lessd{display:inline}.gi.got .lessd{display:none}
 .gi.mini{padding:9px 14px}.gi.mini .hd h3{font:600 16px/1.3 var(--body)}.gi.mini .note{font-size:13px;margin:2px 0 0 34px}
 .rsize.set .row,.rsize.set>p{display:none}.rsize .cur{display:none;margin:0;font-size:16px}.rsize.set .cur{display:block}
 .rsize .bym{margin:8px 0 0}.rsize .bym button{border:0;background:none;padding:0;min-height:0;color:var(--moss);text-decoration:underline;font:600 14px var(--body);cursor:pointer}
@@ -1594,6 +1676,27 @@ def deal_html(L, r):
             f'<span class="hh">♡</span><span class="wl"> {S[L]["watch"]}</span></button></li>')
 
 
+# Oct 29 (Bastien: "hyper link the title items to the category on the website if people want to see the whole catalog"): under each
+# item's picks, "See more jackets on sale →" opens the homepage on that category (?cat=&t=); kinds without one category (water, food) get none
+CAT_LINK = {"jacket": ("tops", "jacket", "jackets", "manteaux"), "warmjacket": ("tops", "jacket", "jackets", "manteaux"),
+            "wind": ("tops", "jacket", "jackets", "manteaux"), "midlayer": ("tops", "layer", "layers", "couches"),
+            "tuque": ("headwear", "", "hats and tuques", "tuques et casquettes"), "cap": ("headwear", "", "hats and tuques", "tuques et casquettes"),
+            "gloves": ("gloves", "", "gloves", "gants"), "pants": ("bottoms", "pant", "pants", "pantalons"),
+            "longpants": ("bottoms", "", "tights and pants", "collants et pantalons"), "vest": ("packs", "", "vests and packs", "vestes d'hydratation et sacs"),
+            "socks": ("socks", "", "socks", "bas"), "sun": ("gear", "sun", "sunglasses", "lunettes de soleil"),
+            "headlamp": ("gear", "light", "headlamps and lights", "lampes frontales"), "poles": ("gear", "pole", "poles", "bâtons")}
+
+
+def cat_link(kind, L, s, Tl, slug):
+    c = CAT_LINK.get(kbase(kind))
+    if not c:
+        return ""
+    g, t, en, fr = c
+    home = Tl["home"]
+    q = f'{"&" if "?" in home else "?"}cat={g}' + (f"&t={t}" if t else "") + f"&ref=race-{slug}"
+    return f'<p class="catall"><a href="{home}{q}" data-cat="{g}">{esc(s["catAll"].format(w=fr if L == "fr" else en))}</a></p>'
+
+
 def page(slug, race, L, items, stores, pages=None, fx=1.0):
     s, Tl = (dict(S[L], **SUG[L]) if race.get("suggested") else S[L]), tl(L)
     fmt = dict(name=race["name"], short=race["short"], dists=dlabs(race, L), where=race["where"][L if L != "us" else "en"],
@@ -1619,7 +1722,8 @@ def page(slug, race, L, items, stores, pages=None, fx=1.0):
             deals = (f'<ul class="dl"{"" if top else " hidden"}>{"".join(deal_html(L, r) for r in top)}</ul>'
                      f'<p class="none"{" hidden" if top else ""}>{s["noDeals"]}</p>'
                      f'<p class="ft"><button type="button" class="mored" data-n="{s["moreN"]}" {"" if len(top) > FIRST else " hidden"}>{s["moreN"].format(n=len(top))}</button>'
-                     + (f'<span class="spec">{s["spec"]}</span>' if spec else "") + "</p>")
+                     f'<button type="button" class="lessd">{s["less"]}</button>'
+                     + (f'<span class="spec">{s["spec"]}</span>' if spec else "") + "</p>" + cat_link(kind, L, s, Tl, slug))
         else:
             deals = ""
         kit = next((k for k, ks in (race.get("kits") or {}).items() if kind in ks), "")
@@ -1668,6 +1772,13 @@ def page(slug, race, L, items, stores, pages=None, fx=1.0):
             same.setdefault(sig, k)
     pj = json.dumps(pools, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     sj = json.dumps(trail_shoes(items, pages), ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
+    rday = remind_day(race)
+    B = dict(fmt, rday=day_txt(rday, L if L != "us" else "en", year=False) if rday else "", rdate=day_txt(race_date(race), L if L != "us" else "en") if rday else "")
+    rm = (f' data-rm="{rday.isoformat()}" data-rdate="{race_date(race).isoformat()}" data-side="{"us" if L == "us" else "ca"}"'
+          f' data-rmdone="{esc(s["rmDone"].format(**B, dist="{dist}"))}" data-rmsync="{esc(s["rmSync"])}" data-rmpend="{esc(s["rmPending"].format(**B, email="{email}"))}"'
+          f' data-rmmember="{esc(s["rmMember"])}" data-rmbtn="{esc(s["rmBtn"])}"') if rday else ""
+    box = (f'<section class="alert" id="raceBox" data-ref="race-{slug}" data-bad="{esc(Tl["alertBad"])}" data-ok="{esc(Tl["alertOk"])}" data-in="{esc(Tl["alertIn"])}" data-fail="{esc(Tl["alertFail"])}" data-pick="{esc(s["sizeTxt"])}"{rm}>\n'
+           f'<h2>{esc(s["rmH"] if rday else s["boxH"])}</h2><p class="fine">{esc(s["rmTxt"].format(**B) if rday else s["boxTxt"])}</p><form novalidate><input type="email" autocomplete="email" inputmode="email" placeholder="{esc(Tl["emailPh"])}" aria-label="Email" required><button type="submit">{esc(s["rmBtn"] if rday else s["boxBtn"])}</button></form><p class="msg" aria-live="polite"></p></section>')
     body = f"""<p class="crumbs"><a href="/{s['dir']}/">{s['aisle']}</a></p>
 <h1>{esc(s['h1'].format(**fmt))}</h1>
 <p class="sub">{esc(" · ".join([f"{d} {race['km'][d]} km" for d in race["dists"]] + [fmt["where"], fmt["when"]]) if race.get("km") else s['sub'].format(**fmt))}</p>
@@ -1683,8 +1794,7 @@ def page(slug, race, L, items, stores, pages=None, fx=1.0):
 <ul class="gl" id="gl" data-race="{slug}" data-default="{race['default']}" data-lm="{s['M']}" data-lr="{s['R']}" data-la="{s['A']}" data-lp="{s['P']}" data-ll="{s['L']}"
  data-home="{Tl['home']}" data-watch="{esc(s['watch'])}" data-won="{esc(s['watchOn'])}" data-wmember="{esc(s['wMember'])}" data-wnew="{esc(s['wNew'])}" data-wpending="{esc(s['wPending'])}" data-wadd="{esc(s['wAdd'])}" data-woff="{esc(s['wOff'])}" data-moren="{esc(s['moreN'])}" data-dh="{esc(s['deals'])}" data-dhs="{esc(s['dealsSize'])}" data-none="{esc(s['noDeals'])}" data-few="{esc(s['few'])}" data-off="{esc(s['off'])}" data-ly="{esc(s['shTag'])}">{shoe_row}{"".join(rows)}</ul>
 <p class="srcb">{(s['src'] if race.get('updated') else s['srcRead']).format(date=(race.get('updated') or race['read'])["en" if L == "us" else L], link=f'<a href="{src}" rel="noopener">{s["srcLink"]}</a>')} {s['notAff']}</p>
-<section class="alert" id="raceBox" data-ref="race-{slug}" data-bad="{esc(Tl['alertBad'])}" data-ok="{esc(Tl['alertOk'])}" data-fail="{esc(Tl['alertFail'])}" data-pick="{esc(s['sizeTxt'])}">
-<h2>{esc(s['boxH'])}</h2><p class="fine">{esc(s['boxTxt'])}</p><form novalidate><input type="email" autocomplete="email" inputmode="email" placeholder="{esc(Tl['emailPh'])}" aria-label="Email" required><button type="submit">{esc(s['boxBtn'])}</button></form><p class="msg" aria-live="polite"></p></section>
+{box}
 <section class="faq"><h2>{s['faqH']}</h2>{"".join(f'<details><summary>{esc(q)}</summary><p>{esc(a)}</p></details>' for q, a in faq)}</section>
 <script type="application/ld+json">{json.dumps(ld, ensure_ascii=False)}</script>
 <script id="pools" type="application/json">{pj}</script>
@@ -1737,6 +1847,7 @@ var get=function(k){try{return JSON.parse(localStorage.getItem(k)||"null")}catch
 var pools={};try{pools=JSON.parse(document.getElementById("pools").textContent)}catch(e){}
 Object.keys(pools).forEach(function(k){if(typeof pools[k]==="string")pools[k]=pools[pools[k]]});   // a line sharing another line's picks
 var st=get("gf-race-"+race)||{},have=st.have||{},dist=st.d||gl.dataset.default;
+var raceSync=function(){};   // Oct 31: members with a race reminder save their ticks to their account (set by the box below)
 var prof=get("rd-profile"),rs=get("gf-race-size");
 var fit=(rs&&rs.g)||(prof&&prof.gender!=="any"&&prof.gender)||"",size=(rs&&rs.s)||"",by=(rs&&rs.by)||{};
 /* Oct 21: a size per category (a visitor: "medium in shorts, L in socks, small in t-shirts"), like the homepage's sizes screen */
@@ -1793,10 +1904,12 @@ var rt=function(what,x){try{ana("filter",["race",race,what,x==null?"":x].join("|
 var doneSent=false,checkDone=function(){if(doneSent)return;var m=[].filter.call(gl.querySelectorAll(".gi:not([hidden])"),function(li){return li.getAttribute("data-l"+dist)==="M"&&!li.closest(".kit")});   // the "You have N of M" items (kits apart)
   if(m.length&&m.every(function(li){return have[li.dataset.k]})){doneSent=true;rt("complete",dist+"|"+m.length)}};
 document.addEventListener("DOMContentLoaded",function(){rt("open",dist)});   // ana() is defined further down the page
-document.querySelector(".dists").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;dist=b.dataset.d;st.d=dist;put("gf-race-"+race,st);render();rt("dist",dist)});
-gl.addEventListener("change",function(e){var li=e.target.closest(".gi");if(!li||!e.target.classList.contains("have"))return;have[li.dataset.k]=e.target.checked;st.have=have;put("gf-race-"+race,st);render();
+document.querySelector(".dists").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;dist=b.dataset.d;st.d=dist;st.at=Date.now();put("gf-race-"+race,st);render();rt("dist",dist);raceSync()});
+gl.addEventListener("change",function(e){var li=e.target.closest(".gi");if(!li||!e.target.classList.contains("have"))return;have[li.dataset.k]=e.target.checked;st.have=have;st.at=Date.now();put("gf-race-"+race,st);render();raceSync();
   rt(e.target.checked?"have":"unhave",li.dataset.k);if(e.target.checked)checkDone()});
-gl.addEventListener("click",function(e){var b=e.target.closest(".mored");if(b){b.closest(".gi").classList.add("open");rt("seeall",b.closest(".gi").dataset.k)}});
+gl.addEventListener("click",function(e){var b=e.target.closest(".mored");if(b){b.closest(".gi").classList.add("open");rt("seeall",b.closest(".gi").dataset.k)}
+  var ca=e.target.closest(".catall a");if(ca)rt("catall",ca.dataset.cat);   // Oct 29: "See more jackets on sale" -> homepage category
+  var c=e.target.closest(".lessd");if(c){var g=c.closest(".gi");g.classList.remove("open");var r=g.getBoundingClientRect();if(r.top<0)window.scrollBy({top:r.top-70});rt("seefewer",g.dataset.k)}});   // Oct 28: fold the 10 back to 3, back to the line's top
 document.getElementById("rsize").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;
   if(b.hasAttribute("data-chg")){this.dataset.open="1";render();return}if(b.dataset.s&&fit)delete this.dataset.open;
   if(b.hasAttribute("data-byopen")){this.querySelector(".byrows").hidden=false;render();return}
@@ -1857,8 +1970,26 @@ mine.addEventListener("click",function(e){var b=e.target.closest("button[data-rm
   delete w[b.dataset.rm];put("gf-watch",w);if(sub.key)rpc("watch_remove",{p_token:sub.key,p_key:b.dataset.rm}).catch(function(){});shoeMine();say(gl.dataset.woff)});
 var render0=render;render=function(){render0();hearts();sizeMenu();shoeMine()};
 render();
-(function(){var box=document.getElementById("raceBox"),f=box.querySelector("form"),msg=box.querySelector(".msg");
-var sub=get("gf-sub");if(sub&&(sub.active||sub.key)){box.remove();return}
+(function(){var box=document.getElementById("raceBox"),f=box.querySelector("form"),msg=box.querySelector(".msg"),RM=box.dataset.rm;
+var sub=get("gf-sub");
+/* Oct 31: "Remind me 30 days before the race" (races with a firm date: data-rm = the day it goes out). The race list (distance +
+   ticks) rides with the sign-up (profile.races, moved to race_lists by the database) or, for members, race_save in one tap. */
+var dl=function(){var b=document.querySelector('.dists button[data-d="'+dist+'"]');return b?b.textContent:dist};
+var mine=function(){return {slug:race,dist:dist,side:box.dataset.side,ticks:Object.keys(have).filter(function(k){return have[k]})}};
+var done=function(){var fn=box.querySelector(".fine");fn.textContent=box.dataset.rmdone.replace("{dist}",dl());if(f.parentNode)f.remove();msg.textContent=sub&&sub.key?box.dataset.rmsync:"";box.classList.add("rmset")};
+var T=null,save=function(){clearTimeout(T);T=setTimeout(function(){rpc("race_save",{p_token:sub.key,p_race:mine()}).catch(function(){})},1200)};
+if(sub&&(sub.active||sub.key)){
+  if(!RM||!sub.key){box.remove();return}
+  if(st.rm)done();else{f.innerHTML='<button type="submit">'+esc(box.dataset.rmbtn)+'</button>';msg.textContent=box.dataset.rmmember}
+  raceSync=function(){if(st.rm){save();done()}};
+  rpc("race_get",{p_token:sub.key,p_slug:race}).then(function(r){return r.ok?r.json():null}).then(function(row){
+    if(row&&row.ticks){if(!st.at||row.at>st.at){have={};row.ticks.forEach(function(k){have[k]=true});st.have=have;if(row.dist&&document.querySelector('.dists button[data-d="'+row.dist+'"]')){dist=row.dist;st.d=dist}}
+      st.rm=1;put("gf-race-"+race,st);render();done();if(st.at&&row.at<st.at)save()}   // another device's ticks are newer: take them; ours are newer: send them
+    else if(row===null&&st.rm)save()}).catch(function(){});
+  f.addEventListener("submit",function(e){e.preventDefault();var btn=f.querySelector("button");btn.disabled=true;
+    rpc("race_save",{p_token:sub.key,p_race:mine()}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(ok){if(!ok)throw 0;
+      st.rm=1;put("gf-race-"+race,st);done();rt("remind","member")}).catch(function(){btn.disabled=false;msg.textContent=box.dataset.fail})});
+  return}
 f.addEventListener("submit",function(e){e.preventDefault();
   var em=f.querySelector("input").value.trim().replace(/^mailto:/i,"").replace(/^.*<([^>]+)>.*$/,"$1").replace(/\s+/g,"").replace(/\.+$/,"");
   if(!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$/.test(em)||/\.\./.test(em)){msg.textContent=box.dataset.bad;return}
@@ -1870,10 +2001,11 @@ f.addEventListener("submit",function(e){e.preventDefault();
     p={lang:fr?"fr":"en",country:"$CTRY",tz:tz,name:"",gender:fit,terrain:"trail",ships:"$CTRY",groups:G,sizes:sz,brands:[],activities:[]}}
   ["tops","bottoms","bras","socks","gloves","headwear"].forEach(function(k){if(!(p.sizes[k]&&(p.sizes[k].sizes||[]).length))p.sizes[k]={sizes:[sizeFor(k)]}});
   if(ssel.value&&!(p.sizes.shoes&&(p.sizes.shoes.sizes||[]).length))p.sizes.shoes={sizes:[ssel.value],width:[]};
-  p.email=em;if(!p.ref)p.ref=get("gf-ref")||box.dataset.ref;var btn=f.querySelector("button");btn.disabled=true;
+  p.email=em;if(!p.ref)p.ref=get("gf-ref")||box.dataset.ref;if(RM)p.races=[mine()];var btn=f.querySelector("button");btn.disabled=true;
   fetch("https://krwymmkauwqqxjxbvkyq.supabase.co/rest/v1/rpc/subscribe",{method:"POST",headers:{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"},
-    body:JSON.stringify({p_email:em,p_profile:Object.assign({},p,{watch_new:get("gf-watch")||{}})})}).then(function(r){if(!r.ok)throw 0;
-    put("gf-sub",{pending:em});if(!prof)put("rd-profile",p);f.remove();msg.textContent=box.dataset.ok.replace("{email}",em);
+    body:JSON.stringify({p_email:em,p_profile:Object.assign({},p,{watch_new:get("gf-watch")||{},consent:(box.dataset.ref||"race")+": "+((box.querySelector(".fine")||{}).textContent||"").trim().slice(0,900)})})}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(res){
+    var IN=gfIn(res,em,get("gf-watch")||{});if(!IN)put("gf-sub",{pending:em});if(!prof)put("rd-profile",Object.assign({},p,{races:undefined}));f.remove();msg.textContent=(IN?box.dataset.in:box.dataset.ok).replace("{email}",em);
+    if(RM){rt("remind",IN?"new":"pending");if(IN){sub=get("gf-sub");st.rm=1;put("gf-race-"+race,st);done();raceSync=function(){save();done()}}else msg.textContent=box.dataset.rmpend.replace("{email}",em)}
     try{ana("signup",box.dataset.ref)}catch(x){}try{window.umami&&umami.track("signup",{method:"email",where:box.dataset.ref,lang:fr?"fr":"en"})}catch(x){}})
   .catch(function(){btn.disabled=false;msg.textContent=box.dataset.fail})})})();
 })();

@@ -8,6 +8,7 @@ on the homepage only. Prints the result, and as a GitHub notice (readable from t
   SUPABASE_URL=... SUPABASE_SECRET_KEY=... python tools/funnel.py [DAYS]     (workflow: .github/workflows/funnel.yml)
 """
 import os
+import re
 import sys
 from collections import Counter, defaultdict
 from datetime import datetime, timedelta, timezone
@@ -514,9 +515,23 @@ try:
     conf = cnt({"created_at": f"gte.{since}", "confirmed_at": "not.is.null"})
     live = cnt({"confirmed_at": "not.is.null", "unsubscribed_at": "is.null"})
     unsub = cnt({"unsubscribed_at": "not.is.null"})
-    SC["members"] = live
+    # Oct 30 (Bastien: "I don't see 154 subscribers"): the list includes test addresses and the Oct 29 catch-up. Same rule as the
+    # stats page (supabase/ana-members-oct30.sql): a test = @thegearfox.com / @example.com, any "+tag" address, and the plain
+    # address those +tags belong to. No address in the code (public repo).
+    rr = requests.get(f"{SB}/rest/v1/subscribers", headers=H, timeout=30,
+                      params={"select": "email,consent_via", "confirmed_at": "not.is.null", "unsubscribed_at": "is.null"})
+    rr.raise_for_status()
+    act = rr.json()
+    low = lambda e: (e or "").lower()
+    plus_bases = {re.sub(r"\+[^@]*@", "@", low(x["email"])) for x in act if re.search(r"\+[^@]*@", low(x["email"]))}
+    test = lambda e: low(e).endswith(("@thegearfox.com", "@example.com")) or bool(re.search(r"\+[^@]*@", low(e))) or low(e) in plus_bases
+    tests = sum(1 for x in act if test(x["email"]))
+    catch = sum(1 for x in act if not test(x["email"]) and x.get("consent_via") == "form-before-oct29")
+    real = len(act) - tests
+    SC["members"] = real
     out.append(f"EMAIL: sign-ups in this window {made}, confirmed {conf} ({round(100 * conf / max(1, made))}%); "
-               f"active subscribers now {live}; unsubscribed ever {unsub}")
+               f"REAL SUBSCRIBERS NOW {real} (list {live} = {real} real + {tests} test addresses; {catch} of the real ones joined "
+               f"through the Oct 29 catch-up); unsubscribed ever {unsub}")
 except Exception as e:
     out.append(f"Email numbers: couldn't read ({str(e)[:80]})")
 
@@ -588,6 +603,9 @@ try:
                    f"picked a size {pct(sum(did(s, 'size') or did(s, 'shoesize') for s in rs), n)}, clicked a store {pct(len(rclick), n)}, "
                    f"watched an item {pct(sum('watch-add' in s['kinds'] for s in rs), n)}, signed up {pct(sum('signup' in s['kinds'] for s in rs), n)}, "
                    f"went on to another of our pages {pct(len(other), n)}")
+        rm = Counter(x[2] for s in rs for x in s["race"] if x[1] == "remind")   # Oct 31: "Remind me 30 days before" (new / member / pending)
+        out.append(f"  race reminders asked: {sum(rm.values())} ({', '.join(f'{k} {v}' for k, v in rm.most_common()) or 'none yet'}), "
+                   f"in {pct(sum(did(s, 'remind') for s in rs), n)} of the sessions")
         per = Counter(pth.strip("/").split("/")[-1] for s in rs for pth in s["pages"] if isrp(pth or ""))
         out.append("  by race (sessions): " + ", ".join(f"{k} {v}" for k, v in per.most_common(12)))
         refs = Counter(s["ref"] for s in rs if s["ref"])
@@ -647,6 +665,15 @@ try:
         out.append(f"KIT LAYOUT TEST (race + trail list sessions that ticked an item or clicked a store): A {pct(yA, nA)} of {nA} | "
                    f"B {pct(yB, nB)} of {nB} | p={pv:.3f} -> " + (("B WINS" if yB / nB > yA / nA else "A WINS") if pv < 0.05 else "not proven yet")
                    + f" | clicked a store: A {pct(sum('deal-click' in s['kinds'] for s in kg['A']), nA)}, B {pct(sum('deal-click' in s['kinds'] for s in kg['B']), nB)}")
+        # Oct 30 (growth chat: 18 A vs 4 B sessions looked like a broken coin): the coin is per DEVICE, the counts above are sessions,
+        # so one device opening the list 10 times tilts them. Devices per group, and the busiest device's share of its group:
+        sd = globals().get("sid_did") or {}
+        sid_of = {id(s_): k_ for k_, s_ in S.items()}
+        for g_ in ("A", "B"):
+            ds = Counter(sd.get(sid_of[id(s_)]) for s_ in kg[g_])
+            ds.pop(None, None)
+            if ds:
+                out.append(f"  kit {g_}: {len(ds)} devices; busiest device {ds.most_common(1)[0][1]} of {len(kg[g_])} sessions")
 except Exception as e:
     out.append(f"Kit layout test: couldn't read ({str(e)[:80]})")
 

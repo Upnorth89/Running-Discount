@@ -43,7 +43,9 @@ def hay(d):
     t = fold(d["b"] + " " + d["n"])
     w = [x for x in (sq(x) for x in t.split()) if x]
     pairs = [w[i] + x for i, x in enumerate(w[1:]) if re.search(r"\d", x + w[i])]
-    return t + " " + " ".join(w) + " " + " ".join(pairs) + (" goretex gtx" if re.search(r"gore-?tex|\bgtx\b", t) else "") + " " + sq(fold(d["b"]))
+    joined = [w[i] + x for i, x in enumerate(w[1:])]      # Oct 29: "zoomfly" = "Zoom Fly", exact match only (see qhas)
+    return t + " " + " ".join(w) + " " + " ".join(pairs) + (" goretex gtx" if re.search(r"gore-?tex|\bgtx\b", t) else "") + " " + sq(fold(d["b"])) \
+        + " \x01" + "\x01".join(joined) + "\x01"
 
 
 FILLER = {"for", "with", "the", "and", "of", "pour", "avec", "et", "des", "du"}   # same as the site's FILLER (Oct 27)
@@ -71,7 +73,9 @@ def lev(a, b):
 
 def qhas(t, w):
     """index.html qhas() (Oct 24): a word also matches without a trailing s or e ("endorphins", "glycerine")."""
-    return w in t or (len(w) > 4 and w[-1] in "se" and w[:-1] in t)
+    i = t.find("\x01")
+    m = t if i < 0 else t[:i]
+    return w in m or (len(w) > 4 and w[-1] in "se" and w[:-1] in m) or (i >= 0 and len(w) >= 5 and "\x01" + w + "\x01" in t)
 
 
 class Side:

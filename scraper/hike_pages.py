@@ -298,7 +298,7 @@ def page(h, L, items, stores, checked_on):
 <div hidden id="shoeBox" data-root="" data-dir="" data-pickfit="" data-from="" data-page="" data-none="" data-rm="" data-gone="" data-picksize=""><input id="shoeQ"><ul id="shoeSug"></ul><ul id="shoeMine"></ul></div>
 {fuel(h, L)}
 <p class="srcb">{src} {s['notAff']}</p>
-<section class="alert" id="raceBox" data-ref="hike-{slug}" data-bad="{esc(Tl['alertBad'])}" data-ok="{esc(Tl['alertOk'])}" data-fail="{esc(Tl['alertFail'])}" data-pick="{esc(s['sizeTxt'])}">
+<section class="alert" id="raceBox" data-ref="hike-{slug}" data-bad="{esc(Tl['alertBad'])}" data-ok="{esc(Tl['alertOk'])}" data-in="{esc(Tl['alertIn'])}" data-fail="{esc(Tl['alertFail'])}" data-pick="{esc(s['sizeTxt'])}">
 <h2>{esc(s['boxH'])}</h2><p class="fine">{esc(s['boxTxt'])}</p><form novalidate><input type="email" autocomplete="email" inputmode="email" placeholder="{esc(Tl['emailPh'])}" aria-label="Email" required><button type="submit">{esc(s['boxBtn'])}</button></form><p class="msg" aria-live="polite"></p></section>
 <section class="faq"><h2>{s['faqH']}</h2>{"".join(f'<details><summary>{esc(q)}</summary><p>{esc(a)}</p></details>' for q, a in faq)}</section>
 <script type="application/ld+json">{json.dumps(ld, ensure_ascii=False)}</script>
@@ -406,23 +406,58 @@ def script(L, fx):
     return sc
 
 
+# Oct 29 (Bastien: "putting the hikes per province under country and state in the USA"): the hub groups trails by province / state
+# under each country, most trails first, each one a line that opens ("British Columbia · 15 trails"); trails that cross states
+# ("GA–ME") sit in "Multi-state trails" at the end; the visitor's own province/state (device time zone) opens by itself
+HOME_TZ = {"America/Vancouver": "BC", "America/Edmonton": "AB", "America/Toronto": "ON", "America/Montreal": "QC", "America/Halifax": "NS",
+           "America/Moncton": "NB", "America/St_Johns": "NL", "America/Whitehorse": "YT", "America/Winnipeg": "MB", "America/Regina": "SK",
+           "America/Los_Angeles": "CA", "America/Phoenix": "AZ", "America/Denver": "CO", "America/Boise": "ID", "America/Anchorage": "AK"}
+HUB_JS = """<script>(function(){var tz="";try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||""}catch(e){}
+var M=$TZ,r=M[tz];if(tz==="America/Toronto"&&document.documentElement.lang==="fr")r="QC";
+var d=r&&document.querySelector('details.rg[data-r="'+r+'"]');if(d)d.open=true;
+var q=document.getElementById("hubQ");if(!q)return;var keep=null;
+q.addEventListener("input",function(){var on=!!q.value.trim(),D=[].slice.call(document.querySelectorAll("details.rg"));
+  if(on&&!keep)keep=D.map(function(x){return x.open});
+  setTimeout(function(){D.forEach(function(x,i){var any=[].some.call(x.querySelectorAll("li"),function(li){return !li.hidden});
+      x.hidden=on&&!any;x.open=on?any:(keep?keep[i]:x.open)});if(!on)keep=null;
+    document.querySelectorAll("h2.cty").forEach(function(h){var n=h.nextElementSibling,any=false;
+      while(n&&n.tagName==="DETAILS"){if(!n.hidden)any=true;n=n.nextElementSibling}h.hidden=on&&!any})},0)});
+document.querySelectorAll("details.rg").forEach(function(x){x.addEventListener("toggle",function(){if(x.open&&!q.value)try{ana("filter","hubregion|"+x.dataset.r)}catch(e){}})})})();</script>
+<style>details.rg{border-bottom:1px solid var(--line)}details.rg>summary{list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px;
+min-height:52px;padding:6px 2px;cursor:pointer;font:700 18px/1.2 var(--display)}details.rg>summary::-webkit-details-marker{display:none}
+details.rg>summary small{font:500 14px var(--body);color:var(--muted);white-space:nowrap}details.rg>summary small::after{content:" +";font-weight:700;color:var(--moss)}
+details.rg[open]>summary small::after{content:" −"}details.rg>ul.cards{margin:2px 0 14px}details.rg[hidden]{display:none!important}h2.cty{margin-top:22px}</style>"""
+
+
 def hub(L, hikes):
     s, Tl, LL = S[L], (US if L == "us" else T[L]), ("en" if L == "us" else L)
     first = "us" if L == "us" else "ca"
-    rows, grp = "", None
-    for h in sorted(hikes, key=lambda h: (h["side"] != first, h["region"], h["name"])):
-        if h["side"] != grp:
-            grp = h["side"]
-            rows += f'{"</ul>" if rows else ""}<h2>{esc(s["groups"][grp])}</h2><ul class="cards rh">'
-        rows += (f'<li><a href="/{s["dir"]}/{h["slug"]}/"><span class="nm"><b>{esc(h["name"])}</b>'
-                 f'<small>{esc(where(h, LL))} · {esc(facts(h, LL))}</small></span><span class="pr">{s["hubGo"]}</span></a></li>')
+    fr = L == "fr"
+    multi = lambda h: "–" in h["region"]
+    rows = ""
+    for side in sorted({h["side"] for h in hikes}, key=lambda x: x != first):
+        mine = [h for h in hikes if h["side"] == side]
+        regs = {}
+        for h in mine:
+            regs.setdefault("MULTI" if multi(h) else h["region"], []).append(h)
+        name = lambda r: ("Sentiers sur plusieurs États" if fr else "Multi-state trails") if r == "MULTI" else \
+            ((REGION_FR.get(r) if fr else None) or REGION.get(r, r))
+        rows += f'<h2 class="cty">{esc(s["groups"][side])}</h2>'
+        for r in sorted(regs, key=lambda r: (r == "MULTI", -len(regs[r]), name(r))):
+            n = len(regs[r])
+            cnt = (f"{n} sentier" + ("s" if n > 1 else "")) if fr else (f"{n} trail" + ("s" if n > 1 else ""))
+            rows += f'<details class="rg" data-r="{esc(r)}"><summary><span>{esc(name(r))}</span><small>{cnt}</small></summary><ul class="cards rh">'
+            for h in sorted(regs[r], key=lambda h: h["name"]):
+                rows += (f'<li><a href="/{s["dir"]}/{h["slug"]}/"><span class="nm"><b>{esc(h["name"])}</b>'
+                         f'<small>{esc(where(h, LL))} · {esc(facts(h, LL))}</small></span><span class="pr">{s["hubGo"]}</span></a></li>')
+            rows += "</ul></details>"
+    rows += HUB_JS.replace("$TZ", json.dumps(HOME_TZ))
     t, d = s["hubTitle"].format(n=len(hikes)), s["hubDesc"]
     head = (page_head(HL("us"), t, d, "/us/hikes/", "", f"<style>{RP.HUB_CSS}</style>").replace('class="sw" href="/shoes/"', 'class="sw" href="/hikes/"') if L == "us"
             else page_head(HL(L), t, d, "/hikes/", "/randonnees/", f"<style>{RP.HUB_CSS}</style>"))
-    fr = L == "fr"
     find = RP.hub_find("Trouvez un sentier : nom, parc ou région" if fr else "Find a trail: name, park or region",
                        "Aucun sentier ne correspond à « {q} » pour l'instant." if fr else "No trail matches “{q}” yet.")
-    return head + f'<h1 class="hubh">{esc(s["hubH1"])}</h1><p class="sub">{esc(s["hubIntro"])}</p>{find}{rows}</ul>' + page_foot(Tl)
+    return head + f'<h1 class="hubh">{esc(s["hubH1"])}</h1><p class="sub">{esc(s["hubIntro"])}</p>{find}{rows}' + page_foot(Tl)
 
 
 LIVE = True       # Oct 25: Bastien OK'd ("Yes"); TRAIL_LIVE in index.html goes with it

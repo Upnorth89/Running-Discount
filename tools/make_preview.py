@@ -261,14 +261,17 @@ s = s[:a] + '''async function rpc(fn,args,bearer){   // preview: pretend server,
   const fake={lang:LANG,gender:"men",ships:"ca",sizes:{shoes:{sizes:["10"],width:["Regular"]},tops:{sizes:["M"]},bottoms:{sizes:["M"]},socks:{sizes:["M"]}}};
   if(fn==="google_profile")return signinMode?{found:true,email:"you@gmail.com",key:"00000000-0000-0000-0000-000000000000",profile:fake,subscribed:true}:{found:false,email:"you@gmail.com"};
   if(fn==="google_subscribe")return {found:true,email:"you@gmail.com",key:"00000000-0000-0000-0000-000000000000",profile:args.p_profile,subscribed:true};
-  return {subscribe:"sent",send_link:"sent",save_profile:true,unsubscribe:true,watch_add:true,watch_remove:true,watch_list:[]}[fn]??null;
+  return {subscribe:__PVSUB__,send_link:"sent",save_profile:true,unsubscribe:true,watch_add:true,watch_remove:true,watch_list:[]}[fn]??null;
 }
 ''' + s[b:]
+
+# Oct 29 (single opt-in): PV_OPTIN=1 = the pretend server answers a sign-up with a member key, as the new database does
+s = s.replace("__PVSUB__", '"k:00000000-0000-4000-8000-000000000000"' if os.environ.get("PV_OPTIN") else '"sent"')
 
 rep("/* ---------- start ---------- */", '''/* ---------- preview: stand-in for Google sign-in (the real one only runs on thegearfox.com) ---------- */
 G.load=function(){G.ready=true};
 G.exchange=async()=>"preview";
-G.render=function(){["gBtnW","gBtnUp","gBtnIn"].forEach(id=>{const el=$(id);if(!el)return;
+G.render=function(){["gBtnW","gBtnUp","gBtnIn","gBtnCard"].forEach(id=>{const el=$(id);if(!el)return;
   el.innerHTML=`<button type="button" class="pvg">${LANG==="fr"?"Continuer avec Google":"Continue with Google"} <small>(stand-in)</small></button>`;
   el.firstChild.addEventListener("click",()=>onGoogle("preview"))})};
 

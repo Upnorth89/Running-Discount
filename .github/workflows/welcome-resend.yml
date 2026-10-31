@@ -1,0 +1,29 @@
+name: Welcome resend
+
+# Oct 29: the single opt-in catch-up's welcome emails that Resend refused (429: 54 asked for in one second) go out again, one every
+# 0.7 s, only to catch-up members Resend has no welcome email for (tools/welcome_resend.py). Run by hand; send=false = count only.
+on:
+  workflow_dispatch:
+    inputs:
+      send:
+        description: "Send (false = just count)"
+        type: boolean
+        default: false
+
+jobs:
+  resend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          SUPABASE_URL: "https://krwymmkauwqqxjxbvkyq.supabase.co"
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          MAILING_ADDRESS: ${{ secrets.MAILING_ADDRESS }}
+          SEND: ${{ inputs.send && '1' || '0' }}
+        run: python tools/welcome_resend.py

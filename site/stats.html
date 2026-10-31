@@ -27,7 +27,8 @@ header h1{font-size:22px;margin:0;flex:1;min-width:160px}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:14px}
 .tile{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px}
 .tile .l{font-size:13px;color:var(--muted)}.tile .v{font:800 30px/1.1 system-ui,sans-serif;margin:4px 0 2px}
-.tile .c{font-size:13px;color:var(--muted)}.tile .c.up{color:var(--up)}.tile .c.down{color:var(--down)}
+.tile .c{font-size:13px;color:var(--muted)}
+.tile.mem{margin-bottom:10px}.tile.mem .v{font-size:36px}   /* Oct 30: real subscribers, test addresses left out */.tile .c.up{color:var(--up)}.tile .c.down{color:var(--down)}
 .grid2{display:grid;grid-template-columns:1fr;gap:12px}@media(min-width:900px){.grid2{grid-template-columns:1fr 1fr}}
 .card{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:12px;min-width:0}
 .card h2{font-size:16px;margin:0 0 2px}.card .sub{font-size:13px;color:var(--muted);margin:0 0 10px}
@@ -68,6 +69,7 @@ th:first-child,td:first-child{text-align:left}th{color:var(--muted);font-weight:
 </div>
 
 <main id="dash" hidden>
+  <div class="tile mem" id="mem" hidden></div>
   <div class="tiles" id="tiles"></div>
   <div class="card"><h2 id="visH">Visitors per day</h2><p class="sub" id="visSub">People (devices) who opened the site each day, and how many were new. Tap a day for its numbers.</p>
     <div class="daybox" id="daybox" hidden></div>
@@ -131,6 +133,16 @@ function line(id,labels,sets,type){const c=new Chart($(id),{type:type||"line",da
   options:{maintainAspectRatio:false,interaction:{mode:"index",intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:css("--ink"),titleColor:css("--card"),bodyColor:css("--card")}},
     scales:{x:{grid:{display:false},ticks:{color:css("--muted"),maxTicksLimit:8,autoSkip:true}},y:{beginAtZero:true,grid:{color:css("--grid")},border:{display:false},ticks:{color:css("--muted"),precision:0}}}}});
   charts.push(c)}
+/* Oct 30 (Bastien: "add a real subscriber count on the stats page so I can see it easily"): supabase/ana-members-oct30.sql.
+   Real = confirmed, not unsubscribed, test addresses left out (@thegearfox.com, "+tag" addresses and the address they belong to).
+   Hidden until that SQL is pasted. */
+async function members(){
+  if(window.DEMO_BY)return;
+  try{const r=await fetch(SB+"/rest/v1/rpc/ana_members",{method:"POST",headers:{apikey:PK,"Content-Type":"application/json"},body:JSON.stringify({p_key:KEY})});
+    if(!r.ok)return;const m=await r.json();
+    $("mem").innerHTML=`<div class="l">Real subscribers (people getting the Friday email)</div><div class="v">${fmt(m.real)}</div>`+
+      `<div class="c">${m.week?`<span style="color:var(--up)">▲ ${fmt(m.week)} new in the last 7 days</span> · `:""}list ${fmt(m.list)}, of which ${fmt(m.tests)} test address${m.tests===1?"":"es"}</div>`;
+    $("mem").hidden=false}catch(e){}}
 function render(d){
   charts.forEach(c=>c.destroy());charts=[];
   $("live").hidden=false;$("liveN").textContent=d.live||0;
@@ -220,7 +232,7 @@ function render(d){
 }
 async function go(){
   if(!KEY&&!window.DEMO_BY){$("keybox").hidden=false;$("dash").hidden=true;return}
-  try{const d=await load();$("keybox").hidden=true;$("dash").hidden=false;render(d)}
+  try{const d=await load();$("keybox").hidden=true;$("dash").hidden=false;members();render(d)}
   catch(e){$("keybox").hidden=false;$("dash").hidden=true;$("keyErr").hidden=!KEY}}
 $("keyGo").addEventListener("click",()=>{KEY=$("keyIn").value.trim();try{localStorage.setItem("gf-stats-key",KEY)}catch(e){}go()});
 $("range").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;DAYS=+b.dataset.d;

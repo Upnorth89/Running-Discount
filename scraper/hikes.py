@@ -330,6 +330,39 @@ VERIFIED = {
     "bruce-peninsula-grotto": (3, None, "https://parks.canada.ca/pn-np/on/bruce/activ/sentiers-trails", {}),   # "Georgian Bay - Marr Lake Trail to Indian Head Cove and the Grotto 3km"
     "grinnell-glacier": (16, 791, "https://www.nps.gov/places/grinnell-glacier-trailhead.htm", {}),   # viewpoint 5.0 mi (8.0 km) one way, gain 2,596 ft (791 m)
     "cascade-canyon": (15.1, 450, "https://www.nps.gov/thingstodo/cascadecanyon.htm", {"name": "Cascade Canyon (to the Forks, by shuttle boat)"}),   # 9.4 mi (15.1 km) RT, 1,480 ft (450 m)
+    # Oct 28: 10 more, each figure read on the park's / trail's own page
+    "ha-ling": (7.8, 810, "https://albertaparks.ca/parks/kananaskis/kananaskis-country/advisories-and-public-safety/trail-reports/canmore-and-area/ha-ling/", {}),   # "3.9 km to the summit", "Elevation: 810 m"
+    "katahdin": (16.7, 1277, "https://baxterstatepark.org/general-info/", {}),        # Hunt Trail "5.2 miles one-way", "Elevation gain 4,188 ft"
+    "hoh-river": (56, None, "https://www.nps.gov/olym/planyourvisit/hoh-river-trail.htm", {}),   # "17.4 miles to Glacier Meadows" (one way); elevation only as a range
+    "long-trail": (438, None, "https://www.greenmountainclub.org/the-long-trail/", {"oneway": True}),   # "runs north-south 272 miles"
+    "tahoe-rim-trail": (265, None, "https://tahoerimtrail.org/", {}),                # "165 mile thru hike" (loop)
+    "appalachian-trail": (3525, None, "https://appalachiantrail.org/explore/hike-the-a-t/thru-hiking/", {"oneway": True}),   # "more than 2,190 miles"
+    "highline-trail": (19, 728, "https://www.nps.gov/places/highline-trailhead.htm", {"oneway": True}),   # "11.8 miles (19 km), one way", gain 2,388 ft (728 m)
+    "mount-whitney": (34.2, None, "https://www.nps.gov/seki/planyourvisit/whitney.htm", {}),   # "10.7 mile (17.1 km) trail from Whitney Portal"; no gain figure
+    "timberline-trail": (64, None, "https://www.fs.usda.gov/r06/mthood/recreation/trails/timberline-trail-600", {}),   # "~40-mile trail" around Mt. Hood
+    "teton-crest": (62.8, 2743, "https://www.nps.gov/grte/planyourvisit/backcountryroutesandzones.htm", {"oneway": True}),   # "39-mile point to point", "over 9000' of elevation gain"
+    # Oct 29: 9 more (Mount Si, Mount Marcy, Quandary, Berg Lake, Tonquin, Lake O'Hara: the official page gives no clear total or says
+    # one-way for a trail whose far trailhead is closed; Colorado Trail 403, NY DEC robots.txt disallows: left unchecked)
+    "sunshine-coast-trail": (180, None, "https://sunshinecoast-trail.com/", {"oneway": True}),   # "a 180-kilometre back country hiking experience ... from Sarah Point ... to Saltery Bay"
+    "sentier-des-caps": (51, None, "https://www.sentierdescaps.com/le-sentier/", {"oneway": True}),   # "le sentier principal longe sur la majorité de ses 51 km, les caps"
+    "traversee-de-charlevoix": (105, 3336, "https://traverseedecharlevoix.qc.ca/randonnees/la-traversee-complete/", {"oneway": True}),   # "La longue randonnée de 105 km", "Dénivelé total + 3336 m / – 3686 m"
+    "bruce-trail": (900, None, "https://brucetrail.org/explore-the-trail/", {"oneway": True}),   # "over 900 km of main Trail and over 450 km of side trails"
+    "lake-superior-coastal": (65, None, "https://www.ontarioparks.ca/park/lakesuperior/activities", {"oneway": True}),   # "Coastal Very Demanding; 65 km (40 mi) linear; 5 - 7 days"
+    "pukaskwa-coastal": (60, None, "https://parks.canada.ca/pn-np/on/pukaskwa/activ/experience/arriere-back", {"oneway": True}),   # "Pukaskwa National Park's 60 km Coastal Hiking Trail"
+    "jasper-skyline": (44.1, None, "https://parks.canada.ca/pn-np/ab/jasper/activ/passez-stay/arrierepays-backcountry/sugg-sentiers_trip-ideas/skyline", {"oneway": True}),   # "44.1 km one-way", "2 - 3 days"
+    "burstall-pass": (14.8, 470, "https://albertaparks.ca/parks/kananaskis/kananaskis-country/advisories-and-public-safety/trail-reports/peter-lougheed/burstall-pass/", {}),   # "Length 7.4 km one-way", "Elevation: 470 m"
+    "rae-lakes-loop": (66.6, None, "https://www.nps.gov/seki/planyourvisit/rae-lakes-loop.htm", {}),   # "The loop is 41.4 miles long"; only trailhead and pass heights, no total gain
+    # Oct 30 (daily check):
+    "havasu-falls": (25.7, 608, "https://theofficialhavasupaitribe.com/Havasupai-FAQ/havasupai-faq.html",
+                     {"name": "Havasu Falls (Hualapai Hilltop to Supai Village and back)"}),   # "an 8-mile hike"; Hilltop 5,200 ft, Supai 3,205 ft
+    "berg-lake": (42, 790, "https://bcparks.ca/mount-robson-park/berg-lake-trail/", {"name": "Berg Lake Trail (to Berg Lake campground)"}),
+                 # official trail map PDF: Berg Lake campground km 21; trailhead 853 m, Berg Lake 1641 m
+    "mount-assiniboine": (54, None, "https://bcparks.ca/mount-assiniboine-park/hiking/", {}),   # "From Sunshine Village ... to Magog Lake ... a distance
+                 # of 27 km"; the page gives "an elevation change of 488 metres", not the climb of a return trip: left out
+    "tonquin-valley": (43.1, None, PC + "/ab/jasper/activ/passez-stay/arrierepays-backcountry/sugg-sentiers_trip-ideas/tonquin",
+                       {"name": "Tonquin Valley (Astoria to Portal, one way)", "oneway": True}),   # "43.1 km one way", 2-3 days; Oct 30: Astoria trailhead closed, Portal open
+    "continental-divide-trail": (4989, None, "https://continentaldividetrail.org/", {}),   # "spans 3,100 miles between Mexico and Canada"
+    "sia-gaspesie": (650, None, "https://www.sia-iat.com/", {}),   # "Le Sentier International des Appalaches au Québec couvre plus de 650 km"
 }
 for s, (km, gain, url, extra) in VERIFIED.items():
     h = BY[s]

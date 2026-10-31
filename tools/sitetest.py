@@ -137,7 +137,7 @@ def stub(ctx):
     ctx.route(re.compile(r"umami|googletagmanager|accounts\.google|gstatic"), lambda r: r.abort())
     ctx.route(re.compile(r"^https?://(?!127\.0\.0\.1).*\.(jpe?g|png|webp|gif|avif)(\?.*)?$", re.I), lambda r: r.abort())
     # A/B tests (Oct 18): the robot is group A unless a check asks otherwise (test "welcome" B skips the welcome screen)
-    ctx.add_init_script("try{if(!localStorage.getItem('gf-exp'))localStorage.setItem('gf-exp',JSON.stringify({welcome:'A',layout:'A',short:'A'}))}catch(e){}")
+    ctx.add_init_script("try{if(!localStorage.getItem('gf-exp'))localStorage.setItem('gf-exp',JSON.stringify({welcome:'A',layout:'A',short:'A',namecard:'A',watchsheet:'A'}))}catch(e){}")
 
 
 # ---------- what today's data says we should see ----------
@@ -386,7 +386,7 @@ def site_flow(base, per, accented):
 
         def punctuation():   # Oct 10 (stats: "arcteryx" and "goretex" found nothing): punctuation and spaces don't matter
             out = []
-            for written, typed in (("arc'teryx", "arcteryx"), ("gore-tex", "goretex")):
+            for written, typed in (("arc'teryx", "arcteryx"), ("gore-tex", "goretex"), ("zoom fly", "zoomfly")):   # Oct 29: "nike zoomfly" found nothing
                 all_gear()
                 page.fill("#dSearch", written)
                 settle(page, 900)
@@ -396,7 +396,8 @@ def site_flow(base, per, accented):
                 page.fill("#dSearch", typed)
                 settle(page, 900)
                 m = len(cards(page))
-                assert m >= n, f"searching '{typed}' finds {m} deals, '{written}' finds {n}"
+                # "zoom fly" as two words also finds names where they sit apart ("Zoom … Flyknit"): "zoomfly" only has to find the Zoom Flys
+                assert (m > 0) if typed == "zoomfly" else (m >= n), f"searching '{typed}' finds {m} deals, '{written}' finds {n}"
                 out.append(f"'{typed}' {m} (>= '{written}' {n})")
             page.fill("#dSearch", "")
             settle(page)
@@ -784,6 +785,25 @@ def site_flow(base, per, accented):
             return "B $5/$49, A $3/$29, 'No thanks' hides it, nothing outside the test window"
         check("Fox Pro waitlist card (price test)")(pro_card, page)
 
+        def pro_poll():   # Oct 28 (Bastien: "put all 6 together"): after joining the waitlist, "What would you use most?" with 6 Pro ideas
+            page.goto(base + "?propoll=1", wait_until="domcontentloaded")
+            page.wait_for_selector("section.grp .deal", timeout=20000)
+            if not page.locator(".propoll").count():
+                return "no card slot on this visit: skipped"
+            n = page.locator(".propoll .ppo").count()
+            assert n == 6, f"{n} choices instead of 6"
+            page.locator(".propoll .ppo").nth(0).click(); page.locator(".propoll .ppo").nth(4).click()
+            pressed = page.locator('.propoll .ppo[aria-pressed="true"]').count()
+            assert pressed == 2, f"{pressed} choices ticked after 2 taps"
+            page.click("#ppGo"); page.wait_for_timeout(400)
+            saved = page.evaluate("() => JSON.parse(localStorage.getItem('gf-prowant') || 'null')")
+            gone = not page.locator(".propoll").count()
+            page.evaluate("() => localStorage.removeItem('gf-prowant')")
+            assert saved == ["codes", "passport"], f"saved {saved!r}"
+            assert gone, "the question stayed after Send"
+            return "6 choices, 2 ticked and saved, card closes after Send"
+        check("Fox Pro waitlist: what would you use most?")(pro_poll, page)
+
         def compact_cards():   # Oct 25 (Bastien: "more items would be better on a screen"): test 'cards2' B = slimmer two-per-row phone cards,
             # last line = your size / "S/M/L" on the left + "♡ Watch" on the right, 6 top deals; A = as before
             out = {}
@@ -1057,6 +1077,9 @@ def site_flow(base, per, accented):
             assert pg.locator(".browsebar").count(), "browsing without sizes doesn't offer to pick a size"
             assert "Sizes on sale" in pg.inner_text("section.grp:not(.new)") or "every size" in pg.inner_text(".browsebar").lower(), \
                 "nothing says the deals show every size"   # Oct 22: the redesign says it once, in the bar above the deals
+            # Oct 29 (two "wrong size" reports): with every size showing, a price that isn't the same in every size says "From"
+            froms = pg.locator("section.grp .deal .price .from").count()
+            assert froms, "no card says 'From' while browsing every size (prices differ by size on many shoes)"
             pg.reload(wait_until="domcontentloaded")
             pg.wait_for_selector("section.grp .deal", timeout=20000)
             assert pg.locator("#sheet").is_hidden(), "a browsing visitor gets the welcome screen again on reload"
@@ -1511,10 +1534,11 @@ def site_flow(base, per, accented):
             c.add_init_script("""try{localStorage.setItem('gf-nosignup','1');localStorage.setItem('gf-peek','1');localStorage.setItem('rd-profile',JSON.stringify({gender:'men',terrain:'both',ships:'ca',country:'ca',groups:['shoes'],sizes:{shoes:{sizes:['11'],width:[]}},brands:[],lang:'en'}))}catch(e){}""")
             q2 = c.new_page()
             try:
-                q2.goto(base, wait_until="domcontentloaded")
+                q2.goto(base + "?gifts=1", wait_until="domcontentloaded")    # Oct 28: with the seasonal gift item in the menu too
                 q2.wait_for_selector("#dealList .rdc", timeout=30000)
                 q2.click("#menuBtn")
                 settle(q2, 500)
+                assert q2.locator("#mGifts").is_visible(), "the gift item isn't in the menu with ?gifts=1"
                 q2.locator("#menu [data-ctry=us]").scroll_into_view_if_needed(timeout=3000)
                 r = q2.evaluate("document.querySelector('#menu [data-ctry=us]').getBoundingClientRect().bottom")
                 assert r <= q2.evaluate("innerHeight"), f"USA button below the screen ({round(r)}px) and can't be reached"
@@ -1525,6 +1549,39 @@ def site_flow(base, per, accented):
                 c.close()
             return "Canada/USA reachable and working on a 320x568 phone"
         check("Menu on a short phone: Canada/USA reachable")(menu_short_phone, pg)
+
+        def gift_menu():          # Oct 28 (growth chat, Bastien OK'd): "Gifts for runners" in the ☰ menu Nov 15 - Dec 26, Canada running side only
+            import datetime as _dt
+            from zoneinfo import ZoneInfo
+            d = _dt.datetime.now(ZoneInfo("America/Vancouver")).strftime("%m-%d")
+            season = "11-15" <= d <= "12-26"
+            out = []
+            for q, lang, want in (("", "en", season), ("?gifts=1", "en", True), ("?gifts=1&lang=fr", "fr", True), ("?gifts=1&c=us", "en", False)):
+                c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+                stub(c)
+                c.add_init_script("""try{localStorage.setItem('gf-nosignup','1');localStorage.setItem('gf-peek','1');localStorage.setItem('rd-profile',JSON.stringify({gender:'men',terrain:'both',ships:'ca',country:'ca',groups:['shoes'],sizes:{shoes:{sizes:['11'],width:[]}},brands:[],lang:'""" + lang + """'}))}catch(e){}""")
+                q2 = c.new_page()
+                try:
+                    q2.goto(base + q, wait_until="domcontentloaded")
+                    q2.wait_for_selector("#dealList .rdc", timeout=30000)
+                    q2.click("#menuBtn")
+                    settle(q2, 400)
+                    vis = q2.locator("#mGifts").is_visible()
+                    # Oct 28 (Bastien): Instagram left the menu ("it's at the bottom of the page"); the footer keeps it
+                    assert not q2.locator('#menu a[href*="instagram.com"]').count(), "Instagram is back in the ☰ menu"
+                    assert q2.locator('footer a[href*="instagram.com"], .foot a[href*="instagram.com"]').count(), "the footer lost its Instagram link"
+                    assert vis == want, f"{q or 'no switch'}: gift item {'missing' if want else 'showing'} (today {d})"
+                    if vis:
+                        href, txt = q2.get_attribute("#mGifts", "href"), q2.inner_text("#mGifts")
+                        assert href == ("cadeaux-coureurs/" if lang == "fr" else "gifts-for-runners/"), f"gift item goes to {href}"
+                        assert ("Cadeaux" if lang == "fr" else "Gifts for runners") in txt, f"gift item reads {txt!r}"
+                        after = q2.evaluate("document.getElementById('mRaces').nextElementSibling.id")
+                        assert after == "mGifts", "the gift item isn't right after the race gear lists"
+                    out.append(f"{q or 'today'} {'on' if vis else 'off'}")
+                finally:
+                    c.close()
+            return "; ".join(out)
+        check("Menu: seasonal 'Gifts for runners' (Nov 15 - Dec 26, Canada)")(gift_menu, pg)
 
         def open_mail():     # Oct 11 (52% confirmed): "Check your inbox" opens their mail app
             pg.evaluate("localStorage.setItem('gf-sub',JSON.stringify({pending:'robot@gmail.com'}))")
@@ -1577,6 +1634,10 @@ def site_flow(base, per, accented):
             pg.goto(base + f"shoes/{slug}/", wait_until="domcontentloaded")
             pg.wait_for_selector("#backBox form", timeout=8000)
             prev = pg.evaluate("() => localStorage.getItem('gf-watch')")
+            # Oct 30 (morning email: select_option timed out): a size saved by an earlier check shows "Men's 11 · Change" and hides
+            # the two menus, as it should for a visitor; tap Change first
+            if pg.locator("#backBox .bok button").count():
+                pg.click("#backBox .bok button")
             # the page's own choices (a women's-only shoe has no men's fit; Oct 28 a fixed "men" timed out)
             fits = pg.eval_on_selector_all("#backBox [data-fit] option", "os => os.map(o => o.value).filter(Boolean)")
             if fits:
@@ -1825,13 +1886,59 @@ def site_flow(base, per, accented):
                 c.close()
         check("Race gear page: what visitors do is recorded")(race_tracking, pg)
 
+        def race_remind():   # Oct 31 (Bastien: "lets build it now"): "Remind me 30 days before the race"
+            sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scraper"))
+            import race_pages as RPG
+            slug = next((k for k, r in RPG.RACES.items() if RPG.remind_day(r)), None)
+            if not slug:
+                return "no race with a date ahead: nothing to check"
+            KEY, calls = "22222222-3333-4444-8555-666666666666", []
+
+            def rpc(route):
+                name = route.request.url.split("/rpc/")[-1].split("?")[0]
+                calls.append((name, route.request.post_data or ""))
+                body = {"subscribe": json.dumps("k:" + KEY), "race_save": "true"}.get(name, "null")   # race_get: nothing saved yet
+                route.fulfill(status=200, content_type="application/json", body=body)
+            out = []
+            for who in ("new", "member"):
+                c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+                stub(c)
+                c.route("**/rest/v1/rpc/**", rpc)
+                if who == "member":
+                    c.add_init_script(f"localStorage.setItem('gf-sub', JSON.stringify({{key:'{KEY}',active:true}}))")
+                q = c.new_page()
+                try:
+                    q.goto(base + f"races/{slug}/?exp=kit:A", wait_until="load")
+                    q.wait_for_timeout(800)
+                    box = q.locator("#raceBox")
+                    assert box.count(), f"{who}: no reminder box on /races/{slug}/"
+                    txt = box.inner_text()
+                    assert "30 days before" in txt, f"{who}: the box doesn't offer the reminder: {txt[:80]!r}"
+                    del calls[:]
+                    if who == "new":
+                        q.click('#rsize button[data-g="men"]')
+                        q.click('#rsize button[data-s="M"]')
+                        q.locator(".gi:not([hidden]) input.have").first.check()
+                        q.fill("#raceBox input[type=email]", "robot@example.com")
+                    q.locator("#raceBox button").first.click()
+                    q.wait_for_timeout(1000)
+                    done = box.inner_text()
+                    assert "You're set" in done, f"{who}: no 'You're set' after Remind me: {done[:80]!r}"
+                    sent = [b for n, b in calls if n in ("subscribe", "race_save")]
+                    assert sent and f'"slug":"{slug}"' in sent[0], f"{who}: the race list didn't ride with the request ({[n for n, _ in calls]})"
+                    out.append(f"{who}: {'subscribe' if who == 'new' else 'race_save'} carried the list, 'You're set' shown")
+                finally:
+                    c.close()
+            return f"/races/{slug}/: " + "; ".join(out)
+        check("Race gear page: 'Remind me 30 days before'")(race_remind, pg)
+
         def letters():       # Oct 28 (Bastien: "I shouldn't have to see the y bleeding over. These details matter and should be caught in our scan"):
             # every kind of page at phone, tablet, laptop and wide-screen widths, every live test off (A) and on (B): no line of text
             # touching a box it doesn't belong to, no words cut off, nothing wider than the screen (tools/visual_check.py)
             prof = ("localStorage.setItem('gf-peek','1');localStorage.setItem('gf-nosignup','1');localStorage.setItem('rd-profile',JSON.stringify({gender:'men',"
                     "terrain:'both',ships:'ca',country:'ca',groups:['shoes','tops','bottoms'],sizes:{shoes:{sizes:['11'],width:[]},tops:{sizes:['M']},"
                     "bottoms:{sizes:['M']}},brands:[],lang:'en'}))")
-            allb = "localStorage.setItem('gf-exp',JSON.stringify({r100:'B',run1st:'B',cards2:'B',short:'B',popq:'B',kit:'B',alts:'B',welcome:'A',layout:'A'}))"
+            allb = "localStorage.setItem('gf-exp',JSON.stringify({r100:'B',run1st:'B',cards2:'B',short:'B',popq:'B',kit:'B',alts:'B',namecard:'B',watchsheet:'B',welcome:'A',layout:'A'}))"
             paths = ["", "?lang=fr", "shoes/", "black-friday/", "running-shoes-sale/", "races/", "races/ultra-trail-harricana/", "about.html", "gifts-for-runners/"]
             if site_get("hikes/"):
                 paths.append("hikes/")
@@ -1905,6 +2012,105 @@ def site_flow(base, per, accented):
                     c.close()
             return "; ".join(out)
         check("Sign-up card that names a deal (test namecard)")(name_card, pg)
+
+        def watch_sheet():     # Oct 29 (Bastien: "ship both and test"): 'watchsheet' B = the email step after a Watch tap names the item;
+            # and a watchlist with no email asks for one (it used to say "Confirm your email" to people who never gave one)
+            out = []
+            for a in ("B", "A"):
+                c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+                stub(c)
+                q = c.new_page()
+                try:
+                    q.goto(base + f"?exp=watchsheet:{a}", wait_until="load")
+                    q.wait_for_selector("#saveSizes", state="visible", timeout=30000)
+                    q.click("#saveSizes")
+                    q.wait_for_selector("#shoeSizes button", state="visible")
+                    q.click('#fit button[data-v="men"]')
+                    q.locator("#shoeSizes button", has_text=re.compile(r"^11$")).first.click()
+                    q.click("#saveSizes")
+                    q.wait_for_selector("section.grp .deal", timeout=20000)
+                    q.wait_for_timeout(600)
+                    h = q.locator("section.grp .heart").first
+                    brand = h.locator("xpath=ancestor::*[contains(@class,'dw')][1]").locator(".brand").first.inner_text().replace("🍁", "").strip()
+                    h.click()
+                    q.wait_for_selector("#sheet", state="visible", timeout=5000)
+                    title, btn = q.inner_text("#sheetTitle"), q.inner_text("#saveSizes")
+                    if a == "B":
+                        assert brand.lower() in title.lower() and "drops" in title.lower(), f"group B's email step says '{title}' after watching a {brand} item"
+                        assert "show my deals" not in btn.lower(), f"group B's button still says '{btn}'"
+                    else:
+                        assert "where should we send" in title.lower(), f"group A's email step changed: '{title}'"
+                    q.click("#closeSheet")
+                    q.wait_for_timeout(400)
+                    q.click("#openWatch")
+                    q.wait_for_timeout(800)
+                    lede = q.inner_text("#lede")
+                    assert "confirm your email" not in lede.lower(), f"the watchlist tells someone who never gave an email: '{lede}'"
+                    assert q.locator("#watchEmail").is_visible(), "the watchlist has no button to add an email"
+                    q.click("#watchEmail")
+                    q.wait_for_selector("#sheet", state="visible", timeout=5000)
+                    out.append(f"{a}: '{title}'")
+                finally:
+                    c.close()
+            return "; ".join(out) + "; watchlist asks for the email"
+        check("Email step after a Watch tap (test watchsheet) + watchlist email ask")(watch_sheet, pg)
+
+        def instant_member():  # Oct 29 (Bastien: "Yes on each"): single opt-in = a sign-up is a member at once; Google first on the card
+            KEY = "11111111-2222-4333-8444-555555555555"
+            fake_gsi = ("window.google={accounts:{id:{initialize:function(){},prompt:function(){},"
+                        "renderButton:function(el){el.innerHTML='<div role=\"button\" class=\"fakeg\">Continue with Google</div>'}}}};")
+            out = []
+            c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+            stub(c)
+            c.route("**/gsi/client*", lambda r: r.fulfill(status=200, content_type="application/javascript", body=fake_gsi))   # last route wins
+            c.route("**/rest/v1/rpc/subscribe", lambda r: r.fulfill(status=200, content_type="application/json", body=json.dumps("k:" + KEY)))
+            q = c.new_page()
+            try:
+                q.goto(base, wait_until="load")
+                q.wait_for_selector("#saveSizes", state="visible", timeout=30000)
+                q.click("#saveSizes")
+                q.wait_for_selector("#shoeSizes button", state="visible")
+                q.click('#fit button[data-v="men"]')
+                q.locator("#shoeSizes button", has_text=re.compile(r"^11$")).first.click()
+                q.click("#saveSizes")
+                q.wait_for_selector("section.grp .deal", timeout=20000)
+                q.wait_for_selector(".signup #suForm", timeout=8000)
+                q.wait_for_timeout(600)
+                order = q.evaluate("""() => {const c = document.querySelector('.signup'), g = c && c.querySelector('.gcard'), f = c && c.querySelector('#suForm');
+                    return g && f ? [!!(g.compareDocumentPosition(f) & Node.DOCUMENT_POSITION_FOLLOWING), (g.querySelector('.fakeg') || {}).textContent || ''] : null}""")
+                assert order, "the sign-up card has no Google button"
+                assert order[0], "the Google button isn't above the email box"
+                assert "google" in order[1].lower(), "the Google button wasn't drawn on the card"
+                out.append("Google first on the card")
+                q.fill("#suEmail", "robot@example.com")
+                q.locator(".signup #suForm button").first.click()
+                q.wait_for_timeout(1200)
+                sub = q.evaluate("JSON.parse(localStorage.getItem('gf-sub')||'null')")
+                assert sub and sub.get("active") and sub.get("key") == KEY, f"the sign-up didn't make this device a member: {sub}"
+                note = q.inner_text("#notice") if q.locator("#notice").is_visible() else ""
+                assert "you're in" in note.lower(), f"no 'You're in' after signing up (notice: {note[:80]!r})"
+                assert not q.locator(".signup #suForm").count(), "the sign-up card still asks for an email after joining"
+                out.append("card sign-up = member at once")
+                reg = site_json("shoes/pages.json")
+                slug = next((k for k, v in list(reg.items())[:40] if not (isinstance(v, dict) and v.get("to"))
+                             and 'id="alertBox"' in (site_get(f"shoes/{k}/") or "")), None)
+                if slug:
+                    q.evaluate("localStorage.removeItem('gf-sub')")
+                    q.goto(base + f"shoes/{slug}/", wait_until="domcontentloaded")
+                    q.wait_for_selector("#alertBox form", timeout=8000)
+                    q.fill("#alertBox input", "robot@example.com")
+                    q.click("#alertBox button")
+                    q.wait_for_timeout(1000)
+                    msg = q.inner_text("#alertBox .msg")
+                    sub = q.evaluate("JSON.parse(localStorage.getItem('gf-sub')||'null')")
+                    if "pick" not in msg.lower() and "size" not in msg.lower()[:12]:
+                        assert "you're in" in msg.lower(), f"the shoe page box says {msg!r} after an instant sign-up"
+                        assert sub and sub.get("active"), "the shoe page sign-up didn't make this device a member"
+                        out.append("shoe page box too")
+            finally:
+                c.close()
+            return "; ".join(out)
+        check("Sign-up = member at once (single opt-in) + Google first")(instant_member, pg)
 
         def visit_resend():    # Oct 27 (Bastien: "Are we tracking numbers correctly?"): 28% of first visits had lost their first batch
             got, n = [], [0]
@@ -2163,6 +2369,41 @@ def site_flow(base, per, accented):
             pg.click(b)
             settle(pg, 200)
             assert pg.evaluate("Object.keys(JSON.parse(localStorage.getItem('gf-watch')||'{}')).length") == 0, "a second tap didn't remove it"
+            # Oct 28 (Bastien: "when a race item is expanded to the 10 items there's no way to shrink it back"): See all, then Show fewer
+            li = pg.locator("#gl .gi:not(.mini):not(.shoe):not([hidden])").filter(has=pg.locator(".mored:not([hidden])")).first
+            if li.count():
+                li.locator(".mored").click()
+                settle(pg, 200)
+                shown = li.evaluate("l => [...l.querySelectorAll('.dl li')].filter(x => x.offsetParent).length")
+                assert shown > 3, f"'See all' shows only {shown} picks"
+                li.locator(".lessd").click()
+                settle(pg, 200)
+                back = li.evaluate("l => [...l.querySelectorAll('.dl li')].filter(x => x.offsetParent).length")
+                assert back == 3, f"'Show fewer' left {back} picks showing"
+                assert li.locator(".mored").is_visible(), "'See all' didn't come back after 'Show fewer'"
+            # Oct 29 (Bastien): each item links to its whole category on the homepage ("See more jackets on sale →")
+            cl = pg.locator("#gl .gi:not([hidden]) .catall a").first
+            assert cl.count(), "no 'See more … on sale' link on any race item"
+            href = cl.get_attribute("href")
+            assert "cat=" in href, f"category link without a category: {href}"
+            race_url = pg.url
+            c2 = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
+            stub(c2)
+            q2 = c2.new_page()
+            try:
+                q2.goto(base + href.lstrip("/"), wait_until="domcontentloaded")
+                q2.wait_for_selector("section.grp .deal", timeout=30000)
+                q2.wait_for_timeout(800)
+                g = re.search(r"cat=(\w+)", href).group(1)
+                secs = q2.evaluate("[...document.querySelectorAll('#dealList section.grp')].map(x => x.id || x.dataset.g || '')")
+                shown = q2.evaluate("(() => { try { return (JSON.parse(localStorage.getItem('rd-profile')||'{}').groups)||null } catch(e) { return null } })()")
+                cats = q2.evaluate("[...document.querySelectorAll('#dealList section.grp h2')].map(h => h.innerText.split('\\n')[0])")
+                assert len(cats) >= 1 and not q2.locator("#welcome:not(.hidden), .sheet:not(.hidden) #saveSizes:visible").count(), f"the category link didn't open the deals ({cats[:3]})"
+                assert len(cats) <= 2, f"the category link shows several categories: {cats[:4]} (wanted only {g})"
+            finally:
+                c2.close()
+            pg.goto(race_url, wait_until="domcontentloaded")
+            pg.wait_for_selector("#gl .gi", timeout=8000)
             pg.select_option("#shoeSz", "10")
             pg.fill("#shoeQ", "speedgoat")
             settle(pg, 200)
@@ -2193,6 +2434,10 @@ def site_flow(base, per, accented):
                 settle(pg, 300)
                 shown = pg.eval_on_selector_all("ul.cards li", "els => els.filter(l => l.offsetParent).map(l => l.querySelector('b').textContent)")
                 assert first in shown and len(shown) < pg.eval_on_selector_all("ul.cards li", "e => e.length"), f"{path}: searching '{word}' shows {shown[:3]}"
+                if path == "hikes/":   # Oct 29: trails grouped by province/state, folded; a search opens the groups it finds
+                    groups = pg.eval_on_selector_all("details.rg", "e => e.length")
+                    assert groups >= 3, f"hikes/: only {groups} province/state groups"
+                    assert pg.evaluate("[...document.querySelectorAll('details.rg')].every(d => d.hidden || d.open)"), "hikes/: a group with a match stayed closed"
                 pg.fill("#hubQ", "zzqx")
                 settle(pg, 300)
                 assert pg.evaluate("!document.querySelector('.hnone').hidden"), f"{path}: no 'nothing matches' line"
@@ -2231,8 +2476,19 @@ def site_flow(base, per, accented):
             assert "Cadeaux pour coureurs" in pg.inner_text("h1"), "the French gift page isn't in French"
             pg.goto(base + "black-friday/", wait_until="domcontentloaded")
             assert pg.locator('a[href="/gifts-for-runners/"]').count(), "the Black Friday page doesn't link the gift page"
-            return f"{n} gifts, Watch links work, FR ok, linked from /black-friday/"
-        check("Gift page: three budgets, Watch the price, French")(gifts, pg)
+            us = ""
+            if site_get("us/gifts-for-runners/"):   # Oct 30: USA side (US stores, US$), linked from /us/black-friday/
+                pg.goto(base + "us/gifts-for-runners/", wait_until="domcontentloaded")
+                nu = pg.eval_on_selector_all(".gf", "e => e.length")
+                assert nu >= 18, f"only {nu} gifts on the US page"
+                assert "c=us" in (pg.locator(".gf a.wt").first.get_attribute("href") or ""), "the US page's Watch link doesn't open the USA side"
+                wide = pg.evaluate("document.documentElement.scrollWidth")
+                assert wide <= 400, f"the US gift page is wider than the phone ({wide}px)"
+                pg.goto(base + "us/black-friday/", wait_until="domcontentloaded")
+                assert pg.locator('a[href="/us/gifts-for-runners/"]').count(), "the US Black Friday page doesn't link the US gift page"
+                us = f", USA {nu} gifts"
+            return f"{n} gifts, Watch links work, FR ok, linked from /black-friday/{us}"
+        check("Gift page: three budgets, Watch the price, French, USA")(gifts, pg)
         ctx2.close()
 
         # an American visitor (Oct 6, 2026): a US time zone opens the USA side; the switch goes back to Canada

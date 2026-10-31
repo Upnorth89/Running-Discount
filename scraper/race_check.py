@@ -22,7 +22,7 @@ from pathlib import Path
 import requests
 
 sys.path.insert(0, str(Path(__file__).parent))
-from race_pages import RACES  # noqa: E402
+from race_pages import RACES, race_date, remind_day, today as van_today  # noqa: E402
 
 UA = {"User-Agent": "Mozilla/5.0 (compatible; TheGearFoxBot/1.0; +https://thegearfox.com/about.html)",
       "Accept-Language": "en-CA,en;q=0.8,fr-CA;q=0.6"}
@@ -56,10 +56,37 @@ def page_lines(r):
     return out + [f for f in files if FILE.search(f)]
 
 
+MONTHS = "january|february|march|april|may|june|july|august|september|october|november|december|janvier|février|fevrier|mars|avril|mai|juin|juillet|août|aout|septembre|octobre|novembre|décembre|decembre"
+
+
+def page_text(r):
+    if "pdf" in r.headers.get("content-type", "") or r.url.lower().split("?")[0].endswith(".pdf"):
+        from pypdf import PdfReader
+        return "\n".join((p.extract_text() or "") for p in PdfReader(io.BytesIO(r.content)).pages)
+    return unescape(re.sub(r"(?s)<[^>]+>", " ", re.sub(r"(?is)<(script|style|noscript|svg)\b.*?</\1>", " ", r.text)))
+
+
+def date_note(race, text):
+    """Oct 31 (race reminders go out 30 days before the date in RACES): a dated race whose page no longer shows that day,
+    or an undated race whose page now shows a date next year. Only a hint: a person checks the race's own page."""
+    t = re.sub(r"\s+", " ", text.lower())
+    d = race_date(race)
+    if d:
+        if not remind_day(race):
+            return ""
+        en, fr = f"{d:%B} {d.day}".lower(), f"{d.day} {('janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre')[d.month - 1]}"
+        short = f"{d:%b}. {d.day}".lower()
+        return "" if any(x in t for x in (en, fr, short, f"{d:%b} {d.day}".lower())) else \
+            f"- {race['name']}: we say {d.isoformat()} (reminder {remind_day(race).isoformat()}), its page doesn't show that day: check the date"
+    yr = van_today().year + 1
+    hits = re.findall(rf"(?:(?:{MONTHS})\.?\s+\d{{1,2}}(?:st|nd|rd|th)?[^.\n]{{0,20}}{yr}|\d{{1,2}}(?:er)?\s+(?:{MONTHS})\s+{yr})", t)
+    return f"- {race['name']}: no date in our list yet, its page says \"{hits[0]}\": add it to RACES (turns on its reminder)" if hits else ""
+
+
 def main():
     path = Path(sys.argv[1] if len(sys.argv) > 1 else "race-check.json")
     old = json.loads(path.read_text()) if path.exists() else {}
-    new, changed, broken, first = {}, [], [], []
+    new, changed, broken, first, dates = {}, [], [], [], {}
     today = dt.date.today().isoformat()
     for slug, race in RACES.items():
         if race.get("nocheck"):    # Oct 23: the race site answers robots with a challenge (TORX): checked by hand
@@ -72,6 +99,11 @@ def main():
                 if r.status_code != 200:
                     raise RuntimeError(f"HTTP {r.status_code}")
                 lines = page_lines(r)
+                note = date_note(race, page_text(r))
+                if note and slug not in dates:
+                    dates[slug] = note
+                elif not note:
+                    dates[slug] = ""
                 if not lines:
                     raise RuntimeError("no gear text on the page (a page filled by script, or a different page now)")
             except Exception as e:   # keep last month's lines: the next run compares with the last good read
@@ -97,12 +129,17 @@ def main():
         print(c)
     for b in broken:
         print(b)
-    if not changed and not broken:
+    dates = [n for n in dates.values() if n]
+    for n in dates:
+        print(n)
+    if not changed and not broken and not dates:
         return   # nothing to say: no email
     subject = (f"Race gear lists: {len(changed)} changed" if changed else "Race gear lists: no change") + \
+              (f", {len(dates)} date{'s' if len(dates) != 1 else ''} to check" if dates else "") + \
               (f", {len(broken)} page{'s' if len(broken) != 1 else ''} not answering" if broken else "")
     text = ("Once a month we reread every race's own gear list. Lines that appeared (+) or went away (-) since last month:\n\n"
             + ("\n".join(changed) if changed else "No list changed.\n")
+            + ("\nRACE DATES (reminders go out 30 days before the date we have):\n" + "\n".join(dates) + "\n" if dates else "")
             + ("\nNOT ANSWERING (the link may have moved; the race page keeps its last list):\n" + "\n".join(broken) + "\n" if broken else "")
             + "\nAsk Claude to update the race page (scraper/race_pages.py) from the race's own list.\n")
     key, to = os.environ.get("RESEND_API_KEY"), os.environ.get("HEALTH_EMAIL") or "hello@thegearfox.com"

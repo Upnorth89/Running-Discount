@@ -229,7 +229,13 @@ def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, u
                 nouns[noun(it["n"])] = nouns.get(noun(it["n"]), 0) + 1
             if direct:       # Oct 12: Reddit's spam filter removed a post with 20 thegearfox.com links: link the store itself
                 link = it["of"][min(at, key=lambda s: s[1])[2]]
-            lo, was = min(s[1] for s in at) / fx, max(s[3] for s in at) / fx
+            # Oct 28 (Bastien: "The novablast % discount is off"): the line said "$75.00 (was $150, −33%)": the % was the level 7+ sizes
+            # share, the price the cheapest size (2 sizes at −50%). Now one level for all three: the price you get in every one of those
+            # sizes (the band's highest sale price), its regular, and the % worked out from those two, so the line always adds up.
+            top = max(at, key=lambda s: s[1])
+            lo, was = top[1] / fx, top[3] / fx
+            pct = 1 - lo / was
+            assert sum(1 for s in at if s[1] <= top[1]) >= len({s[0] for s in at}), "price shown isn't in every size counted"
             at_host = host(it["of"][min(at, key=lambda s: s[1])[2]])
             names = store_names()
             shop = next((n for d_, n in names.items() if at_host.endswith(d_)), at_host) if stores else None
@@ -352,6 +358,12 @@ def main():
         Path(a.out).with_suffix(".txt").write_text(plain)
     if a.html:
         Path(a.html).write_text(write_html(picks, sides, a.ref))
+    # Oct 28 (Bastien: "I need you to double check your work before I push stuff"): every line checked on its live shoe page
+    from post_check import check
+    wrong = check(md, log=lambda m: print(m, file=sys.stderr))
+    print(f"POST CHECK: {'all lines match their shoe page' if not wrong else f'{len(wrong)} line(s) WRONG, do not send: ' + ', '.join(wrong)}", file=sys.stderr)
+    if wrong:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

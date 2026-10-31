@@ -93,7 +93,7 @@ input:focus-visible,button:focus-visible,summary:focus-visible,select:focus-visi
 @media(max-width:899px){.hdrsearch .topbar .in{gap:10px}.hdrsearch .topbar .logo picture,.hdrsearch .topbar .logo .tag{display:none}
   .hdrsearch .topbar .logo .logomini{display:block;width:42px;height:42px;border-radius:50%}}   /* Oct 19 (Bastien): the app icon's fox, not the favicon */
 .topbar{position:sticky}.menu{position:absolute;right:max(16px,calc(50% - 324px));top:calc(100% + 6px);z-index:30;width:min(300px,calc(100vw - 32px));background:var(--card);border:1.5px solid var(--line);border-radius:18px;box-shadow:0 14px 40px rgba(0,0,0,.18);padding:8px}
-.menu[hidden]{display:none}
+.menu[hidden]{display:none}.menu>a[hidden]{display:none}
 .menu>a,.menu>button{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;padding:0 12px;border:0;border-radius:12px;background:none;font:600 16px/1.2 var(--body);color:var(--ink);text-decoration:none;text-align:left;cursor:pointer}
 .menu>a:hover,.menu>button:hover,.menu>a:focus-visible,.menu>button:focus-visible{background:var(--mist)}
 .menu .mi{flex:0 0 auto;color:var(--muted)}
@@ -327,6 +327,7 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
 .deal .name{font-weight:500;line-height:1.3;overflow-wrap:anywhere}
 .deal .price{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;margin-top:4px}   /* wraps on 320px phones (Oct 11: "$100.00 CAD $229.99" made the page 24px too wide) */
 .deal .price b{font:800 28px/1 var(--display)}
+.deal .price .from{font:600 13px/1 var(--body);color:var(--muted);align-self:center}
 .deal .price s{color:var(--muted);font-size:15px}
 .deal .price .cur{font:600 12px/1 var(--body);letter-spacing:.04em;color:var(--muted);margin-left:-4px}
 #curBtn{font-size:13px;min-width:52px}
@@ -376,7 +377,7 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
 
 /* Friday email card */
 .signup{background:var(--band);color:var(--band-ink);border-radius:14px;padding:18px;margin:0 0 30px}
-.procard .proprice{margin:10px 0 12px;font-size:15px;line-height:1.4}.procard .proprice b{font-size:20px}.procard .prok{display:flex;align-items:center;gap:6px;font:700 12px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:#F26A1B;margin:0 0 10px}.procard .prok i{width:7px;height:7px;border-radius:50%;background:#F26A1B}.procard h3{font-size:30px;line-height:1.02;margin:0 0 8px}.procard .prosub{color:#C9D3CC;font-size:15px;margin:0 0 14px}.procard .prorc{background:#fff;color:#141A17;border-radius:12px;padding:12px 14px;position:relative;margin:0 0 12px}.procard .prorc .lab{position:absolute;top:-9px;right:12px;background:#F26A1B;color:#141A17;font:700 11px/1 var(--body);letter-spacing:.06em;text-transform:uppercase;padding:5px 7px;border-radius:5px}.procard .prorc .it{font-weight:600;font-size:14px;line-height:1.3;margin:0 0 8px}.procard .prorc .it small{font-weight:500;color:#5E6762;font-size:14px}.procard .prorc .row{display:flex;justify-content:space-between;font-size:14px;color:#5E6762;padding:3px 0}.procard .prorc .row b{color:#141A17;font-weight:600}.procard .prorc .owe{border-top:1.5px dashed #D8DDD7;margin-top:6px;padding-top:8px;display:flex;justify-content:space-between;align-items:baseline}.procard .prorc .owe span{font-weight:600;font-size:14px}.procard .prorc .owe b{font:800 26px/1 var(--body);color:#1E7B45}.procard .prorc .left{font-size:13px;color:#1E7B45;font-weight:600;margin-top:2px}.procard .prosteps{list-style:none;padding:0;margin:0 0 12px;display:grid;gap:8px}.procard .prosteps li{display:flex;gap:10px;font-size:14.5px;line-height:1.35;color:#E7ECE8}.procard .prosteps b{flex:none;width:22px;height:22px;border-radius:50%;background:#2B3631;color:#F26A1B;font-size:12px;line-height:22px;text-align:center}.procard .proproof{font-size:13.5px;color:#C9D3CC;border-left:3px solid #F26A1B;padding:2px 0 2px 10px;margin:0 0 14px}.procard .proproof b{color:#fff}.procard .proalso{font-size:13.5px;color:#A1ABA5;margin:0 0 14px}.procard .proalso b{color:#E7ECE8;font-weight:600}.procard #proJoin{width:100%}.procard #proForm{display:flex;flex-direction:column;gap:8px}.procard #proForm input,.procard #proForm button{width:100%;margin:0}
+.signup.procard{--pg:#0E2621;--pc:#F4EEE2;--pm:#D5DED8;--po:#FF6A13;--pk:#14201B;background:radial-gradient(120% 90% at 85% 10%,#163A30 0,var(--pg) 60%);color:#fff;border:0;border-radius:18px;text-align:left;padding:20px 20px 18px;max-width:780px;margin-left:auto;margin-right:auto;box-sizing:border-box;overflow:hidden}.procard .protop{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 14px}.procard .pbrand{display:flex;align-items:center;gap:10px;font:700 15px/1 Inter,var(--body);letter-spacing:.04em;text-transform:uppercase;color:#fff}.procard .pbrand img{width:36px;height:36px;border-radius:50%;display:block}.procard .cs{display:inline-flex;align-items:center;font:700 12px/1 Inter,var(--body);letter-spacing:.08em;text-transform:uppercase;color:#BFE6CC;background:rgba(143,212,168,.16);border:1px solid rgba(143,212,168,.45);padding:7px 12px;border-radius:99px;white-space:nowrap}.procard .progrid,.procard .proleft{display:flex;flex-direction:column}.procard .progrid>.prorc{display:none}.procard .prorc{margin:18px 0 2px}.signup.procard h3{font:700 40px/1.04 Poppins,Inter,var(--body);letter-spacing:-.025em;color:#fff;margin:0 0 12px}.procard h3 .ul{position:relative;display:inline-block}.procard h3 .ul svg{position:absolute;left:-2%;bottom:-.2em;width:104%;height:.32em;overflow:visible}.procard .prosub{font:400 16px/1.45 Inter,var(--body);color:var(--pm);margin:0;max-width:24em}.procard .prorc{position:relative;justify-self:center;width:min(74%,232px);align-self:center;background:var(--pc);color:var(--pk);padding:22px 20px 18px;transform:rotate(3deg);filter:drop-shadow(0 12px 20px rgba(0,0,0,.35));clip-path:polygon(0 3%,5% .5%,11% 2.6%,17% .4%,24% 2.4%,31% .8%,38% 2.8%,46% .5%,53% 2.3%,61% .6%,68% 2.6%,75% .9%,82% 2.4%,88% 3.8%,94% 7%,100% 11%,100% 100%,96% 98.6%,90% 99.8%,83% 98.4%,75% 99.6%,67% 98.2%,58% 99.7%,49% 98.4%,40% 99.8%,31% 98.3%,22% 99.6%,13% 98.5%,6% 99.7%,0 98.6%)}.procard .prorc:after{content:"";position:absolute;right:0;top:0;width:13%;height:11%;background:linear-gradient(225deg,transparent 48%,#D9D1C1 50%,#EDE6D8 80%)}.procard .prorc .r{display:flex;justify-content:space-between;gap:12px;font:500 16px/1.5 Inter,var(--body)}.procard .prorc .r b{font-weight:700}.procard .prorc hr{border:0;border-top:1.5px solid #CFC6B3;margin:10px 0 12px}.procard .prorc .lab{text-align:center;font:700 17px/1.2 Inter,var(--body)}.procard .prorc .big{position:relative;display:block;width:max-content;margin:8px auto 0;padding:10px 22px 2px;font:700 54px/1 Kalam,cursive;letter-spacing:-.02em}.procard .prorc .big svg{position:absolute;inset:0 -14px -6px;width:calc(100% + 28px);height:calc(100% + 6px);overflow:visible;transform:rotate(-4deg);z-index:-1}.procard .prorc .big{isolation:isolate}.procard .prosteps{list-style:none;padding:0;margin:20px 0 18px;display:flex;justify-content:center;gap:26px}.procard .prosteps li{display:flex;flex-direction:column;align-items:center;gap:8px}.procard .prosteps svg{width:28px;height:28px}.procard .prosteps strong{font:600 14.5px/1.2 Inter,var(--body);color:#fff;white-space:nowrap}.procard #proForm{display:flex;flex-direction:column;align-items:center;gap:8px;margin:0}.procard .pfw{position:relative;display:flex;justify-content:center;width:auto;max-width:100%;transition:width .25s ease}.procard #proForm .proin{display:none;width:100%}.procard #proForm.open .pfw{width:min(100%,420px)}.procard #proForm.open .proin{display:block}.procard #proForm input{width:100%;margin:0;box-sizing:border-box;min-height:52px;border:2px solid #fff;border-radius:99px;background:#fff;font:16px Inter,var(--body);padding:0 64px 0 20px;color:var(--pk)}.procard #proForm input:focus{outline:3px solid var(--po);outline-offset:2px}.procard #proForm button,.procard #proJoin{display:block;margin-left:auto!important;margin-right:auto!important;min-height:50px;margin:0;border:0;border-radius:99px;background:var(--po);color:var(--pk);font:700 17px Inter,var(--body);padding:0 30px;width:auto;cursor:pointer}.procard #proForm.open button{position:absolute;right:5px;top:5px;bottom:5px;width:auto!important;min-height:0;padding:0 16px;font-size:19px}.procard #proForm.open .jl{display:none}.procard #proForm .profine{display:none;margin:0;text-align:center;font-size:12.5px;color:#AFC0B6;max-width:30em}.procard #proForm.open .profine{display:block}@keyframes pfIn{from{opacity:0;transform:scaleX(.6)}to{opacity:1;transform:none}}@media(prefers-reduced-motion:reduce){.procard #proForm.open .proin{animation:none}}.procard .proprice{display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;gap:4px 10px;margin:12px 0 0;font:400 13.5px/1.4 Inter,var(--body);color:var(--pm)}.procard .proprice b{color:#fff;font-weight:700;font-size:15px}.procard .proprice .dot{opacity:.6}.procard .proprice button{font:inherit;color:#fff;padding:0;min-height:0;background:none;border:0;text-decoration:underline;cursor:pointer}.procard .err{color:#FFB4A8;margin:8px 0 0}.procard.propoll .pph{font-size:28px;margin:0 0 6px}.procard .ppl{display:flex;flex-direction:column;gap:8px;margin:14px 0 4px}.procard .ppo{text-align:left;min-height:46px;padding:10px 14px 10px 44px;border-radius:12px;border:1.5px solid rgba(213,222,216,.35);background:rgba(255,255,255,.04);color:#fff;font:500 15px/1.3 Inter,var(--body);cursor:pointer;position:relative}.procard .ppo:before{content:"";position:absolute;left:14px;top:50%;width:18px;height:18px;margin-top:-9px;border-radius:5px;border:1.5px solid rgba(213,222,216,.6)}.procard .ppo[aria-pressed=true]{border-color:#8FD4A8;background:rgba(143,212,168,.12)}.procard .ppo[aria-pressed=true]:before{background:#8FD4A8 url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Cpath d=%27M3.5 8.5l3 3 6-7%27 fill=%27none%27 stroke=%27%2314201B%27 stroke-width=%272.2%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E") center/14px no-repeat;border-color:#8FD4A8}.procard .proprice .ppgo{min-height:48px;border:0;border-radius:99px;background:var(--po);color:var(--pk);font:700 16px Inter,var(--body);padding:0 30px;cursor:pointer;text-decoration:none;margin-right:8px}.procard.propoll .proprice{align-items:center;margin-top:16px}@media(max-width:359px){.procard.propoll .pph{font-size:23px}}@media(max-width:359px){.signup.procard h3{font-size:34px}.procard .prosteps{gap:12px}.procard .prosteps strong{font-size:13px}.procard #proForm input{font-size:15px;padding-left:16px}.procard #proForm button{width:100%}}@media(min-width:620px){.signup.procard{padding:26px 30px 22px}.procard .progrid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);align-items:center;gap:24px}.procard .proleft{display:block}.procard .proleft .prorc{display:none}.procard .progrid>.prorc{display:block}.signup.procard h3{font-size:54px}.procard .prorc{width:100%;max-width:280px;margin:0}.procard .prorc .r{font-size:18px}.procard .prorc .lab{font-size:19px}.procard .prorc .big{font-size:64px}}
 .rcwrap{position:relative}.rcsug{display:flex;flex-direction:column;background:var(--card);border-radius:10px;overflow:hidden;margin-top:4px}.rcsug:empty{display:none}.rcsug button{all:unset;cursor:pointer;padding:11px 14px;font:500 15px/1.25 var(--body);color:var(--ink);border-top:1px solid var(--line)}.rcsug button:first-child{border-top:0}.rcsug button:active,.rcsug button:hover{background:var(--mist)}
 .runcard #suForm{flex-direction:column}.runcard #suForm input,.runcard #suForm .primary{flex:none;width:100%}.runcard #suForm .primary{min-height:48px;line-height:1.15;padding:8px 16px}
 .signup h3{font:800 24px/1.1 var(--display);margin:0 0 4px}
@@ -541,10 +542,10 @@ body.locked #langPick,body.locked #curBtn,body.locked #openWatch,body.locked #me
   <button type="button" data-go="deals"><svg class="mi" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12V4.5A1.5 1.5 0 0 1 4.5 3H12l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.4"/></svg><span data-i18n="mDeals">Today's deals</span></button>
   <a href="shoes/" id="mShoes" data-go="shoes"><svg class="mi" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 17v-6l3.5-3 3 2.5 2.5-2.5 4.5 4.5h3a2.5 2.5 0 0 1 2.5 2.5V17z"/><path d="M2.5 20.5h19"/></svg><span data-i18n="mShoes">Shoe prices by model</span></a>
   <a href="races/" id="mRaces" data-go="races"><svg class="mi" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V3.5"/><path d="M5 4h12l-2.5 4L17 12H5"/></svg><span data-i18n="mRaces">Race gear lists</span></a>
+  <a href="gifts-for-runners/" id="mGifts" data-go="gifts" hidden><svg class="mi" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 21V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg><span data-i18n="mGifts">Gifts for runners</span></a>
   <button type="button" data-go="sizes"><svg class="mi" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19.5 8.5l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg><span data-i18n="mSizes">My sizes</span></button>
   <button type="button" data-go="app" id="mApp" hidden><svg class="mi" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M12 8v6"/><path d="M9 11h6"/></svg><span data-i18n="mApp">Add to your home screen</span></button>
   <a href="about.html" data-go="about"><svg class="mi" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><path d="M12 7.6v.1"/></svg><span data-i18n="mAbout">About The Gear Fox</span></a>
-  <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener" data-go="instagram"><svg class="mi" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8v.1"/></svg><span>Instagram</span></a>
   <div class="msw ctryrow"><span data-i18n="ctryLabel">Shopping from</span><span class="ctry"><button type="button" data-ctry="ca">Canada</button><button type="button" data-ctry="us" data-i18n="usa">USA</button></span></div>
   <div class="msw ctryrow langrow"><span data-i18n="langLabel">Language</span><span class="ctry" id="langPick" role="group"></span></div>
   <div class="msw"><span data-i18n="mCur">Prices in</span><button class="langbtn" id="curBtn" type="button" aria-label="Currency">CAD</button></div>
@@ -584,7 +585,7 @@ body.locked #langPick,body.locked #curBtn,body.locked #openWatch,body.locked #me
   <p class="foot" id="dealsFoot"></p>
   <!--SEO-TODAY--><!--/SEO-TODAY-->
   <!--SEO-HIKE--><!--/SEO-HIKE-->
-  <p class="foot" data-i18n="footer">The Gear Fox · Outfox full price · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="shoes/">Shoe prices by model</a> · <a href="about.html">About</a> · <a href="privacy.html">Privacy</a></p>
+  <p class="foot" data-i18n="footer">The Gear Fox · Outfox full price · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="shoes/">Shoe prices by model</a> · <a href="about.html">About</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></p>
 </main>
 <div class="toast hidden" id="toast" role="status"></div>
 
@@ -667,7 +668,7 @@ body.locked #langPick,body.locked #curBtn,body.locked #openWatch,body.locked #me
       <div class="gwrap hidden" id="gUp"><div class="gbtn" id="gBtnUp"></div><p class="or"><span data-i18n="orEmail">or type your email</span></p></div>
       <p class="gsigned hidden" id="gSigned"></p>
       <input id="gateEmail" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" data-i18n-ph="emailPh">
-      <p class="fine" data-i18n="gateFine">You'll get one email every Friday with the best deals in your sizes, plus occasional news from The Gear Fox. We'll send a link to confirm first. Unsubscribe with one tap. <a href="privacy.html">Privacy</a></p>
+      <p class="fine" data-i18n="gateFine">You'll get one email every Friday with the best deals in your sizes, plus occasional news from The Gear Fox. Unsubscribe with one tap. <a href="privacy.html">Privacy</a></p>
     </div>
     </div>
     <div class="sheetfoot">
@@ -732,7 +733,7 @@ const ANA=(()=>{const ls=k=>{try{return localStorage.getItem(k)}catch(e){return 
   let over={};try{const q=new URLSearchParams(location.search).get("exp");over=JSON.parse(ls("gf-exp")||"{}");
     if(q){q.split(",").forEach(x=>{const [n,a]=x.split(":");if(n&&/^[AB]$/.test(a))over[n]=a});localStorage.setItem("gf-exp",JSON.stringify(over))}}catch(e){}
   const arm=n=>{if(over[n])return over[n];let h=2166136261;for(const c of did+"|"+n){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return (h>>>0)%2?"B":"A"};
-  const TESTS=["r100","run1st","cards2","short","popq","namecard"];   // Oct 28: 'namecard' B = the sign-up card names a real deal in your size   // Oct 27: 'popq' B = popular searches under an empty search box
+  const TESTS=["r100","run1st","cards2","short","popq","namecard","watchsheet"];   // Oct 29: 'watchsheet' B = the email step after a Watch tap names that item   // Oct 28: 'namecard' B = the sign-up card names a real deal in your size   // Oct 27: 'popq' B = popular searches under an empty search box
     // Oct 25: 'short' live (Bastien OK'd)   // Oct 25: 'short' B = first sizes screen asks only fit + shoe size (Bastien OK'd)
     // Oct 22: 'run1st' = running gear leads the first rows (B)   // Oct 22: the redesign ('look' B) is the site for everyone (Bastien), 'runcard' ended (0 vs 2 sign-ups, too rare to decide), 'layout' ended Oct 19
      // Oct 21: 'look' = sizes on each card + category photos + store names (B)   // Oct 20: 'welcome' and 'drops' ended (A won); 'layout' back as a 50/50 test
@@ -840,9 +841,9 @@ en:{
     why:[["Real deals from real stores",n=>`We check ${n} stores in Canada and the USA every morning.`],["In your exact size",()=>"Only the sizes in stock right now, so every deal fits you."],["No more guessing",()=>"Every store's price for the same shoe, side by side."],["Canada & USA",()=>"Shop both sides, with local stores and local prices."]],
     kinds:{daily:"road shoes",race:"racing shoes",trail:"trail shoes",hike:"hiking & winter shoes",spike:"track spikes",tee:"t-shirt",layer:"long sleeve",jacket:"jacket",short:"shorts",tight:"tights",pant:"pants",light:"light",pole:"poles",bottle:"bottle",sun:"sunglasses"},
     sub2:(g,k)=>g?`${g} ${k}`:k[0].toUpperCase()+k.slice(1),cmp:"All sizes →",heroAt:(p,s)=>`${p} at ${s}`,menu:"Menu",mySizes:"My sizes"},
-  watchlist:"Your watchlist",yourSizes:"Your sizes",menu:"Menu",mDeals:"Today's deals",mShoes:"Shoe prices by model",mRaces:"Race gear lists",mSizes:"My sizes",mAbout:"About The Gear Fox",mApp:"Add to your home screen",appTipH:"Get The Gear Fox on your home screen",appTipIos:"Tap the Share button {s} in Safari's bar",appTipIos2:"Scroll down and tap <b style=\"display:inline\">Add to Home Screen</b>",appTipAnd:"Tap the ⋮ menu at the top of Chrome",appTipAnd2:"Tap <b style=\"display:inline\">Add to Home screen</b>",appTipWhy:"It opens like an app, with your sizes ready.",gotIt:"Got it",mCur:"Prices in",langLabel:"Language",edit:"Edit",allDeals:"← All deals",categories:"Categories",
+  watchlist:"Your watchlist",yourSizes:"Your sizes",menu:"Menu",mDeals:"Today's deals",mShoes:"Shoe prices by model",mRaces:"Race gear lists",mGifts:"Gifts for runners",mSizes:"My sizes",mAbout:"About The Gear Fox",mApp:"Add to your home screen",appTipH:"Get The Gear Fox on your home screen",appTipIos:"Tap the Share button {s} in Safari's bar",appTipIos2:"Scroll down and tap <b style=\"display:inline\">Add to Home Screen</b>",appTipAnd:"Tap the ⋮ menu at the top of Chrome",appTipAnd2:"Tap <b style=\"display:inline\">Add to Home screen</b>",appTipWhy:"It opens like an app, with your sizes ready.",gotIt:"Got it",mCur:"Prices in",langLabel:"Language",edit:"Edit",allDeals:"← All deals",categories:"Categories",
   popH:"Popular right now",sort:"Sort",sortMatch:"Best match",sortDiscount:"Biggest discount",sortPrice:"Lowest price",search:"Search brand or model",searchShort:"Search gear",
-  get footer(){return 'The Gear Fox · Outfox full price · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="'+shoeDir()+'">'+this.mShoes+'</a> · <a href="about.html">About</a> · <a href="privacy.html">Privacy</a>'},close:"Close",fit:"Fit",
+  get footer(){return 'The Gear Fox · Outfox full price · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="'+shoeDir()+'">'+this.mShoes+'</a> · <a href="about.html">About</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a>'},close:"Close",fit:"Fit",
   men:"Men's",women:"Women's",both:"Both",menWomen:"Men's & women's",
   terrainH:"Where do you run? <small>for shoes</small>",terrainA:"Where do you run?",terrRoad:"Road",terrTrail:"Trail",terrBoth:"Both",
   shoeSizeH:"Shoe size <small>US, pick one or more</small>",shoeSizeMH:"Men's shoe size <small>US, pick one or more</small>",
@@ -851,7 +852,7 @@ en:{
   favBrands:'Favourite brands <span style="font-weight:400;color:var(--muted);margin-left:6px">optional</span>',favIntro:"These go to the top of your list.",
   addBrand:"Add another brand",add:"Add",emailPh:"you@example.com",
   gateEmailH:'<label for="gateEmail">Your email</label> <small>for your deals and the Friday email</small>',
-  gateFine:'You\'ll get one email every Friday with the best deals in your sizes, plus occasional news from The Gear Fox. We\'ll send a link to confirm first. Unsubscribe with one tap. <a href="privacy.html">Privacy</a>',
+  gateFine:'You\'ll get one email every Friday with the best deals in your sizes, plus occasional news from The Gear Fox. Unsubscribe with one tap. <a href="privacy.html">Privacy</a>',
   sheetGateTitle:"Deals in your size",sheetTitle:"What fits you?",
   sheetGateIntro:"Pick what fits and add your email. We'll show every deal in your size, from stores across Canada.",
   sheetIntro:"A few taps and we'll hide everything that won't fit.",
@@ -878,6 +879,8 @@ en:{
   goneTxt:"Not in stock in your size right now. We'll email you when it's back.",
   watchLedeOn:"We'll email you when any of these drop in price or come back in your size.",
   watchLedeOff:"Confirm your email to get alerts when these drop in price or come back in your size.",
+  watchLedeAdd:"Add your email and we'll tell you when these drop in price or come back in your size.",watchEmailGo:"Email me when these drop",
+  wsTitle:n=>`Email me when the ${n} drops`,wsIntro:"We'll email you if its price drops in your size, plus your best deals every Friday morning.",wsGo:"Email me when it drops",
   watchEmpty:"Tap the ♡ on any deal to watch it. We'll email you when it drops in price or comes back in your size.",
   pricesChange:"Prices and stock change every day. The store's page has the final price.",
   newSince:n=>`<b>${n}</b> new since your last visit`,show:"Show",
@@ -900,8 +903,8 @@ en:{
   junkHint:"Not there after a minute? Check Junk or Promotions (Outlook and Hotmail often file us there) and mark it \"Not junk\".",
   resend:"Send it again",resendFail:"Couldn't send just now. Try again in a minute.",resent:"Sent again. Give it a minute.",resendWait:"Just sent. Give it a minute, then check Junk.",
   otherEmail:"Use a different email",getDeals:"Get deals like these every Friday",
-  getDealsTxt:"One email, Friday morning, only gear on sale in your sizes.",perksTitle:"Free with your email",proH:"Fox Pro · coming soon",pro1:"Money back after you buy",pro2:"Phone app alerts the moment we see a watched item drop in your size",pro3:"No limit on your watchlist: follow whole models and brands",proSub:"Many stores refund the difference if they cut the price within 10 to 30 days of your purchase. Fox Pro watches it for you.",proEx:"Example",proIt:"Your down jacket",proItS:"size M · bought Nov 3",proPaid:"You paid",proNow:"Same store, today",proOwe:"You're owed",proLeft:"11 days left to claim it",proS1:"Bought something through us? Tap “I bought it”. That's it.",proS2:"Every morning we check that store's price, in your size.",proS3:"If it drops while the store still refunds the difference, we email you how much and exactly how to claim it.",proProof:"In October, <b>1 in 13 items over $100 got $10+ cheaper</b> within 2 weeks. Typical drop: <b>$34</b>.",proAlso:"Also in Pro:",proA:"phone alerts the moment a watched item drops · no limit on your watchlist",proPrice:(m,y)=>`$${m}/month or $${y}/year`,proFound:"Founding price, yours for as long as you stay.",proJoin:"Join the waitlist",proFine:"No payment now. We'll email you when it opens.",proFineNew:"No payment now. We'll email you when it opens, plus the Friday deals in your size (unsubscribe in one tap).",proThanks:"You're on the Fox Pro waitlist. We'll email you when it opens.",ncH:n=>`Watch the ${n} in your size`,ncTxt:(now,was)=>`Now ${now}, was ${was}. We'll email you if it drops again, plus your best deals every Friday.`,ncGo:"Email me if it drops",rcH:"What do you run in?",rcTxt:"Pick your shoe: we'll email you when it drops in your size. Plus your best deals every Friday.",rcPh:"Your shoe, e.g. Pegasus 41",rcGo:"Email me when it drops",perk1:"An alert when gear you heart drops in price",perk2:"Your best deals every Friday morning",perk3:"Your sizes and hearts on all your devices",noThanks:"No thanks",peekTitle:n=>`${n} deals in your size today`,peekTxt:"Add your email to see them all, get price-drop alerts on deals you heart, and the best ones every Friday.",peekG:"or continue with Google",email:"Email",signUp:"Sign up",
-  signupFine:'We\'ll email you to confirm. Unsubscribe with one tap. <a href="privacy.html">Privacy</a>',
+  ppH:"You're on the list! What would you use most?",ppSub:"Pick as many as you like. We'll build the most wanted ones first.",pw_codes:"An alert when a store code works on something I watch",pw_last:"A warning when my size is almost sold out",pw_returns:"A reminder before my return window closes",pw_replace:"A heads-up when my shoes are worn out and the new ones are on sale",pw_passport:"My size for each brand, so every deal really fits",pw_check:"A deal check right on store websites",ppGo:"Send",ppSkip:"Skip",ppThanks:"Thanks! That helps us decide what to build first.",getDealsTxt:"One email, Friday morning, only gear on sale in your sizes.",proArtAlt:"Example: you paid $499, the same store sells it for $420 today, potential refund $79.",proEmailPh:"Email for early access",proFineOpen:"We'll email you when Fox Pro opens, plus the Friday deals in your size.",proH1:"Money back<br><span class=\"ul\">after<svg viewBox=\"0 0 100 12\" preserveAspectRatio=\"none\" aria-hidden=\"true\"><path d=\"M2 8C25 3 70 2 98 5\" fill=\"none\" stroke=\"#FF6A13\" stroke-width=\"5\" stroke-linecap=\"round\"/></svg></span> you buy.",proNew:"New price",proNoPay:"No payment now.",proRef:"Potential refund",proS1h:"You buy",proS2h:"We watch",proS3h:"You claim",proSoon:"Coming soon",perksTitle:"Free with your email",proH:"Fox Pro · coming soon",pro1:"Money back after you buy",pro2:"Phone app alerts the moment we see a watched item drop in your size",pro3:"No limit on your watchlist: follow whole models and brands",proSub:"Some retailers refund price drops after purchase. Fox Pro watches for them so you don't have to.",proEx:"Example",proIt:"Your down jacket",proItS:"size M · bought Nov 3",proPaid:"You paid",proNow:"Same store, today",proOwe:"You're owed",proLeft:"11 days left to claim it",proS1:"Bought something through us? Tap “I bought it”. That's it.",proS2:"Every morning we check that store's price, in your size.",proS3:"If it drops while the store still refunds the difference, we email you how much and exactly how to claim it.",proProof:"In October, <b>1 in 13 items over $100 got $10+ cheaper</b> within 2 weeks. Typical drop: <b>$34</b>.",proAlso:"Also in Pro:",proA:"phone alerts the moment a watched item drops · no limit on your watchlist",proPrice:(m,y)=>`$${m}/month or $${y}/year`,proFound:"Founding price, yours for as long as you stay.",proJoin:"Get early access →",proFine:"No payment now. We'll email you when it opens.",proFineNew:"No payment now. We'll email you when it opens, plus the Friday deals in your size (unsubscribe in one tap).",proThanks:"You're on the Fox Pro waitlist. We'll email you when it opens.",ncH:n=>`Watch the ${n} in your size`,ncTxt:(now,was)=>`Now ${now}, was ${was}. We'll email you if it drops again, plus your best deals every Friday.`,ncGo:"Email me if it drops",rcH:"What do you run in?",rcTxt:"Pick your shoe: we'll email you when it drops in your size. Plus your best deals every Friday.",rcPh:"Your shoe, e.g. Pegasus 41",rcGo:"Email me when it drops",perk1:"An alert when gear you heart drops in price",perk2:"Your best deals every Friday morning",perk3:"Your sizes and hearts on all your devices",noThanks:"No thanks",peekTitle:n=>`${n} deals in your size today`,peekTxt:"Add your email to see them all, get price-drop alerts on deals you heart, and the best ones every Friday.",peekG:"or continue with Google",email:"Email",signUp:"Sign up",
+  signupFine:'One email a week with the deals in your sizes. Unsubscribe with one tap. <a href="privacy.html">Privacy</a>',
   badEmail:"That email doesn't look right.",signupFail:m=>`Couldn't sign you up just now: ${m}`,
   emailOn:e=>`Friday email on for ${e} · <button type="button" id="stopEmail">Stop it</button>`,
   emailStopped:"Friday email stopped. Sign up again anytime from the shop.",serverDown:"Couldn't reach the server. Try again.",
@@ -921,7 +924,7 @@ en:{
   wTitle:"Your size. On sale. Every day.",wIntro:half=>`<b>${half?"More than half of":"Many"} gear deals aren't available in your size.</b> Every morning we check running and outdoor stores ${US()?"across the US":"across Canada"} and show you only the ones that are.`,
   ctryLabel:"Shopping from",gearFor:"Gear for",hkindH:"What kind of hiking? <small>optional</small>",hkindA:"What kind of hiking?",hkDay:"Day hikes",hkOver:"Overnight trips",
   euLine:(v,auto)=>`European boots (La Sportiva, Scarpa, LOWA…): <b>EU ${v}</b>${auto?" <small>matched from your US size with LOWA's chart</small>":""}`,sportLbl:"Running or hiking",sportRun:"Running",sportHike:"Hiking",ctryA:"Country",usa:"USA",where:()=>US()?"across the US":"across Canada",
-  wGo:"Find my deals",wShoes:"or look up a specific shoe →",wBrowseShort:"Just browse",wShoeShort:"Find a shoe",sizesOnSale:"Sizes on sale:",
+  fromP:"From",wGo:"Find my deals",wShoes:"or look up a specific shoe →",wBrowseShort:"Just browse",wShoeShort:"Find a shoe",sizesOnSale:"Sizes on sale:",
   browseNote:"Showing every size.",browsePick:"Pick your size",browseWhy:" and we'll hide what won't fit.",clothNote:"Every clothing size shown.",clothPick:"Pick your clothing size",
   moreSizes:"+ Road or trail, favourite brands",cmpLink:"All sizes & stores →",
   sinceH:d=>`Since your last visit${d?" ("+d+")":""}:`,sinceNew:n=>`<b>${n}</b> new ${n==="1"?"deal":"deals"} in your size`,
@@ -930,7 +933,8 @@ en:{
   reportThanks:"Thanks! We'll check it today.",promoH:"Store offer",promoUntil:d=>`until ${d}`,promoTerms:"details",promoSee:s=>`See ${s}'s full-price gear in your size`,promoCard:(l,c)=>`+ Store offer${c?`: code ${c}`:""}`,promoHome:s=>`${s}'s homepage today`,promoChk:(on,n,m)=>`Our check: ${on} of the ${n} ${n===1?"item":"items"} we follow there ${on===1?"is":"are"} on sale, most at ${m}% off.`,promoSeeSale:s=>`See ${s}'s deals in your size`,promoMore:n=>`+ ${n} more store offer${n===1?"":"s"} today`,storeH:"Shopping one store",storeCount:n=>`${n} ${n===1?"deal":"deals"} in your size`,storeBack:"× All stores",bsuH:"Found something?",bsuTxt:"Get deals like this in your size every Friday, and an email when a shoe you watch drops. Free.",bsuGo:"Sign me up",cdnChip:"🍁 Canadian brands",cdnH:"Canadian brands only",cdnB:"Brands based in Canada",cdnNote:"Canadian companies, not always made in Canada",cdnBack:"× All brands",cdnTip:"Canadian brand",backBar:(n,s)=>`Filling a cart at <b>${s}</b>? See their ${n} deals in your size.`,backGo:"Show",spCardTxt:"Every size, every store in Canada",spCardGo:"Prices →",wOr:"or with Google, one tap",wOnSale:"on sale today",wFrom:(s,n)=>`Prices from ${s} and ${n} more stores`,wCatH:"Shop by category",wCat:{road:"Road shoes",trail:"Trail shoes",tops:"Tops & jackets",packs:"Vests & packs"},wCatN:n=>`${n} on sale`,szYou:"your size",yourSize:s=>`✓ Size ${s} in stock`,yourSizes:s=>`✓ Sizes ${s} in stock`,wUpTo:p=>`up to ${p}%`,wOff:"off right now",wStores:"stores checked daily",
   liveAll:n=>`<b>${n}</b> deals on sale today`,liveYou:n=>`<b>${n}</b> deals on sale in your size right now`,
   seeN:n=>`See my ${n} deals`,
-  orEmail:"or type your email",orLink:"or get a link by email",
+  orEmail:"or use your email",orLink:"or get a link by email",orUseEmail:"or use your email",
+  joinedNote:e=>`<b>You're in.</b> A welcome note is on its way to ${e}, and your first deals email arrives this week.`,
   gSigned:e=>`Signed in with Google as <b>${e}</b>.`,
   gateFineG:'You\'ll get one email every Friday with the best deals in your sizes, plus occasional news from The Gear Fox. Unsubscribe with one tap. <a href="privacy.html">Privacy</a>',gPick:"Pick your fit and at least one size, then tap the orange button.",
   gWelcome:"<b>Welcome back.</b> Your sizes and watchlist are loaded on this device.",gFail:"Google sign-in didn't work. Use your email instead.",
@@ -954,9 +958,9 @@ fr:{
     why:[["De vrais rabais, de vraies boutiques",n=>`On vérifie ${n} boutiques au Canada et aux États-Unis chaque matin.`],["Dans votre taille exacte",()=>"Seulement les tailles en stock en ce moment : chaque aubaine vous va."],["Fini les devinettes",()=>"Le prix de chaque boutique pour la même chaussure, côte à côte."],["Canada et États-Unis",()=>"Magasinez des deux côtés, avec des boutiques et des prix locaux."]],
     kinds:{daily:"chaussures de route",race:"chaussures de compétition",trail:"chaussures de sentier",hike:"chaussures de randonnée et d'hiver",spike:"pointes",tee:"t-shirt",layer:"manches longues",jacket:"manteau",short:"short",tight:"collant",pant:"pantalon",light:"frontale",pole:"bâtons",bottle:"gourde",sun:"lunettes de soleil"},
     sub2:(g,k)=>g?`${k[0].toUpperCase()+k.slice(1)} · ${g}`:k[0].toUpperCase()+k.slice(1),cmp:"Tailles →",heroAt:(p,s)=>`${p} chez ${s}`,menu:"Menu",mySizes:"Mes tailles"},
-  watchlist:"Vos favoris",yourSizes:"Vos tailles",menu:"Menu",mDeals:"Aubaines du jour",mShoes:"Prix des chaussures par modèle",mRaces:"Listes de matériel de course",mSizes:"Mes tailles",mAbout:"À propos de The Gear Fox",mApp:"Ajouter à l'écran d'accueil",appTipH:"The Gear Fox sur votre écran d'accueil",appTipIos:"Touchez le bouton Partager {s} dans la barre de Safari",appTipIos2:"Descendez et touchez <b style=\"display:inline\">Sur l'écran d'accueil</b>",appTipAnd:"Touchez le menu ⋮ en haut de Chrome",appTipAnd2:"Touchez <b style=\"display:inline\">Ajouter à l'écran d'accueil</b>",appTipWhy:"Elle s'ouvre comme une appli, avec vos tailles prêtes.",gotIt:"Compris",mCur:"Prix en",langLabel:"Langue",edit:"Modifier",allDeals:"← Toutes les aubaines",categories:"Catégories",
+  watchlist:"Vos favoris",yourSizes:"Vos tailles",menu:"Menu",mDeals:"Aubaines du jour",mShoes:"Prix des chaussures par modèle",mRaces:"Listes de matériel de course",mGifts:"Cadeaux pour coureurs",mSizes:"Mes tailles",mAbout:"À propos de The Gear Fox",mApp:"Ajouter à l'écran d'accueil",appTipH:"The Gear Fox sur votre écran d'accueil",appTipIos:"Touchez le bouton Partager {s} dans la barre de Safari",appTipIos2:"Descendez et touchez <b style=\"display:inline\">Sur l'écran d'accueil</b>",appTipAnd:"Touchez le menu ⋮ en haut de Chrome",appTipAnd2:"Touchez <b style=\"display:inline\">Ajouter à l'écran d'accueil</b>",appTipWhy:"Elle s'ouvre comme une appli, avec vos tailles prêtes.",gotIt:"Compris",mCur:"Prix en",langLabel:"Langue",edit:"Modifier",allDeals:"← Toutes les aubaines",categories:"Catégories",
   popH:"Populaire en ce moment",sort:"Trier",sortMatch:"Meilleur choix",sortDiscount:"Plus gros rabais",sortPrice:"Prix le plus bas",search:"Chercher une marque ou un modèle",searchShort:"Chercher",
-  get footer(){return 'The Gear Fox · Flairez les aubaines · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="'+shoeDir()+'">'+this.mShoes+'</a> · <a href="about.html">À propos</a> · <a href="privacy.html">Confidentialité</a>'},close:"Fermer",fit:"Coupe",
+  get footer(){return 'The Gear Fox · Flairez les aubaines · Instagram <a href="https://www.instagram.com/thegearfox/" target="_blank" rel="noopener">@thegearfox</a> · <a href="'+shoeDir()+'">'+this.mShoes+'</a> · <a href="about.html">À propos</a> · <a href="privacy.html">Confidentialité</a> · <a href="terms.html">Conditions</a>'},close:"Fermer",fit:"Coupe",
   men:"Homme",women:"Femme",both:"Les deux",menWomen:"Homme et femme",
   terrainH:"Où courez-vous? <small>pour les chaussures</small>",terrainA:"Où courez-vous?",terrRoad:"Route",terrTrail:"Sentier",terrBoth:"Les deux",
   shoeSizeH:"Pointure <small>US, une ou plusieurs</small>",shoeSizeMH:"Pointure homme <small>US, une ou plusieurs</small>",
@@ -965,7 +969,7 @@ fr:{
   favBrands:'Marques préférées <span style="font-weight:400;color:var(--muted);margin-left:6px">facultatif</span>',favIntro:"Elles s'affichent en premier dans votre liste.",
   addBrand:"Ajouter une autre marque",add:"Ajouter",emailPh:"vous@exemple.com",
   gateEmailH:'<label for="gateEmail">Votre courriel</label> <small>pour vos aubaines et le courriel du vendredi</small>',
-  gateFine:'Vous recevrez un courriel chaque vendredi avec les meilleures aubaines dans vos tailles, et à l\'occasion des nouvelles de The Gear Fox. On vous envoie d\'abord un lien de confirmation. Désabonnement en un clic. <a href="privacy.html">Confidentialité</a>',
+  gateFine:'Vous recevrez un courriel chaque vendredi avec les meilleures aubaines dans vos tailles, et à l\'occasion des nouvelles de The Gear Fox. Désabonnement en un clic. <a href="privacy.html">Confidentialité</a>',
   sheetGateTitle:"Des aubaines à votre taille",sheetTitle:"Qu'est-ce qui vous va?",
   sheetGateIntro:"Choisissez vos tailles et entrez votre courriel. On vous montre toutes les aubaines à votre taille, dans les boutiques partout au Canada.",
   sheetIntro:"Quelques clics et on cache tout ce qui ne vous va pas.",
@@ -992,6 +996,8 @@ fr:{
   goneTxt:"Pas en stock dans votre taille pour l'instant. On vous écrit dès que ça revient.",
   watchLedeOn:"On vous écrit quand l'un de ces articles baisse de prix ou revient dans votre taille.",
   watchLedeOff:"Confirmez votre courriel pour être avisé quand ces articles baissent de prix ou reviennent dans votre taille.",
+  watchLedeAdd:"Ajoutez votre courriel et on vous avertit quand ces articles baissent de prix ou reviennent dans votre taille.",watchEmailGo:"M'avertir des baisses de prix",
+  wsTitle:n=>`M'avertir quand ${n} baisse de prix`,wsIntro:"On vous écrit si son prix baisse dans votre taille, et on vous envoie vos meilleures aubaines chaque vendredi matin.",wsGo:"M'avertir d'une baisse de prix",
   watchEmpty:"Touchez le ♡ sur une aubaine pour l'ajouter à vos favoris. On vous écrit quand le prix baisse ou quand votre taille revient.",
   pricesChange:"Les prix et les stocks changent tous les jours. Le prix final est sur la page de la boutique.",
   newSince:n=>`<b>${n}</b> ${PL(n,"nouveauté","nouveautés")} depuis votre dernière visite`,show:"Voir",
@@ -1014,8 +1020,8 @@ fr:{
   junkHint:"Pas reçu après une minute? Vérifiez les courriels indésirables ou Promotions (Outlook et Hotmail nous y classent souvent) et indiquez « Pas un courriel indésirable ».",
   resend:"Renvoyer",resendFail:"Envoi impossible pour l'instant. Réessayez dans une minute.",resent:"Renvoyé. Laissez-lui une minute.",resendWait:"Tout juste envoyé. Donnez-lui une minute, puis vérifiez les indésirables.",
   otherEmail:"Utiliser un autre courriel",getDeals:"Recevez des aubaines comme celles-ci chaque vendredi",
-  getDealsTxt:"Un courriel le vendredi matin, seulement des articles en solde dans vos tailles.",perksTitle:"Gratuit avec votre courriel",proH:"Fox Pro · bientôt",pro1:"De l'argent remis après l'achat",pro2:"Alertes dans l'appli sur votre téléphone dès qu'un article suivi baisse",pro3:"Liste de suivi sans limite : suivez des modèles et des marques entiers",proSub:"Bien des boutiques remboursent la différence si elles baissent le prix dans les 10 à 30 jours suivant votre achat. Fox Pro surveille pour vous.",proEx:"Exemple",proIt:"Votre manteau en duvet",proItS:"taille M · acheté le 3 nov.",proPaid:"Vous avez payé",proNow:"Même boutique, aujourd'hui",proOwe:"On vous doit",proLeft:"Encore 11 jours pour le réclamer",proS1:"Vous avez acheté en passant par nous? Touchez « Je l'ai acheté ». C'est tout.",proS2:"Chaque matin, on vérifie le prix de cette boutique, dans votre taille.",proS3:"S'il baisse pendant que la boutique rembourse encore la différence, on vous écrit combien et comment le réclamer.",proProof:"En octobre, <b>1 article de plus de 100 $ sur 13 a baissé de 10 $ ou plus</b> en 2 semaines. Baisse typique : <b>34 $</b>.",proAlso:"Aussi dans Pro :",proA:"alertes sur votre téléphone dès qu'un article suivi baisse · liste de suivi sans limite",proPrice:(m,y)=>`${m} $/mois ou ${y} $/an`,proFound:"Prix fondateur, garanti tant que vous restez.",proJoin:"Rejoindre la liste d'attente",proFine:"Aucun paiement maintenant. On vous écrit à l'ouverture.",proFineNew:"Aucun paiement maintenant. On vous écrit à l'ouverture, avec les aubaines du vendredi dans votre taille (désabonnement en un clic).",proThanks:"Vous êtes sur la liste d'attente de Fox Pro. On vous écrit à l'ouverture.",ncH:n=>`Suivre le prix : ${n}, dans votre taille`,ncTxt:(now,was)=>`Maintenant ${now}, avant ${was}. On vous écrit s'il baisse encore, avec vos meilleures aubaines chaque vendredi.`,ncGo:"M'avertir d'une baisse",rcH:"Vous courez avec quoi?",rcTxt:"Choisissez votre chaussure : on vous écrit quand elle baisse à votre taille. En prime, vos meilleures aubaines chaque vendredi.",rcPh:"Votre chaussure (ex. Pegasus 41)",rcGo:"M'avertir d'une baisse",perk1:"Une alerte quand un coup de cœur baisse de prix",perk2:"Vos meilleures aubaines chaque vendredi matin",perk3:"Vos tailles et vos coups de cœur sur tous vos appareils",noThanks:"Non merci",peekTitle:n=>`${n} aubaines dans vos tailles aujourd'hui`,peekTxt:"Entrez votre courriel pour toutes les voir, être averti des baisses de prix sur vos coups de cœur et recevoir les meilleures chaque vendredi.",peekG:"ou continuer avec Google",email:"Courriel",signUp:"M'abonner",
-  signupFine:'On vous écrit pour confirmer. Désabonnement en un clic. <a href="privacy.html">Confidentialité</a>',
+  ppH:"Vous êtes sur la liste! Qu'est-ce qui vous servirait le plus?",ppSub:"Choisissez-en autant que vous voulez. On bâtit d'abord les plus demandés.",pw_codes:"Une alerte quand un code promo s'applique à un article que je suis",pw_last:"Un avertissement quand ma taille est presque épuisée",pw_returns:"Un rappel avant la fin de mon délai de retour",pw_replace:"Un rappel quand mes chaussures sont usées et que les nouvelles sont en solde",pw_passport:"Ma taille pour chaque marque, pour que chaque aubaine me fasse vraiment",pw_check:"La vérification d'aubaine directement sur les sites des boutiques",ppGo:"Envoyer",ppSkip:"Passer",ppThanks:"Merci! Ça nous aide à choisir quoi bâtir en premier.",getDealsTxt:"Un courriel le vendredi matin, seulement des articles en solde dans vos tailles.",proArtAlt:"Exemple : vous avez payé 499 $, la même boutique le vend 420 $ aujourd'hui, remboursement possible de 79 $.",proEmailPh:"Votre courriel",proFineOpen:"On vous écrit à l'ouverture de Fox Pro, avec les aubaines du vendredi dans votre taille.",proH1:"De l'argent remis<br><span class=\"ul\">après<svg viewBox=\"0 0 100 12\" preserveAspectRatio=\"none\" aria-hidden=\"true\"><path d=\"M2 8C25 3 70 2 98 5\" fill=\"none\" stroke=\"#FF6A13\" stroke-width=\"5\" stroke-linecap=\"round\"/></svg></span> l'achat.",proNew:"Nouveau prix",proNoPay:"Aucun paiement maintenant.",proRef:"Remboursement possible",proS1h:"Vous achetez",proS2h:"On surveille",proS3h:"Vous réclamez",proSoon:"Bientôt",perksTitle:"Gratuit avec votre courriel",proH:"Fox Pro · bientôt",pro1:"De l'argent remis après l'achat",pro2:"Alertes dans l'appli sur votre téléphone dès qu'un article suivi baisse",pro3:"Liste de suivi sans limite : suivez des modèles et des marques entiers",proSub:"Certaines boutiques remboursent la différence si le prix baisse après l'achat. Fox Pro surveille pour vous.",proEx:"Exemple",proIt:"Votre manteau en duvet",proItS:"taille M · acheté le 3 nov.",proPaid:"Vous avez payé",proNow:"Même boutique, aujourd'hui",proOwe:"On vous doit",proLeft:"Encore 11 jours pour le réclamer",proS1:"Vous avez acheté en passant par nous? Touchez « Je l'ai acheté ». C'est tout.",proS2:"Chaque matin, on vérifie le prix de cette boutique, dans votre taille.",proS3:"S'il baisse pendant que la boutique rembourse encore la différence, on vous écrit combien et comment le réclamer.",proProof:"En octobre, <b>1 article de plus de 100 $ sur 13 a baissé de 10 $ ou plus</b> en 2 semaines. Baisse typique : <b>34 $</b>.",proAlso:"Aussi dans Pro :",proA:"alertes sur votre téléphone dès qu'un article suivi baisse · liste de suivi sans limite",proPrice:(m,y)=>`${m} $/mois ou ${y} $/an`,proFound:"Prix fondateur, garanti tant que vous restez.",proJoin:"Accès anticipé →",proFine:"Aucun paiement maintenant. On vous écrit à l'ouverture.",proFineNew:"Aucun paiement maintenant. On vous écrit à l'ouverture, avec les aubaines du vendredi dans votre taille (désabonnement en un clic).",proThanks:"Vous êtes sur la liste d'attente de Fox Pro. On vous écrit à l'ouverture.",ncH:n=>`Suivre le prix : ${n}, dans votre taille`,ncTxt:(now,was)=>`Maintenant ${now}, avant ${was}. On vous écrit s'il baisse encore, avec vos meilleures aubaines chaque vendredi.`,ncGo:"M'avertir d'une baisse",rcH:"Vous courez avec quoi?",rcTxt:"Choisissez votre chaussure : on vous écrit quand elle baisse à votre taille. En prime, vos meilleures aubaines chaque vendredi.",rcPh:"Votre chaussure (ex. Pegasus 41)",rcGo:"M'avertir d'une baisse",perk1:"Une alerte quand un coup de cœur baisse de prix",perk2:"Vos meilleures aubaines chaque vendredi matin",perk3:"Vos tailles et vos coups de cœur sur tous vos appareils",noThanks:"Non merci",peekTitle:n=>`${n} aubaines dans vos tailles aujourd'hui`,peekTxt:"Entrez votre courriel pour toutes les voir, être averti des baisses de prix sur vos coups de cœur et recevoir les meilleures chaque vendredi.",peekG:"ou continuer avec Google",email:"Courriel",signUp:"M'abonner",
+  signupFine:'Un courriel par semaine avec les aubaines dans vos tailles. Désabonnement en un clic. <a href="privacy.html">Confidentialité</a>',
   badEmail:"Ce courriel ne semble pas valide.",signupFail:m=>`Impossible de vous abonner pour l'instant : ${m}`,
   emailOn:e=>`Courriel du vendredi activé pour ${e} · <button type="button" id="stopEmail">L'arrêter</button>`,
   emailStopped:"Courriel du vendredi arrêté. Vous pouvez vous réabonner en tout temps depuis la boutique.",serverDown:"Impossible de joindre le serveur. Réessayez.",
@@ -1035,7 +1041,7 @@ fr:{
   wTitle:"Des aubaines sur mesure.",wIntro:half=>`<b>${half?"Plus de la moitié des ":"Beaucoup d'"}aubaines ne sont pas offertes dans votre taille.</b> Chaque matin, on parcourt les boutiques de course et de plein air ${US()?"partout aux États-Unis":"partout au Canada"} et on vous montre seulement celles qui le sont.`,
   ctryLabel:"Je magasine",gearFor:"Équipement de",hkindH:"Quel type de randonnée? <small>facultatif</small>",hkindA:"Quel type de randonnée?",hkDay:"À la journée",hkOver:"Avec nuitées",
   euLine:(v,auto)=>`Bottes européennes (La Sportiva, Scarpa, LOWA…) : <b>EU ${v}</b>${auto?" <small>d'après votre pointure US et la charte de LOWA</small>":""}`,sportLbl:"Course ou randonnée",sportRun:"Course",sportHike:"Randonnée",ctryA:"Pays",usa:"É.-U.",where:()=>US()?"partout aux États-Unis":"partout au Canada",
-  wGo:"Trouver mes aubaines",wShoes:"ou cherchez une chaussure précise →",wBrowseShort:"Tout voir",wShoeShort:"Chercher un modèle",sizesOnSale:"Tailles en solde :",
+  fromP:"Dès",wGo:"Trouver mes aubaines",wShoes:"ou cherchez une chaussure précise →",wBrowseShort:"Tout voir",wShoeShort:"Chercher un modèle",sizesOnSale:"Tailles en solde :",
   browseNote:"Toutes les tailles sont affichées.",browsePick:"Choisissez votre taille",browseWhy:" et on cache ce qui ne vous va pas.",clothNote:"Toutes les tailles de vêtements sont affichées.",clothPick:"Choisissez votre taille de vêtements",
   moreSizes:"+ Route ou sentier, marques préférées",
   sinceH:d=>`Depuis votre dernière visite${d?" ("+d+")":""} :`,sinceNew:n=>`<b>${n}</b> ${n==="1"?"nouvelle aubaine":"nouvelles aubaines"} dans votre taille`,
@@ -1044,7 +1050,8 @@ fr:{
   reportThanks:"Merci! On vérifie aujourd'hui.",promoH:"Offre de la boutique",promoUntil:d=>`jusqu'au ${d}`,promoTerms:"conditions",promoSee:s=>`Voir les articles à prix régulier de ${s} dans votre taille`,promoCard:(l,c)=>`+ Offre de la boutique${c?` : code ${c}`:""}`,promoHome:s=>`Page d'accueil de ${s} aujourd'hui`,promoChk:(on,n,m)=>`Notre vérification : ${on} des ${n} articles suivis chez eux sont en solde, la plupart à ${m} % de rabais.`,promoSeeSale:s=>`Voir les aubaines de ${s} dans votre taille`,promoMore:n=>`+ ${n} autre${n===1?"":"s"} offre${n===1?"":"s"} de boutique aujourd'hui`,storeH:"Une seule boutique",storeCount:n=>`${n} ${n===1?"aubaine":"aubaines"} à votre taille`,storeBack:"× Toutes les boutiques",bsuH:"Une trouvaille?",bsuTxt:"Recevez des aubaines comme celle-ci à votre taille chaque vendredi, et un courriel quand une chaussure suivie baisse. Gratuit.",bsuGo:"Je m'inscris",cdnChip:"🍁 Marques canadiennes",cdnH:"Marques canadiennes seulement",cdnB:"Marques d'ici",cdnNote:"Des entreprises canadiennes, pas toujours fabriqué au Canada",cdnBack:"× Toutes les marques",cdnTip:"Marque canadienne",backBar:(n,s)=>`Vous remplissez un panier chez <b>${s}</b> ? Voyez leurs ${n} aubaines à votre taille.`,backGo:"Voir",cmpLink:"Toutes les pointures et boutiques →",spCardTxt:"Chaque pointure, chaque boutique au Canada",spCardGo:"Prix →",wOr:"ou avec Google, en un clic",wOnSale:"en solde aujourd'hui",wFrom:(s,n)=>`Les prix de ${s} et ${n} autres boutiques`,wCatH:"Magasinez par catégorie",wCat:{road:"Chaussures de route",trail:"Chaussures de sentier",tops:"Hauts et manteaux",packs:"Vestes et sacs"},wCatN:n=>`${n} en solde`,szYou:"votre taille",yourSize:s=>`✓ Taille ${s} en stock`,yourSizes:s=>`✓ Tailles ${s} en stock`,wUpTo:p=>`jusqu'à ${p} %`,wOff:"de rabais en ce moment",wStores:"boutiques vérifiées chaque jour",
   liveAll:n=>`<b>${n}</b> aubaines en solde aujourd'hui`,liveYou:n=>`<b>${n}</b> aubaines en solde dans votre taille en ce moment`,
   seeN:n=>`Voir mes ${n} aubaines`,
-  orEmail:"ou entrez votre courriel",orLink:"ou recevez un lien par courriel",
+  orEmail:"ou utilisez votre courriel",orLink:"ou recevez un lien par courriel",orUseEmail:"ou utilisez votre courriel",
+  joinedNote:e=>`<b>C'est fait.</b> Un mot de bienvenue s'en va à ${e}, et votre premier courriel d'aubaines arrive cette semaine.`,
   gSigned:e=>`Connecté avec Google : <b>${e}</b>.`,
   gateFineG:'Vous recevrez un courriel chaque vendredi avec les meilleures aubaines dans vos tailles, et à l\'occasion des nouvelles de The Gear Fox. Désabonnement en un clic. <a href="privacy.html">Confidentialité</a>',gPick:"Choisissez votre coupe et au moins une taille, puis touchez le bouton orange.",
   gWelcome:"<b>Bon retour!</b> Vos tailles et vos favoris sont chargés sur cet appareil.",gFail:"La connexion Google n'a pas fonctionné. Utilisez plutôt votre courriel.",
@@ -1229,7 +1236,7 @@ function gated(){return !(sub&&(sub.key||sub.pending))}     // first visit: size
 let PEEK=!!LS.get("gf-peek");
 /* "Just show me deals" (Oct 6): browse every size before picking any; a note on top offers the sizes step */
 let QLAND=(()=>{try{return !!new URLSearchParams(location.search).get("q")}catch(e){return false}})();   // opened from a ?q= link in a post
-let BROWSE=!!LS.get("gf-browse")||(()=>{try{return !!new URLSearchParams(location.search).get("q")}catch(e){return false}})();   // a ?q= link (posts) opens straight on the item, no welcome screen (Oct 8)
+let BROWSE=!!LS.get("gf-browse")||(()=>{try{const u=new URLSearchParams(location.search);return !!(u.get("q")||u.get("cat"))}catch(e){return false}})();   // a ?q= link (posts) opens straight on the item, no welcome screen (Oct 8)
 /* Test "welcome" (Oct 18; 30 days: 1 in 3 homepage first visits saw the welcome screen and left in a median 9 s without a
    deal): group B skips it on a first visit and lands on the deals in every size, with the "Pick your size" bar stuck on top. */
 const WELCOME_B=false;   // test "welcome" ended Oct 20: without the welcome screen 11% picked sizes vs 29% with it (124 devices, p=0.011)
@@ -1332,7 +1339,10 @@ function openSheet(){lastFocus=document.activeElement;renderSheet();
     else if(FLOW==="C"&&step===1){showSizes=false;title=t("cTitle");intro=t("cIntro");btn=t("cContinue")}
     else if(FLOW==="C"&&step===2){showGate=false;title=t("s1Title");intro=gSession?t("gSigned",esc(gSession.email))+" "+t("cSizesIntro"):t("cSizesIntro");btn=t("subscribeShow")}
     else if(step===1){showGate=false;title=t("s1Title");intro=gSession?t("gSigned",esc(gSession.email))+" "+t("cSizesIntro"):t("s1Intro");btn=gSession?t("subscribeShow"):FLOW==="D"?t("showDeals"):t("next")}
-    else {showSizes=false;title=t("s2Title");intro=t("s2Intro");btn=t("subscribeShow")}
+    else {showSizes=false;title=t("s2Title");intro=t("s2Intro");btn=t("subscribeShow");
+      // Oct 29 (Bastien: "ship both and test"; daily review): the email step right after a Watch tap said "Where should we send your
+      // deals?" + "Subscribe & show my deals" (the deals already show). B names the item just watched. A = as before.
+      if(wsItem&&ANA.arm("watchsheet")==="B"){const [m]=rdModel(wsItem);title=t("wsTitle",`${wsItem.b} ${m}`);intro=t("wsIntro");btn=t("wsGo")}}
   }
   if(si){title=t("signinTitle");intro=t("signinIntro");btn=t("emailLink")}
   $("sizesPart").classList.toggle("hidden",!showSizes);$("welcomePart").classList.toggle("hidden",!showWelcome);
@@ -1412,10 +1422,11 @@ $("saveSizes").addEventListener("click",async()=>{
     if(!okMail(email)){gateErr(t("errEmail"),$("gateEmail"));setTimeout(()=>$("gateEmail").focus({preventScroll:true}),400);return}
     const btn=$("saveSizes");btn.disabled=true;btn.textContent=t("oneMoment");gateErr("");
     state.email=email;const p=toProfile();LS.set("rd-profile",p);
-    try{await rpc("subscribe",{p_email:email,p_profile:subProfile(p)});setSub({pending:email});track("signup",{method:"email",lang:LANG,where:"sheet",ref:REF||"none"})}
+    let joined=false;
+    try{const r=await rpc("subscribe",{p_email:email,p_profile:subProfile(p,"sheet")});track("signup",{method:"email",lang:LANG,where:"sheet",ref:REF||"none"});joined=joinedAs(email,r)}
     catch(e){btn.disabled=false;btn.textContent=t("subscribeShow");return gateErr(t("errServer"))}
     btn.disabled=false;closeSheet();view.open={};renderAll();window.scrollTo({top:0});
-    notice(t("hereDeals",esc(email)));
+    notice(joined?t("joinedNote",esc(email)):t("hereDeals",esc(email)));
     return;
   }
   if(!state.gender){state.gender="any"}
@@ -1454,12 +1465,15 @@ function baseModel(n){
   n=n.replace(/\s*(-\s*|\()(Men|Women)[’']s\)?$|\s*(-\s*|\()Unisex\)?$/,"");
   n=n.split(/\s+[—·]\s+/)[0];
   n=n.replace(/\s*[\[(](x-?wide|extra wide|wide|2e|4e|d|ee|large)[\])]\s*|\s+\b(extra wide|x-?wide|wide)\b/gi," ");
-  n=n.replace(/\b((trail|road) )?running shoes?\b|\bhiking shoes?\b|\bshoes?\b/gi,"");
+  n=n.replace(/\b(Rocket|Tecton|Mafate) X(\d)\b/gi,"$1 X $2");   // Oct 30: "Rocket X3" = "Rocket X 3"
+  n=n.replace(/\b(Rocket X|Ghost)\s+Trail(?:[ -]running)?(?:\s+shoes?)?\b/gi,"$1 Trail");   // Oct 30: Rocket X Trail / Ghost Trail are their own shoes
+  n=n.replace(/\b((trail|road)[ -])?running shoes?\b|\bhiking shoes?\b|\bshoes?\b/gi,"");   // Oct 29: REI's "Trail-Running Shoes"
   n=n.replace(/^\s*(M|W|U|Unisex|All[- ]Gender|Men[’']?s|Women[’']?s)\s+/i,"");
   n=n.replace(/^[ -]+|[ -]+$/g,"").replace(/\s+(running road|road racing|road running|road)\s*$/i,"");
   n=n.replace(/\b(ZoomX|Air Zoom|Zoom)\s+(?=(Vaporfly|Alphafly|Pegasus|Streakfly|Invincible)\b)/gi,"")   // Oct 8: one page per Nike shoe
     .replace(/\b(Vaporfly|Alphafly)\s+Next\s*%?\s*/gi,"$1 ").replace(/\s+(Keely Hodgkinson|H\.?\s?Koumori)\b.*$/i,"");
   n=n.replace(/\bGore[- ]?Tex\b/gi,"GTX")   // Oct 24: one page per shoe
+    .replace(/\(?\bavailable\s+in\s+(wide\s+)?widths?\b\)?/gi," ").replace(/\bGTX\s+Waterproof\b/gi,"GTX")   // Oct 30: same
     .trim().replace(/^((?:Fresh\s?Foam(?:\s+X)?|FuelCell)\s+)?(\d{3,4})\s+v(\d+)\b/i,"$1$2v$3");
   return n.replace(/\s+/g," ").replace(/^[ -]+|[ -]+$/g,"");
 }
@@ -1493,10 +1507,14 @@ function vocab(fold){if(VOCAB)return VOCAB;const c=new Map();
    Arc'teryx, "1080v15" finds "1080 V15" and "1080 15"), and Gore-Tex = GTX. */
 const SQ=s=>s.replace(/[^a-z0-9]/g,"").replace(/v(?=\d)/g,"");
 // Oct 24 (searches that found nothing: "saucony endorphins speed", "glycerine"): a word also matches without a trailing s or e
-const qhas=(t,w)=>t.includes(w)||(w.length>4&&/[se]$/.test(w)&&t.includes(w.slice(0,-1)));
+/* Oct 29 (morning email: "nike zoomfly" found nothing, 12 names say "Zoom Fly"): after \u0001 the hay keeps two neighbouring words
+   joined ("zoomfly"); those only match a typed word EXACTLY, so "odlo" still never finds "Hood - Long" */
+const qhas=(t,w)=>{const i=t.indexOf("\u0001"),m=i<0?t:t.slice(0,i);
+  return m.includes(w)||(w.length>4&&/[se]$/.test(w)&&m.includes(w.slice(0,-1)))||(i>=0&&w.length>=5&&t.includes("\u0001"+w+"\u0001"))};
 function hayOf(fold,d){const t=fold(d.b+" "+d.n),w=t.split(/\s+/).map(SQ).filter(Boolean);   // per word: "hood - long" never makes "odlo"
   const pairs=w.slice(1).map((x,i)=>/\d/.test(x+w[i])?w[i]+x:"").filter(Boolean);                 // "1080 v15" -> "108015", "pegasus 41"
-  return t+" "+w.join(" ")+" "+pairs.join(" ")+(/gore-?tex|\bgtx\b/.test(t)?" goretex gtx":"")+" "+SQ(fold(d.b))}   // Oct 25: "runningroom" = Running Room
+  const joined=w.slice(1).map((x,i)=>w[i]+x);
+  return t+" "+w.join(" ")+" "+pairs.join(" ")+(/gore-?tex|\bgtx\b/.test(t)?" goretex gtx":"")+" "+SQ(fold(d.b))+" \u0001"+joined.join("\u0001")+"\u0001"}   // Oct 25: "runningroom" = Running Room
 function lev(a,b){if(Math.abs(a.length-b.length)>2)return 9;let p=Array.from({length:b.length+1},(_,i)=>i);
   for(let i=1;i<=a.length;i++){const r=[i];for(let j=1;j<=b.length;j++)r[j]=Math.min(p[j]+1,r[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=r}return p[b.length]}
 function suggest(q,fold){const V=vocab(fold);let changed=false;
@@ -1578,6 +1596,10 @@ function setCountry(c,from){if(c===COUNTRY||(c!=="us"&&c!=="ca"))return;COUNTRY=
   ana("country",c+"|"+(from||""));track("country",{to:c,from:from||""});
   if(LS0("rd-profile"))saveProfile();applyStatic();renderCountry();
   if(!$("sheet").classList.contains("hidden"))openSheet();renderAll();loadCountry()}
+/* Oct 28 (growth chat, Bastien OK'd): "Gifts for runners" in the ☰ menu from Nov 15 to Dec 26 (Vancouver date), Canada running side only
+   (the gift page has no US or hiking version yet), right after the race gear lists; ?gifts=1 shows it any day (previews, checks) */
+function giftMenu(){const g=$("mGifts");if(!g)return;const d=new Date().toLocaleDateString("en-CA",{timeZone:"America/Vancouver"}).slice(5);
+  g.hidden=!((/[?&]gifts=1\b/.test(location.search)||(d>="11-15"&&d<="12-26"))&&!US()&&!HIKE());g.href=LANG==="fr"?"cadeaux-coureurs/":"gifts-for-runners/"}
 function renderCountry(){document.querySelectorAll("[data-ctry]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.ctry===COUNTRY)));document.documentElement.classList.toggle("us",US());
   $("mShoes").href=shoeDir();$("mRaces").href=raceDir();if($("rnRaces")){$("rnRaces").href=$("mRaces").href;$("rnShoes").href=$("mShoes").href}}   // race gear lists (Oct 21; US races on the USA side)
 document.addEventListener("click",e=>{const b=e.target.closest("[data-ctry]");if(b)setCountry(b.dataset.ctry,b.closest("#menu")?"menu":"welcome")});
@@ -1696,7 +1718,8 @@ const RDI={search:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" s
   why:['<path d="M3 12V4.5A1.5 1.5 0 0 1 4.5 3H12l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.4"/>',
     '<path d="M2.5 17v-6l3.5-3 3 2.5 2.5-2.5 4.5 4.5h3a2.5 2.5 0 0 1 2.5 2.5V17z"/><path d="M2.5 20.5h19"/><path d="M9 13l1.5 1.5M12 11.5l1.5 1.5"/>',
     '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>',
-    '<path d="M12 21v-4.5M12 16.5l-6 1 1-2.5-4-3.5 2-.5-1-3.5 3 1 .5-1.5L11 9 10 3.5l2 1.5 2-1.5L13 9l3.5-2.5.5 1.5 3-1-1 3.5 2 .5-4 3.5 1 2.5z"/>']};
+    /* Oct 30 (Bastien): "Canada & USA" had a maple leaf (Canada only): a globe now */
+    '<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a13.5 13.5 0 0 1 0 18a13.5 13.5 0 0 1 0-18z"/>']};
 var view_rd={brand:"",max:0};
 const rdM=v=>LANG==="fr"?v+" $":"$"+v;
 const rdDisp=d=>CUR==="USD"?d.best/usdRate():d.best;
@@ -1707,14 +1730,24 @@ function rdSource(p){   // today's sale deals in your sizes, every category (til
   const mine=matchItems({...p,store:"",groups:ORDER});let src=mine.filter(d=>d.pct>0);if(view.cdn&&!US())src=src.filter(cdnBrand);
   src.sort(SORTS.match);const tiles={};
   for(const [k,gs] of Object.entries(RD_TILES))tiles[k]={n:src.filter(d=>gs.includes(d.g)).length};
-  const hero=src.find(d=>d.g==="shoes"&&d.img&&d.pct>=25&&d.pct<=60&&!SPIKE.test(d.n)&&(HIKE()||d.t!=="hike")&&d.ok.length>=1&&(d.any||d.ok.length>=1))||null;
+  const heroes=src.filter(d=>d.g==="shoes"&&d.img&&d.pct>=25&&d.pct<=60&&!SPIKE.test(d.n)&&(HIKE()||d.t!=="hike")&&d.ok.length>=1&&(d.any||d.ok.length>=1)).slice(0,12);
+  const hero=heroes.find(d=>!HERO_BAD.has(d.img))||null;
   // Oct 23 (Bastien: "it shows only 1 norda even though I clicked full price"): brand counts follow "Include full price"
   const bc={};(view.fullPrice?mine.filter(d=>!view.cdn||US()||cdnBrand(d)):src).forEach(d=>{bc[d.b]=(bc[d.b]||0)+1});
-  RDC={key,src,tiles,hero,brands:Object.entries(bc).sort((a,b)=>b[1]-a[1])};return RDC}
+  RDC={key,src,tiles,hero,heroes,brands:Object.entries(bc).sort((a,b)=>b[1]-a[1])};return RDC}
+/* Oct 31 (Bastien: a grey store photo on the computer's big deal, "the background doesn't match", and "it looked better when it blended
+   into the background"): the big photo blends into the cream, which hides only a WHITE background. Its corners are checked; a grey one
+   is skipped for the next good deal. A photo that can't be read (no CORS) or a transparent one is kept as before. */
+const HERO_OK=new Set(),HERO_BAD=new Set();
+function heroWhite(u){return new Promise(res=>{if(HERO_OK.has(u))return res(true);if(HERO_BAD.has(u))return res(false);
+  const i=new Image();i.crossOrigin="anonymous";i.referrerPolicy="no-referrer";i.onerror=()=>res(null);
+  i.onload=()=>{try{const w=i.naturalWidth,h=i.naturalHeight,c=document.createElement("canvas");c.width=w;c.height=h;const x=c.getContext("2d");x.drawImage(i,0,0);
+    const ok=[[1,1],[w-2,1],[1,h-2],[w-2,h-2]].every(([a,b])=>{const q=x.getImageData(a,b,1,1).data;return q[3]<10||(q[0]>=251&&q[1]>=251&&q[2]>=251)});
+    (ok?HERO_OK:HERO_BAD).add(u);res(ok)}catch(e){res(null)}};i.src=u})}
 function rdModel(d){const full=nm(d.n),m=full.match(/^(.*?) - (Men's|Women's|Unisex|Homme|Femme|Unisexe)$/);return m?[m[1],m[2]]:[full,""]}
 function rdBuild(){
   const R=t("rd");document.documentElement.classList.add("rd");
-  const f=document.createElement("link");f.rel="stylesheet";f.href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Caveat:wght@600&display=swap";document.head.appendChild(f);
+  const f=document.createElement("link");f.rel="stylesheet";f.href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@700&family=Kalam:wght@700&display=swap";document.head.appendChild(f);
   const lg=document.querySelector(".topbar .logo picture");if(lg){const so=lg.querySelector("source");lg.querySelector("img").src=so?so.srcset:"logo-mark-dark.svg";if(so)so.remove()}
   document.body.classList.remove("hdrsearch");
   // header: sections, search, country, language, My sizes
@@ -1832,6 +1865,7 @@ function rdUpdate(all,p){   // hero, dropdowns, tiles, why: from today's data, e
     $("rdHp").innerHTML=`<a class="rdhd" href="${esc(affUrl(d.url))}" data-store="${esc(storeOf(d.url))}" target="_blank" rel="noopener"><span class="hi"><img src="${esc(d.img)}" alt="${esc(d.b+" "+m)}" referrerpolicy="no-referrer" onerror="this.remove()"></span>
       <span class="upto">−${d.pct}%</span><span class="cap">${esc(R.heroAt(d.b+" "+m+" · "+money(d.best),s))}</span></a><p class="note" aria-hidden="true">${R.note.map(esc).join("<br>")}</p>`}
   else $("rdHp").innerHTML="";
+  if(d&&!HERO_OK.has(d.img))heroWhite(d.img).then(ok=>{if(ok===false&&RDC===C&&C.hero===d){C.hero=C.heroes.find(x=>!HERO_BAD.has(x.img))||null;rdUpdate(all,p)}});
   $("rdWhy").innerHTML=`<h2>${esc(R.whyH)}</h2><div class="wl">${R.why.map(([h,b],i)=>`<div class="wi"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${RDI.why[i]}</svg><div><b>${esc(h)}</b><p>${esc(b(n))}</p></div></div>`).join("")}</div>`;
   document.documentElement.classList.toggle("rdw",!!view.watch);document.documentElement.classList.toggle("rdsized",hasSizes());
   const nf=[view_rd.brand,view_rd.max,view.store,state.groups.length===1,view.fullPrice,state.ships==="all",view.cdn,view.sort!=="match"].filter(Boolean).length;$("rdBarN").textContent=$("rdQFN").textContent=$("hFiltN").textContent=nf||"";
@@ -1877,6 +1911,9 @@ function rdBrands(){const R=t("rd"),all=!!view_rd.allBrands,b=RDC.brands.slice(0
 const rdFold=x=>String(x).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]/g,"");   // "arcteryx" finds Arc'teryx
 document.addEventListener("input",e=>{if(e.target.id!=="rdBQ")return;const q=rdFold(e.target.value.trim());let n=0;
   document.querySelectorAll(".rdball .ba").forEach(b=>{const on=!q||b.dataset.f.includes(q);b.hidden=!on;if(on)n++});document.querySelector(".rdball .bnone").hidden=n>0});
+/* Oct 29 (morning email: two "wrong size" reports on an adidas Evo SL at Foot Locker, $99.99): with no size picked a card listed
+   every size on sale (8-13) beside the lowest price, which only 11-13 had ($129.99 in the rest). Prices that differ by size = "From" */
+const fromTag=d=>{if(!d.any||!d.ok||d.ok.length<2)return "";const ps=d.ok.map(e=>e[1]);return Math.max(...ps)-Math.min(...ps)>0.5?`<span class="from">${t("fromP")}</span> `:""};
 function rdCard(d,extra,real){
   const R=t("rd"),k=itemKey(d),on=!!watches[k];RENDERED[k]=d;const sp=shoePage(d),[m,gw]=rdModel(d);
   const kind=(d.t&&R.kinds[d.t])||GL(d.g).toLowerCase(),sub=R.sub2(gw,kind);
@@ -1884,9 +1921,9 @@ function rdCard(d,extra,real){
   const sized=SIZED.has(d.g)||accLetters(d);
   return `<div class="dw rdc${sp?" hascmp":""}"><a class="deal" href="${esc(affUrl(d.url))}" data-store="${esc(h)}" target="_blank" rel="noopener">
     <div class="pic${d.img?"":" nopic"}" data-b="${esc(d.b)}">${d.img?`<img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="if(this.parentNode)this.parentNode.classList.add('nopic');this.remove()">`:""}${d.pct?`<span class="pct">${offTag(d)}</span>`:""}${lowDays(d)?`<span class="lostamp" aria-hidden="true"><span>${t("lowL1")}</span><span>${t("lowStampDays",lowDays(d))}</span></span>`:""}</div>
-    <div class="name"><span class="brand">${esc(d.b)}</span>${d.fav?" ★":""}${cdnBrand(d)?`&nbsp;<span class="leaf" title="${t("cdnTip")}" aria-label="${t("cdnTip")}">🍁</span>`:""} ${esc(m)}</div>
-    <div class="kind">${esc(sub)}</div>
-    <div class="price"><b>${money(d.best)}</b>${curTag()}${d.pct?`<s>${money(d.reg)}</s>`:""}</div>
+    <div class="name"><span class="brand">${esc(d.b)}</span>${d.fav?" ★":""} ${esc(m)}</div>
+    <div class="kind${cdnBrand(d)?" kf":""}">${cdnBrand(d)?`<span class="kt">${esc(sub)}</span><span class="kl">&nbsp;·&nbsp;<span class="leaf" title="${t("cdnTip")}" aria-label="${t("cdnTip")}">🍁</span></span>`:esc(sub)}</div>
+    <div class="price">${fromTag(d)}<b>${money(d.best)}</b>${curTag()}${d.pct?`<s>${money(d.reg)}</s>`:""}</div>
     ${lowDays(d)?`<span class="badge lo30" title="${esc(t("lowDaysTip"))}" aria-label="${esc(t("lowDays",lowDays(d)))}"><span class="l1">${t("lowL1")}</span> <span class="l2">${t("lowL2",lowDays(d))}</span></span>`:""}
     ${extra||""}${!extra&&NEWSET.has(k)?`<span class="badge new">${t("isNew")}</span>`:""}
     <div class="store"><b>${esc(s[0])}</b></div>
@@ -2004,7 +2041,7 @@ function matchItems(p,list){
     const best=pick[1], reg=Math.max(pick[3]||best,best);
     const pct=reg>best?Math.round(100*(1-best/reg)):0;
     const ns=ok.filter(e=>(e[3]||0)>e[1]*1.01).length;
-    out.push({...d,best,reg,pct,ok,ns,any,url:sizeUrl(d,pick),img:(d.oi&&d.oi[pick[2]])||d.img,fin:finalSale(d,pick),fav:favs.includes(d.b.toLowerCase())});
+    out.push({...d,best,reg,pct,ok,ns,any,url:sizeUrl(d,pick),img:(d.si&&d.ci&&d.ci[d.si[pick[0]]])||(d.oi&&d.oi[pick[2]])||d.img,fin:finalSale(d,pick),fav:favs.includes(d.b.toLowerCase())});
   }
   return out;
 }
@@ -2053,7 +2090,7 @@ function card(d,extra){
     ${d.img?`<div class="pic"><img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode&&this.parentNode.remove()">${lowDays(d)?`<span class="lostamp" aria-hidden="true"><span>${t("lowL1")}</span><span>${t("lowStampDays",lowDays(d))}</span></span>`:""}</div>`:""}
     <div class="top"><span class="brand">${esc(d.b)}${d.fav?" ★":""}${cdnBrand(d)?`&nbsp;<span class="leaf" title="${t("cdnTip")}" aria-label="${t("cdnTip")}">🍁</span>`:""}</span>${d.pct?`<span class="pct">${offTag(d)}</span>`:""}</div>
     <div class="name">${esc(nm(d.n))}</div>
-    <div class="price"><b>${money(d.best)}</b>${curTag()}${d.pct?`<s>${money(d.reg)}</s>`:""}</div>
+    <div class="price">${fromTag(d)}<b>${money(d.best)}</b>${curTag()}${d.pct?`<s>${money(d.reg)}</s>`:""}</div>
     ${lowDays(d)?`<span class="badge lo30" title="${esc(t("lowDaysTip"))}" aria-label="${esc(t("lowDays",lowDays(d)))}"><span class="l1">${t("lowL1")}</span> <span class="l2">${t("lowL2",lowDays(d))}</span></span>`:""}
     ${extra||""}${isNew?`<span class="badge new">${t("isNew")}</span>`:""}
     ${sizes}
@@ -2070,7 +2107,7 @@ function tile(d,tag){
   const short=nm(d.n).replace(/ - (Men's|Women's|Unisex|Homme|Femme|Unisexe)$/,"");
   return `<div class="dw tw"><a class="deal tile" href="${esc(affUrl(d.url))}" data-store="${esc(storeOf(d.url))}" target="_blank" rel="noopener" title="${esc(d.b+" "+nm(d.n))}">
     <div class="tpic">${d.img?`<img src="${esc(d.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:""}<span class="tnoimg">${esc(d.b)}</span>${d.pct?`<span class="pct">${offTag(d)}</span>`:""}</div>
-    <div class="price"><b>${money(d.best)}</b>${d.pct?`<s>${money(d.reg)}</s>`:""}</div>
+    <div class="price">${fromTag(d)}<b>${money(d.best)}</b>${d.pct?`<s>${money(d.reg)}</s>`:""}</div>
     <div class="tname">${esc(d.b)} ${esc(short)}</div>${tag||(NEWSET.has(k)?`<span class="badge new">${t("isNew")}</span>`:"")}</a>${heartBtn(k,on,d)}</div>`;
 }
 let ROW={list:[],shown:0};
@@ -2257,7 +2294,7 @@ function toggleWatch(k,quiet){     // quiet: the come-back bar asks for the emai
   if(sub&&sub.key&&sub.active){rpc("watch_add",{p_token:sub.key,p_key:k,p_meta:watches[k]}).then(()=>{if(watches[k]){watches[k].sv=1;saveWatches()}}).catch(()=>{});
     toast(t("watching"))}
   else if(!quiet&&!peeking())toast(sub&&sub.pending?t("watchingPending"):t("watchingSignup"));   // Oct 18: when the email sheet opens it says it; the toast sat on its button
-  if(peeking()&&!quiet){step=2;openSheet();$("panel").scrollTop=0}
+  if(peeking()&&!quiet){wsItem=d;step=2;openSheet();$("panel").scrollTop=0}
 }
 /* Oct 23 (Bastien: "I keep taking 2 items off the list and it inputs them back"): a member's list lives on the server AND on each
    device (phone browser, home-screen app, computer). Sync used to upload every item this device had and the server didn't, so a
@@ -2293,7 +2330,7 @@ $("filtersBox").addEventListener("change",e=>{const el=e.target;if(!el||el.close
   ana(el.id==="sort"?"sort":"filter",(el.id||el.name||el.value||"")+(el.type==="checkbox"?":"+el.checked:el.id==="sort"?"":":"+el.value),null)});
 /* ☰ menu: the shoe pages, watchlist, sizes, About, Instagram, language and currency */
 function menuOpen(on){$("menu").hidden=!on;$("menuBtn").setAttribute("aria-expanded",String(on));
-  if(on){$("mShoes").href=shoeDir();$("mRaces").href=raceDir();const f=$("menu").querySelector("a,button");if(f)f.focus()}}
+  if(on){$("mShoes").href=shoeDir();$("mRaces").href=raceDir();giftMenu();const f=$("menu").querySelector("a,button");if(f)f.focus()}}
 $("menuBtn").addEventListener("click",e=>{e.stopPropagation();menuOpen($("menu").hidden)});
 document.addEventListener("click",e=>{if(!$("menu").hidden&&!e.target.closest("#menu"))menuOpen(false)});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("menu").hidden){menuOpen(false);$("menuBtn").focus()}});
@@ -2329,6 +2366,12 @@ function maybeAppTip(){try{
   appTip("auto");
 }catch(e){}}
 /* links from the shoe pages' menu: /?show=watch opens the watchlist, /?show=sizes the sizes */
+/* Oct 29 (Bastien: "hyper link the title items to the category on the website if people want to see the whole catalog"): race gear
+   lists link each item to ?cat=<group>&t=<type>: the homepage opens on that category (and type), like tapping its circle */
+(()=>{let g="",ty="";try{const u=new URLSearchParams(location.search);g=u.get("cat")||"";ty=u.get("t")||""}catch(e){}
+  if(!ORDER.includes(g))return;
+  const go=()=>{if(!DATA)return setTimeout(go,300);
+    state.groups=[g];if(ty&&TYPES[g]&&TYPES[g].includes(ty))view.type[g]=ty;view.open={};ana("category","link|"+g+(ty?":"+ty:""));renderAll();rdGoDeals(true)};go()})();
 (()=>{let v="";try{v=new URLSearchParams(location.search).get("show")||"";if(v)history.replaceState(null,"",location.pathname)}catch(e){}
   const go=()=>{if(!DATA)return setTimeout(go,300);if(document.body.classList.contains("locked"))return;
     if(v==="watch")setWatchView(true);else if(v==="sizes")editSizes()};if(v==="watch"||v==="sizes")go()})();
@@ -2364,7 +2407,7 @@ function renderWatchButton(){
     const ask=!(sub&&(sub.active||sub.pending))?`<button type="button" class="btn" id="emailNext">${t("emailNext")}</button>`:"";   // Oct 8: ask for the email when a heart drops
     box.innerHTML=CALM?`<span>${t("watchShort",drops,backs)}</span><button type="button" class="btn" id="seeWatch">${t("see")}</button>${ask}`
       :`<span><b>${t("goodNews")}</b> ${txt}.</span><button type="button" class="btn" id="seeWatch">${t("seeThem")}</button>${ask}`;
-    if(ask)$("emailNext").addEventListener("click",()=>{ana("signup-step","drop-ask");step=2;openSheet();$("panel").scrollTop=0});
+    if(ask)$("emailNext").addEventListener("click",()=>{ana("signup-step","drop-ask");wsItem=null;step=2;openSheet();$("panel").scrollTop=0});
     box.classList.remove("hidden");$("seeWatch").addEventListener("click",()=>setWatchView(true));
   }else box.classList.add("hidden");
 }
@@ -2387,7 +2430,11 @@ function renderWatch(){
       <div class="gonetxt">${t("goneTxt")}</div></a>${heartBtn(k,true,{b:w.b||"",n:w.n||""})}</div>`;
   });
   const n=keys.length;
-  $("lede").textContent=n?(sub&&sub.active?t("watchLedeOn"):t("watchLedeOff")):"";
+  // Oct 29 (daily review): someone who never gave an email was told to "Confirm your email", with no way to add one on this page
+  const mem=sub&&sub.active,pend=sub&&sub.pending;
+  $("lede").innerHTML=!n?"":mem?esc(t("watchLedeOn")):pend?esc(t("watchLedeOff"))
+    :`${esc(t("watchLedeAdd"))} <button type="button" class="btn" id="watchEmail">${esc(t("watchEmailGo"))}</button>`;
+  const we=$("watchEmail");if(we)we.addEventListener("click",()=>{ana("signup-step","watchlist-ask");wsItem=null;step=2;openSheet();$("panel").scrollTop=0});
   saveWatches();renderWatchButton();
   $("dealList").innerHTML=n?`<div class="grid">${cards.join("")}</div>`
     :`<div class="empty">${t("watchEmpty")}</div>`;
@@ -2562,7 +2609,16 @@ function setSub(v){sub=v;LS.set("gf-sub",v)}
 /* the hearts picked before signing up ride along with the sign-up (watch_new) and come back with the confirm link, even when
    it's opened on another device (Oct 8: shoe pages and the come-back bar sign people up before they ever reach the homepage) */
 function withSport(p){if(!state.signSport)state.signSport=HIKE()?"hike":"run";return {...p,sport:state.signSport}}   // Oct 25 (Bastien): the side they signed up on picks the Friday email's items
-function subProfile(p){p=withSport(p);const w=Object.entries(watches).slice(0,10);return w.length?{...p,watch_new:Object.fromEntries(w)}:p}
+function subProfile(p,where){p=withSport(p);const w=Object.entries(watches).slice(0,10);
+  // Oct 29 (single opt-in): CASL proof of consent = the words the form showed, kept with the sign-up (consent_text)
+  const fine=where==="sheet"?t("gateFine"):t("signupFine");p={...p,consent:`${where||"card"} (${LANG}): ${String(fine).replace(/<[^>]+>/g,"").trim()}`.slice(0,1000)};
+  return w.length?{...p,watch_new:Object.fromEntries(w)}:p}
+/* Oct 29 (Bastien: "Yes on each", single opt-in): subscribe answers "k:<key>" when the person is a member right away (a welcome
+   email instead of a confirmation link): link this device like a confirmed email. "sent" (a member on another device, someone who
+   unsubscribed, or the database before the change) = the old "check your inbox" path. */
+function joinedAs(email,r){const k=typeof r==="string"&&r.startsWith("k:")?r.slice(2):"";
+  if(!/^[0-9a-f-]{36}$/i.test(k)){setSub({pending:email});return false}
+  setSub({key:k,email,active:true});track("signup-confirmed",{via:"instant"});setTimeout(()=>syncWatches(),0);return true}
 let signupErr="",resentAt=0;
 /* Fox Pro price test (Oct 25, Bastien: "yes run the Pro price test from Nov 2"): from Nov 2 to Nov 16, returning visitors see a
    waitlist card in the sign-up slot. Half the devices see $3/month or $29/year (A), half $5/month or $49/year (B): ANA.arm("pro").
@@ -2577,24 +2633,42 @@ const proArm=()=>ANA.arm("pro"),proPrices=()=>proArm()==="B"?[5,49]:[3,29];
 function proHTML(member){
   if(!proOn())return "";const [m,y]=proPrices();
   if(!proSeen){proSeen=true;ana("signup-step",`pro-view|${proArm()}`)}
-  const mo=v=>LANG==="fr"?v.toFixed(2).replace(".",",")+" $":"$"+v.toFixed(2);
-  return `<div class="signup procard"><div class="prok"><i></i>${t("proH")}</div><h3>${t("pro1")}</h3>
+  const mo=v=>LANG==="fr"?v+"\u00a0$":"$"+v;
+  const ic=d=>`<svg viewBox="0 0 28 28" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+  const rc=`<div class="prorc" role="img" aria-label="${esc(t("proArtAlt"))}"><div aria-hidden="true">
+      <div class="r"><span>${t("proPaid")}</span><b>${mo(499)}</b></div>
+      <div class="r"><span>${t("proNew")}</span><b>${mo(420)}</b></div><hr>
+      <div class="lab">${t("proRef")}</div>
+      <span class="big">${mo(79)}<svg viewBox="0 0 120 60" preserveAspectRatio="none"><path d="M41 9C66 1 103 0 116 15c9 11 3 25-18 33-22 9-61 10-83 2C-1 44-4 29 6 19 17 8 42 3 66 2c13 0 25 1 33 4" fill="none" stroke="#FF6A13" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/><path d="M8 23C10 12 35 6 60 5c26-1 49 3 57 13" fill="none" stroke="#FF6A13" stroke-width="1.8" stroke-linecap="round" opacity=".55" vector-effect="non-scaling-stroke"/></svg></span></div></div>`;
+  return `<section class="signup procard" aria-labelledby="proTitle"><div class="protop"><span class="pbrand"><img src="img/fox-face.webp" alt="The Gear Fox" width="168" height="168">Fox Pro</span><span class="cs">${t("proSoon")}</span></div>
+    <div class="progrid"><div class="proleft">
+    <h3 id="proTitle">${t("proH1")}</h3>
     <p class="prosub">${t("proSub")}</p>
-    <div class="prorc"><span class="lab">${t("proEx")}</span><div class="it">${t("proIt")} <small>· ${t("proItS")}</small></div>
-      <div class="row"><span>${t("proPaid")}</span><b>${mo(499)}</b></div><div class="row"><span>${t("proNow")}</span><b>${mo(420)}</b></div>
-      <div class="owe"><span>${t("proOwe")}</span><b>${LANG==="fr"?"79 $":"$79"}</b></div><div class="left">${t("proLeft")}</div></div>
-    <ol class="prosteps"><li><b>1</b>${t("proS1")}</li><li><b>2</b>${t("proS2")}</li><li><b>3</b>${t("proS3")}</li></ol>
-    ${COUNTRY==="us"?"":`<p class="proproof">${t("proProof")}</p>`}
-    <p class="proalso"><b>${t("proAlso")}</b> ${t("proA")}</p>
-    <p class="proprice"><b>${t("proPrice",m,y)}</b><br>${t("proFound")}</p>
+    ${rc}
+    <ol class="prosteps"><li>${ic('<path d="M3 5h3l2.6 11.5h12L23 8H7.3"/><circle cx="10.5" cy="21.5" r="1.5"/><circle cx="19" cy="21.5" r="1.5"/>')}<strong>${t("proS1h")}</strong></li><li>${ic('<circle cx="12" cy="12" r="7"/><path d="m17.2 17.2 6 6"/>')}<strong>${t("proS2h")}</strong></li><li>${ic('<path d="M7 18.5V12a7 7 0 0 1 14 0v6.5l2 2.5H5z"/><path d="M12 24a2 2 0 0 0 4 0"/>')}<strong>${t("proS3h")}</strong></li></ol>
     ${member?`<button class="primary" type="button" id="proJoin">${t("proJoin")}</button>`
-      :`<form id="proForm" novalidate><label for="proEmail" class="hidden">${t("email")}</label>
-      <input id="proEmail" type="email" autocomplete="email" inputmode="email" placeholder="${t("emailPh")}" value="${esc(state.email)}" required>
-      <button class="primary" type="submit">${t("proJoin")}</button></form>`}
-    ${proErr?`<p class="err">${esc(proErr)}</p>`:""}
-    <p class="fine">${t(member?"proFine":"proFineNew")} · <button type="button" id="proNo" class="linkbtn">${t("noThanks")}</button></p></div>`;
+      :`<form id="proForm" class="open" novalidate><label for="proEmail" class="hidden">${t("email")}</label>
+      <span class="pfw"><span class="proin"><input id="proEmail" type="email" autocomplete="email" inputmode="email" placeholder="${esc(t("proEmailPh"))}" value="${esc(state.email)}" required></span>
+      <button class="primary" type="submit" aria-label="${esc(t("proJoin").replace(" →",""))}"><span class="jl">${t("proJoin").replace(" →","")}</span> <span class="ar" aria-hidden="true">→</span></button></span><p class="profine">${t("proFineOpen")}</p></form>`}
+    ${proErr?`<p class="err" role="alert">${esc(proErr)}</p>`:""}
+    <p class="proprice"><b>${t("proPrice",m,y)}</b><span class="dot">•</span><span>${t("proNoPay")}</span><button type="button" id="proNo" class="linkbtn">${t("noThanks")}</button></p></div>${rc}</div></section>`;
 }
-function signupHTML(){
+/* Oct 28 (Bastien: "put all 6 together"): right after joining the Fox Pro waitlist, one question: which Pro ideas would they use?
+   Any number of picks; "pro-want|<keys>" in analytics + saved in gf-pro (rides in the member's profile as pro_wait.wants). ?propoll=1 shows it (previews/site test). */
+const PRO_WANTS=["codes","last","returns","replace","passport","check"];
+let proJust=/[?&]propoll=1\b/.test(location.search),proPick=[];
+function proPollHTML(){
+  if(!proJust||LS.get("gf-prowant"))return "";
+  return `<section class="signup procard propoll" aria-labelledby="ppT"><div class="protop"><span class="pbrand"><img src="img/fox-face.webp" alt="" width="168" height="168">Fox Pro</span><span class="cs">${t("proSoon")}</span></div>
+    <h3 id="ppT" class="pph">${t("ppH")}</h3><p class="prosub">${t("ppSub")}</p>
+    <div class="ppl" role="group" aria-labelledby="ppT">${PRO_WANTS.map(k=>`<button type="button" class="ppo" data-pw="${k}" aria-pressed="${proPick.includes(k)}">${t("pw_"+k)}</button>`).join("")}</div>
+    <p class="proprice"><button type="button" id="ppGo" class="ppgo">${t("ppGo")}</button><button type="button" id="ppSkip" class="linkbtn">${t("ppSkip")}</button></p></section>`;
+}
+function signupHTML(){return proPollHTML()+signupHTML0()}
+/* Oct 29 (Bastien: "Yes on each"): "Continue with Google" first and full width on the sign-up card (a member in one tap, no email
+   step), then "or use your email". Drawn by Google's script once it's loaded (G.render); until then the old link line shows. */
+const gCard=()=>G.ready?`<div class="gwrap gcard"><div class="gbtn" id="gBtnCard"></div><p class="or"><span>${t("orUseEmail")}</span></p></div>`:"";
+function signupHTML0(){
   if(sub&&sub.active)return proHTML(true);
   if(sub&&sub.pending)return `<div class="signup"><h3>${t("checkInbox")}</h3><p style="margin:0">${sub.signin?t("signinCard",esc(sub.pending)):t("checkInboxTxt",esc(sub.pending))}</p>
     ${mailBtn(sub.pending)}<p class="fine">${t("junkHint")}</p>
@@ -2610,24 +2684,26 @@ function signupHTML(){
   if(NC&&ANA.arm("namecard")==="B"){const [m]=rdModel(NC),nm=`${NC.b} ${m}`;
     return `<div class="signup namecard"><div class="nchd">${NC.img?`<img src="${esc(NC.img)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">`:""}<h3>${esc(t("ncH",nm))}</h3></div>
     <p>${t("ncTxt",money(NC.best)+" "+curTag().replace(/<[^>]+>/g,"").trim(),money(NC.reg))}</p>
+    ${gCard()}
     <form id="suForm" novalidate data-nc="${esc(itemKey(NC))}"><label for="suEmail" class="hidden">${t("email")}</label>
       <input id="suEmail" type="email" autocomplete="email" inputmode="email" placeholder="${t("emailPh")}" value="${esc(state.email)}" required>
       <button class="primary" type="submit">${t("ncGo")}</button></form>
     ${signupErr?`<p class="err">${esc(signupErr)}</p>`:""}
-    <p class="fine"><button type="button" id="suGoogle" class="linkbtn">${t("peekG")}</button></p>
+    ${G.ready?"":`<p class="fine"><button type="button" id="suGoogle" class="linkbtn">${t("peekG")}</button></p>`}
     <p class="fine">${t("signupFine")} · <button type="button" id="suNo" class="linkbtn">${t("noThanks")}</button></p></div>`}
   return `<div class="signup"><h3>${t("perksTitle")}</h3>
     <ul class="perks"><li>${t("perk1")}</li><li>${t("perk2")}</li><li>${t("perk3")}</li></ul>
+    ${gCard()}
     <form id="suForm" novalidate><label for="suEmail" class="hidden">${t("email")}</label>
       <input id="suEmail" type="email" autocomplete="email" inputmode="email" placeholder="${t("emailPh")}" value="${esc(state.email)}" required>
       <button class="primary" type="submit">${t("signUp")}</button></form>
     ${signupErr?`<p class="err">${esc(signupErr)}</p>`:""}
-    <p class="fine"><button type="button" id="suGoogle" class="linkbtn">${t("peekG")}</button></p>
+    ${G.ready?"":`<p class="fine"><button type="button" id="suGoogle" class="linkbtn">${t("peekG")}</button></p>`}
     <p class="fine">${t("signupFine")} · <button type="button" id="suNo" class="linkbtn">${t("noThanks")}</button></p></div>`;
 }
 /* Test 'runcard' (Oct 18): the sign-up card asks one concrete thing, "What do you run in?", and watches that shoe.
    Metric: homepage visitors who sign up (about 1% of first visits; ~2,300 a group to see 2%, decide ~Nov 15). */
-let RC_SHOE="",RC_FOCUS="",NC=null;
+let RC_SHOE="",RC_FOCUS="",NC=null,wsItem=null;   // wsItem: the item whose Watch tap opened the email step
 // Oct 18 (Bastien: "people should be able to type their shoe and then it auto populates. People won't scroll down that menu"):
 // our own suggestions under the box (iPhone shows a <datalist> as a menu to scroll): every typed word starts a word of the model
 const rcFold=x=>x.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9 ]+/g," ").trim();
@@ -2655,21 +2731,26 @@ function runCardHTML(){
       <input id="suEmail" type="email" autocomplete="email" inputmode="email" placeholder="${t("emailPh")}" value="${esc(state.email)}" required>
       <button class="primary" type="submit">${t("rcGo")}</button></form>
     ${signupErr?`<p class="err">${esc(signupErr)}</p>`:""}
-    <p class="fine"><button type="button" id="suGoogle" class="linkbtn">${t("peekG")}</button></p>
+    ${G.ready?"":`<p class="fine"><button type="button" id="suGoogle" class="linkbtn">${t("peekG")}</button></p>`}
     <p class="fine">${t("signupFine")} · <button type="button" id="suNo" class="linkbtn">${t("noThanks")}</button></p></div>`;
 }
 function bindSignup(){
-  const pj=()=>{const [m,y]=proPrices();LS.set("gf-pro",{m,y,arm:proArm(),at:new Date().toISOString().slice(0,10)});ana("signup-step",`pro-join|${proArm()}`)};
+  if(G.ready&&$("gBtnCard"))setTimeout(()=>G.render(),0);   // Oct 29: Google first on the sign-up card
+  const pj=()=>{proJust=true;const [m,y]=proPrices();LS.set("gf-pro",{m,y,arm:proArm(),at:new Date().toISOString().slice(0,10)});ana("signup-step",`pro-join|${proArm()}`)};
   const pb=$("proJoin");if(pb)pb.addEventListener("click",()=>{pj();saveProfile();toast(t("proThanks"));renderAll()});
   const pf=$("proForm");if(pf)pf.addEventListener("submit",async e=>{
-    e.preventDefault();const email=cleanMail($("proEmail").value);
+    e.preventDefault();if(!pf.classList.contains("open")){pf.classList.add("open");ana("signup-step",`pro-open|${proArm()}`);$("proEmail").focus();return}const email=cleanMail($("proEmail").value);
     if(!okMail(email)){proErr=t("badEmail");renderAll();$("proEmail").focus();return}
     const btn=pf.querySelector("button");btn.disabled=true;btn.textContent="…";
     pj();state.email=email;const p=toProfile();LS.set("rd-profile",p);
-    try{await rpc("subscribe",{p_email:email,p_profile:subProfile(p)});proErr="";setSub({pending:email});track("signup",{method:"email",lang:LANG,where:"pro",ref:REF||"none"})}
+    try{const r=await rpc("subscribe",{p_email:email,p_profile:subProfile(p,"pro")});proErr="";track("signup",{method:"email",lang:LANG,where:"pro",ref:REF||"none"});joinedAs(email,r)}
     catch(err){LS.set("gf-pro",null);proErr=t("signupFail",err.message)}
     renderAll()});
   const pn=$("proNo");if(pn)pn.addEventListener("click",()=>{LS.set("gf-nopro",1);ana("signup-step",`pro-no|${proArm()}`);renderAll()});
+  document.querySelectorAll(".ppo").forEach(b=>b.addEventListener("click",()=>{const k=b.dataset.pw;proPick=proPick.includes(k)?proPick.filter(x=>x!==k):[...proPick,k];b.setAttribute("aria-pressed",proPick.includes(k))}));
+  const pg=$("ppGo");if(pg)pg.addEventListener("click",()=>{LS.set("gf-prowant",proPick.length?proPick:["none"]);ana("signup-step",`pro-want|${proPick.join(",")||"none"}`);
+    const w=LS.get("gf-pro");if(w){LS.set("gf-pro",{...w,wants:proPick});if(sub&&sub.active)saveProfile()}toast(t("ppThanks"));renderAll()});
+  const ps=$("ppSkip");if(ps)ps.addEventListener("click",()=>{LS.set("gf-prowant",["skip"]);ana("signup-step","pro-want|skip");renderAll()});
   const f=$("suForm");
   if(f)f.addEventListener("submit",async e=>{
     e.preventDefault();const email=cleanMail($("suEmail").value);
@@ -2680,9 +2761,10 @@ function bindSignup(){
     if(rs&&rs.value.trim())ana("signup-step",pick?"runcard-shoe":"runcard-shoe-unknown");
     if(pick&&!watches[itemKey(pick)])toggleWatch(itemKey(pick),true);
     const nk=f.dataset.nc;if(nk&&!watches[nk])toggleWatch(nk,true);   // test 'namecard' B: the deal the card names rides with the sign-up
-    try{await rpc("subscribe",{p_email:email,p_profile:subProfile(p)});signupErr="";setSub({pending:email});track("signup",{method:"email",lang:LANG,where:rs?"runcard":nk?"namecard":"card",ref:REF||"none"})}
+    let joined=false;
+    try{const r=await rpc("subscribe",{p_email:email,p_profile:subProfile(p,"card")});signupErr="";track("signup",{method:"email",lang:LANG,where:rs?"runcard":nk?"namecard":"card",ref:REF||"none"});joined=joinedAs(email,r)}
     catch(err){signupErr=t("signupFail",err.message)}
-    renderAll();
+    renderAll();if(joined)notice(t("joinedNote",esc(email)));
   });
   const rcs=$("rcShoe");if(rcs){
     rcs.addEventListener("focus",()=>ana("signup-step","runcard-focus"),{once:true});
@@ -2693,12 +2775,12 @@ function bindSignup(){
     if(RC_FOCUS){const x=$(RC_FOCUS);if(x){x.focus({preventScroll:true});const n=x.value.length;try{x.setSelectionRange(n,n)}catch(e){}if(x.id==="rcShoe")rcShow()}}   // a redraw (full list arriving) keeps the typing going
     if(!FULL)setTimeout(loadFull,1500)}      // the shoe list wants full-price models too (the shoe you run in may not be on sale)
   const no=$("suNo");if(no)no.addEventListener("click",()=>{LS.set("gf-nosignup",1);ana("signup-step","no-thanks");renderAll()});
-  const sg=$("suGoogle");if(sg)sg.addEventListener("click",()=>{step=2;openSheet();$("panel").scrollTop=0});
+  const sg=$("suGoogle");if(sg)sg.addEventListener("click",()=>{wsItem=null;step=2;openSheet();$("panel").scrollTop=0});
   const r=$("suRetry");if(r)r.addEventListener("click",()=>{setSub(null);renderAll();openSheet();setTimeout(()=>$("gateEmail").focus(),60)});
   const rs=$("suResend");if(rs)rs.addEventListener("click",async()=>{     // same email again (the server waits 2 min between sends)
     if(resentAt&&Date.now()-resentAt<120e3){toast(t("resendWait"));return}
     resentAt=Date.now();track("resend",{lang:LANG,signin:!!sub.signin});
-    try{if(sub.signin)await rpc("send_link",{p_email:sub.pending,p_lang:LANG});else await rpc("subscribe",{p_email:sub.pending,p_profile:subProfile(toProfile())});toast(t("resent"))}
+    try{if(sub.signin)await rpc("send_link",{p_email:sub.pending,p_lang:LANG});else{const em=sub.pending,r=await rpc("subscribe",{p_email:em,p_profile:subProfile(toProfile(),"card")});if(joinedAs(em,r)){renderAll();notice(t("joinedNote",esc(em)));return}}toast(t("resent"))}
     catch(e){resentAt=0;toast(t("resendFail"))}});
 }
 function renderSubLine(){
@@ -2738,7 +2820,8 @@ async function linkFromEmail(){
     if(!r){notice(t("linkExpired"));return false}
     applyProfile({...r.profile,email:r.email});LS.set("rd-profile",toProfile());
     setSub({key:tok,email:r.email,active:!!r.subscribed});
-    if(conf&&r.profile&&r.profile.watch_new&&typeof r.profile.watch_new==="object"){   // hearts from before the sign-up
+    if(r.profile&&r.profile.watch_new&&typeof r.profile.watch_new==="object"){   // Oct 29: also from ?k= (members since the single opt-in never tap a confirm link)
+        // hearts from before the sign-up
       for(const [k,m] of Object.entries(r.profile.watch_new).slice(0,10))if(!watches[k]&&m&&typeof m==="object")watches[k]=m;
       saveWatches()}
     if(conf){notice(t("youreIn"));track("signup-confirmed")}
@@ -2780,9 +2863,10 @@ const G={ready:false,nonce:"",
       auto_select:false,cancel_on_tap_outside:true,use_fedcm_for_prompt:true,itp_support:true,context:"signin"});
     G.ready=true;
     if(!$("sheet").classList.contains("hidden"))openSheet();
+    if(document.querySelector(".signup #suForm"))renderAll();      // the sign-up card now leads with the Google button
   },
   render(){
-    ["gBtnW","gBtnUp","gBtnIn"].forEach(id=>{const el=$(id);if(!el||el.offsetParent===null)return;el.innerHTML="";
+    ["gBtnW","gBtnUp","gBtnIn","gBtnCard"].forEach(id=>{const el=$(id);if(!el||el.offsetParent===null)return;el.innerHTML="";
       google.accounts.id.renderButton(el,{theme:"outline",size:"large",shape:"pill",text:"continue_with",
         width:Math.min(400,el.clientWidth||320),locale:LANG==="fr"?"fr_CA":"en"})});
   },

@@ -40,6 +40,7 @@ FROM = os.environ.get("FROM_EMAIL", "The Gear Fox <deals@thegearfox.com>")
 # Free Resend plan: 100 emails a day, 3,000 a month. Weekly email = 1 per subscriber per Friday.
 WEEKLY_SUBS_WARN = 500      # ~650 subscribers x 4.3 Fridays = the monthly cap
 DAILY_SIGNUPS_WARN = 60     # confirmation emails + alerts share the 100/day cap
+PARKED = {"adidasca", "catalog"}   # catalog-file stores Bastien let go (Oct 30); silent while empty
 SAVED = {"mec", "rei", "adidasca"}   # (Sport Chek read live since Oct 13)       # (SVP parked Oct 6)      # stores read from pages you save by hand (their sites block automated access)
 
 
@@ -91,6 +92,8 @@ def check():
     for st in sorted(set(offers) | set(offers0)):
         today, before = offers.get(st, []), offers0.get(st, [])
         n, n0 = len(today), len(before)
+        if st in PARKED and n == 0:
+            continue          # Oct 30 (Bastien: "let adidas stay off. we'll try later"): no daily line; a new upload brings it back
         t = when(stamps.get(st, ""))
         stale = t is None or NOW - t > timedelta(hours=30)
         if stale:
@@ -103,7 +106,7 @@ def check():
             problems.append((f"zero:{st}", f"{st}: no catalog file from the last 3 days, so its deals are hidden. "
                                            f"Upload a fresh Running_Gear_Catalog.xlsx at thegearfox.com/catalog.html to bring them back."))
         elif st in SAVED and n == 0:
-            problems.append((f"zero:{st}", f"{st}: no saved pages from the last 10 days, so its deals are hidden. "
+            problems.append((f"zero:{st}", f"{st}: no saved pages from the last 5 days, so its deals are hidden. "
                                            f"Save fresh pages to bring them back."))
         elif stale:
             pass
@@ -198,13 +201,28 @@ def check():
                     problems.append((f"report:{x[:60]}", f"A visitor says: {x.replace('|', ' · ')}"))
         except Exception as e:
             print(f"visitor reports skipped: {e}")
+    # Oct 29 (single opt-in): bounces and complaints from Resend; bad addresses are stopped (scraper/mail_health.py)
+    mail_line = ""
+    if os.environ.get("HEALTH_WHEN", "morning") != "midday":
+        try:
+            import mail_health
+            mail_line, mprobs = mail_health.summary()
+            problems.extend(mprobs)
+        except Exception as e:
+            print(f"mail health skipped: {e}")
+        rr = load(Path("/tmp/race-remind.json"))   # Oct 31: race list reminders (scraper/race_remind.py, the step before)
+        if rr.get("races"):
+            mail_line = (mail_line + " · " if mail_line else "") + (f"Race reminders ({', '.join(rr['races'])}): {rr['due']} due, {rr['sent']} sent"
+                         + (f", {rr['ticked']} had everything ticked" if rr.get("ticked") else "") + (", dry run" if rr.get("dry") else ""))
+            if rr.get("failed"):
+                problems.append(("race-remind", f"Race reminders: {rr['failed']} of {rr['due']} failed to send (they retry tomorrow)"))
     sale = lambda its: sum(1 for i in its if any(len(e) > 3 and e[1] < e[3] * 0.99 for e in i.get("sz", [])))
     fresh_stores = sum(1 for st in offers if (t := when(stamps.get(st, ""))) and NOW - t <= timedelta(hours=30))
     moves = sorted(((st, len(offers.get(st, [])), len(offers0.get(st, []))) for st in set(offers) | set(offers0)),
                    key=lambda x: -abs(x[1] - x[2]))
     return problems, {"items": items, "items0": items0, "sale": sale(deals.get("items", [])), "sale0": sale(deals0.get("items", [])),
                       "stores": {st: len(v) for st, v in offers.items()}, "stores_ok": fresh_stores, "stores_n": len(offers),
-                      "moves": [m for m in moves if abs(m[1] - m[2]) >= 10][:5], "subscribers": subs, "signups_24h": new,
+                      "moves": [m for m in moves if abs(m[1] - m[2]) >= 10][:5], "subscribers": subs, "signups_24h": new, "mail": mail_line or "",
                       "sitetest": st, "featured": fc}
 
 
@@ -222,7 +240,7 @@ def catalog_check():
     for w in c.get("warnings") or []:
         probs.append((f"catalog-warn:{w[:40]}", f"Catalog file: {w}"))
     out, leaving = c.get("out") or {}, c.get("leaving") or {}
-    if out or leaving:                           # one line, not one per store (Oct 14)
+    if (out or leaving) and c.get("used"):       # one line, not one per store (Oct 14); no file in use = parked (Oct 30)
         parts = []
         if out:
             parts.append("no deals from " + ", ".join(out) + f" (last read {min(out.values())})")
@@ -362,6 +380,7 @@ def main():
                site_line(stats["sitetest"]) + featured_line(stats.get("featured") or {}) + cat_line + \
                (f"- {stats['subscribers']} subscribers, {stats['signups_24h']} new sign-ups in the last 24 hours\n"
                 if stats["subscribers"] is not None else "") + \
+               stats.get("mail", "") + \
                ("\nBiggest changes by store:\n" + "\n".join(f"- {st}: {a:,} products (was {b:,})" for st, a, b in stats["moves"]) + "\n"
                 if stats["moves"] else "") + \
                search_text + \

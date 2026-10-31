@@ -2,7 +2,7 @@
 """Run before every push to main: rebuilds what the morning update builds, from today's live data, in a scratch
 folder, and stops at the first thing that crashes or comes out empty. Nothing ships unless this says ALL GOOD.
 
-  python tools/check.py            (about 3 minutes; needs internet for today's live offers.json)
+  python tools/check.py            (needs internet for today's live files; RAW_OFFERS=<offers.json> to also remerge)
 
 Checks: every Python file compiles · every script in the site pages parses (node --check) · deals merge from today's
 offers · shoe pages, list pages, Black Friday and sitemap get built (350+ models) · the Friday email matches and draws
@@ -23,6 +23,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 LIVE = "https://thegearfox.com/"
+NO_RAW = []   # Oct 29: set when the raw store file (offers.json) can't be had: the merge step is skipped
 fails = []
 
 
@@ -90,16 +91,34 @@ def main():
         return f"{len(sent)} kinds, all accepted"
     step("Analytics events are all recorded", ana_kinds)
 
-    def fetch():        # Oct 21: big files sometimes arrive cut short ("retrieval incomplete"): up to 3 tries each
-        for f in ("offers.json", "deals.json"):
-            for i in range(3):
-                try:
-                    urllib.request.urlretrieve(LIVE + f, site / f)
-                    break
-                except Exception:
-                    if i == 2:
-                        raise
-                    time.sleep(5)
+    def grab(f):         # Oct 21: big files sometimes arrive cut short ("retrieval incomplete"): up to 3 tries each
+        for i in range(3):
+            try:
+                urllib.request.urlretrieve(LIVE + f, site / f)
+                return
+            except Exception:
+                if i == 2:
+                    raise
+                time.sleep(5)
+
+    def fetch():
+        # Oct 29 (Bastien via growth: stop other bots copying our data): offers.json (every store's raw listings) isn't published
+        # any more; it lives in the refresh's private cache. RAW_OFFERS=<file> = a local copy; without one the merge is skipped
+        # (today's live merged files are used) and the refresh's own run tests the merge before anything is published.
+        raw = os.environ.get("RAW_OFFERS")
+        if raw and Path(raw).exists():
+            shutil.copy(raw, site / "offers.json")
+        elif raw == "none":       # RAW_OFFERS=none: act as if no raw file can be had (tests the skip)
+            NO_RAW.append(1)
+        else:
+            try:
+                grab("offers.json")
+            except Exception:
+                NO_RAW.append(1)
+        grab("deals.json")
+        if NO_RAW:
+            for f in ("sale.json", "deals-us.json", "sale-us.json"):
+                grab(f)
         # Oct 25: the Hiking tab's files (scraper/hike.py), live once launched; before that HIKE_DIR = a local read
         got = []
         for f in ("sale-hike.json", "deals-hike.json", "sale-hike-us.json", "deals-hike-us.json"):
@@ -111,10 +130,13 @@ def main():
                 if src.exists():
                     shutil.copy(src, site / f)
                     got.append(f)
-        return "offers.json + deals.json" + (f" + {len(got)} hiking files" if got else "")
+        return ("deals.json + sale/USA files (no raw store file: merge skipped)" if NO_RAW else "offers.json + deals.json") + (f" + {len(got)} hiking files" if got else "")
     step("Download today's live data", fetch)
 
     def merge():
+        if NO_RAW:
+            n = len(json.loads((site / "deals.json").read_text())["items"])
+            return f"skipped: no raw store file here (set RAW_OFFERS=<file> to remerge); today's live {n} items used"
         r = subprocess.run([sys.executable, str(ROOT / "scraper" / "scrape.py"), str(site / "deals.json"), "--remerge"],
                            capture_output=True, text=True, timeout=900)
         if r.returncode:
@@ -189,6 +211,33 @@ def main():
         return f"{len(race_pages.RACES)} races, each EN + FR (Canadian stores) + US"
     step("Race gear pages", races)
 
+    def race_remind():  # Oct 31: "Remind me 30 days before the race": box on dated races, and a sample email from today's data
+        sys.path.insert(0, str(ROOT / "scraper"))
+        import race_pages
+        dated = [k for k, r in race_pages.RACES.items() if race_pages.remind_day(r)]
+        if not dated:
+            return "no race with a date ahead"
+        for k in dated:
+            for d in ("races", "courses", "us/races"):
+                if 'data-rm="' not in (site / d / k / "index.html").read_text():
+                    raise RuntimeError(f"/{d}/{k}/ has a date but no reminder box")
+        out = []
+        for args in ([], ["--fr"], ["--us"]):
+            f = Path(tempfile.mkdtemp()) / "rr.html"
+            r = subprocess.run([sys.executable, str(ROOT / "scraper" / "race_remind.py"), str(site), "--sample", dated[0], *args, str(f)],
+                               capture_output=True, text=True, timeout=300, env={**os.environ, "SITE_URL": "https://thegearfox.com/", "RESEND_API_KEY": ""})
+            if r.returncode or not f.exists():
+                raise RuntimeError((r.stderr or r.stdout).strip().splitlines()[-1])
+            h = f.read_text()
+            for bad in (r">\s*None\s*<", r">[^<]*\bundefined\b", r">[^<]*\bnan\b", r">[^<]*[{}]", r">[^<]*\$0\.00\b"):
+                if re.search(bad, h):
+                    raise RuntimeError(f"sample email {args}: '{bad}' in the text")
+            if h.count("Watch") + h.count("Suivre") < 1:
+                raise RuntimeError(f"sample email {args}: no pick with a Watch link")
+            out.append(r.stdout.strip().split("'")[1] if "'" in r.stdout else r.stdout.strip())
+        return f"{len(dated)} dated races have the box; sample: {out[0]}"
+    step("Race reminders: box + sample email (EN/FR/US)", race_remind)
+
     def bf_live():      # Oct 27: the live Black Friday deal check, from the real price history (history branch)
         hist = Path(tempfile.gettempdir()) / "gf-check-prices.jsonl"
         r = subprocess.run("git fetch -q --depth=1 origin history && git show FETCH_HEAD:prices.jsonl", shell=True, cwd=ROOT, capture_output=True, text=True, timeout=300)
@@ -214,7 +263,7 @@ def main():
         r = subprocess.run([sys.executable, str(ROOT / "scraper" / "gift_pages.py"), str(site)], capture_output=True, text=True, timeout=300)
         if r.returncode:
             raise RuntimeError(r.stderr.strip().splitlines()[-1])
-        for path in ("gifts-for-runners/index.html", "cadeaux-coureurs/index.html"):
+        for path in ("gifts-for-runners/index.html", "cadeaux-coureurs/index.html", "us/gifts-for-runners/index.html"):   # Oct 30: + USA
             h = (site / path).read_text()
             n = h.count('class="gf"')
             if n < 18:
@@ -225,8 +274,10 @@ def main():
                 raise RuntimeError(f"{path}: no Watch the price link")
         if "/gifts-for-runners/" not in (site / "sitemap.xml").read_text():
             raise RuntimeError("the gift page isn't in the sitemap")
+        if "/us/gifts-for-runners/" not in (site / "sitemap.xml").read_text():
+            raise RuntimeError("the US gift page isn't in the sitemap")
         return r.stdout.strip()[:160]
-    step("Gift page (EN/FR)", gifts)
+    step("Gift page (EN/FR + USA)", gifts)
 
     def same_names():   # the site links cards to shoe pages with a JS copy of base_model + slugify: they must agree (Oct 7)
         sys.path.insert(0, str(ROOT / "scraper"))

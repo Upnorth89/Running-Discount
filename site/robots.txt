@@ -2,5 +2,12 @@ User-agent: *
 Allow: /
 Disallow: /grab.html
 Disallow: /stats.html
+# Oct 29: raw and full data files are for our own pages, not for copying (sale*.json stays open: Google renders the homepage with it)
+Disallow: /offers.json
+Disallow: /hike-offers.json
+Disallow: /deals.json
+Disallow: /deals-us.json
+Disallow: /deals-hike.json
+Disallow: /deals-hike-us.json
 
 Sitemap: https://thegearfox.com/sitemap.xml

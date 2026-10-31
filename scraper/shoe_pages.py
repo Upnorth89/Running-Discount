@@ -15,6 +15,7 @@ Usage: python scraper/shoe_pages.py SITE_DIR
 """
 import html
 import json
+import os
 import re
 import sys
 from collections import defaultdict
@@ -133,7 +134,8 @@ T = {
         "boH": "Email me when the {name} is back in my size", "boTxt": "Free. One email when a store we check has it in your size, plus the Friday deals. Unsubscribe in one tap.",
         "boFit": "Fit", "boMen": "Men's", "boWomen": "Women's", "boSize": "Size", "boPick": "Pick your fit and size first.",
         "alertPick": "Pick your size above first, so we watch the right one.", "alertBad": "That email doesn't look right.",
-        "alertOk": "Almost done: check your inbox for {email} and tap the link to confirm (look in Junk too).", "alertFail": "Couldn't sign you up right now. Try again in a minute.",
+        "alertOk": "Almost done: check your inbox for {email} and tap the link to confirm (look in Junk too).",
+        "alertIn": "You're in. A welcome note is on its way to {email}, and your deals in your size come every week.", "alertFail": "Couldn't sign you up right now. Try again in a minute.",
         "alertDone": "You're watching this shoe. We'll email you when it drops in your size.", "emailPh": "you@example.com", "pick": "Your size:", "pickPh": "Pick your size", "change": "Change", "allInSize": "See every deal in your size →",
         "notInSize": "Not in stock in your size right now. Watch it and we'll email you when it's back or drops.",
         "find": "Search a model (e.g. Clifton)", "noMatch": "No model matches. Try the brand name, or a shorter word.",
@@ -246,7 +248,8 @@ T = {
         "boH": "Écrivez-moi quand le {name} revient dans ma pointure", "boTxt": "Gratuit. Un courriel quand une boutique que nous suivons l'a dans votre pointure, plus les aubaines du vendredi. Désabonnement en un clic.",
         "boFit": "Coupe", "boMen": "Homme", "boWomen": "Femme", "boSize": "Pointure", "boPick": "Choisissez d'abord la coupe et la pointure.",
         "alertPick": "Choisissez d'abord votre pointure plus haut, pour qu'on suive la bonne.", "alertBad": "Ce courriel ne semble pas valide.",
-        "alertOk": "Presque fini : ouvrez le courriel envoyé à {email} et touchez le lien pour confirmer (regardez aussi dans les indésirables).", "alertFail": "Inscription impossible pour le moment. Réessayez dans une minute.",
+        "alertOk": "Presque fini : ouvrez le courriel envoyé à {email} et touchez le lien pour confirmer (regardez aussi dans les indésirables).",
+        "alertIn": "C'est fait. Un mot de bienvenue s'en va à {email}, et vos aubaines dans votre taille arrivent chaque semaine.", "alertFail": "Inscription impossible pour le moment. Réessayez dans une minute.",
         "alertDone": "Vous suivez cette chaussure. On vous écrit quand elle baisse dans votre pointure.", "emailPh": "vous@exemple.com", "pick": "Votre pointure :", "pickPh": "Choisissez votre pointure", "change": "Modifier", "allInSize": "Voir toutes les aubaines dans votre pointure →",
         "notInSize": "Pas en stock dans votre pointure en ce moment. Suivez-la et on vous écrira dès qu'elle revient ou baisse.",
         "find": "Chercher un modèle (ex. Clifton)", "noMatch": "Aucun modèle trouvé. Essayez le nom de la marque ou un mot plus court.",
@@ -260,6 +263,7 @@ T = {
 # the USA side (Oct 6, 2026): same pages in US English under /us/, from deals-us.json (US stores, US dollars)
 US = dict(T["en"])
 US["bfLive"] = None   # the live deal check is Canada only for now (Oct 27)
+US["bfGift"] = ("Shopping for someone else?", "Gifts for runners under $25, $50 and $100, no size needed →", "/us/gifts-for-runners/")   # Oct 30
 US.update({
     "dir": "us/shoes", "lang": "en-US", "other": "en-CA", "q": "&c=us", "home": "/?c=us", "cur": "USD",
     "title": "{name} price: every size, every store",
@@ -309,7 +313,11 @@ def base_model(n):
     n = re.sub(r"\s*(-\s*|\()(Men|Women)[’']s\)?$|\s*(-\s*|\()Unisex\)?$", "", n)
     n = re.split(r"\s+[—·]\s+", n)[0]                                    # "Clifton 10 — White/White"
     n = re.sub(r"\s*[\[(](x-?wide|extra wide|wide|2e|4e|d|ee|large)[\])]\s*|\s+\b(extra wide|x-?wide|wide)\b", " ", n, flags=re.I)
-    n = re.sub(r"\b((trail|road) )?running shoes?\b|\bhiking shoes?\b|\bshoes?\b", "", n, flags=re.I)
+    # Oct 30 (growth chat: /shoes/hoka-rocket-x/ showed the Rocket X TRAIL under the road racer's name): "Trail" stays where it names
+    # another shoe than the road model of the same name (Hoka Rocket X Trail, Brooks Ghost Trail); scrape.py's OK_TWINS keeps their cards apart
+    n = re.sub(r"\b(Rocket|Tecton|Mafate) X(\d)\b", r"\1 X \2", n, flags=re.I)    # Oct 30: "Rocket X3" = "Rocket X 3" (two pages)
+    n = re.sub(r"\b(Rocket X|Ghost)\s+Trail(?:[ -]running)?(?:\s+shoes?)?\b", r"\1 Trail", n, flags=re.I)
+    n = re.sub(r"\b((trail|road)[ -])?running shoes?\b|\bhiking shoes?\b|\bshoes?\b", "", n, flags=re.I)   # Oct 29: REI's "Trail-Running Shoes"
     n = re.sub(r"^\s*(M|W|U|Unisex|All[- ]Gender|Men[’']?s|Women[’']?s)\s+", "", n, flags=re.I)        # "M Ghost 18" (Oct 7)
     n = re.sub(r"\s+(running road|road racing|road running|road)\s*$", "", n.strip(" -"), flags=re.I)   # "Ghost 17 Road"
     # Oct 8 (Search Console skipped near-copies): Nike's long names and athlete editions share one page
@@ -318,6 +326,9 @@ def base_model(n):
     n = re.sub(r"\s+(Keely Hodgkinson|H\.?\s?Koumori)\b.*$", "", n, flags=re.I)
     # Oct 24 (28 shoes had a "Gore-Tex" page AND a "GTX" page competing on Google): one page each
     n = re.sub(r"\bGore[- ]?Tex\b", "GTX", n, flags=re.I)
+    # Oct 30 (12 "(Available in Widths)" + 4 "GTX Waterproof" pages twinned another page): one page per shoe
+    n = re.sub(r"\(?\bavailable\s+in\s+(wide\s+)?widths?\b\)?", " ", n, flags=re.I)
+    n = re.sub(r"\bGTX\s+Waterproof\b", "GTX", n, flags=re.I)
     n = re.sub(r"^((?:Fresh\s?Foam(?:\s+X)?|FuelCell)\s+)?(\d{3,4})\s+v(\d+)\b", r"\1\2v\3", n.strip(), flags=re.I)   # New Balance "880 v15" = "880v15"
     return re.sub(r"\s+", " ", n).strip(" -")
 
@@ -558,7 +569,15 @@ tr.yours td:first-child{font-weight:700;box-shadow:inset 4px 0 0 var(--hivis)}
 
 MENU_SVG = ('<svg class="mi" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" '
             'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{}</svg>')
-MENU_ICONS = {'🔥': '<path d="M3 12V4.5A1.5 1.5 0 0 1 4.5 3H12l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.4"/>', '👟': '<path d="M2.5 17v-6l3.5-3 3 2.5 2.5-2.5 4.5 4.5h3a2.5 2.5 0 0 1 2.5 2.5V17z"/><path d="M2.5 20.5h19"/>', '♡': '<path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 6.9 4.5c2.1 0 3.6 1.2 5.1 3 1.5-1.8 3-3 5.1-3 3.5 0 5.5 3.5 4.2 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/>', '✏️': '<path d="M4 20h4L19.5 8.5l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>', '🦊': '<circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><path d="M12 7.6v.1"/>', '📸': '<rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8v.1"/>', '🏁': '<path d="M5 21V3.5"/><path d="M5 4h12l-2.5 4L17 12H5"/>'}   # same line icons as the homepage menu
+MENU_ICONS = {'🎁': '<path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 21V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>', '🔥': '<path d="M3 12V4.5A1.5 1.5 0 0 1 4.5 3H12l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.4"/>', '👟': '<path d="M2.5 17v-6l3.5-3 3 2.5 2.5-2.5 4.5 4.5h3a2.5 2.5 0 0 1 2.5 2.5V17z"/><path d="M2.5 20.5h19"/>', '♡': '<path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 6.9 4.5c2.1 0 3.6 1.2 5.1 3 1.5-1.8 3-3 5.1-3 3.5 0 5.5 3.5 4.2 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/>', '✏️': '<path d="M4 20h4L19.5 8.5l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>', '🦊': '<circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><path d="M12 7.6v.1"/>', '📸': '<rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8v.1"/>', '🏁': '<path d="M5 21V3.5"/><path d="M5 4h12l-2.5 4L17 12H5"/>'}   # same line icons as the homepage menu
+
+
+def gift_season(today=None):
+    """Nov 15 - Dec 26 (Vancouver date): the gift page is in the ☰ menu. GIFT_MENU=1 forces it (previews, checks)."""
+    import datetime
+    from zoneinfo import ZoneInfo
+    d = today or datetime.datetime.now(ZoneInfo("America/Vancouver")).date()
+    return bool(os.environ.get("GIFT_MENU")) or (11, 15) <= (d.month, d.day) <= (12, 26)
 
 
 def menu_links(L, other_path):
@@ -567,13 +586,16 @@ def menu_links(L, other_path):
     home = L["home"]
     items = [(home, "🔥", L["mDeals"]), (f"/{L['dir']}/", "👟", L["mShoes"]),
              (home + ("&" if "?" in home else "?") + "show=watch", "♡", L["mWatch"]), (home + ("&" if "?" in home else "?") + "show=sizes", "✏️", L["mSizes"]),
-             ("/about.html" + ("?lang=fr" if fr else ""), "🦊", L["mAbout"]), ("https://www.instagram.com/thegearfox/", "📸", "Instagram")]
+             ("/about.html" + ("?lang=fr" if fr else ""), "🦊", L["mAbout"])]   # Oct 28 (Bastien): no Instagram in the menu, it's in every footer
     if L.get("hike"):      # boot + trail list pages: menu goes to the hiking side, trail gear lists instead of race lists
         items[1] = (f"/{L['dir']}/", "👟", L["mShoes"])
         items.insert(2, ("/us/hikes/" if L["lang"] == "en-US" else "/randonnees/" if fr else "/hikes/", "🏁",
                          "Listes de matériel de randonnée" if fr else "Trail gear lists"))   # Oct 26 (Bastien: "the trail list still links to races")
     else:
         items.insert(2, ("/us/races/" if L["lang"] == "en-US" else "/courses/" if fr else "/races/", "🏁", L["mRaces"]))   # race gear lists (Oct 21; US races too)
+        # Oct 28 (growth chat, Bastien OK'd): "Gifts for runners" right after the race lists, Nov 15 - Dec 26, Canada only (pages are rebuilt every morning)
+        if L["lang"] != "en-US" and gift_season():
+            items.insert(3, ("/cadeaux-coureurs/" if fr else "/gifts-for-runners/", "🎁", "Cadeaux pour coureurs" if fr else "Gifts for runners"))
     out = "".join(f'<a href="{u}">{MENU_SVG.format(MENU_ICONS[i])}{esc(t)}</a>' for u, i, t in items)
     if L["lang"] == "en-US":
         return out + f'<a class="sw" href="{other_path}" hreflang="{L["other"]}">{L["switch"]}</a>'
@@ -591,7 +613,7 @@ def alternates(L, path_en, path_fr):
         twin = (f'\n<link rel="alternate" hreflang="en-CA" href="{BASE}{path_fr}">\n<link rel="alternate" hreflang="x-default" href="{BASE}{path_fr}">'
                 if path_fr else "")
         return f'<link rel="alternate" hreflang="en-US" href="{BASE}{path_en}">{twin}'
-    us = "/us" + path_en if path_en == "/black-friday/" or path_en.startswith("/running-shoes-sale/") else ""   # pages that always have a US twin
+    us = "/us" + path_en if path_en in ("/black-friday/", "/gifts-for-runners/") or path_en.startswith("/running-shoes-sale/") else ""   # pages that always have a US twin
     return (f'<link rel="alternate" hreflang="en-CA" href="{BASE}{path_en}">\n<link rel="alternate" hreflang="fr-CA" href="{BASE}{path_fr}">\n'
             + (f'<link rel="alternate" hreflang="en-US" href="{BASE}{us}">\n' if us else "")
             + f'<link rel="alternate" hreflang="x-default" href="{BASE}{path_en}">')
@@ -646,9 +668,17 @@ def page_head(L, title, desc, path_en, path_fr, extra=""):
 def page_foot(L):
     priv = "/privacy.html" + ("?lang=fr" if L["lang"] == "fr-CA" else "")
     # deal clicks count toward the monthly report (same anonymous counter as the site: store + category, nothing personal)
-    return f"""<p class="foot">{esc(L['foot'])} · <a href="https://www.instagram.com/thegearfox/" rel="noopener">@thegearfox</a> · <a href="{priv}">{L['privacy']}</a></p>
+    return f"""<p class="foot">{esc(L['foot'])} · <a href="https://www.instagram.com/thegearfox/" rel="noopener">@thegearfox</a> · <a href="{priv}">{L['privacy']}</a> · <a href="/terms.html{'?lang=fr' if L['lang'] == 'fr-CA' else ''}">{'Conditions' if L['lang'] == 'fr-CA' else 'Terms'}</a></p>
 </main>
 <script>
+/* Oct 29 (single opt-in): subscribe answers "k:<key>" = a member now. Link this device like the homepage does and put the watched
+   item(s) on the member's server watchlist right away (alerts read the server list) */
+function gfIn(res,em,nw){{var k=typeof res==="string"&&/^k:[0-9a-f-]{{36}}$/i.test(res)?res.slice(2):"";if(!k)return false;
+  try{{localStorage.setItem("gf-sub",JSON.stringify({{key:k,email:em,active:true}}))}}catch(e){{}}
+  var w={{}};try{{w=JSON.parse(localStorage.getItem("gf-watch")||"{{}}")||{{}}}}catch(e){{}}
+  Object.keys(nw||{{}}).slice(0,10).forEach(function(key){{fetch("{SB_URL}/rest/v1/rpc/watch_add",{{method:"POST",headers:{{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"}},
+    body:JSON.stringify({{p_token:k,p_key:key,p_meta:nw[key]}})}}).then(function(r){{if(r.ok&&w[key]){{w[key].sv=1;try{{localStorage.setItem("gf-watch",JSON.stringify(w))}}catch(e){{}}}}}}).catch(function(){{}})}});
+  try{{ana("signup-step","instant")}}catch(e){{}}return true}}
 /* our own analytics (same as the homepage, supabase/analytics.sql): what people do, never who they are */
 var ana=(function(){{var ls=function(k){{try{{return localStorage.getItem(k)}}catch(e){{return null}}}},ss=function(k){{try{{return sessionStorage.getItem(k)}}catch(e){{return null}}}};
   var uid=function(){{try{{return crypto.randomUUID()}}catch(e){{return "10000000-1000-4000-8000-100000000000".replace(/[018]/g,function(c){{return (c^Math.random()*16>>c/4).toString(16)}})}}}};
@@ -806,9 +836,9 @@ f.addEventListener("submit",function(e){{e.preventDefault();
   var w=get("gf-watch")||{{}};w[t.dataset.key]=meta;
   var nw={{}};nw[t.dataset.key]=meta;var btn=f.querySelector("button");btn.disabled=true;
   fetch("{SB_URL}/rest/v1/rpc/subscribe",{{method:"POST",headers:{{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"}},
-    body:JSON.stringify({{p_email:em,p_profile:Object.assign({{}},p,{{watch_new:nw}})}})}}).then(function(r){{if(!r.ok)throw 0;
-    put("gf-watch",w);if(!get("rd-profile"))put("rd-profile",p);if(!(subd&&(subd.active||subd.key)))put("gf-sub",{{pending:em}});
-    f.remove();msg.textContent=box.dataset.ok.replace("{{email}}",em);
+    body:JSON.stringify({{p_email:em,p_profile:Object.assign({{}},p,{{watch_new:nw,consent:"shoe-page: "+((box.querySelector(".fine")||{{}}).textContent||"").trim().slice(0,900)}})}})}}).then(function(r){{if(!r.ok)throw 0;return r.json()}}).then(function(res){{
+    put("gf-watch",w);if(!get("rd-profile"))put("rd-profile",p);var IN=gfIn(res,em,nw);if(!IN&&!(subd&&(subd.active||subd.key)))put("gf-sub",{{pending:em}});
+    f.remove();msg.textContent=(IN?box.dataset.in:box.dataset.ok).replace("{{email}}",em);
     try{{ana("signup","shoe-page")}}catch(x){{}}try{{window.umami&&umami.track("signup",{{method:"email",where:"shoe-page",lang:fr?"fr":"en",ref:ref||"none"}})}}catch(x){{}}}})
   .catch(function(){{btn.disabled=false;msg.textContent=box.dataset.fail}})}})}})();
 /* "Email me when it's back in my size" (Oct 27): pages with nothing in stock. The PAGE goes on the watchlist ("page|<slug>"); the
@@ -841,9 +871,9 @@ f.addEventListener("submit",function(e){{e.preventDefault();
   var meta={{b:box.dataset.b,n:box.dataset.n,g:"shoes",url:location.href,price:null,low:null,seen:null,gone:true,saved:new Date().toISOString()}},nw={{}};nw[K]=meta;
   var w=get("gf-watch")||{{}};w[K]=meta;var btn=f.querySelector("button");btn.disabled=true;
   fetch("{SB_URL}/rest/v1/rpc/subscribe",{{method:"POST",headers:{{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"}},
-    body:JSON.stringify({{p_email:em,p_profile:Object.assign({{}},p,{{watch_new:nw}})}})}}).then(function(r){{if(!r.ok)throw 0;
-    put("gf-watch",w);if(!get("rd-profile"))put("rd-profile",p);if(!(subd&&(subd.active||subd.key)))put("gf-sub",{{pending:em}});
-    f.remove();msg.textContent=box.dataset.ok.replace("{{email}}",em);
+    body:JSON.stringify({{p_email:em,p_profile:Object.assign({{}},p,{{watch_new:nw,consent:"shoe-page: "+((box.querySelector(".fine")||{{}}).textContent||"").trim().slice(0,900)}})}})}}).then(function(r){{if(!r.ok)throw 0;return r.json()}}).then(function(res){{
+    put("gf-watch",w);if(!get("rd-profile"))put("rd-profile",p);var IN=gfIn(res,em,nw);if(!IN&&!(subd&&(subd.active||subd.key)))put("gf-sub",{{pending:em}});
+    f.remove();msg.textContent=(IN?box.dataset.in:box.dataset.ok).replace("{{email}}",em);
     try{{ana("signup","shoe-page-back")}}catch(x){{}}try{{window.umami&&umami.track("signup",{{method:"email",where:"shoe-page-back",lang:fr?"fr":"en",ref:ref||"none"}})}}catch(x){{}}}})
   .catch(function(){{btn.disabled=false;msg.textContent=box.dataset.fail}})}})}})();
 /* wrong side (Oct 6, 2026): a visitor who picked USA on a Canadian page (or Canada on a US page) gets a bar to the same page
@@ -908,9 +938,9 @@ f.addEventListener("submit",function(e){{e.preventDefault();
     p={{lang:fr?"fr":"en",country:us?"us":"ca",tz:tz,name:"",gender:g.value,terrain:"both",ships:"ca",groups:G,sizes:sz,brands:[],activities:[]}}}}
   p.email=em;if(!p.ref)p.ref=get("gf-ref")||box.dataset.ref;var btn=f.querySelector("button");btn.disabled=true;
   fetch("{SB_URL}/rest/v1/rpc/subscribe",{{method:"POST",headers:{{apikey:"sb_publishable_zRrZ7lk8fCbjdTV3tgVD5g_PtxgHOD2","Content-Type":"application/json"}},
-    body:JSON.stringify({{p_email:em,p_profile:p}})}}).then(function(r){{if(!r.ok)throw 0;
-    put("gf-sub",{{pending:em}});if(!p0)put("rd-profile",p);put("gf-shoe-size",{{g:g.value,s:s.value}});
-    f.remove();msg.textContent=box.dataset.ok.replace("{{email}}",em);
+    body:JSON.stringify({{p_email:em,p_profile:Object.assign({{}},p,{{consent:(box.dataset.ref||"list")+": "+((box.querySelector(".fine")||{{}}).textContent||"").trim().slice(0,900)}})}})}}).then(function(r){{if(!r.ok)throw 0;return r.json()}}).then(function(res){{
+    var IN=gfIn(res,em,{{}});if(!IN)put("gf-sub",{{pending:em}});if(!p0)put("rd-profile",p);put("gf-shoe-size",{{g:g.value,s:s.value}});
+    f.remove();msg.textContent=(IN?box.dataset.in:box.dataset.ok).replace("{{email}}",em);
     try{{ana("signup",box.dataset.ref)}}catch(x){{}}try{{window.umami&&umami.track("signup",{{method:"email",where:box.dataset.ref,lang:fr?"fr":"en"}})}}catch(x){{}}}})
   .catch(function(){{btn.disabled=false;msg.textContent=box.dataset.fail}})}})}})();
 document.addEventListener("click",function(e){{var a=e.target.closest("a[data-store]");if(!a)return;
@@ -1233,7 +1263,7 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None,
         if not L.get("hike"):
             zs = lambda a, b: "".join(f'<option value="{z:g}">{z:g}</option>' for z in [x / 2 for x in range(a * 2, b * 2 + 1)])
             out.append(f'<section class="alert boback" id="backBox" data-key="page|{esc(slug)}" data-b="{esc(brand)}" data-n="{esc(name)}" '
-                       f'data-pick="{esc(L["boPick"])}" data-chg="{esc(L["change"])}" data-bad="{esc(L["alertBad"])}" data-ok="{esc(L["alertOk"])}" data-fail="{esc(L["alertFail"])}" data-done="{esc(L["alertDone"])}">'
+                       f'data-pick="{esc(L["boPick"])}" data-chg="{esc(L["change"])}" data-bad="{esc(L["alertBad"])}" data-ok="{esc(L["alertOk"])}" data-in="{esc(L["alertIn"])}" data-fail="{esc(L["alertFail"])}" data-done="{esc(L["alertDone"])}">'
                        f'<h2>{esc(L["boH"].format(name=name))}</h2><p class="fine">{L["boTxt"]}</p><form novalidate><div class="bor">'
                        f'<select data-fit aria-label="{esc(L["boFit"])}"><option value="">{esc(L["boFit"])}</option><option value="men">{esc(L["boMen"])}</option><option value="women">{esc(L["boWomen"])}</option></select>'
                        f'<select data-size aria-label="{esc(L["boSize"])}" data-m="{esc(zs(6, 15))}" data-w="{esc(zs(5, 12))}"><option value="">{esc(L["boSize"])}</option></select></div>'
@@ -1245,7 +1275,7 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None,
                f'data-all="{esc(L["allInSize"])}" data-home="/?ref=shoe-size{L["q"]}"></div>')
     # Oct 8 (funnel: 209 first visits from Google in 14 days, 11% reached the homepage, no way to sign up here): sign up right here
     if any(first[lab].get("of") for lab in merged):
-        out.append(f'<section class="alert" id="alertBox" data-pick="{esc(L["alertPick"])}" data-bad="{esc(L["alertBad"])}" data-ok="{esc(L["alertOk"])}" '
+        out.append(f'<section class="alert" id="alertBox" data-pick="{esc(L["alertPick"])}" data-bad="{esc(L["alertBad"])}" data-ok="{esc(L["alertOk"])}" data-in="{esc(L["alertIn"])}" '
                    f'data-fail="{esc(L["alertFail"])}" data-done="{esc(L["alertDone"])}" data-backh="{esc(L["backH"])}" '
                    f'data-backtxt="{esc(L["backTxt"].format(name=name))}" data-backbtn="{esc(L["backBtn"])}" data-backno="{esc(L["backNo"])}">'
                    f'<h2>{esc(L["alertH"].format(name=name))}</h2><p class="fine">{L["alertTxt"]}</p>'
@@ -1463,7 +1493,7 @@ def qs_box(L, head, ref):
     men = "".join(f'<option value="{v:g}">{v:g}</option>' for v in [x / 2 for x in range(12, 31)])
     women = "".join(f'<option value="{v:g}">{v:g}</option>' for v in [x / 2 for x in range(10, 25)])
     return (f'<section class="alert qs" id="qsBox" data-ref="{ref}" data-pick="{esc(L["qsPick"])}" data-bad="{esc(L["alertBad"])}" '
-            f'data-ok="{esc(L["alertOk"])}" data-fail="{esc(L["alertFail"])}"><h2>{esc(head)}</h2><p class="fine">{esc(L["qsTxt"])}</p>'
+            f'data-ok="{esc(L["alertOk"])}" data-in="{esc(L["alertIn"])}" data-fail="{esc(L["alertFail"])}"><h2>{esc(head)}</h2><p class="fine">{esc(L["qsTxt"])}</p>'
             f'<form novalidate><div class="qsrow"><select class="qsg" aria-label="Fit"><option value="men">{esc(L["qsMen"])}</option>'
             f'<option value="women">{esc(L["qsWomen"])}</option></select><select class="qss" aria-label="{esc(L["qsSize"])}">'
             f'<option value="">{esc(L["qsSize"])}</option><optgroup data-g="men">{men}</optgroup><optgroup data-g="women" hidden disabled>{women}</optgroup></select></div>'
@@ -1474,11 +1504,11 @@ def qs_box(L, head, ref):
 
 def bf_live_line(L):
     """Oct 27: the live deal check (scraper/bf_live.py), linked near the top of the Canadian Black Friday pages."""
-    if not L.get("bfLive"):
-        return ""
-    q, txt, href = L["bfLive"]
     gift = (f'<p class="bflive"><strong>{esc(L["bfGift"][0])}</strong> <a href="{L["bfGift"][2]}">{esc(L["bfGift"][1])}</a></p>'
-            if L.get("bfGift") else "")   # Oct 28: the gift page (scraper/gift_pages.py)
+            if L.get("bfGift") else "")   # Oct 28: the gift page (scraper/gift_pages.py); Oct 30: the US BF page links its own
+    if not L.get("bfLive"):
+        return gift
+    q, txt, href = L["bfLive"]
     return f'<p class="bflive"><strong>{esc(q)}</strong> <a href="{href}">{esc(txt)}</a></p>' + gift
 
 
@@ -1678,7 +1708,7 @@ def main():
         (site / L["dir"] / "index.html").write_text(index_page(L, entries, updated))
     reg_path.write_text(json.dumps(known, ensure_ascii=False, separators=(",", ":")))
     day = (updated or datetime.now(timezone.utc).isoformat())[:10]
-    urls = ["/", "/shoes/", "/chaussures/", "/about.html", "/privacy.html"] + extra_urls
+    urls = ["/", "/shoes/", "/chaussures/", "/about.html", "/privacy.html", "/terms.html"] + extra_urls
     urls += [f"/{d}/{s}/" for s in known_live for d in ("shoes", "chaussures")]
     us_urls, us_home = build_us(site, stores, set(known_live), {slugify(b) for b in brands})
     urls += us_urls
@@ -1714,6 +1744,11 @@ def forward_old(known, models, site, dirs):
     forwards to it: noindex, canonical, out of the sitemap."""
     for slug in [s_ for s_, v in known.items() if NOT_SHOE_PAGE.search(v["n"]) and s_ not in models]:
         del known[slug]                # a cleaning kit that was filed as a shoe: no page (it never was one)
+    for slug in models:                # Oct 30: a forwarded page whose name has shoes again is a live page again (hoka-rocket-x-trail)
+        if slug in known:
+            known[slug].pop("to", None)
+            if models[slug] and models[slug][0].get("t"):          # the kind follows today's shoes (hoka-rocket-x: trail -> race)
+                known[slug]["t"] = models[slug][0]["t"]
     for slug, meta in known.items():
         if meta.get("to") or slug in models:
             continue
@@ -1829,10 +1864,10 @@ def build_us(site, stores, ca_models, ca_brands):
     p.parent.mkdir(parents=True, exist_ok=True)
     if bf - timedelta(days=7) <= today <= bf + timedelta(days=4):
         p.write_text(list_page(L, own, "/black-friday/", L["bfTitle"], L["bfH1"], L["bfIntro"], real_first(bf_rows), brands,
-                               bf_other(L) + real_line(L, bf_rows) + cta))
+                               bf_live_line(L) + bf_other(L) + real_line(L, bf_rows) + cta))
     else:
         tracked = sum(1 for i in items if i.get("hd"))
-        extra = (bf_other(L) + cta + f'<h2>{esc(L["bfTrackH"])}</h2><p>{esc(L["bfTrackTxt"].format(n=f"{tracked:,}"))}</p>'
+        extra = (bf_live_line(L) + bf_other(L) + cta + f'<h2>{esc(L["bfTrackH"])}</h2><p>{esc(L["bfTrackTxt"].format(n=f"{tracked:,}"))}</p>'
                  + f'<h2>{esc(L["bfSpotH"])}</h2><ul>' + "".join(f"<li>{esc(x)}</li>" for x in L["bfSpot"]) + "</ul>"
                  + f'<h2>{esc(L["bfTodayH"].format(date=fmt_date(updated, L)))}</h2>')
         p.write_text(list_page(L, own, "/black-friday/", L["bfTitlePre"], L["bfH1Pre"].format(date=bf.day),

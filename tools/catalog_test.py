@@ -15,6 +15,7 @@ Writes the report to stdout; exit code 1 when a step fails.
 """
 import collections
 import json
+import os
 import random
 import re
 import subprocess
@@ -209,8 +210,16 @@ def main(new):
     # 4. sorting check on today's live data + this file
     rm = tmp / "rm"
     rm.mkdir()
-    r = requests.get("https://thegearfox.com/offers.json", timeout=300)
-    offers = r.json()
+    # Oct 29: offers.json isn't published any more (private cache of the refresh). RAW_OFFERS=<file> = a local copy; without one,
+    # the sorting check runs on this file's stores alone (they're the ones being tested)
+    raw = os.environ.get("RAW_OFFERS")
+    if raw and Path(raw).exists():
+        offers = json.loads(Path(raw).read_text())
+    else:
+        r = requests.get("https://thegearfox.com/offers.json", timeout=300)
+        offers = r.json() if r.ok else {}
+        if not offers:
+            print("  note  No raw store file (offers.json is private now): sorting check on this file's stores only")
     offers["catalog"] = sc.scrape_catalog_others()
     for st, ret in (("adidasca", "Adidas"), ("rei", "REI")):      # (Sport Chek is read live since Oct 13)
         got_ = sc.scrape_catalog(ret)

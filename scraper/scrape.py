@@ -543,8 +543,8 @@ def _rf_cards(h):
     return out
 
 
-def _rf_pages(path):
-    """Every page of one listing (96 a page)."""
+def _rf_pages(path, skipped=None):
+    """Every page of one listing (96 a page). With `skipped` (a list), a later page that won't load is noted there and skipped."""
     h = _rf_get(f"{path}/?pp=96")
     if h is None:
         raise RuntimeError(f"Running Free: {path} didn't load")
@@ -553,7 +553,13 @@ def _rf_pages(path):
     for n in range(2, min(int(m.group(1)) if m else 1, 60) + 1):
         h = _rf_get(f"{path}/{n}/?pp=96")
         if h is None:
-            raise RuntimeError(f"Running Free: {path} page {n} didn't load")
+            if skipped is None or len(skipped) >= 10:
+                raise RuntimeError(f"Running Free: {path} page {n} didn't load")
+            # Oct 31 (afternoon email: one men's/women's list page answered 500/503 four times and the whole 2-hour read was lost):
+            # skip it; its products still come in through the size pages, which list every product in stock in each size
+            skipped.append(f"{path} page {n}")
+            print(f"::warning::Running Free: {path} page {n} didn't load, skipped", file=sys.stderr)
+            continue
         yield h
 
 
@@ -562,7 +568,7 @@ def runningfree_night(out, hours=4.5):
     start, prods, brands, failed = time.time(), {}, set(), []
     for gender, root in RF_ROOTS.items():
         sizes = []
-        for i, h in enumerate(_rf_pages(root)):
+        for i, h in enumerate(_rf_pages(root, failed)):
             if i == 0:
                 slugs = set(re.findall(rf'href="/products/{root}/([A-Za-z0-9-]+-\d+)/"', h))
                 sizes = sorted(x for x in slugs if RF_SHOE.match(x) or x.rsplit("-", 1)[0] in RF_CLOTH)
@@ -1460,14 +1466,18 @@ def product(base, slug, st, g, img):
             # the product page opens on this colour and size (?color=…&size=…, checked in a browser Oct 1, 2026)
             q = {"color": attr(v["attributesRaw"], "color"), "size": attr(v["attributesRaw"], "size") or raw}
             link = f"{base}/p/{slug}?" + urlencode({k: x for k, x in q.items() if isinstance(x, str) and x}, quote_via=quote)
-            sizes[sz] = (price, reg, link)
+            # Oct 30 (Bastien: the norda 002 card showed The Last Hunt's black shoe; his size's price was the white Moonbeam, "it goes
+            # to the last hunt but in white"): each size keeps its own colour's photo, so the card shows what that price buys
+            vimg = (((v.get("assets") or [{}])[0].get("sources") or [{}])[0]).get("uri")
+            sizes[sz] = (price, reg, link, vimg)
     if not sizes:
         return None                      # nothing in stock
     if not img:
         a = (mv.get("assets") or [{}])[0].get("sources") or [{}]
         img = a[0].get("uri")
     return {"st": st, "b": attr(A, "brand_name") or "", "n": name, "u": f"{base}/p/{slug}", "g": g,
-            "sx": sx, "w": wide, "img": img, "lp": lp, "bb": None, "sz": [[k, pr, rg, u] for k, (pr, rg, u) in sizes.items()]}
+            "sx": sx, "w": wide, "img": img, "lp": lp, "bb": None, "sz": [[k, pr, rg, u] for k, (pr, rg, u, _) in sizes.items()],
+            "szimg": {k: vi for k, (_, _, _, vi) in sizes.items() if vi}}
 
 def scrape_commercetools(st, base):
     listing, listed = list_catalogue(base)
@@ -2483,7 +2493,7 @@ def scrape_sportinglife():
 # browser (Cmd+S, "Webpage, HTML only") and upload them to the saved-pages/ folder in the repo.
 # Files older than SAVED_MAX_DAYS are ignored so stale prices never linger.
 SAVED_DIR = Path(__file__).resolve().parents[1] / "saved-pages"
-SAVED_MAX_DAYS = 10
+SAVED_MAX_DAYS = 5     # Oct 30 (Bastien: "down to 5 for everyone we grab deal"): a REI save 6-10 days old showed sold-out sizes
 
 def _file_age_days(path):
     """Age from the git commit that last touched the file (upload date on GitHub); falls back to mtime."""
@@ -2497,6 +2507,7 @@ def _file_age_days(path):
     return (time.time() - ts) / 86400
 
 _grabbed = []
+GRAB_FAILED = set()      # stores whose phone saves couldn't be downloaded this run ("*" = none could)
 def outdoor_list(d):
     """Oct 25 (Bastien: hiking tab ~Nov 17; MEC/REI hiking lists through the same bookmark): a saved list whose page address is a
     hiking / camping list belongs to the hidden hiking files, never to the running site."""
@@ -2505,26 +2516,53 @@ def outdoor_list(d):
     return bool(re.search(r"hik|\bcamp|trek|backpacking|mountaineer|randonn|\btentes?\b|\btents?\b|sleeping|sac-de-couchage", path, re.I))
 
 def grab_saves():
-    """Lists sent from the phone bookmark (Oct 8: thegearfox.com/grab-save.html -> Supabase grab_saves, last 10 days),
+    """Lists sent from the phone bookmark (Oct 8: thegearfox.com/grab-save.html -> Supabase grab_saves, last SAVED_MAX_DAYS days),
     written to a temp folder as the same JSON files the bookmark downloads. Needs SUPABASE_URL + SUPABASE_SECRET_KEY."""
     if _grabbed:
         return _grabbed[0]
     import tempfile
     out, sb, key = [], os.environ.get("SUPABASE_URL", "").rstrip("/"), os.environ.get("SUPABASE_SECRET_KEY", "")
     if sb and key:
-        try:
-            since = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=SAVED_MAX_DAYS)).strftime("%Y-%m-%dT%H:%M:%SZ")
-            r = requests.get(f"{sb}/rest/v1/grab_saves", params={"select": "id,store,at,data", "at": f"gte.{since}",
-                             "order": "at.desc"}, headers={"apikey": key, "Authorization": f"Bearer {key}"}, timeout=120)
-            r.raise_for_status()
+        # Oct 30: one request for every save's contents (a Backcountry list = dozens of 200-product parts) failed and MEC, REI and
+        # Backcountry all showed 0 products ("had 2159 yesterday"). Now: the list of saves first (small), then each save alone,
+        # 3 tries each; a store whose saves couldn't all be read is in GRAB_FAILED, so run() keeps yesterday's listings for it.
+        H = {"apikey": key, "Authorization": f"Bearer {key}"}
+        since = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=SAVED_MAX_DAYS)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        rows = None
+        for attempt in range(3):
+            try:
+                r = requests.get(f"{sb}/rest/v1/grab_saves", params={"select": "id,store,at", "at": f"gte.{since}", "order": "at.desc"},
+                                 headers=H, timeout=60)
+                r.raise_for_status()
+                rows = r.json()
+                break
+            except Exception as e:
+                print(f"  phone grabs: list try {attempt + 1} failed ({str(e)[:80]})", file=sys.stderr)
+                time.sleep(5 * (attempt + 1))
+        if rows is None:
+            GRAB_FAILED.add("*")
+        else:
+            import tempfile
             d = Path(tempfile.mkdtemp(prefix="grab-"))
-            for row in r.json():
+            for row in rows:
+                data = None
+                for attempt in range(3):
+                    try:
+                        r = requests.get(f"{sb}/rest/v1/grab_saves", params={"select": "data", "id": f"eq.{row['id']}"}, headers=H, timeout=120)
+                        r.raise_for_status()
+                        data = (r.json() or [{}])[0].get("data")
+                        break
+                    except Exception as e:
+                        print(f"  phone grabs: {row['store']} save {row['id']} try {attempt + 1} failed ({str(e)[:80]})", file=sys.stderr)
+                        time.sleep(5 * (attempt + 1))
+                if data is None:
+                    GRAB_FAILED.add(row["store"])
+                    continue
                 f = d / f"{row['store']}-grab-{row['id']}.json"
-                f.write_text(json.dumps({**row["data"], "store": row["store"], "saved": row["at"]}))
+                f.write_text(json.dumps({**data, "store": row["store"], "saved": row["at"]}))
                 out.append(f)
-            print(f"  phone grabs: {len(out)} from the last {SAVED_MAX_DAYS} days", file=sys.stderr)
-        except Exception as e:
-            print(f"  phone grabs: couldn't read them ({str(e)[:80]})", file=sys.stderr)
+            print(f"  phone grabs: {len(out)} of {len(rows)} from the last {SAVED_MAX_DAYS} days"
+                  + (f"; couldn't read {', '.join(sorted(GRAB_FAILED))}: their listings stay as yesterday" if GRAB_FAILED else ""), file=sys.stderr)
     _grabbed.append(out)
     return out
 
@@ -3246,6 +3284,15 @@ def qc_prods(st, prods):
             t = re.sub(r"\s+(unisex|unisexe)\b", "", t, flags=re.I).strip() + gen
         elif st == "33off":                                                        # "Men's Asics Gel-Kayano 32 Flash Red/Beet Juice"
             t = re.sub(r"\s*[|·].*$", "", re.sub(r"\s+", " ", t)).strip()
+            # Oct 30 (a visitor: "size" on a women's Nimbus 22 shown to everyone as one size): some products ARE one size, named in
+            # the title with no size option ("Women's GEL-Nimbus 22 (D) SIZE 12"): that size becomes the variant's ("D" = wide on women)
+            ms = re.search(r"\bsize (\d+(?:\.5)?)\b", t, re.I)
+            vs = p.get("variants") or []
+            if ms and len(vs) == 1 and (vs[0].get("title") or "").lower() == "default title":
+                wide = re.search(r"\(d\)", t, re.I) and re.match(r"wom", t, re.I) or re.search(r"\(2e\)|\(4e\)|large", t, re.I)
+                lab = ("Wide / " if wide else "") + ms.group(1)
+                vs[0]["title"] = vs[0]["option1"] = lab
+                p["options"] = [{"name": "Size", "position": 1, "values": [lab]}]
             t = re.sub(r"^Mens['’]s\b|^Men['’](?=\s)", "Men's", t)
             t = re.sub(r"\s*\((large )?d\)|\s*\bsize \d+(\.5)?\b", "", t, flags=re.I)        # "(LARGE D)", "SIZE 12"
             m = re.match(r"^(?:\S+\s+)?(Mizuno|Saucony|Salomon|Altra|Brooks|Hoka|On|Lowa|Merrell)\b", t)
@@ -3435,7 +3482,7 @@ for _st in RUNFREE:
     STORES[_st] = (lambda st: lambda: scrape_runfree(st))(_st)
 
 # Casual footwear some running stores also sell; not what people come here for.
-CASUAL_BRANDS = {"ambler", "birkenstock", "wolky", "teva", "crocs", "ugg", "blundstone", "dr. martens", "clarks", "oofos", "billy footwear", "vessi"}   # Ambler (Oct 8): toques, and its only "shoe" is a wool slipper
+CASUAL_BRANDS = {"ambler", "birkenstock", "wolky", "teva", "crocs", "ugg", "blundstone", "dr. martens", "clarks", "oofos", "billy footwear", "vessi", "pony"}   # Ambler (Oct 8): toques, and its only "shoe" is a wool slipper; Pony (Oct 30): retro sneakers in SVP's running collection led the Friday email's shoes at $14.99
 CASUAL_SHOE = re.compile(r"\b(sandal|sandale|clog|sabot|slipper|pantoufle|mule|flip[- ]flops?|ellipse flip|loafer|slide|clearwater cnx|ks86|recovery (flip|slide)|ora recovery|bobs|casual sneaker|leather sneaker|chelsea|traction bootie)s?\b", re.I)   # Oct 19 (mystery shop): Skechers BOBS, Keen KS86 Leather, Xero "Casual Sneaker"
 # court and lifestyle shoes from running brands (ASICS tennis/pickleball lines, retro sneakers)
 COURT_SHOE = re.compile(r"pick[el]+ball|\btennis\b|\bpadel\b|\bcourt\b|gel[- ]?(resolution|dedicate|game|challenger|1130|nyc|kahana)|solution speed", re.I)
@@ -3525,7 +3572,8 @@ def tidy_food(offers):
         if o.get("g") in ("shoes", "tops", "bottoms", "bras", "packs") and o.get("sz"):   # Oct 17: The Trail Runner Store lists
             o["sz"] = [e for e in o["sz"] if not (len(e) > 1 and e[1] is not None and e[1] < 2)]   # Patagonia pants at "$1": a placeholder
         o["n"] = re.sub(r"\s*\(needs description\)", "", o["n"], flags=re.I)   # a store's note to itself (Run Uphill)
-        if BYOB.search(o["n"]) or re.fullmatch(r"(?=.*\d)[A-Z0-9-]{6,}", o["n"].strip()):   # a code, not a name ("MRCXLB4")
+        if BYOB.search(o["n"]) or re.fullmatch(r"(?=.*\d)[A-Z0-9-]{6,}", o["n"].strip()) \
+                or re.search(r"\btest product\b", o["n"], re.I):   # Oct 30: Satisfy's "TEST PRODUCT WOMEN" at $542
             o["g"] = "_drop"           # other shoppers' saved bundles ("Build Your Own Bundle · Bundle20740_2026-09-14T17:33")
             continue
         b = tidy_brand(o["b"]).lower()        # "Darn Tough Vermont" -> "darn tough"
@@ -3603,7 +3651,7 @@ TYPES = {
 #   daily  everything else: road shoes for everyday and long runs (cushioned, stability)
 # Order matters (first match wins). Colour names are cut off first ("GT-2000 — Winter Sea" is not a winter shoe).
 TYPES["shoes"] = [
-    ("race", r"phantasm|s/lab pulsar|aero blaze"),      # Salomon's road racers ("S/Lab" otherwise means trail)
+    ("race", r"phantasm|s/lab pulsar|aero blaze(?!.*grvl)"),      # Salomon's road racers ("S/Lab" otherwise means trail); Oct 29: Aero Blaze GRVL = trail
     # winter trail shoes with ice studs ("Speedgoat GTX Spike", "Norda G+ Spike") and "Norvan LD" (long distance) are trail
     ("trail", r"norvan|speedgoat.*spike|norda|\bg\+|carbide|cross spike|mtn racer|\bice\b"),
     ("spike", r"spikes?\b(?<!cross spike)|\bpointes?\b|\bxc\d*\b|\bm?xcs\d|\bwxcs|zoom rival|\bavanti\b|sprintstar|evospeed|"
@@ -3832,7 +3880,9 @@ BRAND_CANON = {"hoka one one": "Hoka", "hoka": "Hoka", "asics": "ASICS", "satisf
 
 # US shops often list the parent company or distributor as the vendor (Oct 6, 2026: "Asics Corp." on all 480 US ASICS items,
 # "Brooks Sports, Inc. #105856", "Ing Source, Inc" = Injinji, "Medi USA" = CEP): company words go, then this map
-BRAND_ALIAS = {"cure hydration": "Cure", "balmoral sports": "Balmoral", "inner self": "Inner Self", "krono nutrition": "Krono", "kronobar": "Krono", "grynd food": "Grynd", "grynd food inc": "Grynd", "fast bundle": "Upika", "upika": "Upika", "brix rechargé par la nature": "Brix", "brix recharge par la nature": "Brix", "asics america": "ASICS", "asics": "ASICS", "brooks sports": "Brooks", "nike usa": "Nike", "nike team sale": "Nike",
+BRAND_ALIAS = {"kuhl": "KÜHL", "kühl": "KÜHL",   # Oct 30: KÜHL (79) = KUHL (32) on the USA side
+               "o'neill sunglasses": "O'Neill", "o’neill sunglasses": "O'Neill", "o'neill": "O'Neill", "o’neill": "O'Neill",   # Oct 31
+               "cure hydration": "Cure", "balmoral sports": "Balmoral", "inner self": "Inner Self", "krono nutrition": "Krono", "kronobar": "Krono", "grynd food": "Grynd", "grynd food inc": "Grynd", "fast bundle": "Upika", "upika": "Upika", "brix rechargé par la nature": "Brix", "brix recharge par la nature": "Brix", "asics america": "ASICS", "asics": "ASICS", "brooks sports": "Brooks", "nike usa": "Nike", "nike team sale": "Nike",
                "on shoes": "On", "on footwear": "On", "on-running": "On", "gu energy": "GU", "gu energy labs": "GU", "gu sports": "GU",
                "gu nutrition": "GU", "gu energy gel": "GU", "ing source": "Injinji", "medi usa": "CEP", "medi": "CEP",
                "cep / medi usa": "CEP", "cep/medi usa": "CEP", "medi usa (cep)": "CEP", "medi/cep": "CEP", "medi usa - cep": "CEP", "craft sportswear": "Craft", "craft sportsware usa": "Craft",
@@ -4314,6 +4364,7 @@ def merge(offers):
                 pref = it["g"] != "nutrition"
                 if cur is None or (pref and it["_ca"][oi], -price) > (pref and it["_ca"][cur[1]], -cur[0]):
                     it["sz"][k] = (price, oi, reg, vid)
+                    it.setdefault("_si", {})[k] = (o.get("szimg") or {}).get(size)    # that size's colour photo (or none)
     # one spelling per brand ("adidas"/"Adidas", "SmartWool"/"Smartwool"): the most common one, all-capitals last
     spell = collections.defaultdict(collections.Counter)
     for it in items.values():
@@ -4343,6 +4394,7 @@ def merge(offers):
             cur = a["sz"].get(k)
             if cur is None or (a["_ca"][oi + off], -price) > (a["_ca"][cur[1]], -cur[0]):
                 a["sz"][k] = (price, oi + off, r, v)
+                a.setdefault("_si", {})[k] = (it.get("_si") or {}).get(k)
     for key in list(items):
         it = items[key]
         if it["g"] != "shoes":
@@ -4370,6 +4422,25 @@ def merge(offers):
         join(a, it)
         del items[key]
         merged += 1
+    # Oct 30 (morning email: 10 USA twins, "Lone Peak 9 Waterproof Low" trail + "… Hiking Shoes" hike, "Anacapa 2 Low GTX" daily + hike):
+    # a store's "Hiking Shoes" wording made its card a hike shoe; on the EXACT same page it is the same shoe. It joins the card with
+    # more stores; a plain-named 'daily' card that has a hiking twin is a hiking shoe (Anacapa), a trail card stays trail (Lone Peak).
+    others = {}
+    for it in items.values():
+        if it["g"] == "shoes" and it.get("t") in ("trail", "daily"):
+            others.setdefault((page(it), tuple(sorted(it["sx"])), it["w"], it["ca"]), it)
+    for key in list(items):
+        it = items.get(key)
+        if not it or it["g"] != "shoes" or it.get("t") != "hike" or not re.search(r"\bhiking\s+shoes?\b", it["n"], re.I):
+            continue
+        a = others.get((page(it), tuple(sorted(it["sx"])), it["w"], it["ca"]))
+        if a is None or a is it:
+            continue
+        if a.get("t") == "daily":
+            a["t"] = "hike"
+        join(a, it)
+        del items[key]
+        merged += 1
     if merged:
         print(f"  shoe twins joined (second pass): {merged}")
     out = []
@@ -4391,6 +4462,12 @@ def merge(offers):
         oi = {str(i): u for i, u in enumerate(im) if u and u != it["img"] and i in wins}
         if oi:
             it["oi"] = oi
+        # Oct 30: a size whose colour photo differs from its store's photo shows that colour (si = {size: photo})
+        si = it.pop("_si", {})
+        si = {e[0]: si[e[0]] for e in it["sz"] if si.get(e[0]) and si[e[0]] != (oi.get(str(e[2])) or it["img"])}
+        if si:                         # each photo once ("ci"), sizes point to it ("si": {size: index}): sale.json stays small
+            ci = list(dict.fromkeys(si.values()))
+            it["ci"], it["si"] = ci, {k: ci.index(u) for k, u in si.items()}
         # Oct 24 (sorting check): the last word, after every store's offers are in. MEC's Bridgedale "3/4 Crew" (a sock) was
         # still a top on the live site; US shops' "Gel Heel Cups" were food
         if it["g"] in ("tops", "bottoms") and it["b"].lower() in SOCK_BRANDS and CLOTH_SOCK_SHAPE.search(it["n"]) \
@@ -4440,6 +4517,8 @@ def main():
             return prev_offers.get(st, []), None, None
         try:
             got = fn()
+            if st in ("mec", "rei", "backcountry") and ("*" in GRAB_FAILED or st in GRAB_FAILED):
+                raise RuntimeError("no phone saves: couldn't download them from Supabase")   # keeps yesterday's (Oct 30)
             if not got and st not in dict((x[0], 1) for x in SHOPIFY_STORES) and st not in SAVED_STORES:
                 raise RuntimeError("0 items")
             if not got and len(prev_offers.get(st, [])) >= 20 and st not in SAVED_STORES:   # a store rarely empties

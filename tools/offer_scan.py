@@ -28,6 +28,9 @@ UA = "TheGearFoxBot/1.0 (+https://thegearfox.com/about.html; store offers, one v
 BAR = re.compile(r'<(div|p|a|span|section|aside|marquee|li|h\d)[^>]*class="[^"]*(announcement|promo[-_ ]?bar|header__message|ticker|top[-_]?bar|marquee|banner__text|notification-bar)[^"]*"[^>]*>(.*?)</\1>',
                  re.S | re.I)
 PCT = re.compile(r"(?:up to\s+)?(\d{1,2})\s?%\s*(?:off|de rabais|de réduction|sur)|(?:jusqu'à|jusqu’à)\s+(\d{1,2})\s?%", re.I)
+# Oct 28 (Bastien: "There are no deals in banners in USA? That's hard to believe"): Running Well's "Summer Clothing Sale! Buy One
+# Get One 50%" was skipped (no "off" after the %). Buy-one-get-one is a cart offer: kept as a line, its % is on the 2nd item only.
+BOGO = re.compile(r"\b(?:buy one,? get one|bogo|achetez-en un,? obtenez)\b[^%]{0,20}?(\d{1,2})\s?%", re.I)
 CODE = re.compile(r"\b(?:code|promo code|use code|with code|avec le code|code promo)\s*:?\s*[\"“']?([A-Z0-9][A-Z0-9-]{2,19})\b", re.I)
 NOT_CODE = {"auto", "automatically", "applied", "applies", "at", "in", "required", "needed", "appliqué", "automatique", "requis", "not", "no"}
 SKIP = re.compile(r"free (?:shipping|returns|delivery)|livraison gratuite|retours gratuits|gift card|carte[- ]cadeau|sign up|inscri|newsletter|first order|premi[eè]re commande|members?\b|membership|collective|subscri|abonne|rewards?|points|loyalty", re.I)
@@ -75,11 +78,11 @@ def offer(lines):
     for l in lines or []:
         if SKIP.search(l):            # member / sign-up / subscription perks aren't a store-wide sale (naak "15% off subscriptions for members")
             continue
-        p, c = PCT.search(l), CODE.search(l)
+        p, c = PCT.search(l) or BOGO.search(l), CODE.search(l)
         if c and c.group(1).lower() in NOT_CODE:    # "code auto applied to cart" (Wigwam, Oct 27) is not a code called AUTO
             c = None
         if p or c:
-            keep.append({"text": l, "pct": int(p.group(1) or p.group(2)) if p else None, "upto": bool(re.search(r"up to|jusqu", l, re.I)),
+            keep.append({"text": l, "pct": int(next(g for g in p.groups() if g)) if p else None, "upto": bool(re.search(r"up to|jusqu", l, re.I)),
                          "code": c.group(1).upper() if c else None})
     return keep
 
