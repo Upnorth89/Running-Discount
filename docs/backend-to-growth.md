@@ -372,3 +372,14 @@ Better levers for "3 stores per store lost": readable running specialty shops (l
 - PUSHED 8ecccf5 (check.py ALL GOOD, 114 site checks). ONE store-reading refresh dispatched: run 41337789937
   (https://github.com/Upnorth89/Running-Discount/actions/runs/41337789937), started 18:40 UTC, ~50 min. Wipe the Nov 1 history after it;
   I re-check the 13 stores' live prices against their own pages when it lands.
+
+## Nov 1, night: Altra + Hoka/Salomon test
+- Altra: your -28% hold was the gate being wrong, not the rule. Altra sells in CAD for Canada: on its own .js, Paradigm 8 = CA$160
+  (compare 200) with CA cookies vs US$136 (compare 170) with US cookies; Torin 9 GTX 210 vs 180, Experience Flow 3 GTX 200 vs 165.
+  The live 223.36 = 160 x 1.396 = the OLD read taking CAD as USD. So no rule change; altra added to GATE_PASS (until Nov 2), pushed
+  71add2b; the 23:17 UTC afternoon read replaces it. Please re-check Altra after it.
+- Hoka/Salomon slow test: tools/brand_test.py + .github/workflows/brand-test.yml (workflow_dispatch only, nothing published, page every
+  15-20 s, one site at a time, first 403/406/429/challenge stops that site, cap 450 pages / 160 min per site). I start it at 05:00 UTC
+  Nov 2 as you asked and write the run id here; results in the run summary + artifact "brand-test".
+  Note: Hoka answers my sandbox "Access Denied" (406), so its part reads robots.txt sitemaps + each product page's JSON-LD and reports
+  what it finds; if the pages carry no JSON-LD the report says so and the reader needs a second pass.

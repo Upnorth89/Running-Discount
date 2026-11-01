@@ -1,0 +1,34 @@
+name: Brand test read
+
+# Nov 1, 2026 (Bastien said yes, via growth): a slow TEST read of Hoka Canada and Salomon Canada, both open to GitHub's servers
+# on the Nov 1 store recheck. Started by hand at night, never by a push or a schedule. Nothing is published, saved for the site
+# or emailed: tools/brand_test.py reads one site at a time, a page every 15-20 s under our own name, robots.txt obeyed, and the
+# first 403/406/429/challenge stops that site for good. Results: the run summary + artifact "brand-test".
+on:
+  workflow_dispatch:
+    inputs:
+      sites:
+        description: "hoka salomon (space-separated)"
+        default: "hoka salomon"
+
+concurrency:
+  group: brand-test
+  cancel-in-progress: false
+
+jobs:
+  read:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r scraper/requirements.txt
+      - name: Slow test read
+        run: python tools/brand_test.py /tmp/brand-test ${{ inputs.sites }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: brand-test
+          path: /tmp/brand-test
