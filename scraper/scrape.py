@@ -3362,6 +3362,13 @@ SHOPIFY_STORES = [
     ("runderwear",     "https://runderwear.com",             "gear"),   # Runderwear: running underwear and socks
     ("lmnt",           "https://www.drinklmnt.com",          "food"),   # LMNT: electrolyte drink mix
     ("muir",           "https://muirenergy.com",             "food"),   # Muir Energy: organic energy gels
+    # batch 2 (Nov 1)
+    ("karhuus",        "https://us.karhu.com",               "gear"),   # Karhu (US store, ships to Canada): its running-shoes collection only (the rest is lifestyle)
+    ("thorlo",         "https://thorlo.com",                 "socks"),  # Thorlo (North Carolina): its running-socks collection (US only)
+    ("farmtofeet",     "https://farmtofeet.com",             "socks"),  # Farm to Feet (North Carolina): wool running/trail socks; ships to Canada
+    ("rollga",         "https://rollga.com",                 "gear"),   # Rollga: foam rollers
+    ("styrkr",         "https://styrkr.com",                 "food"),   # STYRKR (UK): gels, drink mixes, bars; ships to Canada
+    ("veloforte",      "https://veloforte.com",              "food"),   # Veloforte (UK): natural energy gels/chews; ships to Canada
 ]
 
 NOT_RUNNING = re.compile(r"challenge patch|gift ?card|pannier|eyeglasses|optical|reading glass|blue light|prescription|e-?gift|\bbike\b|cycling|\bbib\b|swim|golf|\bski\b|snowboard|\bdog\b|\bpet\b|"
@@ -3451,7 +3458,7 @@ US_SHOPS = {"fleetfeet", "theloop", "fit2run", "skirack", "pacers", "portlandrun
             "scrantonrun", "trailheadrun", "prrunwalk", "performancerun", "fitnesssports", "athleticannex", "annarborrun",
             "tworivers", "xtramile", "lukeslocker", "sfrunco", "backcountry", "rei",
             "territory", "pathprojects", "ombraz", "2xuus", "paragon"} | set(RUNFREE_US)   # REI ships within the US only
-US_COLLECTIONS = {"paragon": ["running-shoes", "running"], "sportsbasement": ["running"], "sail": ["outdoor-gear-running"], "svp": ["running-collection"], "jdsports": ["running-shoes"], "humaca": ["nutrition"], "boutiquedulac": ["chaussures", "course-a-pied", "nutrition"], "skirack": ["run"]}   # (Canadian stores too: SAIL)   # general stores: their running section only (Sports Basement also sells
+US_COLLECTIONS = {"paragon": ["running-shoes", "running"], "sportsbasement": ["running"], "sail": ["outdoor-gear-running"], "svp": ["running-collection"], "jdsports": ["running-shoes"], "karhuus": ["running-shoes"], "thorlo": ["running-socks"], "humaca": ["nutrition"], "boutiquedulac": ["chaussures", "course-a-pied", "nutrition"], "skirack": ["run"]}   # (Canadian stores too: SAIL)   # general stores: their running section only (Sports Basement also sells
                                                    # snowboards, swimwear, tennis: those topped the US deals, Oct 6, 2026)
 # Shoebacca was tried and dropped (Oct 6, 2026): mostly PUMA/adidas/Diadora budget and gym shoes, no Hoka/Brooks/ASICS/Nike
 NO_CART = {"svp"}      # robots.txt forbids /cart.js: the currency comes from meta.json only (SVP: CAD)
@@ -4213,7 +4220,7 @@ def tidy_brand(b):
         return tidy_brand(r)
     return c or b
 
-CAPS_STORES = {"lecoureur", "runnerssoul", "sportsexperts", "boutiquedulac", "33off", "praise"}
+CAPS_STORES = {"karhuus", "lecoureur", "runnerssoul", "sportsexperts", "boutiquedulac", "33off", "praise"}
 MODEL_TYPOS = [(re.compile(r"(?i)\bendorphine\b"), "Endorphin")]   # Running Room's "Endorphine Elite 2" (Oct 17, r/runTO list)
 OWN_BRAND = {"rabbit": "rabbit", "bandit": "Bandit Running"}
 GENDER_PREFIX_STORES = {"frontrunners",    # names start with "M " / "W " / "U " ("M Adidas Boston 13")
