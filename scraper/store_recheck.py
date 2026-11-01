@@ -20,6 +20,8 @@ UA = {"User-Agent": "Mozilla/5.0 (compatible; TheGearFoxBot/1.0; +https://thegea
 
 # store: (why it was a no, [doors to try]). Keep in step with STORES.md "Master list" (blocked rows).
 STORES = {
+    "RunFree shops (27 stores: Charlotte Running, Sole Sports, Hanson's, Runner's Soul…)": ("robots.txt 'Disallow: /api/' since ~Oct 30, 2026 (its sizes/prices service); OK again = RUNFREE_ON in scrape.py + runfree.yml read job",
+            ["https://shop.charlotterunning.com/robots.txt", "https://solesports.runfreeproject.com/robots.txt"]),
     "MEC": ("blocks automated reading (Grab deals bookmark meanwhile)",
             ["https://www.mec.ca/robots.txt", "https://www.mec.ca/en/products/running/deals"]),
     "REI (USA)": ("blocks automated reading (Grab deals bookmark meanwhile)",
