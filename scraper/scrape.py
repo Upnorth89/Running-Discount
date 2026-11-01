@@ -4932,7 +4932,10 @@ def report_groups(items):
 GATE_PASS = {"balmoral", "capra", "fauxmouvement", "innerself", "janji", "krono", "nordarun", "praise", "xact", "soar", "runinn",
              # Nov 1 evening: last read (41327583002) was wrong for these 13 (robots.txt geo cookie); today's correct read replaces it
              "vanrunco", "runnersden", "cityparkrunners", "boutiquedulac", "upika", "satisfy", "rnnr", "sea2sky", "stampeak",
-             "tenthousand"}
+             "tenthousand",
+             # Altra sells in CAD for Canada (Paradigm 8 CA$160 sale / $200 reg vs US$136 / $170, checked on its .js Nov 1 evening);
+             # its last read took CAD as USD (x1.4), so the correct read looks like -28%
+             "altra"}
 GATE_PASS_UNTIL = dt.date(2026, 11, 2)
 
 def price_gate(today, before):
