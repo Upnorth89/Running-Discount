@@ -29,6 +29,12 @@ move backlog rows. When he asks "what's on the to-do list", answer from the curr
   AND asked by 2+ people or backed by the stats -> next 2-week batch; (3) everything else -> the Ideas backlog, no build.
   One user asking is a signal, not a mandate. Say which bucket out loud and push back when he wants to build a bucket-3 idea now.
 - **Bugs I find: fix, check in the preview, ship** (Oct 3: "no reason to wait for my approval"). New features still wait for his OK.
+- **Backend writes all code (Nov 1, Bastien: "Yes switch to backend is code").** Only the backend chat (session_01RUChGi3w44GsN1T5Lpq1Zn)
+  pushes code (scraper, site, tools, workflows, SQL). The growth chat does data, plan, posts, store research, previews and SPECS
+  (problem + evidence + exactly what to build), sends them via send_message, then checks the result against real numbers. Growth may
+  still edit docs (CLAUDE.md, docs/, STORES.md, the plan) and the history branch for data cleanups. Why: on Nov 1 both chats wrote a
+  currency fix and a price gate within the same hour; each push forced the other to re-check (3 rounds of check.py).
+  Never push while a dispatched refresh is pending: the pages-build queue keeps one pending run, so a push run replaces it.
 - **FREEZE until Nov 15 (Nov 1, Bastien: "Yes freeze until Nov 15, focus on automation"; he was spending 2-3 h a day catching bugs).**
   No new features, no new sports, no new pages. Only: bug/trust fixes, automation (guards before publishing, a health email split
   into "fixed by us" / "needs you", a scheduled early-morning fix pass), and store additions under the rule below. Goal by Nov 15:
