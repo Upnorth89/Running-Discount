@@ -215,6 +215,37 @@ if os.environ.get("STATS"):
     except Exception as e:
         out.append(f"STATS: failed ({str(e)[:200]})")
 
+# 6. Nov 1 (Bastien: "how many customers did we send to them"): deal clicks to the RunFree stores, all time, by store and by month
+if os.environ.get("CLICKS"):
+    try:
+        import sys as _s
+        _s.path.insert(0, "scraper")
+        import runfree as RF
+        hosts = {x[1].replace("https://", "").split("/")[0].removeprefix("www."): x[2] for x in RF.RUNFREE_STORES}
+        rows_c, step = [], 1000
+        while True:
+            r = requests.get(f"{sb}/rest/v1/clicks", headers={**SH, "Range": f"{len(rows_c)}-{len(rows_c) + step - 1}"}, timeout=60,
+                             params={"select": "at,store", "kind": "eq.click", "order": "id"})
+            r.raise_for_status()
+            b = r.json()
+            rows_c += b
+            if len(b) < step:
+                break
+        tot = len(rows_c)
+        mine = [x for x in rows_c if (x.get("store") or "").removeprefix("www.") in hosts]
+        by = {}
+        for x in mine:
+            by.setdefault(hosts[x["store"].removeprefix("www.")], {}).setdefault(x["at"][:7], 0)
+            by[hosts[x["store"].removeprefix("www.")]][x["at"][:7]] += 1
+        first = min((x["at"] for x in mine), default="-")
+        out.append(f"RUNFREE CLICKS: {len(mine)} of {tot} deal clicks ever ({100 * len(mine) / max(1, tot):.1f}%), first {first[:10]}; stores with clicks {len(by)} of {len(hosts)}")
+        for name, m in sorted(by.items(), key=lambda kv: -sum(kv[1].values())):
+            out.append(f"  {name}: {sum(m.values())} (" + ", ".join(f"{k} {v}" for k, v in sorted(m.items())) + ")")
+        us = [x for x in rows_c if x.get("at", "") >= "2026-10-01"]
+        out.append(f"  October, all stores: {len(us)} clicks")
+    except Exception as e:
+        out.append(f"RUNFREE CLICKS: failed ({str(e)[:200]})")
+
 text = "\n".join(out)
 print(text)
 if os.environ.get("GITHUB_ACTIONS"):

@@ -9,6 +9,10 @@ on:
         description: "Look one person up: sha256 of their address, or of the part before @ (never the address itself: the repo is public)"
         required: false
         default: ""
+      clicks:
+        description: "Deal clicks to the RunFree stores (yes/blank)"
+        required: false
+        default: ""
       stats:
         description: "Test the stats page's own calls with the real key (yes/blank)"
         required: false
@@ -33,4 +37,5 @@ jobs:
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           FIND: ${{ inputs.find }}
           STATS: ${{ inputs.stats }}
+          CLICKS: ${{ inputs.clicks }}
         run: python tools/mail_check.py
