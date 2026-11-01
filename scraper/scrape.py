@@ -1999,6 +1999,7 @@ def shopify_products(base, max_pages=40, cookies=None):
     prods, page = [], 1
     while page <= max_pages:
         url = f"{base}/products.json?limit={SHOPIFY_LIMIT.get(base, 250)}&page={page}"
+        forget_cookies(base)    # Nov 1: only the cookies we ask with (a store's own geo cookie must never pick the currency)
         try:
             batch = get(url, cookies=cookies).json()["products"]
         except Exception as e:
@@ -2006,6 +2007,7 @@ def shopify_products(base, max_pages=40, cookies=None):
                 raise
             print(f"  ! {base}: page {page} failed ({str(e)[:60]}), trying again in 30 s", file=sys.stderr)
             time.sleep(30)
+            forget_cookies(base)
             try:
                 batch = get(url, cookies=cookies).json()["products"]
             except Exception as e2:
@@ -4924,7 +4926,10 @@ def report_groups(items):
 
 # Nov 1: the last read of these stores holds the wrong (+40% / -25%) prices, so the corrected read would look like a jump:
 # let them through the gate until Nov 2 (UTC), then the gate checks them like every store.
-GATE_PASS = {"balmoral", "capra", "fauxmouvement", "innerself", "janji", "krono", "nordarun", "praise", "xact", "soar", "runinn"}
+GATE_PASS = {"balmoral", "capra", "fauxmouvement", "innerself", "janji", "krono", "nordarun", "praise", "xact", "soar", "runinn",
+             # Nov 1 evening: last read (41327583002) was wrong for these 13 (robots.txt geo cookie); today's correct read replaces it
+             "vanrunco", "runnersden", "cityparkrunners", "boutiquedulac", "upika", "satisfy", "rnnr", "sea2sky", "stampeak",
+             "tenthousand"}
 GATE_PASS_UNTIL = dt.date(2026, 11, 2)
 
 def price_gate(today, before):

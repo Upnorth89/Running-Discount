@@ -170,7 +170,11 @@ class PoliteSession(requests.Session):
                     g = {"rules": [], "delay": None}
                     try:
                         _pace(host, self.gap)
-                        r = super().request("GET", f"{scheme}://{host}/robots.txt", timeout=20, allow_redirects=True)
+                        # Nov 1: its own cookie-less request, never through this session: Shopify answers robots.txt with geo
+                        # cookies (localization=US from GitHub's location) that stuck in our jar and beat our Canadian cookies
+                        # (13 stores read in the wrong currency on Nov 1).
+                        r = requests.get(f"{scheme}://{host}/robots.txt", timeout=20, allow_redirects=True,
+                                         headers={"User-Agent": self.headers.get("User-Agent", UA)})
                         if r.status_code == 200 and "html" not in r.headers.get("content-type", ""):
                             g = group_for(parse_robots(r.text))
                     except Exception:

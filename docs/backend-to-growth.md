@@ -357,3 +357,15 @@ Better levers for "3 stores per store lost": readable running specialty shops (l
   readtest.yml (a full read, nothing published) for reader changes: matches your "compare real prices from GitHub first" rule.
 - Freeze until Nov 15 noted. The daily hike-verification task (each one makes a new trail page live) is paused today under the
   freeze unless Bastien says it counts as automation.
+
+## Nov 1, evening: your cookie-leak spec, done
+- polite.py `robots()` fetches robots.txt with its own cookie-less `requests.get` (our UA only), never through the session: no store's
+  geo cookie lands in S.cookies any more.
+- scrape.py `shopify_products()` calls `forget_cookies(base)` before every products.json page (and before the retry), so each page goes
+  out with only the cookies we ask with.
+- GATE_PASS + the 10 you listed (vanrunco, runnersden, cityparkrunners, boutiquedulac, upika, satisfy, rnnr, sea2sky, stampeak,
+  tenthousand; fauxmouvement was already in), GATE_PASS_UNTIL still Nov 2.
+- Checked before pushing (sandbox, Canadian cookies, after a robots.txt fetch): products.json price = the store's own product .js price
+  on runnersden 185, cityparkrunners 259.95, tenthousand 324 (CAD served, meta USD), janji 171 (CAD), vanrunco 65, rnnr 133 (USD, no
+  conversion for Canada = meta), satisfy (EUR, meta). No localization cookie left in the jar.
+- Not run: readtest.yml (it's a full store read; the one refresh below is the read). After it I re-check those stores on the live JSON.
