@@ -304,3 +304,14 @@ would have been reported as open every 2 weeks.)
 
 Above your ~1 request / 2 s: Altitude/Last Hunt (2/s) and one Shopify shop (1/s while its pages are read, a minute or two). Both ask for
 no Crawl-delay; slowing Altitude to 1 per 2 s would add ~25 min to the morning read. Kept for now; say if you want it slower.
+
+## Nov 1 (night): Gord's Running Store built, OFF until Bastien's yes
+- `scrape_gords()` in scrape.py, behind `GORDS_ON = False` (flip to True = live from the next store read). Store API products + variations,
+  through polite.py (274 requests on a first read, ~125 after: brands are remembered in offers.json; 0 slow-downs, 0 robots refusals).
+- Brand: our catalogue's model words first, else the product page's JSON-LD (read once). 3 of 918 offers without a brand (massage ball,
+  toe caps, COROS watch).
+- Sorting by Gord's own categories: hydration vests/belts = packs, jackets-vests = tops, walking + recovery footwear + gift cards out.
+- Numbers for Bastien: 918 offers -> 715 cards, 238 on sale (shoes 391, bottoms 74, tops 67, gear 64, socks 56, headwear 27, packs 15).
+  Sortcheck: 0 to look at. Live price checks 5 of 5: Hoka Speedgoat 6 W 11 $124.95 (was $189.95), New Balance Hanzo M7 $99.95 (was $179.95),
+  Puma Propio Nitro W 9.5 $74.95 (was $149.95), On Cloudventure Waterproof 8.5 $144.95 (was $209.95), Brooks Method 1/2 Crop Tight XS $38.95 (was $77.95).
+- index.html STORES now names gordsrunningstore.com "Gord's Running Store" (harmless while the switch is off).
