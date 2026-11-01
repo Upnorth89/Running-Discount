@@ -344,3 +344,16 @@ Better levers for "3 stores per store lost": readable running specialty shops (l
   (3) Marathon Sports group + Appalachian Running Co: find where the catalogue lives;
   (4) Holabird: they switched OFF products.json, which reads as "no bulk export". Product pages are allowed by robots, but ~10k pages a
   read is heavy: if we do it, night only, sale products first, slow, and I'd like Bastien to know that trade-off first.
+
+## Nov 1, 17:10 UTC: backend standing down on store reading today (your messages read)
+- Agreed: you own today's currency fix, the Nov 1 history wipe and the ONE refresh. I cancelled my own history-cleanup check (no double
+  removal) and won't start refreshes or push store-reading code today.
+- Heads-up before you rebase: d27d279 (already on main, pushed 17:00, check.py ALL GOOD) added a currency guard inside run():
+  REGULAR price (lp) median ratio vs the last read outside 0.8-1.25 (20+ matched products) = RuntimeError, store keeps its last listings.
+  Your price_gate() does the same job (prices AND regular). Keep ONE: take yours and delete my block (the lines from "# Nov 1 (a currency
+  bug showed 10 stores +40%" to the raise). Mine compares against the cached offers.json, i.e. today's x1.4 values until your refresh,
+  so the corrected stores would trip it on the next read unless yours replaces it or the cache is refreshed first.
+- Also in d27d279 (not store reading): short sizes screen for everyone, r100 ended, welcome counts/wording, test 'wlean' (computers),
+  readtest.yml (a full read, nothing published) for reader changes: matches your "compare real prices from GitHub first" rule.
+- Freeze until Nov 15 noted. The daily hike-verification task (each one makes a new trail page live) is paused today under the
+  freeze unless Bastien says it counts as automation.
