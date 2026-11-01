@@ -3291,6 +3291,7 @@ SHOPIFY_STORES = [
     # added 2026-10-06
     ("brainsport",     "https://www.brainsport.ca",          "gear"),   # Brainsport (Saskatoon, SK)
     ("sail",           "https://www.sail.ca/en-ca",          "gear"),   # SAIL plein air (QC/ON chain): its running section only
+    ("runinn",         "https://runinn.com",                 "gear"),   # The Run Inn (Vancouver, since 1992; Nov 1): Shopify, CAD, ships to Canada
     ("svp",            "https://www.svpsports.ca",           "gear"),   # SVP Sports (Ontario chain): its running section only. Its feed
                                                                         # answers again (Cloudflare check gone, Oct 12, 2026); robots allow it
     ("jdsports",       "https://www.jdsports.ca",            "gear"),   # JD Sports Canada (Oct 31, Bastien: "Yes add it"): its running-shoes
@@ -3369,9 +3370,10 @@ SHOPIFY_STORES = [
     ("rollga",         "https://rollga.com",                 "gear"),   # Rollga: foam rollers
     ("styrkr",         "https://styrkr.com",                 "food"),   # STYRKR (UK): gels, drink mixes, bars; ships to Canada
     ("veloforte",      "https://veloforte.com",              "food"),   # Veloforte (UK): natural energy gels/chews; ships to Canada
+    ("headsweats",     "https://headsweats.com",             "gear"),   # Headsweats (US): running hats and visors; ships to Canada
 ]
 
-NOT_RUNNING = re.compile(r"challenge patch|gift ?card|pannier|eyeglasses|optical|reading glass|blue light|prescription|e-?gift|\bbike\b|cycling|\bbib\b|swim|golf|\bski\b|snowboard|\bdog\b|\bpet\b|"
+NOT_RUNNING = re.compile(r"challenge patch|pickleball|gift ?card|pannier|eyeglasses|optical|reading glass|blue light|prescription|e-?gift|\bbike\b|cycling|\bbib\b|swim|golf|\bski\b|snowboard|\bdog\b|\bpet\b|"
                          r"\btent\b|sleeping bag|stickers?|poster|\bmug\b|\bbundle builder\b|warranty|shipping protection|"
                          r"route protection|insurance|bunion|toe (separator|spacer)s?|\bsample\b|donation|\bknitwear\b|\bsherpa\b|\bgym bag\b|tote bag|loops & loot|test clothing|"   # Balmoral's lifestyle pieces (Oct 8)
                          # ski touring (Ski Uphill, Oct 7); trail crampons and goodr "Donkey Goggles" sunglasses stay
@@ -4220,9 +4222,9 @@ def tidy_brand(b):
         return tidy_brand(r)
     return c or b
 
-CAPS_STORES = {"karhuus", "lecoureur", "runnerssoul", "sportsexperts", "boutiquedulac", "33off", "praise"}
+CAPS_STORES = {"karhuus", "runinn", "lecoureur", "runnerssoul", "sportsexperts", "boutiquedulac", "33off", "praise"}
 MODEL_TYPOS = [(re.compile(r"(?i)\bendorphine\b"), "Endorphin")]   # Running Room's "Endorphine Elite 2" (Oct 17, r/runTO list)
-OWN_BRAND = {"rabbit": "rabbit", "bandit": "Bandit Running"}
+OWN_BRAND = {"rabbit": "rabbit", "bandit": "Bandit Running", "headsweats": "Headsweats"}
 GENDER_PREFIX_STORES = {"frontrunners",    # names start with "M " / "W " / "U " ("M Adidas Boston 13")
                         "aerobicsfirst",   # "Saucony Women's Endorphin Speed 5 - White/Black *SALE*"
                         "cityparkrunners", # "Women's Saucony Peregrine 14", "Mens Altra Outroad"
@@ -4463,7 +4465,7 @@ def merge(offers):
     offers = tidy_clothes(tidy_gear(tidy_nutrition(tidy_shoes(drop_kids(tidy_us_names(offers))))))
     items, tidied = {}, []
     for o in offers:
-        if (o["b"] or "").strip() in ("", "0") and o.get("st") in OWN_BRAND:   # brand stores that leave the brand blank or "0"
+        if ((o["b"] or "").strip() in ("", "0") or re.fullmatch(r"\d+", (o["b"] or "").strip())) and o.get("st") in OWN_BRAND:   # brand stores that leave the brand blank or "0"
             o["b"] = OWN_BRAND[o["st"]]
         if o.get("st") not in GENDER_PREFIX_STORES and o["g"] in ("shoes", "tops", "bottoms", "bras", "socks"):
             m = re.match(r"^(Men|Women)[’']?s\s+(.+)", tidy_name(o["b"] or "", o["n"]))   # any store, after the brand:
