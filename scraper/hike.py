@@ -284,6 +284,10 @@ SHOPIFY = [
     # more outdoor stores (Oct 25 night, probed + robots.txt read): shipping to Canada
     ("nextadventure", "https://www.nextadventure.net", None, "ca"),
     ("gearhead", "https://www.gearheadoutfitters.com", None, "ca"),
+    # Nov 1 (Bastien: "Find more ... running or hiking and add them"): readable outdoor shops, robots ok, no AI block
+    ("wildrock", "https://wildrock.net", None, "ca"),           # Wild Rock Outfitters (Peterborough, ON): CAD
+    ("gearx", "https://gearx.com", ["camping-hiking"], "ca"),                 # Outdoor Gear Exchange (Burlington, VT): ships to Canada
+    ("tahoemtn", "https://tahoemountainsports.com", ["camping-hiking", "hiking-boots", "hiking-shoes", "hiking-socks", "jackets", "mens-pants", "mens-base-layers"], "ca"),  # Tahoe Mountain Sports (CA): ships to Canada
     ("mountainhigh", "https://www.mountainhighoutfitters.com", None, "ca"),
     ("outdoorsinc", "https://www.outdoorsinc.com", None, "ca"),
     # USA side only (their own shipping list leaves Canada out)
