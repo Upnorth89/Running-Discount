@@ -1953,7 +1953,7 @@ def forget_cookies(base):
 def _variant_prices(base, cookies):
     forget_cookies(base)
     try:
-        r = get(f"{base}/products.json?limit=5", tries=2, cookies=cookies)
+        r = get(f"{base}/products.json?limit=30", tries=2, cookies=cookies)
     finally:
         forget_cookies(base)
     return {v["id"]: float(v["price"]) for p in r.json()["products"] for v in p.get("variants", []) if float(v.get("price") or 0) > 0}
@@ -1977,7 +1977,10 @@ def shopify_price_currency(base, cookies=None):
                     m = (get(f"{root}/meta.json", tries=2).json().get("currency") or "").upper()
                     if m:
                         return m
-                elif 1.2 <= mid <= 1.65:
+                elif mid > 1.005:
+                    # Nov 1 evening: Canadian prices differ from US ones = the store has a Canadian market, so CAD. No upper band:
+                    # rnnr sets its own Canadian prices (133 vs US 80 = 1.66, outside the old 1.2-1.65 band -> meta USD -> x1.4).
+                    # Lower (CA cheaper than US) = unsure -> meta.json. The price gate stays the net.
                     return "CAD"
         except Exception:
             pass
