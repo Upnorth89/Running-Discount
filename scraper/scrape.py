@@ -490,6 +490,7 @@ def scrape_sportchek():
 # so it's read at night (runfree.yml job "runningfree", ~2 h), saved to runningfree.json on the history branch; the refresh
 # downloads it to RUNNINGFREE_FILE. While that copy is fresh, the catalog file's Running Free rows are left out.
 RF_BASE = "https://www.runningfree.com"
+_RF_GEO = {}
 RF_ROOTS = {"men": "All-Mens-66507", "women": "All-Womens-66508"}
 RF_DELAY = 30                      # robots.txt Crawl-delay
 RUNNINGFREE_FILE = os.environ.get("RUNNINGFREE_FILE", "/tmp/runningfree.json")
@@ -513,6 +514,8 @@ def _rf_get(path):
             r = S.get(f"{RF_BASE}/products/{path}", headers={"User-Agent": "Mozilla/5.0 (compatible; TheGearFox/1.0; +https://thegearfox.com/about.html)"},
                       timeout=60)
             if r.status_code == 200:
+                if "only available to visitors in Canada or the United States" in r.text:
+                    _RF_GEO["wall"] = True        # Nov 1: some GitHub computers sit outside North America: the store's country page
                 return r.text
             print(f"::warning::runningfree: {path} HTTP {r.status_code}", file=sys.stderr)
             if r.status_code in (403, 429):
@@ -600,6 +603,10 @@ def runningfree_night(out, hours=4.5):
                 print(f"::warning::Running Free: {e}", file=sys.stderr)
                 if len(failed) > 10:
                     raise RuntimeError(f"Running Free: {len(failed)} size pages didn't load ({', '.join(failed[:5])}...)")
+    if not prods and _RF_GEO.get("wall"):
+        print("::error::Running Free shows its 'only available in Canada or the United States' page to this GitHub computer: nothing saved "
+              "(last good read kept; the next night usually runs from a North American computer)", file=sys.stderr)
+        return 1
     if len(prods) < 500:      # Nov 1: a late second run read 0 products and saved that over a good read (2,962): keep the last good file
         print(f"::error::Running Free night read found only {len(prods)} products: NOT saved (last good read kept)", file=sys.stderr)
         return 1
@@ -4449,6 +4456,9 @@ def merge(offers):
     # kind of shoe and ships-from) are one shoe worded two ways by two stores: they become one card, whatever new wording a
     # store comes up with. The kind keeps real pairs apart (Brooks' road Ghost vs Ghost Trail, Hoka Rocket X vs Rocket X Trail).
     twin, merged = {}, 0
+    # Nov 1: names still carry the brand here when a store writes it ("Nike ACG Pegasus Trail GORE-TEX …" vs "ACG Pegasus Trail GTX"):
+    # read the model without it, or the two land on different page keys and stay two cards
+    _nob = lambda it: re.sub(r"^\s*" + re.escape(best[it["b"].lower()]) + r"\s+", "", it["n"], flags=re.I)
     def join(a, it):
         off = len(a["of"])
         for f_ in ("of", "_st", "_ca", "_fs", "_im", "_nm"):
@@ -4463,7 +4473,7 @@ def merge(offers):
         it = items[key]
         if it["g"] != "shoes":
             continue
-        core = " ".join(w for w in _sl(f'{best[it["b"].lower()]} {_bm(it["n"])}').split("-") if w not in ("trail", "road"))
+        core = " ".join(w for w in _sl(f'{best[it["b"].lower()]} {_bm(_nob(it))}').split("-") if w not in ("trail", "road"))
         tk = (core, tuple(sorted(it["sx"])), it["w"], it["ca"], it.get("t"))
         a = twin.get(tk)
         if a is None:
@@ -4474,7 +4484,7 @@ def merge(offers):
         merged += 1
         # a plain name ("Venosk - Men's") next to the same model sold as "Venosk Trail Running Shoes": the plain one was typed as a
         # road shoe only because its name says nothing; it joins the trail card (race/hike pairs stay apart: Rocket X vs Rocket X Trail)
-    page = lambda it: _sl(f'{best[it["b"].lower()]} {_bm(it["n"])}')     # the exact shoe page (Ghost and Ghost Trail differ here)
+    page = lambda it: _sl(f'{best[it["b"].lower()]} {_bm(_nob(it))}')     # the exact shoe page (Ghost and Ghost Trail differ here)
     trails = {(page(it), tuple(sorted(it["sx"])), it["w"], it["ca"]): it for it in items.values() if it["g"] == "shoes" and it.get("t") == "trail"}
     for key in list(items):
         it = items.get(key)

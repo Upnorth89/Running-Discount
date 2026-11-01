@@ -1,4 +1,4 @@
-name: Night reads (RunFree stores, Decathlon, The Feed)
+name: Night reads (Decathlon, The Feed, Running Free, Sports Experts, Fleet Feet, brands)
 
 # Local US running stores on RunFree (scraper/runfree.py): every product's sizes and prices, one request per second per
 # store, all stores at once. 1:23am Vancouver, well before the 4:17am refresh, which downloads runfree.json from the
