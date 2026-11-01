@@ -127,11 +127,23 @@ def load(path, tmp):
     return rows, rep
 
 
+def newest_seen_days(path):
+    """Days since the newest 'Observed (UTC)' row of a catalog file."""
+    wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
+    h, rows = sheet(wb, "Sizes & availability")
+    i = h.index("Observed (UTC)")
+    seen = [r[i] for r in rows if isinstance(r[i], datetime)]
+    return (datetime.utcnow() - max(seen)).total_seconds() / 86400 if seen else 99
+
+
 def main(new):
     new = Path(new).resolve()
     tmp = Path(tempfile.mkdtemp(prefix="cattest-"))
     cur = sorted(SAVED.glob("catalog-*.xlsx"), key=lambda f: f.stat().st_mtime)
     cur = cur[-1] if cur else None
+    if cur and newest_seen_days(cur) > sc.CATALOG_MAX_DAYS:      # Nov 1: an expired file has nothing left to keep or compare
+        print(f"  note {cur.name} expired (every row older than {sc.CATALOG_MAX_DAYS} days): this file is tested on its own")
+        cur = None
     print(f"Testing {new.name}" + (f" (current file: {cur.name})" if cur else ""))
 
     # 0. a batch with only some stores is merged into the current full file
