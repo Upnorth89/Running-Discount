@@ -2520,6 +2520,116 @@ def sl_group(ptype, name):
         return "nutrition"
     return group_of(ptype) or group_of(name)
 
+# ---------------------------------------------------------------- Gord's Running Store (Calgary; WooCommerce Store API)
+# Nov 1, 2026 (growth chat, pending Bastien's yes: GORDS_ON): robots.txt allows the Store API (only wp-admin/add-to-cart/wc-logs
+# are disallowed). /wp-json/wc/store/products (1,147 products) + ?type=variation (11,157 colour+size rows: price, regular,
+# in stock, a link that opens that colour+size). No brand in the API: our own catalogue's model words name it, else the
+# product page's JSON-LD, read once and remembered through offers.json (`_b`).
+GORDS_BASE = "https://gordsrunningstore.com"
+GORDS_ON = False
+GORDS_SHOES = {"footwear", "racing", "trail", "road", "track-and-field", "spikes", "running-shoes"}
+
+def _gords_all(params):
+    out, page = [], 1
+    while page <= 200:
+        r = get(f"{GORDS_BASE}/wp-json/wc/store/products?per_page=100&page={page}{params}")
+        batch = r.json()
+        if not batch:
+            break
+        out += batch
+        if page >= int(r.headers.get("x-wp-totalpages") or page):
+            break
+        page += 1
+    return out
+
+def _brand_lookup():
+    """Model words -> brand from yesterday's site (deals.json): 'Endorphin Speed' -> Saucony. Kept only when 80%+ of 2+ items agree."""
+    try:
+        items = json.loads(OUT.read_text()).get("items") or []
+    except Exception:
+        items = []
+    seen = collections.defaultdict(collections.Counter)
+    for i in items:
+        w = re.sub(r"\s+-\s+(Men|Women)'s.*$", "", i.get("n") or "").split()
+        for k in (" ".join(w[:2]).lower(), (w[0].lower() if w else "")):
+            if k and len(k) > 2:
+                seen[k][i["b"]] += 1
+    look = {}
+    for k, c in seen.items():
+        b, n = c.most_common(1)[0]
+        if n >= 2 and n >= 0.8 * sum(c.values()):
+            look[k] = b
+    return look
+
+def _gords_jsonld_brand(url):
+    try:
+        h = get(url, tries=2).text
+        m = re.search(r'"brand"\s*:\s*\{[^}]*"name"\s*:\s*"([^"]+)"', h)
+        return html_lib.unescape(m.group(1)) if m else ""
+    except Exception:
+        return ""
+
+def scrape_gords():
+    prods = _gords_all("")
+    vars_ = _gords_all("&type=variation")
+    byp = collections.defaultdict(list)
+    for v in vars_:
+        byp[v.get("parent")].append(v)
+    look = _brand_lookup()
+    prev = {o["u"]: o.get("b") for o in prev_raw().get("gords", []) if o.get("u") and o.get("b")}
+    out, jl = [], 0
+    for p in prods:
+        name = html_lib.unescape(p.get("name") or "").strip()
+        cats = {c.get("slug", "") for c in p.get("categories") or []}
+        cnames = " ".join(c.get("name", "") for c in p.get("categories") or [])
+        if not name or NOT_RUNNING.search(name) or re.search(r"\bwalking\b|gift ?card", name, re.I):
+            continue
+        g = "shoes" if cats & GORDS_SHOES else group_of(name, cnames)
+        if not g:
+            continue
+        sx = (["men", "women"] if re.search(r"\bunisex\b", cnames, re.I) else ["women"] if re.search(r"\bwom[ae]n", cnames, re.I)
+              else ["men"] if re.search(r"\bmen", cnames, re.I) else [])
+        if sx == ["men"] and not re.search(r"\bmen'?s\b", name, re.I):
+            name += " - Men's"
+        elif sx == ["women"] and not re.search(r"\bwom[ae]n'?s\b", name, re.I):
+            name += " - Women's"
+        u = p.get("permalink") or ""
+        w = name.split()
+        b = prev.get(u) or look.get(" ".join(w[:2]).lower()) or look.get(w[0].lower() if w else "")
+        if not b and jl < 300:                 # read each unknown product's page once (remembered via offers.json)
+            b, jl = _gords_jsonld_brand(u), jl + 1
+        sizes = {}
+        for v in byp.get(p.get("id"), []):
+            if not v.get("is_in_stock"):
+                continue
+            pr = v.get("prices") or {}
+            unit = 10 ** int(pr.get("currency_minor_unit") or 2)
+            try:
+                price, reg = int(pr["price"]) / unit, int(pr.get("regular_price") or pr["price"]) / unit
+            except (KeyError, ValueError, TypeError):
+                continue
+            if price <= 0:
+                continue
+            at = dict(x.split(": ", 1) for x in re.split(r",\s*(?=[A-Z][\w /]*: )", v.get("variation") or "") if ": " in x)
+            label = at.get("Size") or "OS"
+            if g == "shoes":
+                label += width_word(at.get("Width") or "", name)
+            else:
+                label = generic_size(label)
+            if label not in sizes or price < sizes[label][0]:
+                sizes[label] = (price, max(reg, price), v.get("permalink") or u)
+        if not sizes:
+            continue
+        img = ((p.get("images") or [{}])[0] or {}).get("src") or next(
+            ((v.get("images") or [{}])[0].get("src") for v in byp.get(p.get("id"), []) if v.get("images")), None)
+        out.append({"st": "gords", "b": b or "", "_b": b or "", "n": name, "u": u, "g": g, "sx": sx,
+                    "w": bool(re.search(r"\b(extra )?wide\b", name, re.I)), "img": img,
+                    "lp": max(r for _, r, _ in sizes.values()), "bb": None,
+                    "sz": [[k, pr, rg, ln] for k, (pr, rg, ln) in sizes.items()]})
+    print(f"  gords: {len(prods)} products, {len(vars_)} colour+sizes; {len(out)} cards in stock, "
+          f"{sum(1 for o in out if not o['b'])} without a brand, {jl} product pages read for a brand", file=sys.stderr)
+    return out
+
 def scrape_sportinglife():
     listing, start, total = {}, 0, None
     while total is None or start < total:
@@ -3591,6 +3701,7 @@ STORES = {
     "thefeed": scrape_thefeed,
     "sea2sky": scrape_sea2sky,
     "sportinglife": scrape_sportinglife,
+    **({"gords": scrape_gords} if GORDS_ON else {}),     # Gord's Running Store (Calgary): waiting on Bastien's yes
     "stampeak": scrape_stampeak,
     "mec": scrape_mec_saved,       # from pages you save (their sites block automated access)
     "rei": lambda: scrape_catalog("REI") or scrape_rei_saved(),   # the catalog file (Oct 8: every size, with stock), else saved pages
@@ -4209,7 +4320,7 @@ def name_gender(n):
     return ["women"] if w and not m else ["men"] if m and not w else None
 
 # Stores that sell and ship from Canada (no border fees). Generic Shopify stores decide by their currency.
-CA_STORES = {"altitude", "lasthunt", "sea2sky", "sportinglife", "stampeak", "mec", "decathlon", "svp", "footlocker", "sportchek", "adidasca"}
+CA_STORES = {"gords", "altitude", "lasthunt", "sea2sky", "sportinglife", "stampeak", "mec", "decathlon", "svp", "footlocker", "sportchek", "adidasca"}
 
 _TRAIL_MODELS = set()    # shoe keys that keep "trail"/"road" because a store names the model that way ("Ghost Trail - Men's")
 
