@@ -37,15 +37,16 @@ jobs:
         run: |
           skip=false
           if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ inputs.night }}" = "true" ]; then
-            t=$(curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/history/runfree.json" | python3 -c "import json,sys; print(json.load(sys.stdin).get('updated',''))" || true)
+            t=$(curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/history/runningfree.json" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('updated','') if d.get('prods') else '')" || true)
             echo "last read: ${t:-none}"
             [ -n "$t" ] && python3 -c "import sys,datetime as d; t=d.datetime.fromisoformat('$t'); sys.exit(0 if d.datetime.now(d.timezone.utc)-t<d.timedelta(hours=12) else 1)" && skip=true
           fi
           echo "skip=$skip" >> "$GITHUB_OUTPUT"
 
+  # Nov 1: OFF (RunFree's robots.txt: "Disallow: /api/" since ~Oct 30; scraper/scrape.py RUNFREE_ON). Never read against robots.txt.
   read:
     needs: check
-    if: needs.check.outputs.skip != 'true' && (inputs.only == '' || inputs.only == null || inputs.only == 'all' || inputs.only == 'runfree')
+    if: false && (inputs.only == '' || inputs.only == null || inputs.only == 'all' || inputs.only == 'runfree')
     runs-on: ubuntu-latest
     timeout-minutes: 110
     steps:

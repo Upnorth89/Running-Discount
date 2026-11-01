@@ -44,12 +44,16 @@ STORES = {
     "Inov-8": ("403", ["https://www.inov-8.com/robots.txt", "https://www.inov-8.com/ca/"]),
     "Simons": ("Cloudflare 403 everywhere", ["https://www.simons.ca/robots.txt", "https://www.simons.ca/en"]),
     "Boutique Courir": ("blocks automated reading", ["https://boutiquecourir.com/robots.txt", "https://boutiquecourir.com/products.json"]),
+    # Nov 1: every RunFree shop's robots.txt says "Disallow: /api/" since ~Oct 30; the reader needs /api/product + /api/options.
+    # "robots.txt#/api/" = open only when that path is allowed again (one shop stands for all 27: same platform rules)
+    "RunFree (27 US shops + Runner's Soul)": ("robots.txt Disallow /api/ since ~Oct 30",
+                ["https://shop.charlotterunning.com/robots.txt#/api/product", "https://shop.charlotterunning.com/sitemap.xml"]),
     "Honey Stinger": ("blocks GitHub's servers", ["https://www.honeystinger.com/robots.txt", "https://www.honeystinger.com/products.json"]),
 }
 WALL = re.compile(r"Just a moment|cf-chl|captcha|Access Denied|Request unsuccessful|Pardon Our Interruption|px-captcha", re.I)
 
 
-def robots_says(text):
+def robots_says(text, path=None):
     """'no' when the rules for everyone (*) or for ClaudeBot / AI robots block the whole site, else 'ok'."""
     groups, cur, rules = [], [], []
     for line in text.splitlines():
@@ -72,22 +76,27 @@ def robots_says(text):
             if ("disallow", "/") in rules and not any(k == "allow" and v in ("/", "") for k, v in rules):
                 who = "ClaudeBot / AI robots" if "*" not in agents else "everyone"
                 return f"no ({who}: Disallow /)"
+            if path and any(k == "disallow" and v and path.startswith(v) for k, v in rules):
+                return f"no (Disallow {next(v for k, v in rules if k == 'disallow' and v and path.startswith(v))})"
     return "ok"
 
 
 def visit(url):
+    url, _, path = url.partition("#")
     try:
         r = requests.get(url, headers=UA, timeout=40, allow_redirects=True)
     except requests.RequestException as e:
         return None, f"no answer ({type(e).__name__})"
     t = r.text or ""
     if url.endswith("robots.txt"):
-        return (r.status_code == 200 and "User-agent" in t and robots_says(t) == "ok"), \
-               f"robots.txt {r.status_code}" + ("" if r.status_code != 200 else f", {robots_says(t)}")
+        return (r.status_code == 200 and "User-agent" in t and robots_says(t, path or None) == "ok"), \
+               f"robots.txt {r.status_code}" + ("" if r.status_code != 200 else f", {robots_says(t, path or None)}")
     if r.status_code != 200:
         return False, f"{r.status_code}"
     if WALL.search(t[:20000]):
         return False, "200 but a bot check page"
+    if url.endswith("sitemap.xml"):
+        return ("<sitemap" in t or "<url" in t), "sitemap.xml: " + ("readable" if "<sitemap" in t or "<url" in t else "not a sitemap")
     if url.endswith("products.json"):
         n = len(re.findall(r'"handle"', t))
         return n > 0, f"products.json: {n} products"

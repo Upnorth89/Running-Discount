@@ -600,6 +600,14 @@ def runningfree_night(out, hours=4.5):
                 print(f"::warning::Running Free: {e}", file=sys.stderr)
                 if len(failed) > 10:
                     raise RuntimeError(f"Running Free: {len(failed)} size pages didn't load ({', '.join(failed[:5])}...)")
+    # Nov 1 (growth chat): a second, late-started run on Oct 31 saved 0 products over the morning's good read (2,962). A read
+    # with far fewer products than the last good copy is a failed read: the last good copy stays.
+    try:
+        had = len(json.loads(Path(out).read_text()).get("prods") or {})
+    except Exception:
+        had = 0
+    if not prods or (had >= 200 and len(prods) < had * 0.5):
+        raise RuntimeError(f"Running Free: only {len(prods)} products read (last good copy: {had}); the last good copy stays")
     Path(out).write_text(json.dumps({"updated": now(), "brands": sorted(brands), "prods": prods}, separators=(",", ":")))
     print(f"runningfree night read: {len(prods)} products, {sum(len(p['sizes']) for p in prods.values())} sizes in stock "
           f"in {(time.time() - start) / 60:.0f} min -> {out}", file=sys.stderr)
@@ -2494,6 +2502,7 @@ def scrape_sportinglife():
 # browser (Cmd+S, "Webpage, HTML only") and upload them to the saved-pages/ folder in the repo.
 # Files older than SAVED_MAX_DAYS are ignored so stale prices never linger.
 SAVED_DIR = Path(__file__).resolve().parents[1] / "saved-pages"
+KEEP_HOURS = 48       # Nov 1: a store that fails keeps its last listings this long, then leaves the site until it reads again
 SAVED_MAX_DAYS = 5     # Oct 30 (Bastien: "down to 5 for everyone we grab deal"): a REI save 6-10 days old showed sold-out sizes
 
 def _file_age_days(path):
@@ -3531,7 +3540,11 @@ FINAL_TAG = re.compile(r"final.?sale|vente.?finale", re.I)
 
 for _st, _base, _kind in SHOPIFY_STORES:
     STORES[_st] = make_shopify_scraper(_st, _base, _kind)
-for _st in RUNFREE:
+# Nov 1: OFF. Every RunFree shop's robots.txt now says "Disallow: /api/" (seen Oct 30-31), and the reader needs /api/product +
+# /api/options: the stores said no (STORES.md blocked list, store_recheck.py checks every 2 weeks). Leaving them out of STORES
+# takes their offers off the site at the next refresh. Back on only if robots.txt allows /api/ again or RunFree gives us a feed.
+RUNFREE_ON = False
+for _st in (RUNFREE if RUNFREE_ON else []):
     STORES[_st] = (lambda st: lambda: scrape_runfree(st))(_st)
 
 # Casual footwear some running stores also sell; not what people come here for.
@@ -3934,6 +3947,7 @@ BRAND_CANON = {"hoka one one": "Hoka", "hoka": "Hoka", "asics": "ASICS", "satisf
 # US shops often list the parent company or distributor as the vendor (Oct 6, 2026: "Asics Corp." on all 480 US ASICS items,
 # "Brooks Sports, Inc. #105856", "Ing Source, Inc" = Injinji, "Medi USA" = CEP): company words go, then this map
 BRAND_ALIAS = {"kuhl": "KÜHL", "kühl": "KÜHL",   # Oct 30: KÜHL (79) = KUHL (32) on the USA side
+               "acg": "Nike", "nike acg": "Nike",   # Nov 1: a store files Nike ACG under brand "ACG" ("Nike Men's ACG Pegasus Trail"): a second card
                "o'neill sunglasses": "O'Neill", "o’neill sunglasses": "O'Neill", "o'neill": "O'Neill", "o’neill": "O'Neill",   # Oct 31
                "cure hydration": "Cure", "balmoral sports": "Balmoral", "inner self": "Inner Self", "krono nutrition": "Krono", "kronobar": "Krono", "grynd food": "Grynd", "grynd food inc": "Grynd", "fast bundle": "Upika", "upika": "Upika", "brix rechargé par la nature": "Brix", "brix recharge par la nature": "Brix", "asics america": "ASICS", "asics": "ASICS", "brooks sports": "Brooks", "nike usa": "Nike", "nike team sale": "Nike",
                "on shoes": "On", "on footwear": "On", "on-running": "On", "gu energy": "GU", "gu energy labs": "GU", "gu sports": "GU",
@@ -4583,6 +4597,17 @@ def main():
             msg = str(e)
             m = re.search(r"(Tunnel connection failed: \d+ \w+|\d{3} Client Error: \w+|HTTP \d{3}|no [^;]{0,60})", msg)
             kept = prev_offers.get(st, [])
+            # Nov 1 (growth chat: RunFree's 27 stores closed /api/ to robots ~Oct 30): a failed store used to keep its last
+            # listings forever (each night's fallback became the next night's "last run"), so frozen prices looked fresh.
+            # Now a store not read successfully for KEEP_HOURS leaves the site until it reads again.
+            last = stamps.get(st)
+            try:
+                age = (dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(last)).total_seconds() / 3600 if last else None
+            except Exception:
+                age = None
+            if kept and (age is None or age > KEEP_HOURS):
+                return [], False, (f"{st}: FAILED ({m.group(1) if m else msg[:120]}); taken off the site "
+                                   f"(last good read {('%.0f h ago' % age) if age is not None else 'unknown'}, over {KEEP_HOURS} h)")
             return kept, False, f"{st}: FAILED ({m.group(1) if m else msg[:120]}); kept {len(kept)} from last run"
     # Lanes (Oct 5, 2026: one after another took ~35 min, this ~13): the Shopify stores one at a time in one lane
     # (Shopify counts requests from one machine across all its stores: 4 at once got "429 too many requests"),
