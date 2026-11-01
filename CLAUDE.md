@@ -152,7 +152,8 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
 
 ## Daily and weekly jobs (GitHub Actions)
 
-- **Refresh deals** (`refresh.yml`): daily at 11:17 UTC (4:17am Vancouver) and on every push. Fetches
+- **Refresh deals** (`refresh.yml`): daily at 11:17 UTC (4:17am Vancouver) and on every push. Since Nov 1 a PUSH run reads no store: it rebuilds from the cached read (`--remerge`, scrape.py + hike.py;
+  Bastien: "Are we scanning stores too often": pushes had made it ~18 full reads a day). Stores are read only by the scheduled/started runs (2 a day). Fetches
   yesterday's live data, scrapes all stores (a failed store keeps yesterday's data), runs watchlist alerts
   (not on push runs), runs the health check, deploys `site/` to GitHub Pages.
   - Backup time 14:47 UTC (7:47am Vancouver): GitHub often starts schedules late (Sep 30, 2026 ran ~5.5 h
@@ -902,7 +903,8 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   + store-finder.yml (tests tools/us_candidates.txt from GitHub's network; my sandbox can't reach some hosts). Only ~1 in 4 US
   independents is on Shopify; many sell in store only.
 - **RunFree OFF since Nov 1, 2026** (robots.txt `Disallow: /api/` on every RunFree shop since ~Oct 30; `RUNFREE_ON = False` in scrape.py, runfree.yml read job `if: false`,
-  store_recheck.py watches it; runfree.yml's skip check now reads thefeed.json). Was:
+  store_recheck.py watches it; runfree.yml's skip check now reads thefeed.json). Likely trigger: 27 shops on one platform read at once (~27 req/s).
+  If it reopens: one shop at a time, slower. Was:
 - RunFree (runfreeproject.com, a shop system for running stores; 25 stores in `RF.RUNFREE_STORES`; Runner's Soul (AB) is Canadian:
   `RF.CANADIAN`, CAD, Canada side; the rest `RUNFREE_US`): scraper/runfree.py, nightly
   runfree.yml 08:23 UTC: sitemap.xml lists every product; POST /api/product (details, kept 7 days in runfree-cache.json) and
