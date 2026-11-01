@@ -24,7 +24,11 @@ UA = "Mozilla/5.0 (compatible; TheGearFoxBot/1.0; +https://thegearfox.com/about.
 AGENTS = ("thegearfoxbot", "claudebot", "anthropic-ai")
 GAP = 1.0                    # seconds between two requests to the same site, when robots.txt asks nothing
 MAX_GAP = 60.0
-HOST_GAP = {"www.altitude-sports.com": 0.5, "www.thelasthunt.com": 0.5}   # big shops on a CDN: 2 pages a second at most
+# Big shops on a CDN that ask for no Crawl-delay. Nov 1: at 1-2 pages a second the first polite read took 49 min and GitHub
+# cancelled it (Altitude 44 min, shared with the hiking read). Still far gentler than before (10 pages at once, unpaced), and once a
+# read has finished, only changed/on-sale products are re-read (Altitude: ~100 of 2,500).
+HOST_GAP = {"www.altitude-sports.com": 0.25, "www.thelasthunt.com": 0.25,
+            "www.sportinglife.ca": 0.4, "www.sportchek.ca": 0.4, "www.footlocker.ca": 0.4}
 PLATFORM_GAP = {"shopify": 0.5}   # all Shopify shops together, from this machine
 DIR = os.environ.get("POLITE_DIR", "/tmp/gf-polite")
 STATS = {}                   # host -> {"n": requests, "slow": 429/503 answers, "no": refused by robots.txt, "delay": crawl-delay}
