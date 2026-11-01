@@ -1965,7 +1965,7 @@ def shopify_price_currency(base, cookies=None):
     cookies (CAD), so 96 stores were read as USD and every CAD price got x1.4 (9 Canadian stores flagged +40%).
     So for the Canadian market we ask products.json itself: the same products with Canadian and with US cookies.
     Same prices = the store doesn't convert (its own currency, meta.json); CA/US ratio like CAD/USD = the Canadian
-    prices are CAD. Anything else: the homepage, as before."""
+    prices are CAD. Can't tell: None (the caller uses meta.json)."""
     root = re.match(r"https?://[^/]+", base).group(0)
     if cookies and cookies.get("cart_currency") == "CAD":
         try:
@@ -1981,6 +1981,7 @@ def shopify_price_currency(base, cookies=None):
                     return "CAD"
         except Exception:
             pass
+        return None        # can't tell: the caller uses the store's own currency (meta.json), never the homepage's guess
     try:
         m = re.search(r'Shopify\.currency\s*=\s*\{"active":"([A-Z]{3})"', get(f"{root}/", tries=2, cookies=cookies).text)
         return m.group(1) if m else None
@@ -3805,15 +3806,15 @@ def make_shopify_scraper(st, base, kind):
         # always ask for the store's Canadian market: the price and stock a Canadian visitor actually gets
         # (otherwise the store guesses from GitHub's server location: Chilean pesos, or "not available here")
         cookies = None if st in US_SHOPS else CA_COOKIES    # US shops: their own (US) market
-        # Nov 1: products.json prices are ALWAYS in the shop's base currency (meta.json), whatever market the visitor gets (Capra:
-        # 26.00 with or without Canadian cookies). The homepage's Shopify.currency is the visitor's market (GitHub = USD), so it's
-        # only asked when meta.json says nothing. (It made 11 CAD stores read as USD for one run: prices +40%.)
-        served = None if (home or st in NO_CART) else shopify_price_currency(base, cookies)
+        # Nov 1: the homepage's Shopify.currency follows GitHub's location (USD), so it made 11 CAD stores read +40% for one run.
+        # meta.json alone isn't enough either: some stores convert products.json for Canadian visitors (Janji, a USD shop:
+        # 120.00 base, 171.00 with our Canadian cookies). shopify_price_currency compares Canadian vs US prices on products.json.
+        served = None if st in NO_CART else shopify_price_currency(base, cookies)
         home = home or served
         if not home:
             print(f"  ! {st}: currency unknown, assuming CAD", file=sys.stderr)
             home = "CAD"
-        cur = home or served
+        cur = served or home
         if st in US_COLLECTIONS:
             seen, prods = set(), []
             for h in US_COLLECTIONS[st]:

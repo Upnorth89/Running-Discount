@@ -382,10 +382,10 @@ def shopify_store1(st, base, cols, side):
         pass
     cookies = s.CA_COOKIES if side == "ca" else None
     root = re.match(r"https?://[^/]+", base).group(0)
-    # Nov 1: products.json prices are in the shop's base currency (meta.json) whatever market the visitor gets; the homepage's
-    # Shopify.currency is the visitor's market (GitHub = USD), so it's only asked when meta.json says nothing
-    served = None if home else s.shopify_price_currency(root, cookies)
-    cur = home or served or "CAD"
+    # Nov 1: shopify_price_currency compares products.json with Canadian vs US cookies (the homepage follows GitHub's location;
+    # meta.json misses stores that convert for Canada, e.g. Janji)
+    served = s.shopify_price_currency(root, cookies) if cookies else (None if home else s.shopify_price_currency(root, cookies))
+    cur = served or home or "CAD"
     home = home or cur
     prods, seen = [], {}
     for c in (cols or [None]):

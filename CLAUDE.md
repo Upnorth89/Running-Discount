@@ -29,6 +29,12 @@ move backlog rows. When he asks "what's on the to-do list", answer from the curr
   AND asked by 2+ people or backed by the stats -> next 2-week batch; (3) everything else -> the Ideas backlog, no build.
   One user asking is a signal, not a mandate. Say which bucket out loud and push back when he wants to build a bucket-3 idea now.
 - **Bugs I find: fix, check in the preview, ship** (Oct 3: "no reason to wait for my approval"). New features still wait for his OK.
+- **FREEZE until Nov 15 (Nov 1, Bastien: "Yes freeze until Nov 15, focus on automation"; he was spending 2-3 h a day catching bugs).**
+  No new features, no new sports, no new pages. Only: bug/trust fixes, automation (guards before publishing, a health email split
+  into "fixed by us" / "needs you", a scheduled early-morning fix pass), and store additions under the rule below. Goal by Nov 15:
+  Bastien spends <= 30 min a day and the morning email usually says nothing needs him. One change to the store reading at a time,
+  compared with real prices (from GitHub's servers, not only the sandbox) before it ships.
+  Price gate (scrape.py `price_gate`): a store whose prices AND regular prices move 20%+ together vs its last read keeps its last listings.
 - **Stores and readers: build and turn on without asking** (Nov 1, Bastien: "Build any reader always if it works towards /goal which is growth and dominating the space"; goal 200+ stores on the running side, US first). Bar stays: robots.txt + polite.py, no AI block, sortcheck clean, live price checks, check.py ALL GOOD; tell him after, with numbers.
 - **Push straight to `main`.** No pull requests or side branches (the site deploys from `main`).
 - **Never ask him to paste secret keys into chat.** Secrets live only in GitHub secrets, Supabase or Vault.
