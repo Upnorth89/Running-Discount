@@ -29,6 +29,7 @@ move backlog rows. When he asks "what's on the to-do list", answer from the curr
   AND asked by 2+ people or backed by the stats -> next 2-week batch; (3) everything else -> the Ideas backlog, no build.
   One user asking is a signal, not a mandate. Say which bucket out loud and push back when he wants to build a bucket-3 idea now.
 - **Bugs I find: fix, check in the preview, ship** (Oct 3: "no reason to wait for my approval"). New features still wait for his OK.
+- **Stores and readers: build and turn on without asking** (Nov 1, Bastien: "Build any reader always if it works towards /goal which is growth and dominating the space"; goal 200+ stores on the running side, US first). Bar stays: robots.txt + polite.py, no AI block, sortcheck clean, live price checks, check.py ALL GOOD; tell him after, with numbers.
 - **Push straight to `main`.** No pull requests or side branches (the site deploys from `main`).
 - **Never ask him to paste secret keys into chat.** Secrets live only in GitHub secrets, Supabase or Vault.
 - After every change, verify it landed: the right file in the right folder, the site updated, nothing broken.

@@ -2526,7 +2526,7 @@ def sl_group(ptype, name):
 # ?format=json has its variants (price, old price, stock). Read less: a product page is read again only when its listing changed,
 # it's on sale, or our copy is REUSE_HOURS old.
 DIST_BASE = "https://www.distancerunwear.com"
-DISTANCE_ON = False
+DISTANCE_ON = True
 
 def scrape_distance():
     listing, page, pages = [], 1, 1
@@ -2594,7 +2594,7 @@ def scrape_distance():
 # in stock, a link that opens that colour+size). No brand in the API: our own catalogue's model words name it, else the
 # product page's JSON-LD, read once and remembered through offers.json (`_b`).
 GORDS_BASE = "https://gordsrunningstore.com"
-GORDS_ON = False
+GORDS_ON = True
 GORDS_SHOES = {"track-field", "track-and-field", "spikes", "running-shoes"}
 
 def _gords_all(params):
