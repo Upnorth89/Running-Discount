@@ -15,7 +15,7 @@ site/deals.json in the compact format the page reads:
 If one store fails, its items from the previous run are kept so the site never goes blank.
 Usage:  python scraper/scrape.py [out_path] [--remerge]
 """
-import collections, hashlib, json, os, re, sys, time, unicodedata, datetime as dt
+import collections, hashlib, statistics, json, os, re, sys, time, unicodedata, datetime as dt
 import html as html_lib
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -4921,6 +4921,34 @@ def report_groups(items):
     print("nutrition by store: " + ", ".join(f"{st} {a} ({b} on sale)" for st, (a, b) in
                                              sorted(by_store.items(), key=lambda x: -x[1][0])), file=sys.stderr)
 
+# Nov 1: the last read of these stores holds the wrong (+40% / -25%) prices, so the corrected read would look like a jump:
+# let them through the gate until Nov 2 (UTC), then the gate checks them like every store.
+GATE_PASS = {"balmoral", "capra", "fauxmouvement", "innerself", "janji", "krono", "nordarun", "praise", "xact", "soar", "runinn"}
+GATE_PASS_UNTIL = dt.date(2026, 11, 2)
+
+def price_gate(today, before):
+    """Nov 1 (Bastien: "Build the price gate too"; that morning a currency mix-up put 9 Canadian stores' prices +40% on the
+    site): the same product links as the store's last read; when the typical product's price AND its regular price both
+    moved 20%+ the same way, it's a currency/reading mix-up, not a sale (a sale lowers the price only, so Black Friday
+    store-wide sales still go through). Then the read is held back: the store keeps its last listings (KEEP_HOURS rule)."""
+    def low(o):
+        es = [e for e in o.get("sz") or [] if len(e) > 2 and e[1] and e[2]]
+        return (min(e[1] for e in es), min(e[2] for e in es)) if es else None
+    prev = {o.get("u"): low(o) for o in before if o.get("u")}
+    pr, rr = [], []
+    for o in today:
+        a, b = low(o), prev.get(o.get("u"))
+        if a and b:
+            pr.append(a[0] / b[0])
+            rr.append(a[1] / b[1])
+    if len(pr) < 20:
+        return None
+    mp, mr = statistics.median(pr), statistics.median(rr)
+    if (mp > 1.2 and mr > 1.2) or (mp < 0.8 and mr < 0.8):
+        return (f"held back by the price gate: prices {round((mp - 1) * 100):+d}% and regular prices {round((mr - 1) * 100):+d}% "
+                f"across {len(pr)} products vs the last read")
+    return None
+
 def main():
     def load(path):
         try:
@@ -4944,17 +4972,11 @@ def main():
             if not got and len(prev_offers.get(st, [])) >= 20 and st not in SAVED_STORES:   # a store rarely empties
                 # overnight: keep yesterday's. Not for saved pages / the catalog file: when they expire, their deals go (Oct 8)
                 raise RuntimeError(f"0 items today (had {len(prev_offers[st])})")
-            # Nov 1 (a currency bug showed 10 stores +40% for a day; Bastien: "self created issues"): when the same products' REGULAR
-            # prices all moved together by 20%+ overnight, it's our reading (currency), not the store: keep yesterday's listings and say
-            # why. Regular prices only: a store-wide sale (Black Friday -30%) moves sale prices, never the regular ones.
-            lo = lambda o: float(o.get("lp") or 0)
-            was = {o.get("u"): lo(o) for o in prev_offers.get(st, []) if o.get("u")}
-            ratios = sorted(lo(o) / was[o["u"]] for o in got if was.get(o.get("u")) and lo(o))
-            if len(ratios) >= 20:
-                m = ratios[len(ratios) // 2]
-                if m > 1.2 or m < 0.8:
-                    raise RuntimeError(f"prices moved {round((m - 1) * 100):+d}% across the board vs the last read "
-                                       f"({len(ratios)} products): currency or reading problem, not published")
+            # Nov 1: ONE gate (growth's price_gate; backend's regular-price-only guard merged into it): price AND regular price moved
+            # 20%+ together = our reading, not the store; a store-wide sale moves the price only. GATE_PASS: today's 11 misread stores.
+            gate = None if (st in GATE_PASS and dt.date.today() <= GATE_PASS_UNTIL) else price_gate(got, prev_offers.get(st, []))
+            if gate:
+                raise RuntimeError(gate)
             n_sale = sum(1 for o in got if any(e[1] < e[2] * 0.99 for e in o["sz"]))
             return got, True, f"{st}: {len(got)} items ({n_sale} on sale) in {time.time()-t:.0f}s"
         except Exception as e:
