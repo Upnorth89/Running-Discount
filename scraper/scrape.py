@@ -2549,7 +2549,7 @@ def scrape_lightspeed(st, base, side="ca", cur="CAD"):
         u = f"{base}/{p['url']}"
         fp = hashlib.md5(json.dumps([p.get("title"), p.get("price")], sort_keys=True).encode()).hexdigest()[:12]
         if reuse_ok(prev.get(u), fp):
-            out.append(prev[u])
+            out.append(dict(prev[u], st=st, ca=side == "ca", us=side == "us"))
             reused += 1
             continue
         try:
