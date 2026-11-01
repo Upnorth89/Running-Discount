@@ -333,3 +333,14 @@ Better levers for "3 stores per store lost": readable running specialty shops (l
   Zero $129 was $215; Altra Torin 8 GTX M 8 $157.50 was $210; Salomon Sense Pro 6 S $105 was $210).
 - Worth it? Small (51 cards) but real running gear from a Canadian running shop; it costs ~20 min of slow reading on its first run.
   If Bastien says yes, I'd run it in the night job instead of the morning read (its Crawl-delay makes it the slowest daytime store).
+
+## Nov 1 (late): generic readers shipped; next readers queued
+- WOO_SITES / LIGHTSPEED_SITES in scrape.py: a new WooCommerce store = ("key", "https://base", "ca"|"us"); a new Lightspeed store =
+  ("key", "https://base", "ca"|"us", "CAD"|"USD"). Currency converted like every US store; US keys join US_SHOPS automatically.
+  Then: sortcheck on its items, 5 live price checks, check.py ALL GOOD. Gord's + Distance Runwear moved onto them (same output;
+  Distance's second read skipped 296 unchanged product pages of 576).
+- Next, in this order: (1) BigCommerce reader (SLRC, Dick Pond: sitemap + product-page JSON-LD, polite) since it covers 2 shops;
+  (2) Woo JSON-LD fallback for stores whose Store API is closed (Independence Run & Hike, runnersmarket.com);
+  (3) Marathon Sports group + Appalachian Running Co: find where the catalogue lives;
+  (4) Holabird: they switched OFF products.json, which reads as "no bulk export". Product pages are allowed by robots, but ~10k pages a
+  read is heavy: if we do it, night only, sale products first, slow, and I'd like Bastien to know that trade-off first.
