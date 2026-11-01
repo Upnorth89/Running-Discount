@@ -74,6 +74,14 @@ def low_price(o):
     return min(ps) if ps else None
 
 
+def low_reg(o):
+    rs = [e[2] for e in o.get("sz", []) if len(e) > 2 and e[2]]
+    return min(rs) if rs else None
+
+
+STOREWIDE = []    # store-wide sales seen today (info, never a problem)
+
+
 def big_discounts(offers):
     """Share of listings with any size at 70%+ off."""
     if not offers:
@@ -182,14 +190,23 @@ def check():
         elif n0 >= 30 and n < n0 * 0.5:
             problems.append((f"drop:{st}", f"{st}: {n} products today, down from {n0} yesterday."))
         # same product links, yesterday vs today: did every price move together?
-        prev_p = {o["u"]: low_price(o) for o in before}
-        ratios = [low_price(o) / prev_p[o["u"]] for o in today
-                  if prev_p.get(o["u"]) and low_price(o)]
-        if len(ratios) >= 20:
-            m = statistics.median(ratios)
-            if m > 1.2 or m < 0.8:
-                problems.append((f"price:{st}", f"{st}: prices moved {round((m - 1) * 100):+d}% across the board overnight "
-                                                f"(typical price check on {len(ratios)} products). Possibly a currency mix-up."))
+        # Nov 1 (Bastien: "a Black Friday deal could move prices all across a website by a high percentage all at once"):
+        # a currency/reading mix-up moves the price AND the regular price together; a store-wide sale moves the price only.
+        prev_p = {o["u"]: (low_price(o), low_reg(o)) for o in before}
+        pr, rr = [], []
+        for o in today:
+            a, b = (low_price(o), low_reg(o)), prev_p.get(o["u"])
+            if b and b[0] and b[1] and a[0] and a[1]:
+                pr.append(a[0] / b[0])
+                rr.append(a[1] / b[1])
+        if len(pr) >= 20:
+            m, mr = statistics.median(pr), statistics.median(rr)
+            if (m > 1.2 or m < 0.8) and (mr > 1.2 or mr < 0.8):
+                problems.append((f"price:{st}", f"{st}: prices and regular prices moved {round((m - 1) * 100):+d}% across the board "
+                                                f"overnight (typical price check on {len(pr)} products). Possibly a currency mix-up."))
+            elif m < 0.8:
+                STOREWIDE.append(f"{st}: most items {round((m - 1) * 100):+d}% today, regular prices unchanged "
+                                 f"({len(pr)} products compared)")
         if n >= 20:
             share, share0 = big_discounts(today), big_discounts(before)
             if share > 0.25 and share > share0 + 0.10:
@@ -442,6 +459,7 @@ def main():
                ("New today:\n" + "\n".join(f"- {m}" for m in new_part) + "\n\n" if new_part else "") + \
                ("Still to fix:\n" + "\n".join(f"- {m}" for m in old_part) + "\n\n" if old_part else "") + \
                ("Already handled:\n" + "\n".join(f"- {m}" for m in HANDLED) + "\n\n" if HANDLED else "") + \
+               ("Store-wide sales today (not a problem):\n" + "\n".join(f"- {m}" for m in STOREWIDE) + "\n\n" if STOREWIDE else "") + \
                "Today on the site:\n" + \
                f"- {stats['items']:,} products{d(stats['items'], stats['items0'])}\n" + \
                f"- {stats['sale']:,} on sale{d(stats['sale'], stats['sale0'])}\n" + \
