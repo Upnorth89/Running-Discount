@@ -1937,11 +1937,52 @@ BB = re.compile(r"\s*\(?\s*best\s*by:?\s*([0-9/.-]+)\s*\)?", re.I)
 # currency the prices actually came back in (cart.js reports it), converting if it isn't CAD.
 CA_COOKIES = {"cart_currency": "CAD", "localization": "CA"}
 
-def shopify_price_currency(base, cookies=None):
-    """Currency of the prices this store is serving us right now, or None. Nov 1: from the homepage's Shopify.currency
-    (we used /cart.js, which every Shopify robots.txt Disallows)."""
+US_COOKIES = {"cart_currency": "USD", "localization": "US"}
+
+def forget_cookies(base):
+    """Drop the cookies a store set on our shared session: they stick per domain and can override the market we ask
+    for (a probe without cookies leaves localization=US from GitHub's location; our CA cookies then lose)."""
+    host = re.sub(r"^https?://(www\.)?|/.*$", "", base)
+    for c in list(S.cookies):
+        if c.domain.lstrip(".").removeprefix("www.").endswith(host):
+            try:
+                S.cookies.clear(c.domain, c.path, c.name)
+            except KeyError:
+                pass
+
+def _variant_prices(base, cookies):
+    forget_cookies(base)
     try:
-        m = re.search(r'Shopify\.currency\s*=\s*\{"active":"([A-Z]{3})"', get(f"{base}/", tries=2, cookies=cookies).text)
+        r = get(f"{base}/products.json?limit=5", tries=2, cookies=cookies)
+    finally:
+        forget_cookies(base)
+    return {v["id"]: float(v["price"]) for p in r.json()["products"] for v in p.get("variants", []) if float(v.get("price") or 0) > 0}
+
+def shopify_price_currency(base, cookies=None):
+    """Currency of the prices this store is serving us right now, or None.
+    Nov 1: the homepage's Shopify.currency (we used /cart.js, which every Shopify robots.txt Disallows) is NOT reliable
+    from GitHub's US servers: the page follows the server's location (USD) while products.json follows our Canadian
+    cookies (CAD), so 96 stores were read as USD and every CAD price got x1.4 (9 Canadian stores flagged +40%).
+    So for the Canadian market we ask products.json itself: the same products with Canadian and with US cookies.
+    Same prices = the store doesn't convert (its own currency, meta.json); CA/US ratio like CAD/USD = the Canadian
+    prices are CAD. Anything else: the homepage, as before."""
+    root = re.match(r"https?://[^/]+", base).group(0)
+    if cookies and cookies.get("cart_currency") == "CAD":
+        try:
+            ca, us = _variant_prices(root, cookies), _variant_prices(root, US_COOKIES)
+            rs = sorted(ca[k] / us[k] for k in ca if k in us)
+            if rs:
+                mid = rs[len(rs) // 2]
+                if abs(mid - 1) < 0.005:
+                    m = (get(f"{root}/meta.json", tries=2).json().get("currency") or "").upper()
+                    if m:
+                        return m
+                elif 1.2 <= mid <= 1.65:
+                    return "CAD"
+        except Exception:
+            pass
+    try:
+        m = re.search(r'Shopify\.currency\s*=\s*\{"active":"([A-Z]{3})"', get(f"{root}/", tries=2, cookies=cookies).text)
         return m.group(1) if m else None
     except Exception:
         return None
