@@ -5262,11 +5262,12 @@ def bc_group(title, crumbs):
 def bc_product(url):
     return bc_item(bc_data(url)["product"], url)
 
-def bc_item(p, url):
-    """One Backcountry product (its page data's "product") -> an offer in USD."""
+def bc_item(p, url, grp=None):
+    """One Backcountry product (its page data's "product") -> an offer in USD. grp(title, crumbs, brand) -> group: the hiking
+    files' own sorting (hike.py, Nov 1); default = the running site's."""
     title = p.get("title") or ""
     crumbs = [b.get("name") or "" for b in p.get("breadcrumbs") or []]
-    g = bc_group(title, crumbs)
+    g = grp(title, crumbs, (p.get("brand") or {}).get("name") or "") if grp else bc_group(title, crumbs)
     if not g:
         return None
     sx = name_gender(title) or []

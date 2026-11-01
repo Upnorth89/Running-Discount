@@ -489,6 +489,52 @@ def ct_store(st, base):
     return out
 
 
+def backcountry_hike():
+    """Backcountry's hiking/camping lists from the Grab deals bookmark (Nov 1, Bastien: Backcountry hiking "should be there").
+    scrape.py leaves these saves out of the running site (outdoor_list); here each product goes through classify() like every
+    hiking store. Prices USD -> CAD; USA side only (Backcountry is a US shop); camping -> camp files (not published)."""
+    fx, out, seen, used, dates = s.fx_to_cad("USD"), [], set(), 0, []
+    kinds = {}
+
+    def grp(title, crumbs, brand):
+        c = classify(title, " ".join(crumbs), " ".join(crumbs), brand)
+        if c:
+            kinds[title] = c
+            return "gear" if c[0] == "camp" else c[0]
+        return None
+    for f in s.saved_pages():                     # newest first: this week's price wins
+        if f.suffix != ".json":
+            continue
+        try:
+            d = json.loads(f.read_text())
+        except Exception:
+            continue
+        if d.get("store") != "backcountry" or not s.outdoor_list(d):
+            continue
+        used += 1
+        dates.append((d.get("saved") or "")[:10])
+        for p in d.get("products") or []:
+            url = p.get("url") or ""
+            if not url or url in seen:
+                continue
+            seen.add(url)
+            try:
+                o = s.bc_item(p, url, grp)
+            except Exception:
+                continue
+            if not o:
+                continue
+            g, t = kinds.get(p.get("title") or "", (o["g"], None))
+            out.append(dict(o, g=g, _t=t, ca=False, us=True, no_ca=True, lp=round(o["lp"] * fx, 2),
+                            sz=[[k, round(pr * fx, 2), round(rg * fx, 2), u] for k, pr, rg, u in o["sz"]]))
+    sale = sum(1 for o in out if any(e[1] < e[2] * 0.99 for e in o["sz"]))
+    by = collections.Counter(o["g"] for o in out)
+    print(f"  backcountry (hiking): {len(out)} products ({sale} on sale) from {used} save(s)"
+          + (f" of {', '.join(sorted(set(dates)))}" if dates else "") + f", USD->CAD {fx}; " + ", ".join(f"{g} {n}" for g, n in by.most_common()),
+          file=sys.stderr)
+    return out
+
+
 # ---------------------------------------------------------------- merge
 HTYPES = {"shoes": ["hike", "boot", "approach"], "tops": ["shell", "insulated", "fleece", "wind", "base", "shirt"],
           "bottoms": ["pant", "rain", "short", "base"], "packs": ["day", "overnight"],
@@ -682,6 +728,7 @@ def main():
         jobs = [(st, (lambda st=st, b=b: ct_store(st, b))) for st, b in (("altitude", "https://www.altitude-sports.com"),
                                                                            ("lasthunt", "https://www.thelasthunt.com"))]
         jobs += [(st, (lambda st=st, b=b, c=c, sd=sd: shopify_store(st, b, c, sd))) for st, b, c, sd in SHOPIFY]
+        jobs += [("backcountry", backcountry_hike)]      # Bastien's bookmark saves (no store visit)
         jobs = [j for j in jobs if not only or j[0] in only]
 
         def run(job):

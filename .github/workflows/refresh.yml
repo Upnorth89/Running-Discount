@@ -112,6 +112,9 @@ jobs:
       # the Hiking tab (Oct 25, scraper/hike.py): 66 outdoor stores, read alongside the running stores (its own lane, its own pace)
       - name: Hiking catalogue (starts now, runs alongside the store reads)
         continue-on-error: true
+        env:                       # Nov 1: Backcountry hiking lists from the phone bookmark (grab_saves)
+          SUPABASE_URL: "https://krwymmkauwqqxjxbvkyq.supabase.co"
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
         run: |
           # Nov 1 (Bastien: "Are we scanning stores too often?"): a code push rebuilds from the last store read instead of visiting
           # all 66 stores again (Oct 31 = 13 push runs = 13 extra full reads). Only the scheduled/started runs read the stores.
