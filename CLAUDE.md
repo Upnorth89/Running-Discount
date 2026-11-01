@@ -334,6 +334,10 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   Race list items link to their category (Oct 29, same OK): `CAT_LINK`/`cat_link()` in race_pages.py -> "See more jackets on sale →" under the
   picks, /?cat=<group>&t=<type>&ref=race-<slug>; homepage ?cat= opens that category like its circle (BROWSE when no sizes; analytics category
   "link|g:t", race event "catall"). Race lists only (trail lists have their own builder).
+  Nov 1 (Bastien: "Do all 3"): 'short' ENDED, B for everyone (SHORT_B=true; sizes 46.3% -> 51.4%, p=0.036); 'r100' ENDED, A for everyone (offTag
+  always %); welcome counts = the page's (rdSource tiles), "twice a day", "Canada and the USA". Test 'wlean' (computers 900px+ only, html.wleanb):
+  B = welcome without the category grid; metric = computer homepage first visits that pick sizes (35%), ~380/group, decide ~Nov 15. Site test
+  "Test 'wlean': computers' welcome without the category grid (B)".
   Parked: test 'card' (cleaner deal cards, ⋯ menu; commit 629e4d1, backlog). Site tests check each one. Correlations from the "RETENTION DRIVERS" lines are leads, never proof
   (Oct 17: "watchers come back 33%" was 9 devices).
 - **Own the design and product calls (Bastien, Oct 17: "You're supposed to optimize this to make it look the best and cleanest...
@@ -717,6 +721,12 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   Shopify currency = homepage `Shopify.currency` (cart.js is Disallowed everywhere). Read less: Altitude/Last Hunt (both reads)
   and Sporting Life re-read a product page only when its listing changed (`ct_fp`/tile fp), it's on sale, or our copy is
   REUSE_HOURS (36) old (`reuse_ok`, `_fp`/`_at` in offers.json). Scrape log ends with "polite: N requests to M sites…".
+- **Reader changes: Read test first (Nov 1, after two of my reader changes broke the live site in one day: a 49-min read GitHub cancelled,
+  then 10 stores' prices +40% from the homepage currency).** Any change to how stores are read (pace, currency, a reader) runs
+  `readtest.yml` (Actions, by hand) BEFORE the push: a full read like the morning one, nothing published; it reports total minutes
+  (must be < 60; refresh limit 75), slow stores, FAILED lines and the currency guard. Currency guard (scrape.py run()): a store whose
+  REGULAR prices moved 20%+ together vs the last read keeps yesterday's listings ("prices moved +40% across the board … not published");
+  regular prices only, so a store-wide sale never trips it. Shopify currency = meta.json base (products.json is always in it).
 - Speed (Oct 5): stores are read in 4 lanes at once (`run(st,fn)` + ThreadPoolExecutor(4)); all Shopify stores share one
   sequential lane (4 at once got 429s). The full scrape takes ~13 min instead of ~35.
 - Shopify stores: listed in `SHOPIFY_STORES` in scrape.py (~44). Read via `/products.json`, prices checked

@@ -1,0 +1,66 @@
+name: Read test
+
+# Nov 1, 2026 (after two reader bugs reached the live site in one day; Bastien: "you seem to be finding a lot of self created issues"):
+# any change to how we read stores runs this FIRST. A full store read exactly like the morning one (same files, same cache), but
+# nothing is published, saved or emailed. It reports how long the read took (the refresh job's limit is 75 min), each store's time,
+# every failure, and any store whose regular prices moved 20%+ against the last read (the currency guard). Push the change only
+# when this is clean. It counts as a store read: use it only for reader changes.
+on:
+  workflow_dispatch:
+
+jobs:
+  read:
+    runs-on: ubuntu-latest
+    timeout-minutes: 80
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r scraper/requirements.txt
+      - name: Last read's raw store files (private cache, read only)
+        continue-on-error: true
+        uses: actions/cache/restore@v4
+        with:
+          path: /tmp/rawcache
+          key: raw-offers-${{ github.run_id }}
+          restore-keys: raw-offers-
+      - name: Fetch yesterday's data
+        continue-on-error: true
+        run: |
+          BASE="https://thegearfox.com"
+          curl -fsSL "$BASE/deals.json" -o site/deals.json || true
+          # raw per-store listings: from the private cache; the live copy only while it's still published (transition, Oct 29)
+          if [ -s /tmp/rawcache/offers.json.gz ]; then gunzip -c /tmp/rawcache/offers.json.gz > site/offers.json; else curl -fsSL "$BASE/offers.json" -o site/offers.json || true; fi
+          curl -fsSL "$BASE/health.json" -o site/health.json || true
+          mkdir -p site/shoes && curl -fsSL "$BASE/shoes/pages.json" -o site/shoes/pages.json || true   # models that have a page (pages never disappear)
+          mkdir -p site/us/shoes && curl -fsSL "$BASE/us/shoes/pages.json" -o site/us/shoes/pages.json || true   # same for the USA side
+          mkdir -p site/hiking-boots site/us/hiking-boots && curl -fsSL "$BASE/hiking-boots/pages.json" -o site/hiking-boots/pages.json || true   # boot pages (Oct 25)
+          curl -fsSL "$BASE/us/hiking-boots/pages.json" -o site/us/hiking-boots/pages.json || true
+          # last night's RunFree read (scraper/runfree.py, runfree.yml), kept on the history branch
+          curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/history/runfree.json" -o /tmp/runfree.json || true
+          curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/history/decathlon.json" -o /tmp/decathlon.json || true
+          curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/history/thefeed.json" -o /tmp/thefeed.json || true
+          curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/history/runningfree.json" -o /tmp/runningfree.json || true
+          curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/history/sportsexperts.json" -o /tmp/sportsexperts.json || true
+          curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/history/brands.json" -o /tmp/brands.json || true
+          curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/history/fleetfeet.json" -o /tmp/fleetfeet.json || true
+          curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/history/deadlinks.json" -o /tmp/deadlinks.json || true   # last night's link check
+          mkdir -p /tmp/hike   # yesterday's hiking read (a store that fails keeps it): private cache first, like offers.json
+          if [ -s /tmp/rawcache/hike-offers.json.gz ]; then gunzip -c /tmp/rawcache/hike-offers.json.gz > /tmp/hike/hike-offers.json; else curl -fsSL "$BASE/hike-offers.json" -o /tmp/hike/hike-offers.json || true; fi
+          ls -la site/offers.json /tmp/hike/hike-offers.json 2>/dev/null || echo "::warning::no raw store files from yesterday: every store reads fresh, a failed one has no fallback today"
+          mkdir -p /tmp/prev && cp site/deals.json site/offers.json site/health.json /tmp/prev/ 2>/dev/null || true
+      - name: Full store read (not published)
+        env:
+          SUPABASE_URL: "https://krwymmkauwqqxjxbvkyq.supabase.co"
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+        run: |
+          START=$(date +%s)
+          python scraper/scrape.py site/deals.json 2> /tmp/read.log || true
+          MIN=$(( ($(date +%s) - START) / 60 ))
+          echo "::notice title=Read test::full read took ${MIN} min (refresh limit 75)"
+          grep -E "FAILED|across the board|polite: " /tmp/read.log | head -60 | while read -r l; do echo "::warning title=Read test::$l"; done
+          grep -E "items \([0-9]+ on sale\) in [0-9]+s" /tmp/read.log | awk '{t=$NF; sub("s","",t); if (t+0 > 300) print}' | while read -r l; do echo "::notice title=Slow store::$l"; done
+          [ "$MIN" -lt 60 ] || { echo "::error title=Read test::the read took ${MIN} min: too close to the 75 min limit"; exit 1; }

@@ -4903,6 +4903,17 @@ def main():
             if not got and len(prev_offers.get(st, [])) >= 20 and st not in SAVED_STORES:   # a store rarely empties
                 # overnight: keep yesterday's. Not for saved pages / the catalog file: when they expire, their deals go (Oct 8)
                 raise RuntimeError(f"0 items today (had {len(prev_offers[st])})")
+            # Nov 1 (a currency bug showed 10 stores +40% for a day; Bastien: "self created issues"): when the same products' REGULAR
+            # prices all moved together by 20%+ overnight, it's our reading (currency), not the store: keep yesterday's listings and say
+            # why. Regular prices only: a store-wide sale (Black Friday -30%) moves sale prices, never the regular ones.
+            lo = lambda o: float(o.get("lp") or 0)
+            was = {o.get("u"): lo(o) for o in prev_offers.get(st, []) if o.get("u")}
+            ratios = sorted(lo(o) / was[o["u"]] for o in got if was.get(o.get("u")) and lo(o))
+            if len(ratios) >= 20:
+                m = ratios[len(ratios) // 2]
+                if m > 1.2 or m < 0.8:
+                    raise RuntimeError(f"prices moved {round((m - 1) * 100):+d}% across the board vs the last read "
+                                       f"({len(ratios)} products): currency or reading problem, not published")
             n_sale = sum(1 for o in got if any(e[1] < e[2] * 0.99 for e in o["sz"]))
             return got, True, f"{st}: {len(got)} items ({n_sale} on sale) in {time.time()-t:.0f}s"
         except Exception as e:

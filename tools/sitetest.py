@@ -578,22 +578,14 @@ def site_flow(base, per, accented):
             return "no 'Dropped today' row"
         check("Test 'drops' ended: no 'Dropped today' row")(drops_gone, page)
 
-        def r100_test():   # Oct 18, A/B test 'r100' (Rule of 100): group B's badge is "−$X" when the regular price is $100+, "−N%" below
-            def at(group):
-                page.goto(base + f"?exp=r100:{group}", wait_until="domcontentloaded")
-                page.wait_for_selector("section.grp .deal", timeout=20000)
-                return page.eval_on_selector_all("section.grp .deal", """e => e.filter(x => x.querySelector('.pct') && x.querySelector('.price s'))
-                    .map(x => [x.querySelector('.pct').textContent, parseFloat(x.querySelector('.price s').textContent.replace(/[^0-9.,]/g, '').replace(',', '.'))])""")
-            b, a = at("B"), at("A")
-            page.evaluate("() => localStorage.removeItem('gf-exp')")
-            page.goto(base, wait_until="domcontentloaded")
+        def r100_gone():   # Nov 1: test 'r100' ended (no difference in store clicks): every badge is a percent, even ?exp=r100:B
+            page.goto(base + "?exp=r100:B", wait_until="domcontentloaded")
             page.wait_for_selector("section.grp .deal", timeout=20000)
-            assert a and all(t.endswith("%") for t, _ in a), "group A shows a dollar badge"
-            bad = [f"{t} on ${r}" for t, r in b if ("$" in t) != (r >= 100)]
-            assert b and not bad, f"group B: {bad[:3]}"
-            n = sum("$" in t for t, _ in b)
-            return f"group B: {n} dollar badges ($100+), {len(b) - n} percent; group A: all percent"
-        check("Test 'r100': dollars off at $100+ for group B")(r100_test, page)
+            tags = page.eval_on_selector_all("section.grp .deal .pct", "e => e.map(x => x.textContent)")
+            page.evaluate("() => localStorage.removeItem('gf-exp')")
+            assert tags and all(x.strip().endswith("%") for x in tags), f"a dollar badge shows: {[x for x in tags if not x.strip().endswith('%')][:3]}"
+            return f"{len(tags)} badges, all percent"
+        check("Test 'r100' ended: every badge is a percent")(r100_gone, page)
 
         def layout_test():   # test 'layout' (Oct 18; for everyone Oct 19; 50/50 again Oct 20): B = the swipe row under search + categories
             page.goto(base + "?exp=layout:A", wait_until="domcontentloaded")
@@ -1085,9 +1077,9 @@ def site_flow(base, per, accented):
             assert pg.locator("#sheet").is_hidden(), "a browsing visitor gets the welcome screen again on reload"
             pg.click(".browsebar [data-picksize]")
             pg.wait_for_selector("#shoeSizes button", state="visible")
-            # Oct 22 (Bastien): fit, shoe size and the general clothing size show right away; road/trail + brands stay behind "+ Road or trail"
-            assert pg.locator("#moreSizes").is_visible() and pg.locator("#clothSizes").is_visible() and pg.locator("#terrain").is_hidden(), \
-                "the sizes step should show fit, shoe and clothing size, with road/trail behind '+ Road or trail'"
+            # Nov 1 (test 'short' ended, B for everyone): fit + shoe size show right away; clothing, road/trail and brands sit behind one link
+            assert pg.locator("#moreSizes").is_visible() and pg.locator("#terrain").is_hidden(), \
+                "the sizes step should show fit + shoe size, with the rest behind one link"
             pg.click('#fit button[data-v="men"]')
             pg.locator("#shoeSizes button", has_text=re.compile(r"^10$")).first.click()
             pg.click("#saveSizes")
@@ -1111,6 +1103,27 @@ def site_flow(base, per, accented):
             c.close()
             return "welcome screen shows"
         check("Test 'welcome' ended: everyone gets the welcome screen")(welcome_back, pg)
+
+        def wlean_test():   # Nov 1, test 'wlean' (computers only): B's welcome has no category grid; A and phones keep it
+            out = []
+            for w, h, grp, grid in ((1366, 768, "B", False), (1366, 768, "A", True), (390, 844, "B", True)):
+                c = br.new_context(viewport={"width": w, "height": h}, ignore_https_errors=INSECURE, locale="en-CA")
+                stub(c)
+                c.add_init_script("try{localStorage.setItem('gf-exp',JSON.stringify({wlean:'%s'}))}catch(e){}" % grp)
+                q = c.new_page()
+                q.on("pageerror", lambda e: errors.append(str(e)))
+                try:
+                    q.goto(base, wait_until="domcontentloaded")
+                    q.wait_for_selector("#saveSizes", state="visible", timeout=30000)
+                    settle(q, 600)
+                    shown = q.locator("#wStats .wcats").count() > 0 and q.locator("#wStats .wcats").first.is_visible()
+                    assert shown == grid, f"{w}px group {grp}: category grid {'missing' if grid else 'still shows'}"
+                    assert q.locator("#saveSizes").is_visible(), f"{w}px group {grp}: no 'Find my deals'"
+                    out.append(f"{w}px {grp}: grid {'on' if shown else 'off'}")
+                finally:
+                    c.close()
+            return "; ".join(out)
+        check("Test 'wlean': computers' welcome without the category grid (B)")(wlean_test, pg)
 
         def look_welcome():   # Oct 21, test 'look' (B): store names + 4 category photos on the welcome screen; a tap opens the sizes
             c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
@@ -1360,12 +1373,12 @@ def site_flow(base, per, accented):
                 q2.wait_for_selector("#shoeSizes .chip", state="visible")
                 q2.click("#fit button[data-v=men]")
                 q2.click("#shoeSizes .chip[data-v='11']")
+                if q2.locator("#moreSizes").is_visible():     # Nov 1: the short first screen is for everyone; the rest sits behind one link
+                    q2.click("#moreSizes")
                 q2.click("#clothSizes .chip[data-v=M]")
                 settle(q2, 400)
                 eu = q2.inner_text("#euLine")
                 assert "EU 44.5" in eu, f"EU line for a men's US 11: {eu!r}"
-                if q2.locator("#moreSizes").is_visible():
-                    q2.click("#moreSizes")
                 cm = q2.inner_text("#clothMore")
                 assert "pants" in cm.lower(), f"per-category size link isn't worded for hiking: {cm!r}"
                 q2.click("#hkind button[data-v=overnight]")

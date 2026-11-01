@@ -452,6 +452,7 @@ label.field{display:block;font-weight:600;font-size:15px;margin:0 0 6px}
 .wstats.look{display:block}
 .wfrom{margin:0 0 12px;font-size:14px;color:var(--muted)}
 .wcath{font:700 18px/1.1 var(--display);margin:0 0 8px}
+html.wleanb .wcath,html.wleanb .wcats{display:none}   /* test 'wlean' B: computers' welcome without the category grid */
 .wcats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .wcat{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px;cursor:pointer;min-width:0}
 .wcat .wcp{display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:16/9;background:#F3F3F3;border-radius:8px;overflow:hidden;margin-bottom:4px}
@@ -738,7 +739,7 @@ const ANA=(()=>{const ls=k=>{try{return localStorage.getItem(k)}catch(e){return 
   let over={};try{const q=new URLSearchParams(location.search).get("exp");over=JSON.parse(ls("gf-exp")||"{}");
     if(q){q.split(",").forEach(x=>{const [n,a]=x.split(":");if(n&&/^[AB]$/.test(a))over[n]=a});localStorage.setItem("gf-exp",JSON.stringify(over))}}catch(e){}
   const arm=n=>{if(over[n])return over[n];let h=2166136261;for(const c of did+"|"+n){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return (h>>>0)%2?"B":"A"};
-  const TESTS=["r100","run1st","cards2","short","popq","namecard","watchsheet"];   // Oct 29: 'watchsheet' B = the email step after a Watch tap names that item   // Oct 28: 'namecard' B = the sign-up card names a real deal in your size   // Oct 27: 'popq' B = popular searches under an empty search box
+  const TESTS=["run1st","cards2","popq","namecard","watchsheet",...(matchMedia("(min-width:900px)").matches?["wlean"]:[])];   // Nov 1: 'wlean' = computers only   // Nov 1 (Bastien: "Do all 3"): 'short' ENDED, B for everyone (sizes 46.3% -> 51.4%, p=0.036); 'r100' ENDED, A for everyone (store clicks 55.2% vs 55.4%)   // Oct 29: 'watchsheet' B = the email step after a Watch tap names that item   // Oct 28: 'namecard' B = the sign-up card names a real deal in your size   // Oct 27: 'popq' B = popular searches under an empty search box
     // Oct 25: 'short' live (Bastien OK'd)   // Oct 25: 'short' B = first sizes screen asks only fit + shoe size (Bastien OK'd)
     // Oct 22: 'run1st' = running gear leads the first rows (B)   // Oct 22: the redesign ('look' B) is the site for everyone (Bastien), 'runcard' ended (0 vs 2 sign-ups, too rare to decide), 'layout' ended Oct 19
      // Oct 21: 'look' = sizes on each card + category photos + store names (B)   // Oct 20: 'welcome' and 'drops' ended (A won); 'layout' back as a 50/50 test
@@ -842,7 +843,7 @@ const I18N={
 en:{
   tagline:"OUTFOX FULL PRICE",
   rd:{nav:{deals:"Deals",shoes:"Shoes",apparel:"Apparel",packs:"Packs",gear:"Gear",races:"Race lists",shoePrices:"Shoe prices"},h1:["Find running gear deals","in your ","exact size."],h1n:n=>[`${n} deals`,"in your ","size."],
-    sub:n=>`Every morning we check ${n} running stores in Canada and the USA and show you the best prices in stock, in your size. No more guessing.`,
+    sub:n=>`Twice a day we check ${n} running stores in Canada and the USA and show you the best prices in stock, in your size. No more guessing.`,
     ph:"Search shoes, apparel, packs, brands…",phS:"Search shoes, brands…",go:"Search",size:"Your size",cat:"Category",brand:"Brand",price:"Price",store:"Retailer",sale:"On sale only",more:"More filters",under:m=>`Under ${m}`,
     note:["Real deals.","Real sizes.","Real retailers."],tiles:{shoes:"Shoes",apparel:"Apparel",packs:"Packs & Vests",acc:"Accessories",nutrition:"Nutrition",gear:"Gear & Watches"},n:n=>`${n} deals`,
     top:"Today's top deals",res:q=>`Results for “${q}”`,viewAll:"View all deals",viewAllS:"View all",allCats:"× All categories",everyN:n=>`${n} deals, every size`,pickSize:"Pick your size",qShoe:"Your shoe size?",qCloth:"Your size?",qFit:"Men's or women's first",filters:"Filters",showN:n=>`Show ${n} deals`,brands:"Shop by brand",viewBrands:"View all brands",fewerBrands:"Show fewer",findBrand:"Find a brand",noBrand:"No brand by that name has deals in your size today.",whyH:"Why use The Gear Fox?",
@@ -929,7 +930,7 @@ en:{
   s2Title:"Where should we send your deals?",s2Intro:"We'll tell you when gear you heart drops in price, and send your best deals every Friday morning.",
   cTitle:"Deals in your size",cIntro:"Sign up free, or sign back in. We'll ask your sizes only once.",cContinue:"Continue",
   cSizesIntro:"Last step: pick your fit and sizes.",
-  wTitle:"Your size. On sale. Every day.",wIntro:half=>`<b>${half?"More than half of":"Many"} gear deals aren't available in your size.</b> Every morning we check running and outdoor stores ${US()?"across the US":"across Canada"} and show you only the ones that are.`,
+  wTitle:"Your size. On sale. Every day.",wIntro:half=>`<b>${half?"More than half of":"Many"} gear deals aren't available in your size.</b> Twice a day we check running and outdoor stores ${US()?"across the US":"across Canada and the USA"} and show you only the ones that are.`,
   ctryLabel:"Shopping from",gearFor:"Gear for",hkindH:"What kind of hiking? <small>optional</small>",hkindA:"What kind of hiking?",hkDay:"Day hikes",hkOver:"Overnight trips",
   euLine:(v,auto)=>`European boots (La Sportiva, Scarpa, LOWA…): <b>EU ${v}</b>${auto?" <small>matched from your US size with LOWA's chart</small>":""}`,sportLbl:"Running or hiking",sportRun:"Running",sportHike:"Hiking",ctryA:"Country",usa:"USA",where:()=>US()?"across the US":"across Canada",
   fromP:"From",wGo:"Find my deals",wShoes:"or look up a specific shoe →",wBrowseShort:"Just browse",wShoeShort:"Find a shoe",sizesOnSale:"Sizes on sale:",
@@ -959,7 +960,7 @@ en:{
 fr:{
   tagline:"FLAIREZ LES AUBAINES",
   rd:{nav:{deals:"Aubaines",shoes:"Chaussures",apparel:"Vêtements",packs:"Sacs",gear:"Équipement",races:"Courses",shoePrices:"Prix des chaussures"},h1:["Les aubaines de course","dans votre ","taille exacte."],h1n:n=>[`${n} aubaines`,"à votre ","taille."],
-    sub:n=>`Chaque matin, on vérifie ${n} boutiques de course au Canada et aux États-Unis et on vous montre les meilleurs prix en stock, dans votre taille. Fini les devinettes.`,
+    sub:n=>`Deux fois par jour, on vérifie ${n} boutiques de course au Canada et aux États-Unis et on vous montre les meilleurs prix en stock, dans votre taille. Fini les devinettes.`,
     ph:"Chercher chaussures, vêtements, sacs, marques…",phS:"Chaussures, marques…",go:"Chercher",size:"Votre taille",cat:"Catégorie",brand:"Marque",price:"Prix",store:"Boutique",sale:"En solde seulement",more:"Plus de filtres",under:m=>`Moins de ${m}`,
     note:["Vrais rabais.","Vraies tailles.","Vraies boutiques."],tiles:{shoes:"Chaussures",apparel:"Vêtements",packs:"Sacs et vestes",acc:"Accessoires",nutrition:"Nutrition",gear:"Équipement et montres"},n:n=>`${n} aubaines`,
     top:"Les meilleures aubaines du jour",res:q=>`Résultats pour « ${q} »`,viewAll:"Voir toutes les aubaines",viewAllS:"Tout voir",allCats:"× Toutes les catégories",everyN:n=>`${n} aubaines, toutes les tailles`,pickSize:"Choisir ma taille",qShoe:"Votre pointure ?",qCloth:"Votre taille ?",qFit:"Homme ou femme d'abord",filters:"Filtres",showN:n=>`Voir ${n} aubaines`,brands:"Magasinez par marque",viewBrands:"Toutes les marques",fewerBrands:"Afficher moins",findBrand:"Trouver une marque",noBrand:"Aucune marque de ce nom n'a d'aubaines dans votre taille aujourd'hui.",whyH:"Pourquoi The Gear Fox ?",
@@ -1046,7 +1047,7 @@ fr:{
   s2Title:"Où envoyer vos aubaines?",s2Intro:"On vous avertit quand un coup de cœur baisse de prix, et on vous envoie vos meilleures aubaines chaque vendredi matin.",
   cTitle:"Des aubaines à votre taille",cIntro:"Abonnez-vous gratuitement ou reconnectez-vous. On vous demande vos tailles une seule fois.",cContinue:"Continuer",
   cSizesIntro:"Dernière étape : choisissez votre coupe et vos tailles.",
-  wTitle:"Des aubaines sur mesure.",wIntro:half=>`<b>${half?"Plus de la moitié des ":"Beaucoup d'"}aubaines ne sont pas offertes dans votre taille.</b> Chaque matin, on parcourt les boutiques de course et de plein air ${US()?"partout aux États-Unis":"partout au Canada"} et on vous montre seulement celles qui le sont.`,
+  wTitle:"Des aubaines sur mesure.",wIntro:half=>`<b>${half?"Plus de la moitié des ":"Beaucoup d'"}aubaines ne sont pas offertes dans votre taille.</b> Deux fois par jour, on parcourt les boutiques de course et de plein air ${US()?"partout aux États-Unis":"au Canada et aux États-Unis"} et on vous montre seulement celles qui le sont.`,
   ctryLabel:"Je magasine",gearFor:"Équipement de",hkindH:"Quel type de randonnée? <small>facultatif</small>",hkindA:"Quel type de randonnée?",hkDay:"À la journée",hkOver:"Avec nuitées",
   euLine:(v,auto)=>`Bottes européennes (La Sportiva, Scarpa, LOWA…) : <b>EU ${v}</b>${auto?" <small>d'après votre pointure US et la charte de LOWA</small>":""}`,sportLbl:"Course ou randonnée",sportRun:"Course",sportHike:"Randonnée",ctryA:"Pays",usa:"É.-U.",where:()=>US()?"partout aux États-Unis":"partout au Canada",
   fromP:"Dès",wGo:"Trouver mes aubaines",wShoes:"ou cherchez une chaussure précise →",wBrowseShort:"Tout voir",wShoeShort:"Chercher un modèle",sizesOnSale:"Tailles en solde :",
@@ -1254,7 +1255,13 @@ const LAYOUT_B=ANA.arm("layout")==="B";
 /* Test 'cards2' (Oct 25): B = phones show one deal per row, photo beside the details (theme.css html.cards2), 6 top deals + 4 per
    category; metric = homepage first visits that click a store (direct visitors: 15% since the redesign, 33% before) */
 const SHORT_LIVE=true;    // Oct 25 (Bastien: "yes let's shorten the size selection"): 50/50; ?exp=short:B shows B any time
-const SHORT_B=(()=>{try{return (SHORT_LIVE?ANA.arm("short"):JSON.parse(localStorage.getItem("gf-exp")||"{}").short)==="B"}catch(e){return false}})();if(SHORT_B)document.documentElement.classList.add("shortb");   // Oct 25 test 'short': 124 of 125 first visitors who didn't pick sizes left at the sizes screen
+/* Test 'wlean' (Nov 1, Bastien: "Do all 3"; daily review: computers pick sizes 35% vs phones 46%, and the welcome pop-up repeats the page
+   behind it, 9 choices on one screen; NN/g on choice overload): computers only (900px+); B = the welcome without the category grid
+   (headline, intro, Canada/USA, store names, Find my deals). Metric: computer homepage first visits that pick sizes (35%); 35% -> 45%
+   needs ~380 a group (~440 a group every 2 weeks): decide ~Nov 15, earlier if p<0.05. ?exp=wlean:B forces it. */
+try{if(matchMedia("(min-width:900px)").matches&&ANA.arm("wlean")==="B")document.documentElement.classList.add("wleanb")}catch(e){}
+const SHORT_B=true;   // Nov 1: test 'short' ended, B won (sizes 46.3% -> 51.4%, p=0.036): the short first sizes screen for everyone
+if(SHORT_B)document.documentElement.classList.add("shortb");   // Oct 25 test 'short': 124 of 125 first visitors who didn't pick sizes left at the sizes screen
 const CARDS2=ANA.arm("cards2")==="B";if(CARDS2)document.documentElement.classList.add("cards2");
 const C2P=()=>CARDS2&&innerWidth<700&&innerWidth>=380;   // phones with two cards a row
 const LOOK_B=true;   // Oct 22 (Bastien: "I'd redesign now"): the redesign for everyone, no test; before/after numbers watched for 2 weeks (docs/decisions.md)
@@ -1329,8 +1336,10 @@ function welcomeLook(sale){
   const top=Object.keys(by).filter(name).sort((a,b)=>by[b]-by[a]).slice(0,5).map(name);
   const total=+storesLabel()||0;
   // the same 4 categories as the homepage tiles, the same photo rule (Oct 21)
-  const tiles=["shoes","apparel","packs","acc"].map(k=>{const its=sale.filter(d=>RD_TILES[k].includes(d.g));if(!its.length)return "";
-    return `<button type="button" class="wcat" data-cat="${k}" data-img="${rdImg(k)}"><span class="wcp"><img src="${rdImg(k)}" alt="" width="240" height="240"></span><b>${esc(t("rd").tiles[k])}</b><small>${esc(t("wCatN",num(its.length)))}</small></button>`}).join("");
+  // Nov 1 (daily review): the same counts as the page's category circles behind it (it said 2,174 shoes over a page saying 2,129)
+  const RT=(()=>{try{return rdSource(toProfile()).tiles}catch(e){return null}})();
+  const tiles=["shoes","apparel","packs","acc"].map(k=>{const its=sale.filter(d=>RD_TILES[k].includes(d.g));const n=RT&&RT[k]?RT[k].n:its.length;if(!n)return "";
+    return `<button type="button" class="wcat" data-cat="${k}" data-img="${rdImg(k)}"><span class="wcp"><img src="${rdImg(k)}" alt="" width="240" height="240"></span><b>${esc(t("rd").tiles[k])}</b><small>${esc(t("wCatN",num(n)))}</small></button>`}).join("");
   $("wStats").innerHTML=(top.length>=3&&total>top.length?`<p class="wfrom">${esc(t("wFrom",top.join(", "),total-top.length))}</p>`:"")
     +(tiles?`<h3 class="wcath">${esc(t("wCatH"))}</h3><div class="wcats">${tiles}</div>`:"");
   $("wStats").classList.add("look");
@@ -1675,9 +1684,9 @@ const HIKE_TXT={en:{mRaces:"Trail gear lists",mShoes:"Boot prices by model",wSho
   shoeSizeH:"Boot & shoe size <small>US, pick one or more</small>",shoeSizeMH:"Men's boot & shoe size <small>US, pick one or more</small>",
   clothSizeH:"Clothing size <small>jackets, pants, socks, gloves</small>",clothMore:"Different size in pants, socks or shirts?",
   by_tops:"Shirts & jackets",by_bottoms:"Pants & shorts",moreSizes:"+ Kind of hiking, favourite brands",
-  wIntro:half=>`<b>${half?"More than half of":"Many"} hiking deals aren't available in your size.</b> Every morning we check ${num(nStoresH())} outdoor stores ${US()?"across the US":"across Canada and the USA"} and show you only the ones that are.`,
+  wIntro:half=>`<b>${half?"More than half of":"Many"} hiking deals aren't available in your size.</b> Twice a day we check ${num(nStoresH())} outdoor stores ${US()?"across the US":"across Canada and the USA"} and show you only the ones that are.`,
   rd:{h1:["Find hiking gear deals","in your ","exact size."],h1n:n=>[`${n} hiking deals`,"in your ","size."],
-    sub:n=>`Every morning we check ${n} outdoor stores in Canada and the USA and show you the best prices in stock, in your size. No more guessing.`,
+    sub:n=>`Twice a day we check ${n} outdoor stores in Canada and the USA and show you the best prices in stock, in your size. No more guessing.`,
     why2:["No more guessing",()=>"Every store's price for the same boot or jacket, side by side."],
     kinds:{hike:"hiking shoes",boot:"hiking boots",approach:"approach shoes",shell:"rain jacket",insulated:"insulated layer",fleece:"fleece",wind:"wind jacket",
       base:"base layer",shirt:"shirt",pant:"pants",rain:"rain pants",short:"shorts",day:"day pack",overnight:"overnight pack",pole:"trekking poles",light:"headlamp",
@@ -1692,9 +1701,9 @@ const HIKE_TXT={en:{mRaces:"Trail gear lists",mShoes:"Boot prices by model",wSho
   shoeSizeH:"Pointure de bottes et chaussures <small>US, une ou plusieurs</small>",shoeSizeMH:"Pointure homme (bottes et chaussures) <small>US, une ou plusieurs</small>",
   clothSizeH:"Taille de vêtements <small>manteaux, pantalons, bas, gants</small>",clothMore:"Une autre taille en pantalons, bas ou chandails ?",
   by_tops:"Chandails et manteaux",by_bottoms:"Pantalons et shorts",moreSizes:"+ Type de randonnée, marques préférées",
-  wIntro:half=>`<b>${half?"Plus de la moitié des ":"Beaucoup d'"}aubaines de randonnée ne sont pas offertes dans votre taille.</b> Chaque matin, on vérifie ${num(nStoresH())} boutiques de plein air ${US()?"partout aux États-Unis":"au Canada et aux États-Unis"} et on vous montre seulement celles qui le sont.`,
+  wIntro:half=>`<b>${half?"Plus de la moitié des ":"Beaucoup d'"}aubaines de randonnée ne sont pas offertes dans votre taille.</b> Deux fois par jour, on vérifie ${num(nStoresH())} boutiques de plein air ${US()?"partout aux États-Unis":"au Canada et aux États-Unis"} et on vous montre seulement celles qui le sont.`,
   rd:{h1:["Les aubaines de randonnée","dans votre ","taille exacte."],h1n:n=>[`${n} aubaines de randonnée`,"à votre ","taille."],
-    sub:n=>`Chaque matin, on vérifie ${n} boutiques de plein air au Canada et aux États-Unis et on vous montre les meilleurs prix en stock, dans votre taille. Fini les devinettes.`,
+    sub:n=>`Deux fois par jour, on vérifie ${n} boutiques de plein air au Canada et aux États-Unis et on vous montre les meilleurs prix en stock, dans votre taille. Fini les devinettes.`,
     why2:["Fini les devinettes",()=>"Le prix de chaque boutique pour la même botte ou le même manteau, côte à côte."],
     kinds:{hike:"chaussures de randonnée",boot:"bottes de randonnée",approach:"chaussures d'approche",shell:"manteau imperméable",insulated:"couche isolante",fleece:"laine polaire",
       wind:"coupe-vent",base:"couche de base",shirt:"chandail",pant:"pantalon",rain:"pantalon imperméable",short:"short",day:"sac de jour",overnight:"sac de plusieurs jours",
@@ -1956,7 +1965,7 @@ const curTag=()=>`<span class="cur">${CUR}</span>`;
 /* Test 'r100' (Oct 18, the "Rule of 100", Berger: over $100 a dollar amount feels bigger, under $100 the percent does): group B's
    badge shows "−$66" on items whose regular price is $100+ in the shown currency, "−30%" below; group A always the percent. */
 function offTag(d){const reg=CUR==="USD"?d.reg/usdRate():d.reg;
-  if(ANA.arm("r100")!=="B"||reg<100)return `−${d.pct}%`;
+  if(true||reg<100)return `−${d.pct}%`;   // Nov 1: test 'r100' ended (no difference): the percent for everyone
   const off=Math.floor((CUR==="USD"?(d.reg-d.best)/usdRate():d.reg-d.best)+1e-6);
   return LANG==="fr"?`−${off}\u00a0$`:`−$${off}`}
 
