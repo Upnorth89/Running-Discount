@@ -315,3 +315,10 @@ no Crawl-delay; slowing Altitude to 1 per 2 s would add ~25 min to the morning r
   Sortcheck: 0 to look at. Live price checks 5 of 5: Hoka Speedgoat 6 W 11 $124.95 (was $189.95), New Balance Hanzo M7 $99.95 (was $179.95),
   Puma Propio Nitro W 9.5 $74.95 (was $149.95), On Cloudventure Waterproof 8.5 $144.95 (was $209.95), Brooks Method 1/2 Crop Tight XS $38.95 (was $77.95).
 - index.html STORES now names gordsrunningstore.com "Gord's Running Store" (harmless while the switch is off).
+
+## Nov 1 (night): hiking stores -> running side: tested, NOT worth it (dropped)
+Built it (running items out of the hiking read, 5+ per store) and measured it on 7 hiking shops (Monod, VPO, Gearhead, Next Adventure,
+Mountain High, EMS, Appalachian Outdoors: 18,000+ products read): 6 stores would qualify with 60 items, nearly all false matches
+("Ultra Light" shirts, pack covers, caps) and only 2 real running shoes, 4 on sale. The hiking read takes their hiking sections; their
+running gear (if any) isn't in it. Counting these as running stores would be padding, so the change was not shipped.
+Better levers for "3 stores per store lost": readable running specialty shops (like Gord's) and brand shops (your batches).
