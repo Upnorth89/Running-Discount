@@ -567,6 +567,20 @@ def _rf_pages(path, skipped=None):
         yield h
 
 
+def night_guard(out, field, new_n, label):
+    """Nov 1 (growth chat, Bastien: "losing track of the mission"): a night read that finds far fewer products than the last
+    good file (under half, or none) is NOT saved: the last good file stays and the job turns red with the reason."""
+    try:
+        old = json.loads(Path(out).read_text()).get(field) or {}
+    except Exception:
+        old = {}
+    old_n = len(old)
+    if new_n == 0 or (old_n >= 20 and new_n < old_n * 0.5):
+        print(f"::error::{label} night read found {new_n} products (last good file: {old_n}): NOT saved, last good file kept",
+              file=sys.stderr)
+        return False
+    return True
+
 def runningfree_night(out, hours=4.5):
     """Read Running Free slowly (a page every 30 s): every product of the men's and women's sections, then every size page."""
     start, prods, brands, failed = time.time(), {}, set(), []
@@ -774,6 +788,8 @@ def sportsexperts_night(out, hours=3.5):
         if i % 200 == 199:
             print(f"  sportsexperts: {i + 1} product pages read", file=sys.stderr)
     print(f"  sportsexperts: options seen {dict(kv.most_common(25))}", file=sys.stderr)
+    if not night_guard(out, "prods", len(prods), "Sports Experts"):
+        return 1
     Path(out).write_text(json.dumps({"updated": now(), "prods": prods}, separators=(",", ":")))
     print(f"sportsexperts night read: {len(prods)} products, {sum(1 for p in prods.values() for v in p.get('vars', {}).values() if v['ok'])} "
           f"colour+sizes in stock in {(time.time() - start) / 60:.0f} min -> {out}", file=sys.stderr)
@@ -964,6 +980,8 @@ def fleetfeet_night(out, minutes=100):
     d = {"updated": today if good else (prev.get("updated") or today), "prods": prods, "links": links, "cursor": cur, "listed": listed}
     if note:
         d["failed"] = note
+    if not night_guard(p, "prods", len(prods), "Fleet Feet"):
+        return 1
     p.write_text(json.dumps(d, separators=(",", ":"), ensure_ascii=False))
     print(f"fleetfeet night read: {read} product pages tonight, {len(prods)} products kept, list position {cur}/{len(links)}"
           + (f"; {note}" if note else ""), file=sys.stderr)
@@ -1311,6 +1329,9 @@ def brands_night(out, hours=3.0):
             continue
         try:
             prods = fn()
+            had = len((old.get(key) or {}).get("prods") or {})
+            if not prods or (had >= 20 and len(prods) < had * 0.5):      # Nov 1: a thin read never replaces a good one
+                raise RuntimeError(f"only {len(prods)} colours (last good read {had})")
             res[key] = {"updated": now(), "prods": prods}
             print(f"::warning title=brands {key}::{len(prods)} colours, "
                   f"{sum(1 for p in prods.values() for x in (p.get('sizes') or {}).values() if x.get('ok'))} sizes listed in stock, "
@@ -1322,6 +1343,9 @@ def brands_night(out, hours=3.0):
             print(f"::warning::brands: {key} stopped: {type(e).__name__}: {e} (its last good copy stays)", file=sys.stderr)
             if key in old:
                 res[key] = old[key]
+    if not res:
+        print("::error::brands night read: no site read and no last good copy: NOT saved", file=sys.stderr)
+        return 1
     Path(out).write_text(json.dumps({"updated": now(), "sites": res}, separators=(",", ":")))
     return 0
 
@@ -2132,6 +2156,8 @@ def thefeed_night(out):
         time.sleep(10)
     time.sleep(10)
     us = {str(v["id"]): float(v["price"]) for p in _feed_page(f"{base}/products.json?limit=250&page=1") for v in p["variants"]}
+    if not night_guard(out, "prods", len(prods), "The Feed"):
+        return 1
     Path(out).write_text(json.dumps({"updated": now(), "prods": prods, "us": us}, separators=(",", ":")))
     print(f"thefeed night read: {len(prods)} products in {page - 1} pages -> {out}", file=sys.stderr)
     return 0
@@ -4693,6 +4719,10 @@ def main():
                 results[st] = (again[0], True, again[2] + " (second try)")
     if not REMERGE:
         print(polite.report(), file=sys.stderr)       # Nov 1: requests per site, slow-downs, robots.txt refusals
+        try:                                          # Nov 1: the health email counts real store reads (planned 2 a day)
+            Path("/tmp/store-read.json").write_text(json.dumps({"at": now(), "requests": sum(v["n"] for v in polite.STATS.values())}))
+        except Exception:
+            pass
     for st in STORES:
         got, ok, line = results[st]
         for o in got:
@@ -4854,6 +4884,8 @@ def decathlon_night(out):
          "lists": DEC_LIST_STATS or prev.get("lists") or {}}
     if note:
         d["failed"] = note
+    if not night_guard(p, "offers", len(offers), "Decathlon"):
+        return 1
     p.write_text(json.dumps(d, separators=(",", ":"), ensure_ascii=False))
     print(f"decathlon night read: {read} product pages read tonight, {len(offers)} products kept, list position {cur}/{len(links)}"
           + (f"; {note}" if note else ""), file=sys.stderr)

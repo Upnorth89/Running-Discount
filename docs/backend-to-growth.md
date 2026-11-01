@@ -271,3 +271,36 @@ would have been reported as open every 2 weeks.)
 - Read less: Altitude, Last Hunt, Sporting Life re-read a product only when its listing changed, it's on sale, or after 36 h.
 - All 114 Shopify shops + Altitude, Sporting Life, Foot Locker, Stampeak answer us under our own name from GitHub: no store lost.
 - If you add a reader: use scrape.S (or polite.PoliteSession()), never a browser User-Agent.
+
+## Nov 1 (night): B1-B5 from growth
+- B1 shipped: night_guard() in scrape.py. The Feed, Decathlon, Sports Experts, Fleet Feet and each brand site: a read with 0 products or
+  under half of the last good file is NOT saved (last good kept) and the job goes red (::error, exit 1). Running Free already had it.
+  RunFree's night job is off (if: false). The link check (deadlinks.json) isn't a store read: left as is.
+- B3 shipped: health email line "Store reads in the last 24 h: N full reads (planned 2); night reads: …" (scrape.py writes
+  /tmp/store-read.json only on real reads, health.json keeps 48 h of them); more than 3 = a problem line.
+- B4 shipped: health.py group_same_cause(): 3+ store lines with the same reason = one line "N stores (a, b, c, …): reason".
+  RunFree stores (RUNFREE_ON = False) are skipped, with one info line "Turned off on purpose: 27 RunFree stores…"; PARKED as before.
+- B5: the ACG Pegasus Trail GTX twin fix shipped earlier today (5a2e8dc, `_nob` in the twin pass); tomorrow's health email confirms it.
+  Janji/REI size report: I don't have its details here; send me the item + size and I'll fix it.
+- B2: politeness table (after today's polite.py; every request = our own name, robots.txt Disallow + Crawl-delay obeyed, 429/503 = slower):
+
+| Store / platform | Pace per host | Pages per read | Reads a day | Same platform/host in parallel? |
+|---|---|---|---|---|
+| Shopify shops (114 running + ~65 hiking) | 1 s per shop, 0.5 s across ALL Shopify (running + hiking share it) | products.json pages of 250 + 3 (check, meta, homepage) | 2 (push runs read nothing) | no: one Shopify request at a time from the machine |
+| Altitude Sports, The Last Hunt | 0.5 s (2/s max), running + hiking together | listing pages + only changed/on-sale product pages (others every 36 h) | 2 | 4 threads, but the host pace caps them |
+| Sporting Life | 1 s | listing (48 a page) + changed/on-sale product pages | 2 | 2 threads, capped by pace |
+| Foot Locker, Stampeak, Sea2Sky, Sport Chek | 1 s | list + data pages | 2 | no |
+| Running Room | 2 s | ~22 feed files | 2 | no |
+| Decathlon | 20 s (robots asks 5) | a slice a night | 1 (night) | no |
+| Running Free | 30 s (robots Crawl-delay) | listing + size pages | 1 (night) | no |
+| Sports Experts | 3 s | listing JSON + product pages | 1 (night) | no |
+| Fleet Feet | 2 s | sale products + a slice of the rest | 1 (night) | no |
+| Brand sites (Saucony etc.) | 3 s (Salomon 20 s, off) | list + colour pages | 1 (night) | no |
+| The Feed | 10 s | products.json pages | 1 (night) | no |
+| RunFree (27 shops) | OFF since Nov 1 (catalog file instead) | 0 | 0 | was: 27 shops at once, ~27 req/s (the likely trigger) |
+| Featured check / livecheck | 1 s per host | ~90 product pages | 2 | different hosts |
+| Store offers (homepages) | 1 visit per shop | 1 | 1 (morning) | 8 threads, all different shops |
+| Site test deal links | 1 s per host | 2 per store | 2 | different hosts |
+
+Above your ~1 request / 2 s: Altitude/Last Hunt (2/s) and one Shopify shop (1/s while its pages are read, a minute or two). Both ask for
+no Crawl-delay; slowing Altitude to 1 per 2 s would add ~25 min to the morning read. Kept for now; say if you want it slower.

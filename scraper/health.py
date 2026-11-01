@@ -24,6 +24,7 @@ Env:   RESEND_API_KEY, HEALTH_EMAIL (default hello@thegearfox.com), FROM_EMAIL,
 """
 import json
 import os
+import re
 import statistics
 import sys
 from datetime import datetime, timedelta, timezone
@@ -40,6 +41,16 @@ FROM = os.environ.get("FROM_EMAIL", "The Gear Fox <deals@thegearfox.com>")
 # Free Resend plan: 100 emails a day, 3,000 a month. Weekly email = 1 per subscriber per Friday.
 WEEKLY_SUBS_WARN = 500      # ~650 subscribers x 4.3 Fridays = the monthly cap
 DAILY_SIGNUPS_WARN = 60     # confirmation emails + alerts share the 100/day cap
+# Nov 1 (growth chat: "stores we turned off on purpose never show as problems"): RunFree's shops while RUNFREE_ON is False
+_SCRAPE = (Path(__file__).parent / "scrape.py").read_text()
+OFF_RUNFREE = set()
+if re.search(r"^RUNFREE_ON = False", _SCRAPE, re.M):
+    try:
+        sys.path.insert(0, str(Path(__file__).parent))
+        import runfree as _RF
+        OFF_RUNFREE = {x[0] for x in _RF.RUNFREE_STORES}
+    except Exception:
+        pass
 PARKED = {"adidasca", "catalog"}   # catalog-file stores Bastien let go (Oct 30); silent while empty
 SAVED = {"mec", "rei", "adidasca"}   # (Sport Chek read live since Oct 13)       # (SVP parked Oct 6)      # stores read from pages you save by hand (their sites block automated access)
 
@@ -71,6 +82,55 @@ def big_discounts(offers):
     return n / len(offers)
 
 
+def group_same_cause(problems):
+    """Nov 1 (growth chat): 27 lines that say the same thing are one problem. Store lines (failed/stale/zero) whose text is the
+    same once the store name and counts are taken out become one line: "27 stores (a, b, c, …): <reason>"."""
+    groups, order = {}, []
+    for k, m in problems:
+        kind, _, st = k.partition(":")
+        if kind in ("failed", "stale", "zero") and m.startswith(st + ": "):
+            rest = re.sub(r"\bits \d[\d,]* products", "their products", m[len(st) + 2:])
+            g = (kind, re.sub(r"\d[\d,]*", "N", rest))
+            if g not in groups:
+                groups[g] = []
+                order.append(("g", g))
+            groups[g].append((st, rest, m))
+        else:
+            order.append(("p", (k, m)))
+    out = []
+    for typ, x in order:
+        if typ == "p":
+            out.append(x)
+            continue
+        members = groups[x]
+        if len(members) < 3:
+            out += [(f"{x[0]}:{st}", m) for st, _, m in members]
+        else:
+            names = [st for st, _, _ in members]
+            out.append((f"{x[0]}-group:{x[1][:60]}", f"{len(names)} stores ({', '.join(names[:6])}{', …' if len(names) > 6 else ''}): "
+                                                    f"{members[0][1]}"))
+    return out
+
+
+def read_count(prev):
+    """Nov 1 (growth chat): full store reads in the last 24 h (refresh runs that read stores, not push rebuilds; planned 2)
+    plus each night job's last read. -> (line, problems, reads to keep in health.json)."""
+    reads = [x for x in prev.get("reads", []) if (w := when(x)) and NOW - w <= timedelta(hours=48)]
+    me = load(Path("/tmp/store-read.json")).get("at")
+    if me and me not in reads:
+        reads.append(me)
+    n = sum(1 for x in reads if NOW - when(x) <= timedelta(hours=24))
+    night = []
+    for f, name in (("decathlon", "Decathlon"), ("thefeed", "The Feed"), ("sportsexperts", "Sports Experts"),
+                    ("fleetfeet", "Fleet Feet"), ("brands", "brand sites"), ("runningfree", "Running Free")):
+        u = when(load(Path(f"/tmp/{f}.json")).get("updated") or "")
+        if u and NOW - u <= timedelta(hours=24):
+            night.append(name)
+    line = f"\nStore reads in the last 24 h: {n} full reads (planned 2)" + (f"; night reads: {', '.join(night)}" if night else "")
+    probs = [("reads", f"Stores were read {n} times in the last 24 h (planned 2): too often, stores may start saying no")] if n > 3 else []
+    return line, probs, reads
+
+
 def check():
     problems = []   # (key, message)
     # the catalog file (Sport Chek, adidas.ca, REI; Oct 8): a nudge the day before it runs out (3 days)
@@ -92,6 +152,8 @@ def check():
     for st in sorted(set(offers) | set(offers0)):
         today, before = offers.get(st, []), offers0.get(st, [])
         n, n0 = len(today), len(before)
+        if st in OFF_RUNFREE:
+            continue          # turned off on purpose (one line in the report, never a problem)
         if st in PARKED and n == 0:
             continue          # Oct 30 (Bastien: "let adidas stay off. we'll try later"): no daily line; a new upload brings it back
         t = when(stamps.get(st, ""))
@@ -216,6 +278,7 @@ def check():
                          + (f", {rr['ticked']} had everything ticked" if rr.get("ticked") else "") + (", dry run" if rr.get("dry") else ""))
             if rr.get("failed"):
                 problems.append(("race-remind", f"Race reminders: {rr['failed']} of {rr['due']} failed to send (they retry tomorrow)"))
+    problems = group_same_cause(problems)
     sale = lambda its: sum(1 for i in its if any(len(e) > 3 and e[1] < e[3] * 0.99 for e in i.get("sz", [])))
     fresh_stores = sum(1 for st in offers if (t := when(stamps.get(st, ""))) and NOW - t <= timedelta(hours=30))
     moves = sorted(((st, len(offers.get(st, [])), len(offers0.get(st, []))) for st in set(offers) | set(offers0)),
@@ -332,6 +395,12 @@ def main():
     cov_line, cov_probs = coverage_check()
     cat_line += cov_line
     problems += cov_probs
+    rd_line, rd_probs, reads = read_count(load(PREV / "health.json"))
+    cat_line += rd_line
+    problems += rd_probs
+    if OFF_RUNFREE:
+        cat_line += (f"\nTurned off on purpose: {len(OFF_RUNFREE)} RunFree stores (their robots.txt blocks /api/ since Nov 1); "
+                     "their deals come from the catalog file while it's fresh")
     # store offers on the site today (Oct 27, tools/offer_scan.py): one line so Bastien can say "remove X" if one reads wrong
     try:
         pr = json.loads((SITE / "promos.json").read_text())
@@ -403,7 +472,7 @@ def main():
     public = [m for k, m in problems if k not in ("subs", "signups")]
     (SITE / "health.json").write_text(json.dumps({"checked": NOW.isoformat(timespec="seconds"), "problems": public,
                                                    "emailed": sorted(emailed), "reported": reported, "midday": midday, "items": stats["items"],
-                                                   "stores": stats["stores"]}, indent=1))
+                                                   "stores": stats["stores"], "reads": reads}, indent=1))
     return 0
 
 
