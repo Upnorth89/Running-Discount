@@ -40,6 +40,8 @@ move backlog rows. When he asks "what's on the to-do list", answer from the curr
   into "fixed by us" / "needs you", a scheduled early-morning fix pass), and store additions under the rule below. Goal by Nov 15:
   Bastien spends <= 30 min a day and the morning email usually says nothing needs him. One change to the store reading at a time,
   compared with real prices (from GitHub's servers, not only the sandbox) before it ships.
+  Exception (Nov 1, Bastien: "Yes fox pro"): the Fox Pro build (Stripe checkout, "I bought it" price protection, My account) continues
+  during the freeze, hidden behind a switch until his Nov 16 preview; nothing of it visible to visitors before his OK.
   Price gate (scrape.py `price_gate`): a store whose prices AND regular prices move 20%+ together vs its last read keeps its last listings.
 - **Stores and readers: build and turn on without asking** (Nov 1, Bastien: "Build any reader always if it works towards /goal which is growth and dominating the space"; goal 200+ stores on the running side, US first). Bar stays: robots.txt + polite.py, no AI block, sortcheck clean, live price checks, check.py ALL GOOD; tell him after, with numbers.
 - **Push straight to `main`.** No pull requests or side branches (the site deploys from `main`).
