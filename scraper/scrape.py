@@ -2521,27 +2521,32 @@ def sl_group(ptype, name):
     return group_of(ptype) or group_of(name)
 
 # ---------------------------------------------------------------- Distance Runwear (Vancouver; Lightspeed eCom)
-# Nov 1, 2026 (growth chat, pending Bastien's yes: DISTANCE_ON): robots.txt asks Crawl-delay 2 (polite.py keeps it) and closes only
+# Nov 1, 2026 (growth chat; on since e385b24): Distance Runwear's robots.txt asks Crawl-delay 2 (polite.py keeps it) and closes only
 # admin/account/cart/checkout. /collection/?format=json&limit=100 lists every product (~730, 8 pages); each product's
 # ?format=json has its variants (price, old price, stock). Read less: a product page is read again only when its listing changed,
 # it's on sale, or our copy is REUSE_HOURS old.
-DIST_BASE = "https://www.distancerunwear.com"
-DISTANCE_ON = True
+# Nov 1 (growth chat): generic, one line per Lightspeed store: (key, base, side "ca"|"us", currency). Same bar as every store:
+# robots.txt + polite.py, sortcheck clean, live price checks, check.py ALL GOOD.
+LIGHTSPEED_SITES = [
+    ("distance", "https://www.distancerunwear.com", "ca", "CAD"),     # Distance Runwear, Vancouver (Nov 1)
+]
 
-def scrape_distance():
-    listing, page, pages = [], 1, 1
+def scrape_lightspeed(st, base, side="ca", cur="CAD"):
+    listing, page, pages, shop = [], 1, 1, None
     while page <= min(pages, 40):
-        c = get(f"{DIST_BASE}/collection/?format=json&limit=100&page={page}").json()["collection"]
+        d = get(f"{base}/collection/?format=json&limit=100&page={page}").json()
+        c = d["collection"]
+        shop = shop or (d.get("shop") or {}).get("id")
         pages = int(c.get("pages") or 1)
         listing += list((c.get("products") or {}).values())
         page += 1
-    shop = 644971
-    prev = {o["u"]: o for o in prev_raw().get("distance", []) if o.get("u")}
+    fx = fx_to_cad(cur) if cur != "CAD" else 1.0
+    prev = {o["u"]: o for o in prev_raw().get(st, []) if o.get("u")}
     out, read, reused = [], 0, 0
     for p in listing:
         if not p.get("available"):
             continue
-        u = f"{DIST_BASE}/{p['url']}"
+        u = f"{base}/{p['url']}"
         fp = hashlib.md5(json.dumps([p.get("title"), p.get("price")], sort_keys=True).encode()).hexdigest()[:12]
         if reuse_ok(prev.get(u), fp):
             out.append(prev[u])
@@ -2563,7 +2568,7 @@ def scrape_distance():
             if not (st_.get("available") and st_.get("on_stock")):
                 continue
             pr = v.get("price") or {}
-            price, old = float(pr.get("price_incl") or 0), float(pr.get("price_old_incl") or 0)
+            price, old = round(float(pr.get("price_incl") or 0) * fx, 2), round(float(pr.get("price_old_incl") or 0) * fx, 2)
             if price <= 0:
                 continue
             at = dict(re.findall(r'"?([^":,]+):\s*([^"]+)"?', v.get("title") or ""))
@@ -2579,28 +2584,30 @@ def scrape_distance():
         if g != "shoes":
             sizes = {generic_size(k): x for k, x in sizes.items()}
         img = d.get("image") or p.get("image")
-        out.append({"st": "distance", "b": brand, "n": name, "u": u, "g": g, "sx": [],
+        out.append({"st": st, "ca": side == "ca", "us": side == "us", "b": brand, "n": name, "u": u, "g": g, "sx": [],
                     "w": bool(re.search(r"\bwide\b", name, re.I)),
                     "img": f"https://cdn.shoplightspeed.com/shops/{shop}/files/{img}/400x400x2/image.jpg" if img else None,
                     "lp": max(r for _, r, _ in sizes.values()), "bb": None, "_fp": fp, "_at": now(),
                     "sz": [[k, pr, rg, ln] for k, (pr, rg, ln) in sizes.items()]})
-    print(f"  distance: {len(listing)} products listed, {read} product pages read, {reused} unchanged taken from the last read, "
+    print(f"  {st}: {len(listing)} products listed, {read} product pages read, {reused} unchanged taken from the last read, "
           f"{len(out)} cards in stock", file=sys.stderr)
     return out
 
 # ---------------------------------------------------------------- Gord's Running Store (Calgary; WooCommerce Store API)
-# Nov 1, 2026 (growth chat, pending Bastien's yes: GORDS_ON): robots.txt allows the Store API (only wp-admin/add-to-cart/wc-logs
+# Nov 1, 2026 (growth chat; on since e385b24): Gord's robots.txt allows the Store API (only wp-admin/add-to-cart/wc-logs
 # are disallowed). /wp-json/wc/store/products (1,147 products) + ?type=variation (11,157 colour+size rows: price, regular,
 # in stock, a link that opens that colour+size). No brand in the API: our own catalogue's model words name it, else the
 # product page's JSON-LD, read once and remembered through offers.json (`_b`).
-GORDS_BASE = "https://gordsrunningstore.com"
-GORDS_ON = True
+# Nov 1 (growth chat): generic, one line per WooCommerce store: (key, base, side "ca"|"us"). Currency comes from the API.
+WOO_SITES = [
+    ("gords", "https://gordsrunningstore.com", "ca"),     # Gord's Running Store, Calgary (Nov 1)
+]
 GORDS_SHOES = {"track-field", "track-and-field", "spikes", "running-shoes"}
 
-def _gords_all(params):
+def _woo_all(base, params):
     out, page = [], 1
     while page <= 200:
-        r = get(f"{GORDS_BASE}/wp-json/wc/store/products?per_page=100&page={page}{params}")
+        r = get(f"{base}/wp-json/wc/store/products?per_page=100&page={page}{params}")
         batch = r.json()
         if not batch:
             break
@@ -2637,14 +2644,14 @@ def _gords_jsonld_brand(url):
     except Exception:
         return ""
 
-def scrape_gords():
-    prods = _gords_all("")
-    vars_ = _gords_all("&type=variation")
+def scrape_woo(st, base, side="ca"):
+    prods = _woo_all(base, "")
+    vars_ = _woo_all(base, "&type=variation")
     byp = collections.defaultdict(list)
     for v in vars_:
         byp[v.get("parent")].append(v)
     look = _brand_lookup()
-    prev = {o["u"]: o.get("b") for o in prev_raw().get("gords", []) if o.get("u") and o.get("b")}
+    prev = {o["u"]: o.get("b") for o in prev_raw().get(st, []) if o.get("u") and o.get("b")}
     out, jl = [], 0
     for p in prods:
         name = html_lib.unescape(p.get("name") or "").strip()
@@ -2681,8 +2688,10 @@ def scrape_gords():
                 continue
             pr = v.get("prices") or {}
             unit = 10 ** int(pr.get("currency_minor_unit") or 2)
+            fx = fx_to_cad(pr.get("currency_code") or "CAD") if (pr.get("currency_code") or "CAD") != "CAD" else 1.0
             try:
-                price, reg = int(pr["price"]) / unit, int(pr.get("regular_price") or pr["price"]) / unit
+                price = round(int(pr["price"]) / unit * fx, 2)
+                reg = round(int(pr.get("regular_price") or pr["price"]) / unit * fx, 2)
             except (KeyError, ValueError, TypeError):
                 continue
             if price <= 0:
@@ -2699,11 +2708,11 @@ def scrape_gords():
             continue
         img = ((p.get("images") or [{}])[0] or {}).get("src") or next(
             ((v.get("images") or [{}])[0].get("src") for v in byp.get(p.get("id"), []) if v.get("images")), None)
-        out.append({"st": "gords", "b": b or "", "_b": b or "", "n": name, "u": u, "g": g, "sx": sx,
+        out.append({"st": st, "ca": side == "ca", "us": side == "us", "b": b or "", "_b": b or "", "n": name, "u": u, "g": g, "sx": sx,
                     "w": bool(re.search(r"\b(extra )?wide\b", name, re.I)), "img": img,
                     "lp": max(r for _, r, _ in sizes.values()), "bb": None,
                     "sz": [[k, pr, rg, ln] for k, (pr, rg, ln) in sizes.items()]})
-    print(f"  gords: {len(prods)} products, {len(vars_)} colour+sizes; {len(out)} cards in stock, "
+    print(f"  {st}: {len(prods)} products, {len(vars_)} colour+sizes; {len(out)} cards in stock, "
           f"{sum(1 for o in out if not o['b'])} without a brand, {jl} product pages read for a brand", file=sys.stderr)
     return out
 
@@ -3543,6 +3552,7 @@ SVP_NOT_RUNNING = re.compile(r"\b(yoga|maternity|nursing|skateboarding|track (to
 
 BOREAL_DESC = {"waterproof", "road", "trail", "running", "maximal-cushion", "and", "gravel", "racing", "shoes", "shoe", "for", "men", "women",
                "men's", "women's", "unisex", "lightweight", "cushioned", "winter", "hiking", "stability", "neutral", "everyday", "daily", "carbon"}
+US_SHOPS |= {k for k, _, sd, *_ in WOO_SITES + LIGHTSPEED_SITES if sd == "us"}   # Nov 1: generic readers' US stores
 
 
 OFF33_KEEP = {"GTX", "GORE-TEX", "WP", "WIDE", "TR", "TRAIL", "MAX", "PLUS", "PRO", "SE", "LITE", "EKIDEN", "SPIKE", "BOA"}
@@ -3801,8 +3811,8 @@ STORES = {
     "thefeed": scrape_thefeed,
     "sea2sky": scrape_sea2sky,
     "sportinglife": scrape_sportinglife,
-    **({"gords": scrape_gords} if GORDS_ON else {}),
-    **({"distance": scrape_distance} if DISTANCE_ON else {}),   # Distance Runwear (Vancouver): waiting on Bastien's yes     # Gord's Running Store (Calgary): waiting on Bastien's yes
+    **{k: (lambda k=k, b=b, sd=sd: scrape_woo(k, b, sd)) for k, b, sd in WOO_SITES},            # WooCommerce stores (Nov 1)
+    **{k: (lambda k=k, b=b, sd=sd, c=c: scrape_lightspeed(k, b, sd, c)) for k, b, sd, c in LIGHTSPEED_SITES},   # Lightspeed (Nov 1)
     "stampeak": scrape_stampeak,
     "mec": scrape_mec_saved,       # from pages you save (their sites block automated access)
     "rei": lambda: scrape_catalog("REI") or scrape_rei_saved(),   # the catalog file (Oct 8: every size, with stock), else saved pages
@@ -4421,7 +4431,8 @@ def name_gender(n):
     return ["women"] if w and not m else ["men"] if m and not w else None
 
 # Stores that sell and ship from Canada (no border fees). Generic Shopify stores decide by their currency.
-CA_STORES = {"gords", "distance", "altitude", "lasthunt", "sea2sky", "sportinglife", "stampeak", "mec", "decathlon", "svp", "footlocker", "sportchek", "adidasca"}
+CA_STORES = {"altitude", "lasthunt", "sea2sky", "sportinglife", "stampeak", "mec", "decathlon", "svp", "footlocker", "sportchek", "adidasca"}
+CA_STORES |= {k for k, _, sd, *_ in WOO_SITES + LIGHTSPEED_SITES if sd == "ca"}  # Nov 1: generic readers' Canadian stores
 
 _TRAIL_MODELS = set()    # shoe keys that keep "trail"/"road" because a store names the model that way ("Ghost Trail - Men's")
 
