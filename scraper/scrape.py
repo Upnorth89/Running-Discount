@@ -600,6 +600,9 @@ def runningfree_night(out, hours=4.5):
                 print(f"::warning::Running Free: {e}", file=sys.stderr)
                 if len(failed) > 10:
                     raise RuntimeError(f"Running Free: {len(failed)} size pages didn't load ({', '.join(failed[:5])}...)")
+    if len(prods) < 500:      # Nov 1: a late second run read 0 products and saved that over a good read (2,962): keep the last good file
+        print(f"::error::Running Free night read found only {len(prods)} products: NOT saved (last good read kept)", file=sys.stderr)
+        return 1
     Path(out).write_text(json.dumps({"updated": now(), "brands": sorted(brands), "prods": prods}, separators=(",", ":")))
     print(f"runningfree night read: {len(prods)} products, {sum(len(p['sizes']) for p in prods.values())} sizes in stock "
           f"in {(time.time() - start) / 60:.0f} min -> {out}", file=sys.stderr)
@@ -2494,6 +2497,7 @@ def scrape_sportinglife():
 # browser (Cmd+S, "Webpage, HTML only") and upload them to the saved-pages/ folder in the repo.
 # Files older than SAVED_MAX_DAYS are ignored so stale prices never linger.
 SAVED_DIR = Path(__file__).resolve().parents[1] / "saved-pages"
+KEEP_HOURS = 48       # Nov 1: a store that fails keeps its last listings this long, then leaves the site until it reads again
 SAVED_MAX_DAYS = 5     # Oct 30 (Bastien: "down to 5 for everyone we grab deal"): a REI save 6-10 days old showed sold-out sizes
 
 def _file_age_days(path):
@@ -3089,6 +3093,8 @@ SHOPIFY_STORES = [
     ("sail",           "https://www.sail.ca/en-ca",          "gear"),   # SAIL plein air (QC/ON chain): its running section only
     ("svp",            "https://www.svpsports.ca",           "gear"),   # SVP Sports (Ontario chain): its running section only. Its feed
                                                                         # answers again (Cloudflare check gone, Oct 12, 2026); robots allow it
+    ("jdsports",       "https://www.jdsports.ca",            "gear"),   # JD Sports Canada (Oct 31, Bastien: "Yes add it"): its running-shoes
+                                                                        # collection only (mostly lifestyle sneakers: filtered); jdsports.com (US) answers 403 = no
     # US running shops (Oct 6, 2026): the USA side of the site only (they may not ship to Canada); read in their US market
     ("pacers",         "https://pacersrunning.com",          "gear"),   # Pacers Running (Washington DC area)
     ("portlandrun",    "https://portlandrunningcompany.com", "gear"),   # Portland Running Company (Oregon)
@@ -3234,7 +3240,7 @@ US_SHOPS = {"fleetfeet", "theloop", "fit2run", "skirack", "pacers", "portlandrun
             "scrantonrun", "trailheadrun", "prrunwalk", "performancerun", "fitnesssports", "athleticannex", "annarborrun",
             "tworivers", "xtramile", "lukeslocker", "sfrunco", "backcountry", "rei",
             "territory", "pathprojects", "ombraz", "2xuus", "paragon"} | set(RUNFREE_US)   # REI ships within the US only
-US_COLLECTIONS = {"paragon": ["running-shoes", "running"], "sportsbasement": ["running"], "sail": ["outdoor-gear-running"], "svp": ["running-collection"], "humaca": ["nutrition"], "boutiquedulac": ["chaussures", "course-a-pied", "nutrition"], "skirack": ["run"]}   # (Canadian stores too: SAIL)   # general stores: their running section only (Sports Basement also sells
+US_COLLECTIONS = {"paragon": ["running-shoes", "running"], "sportsbasement": ["running"], "sail": ["outdoor-gear-running"], "svp": ["running-collection"], "jdsports": ["running-shoes"], "humaca": ["nutrition"], "boutiquedulac": ["chaussures", "course-a-pied", "nutrition"], "skirack": ["run"]}   # (Canadian stores too: SAIL)   # general stores: their running section only (Sports Basement also sells
                                                    # snowboards, swimwear, tennis: those topped the US deals, Oct 6, 2026)
 # Shoebacca was tried and dropped (Oct 6, 2026): mostly PUMA/adidas/Diadora budget and gym shoes, no Hoka/Brooks/ASICS/Nike
 NO_CART = {"svp"}      # robots.txt forbids /cart.js: the currency comes from meta.json only (SVP: CAD)
@@ -3351,6 +3357,54 @@ def tidy_svp(items):
         out.append(o)
     return out
 
+# JD Sports Canada (Oct 31, 2026; Bastien: "Yes add it"): its running-shoes collection is ~2/3 lifestyle sneakers (Air Max, 530,
+# 9060, GEL-1130, Kayano 14) and kids' shoes, every product tagged "lifestyleshoe", and the colour sits in the title
+# ("ASICS Women's NOVABLAST 5 White / Lilac Hint"). So: adults only (its own "Department:" tag also gives the gender), running
+# models only (JD_RUN, a list of current performance lines), colour words taken off the end of the name.
+JD_RUN = re.compile(r"pegasus|vomero (1[7-9]|plus|premium)|structure|invincible|zoomx|vaporfly|alphafly|streakfly|winflo|"
+                    r"clifton|bondi|arahi|mach|rincon|skyflow|speedgoat|challenger|gaviota|"
+                    r"novablast|gel-?kayano (2[89]|3\d)|nimbus|gel-?cumulus (2[5-9]|3\d)|gt-?2000|superblast|megablast|gel-?excite|"
+                    r"ghost|glycerin|adrenaline|hyperion|"
+                    r"\b1080|\b880|fuelcell|fresh foam x|"
+                    r"\bride 1|triumph|endorphin|guide 1|kinvara|"
+                    r"adizero|supernova|ultraboost 5|"
+                    r"\bon cloud|cloud(monster|surfer|flow|eclipse|runner|boom|stratus|go|vista|ultra)|"
+                    r"wave (rider|inspire|sky)|agility peak|velocity nitro|deviate nitro|magnify nitro", re.I)
+JD_SUFFIX = {"trail", "plus", "premium", "max", "elite", "pro", "sr", "x", "next", "waterproof", "wp", "hike", "speed", "flyease", "wide"}
+JD_NOT = re.compile(r"\bog\b|b3ls|gore-?tex|gtx|\bgs\b|\bps\b|\btd\b|junior|kids|toddler|\bslide|\bmule", re.I)
+def jd_prods(prods):
+    words = set()
+    for p in prods:                 # colour words = whatever JD writes after the " / " in its titles, plus its colour options
+        if " / " in p["title"]:
+            words |= {w.lower() for w in re.split(r"[\s/-]+", p["title"].split(" / ", 1)[1]) if w}
+        for o in p.get("options") or []:
+            if o.get("name", "").lower() in ("color", "colour"):
+                words |= {w.lower() for v in o.get("values") or [] for w in v.split()}
+    words |= {"grey", "gray", "two", "three", "one", "mist", "brume", "ox", "white", "black", "silver", "metallic"}   # Oct 31: "Evo SL Grey Two", "Cloudsoma Hike Brume"
+    out = []
+    for p in prods:
+        dep = next((t.split(":", 1)[1] for t in p.get("tags") or [] if t.startswith("Department:")), "")
+        sex = "Women's" if dep.startswith("Womens") else "Men's" if dep.startswith("Mens") else None
+        t = p["title"]
+        name = t.split(" / ", 1)[0].split()
+        name = [w for w in name if not re.fullmatch(r"(?i)(wo)?men[’']?s|[MWU]", w)]      # "Women's", "Cloudmonster 1 M", "HOKA U Bondi"
+        num = [k for k, w in enumerate(name) if k and re.search(r"\d", w)]
+        if num:         # "Rincon 4 Tan", "Vomero 18 Summit": the colour starts after the model number (known suffixes stay)
+            k = num[-1] + 1
+            while k < len(name) and name[k].lower() in JD_SUFFIX:
+                k += 1
+            name = name[:k]
+        while len(name) > 2 and name[-1].lower() in words and name[-1].lower() not in JD_SUFFIX and not re.search(r"\d", name[-1]):
+            name.pop()
+        name = [w for w in name if w != "1"]       # "On Cloudmonster 1 Waterproof": every other store writes "Cloudmonster"
+        n = " ".join(name)
+        if not sex or not JD_RUN.search(n) or JD_NOT.search(n) or LIFESTYLE_SHOE.search(n):
+            continue
+        q = dict(p)
+        q["title"] = n + f" - {sex}"
+        out.append(q)
+    return out
+
 PARAGON_FEET = {"RUN/TRAIN FOOTWEAR", "OUTDOOR FOOTWEAR"}
 def paragon_prods(prods):
     """Paragon Sports (NYC, Oct 19, 2026; Bastien: "have we been adding stores in NYC?"). Its store system writes
@@ -3423,6 +3477,8 @@ def make_shopify_scraper(st, base, kind):
             prods = shopify_products(base, max_pages=SHOPIFY_MAX_PAGES, cookies=cookies)
         if st == "paragon":
             prods = paragon_prods(prods)
+        if st == "jdsports":
+            prods = jd_prods(prods)
         if st in ("boutiquedulac", "fauxmouvement", "aupiedsportif", "borealrunning", "33off", "foveo"):
             prods = qc_prods(st, prods)
         fx = fx_to_cad(cur)
@@ -3479,7 +3535,13 @@ FINAL_TAG = re.compile(r"final.?sale|vente.?finale", re.I)
 
 for _st, _base, _kind in SHOPIFY_STORES:
     STORES[_st] = make_shopify_scraper(_st, _base, _kind)
-for _st in RUNFREE:
+# RunFree OFF (Nov 1, 2026; Bastien: "This needs to be fixed asap"): around Oct 30 every RunFree shop's robots.txt started saying
+# "Disallow: /api/", the two services runfree.py read sizes and prices from (and its sitemap became an index). Its product pages
+# carry one price and no sizes, so there's no allowed way in: its 27 stores leave the site instead of showing Oct 30 prices as if
+# they were today's. STORES.md blocked list; store_recheck.py checks the door every 2 weeks. Back on = RUNFREE_ON = True (after a
+# robots.txt that allows /api/ again, or an official feed).
+RUNFREE_ON = False
+for _st in (RUNFREE if RUNFREE_ON else []):
     STORES[_st] = (lambda st: lambda: scrape_runfree(st))(_st)
 
 # Casual footwear some running stores also sell; not what people come here for.
@@ -3882,6 +3944,7 @@ BRAND_CANON = {"hoka one one": "Hoka", "hoka": "Hoka", "asics": "ASICS", "satisf
 # US shops often list the parent company or distributor as the vendor (Oct 6, 2026: "Asics Corp." on all 480 US ASICS items,
 # "Brooks Sports, Inc. #105856", "Ing Source, Inc" = Injinji, "Medi USA" = CEP): company words go, then this map
 BRAND_ALIAS = {"kuhl": "KÜHL", "kühl": "KÜHL",   # Oct 30: KÜHL (79) = KUHL (32) on the USA side
+               "acg": "Nike", "nike acg": "Nike",   # Nov 1: a store files Nike ACG under brand "ACG" ("Nike Men's ACG Pegasus Trail"): a second card
                "o'neill sunglasses": "O'Neill", "o’neill sunglasses": "O'Neill", "o'neill": "O'Neill", "o’neill": "O'Neill",   # Oct 31
                "cure hydration": "Cure", "balmoral sports": "Balmoral", "inner self": "Inner Self", "krono nutrition": "Krono", "kronobar": "Krono", "grynd food": "Grynd", "grynd food inc": "Grynd", "fast bundle": "Upika", "upika": "Upika", "brix rechargé par la nature": "Brix", "brix recharge par la nature": "Brix", "asics america": "ASICS", "asics": "ASICS", "brooks sports": "Brooks", "nike usa": "Nike", "nike team sale": "Nike",
                "on shoes": "On", "on footwear": "On", "on-running": "On", "gu energy": "GU", "gu energy labs": "GU", "gu sports": "GU",
@@ -4531,6 +4594,17 @@ def main():
             msg = str(e)
             m = re.search(r"(Tunnel connection failed: \d+ \w+|\d{3} Client Error: \w+|HTTP \d{3}|no [^;]{0,60})", msg)
             kept = prev_offers.get(st, [])
+            # Nov 1 (growth chat: RunFree's 27 stores closed /api/ to robots ~Oct 30): a failed store used to keep its last
+            # listings forever (each night's fallback became the next night's "last run"), so frozen prices looked fresh.
+            # Now a store not read successfully for KEEP_HOURS leaves the site until it reads again.
+            last = stamps.get(st)
+            try:
+                age = (dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(last)).total_seconds() / 3600 if last else None
+            except Exception:
+                age = None
+            if kept and (age is None or age > KEEP_HOURS):
+                return [], False, (f"{st}: FAILED ({m.group(1) if m else msg[:120]}); taken off the site "
+                                   f"(last good read {('%.0f h ago' % age) if age is not None else 'unknown'}, over {KEEP_HOURS} h)")
             return kept, False, f"{st}: FAILED ({m.group(1) if m else msg[:120]}); kept {len(kept)} from last run"
     # Lanes (Oct 5, 2026: one after another took ~35 min, this ~13): the Shopify stores one at a time in one lane
     # (Shopify counts requests from one machine across all its stores: 4 at once got "429 too many requests"),

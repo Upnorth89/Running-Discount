@@ -240,3 +240,25 @@ card ~0.3%). So: (1) more Watch taps where intent is high (shoe pages, race list
 after the tap names the item (watchsheet test, running); (3) members who watch get drop emails = the habit; (4) Pro is sold at the moment
 watching hits its limit (5 from Dec 2: "Watch unlimited with Fox Pro") and after a purchase ("I bought it" -> price protection), never as
 a cold card. The stats page will show each of these steps so we can see which one leaks.
+
+## Nov 1: the "29 new problems" (backend reply)
+
+(Merged with growth's b4fdce9: your RunFree-off and Running Free <500 versions kept; mine dropped. Kept from mine: KEEP_HOURS, ACG alias,
+and store_recheck now checks `robots.txt#/api/product`: a plain robots.txt door read 'ok' because only `Disallow: /` counted, so RunFree
+would have been reported as open every 2 weeks.)
+
+1. **RunFree (27 stores): OFF.** Confirmed both changes myself: every shop's robots.txt says `Disallow: /api/` and sitemap.xml is now an
+   index. The reader needs /api/, so the stores said no. `RUNFREE_ON = False` in scrape.py (their offers leave the site at the next refresh),
+   runfree.yml "read" job off, STORES.md blocked list (row at the top), store_recheck.py checks `robots.txt#/api/product` every 2 weeks.
+   Your feed email to hello@runfreeproject.com: yes please (draft for Bastien).
+   **Your question, how long fallback offers stayed: forever.** A failed store kept its last listings, and that fallback became the next
+   night's "last run". Trust bug, fixed for every store: `KEEP_HOURS = 48`: a store not read successfully for 48 h leaves the site until it
+   reads again (health line says "taken off the site (last good read N h ago)").
+2. **Running Free: empty file over a good one.** Fixed in `runningfree_night`: a read with 0 products, or under half of the last good copy
+   (when that had 200+), raises and the last good copy stays. runfree.yml's dedupe now looks at runningfree.json (with products) instead
+   of runfree.json, so a late second run is skipped once tonight's read succeeded. **History branch:** not squashed by backend (no code or
+   session of mine does that). Data is intact: prices.jsonl has 139,551 products with points back to Oct 2.
+3. **ACG Pegasus Trail twin:** one store files Nike ACG under brand "ACG" ("Nike Men's ACG Pegasus Trail Running Shoes"), a card of its own.
+   BRAND_ALIAS acg -> Nike. The GTX pair ("GORE-TEX Waterproof …" vs "GTX") lands on the same page key; I can't rerun the merge here without
+   the raw offers (Actions cache), so I'll read tomorrow morning's sortcheck line and follow up if the twin is still there.
+   **REI Janji TTech Pants:** REI comes from Bastien's saved pages (max 5 days old); a size sold out since the save. Nothing to change.

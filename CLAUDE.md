@@ -640,7 +640,7 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   site first. **Give posts right in the chat as hyperlinked items only** ("easier for me to copy paste. Only put the items"): no title,
   no footer, no files. `--toronto` (Oct 17, r/runTO, mod approved): only deals whose best price is at a store with Toronto shops
   (TORONTO: Running Free, Running Room, BlackToe, Sporting Life, MEC, Sport Chek, Decathlon, Foot Locker, Arc'teryx), "at <store>"
-  on each line; an item whose ?q= link would find other models too is skipped. Put the Markdown inside ONE code block (copying rendered chat links loses them; Oct 13: "It doesn't
+  on each line; an item whose ?q= link would find other models too is skipped. Oct 31: city posts take each line's price, sizes and store from ONE shop (`store_band`; a line once named BlackToe with Sport Chek's price); post_check checks the named store's rows. Put the Markdown inside ONE code block (copying rendered chat links loses them; Oct 13: "It doesn't
   work"); he pastes it in Reddit's Markdown mode.
   **Reddit = shoes only with shoe page links (Oct 24, Bastien: "Reddit is great for clicks but no sign ups"; 705 Reddit first visits in
   14 days, <1% signed up, 8 of 361 homepage landings picked sizes; shoe pages bring 24 of 61 sign-ups via "Email me when it drops"):
@@ -705,6 +705,8 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   service (its pages show prices only after a script, so the page-text check would have called every deal "ended"). The catalog file's
   Sport Chek rows are ignored (`CATALOG_LIVE`). If it ever answers 403/captcha: stop, don't work around it. Checked Oct 14: Atmosphere
   closed its online store (moved into Sport Chek); Sports Experts is behind an Incapsula 403 wall (no).
+- Failed stores (Nov 1): a store keeps its last listings for `KEEP_HOURS` (48 h) after its last good read, then leaves the site until it
+  reads again (it used to keep them forever). (Running Free's night read keeps its last good file when a read finds under 500 products: growth's fix.)
 - Speed (Oct 5): stores are read in 4 lanes at once (`run(st,fn)` + ThreadPoolExecutor(4)); all Shopify stores share one
   sequential lane (4 at once got 429s). The full scrape takes ~13 min instead of ~35.
 - Shopify stores: listed in `SHOPIFY_STORES` in scrape.py (~44). Read via `/products.json`, prices checked
@@ -725,6 +727,9 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   SVP Sports (Ontario chain, 13 stores; Shopify): Cloudflare blocked it Oct 4 (saved pages, parked Oct 6); since Oct 12 read LIVE (the check is
   gone, robots allow): SHOPIFY_STORES "svp", only /collections/running-collection (US_COLLECTIONS), no cart.js (robots forbid it:
   `NO_CART`), `tidy_svp` ("adidas - Men's X Shoes (CODE)" -> "Men's X", sizes "M11" -> 11, "(Wide)", yoga/maternity/track suits out).
+- JD Sports Canada (Oct 31, Bastien: "Yes add it"): SHOPIFY_STORES "jdsports", only /collections/running-shoes (US_COLLECTIONS); `jd_prods()` keeps adults
+  ("Department:Mens/Womens Footwear" tag = gender) and current running models (JD_RUN; JD_NOT/LIFESTYLE_SHOE out), cuts the colour off the title
+  ("NOVABLAST 5 White / Lilac Hint" -> "NOVABLAST 5 - Women's"; JD_SUFFIX keeps Trail/Plus/Premium…). 48 cards Oct 31. jdsports.com (US) = 403.
 - Running Free (Oct 9; Ontario chain, own shop system, no feed): `runningfree_night` in scrape.py, runfree.yml job "runningfree"
   (~2 h, one page every 30 s = its robots.txt Crawl-delay). Listing pages (96 a page) of the men's/women's sections give name,
   "Mens Black" gender+colour, photo, regular + sale price; size filter pages ("10-Regular-66612", "Medium-45397") list only what's
@@ -896,6 +901,8 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
 - US shops (Shopify, `US_SHOPS`): Best Running Stores winners etc., ~26 (list in scrape.py and STORES.md). Finder: tools/find_stores.py
   + store-finder.yml (tests tools/us_candidates.txt from GitHub's network; my sandbox can't reach some hosts). Only ~1 in 4 US
   independents is on Shopify; many sell in store only.
+- **RunFree OFF since Nov 1, 2026** (robots.txt `Disallow: /api/` on every RunFree shop since ~Oct 30; `RUNFREE_ON = False` in scrape.py, runfree.yml read job `if: false`,
+  store_recheck.py watches it; runfree.yml's skip check now reads thefeed.json). Was:
 - RunFree (runfreeproject.com, a shop system for running stores; 25 stores in `RF.RUNFREE_STORES`; Runner's Soul (AB) is Canadian:
   `RF.CANADIAN`, CAD, Canada side; the rest `RUNFREE_US`): scraper/runfree.py, nightly
   runfree.yml 08:23 UTC: sitemap.xml lists every product; POST /api/product (details, kept 7 days in runfree-cache.json) and

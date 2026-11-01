@@ -65,7 +65,7 @@ day (e.g. no catalog file). Stores on both sides: Altra, Bandit, District Vision
 | rnnr | rnnr.com | Shopify | 77 | 21 |
 | Roka | roka.com | Shopify | 207 | 9 |
 | Run Uphill | runuphill.ca | Shopify | 897 | 236 |
-| Runner's Soul | shop.runnersoul.com | RunFree (night read) | 191 | 45 |
+| Runner's Soul | shop.runnersoul.com | RunFree: OFF Nov 1 (robots.txt Disallow /api/) | 191 | 45 |
 | Running Free | runningfree.com | GPT file | 549 | 380 |
 | SAIL | sail.ca | Shopify | 375 | 209 |
 | Satisfy | satisfyrunning.com | Shopify | 451 | 1 |
@@ -96,72 +96,72 @@ day (e.g. no catalog file). Stores on both sides: Altra, Bandit, District Vision
 | Store | Website | How we read it | Products | On sale |
 |---|---|---|---:|---:|
 | 2XU | us.2xu.com | Shopify | 205 | 72 |
-| 605 Running Company | shop.run605.com | RunFree (night read) | 160 | 49 |
-| Aardvark Sports Shop | shop.aardvarksportsshop.com | RunFree (night read) | 203 | 60 |
+| 605 Running Company | shop.run605.com | RunFree: OFF Nov 1 (robots.txt Disallow /api/) | 160 | 49 |
+| Aardvark Sports Shop | shop.aardvarksportsshop.com | RunFree: OFF Nov 1 (robots.txt Disallow /api/) | 203 | 60 |
 | Ann Arbor Running Company | annarborrunningcompany.com | Shopify | 305 | 81 |
 | Athletic Annex | athleticannex.com | Shopify | 864 | 375 |
 | Balega | balega.com | Shopify | 151 | 11 |
-| Big Peach Running Co. | shop.bigpeachrunningco.com | RunFree (night read) | 165 | 66 |
-| Bull City Running Co. | shop.bullcityrunning.com | RunFree (night read) | 377 | 100 |
-| Charlotte Running Company | shop.charlotterunning.com | RunFree (night read) | 367 | 105 |
-| Charm City Run | shop.charmcityrun.com | RunFree (night read) | 470 | 125 |
+| Big Peach Running Co. | shop.bigpeachrunningco.com | RunFree: OFF Nov 1 (robots.txt Disallow /api/) | 165 | 66 |
+| Bull City Running Co. | shop.bullcityrunning.com | RunFree: OFF Nov 1 (robots.txt Disallow /api/) | 377 | 100 |
+| Charlotte Running Company | shop.charlotterunning.com | RunFree: OFF Nov 1 (robots.txt Disallow /api/) | 367 | 105 |
+| Charm City Run | shop.charmcityrun.com | RunFree: OFF Nov 1 (robots.txt Disallow /api/) | 470 | 125 |
 | Columbus Running Company | columbusrunning.com | Shopify | 795 | 203 |
 | Confluence Running | confluencerunning.com | Shopify | 1,807 | 768 |
 | Darn Tough | darntough.com | Shopify | 281 | 3 |
 | Feetures | feetures.com | Shopify | 163 | 113 |
 | Fitness Sports | fitnesssports.com | Shopify | 551 | 185 |
 | Gazelle Sports | gazellesports.com | Shopify | 3,139 | 688 |
-| Good Times Running Co. | shop.goodtimesrunningco.com | RunFree (night read) | 138 | 44 |
+| Good Times Running Co. | shop.goodtimesrunningco.com | RunFree: OFF Nov 1 (robots.txt Disallow /api/) | 138 | 44 |
 | goodr | goodr.com | Shopify | 382 | 0 |
 | GU | guenergy.com | Shopify | 15 | 0 |
 | Heartbreak Hill Running Co. | heartbreakhillrunningcompany.com | Shopify | 745 | 199 |
 | Huma | humagel.com | Shopify | 7 | 1 |
-| iRun Texas | shop.iruntexas.net | RunFree (night read) | 229 | 48 |
-| John's Run/Walk Shop | shop.johnsrunwalkshop.com | RunFree (night read) | 6 | 1 |
+| iRun Texas | shop.iruntexas.net | RunFree: OFF Nov 1 (robots.txt Disallow /api/) | 229 | 48 |
+| John's Run/Walk Shop | shop.johnsrunwalkshop.com | RunFree: OFF Nov 1 (robots.txt Disallow /api/) | 6 | 1 |
 | Luke's Locker | lukeslocker.com | Shopify | 379 | 104 |
-| Manhattan Running Company | shop.manhattanrunningco.com | RunFree (night read) | 123 | 28 |
+| Manhattan Running Company | shop.manhattanrunningco.com | RunFree: OFF Nov 1 (robots.txt Disallow /api/) | 123 | 28 |
 | Mill City Running | millcityrunning.com | Shopify | 540 | 178 |
-| Millennium Running | shop.millenniumrunning.com | RunFree (night read) | 186 | 55 |
-| Missouri Running Company | shop.moruncocape.com | RunFree (night read) | 262 | 55 |
+| Millennium Running | shop.millenniumrunning.com | RunFree: OFF Nov 1 (robots.txt Disallow /api/) | 186 | 55 |
+| Missouri Running Company | shop.moruncocape.com | RunFree: OFF Nov 1 (robots.txt Disallow /api/) | 262 | 55 |
 | Mount to Coast | mounttocoast.com | Shopify | 7 | 1 |
 | Mountain Running Company | mountainrunningcompany.com | Shopify | 856 | 233 |
 | Nathan | nathansports.com | Shopify | 86 | 29 |
 | Nuun | nuun.com | Shopify | 15 | 7 |
 | Ombraz | ombraz.com | Shopify | 47 | 18 |
-| Pace Yourself Run Co. | shop.pyrunco.com | RunFree (night read) | 317 | 111 |
+| Pace Yourself Run Co. | shop.pyrunco.com | RunFree: OFF Nov 1 (robots.txt Disallow /api/) | 317 | 111 |
 | Pacers Running | pacersrunning.com | Shopify | 628 | 312 |
-| Palmetto Running Company | shop.palmettorunningcompany.com | RunFree (night read) | 132 | 31 |
+| Palmetto Running Company | shop.palmettorunningcompany.com | RunFree: OFF Nov 1 (robots.txt Disallow /api/) | 132 | 31 |
 | Path Projects | pathprojects.com | Shopify | 51 | 10 |
 | Performance Running Outfitters | performancerunning.com | Shopify | 1,277 | 390 |
-| Philadelphia Runner | shop.philadelphiarunner.com | RunFree (night read) | 471 | 125 |
+| Philadelphia Runner | shop.philadelphiarunner.com | RunFree: OFF Nov 1 (robots.txt Disallow /api/) | 471 | 125 |
 | Playmakers | playmakers.com | Shopify | 1,560 | 295 |
-| Point 2 Running Company | shop.runpoint2.com | RunFree (night read) | 156 | 60 |
+| Point 2 Running Company | shop.runpoint2.com | RunFree: OFF Nov 1 (robots.txt Disallow /api/) | 156 | 60 |
 | Portland Running Company | portlandrunningcompany.com | Shopify | 563 | 189 |
 | PR Run & Walk | prrunandwalk.com | Shopify | 1,719 | 632 |
-| Red Coyote Running and Fitness | shop.redcoyoterunning.com | RunFree (night read) | 380 | 143 |
+| Red Coyote Running and Fitness | shop.redcoyoterunning.com | RunFree: OFF Nov 1 (robots.txt Disallow /api/) | 380 | 143 |
 | REI | rei.com | GPT file / saved pages | 789 | 785 |
 | Run Flagstaff | runflagstaff.com | Shopify | 153 | 18 |
-| Runner's Roost | shop.runnersroost.com | RunFree (night read) | 454 | 169 |
+| Runner's Roost | shop.runnersroost.com | RunFree: OFF Nov 1 (robots.txt Disallow /api/) | 454 | 169 |
 | Runners Plus | runnersplus.com | Shopify | 1,500 | 440 |
 | Running Lab | runninglabstore.com | Shopify | 1,044 | 296 |
-| Running Niche | shop.runningniche.com | RunFree (night read) | 322 | 69 |
+| Running Niche | shop.runningniche.com | RunFree: OFF Nov 1 (robots.txt Disallow /api/) | 322 | 69 |
 | Running Warehouse | runningwarehouse.com | GPT file | 2,731 | 1,598 |
-| Running Zone | shop.runningzone.com | RunFree (night read) | 352 | 99 |
-| Rush Running | shop.rushrunning.com | RunFree (night read) | 42 | 10 |
+| Running Zone | shop.runningzone.com | RunFree: OFF Nov 1 (robots.txt Disallow /api/) | 352 | 99 |
+| Rush Running | shop.rushrunning.com | RunFree: OFF Nov 1 (robots.txt Disallow /api/) | 42 | 10 |
 | San Francisco Running Company | store.sfrunco.com | Shopify | 214 | 34 |
 | Scranton Running Company | scrantonrunning.com | Shopify | 244 | 45 |
 | Sports Basement | sportsbasement.com | Shopify | 1,285 | 577 |
 | Paragon Sports (NYC) | paragonsports.com | Shopify (running-shoes + running collections; shoes only, Oct 19) | 385 | 0 |
 | Stance | stance.com | Shopify | 937 | 440 |
-| Terra Running Company | shop.terrarunning.com | RunFree (night read) | 193 | 45 |
+| Terra Running Company | shop.terrarunning.com | RunFree: OFF Nov 1 (robots.txt Disallow /api/) | 193 | 45 |
 | Territory Run Co. | territoryrun.co | Shopify | 48 | 10 |
 | The Running Well Store | therunningwellstore.com | Shopify | 733 | 266 |
 | Tifosi | tifosioptics.com | Shopify | 150 | 16 |
 | Tortoise & Hare Sports | tortoiseandharesports.com | Shopify | 620 | 84 |
-| Track Shack | shop.trackshack.com | RunFree (night read) | 203 | 52 |
+| Track Shack | shop.trackshack.com | RunFree: OFF Nov 1 (robots.txt Disallow /api/) | 203 | 52 |
 | Trailhead Running Supply | trailheadrunningsupply.com | Shopify | 596 | 164 |
 | Two Rivers Treads | tworiverstreads.com | Shopify | 292 | 45 |
-| West Stride | shop.weststride.com | RunFree (night read) | 204 | 58 |
+| West Stride | shop.weststride.com | RunFree: OFF Nov 1 (robots.txt Disallow /api/) | 204 | 58 |
 | Xtra Mile Running | xtramilerunning.com | Shopify | 267 | 166 |
 | Zappos | zappos.com | GPT file | 800 | 546 |
 <!--/STORE-LIST-->
@@ -184,6 +184,8 @@ every check (rule in CLAUDE.md: try every allowed way first; a store that says n
 | Boutique Courir | Montréal | blocks automated reading (Oct 1) | site | ask the store |
 | Simons | Québec (simons.ca) | Cloudflare 403 on every page, sitemap and search, from my sandbox and from GitHub's servers (probe.yml, Oct 11); robots.txt empty | site, sitemap, search, GitHub probe | GPT catalog file (ask GPT to add Simons' running/activewear), or an affiliate feed |
 | SVP Sports | Ontario (13 stores) | Cloudflare check (Oct 4); gone Oct 12 | **live since Oct 12** (Shopify, running-collection only) | none needed |
+| JD Sports | Canada-wide chain (Toronto: Eaton Centre, Yorkdale…) | none (jdsports.com US: 403 = no) | **live since Oct 31** (Shopify, running-shoes collection only, adults' running models: `jd_prods`) | none needed |
+| RunFree shops (27: 26 US + Runner's Soul AB) | US + Lethbridge | robots.txt `Disallow: /api/` since ~Oct 30, 2026 (the /api/product + /api/options services runfree.py read); product pages = one price, no sizes | **OFF since Nov 1** (`RUNFREE_ON = False`; read job off) | official feed from RunFree (hello@runfreeproject.com) or robots reopening /api/ (store_recheck.py) |
 | Brooks, New Balance, ASICS, Hoka, Salomon, adidas, Inov-8, The North Face | brands | 403/406 "Access denied" (rechecked Oct 5; ASICS Oct 10: asics.com CA + US, outlet.asics.com, even robots.txt and sitemaps answer Akamai 403, from my sandbox and from GitHub's servers via probe.yml) | brand sites; **Brooks, New Balance, ASICS, adidas.ca come from the GPT catalog file** (Oct 8) | their shoes reach us through the stores |
 | Nike | brand | robots.txt disallows product pages (sizes) | listings | through the stores |
 | On | brand | script-only page, robots disallows /api | site | through the stores |

@@ -80,6 +80,18 @@ def best_band(it, need):
     return None, None
 
 
+def store_band(it, need, stores):
+    """City posts (Oct 31, r/runTO: a line said "$203.97 at BlackToe" but $203.97 was Sport Chek's price, BlackToe's was $203): the band
+    comes from ONE store, so the price, the sizes counted and the store named on the line all belong to the same shop."""
+    best = (None, None)
+    for st in stores:
+        one = [s for s in it["sz"] if host(it["of"][s[2]]).endswith(st)]
+        pct, at = best_band(dict(it, sz=one), need) if one else (None, None)
+        if pct and (best[0] is None or pct > best[0]):
+            best = (pct, at)
+    return best
+
+
 def confirm(it, at, fx, us):
     for s in sorted(at, key=lambda s: s[1])[:3]:
         u = it["of"][s[2]]
@@ -98,7 +110,7 @@ def cdn_brands():
 
 # Oct 17 (Bastien, r/runTO: "Put best deals around Toronto"): stores with shops in Toronto / the GTA
 TORONTO = ["runningfree.com", "runningroom.com", "blacktoerunning.com", "sportinglife.ca", "mec.ca", "sportchek.ca",
-           "decathlon.ca", "footlocker.ca", "arcteryx.com"]
+           "decathlon.ca", "footlocker.ca", "arcteryx.com", "jdsports.ca"]
 # Stores per place (--city): Toronto = shops in the city; Québec and BC = based in the province
 CITIES = {"toronto": TORONTO,
           # Oct 18 (Bastien: "local means Quebec province", the Montréal-Québec City corridor): Québec-based stores and brands, + MEC (stores in Montréal and Québec City)
@@ -163,12 +175,13 @@ def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, u
                 continue
             if kind and it.get("t") != kind:
                 continue
-            pct, at = best_band(it, 5 if canadian else 7)
+            pct, at = store_band(it, 5 if canadian else 7, stores) if stores else best_band(it, 5 if canadian else 7)
             if pct and pct >= 0.30 and (not under or min(s[1] for s in at) / fx <= under):
                 shoes.append((pct, it, at))
         elif ((it["g"] in GEAR_GROUPS and b in GEAR_BR) or (canadian and it["g"] != "shoes")) \
                 and not (kind == "daily" and (it["g"] == "packs" or re.search(r"vest|onesie", n))):   # beginners: no race vests
-            pct, at = best_band(it, 1 if it["g"] in ("gear", "watches", "nutrition", "packs") else 3)
+            need = 1 if it["g"] in ("gear", "watches", "nutrition", "packs") else 3
+            pct, at = store_band(it, need, stores) if stores else best_band(it, need)
             if pct and pct >= (0.25 if canadian else 0.35) and min(s[1] for s in at) / fx >= (10 if canadian else 30) and (not under or min(s[1] for s in at) / fx <= under) \
                     and (kind != "trail" or re.search(r"trail|vest|pole|headlamp|light|wind|rain|jacket", fold(it["n"]))):
                 gear.append((pct, it, at))
