@@ -322,3 +322,14 @@ Mountain High, EMS, Appalachian Outdoors: 18,000+ products read): 6 stores would
 ("Ultra Light" shirts, pack covers, caps) and only 2 real running shoes, 4 on sale. The hiking read takes their hiking sections; their
 running gear (if any) isn't in it. Counting these as running stores would be padding, so the change was not shipped.
 Better levers for "3 stores per store lost": readable running specialty shops (like Gord's) and brand shops (your batches).
+
+## Nov 1 (night): Distance Runwear built, OFF until Bastien's yes
+- `scrape_distance()` behind `DISTANCE_ON = False`. Lightspeed JSON (collection ?format=json&limit=100 + each product ?format=json),
+  through polite.py with its robots Crawl-delay 2 (597 requests, ~20 min on a first read; later reads re-read only changed/on-sale
+  products). 0 slow-downs, 0 robots refusals.
+- Honest numbers: 800 products listed, 504 in stock, but most are barefoot LIFESTYLE footwear (Lems, Be Lenka, Froddo, Lono, El Naturalista)
+  that the merge already leaves out. Running side gets 51 cards, 20 on sale (Xero 11, Altra 7, Topo 5, Inov-8 4, NNormal, norda, Salomon…).
+  Sortcheck: 0 to look at. Live price checks 5 of 5 (rabbit High Country SS M S $81.75 was $109; Merrell Wrapt W 7 $84 was $140; Inov-8 Trailfly
+  Zero $129 was $215; Altra Torin 8 GTX M 8 $157.50 was $210; Salomon Sense Pro 6 S $105 was $210).
+- Worth it? Small (51 cards) but real running gear from a Canadian running shop; it costs ~20 min of slow reading on its first run.
+  If Bastien says yes, I'd run it in the night job instead of the morning read (its Crawl-delay makes it the slowest daytime store).
