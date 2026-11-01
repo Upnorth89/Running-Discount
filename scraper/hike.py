@@ -382,12 +382,10 @@ def shopify_store1(st, base, cols, side):
         pass
     cookies = s.CA_COOKIES if side == "ca" else None
     root = re.match(r"https?://[^/]+", base).group(0)
-    served = s.shopify_price_currency(root, cookies)
-    if home == "CAD" and served and served != "CAD":     # Oct 25: Taiga (a CAD store) once answered USD; ask again before converting
-        served = s.shopify_price_currency(root, cookies)
-        if served != "CAD":
-            raise RuntimeError(f"CAD store served {served}: prices unsure, left out today")
-    cur = served or home or "CAD"
+    # Nov 1: products.json prices are in the shop's base currency (meta.json) whatever market the visitor gets; the homepage's
+    # Shopify.currency is the visitor's market (GitHub = USD), so it's only asked when meta.json says nothing
+    served = None if home else s.shopify_price_currency(root, cookies)
+    cur = home or served or "CAD"
     home = home or cur
     prods, seen = [], {}
     for c in (cols or [None]):

@@ -3764,12 +3764,15 @@ def make_shopify_scraper(st, base, kind):
         # always ask for the store's Canadian market: the price and stock a Canadian visitor actually gets
         # (otherwise the store guesses from GitHub's server location: Chilean pesos, or "not available here")
         cookies = None if st in US_SHOPS else CA_COOKIES    # US shops: their own (US) market
-        served = None if st in NO_CART else shopify_price_currency(base, cookies)   # the currency the prices actually come back in
+        # Nov 1: products.json prices are ALWAYS in the shop's base currency (meta.json), whatever market the visitor gets (Capra:
+        # 26.00 with or without Canadian cookies). The homepage's Shopify.currency is the visitor's market (GitHub = USD), so it's
+        # only asked when meta.json says nothing. (It made 11 CAD stores read as USD for one run: prices +40%.)
+        served = None if (home or st in NO_CART) else shopify_price_currency(base, cookies)
         home = home or served
         if not home:
             print(f"  ! {st}: currency unknown, assuming CAD", file=sys.stderr)
             home = "CAD"
-        cur = served or home
+        cur = home or served
         if st in US_COLLECTIONS:
             seen, prods = set(), []
             for h in US_COLLECTIONS[st]:
