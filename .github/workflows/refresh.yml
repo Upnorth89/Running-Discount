@@ -113,13 +113,24 @@ jobs:
       - name: Hiking catalogue (starts now, runs alongside the store reads)
         continue-on-error: true
         run: |
-          nohup python scraper/hike.py /tmp/hike > /tmp/hike.log 2>&1 &
+          # Nov 1 (Bastien: "Are we scanning stores too often?"): a code push rebuilds from the last store read instead of visiting
+          # all 66 stores again (Oct 31 = 13 push runs = 13 extra full reads). Only the scheduled/started runs read the stores.
+          RM=""; [ "${{ github.event_name }}" = "push" ] && [ -s /tmp/hike/hike-offers.json ] && RM="--remerge"
+          nohup python scraper/hike.py /tmp/hike $RM > /tmp/hike.log 2>&1 &
           echo $! > /tmp/hike.pid
       - name: Scrape stores
         env:                       # SUPABASE_*: deals sent from the phone "Grab deals" bookmark (grab_saves, Oct 8)
           SUPABASE_URL: "https://krwymmkauwqqxjxbvkyq.supabase.co"
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
-        run: python scraper/scrape.py site/deals.json
+        # Nov 1: a code push reuses this morning's/afternoon's store read (offers.json from the private cache) and rebuilds the pages,
+        # so shops see us twice a day as planned, not once per push. No cached read (rare) = a normal full read.
+        run: |
+          if [ "${{ github.event_name }}" = "push" ] && [ "$(stat -c %s site/offers.json 2>/dev/null || echo 0)" -gt 1000000 ]; then
+            echo "push run: rebuilding from the last store read (no store visits)"
+            python scraper/scrape.py site/deals.json --remerge
+          else
+            python scraper/scrape.py site/deals.json
+          fi
       # price history ("Is this deal real?"): lives on the history branch, so a failed download can't wipe it
       - name: Fetch price history
         continue-on-error: true
