@@ -3232,9 +3232,20 @@ SHOPIFY_STORES = [
     # ("honeystinger",   "https://www.honeystinger.com",       "food"),   # off Oct 8: blocks GitHub's servers (0 products since Oct 1); its gels reach us through other stores
     ("gu",             "https://guenergy.com",               "food"),
     ("huma",           "https://www.humagel.com",            "food"),
+    # Nov 1 (Bastien: "Bring our numbers up to 200 ... prioritize USA"): running brands' own shops, readable, robots ok, no AI block.
+    # Each store's own shipping list decides the side (meta.json ships_to_countries).
+    ("xero",           "https://xeroshoes.com",              "gear"),   # Xero Shoes (Colorado): barefoot running/trail shoes; ships to Canada
+    ("newton",         "https://newtonrunning.com",          "gear"),   # Newton Running (Colorado)
+    ("orangemud",      "https://orangemud.com",              "gear"),   # Orange Mud (Texas): hydration vests and packs
+    ("flipbelt",       "https://flipbelt.com",               "gear"),   # FlipBelt: running belts (US only)
+    ("spibelt",        "https://spibelt.com",                "gear"),   # SPIbelt: running belts (US only)
+    ("fitletic",       "https://fitletic.com",               "gear"),   # Fitletic: running belts and bottles
+    ("runderwear",     "https://runderwear.com",             "gear"),   # Runderwear: running underwear and socks
+    ("lmnt",           "https://www.drinklmnt.com",          "food"),   # LMNT: electrolyte drink mix
+    ("muir",           "https://muirenergy.com",             "food"),   # Muir Energy: organic energy gels
 ]
 
-NOT_RUNNING = re.compile(r"gift ?card|pannier|eyeglasses|optical|reading glass|blue light|prescription|e-?gift|\bbike\b|cycling|\bbib\b|swim|golf|\bski\b|snowboard|\bdog\b|\bpet\b|"
+NOT_RUNNING = re.compile(r"challenge patch|gift ?card|pannier|eyeglasses|optical|reading glass|blue light|prescription|e-?gift|\bbike\b|cycling|\bbib\b|swim|golf|\bski\b|snowboard|\bdog\b|\bpet\b|"
                          r"\btent\b|sleeping bag|stickers?|poster|\bmug\b|\bbundle builder\b|warranty|shipping protection|"
                          r"route protection|insurance|bunion|toe (separator|spacer)s?|\bsample\b|donation|\bknitwear\b|\bsherpa\b|\bgym bag\b|tote bag|loops & loot|test clothing|"   # Balmoral's lifestyle pieces (Oct 8)
                          # ski touring (Ski Uphill, Oct 7); trail crampons and goodr "Donkey Goggles" sunglasses stay
@@ -3486,6 +3497,7 @@ def jd_prods(prods):
         out.append(q)
     return out
 
+XERO_RUN = re.compile(r"(?i)\b(hfs|speed ?force|mesa trail|scrambler trail|prio|forza runner|360)\b")   # Xero Shoes running/trail/training lines
 PARAGON_FEET = {"RUN/TRAIN FOOTWEAR", "OUTDOOR FOOTWEAR"}
 def paragon_prods(prods):
     """Paragon Sports (NYC, Oct 19, 2026; Bastien: "have we been adding stores in NYC?"). Its store system writes
@@ -3570,6 +3582,8 @@ def make_shopify_scraper(st, base, kind):
         print(f"  {st}: {len(prods)} products, store {home}, prices in {cur}" + (f" x{fx}" if cur != "CAD" else ""), file=sys.stderr)
         items = shopify_items(st, base, prods, generic_group(kind), fx=fx, size_aware=True, collapse=True,
                               size_fn=(lambda _l: "OS") if kind == "eyewear" else generic_size)
+        if st == "xero":     # Nov 1: Xero also sells casual/leather shoes and boots; keep its running, trail and training models only
+            items = [o for o in items if o["g"] == "shoes" and XERO_RUN.search(o["n"]) and not re.search(r"(?i)kids|insole|leather|coast", o["n"])]
         if st == "svp":
             items = tidy_svp(items)
         if st == "paragon":
@@ -4054,7 +4068,7 @@ BRAND_ALIAS = {"kuhl": "KÜHL", "kühl": "KÜHL",   # Oct 30: KÜHL (79) = KUHL 
                "instinct": "Instinct Trail", "life sport": "Life Sports Gear", "life sports": "Life Sports Gear", "strassburg medical": "Strassburg",
                "columbia titanium": "Columbia", "stance us": "Stance", "balega us": "Balega", "2xu outlet": "2XU", "roka outlet": "ROKA",
                "roka custom": "ROKA", "goodr sunglasses": "goodr", "nb": "New Balance", "h.koumori": "Hermanos Koumori",
-               "clif bar": "Clif", "nuun hydration": "Nuun", "currex insoles": "Currex", "cep compression": "CEP",
+               "clif bar": "Clif", "elemental labs": "LMNT", "nuun hydration": "Nuun", "currex insoles": "Currex", "cep compression": "CEP",
                "spenco medical products": "Spenco", "strides running store": "Strides", "glide + seek": "Glide and Seek",
                "raide": "Raide Research", "moana": "Moana Sunnies", "buffs": "Buff", "hammer": "Hammer Nutrition",
                "kinesys performance sunscreen": "Kinesys", "altra zero drop footwear": "Altra", "adidas terrex": "adidas",
