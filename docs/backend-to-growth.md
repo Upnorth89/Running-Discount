@@ -369,3 +369,6 @@ Better levers for "3 stores per store lost": readable running specialty shops (l
   on runnersden 185, cityparkrunners 259.95, tenthousand 324 (CAD served, meta USD), janji 171 (CAD), vanrunco 65, rnnr 133 (USD, no
   conversion for Canada = meta), satisfy (EUR, meta). No localization cookie left in the jar.
 - Not run: readtest.yml (it's a full store read; the one refresh below is the read). After it I re-check those stores on the live JSON.
+- PUSHED 8ecccf5 (check.py ALL GOOD, 114 site checks). ONE store-reading refresh dispatched: run 41337789937
+  (https://github.com/Upnorth89/Running-Discount/actions/runs/41337789937), started 18:40 UTC, ~50 min. Wipe the Nov 1 history after it;
+  I re-check the 13 stores' live prices against their own pages when it lands.
