@@ -521,3 +521,152 @@ Oct 20, 2026 (night), US cities + Gear Patrol "best running shops" list (Bastien
 Oct 20 (Bastien): added Praise Endurance (Montréal apparel brand, praiseendurance.com, Shopify; Canadian brands list) and Foveō Running
 (Courtenay BC, foveo.run, Shopify; "- Men"/"- Women" names tidied). Endurance Tap: its site now forwards to The Feed (sold there, already
 read). Hettas (Vancouver women's running shoes, hettas.com): readable but its shoes are pre-order ("ships early November"): add when they ship.
+
+## US running shop audit (Nov 1, 2026; Bastien: "if a reader is needed build it, otherwise catalog the reason")
+
+125 candidates (The Running Event's Best Running Stores lists + shops found by hand), each checked under our own bot name: home page, shop system, robots.txt (AI rules), product data.
+
+**Added Nov 1 (1)**
+- Dave's Running Shop (davesrunning.com): Shopify, 525 items, 130 on sale
+
+**Already covered (9)**
+- Pacers Running (runpacers.com): Pacers (pacersrunning.com)
+- Ann Arbor Running Company (annarborrunningcompany.com): Ann Arbor Running Co (read)
+- Capital Run Walk (capitalrunwalk.com): Fleet Feet franchise (store.fleetfeet.com, read by the Fleet Feet reader)
+- FitNiche (fitniche.com): Fleet Feet franchise (store.fleetfeet.com, read by the Fleet Feet reader)
+- Garry Gribble's Running Sports (garrygribbles.com): Fleet Feet franchise (store.fleetfeet.com, read by the Fleet Feet reader)
+- Potomac River Running (potomacriverrunning.com): same catalogue as PR Run & Walk (read)
+- Fleet Feet Jackson (fleetfeetjackson.com): Fleet Feet franchise (store.fleetfeet.com, read by the Fleet Feet reader)
+- Boulder Running Co (boulderrunningcompany.com): Fleet Feet franchise (store.fleetfeet.com, read by the Fleet Feet reader)
+- fleetfeetsports.com (fleetfeetsports.com): Fleet Feet franchise (store.fleetfeet.com, read by the Fleet Feet reader)
+
+**Needs a reader (5)**
+- Salt Lake Running Company (slrc.com): BigCommerce; product pages JSON-LD via sitemap
+- Dick Pond Athletics (dickpondathletics.com): BigCommerce; product pages JSON-LD via sitemap
+- Independence Run & Hike (independencerunandhike.com): WooCommerce shop ; Store API closed -> product pages JSON-LD
+- Holabird Sports (holabirdsports.com): Shopify with products.json switched off; sitemap + product pages/.js (robots allow) = new reader
+- runnersmarket.com (runnersmarket.com): WooCommerce shop ; Store API closed -> product pages JSON-LD
+
+**Needs a look (4)**
+- Appalachian Running Company (apprunco.com): sells through shop.shoeflystores.com (other shop system)
+- Marathon Sports (marathonsports.com): Marathon Sports group site (Shopify front, products.json 404, store.marathonsports.com 404)
+- Runner's Alley (runnersalley.com): Marathon Sports group site (Shopify front, products.json 404, store.marathonsports.com 404)
+- soundrunner.com (soundrunner.com): Marathon Sports group site (Shopify front, products.json 404, store.marathonsports.com 404)
+
+**Checked, too small / not a fit (5)**
+- RunAbout Sports (runaboutsports.com): WooCommerce, 8 products online
+- Sports Spectrum (sportsspectrum.com): 37 products, 0 on sale
+- Onion River Sports (onionriver.com): general sports, 2 running shoes
+- trailrunnernation.com (trailrunnernation.com): WooCommerce, 1 product
+- ZombieRunner (zombierunner.com): 9 products
+
+**RunFree (blocked /api/ since Oct 30) (25)**
+- A Runner's Mind (arunnersmind.com)
+- A Snail's Pace (asnailspace.net)
+- CT Run Co. (ctrunco.com)
+- Dash Sports (shop.godashsports.com)
+- footTech (foottechlubbock.com)
+- Get Fit (mygetfitplace.com)
+- Grounded Running (groundedrunning.com)
+- Runners Corner (runnerscorner.com)
+- AKtive Soles (aktivesoles.com)
+- Complete Runner (completerunner.com)
+- Footzone (footzonebend.com)
+- Keystone Running Store (keystonerunningstore.com)
+- RC Outfitters (rcoutfitters.com)
+- Rhode Runner (rhoderunner.com)
+- Robert's Running and Walking (robertsrunning.com)
+- Runner's Depot (runnersdepot.com)
+- Runners Forum (runnersforum.com)
+- Run Hub Northwest (runhubnw.com)
+- Running Central (runningcentral.com)
+- Sayville Running Co. (sayvillerunning.com)
+- Super Jock 'n Jill (superjocknjill.com)
+- Tri N Run (trinrun.com)
+- Trak Shak (trakshak.com)
+- Big River Running (bigriverrunning.com)
+- trackshack.com (trackshack.com)
+
+**Says no / site errors (7)**
+- Howe2Run (howe2run.com): http404
+- Up and Running (uprunning.com): http403
+- Whirlaway Sports Center (whirlawaysports.com): http503
+- Campmor (campmor.com): http403
+- Joe's NB Outlet (joesnewbalanceoutlet.com): http403
+- Seattle Running Co (seattlerunningcompany.com): http403
+- eastbay.com (eastbay.com): http403
+
+**No product data (site builder, mostly in-store) (4)**
+- Eugene Running Company (eugenerunningcompany.com): wix
+- Ultra Max (ultramaxsports.com): squarespace
+- Rogue Running (roguerunning.com): squarespace
+- runningroomusa.com (runningroomusa.com): wix
+
+**No online catalogue found (info site / in-store only) (24)**
+- 1st Place Sports (1stplacesports.com)
+- Pro Bike + Run (probikerun.com)
+- Queen City Running Company (queencityrun.com)
+- Bandanna Running (bandannarunning.com)
+- Blue Mile (bluemile.com)
+- Charles River Running (charlesriverrunning.com)
+- Coastal Sole (coastalsole.com)
+- Elite Feet (elitefeet.com)
+- Gubbins Running Ahead (gubbinsrunningahead.com)
+- New England Running Company (nerunningco.com)
+- Run In (runin.com)
+- Running Away Multisport (runningawaymultisport.com)
+- Running Etc. (runningetc.com)
+- Running Soles (runningsoles.com)
+- Shoes & Brews (shoesandbrews.com)
+- Skinny Raven Sports (skinnyraven.com): shop link https://shop.skinnyraven.com
+- True Grit Running Company (truegritrunningcompany.com)
+- Varsity Sports (varsitysports.com)
+- Red Rock Running Company (redrockrunning.com)
+- Maine Running Company (mainerunningcompany.com)
+- rogueequipment.com (rogueequipment.com)
+- Run On! (runon.com)
+- runwiththewind.com (runwiththewind.com)
+- Balanced Athlete (balancedathlete.com)
+
+**Site didn't answer (domain moved or offline) (39)**
+- Bob Roncker's Running Spot (roncker.com)
+- Brooklyn Running Co. (bkrunningco.com)
+- Colorado Running Company (coloradorunningcompany.com)
+- Georgetown Running Company (georgetownrunning.com)
+- Good Times Running Co. (goodtimesrunning.com)
+- Haddonfield Running Co. (haddonfieldrunning.com)
+- Heart & Sole Sports (heartandsolesports.com)
+- Jacksonville Running Co. (jacksonvillerunningcompany.com)
+- Lucky Road (luckyroadrunning.com)
+- Medved Running & Walking (medvedrunning.com)
+- North Wales Running Co. (northwalesrunning.com)
+- Ridgefield Running Company (ridgefieldrunningcompany.com)
+- Roger Soler Running (rogersoler.com)
+- Runner's Edge (runnersedgemissoula.com)
+- Run 816 (run816.com)
+- Run For Your Life (rfyl.com)
+- Running Wild (runningwildpa.com)
+- Second Sole (secondsole.com)
+- See Jane Run (seejanerun.com)
+- Shu's Idaho Running Co. (idahorunning.com)
+- St. Pete Running Company (stpeterunning.com)
+- Swag's Sports Shoes (swagssportsshoes.com)
+- The Runner's Soul (therunnerssoul.com)
+- Runners Route (runnersroutehawaii.com)
+- Lincoln Running Company (lincolnrunning.com)
+- Delaware Running Company (delawarerunningcompany.com)
+- The Bike Shop / Runner's Roost WY (runnersroostlaramie.com)
+- Prairie Striders (prairiestriders.com)
+- Run In Columbia (runincolumbia.com)
+- Naperville Running Co (napervillerunningcompany.com)
+- Up and Running (upandrunningohio.com)
+- Runner's High (runnershighnc.com)
+- Bryn Mawr Running (brynmawrrunning.com)
+- runnersworldofmd.com (runnersworldofmd.com)
+- therunnerssoleatl.com (therunnerssoleatl.com)
+- bendrunningcompany.com (bendrunningcompany.com)
+- Footzone (footzone.com)
+- runtrailheads.com (runtrailheads.com)
+- runningwarehouse.com (runningwarehouse.com)
+
+Approach per group: **needs a reader** = backend builds it (generic WooCommerce/Lightspeed/BigCommerce readers, one config line per shop); **RunFree** = the permission email (plan doc tab "Store emails (Nov 1)"); **in-store only / no data** = nothing to read (recheck yearly); **says no** = store_recheck.py every 2 weeks; **didn't answer** = retry from GitHub's servers (store-finder.yml).
