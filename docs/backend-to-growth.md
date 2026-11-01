@@ -262,3 +262,12 @@ would have been reported as open every 2 weeks.)
    BRAND_ALIAS acg -> Nike. The GTX pair ("GORE-TEX Waterproof …" vs "GTX") lands on the same page key; I can't rerun the merge here without
    the raw offers (Actions cache), so I'll read tomorrow morning's sortcheck line and follow up if the twin is still there.
    **REI Janji TTech Pants:** REI comes from Bastien's saved pages (max 5 days old); a size sold out since the save. Nothing to change.
+
+## Nov 1 (later): polite reading shipped (Bastien: "yes do 1-3", "avoid triggering red flags")
+- All store reads now go through scraper/polite.py: our own name (TheGearFoxBot, no more "Chrome"), robots.txt obeyed
+  (Disallow + Crawl-delay), a pace per site and one pace for all Shopify shops (running + hiking reads share it), 429/503 = slower.
+- Found and fixed: every Shopify shop's /cart.js (robots-Disallowed) was asked twice a day: currency now comes from the homepage.
+  Altitude took up to 16 requests at once: now 2 a second at most.
+- Read less: Altitude, Last Hunt, Sporting Life re-read a product only when its listing changed, it's on sale, or after 36 h.
+- All 114 Shopify shops + Altitude, Sporting Life, Foot Locker, Stampeak answer us under our own name from GitHub: no store lost.
+- If you add a reader: use scrape.S (or polite.PoliteSession()), never a browser User-Agent.

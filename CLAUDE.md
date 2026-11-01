@@ -708,6 +708,14 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   closed its online store (moved into Sport Chek); Sports Experts is behind an Incapsula 403 wall (no).
 - Failed stores (Nov 1): a store keeps its last listings for `KEEP_HOURS` (48 h) after its last good read, then leaves the site until it
   reads again (it used to keep them forever). (Running Free's night read keeps its last good file when a read finds under 500 products: growth's fix.)
+- **Polite reading (Nov 1, Bastien: "avoid triggering any bot detection", "yes do 1-3")**: every store request goes through
+  scraper/polite.py `PoliteSession` (scrape.py `S`, so hike.py/livecheck too): our own name (TheGearFoxBot UA, never a browser
+  disguise), robots.txt Disallow obeyed (`RobotsNo`; Google-style matching for TheGearFoxBot/ClaudeBot/anthropic-ai, else *) +
+  Crawl-delay, a pace per site (GAP 1 s; HOST_GAP 0.5 s Altitude/Last Hunt) and per platform (`polite.platform("shopify")`,
+  0.5 s across ALL Shopify shops, running + hiking programs: file locks in /tmp/gf-polite), a 429/503 doubles that site's gap.
+  Shopify currency = homepage `Shopify.currency` (cart.js is Disallowed everywhere). Read less: Altitude/Last Hunt (both reads)
+  and Sporting Life re-read a product page only when its listing changed (`ct_fp`/tile fp), it's on sale, or our copy is
+  REUSE_HOURS (36) old (`reuse_ok`, `_fp`/`_at` in offers.json). Scrape log ends with "polite: N requests to M sites…".
 - Speed (Oct 5): stores are read in 4 lanes at once (`run(st,fn)` + ThreadPoolExecutor(4)); all Shopify stores share one
   sequential lane (4 at once got 429s). The full scrape takes ~13 min instead of ~35.
 - Shopify stores: listed in `SHOPIFY_STORES` in scrape.py (~44). Read via `/products.json`, prices checked

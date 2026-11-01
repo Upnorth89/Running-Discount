@@ -356,7 +356,15 @@ def robots_ok(base):
         return True
 
 
+HPREV = {}          # last read's raw offers per store (hike-offers.json)
+
+
 def shopify_store(st, base, cols, side):
+    with s.polite.platform("shopify"):       # one pace for all Shopify shops from this machine (running read included)
+        return shopify_store1(st, base, cols, side)
+
+
+def shopify_store1(st, base, cols, side):
     if not robots_ok(base):
         raise RuntimeError("robots.txt says no")
     r = s.S.get(f"{base}/products.json?limit=1", timeout=25)
@@ -446,16 +454,23 @@ def ct_store(st, base):
         for u in ([url] if n <= 1000 else [f"{url}&gender={x}" for x in ("Men", "Women", "NA")]):
             _, hits = s.list_all(u)
             for h in hits:
-                found.setdefault(h["slug"], (g, h.get("image_url"), t))
+                found.setdefault(h["slug"], (g, h.get("image_url"), t, s.ct_fp(h)))
     out = []
+    prev = {o["u"]: o for o in (HPREV.get(st) or {}).get("o", []) if o.get("u")}   # Nov 1: unchanged full-price pages not re-read
 
     def one(kv):
-        slug, (g, img, t) = kv
+        slug, (g, img, t, fp) = kv
+        old = prev.get(f"{base}/p/{slug}")
+        if s.reuse_ok(old, fp):
+            return dict(old), t
         try:
-            return s.product(base, slug, st, "gear" if g == "camp" else g, img), t
+            r = s.product(base, slug, st, "gear" if g == "camp" else g, img)
+            if r:
+                r["_fp"], r["_at"] = fp, s.now()
+            return r, t
         except Exception as e:
             return e, t
-    with ThreadPoolExecutor(6) as ex:
+    with ThreadPoolExecutor(4) as ex:            # the pace per site (polite.HOST_GAP) sets the speed
         for r, t in ex.map(one, found.items()):
             if not r or isinstance(r, Exception):
                 continue
@@ -651,7 +666,7 @@ def write(out, offers, stamps):
 
 
 def main():
-    s.S.headers["User-Agent"] = UA          # our own name, no disguise
+    # our own name, no disguise (scrape.py's session already sends polite.UA since Nov 1)
     out = Path(sys.argv[1])
     out.mkdir(parents=True, exist_ok=True)
     raw_path = out / "hike-offers.json"
@@ -659,6 +674,7 @@ def main():
         raw = json.loads(raw_path.read_text())
     else:
         prev = json.loads(raw_path.read_text()) if raw_path.exists() else {}
+        HPREV.update(prev)
         only = [a for a in sys.argv[2:] if not a.startswith("--")]
         raw = dict(prev)
         jobs = [(st, (lambda st=st, b=b: ct_store(st, b))) for st, b in (("altitude", "https://www.altitude-sports.com"),
@@ -687,6 +703,7 @@ def main():
             if data:
                 raw[st] = data
         raw_path.write_text(json.dumps(raw, separators=(",", ":"), ensure_ascii=False))
+        print(s.polite.report(), file=sys.stderr)
     offers = [o for v in raw.values() for o in (v.get("o") or [])]
     write(out, offers, {st: v.get("at") for st, v in raw.items()})
 

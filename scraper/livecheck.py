@@ -18,9 +18,11 @@ from urllib.parse import urlparse
 
 import requests
 
-S = requests.Session()
-S.headers.update({"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
-                  "(KHTML, like Gecko) Chrome/128 Safari/537.36", "Accept-Language": "en-CA,en;q=0.9"})
+import os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import polite      # Nov 1: our own name, robots.txt obeyed, a pace per site (a refused page = "can't tell", never "ended")
+S = polite.PoliteSession()
+S.headers.update({"Accept-Language": "en-CA,en;q=0.9"})
 CA_COOKIES = {"cart_currency": "CAD", "localization": "CA"}
 
 

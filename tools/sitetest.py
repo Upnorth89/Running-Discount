@@ -2641,7 +2641,7 @@ def site_flow(base, per, accented):
 
 
 # ---------- store links ----------
-UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
+UA = {"User-Agent": "Mozilla/5.0 (compatible; TheGearFoxBot/1.0; +https://thegearfox.com/about.html)",   # Nov 1: our own name
       "Accept-Language": "en-CA,en;q=0.9"}
 
 

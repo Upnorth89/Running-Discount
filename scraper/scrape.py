@@ -15,7 +15,7 @@ site/deals.json in the compact format the page reads:
 If one store fails, its items from the previous run are kept so the site never goes blank.
 Usage:  python scraper/scrape.py [out_path] [--remerge]
 """
-import collections, json, os, re, sys, time, unicodedata, datetime as dt
+import collections, hashlib, json, os, re, sys, time, unicodedata, datetime as dt
 import html as html_lib
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -25,9 +25,9 @@ import requests
 ARGS = [a for a in sys.argv[1:] if not a.startswith("--")]
 REMERGE = "--remerge" in sys.argv   # rebuild deals.json from offers.json without scraping (for testing)
 OUT = Path(ARGS[0] if ARGS else Path(__file__).resolve().parents[1] / "site" / "deals.json")
-S = requests.Session()
-S.headers.update({"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
-                  "(KHTML, like Gecko) Chrome/128 Safari/537.36", "Accept-Language": "en-CA,en;q=0.9"})
+import polite                      # Nov 1, 2026 (Bastien: "avoid triggering any bot detection"): our own name, robots.txt
+S = polite.PoliteSession()         # Disallow + Crawl-delay obeyed, a pace per site and per platform, slow down on 429/503
+S.headers.update({"Accept-Language": "en-CA,en;q=0.9"})
 
 def now():
     return dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat()
@@ -1433,8 +1433,42 @@ def list_catalogue(base):
             if first["nbHits"] > 1000:
                 print(f"  ! {u} has {first['nbHits']} listings, only 1000 reachable", file=sys.stderr)
             for h in hits:
-                found.setdefault(h["slug"], (g, h.get("image_url")))
+                found.setdefault(h["slug"], (g, h.get("image_url"), ct_fp(h)))
     return found, listed
+
+# Read less (Nov 1, 2026, Bastien: "yes do 1-3"): a product page is read again only when its listing changed (price, colours,
+# discount), when it's on sale (sale sizes sell out: read every run), when we have no copy, or when our copy is REUSE_HOURS old.
+# Full-price items that didn't move are taken from the last read. About 2 in 3 product pages are no longer asked for each run.
+REUSE_HOURS = 36
+_PREV_RAW = {}
+
+def prev_raw(path=None):
+    """Yesterday's raw per-store offers (offers.json beside deals.json), loaded once."""
+    path = Path(path or OUT.parent / "offers.json")
+    if path not in _PREV_RAW:
+        try:
+            _PREV_RAW[path] = json.loads(path.read_text())
+        except Exception:
+            _PREV_RAW[path] = {}
+    return _PREV_RAW[path]
+
+def ct_fp(hit):
+    """What the listing tells about a product (colours, prices, discounts): if this is unchanged, so is the page, mostly."""
+    th = sorted((x.get("color_name") or "", json.dumps(x.get("price"), sort_keys=True), json.dumps(x.get("discounted_percent")))
+                for x in hit.get("thumbnails") or [])
+    return hashlib.md5(json.dumps([th, hit.get("price"), hit.get("original_price"), hit.get("discounted_percent")],
+                                  sort_keys=True).encode()).hexdigest()[:12]
+
+def reuse_ok(o, fp):
+    """Last read's offer for this product can stand in for today's page."""
+    if not o or not fp or o.get("_fp") != fp or not o.get("_at"):
+        return False
+    try:
+        age = (dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(o["_at"])).total_seconds() / 3600
+    except Exception:
+        return False
+    on_sale = any(e[1] < e[2] * 0.99 for e in o.get("sz") or [])
+    return age < REUSE_HOURS and not on_sale
 
 def attr(attrs, name):
     for a in attrs:
@@ -1492,20 +1526,29 @@ def product(base, slug, st, g, img):
 
 def scrape_commercetools(st, base):
     listing, listed = list_catalogue(base)
-    print(f"  {st}: {len(listing)} running listings (the store counts {listed})", file=sys.stderr)
-    out, errors = [], 0
+    prev = {o["u"]: o for o in prev_raw().get(st, []) if o.get("u")}
+    out, errors, reused = [], 0, 0
     def one(item):
-        slug, (g, img) = item
+        slug, (g, img, fp) = item
+        old = prev.get(f"{base}/p/{slug}")
+        if reuse_ok(old, fp):
+            return dict(old, _reused=1)
         try:
-            return product(base, slug, st, g, img)
+            r = product(base, slug, st, g, img)
+            if r:
+                r["_fp"], r["_at"] = fp, now()
+            return r
         except Exception as e:
             return e
-    with ThreadPoolExecutor(10) as ex:
+    with ThreadPoolExecutor(4) as ex:            # the pace per site (polite.HOST_GAP) sets the speed, not the threads
         for r in ex.map(one, listing.items()):
             if isinstance(r, Exception):
                 errors += 1
             elif r:
+                reused += r.pop("_reused", 0)
                 out.append(r)
+    print(f"  {st}: {len(listing)} running listings (the store counts {listed}); {reused} unchanged full-price products "
+          f"taken from the last read, {len(listing) - reused} pages read", file=sys.stderr)
     if listing and errors > len(listing) * 0.3:
         raise RuntimeError(f"{st}: {errors}/{len(listing)} product pages failed")
     # Oct 26: the store's own count for the product types we read vs the product pages we read (a type over its 1000-result cap,
@@ -1871,15 +1914,13 @@ BB = re.compile(r"\s*\(?\s*best\s*by:?\s*([0-9/.-]+)\s*\)?", re.I)
 CA_COOKIES = {"cart_currency": "CAD", "localization": "CA"}
 
 def shopify_price_currency(base, cookies=None):
-    """Currency of the prices this store is serving us right now, or None."""
-    for path in ("/cart.js", "/cart.json"):
-        try:
-            cur = get(f"{base}{path}", tries=2, cookies=cookies).json().get("currency")
-            if cur:
-                return cur.upper()
-        except Exception:
-            pass
-    return None
+    """Currency of the prices this store is serving us right now, or None. Nov 1: from the homepage's Shopify.currency
+    (we used /cart.js, which every Shopify robots.txt Disallows)."""
+    try:
+        m = re.search(r'Shopify\.currency\s*=\s*\{"active":"([A-Z]{3})"', get(f"{base}/", tries=2, cookies=cookies).text)
+        return m.group(1) if m else None
+    except Exception:
+        return None
 
 SHOPIFY_MAX_PAGES = 80   # 20,000 products (Oct 14: Pacers lists 17,341, Athletic Annex ~7,500; we stopped at 24 pages = 6,000)
 
@@ -2468,8 +2509,12 @@ def scrape_sportinglife():
             listing.setdefault(t["id"], t)
         start += 48
         time.sleep(1)
-    out, errors = [], 0
+    out, errors, reused = [], 0, 0
+    prev = {o["u"]: o for o in prev_raw().get("sportinglife", []) if o.get("u")}
     def one(t):
+        fp = hashlib.md5(json.dumps([t["n"], t["b"], t["std"], t["cur"], t["img"]]).encode()).hexdigest()[:12]
+        if reuse_ok(prev.get(t["u"]), fp):             # Nov 1: unchanged full-price tile = last read's page stands
+            return dict(prev[t["u"]], _reused=1)
         try:
             ptype, sizes, links = sl_parse_product(get(t["u"]).text)
         except Exception as e:
@@ -2481,13 +2526,16 @@ def scrape_sportinglife():
         sz = [[k, v, max(std or v, v)] + ([links[k]] if k in links else []) for k, v in sizes.items()]
         return {"st": "sportinglife", "b": t["b"], "n": t["n"], "u": t["u"], "g": g, "sx": [],
                 "w": bool(re.search(r"\bwide\b", t["n"], re.I)), "img": t["img"],
-                "lp": max(r for _, _, r in sz), "bb": None, "sz": sz}
-    with ThreadPoolExecutor(4) as ex:          # gentle: 4 pages at a time
+                "lp": max(r for _, _, r in sz), "bb": None, "sz": sz, "_fp": fp, "_at": now()}
+    with ThreadPoolExecutor(2) as ex:          # gentle: the pace per site sets the speed
         for r in ex.map(one, listing.values()):
             if isinstance(r, Exception):
                 errors += 1
             elif r:
+                reused += r.pop("_reused", 0)
                 out.append(r)
+    print(f"  sportinglife: {reused} unchanged full-price products taken from the last read, "
+          f"{len(listing) - reused} pages read", file=sys.stderr)
     if listing and errors > len(listing) * 0.3:
         raise RuntimeError(f"sportinglife: {errors}/{len(listing)} product pages failed")
     save_coverage("sportinglife", total or 0, len(listing) - errors,
@@ -3453,6 +3501,10 @@ def paragon_prods(prods):
 
 def make_shopify_scraper(st, base, kind):
     def run():
+        with polite.platform("shopify"):          # one pace for all Shopify shops from this machine (hiking read included)
+            return run1()
+
+    def run1():
         # quick probe so a dead / blocked / non-Shopify store costs one request, not minutes of retries
         r = S.get(f"{base}/products.json?limit=1", timeout=20)
         if r.status_code != 200 or not r.text.lstrip().startswith("{"):
@@ -4639,6 +4691,8 @@ def main():
             again = run(st, STORES[st])
             if again[1]:
                 results[st] = (again[0], True, again[2] + " (second try)")
+    if not REMERGE:
+        print(polite.report(), file=sys.stderr)       # Nov 1: requests per site, slow-downs, robots.txt refusals
     for st in STORES:
         got, ok, line = results[st]
         for o in got:
