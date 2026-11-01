@@ -2527,7 +2527,7 @@ def sl_group(ptype, name):
 # product page's JSON-LD, read once and remembered through offers.json (`_b`).
 GORDS_BASE = "https://gordsrunningstore.com"
 GORDS_ON = False
-GORDS_SHOES = {"footwear", "racing", "trail", "road", "track-and-field", "spikes", "running-shoes"}
+GORDS_SHOES = {"track-field", "track-and-field", "spikes", "running-shoes"}
 
 def _gords_all(params):
     out, page = [], 1
@@ -2584,7 +2584,16 @@ def scrape_gords():
         cnames = " ".join(c.get("name", "") for c in p.get("categories") or [])
         if not name or NOT_RUNNING.search(name) or re.search(r"\bwalking\b|gift ?card", name, re.I):
             continue
-        g = "shoes" if cats & GORDS_SHOES else group_of(name, cnames)
+        if any("walking" in c or c.startswith("recovery-footwear") or c == "gift-cards" for c in cats):
+            continue                           # walking + recovery sandals + gift cards: not running gear
+        if any("footwear" in c for c in cats) or cats & GORDS_SHOES:
+            g = "shoes"
+        elif cats & {"hydration", "carry-belts"} and re.search(r"\b(vest|vesta|pack|belt)\b", name, re.I):
+            g = "packs"                        # hydration vests and belts (not clothing)
+        elif any(c.startswith("jackets-vests") for c in cats):
+            g = "tops"                         # a clothing vest or jacket (not a pack)
+        else:
+            g = group_of(name, cnames)
         if not g:
             continue
         sx = (["men", "women"] if re.search(r"\bunisex\b", cnames, re.I) else ["women"] if re.search(r"\bwom[ae]n", cnames, re.I)
