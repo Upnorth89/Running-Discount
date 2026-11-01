@@ -600,14 +600,9 @@ def runningfree_night(out, hours=4.5):
                 print(f"::warning::Running Free: {e}", file=sys.stderr)
                 if len(failed) > 10:
                     raise RuntimeError(f"Running Free: {len(failed)} size pages didn't load ({', '.join(failed[:5])}...)")
-    # Nov 1 (growth chat): a second, late-started run on Oct 31 saved 0 products over the morning's good read (2,962). A read
-    # with far fewer products than the last good copy is a failed read: the last good copy stays.
-    try:
-        had = len(json.loads(Path(out).read_text()).get("prods") or {})
-    except Exception:
-        had = 0
-    if not prods or (had >= 200 and len(prods) < had * 0.5):
-        raise RuntimeError(f"Running Free: only {len(prods)} products read (last good copy: {had}); the last good copy stays")
+    if len(prods) < 500:      # Nov 1: a late second run read 0 products and saved that over a good read (2,962): keep the last good file
+        print(f"::error::Running Free night read found only {len(prods)} products: NOT saved (last good read kept)", file=sys.stderr)
+        return 1
     Path(out).write_text(json.dumps({"updated": now(), "brands": sorted(brands), "prods": prods}, separators=(",", ":")))
     print(f"runningfree night read: {len(prods)} products, {sum(len(p['sizes']) for p in prods.values())} sizes in stock "
           f"in {(time.time() - start) / 60:.0f} min -> {out}", file=sys.stderr)
@@ -3540,9 +3535,11 @@ FINAL_TAG = re.compile(r"final.?sale|vente.?finale", re.I)
 
 for _st, _base, _kind in SHOPIFY_STORES:
     STORES[_st] = make_shopify_scraper(_st, _base, _kind)
-# Nov 1: OFF. Every RunFree shop's robots.txt now says "Disallow: /api/" (seen Oct 30-31), and the reader needs /api/product +
-# /api/options: the stores said no (STORES.md blocked list, store_recheck.py checks every 2 weeks). Leaving them out of STORES
-# takes their offers off the site at the next refresh. Back on only if robots.txt allows /api/ again or RunFree gives us a feed.
+# RunFree OFF (Nov 1, 2026; Bastien: "This needs to be fixed asap"): around Oct 30 every RunFree shop's robots.txt started saying
+# "Disallow: /api/", the two services runfree.py read sizes and prices from (and its sitemap became an index). Its product pages
+# carry one price and no sizes, so there's no allowed way in: its 27 stores leave the site instead of showing Oct 30 prices as if
+# they were today's. STORES.md blocked list; store_recheck.py checks the door every 2 weeks. Back on = RUNFREE_ON = True (after a
+# robots.txt that allows /api/ again, or an official feed).
 RUNFREE_ON = False
 for _st in (RUNFREE if RUNFREE_ON else []):
     STORES[_st] = (lambda st: lambda: scrape_runfree(st))(_st)

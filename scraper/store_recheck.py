@@ -20,6 +20,8 @@ UA = {"User-Agent": "Mozilla/5.0 (compatible; TheGearFoxBot/1.0; +https://thegea
 
 # store: (why it was a no, [doors to try]). Keep in step with STORES.md "Master list" (blocked rows).
 STORES = {
+    "RunFree shops (27 stores: Charlotte Running, Sole Sports, Hanson's, Runner's Soul…)": ("robots.txt 'Disallow: /api/' since ~Oct 30, 2026 (its sizes/prices service); OK again = RUNFREE_ON in scrape.py + runfree.yml read job",
+            ["https://shop.charlotterunning.com/robots.txt#/api/product", "https://solesports.runfreeproject.com/robots.txt#/api/product"]),
     "MEC": ("blocks automated reading (Grab deals bookmark meanwhile)",
             ["https://www.mec.ca/robots.txt", "https://www.mec.ca/en/products/running/deals"]),
     "REI (USA)": ("blocks automated reading (Grab deals bookmark meanwhile)",
@@ -44,10 +46,6 @@ STORES = {
     "Inov-8": ("403", ["https://www.inov-8.com/robots.txt", "https://www.inov-8.com/ca/"]),
     "Simons": ("Cloudflare 403 everywhere", ["https://www.simons.ca/robots.txt", "https://www.simons.ca/en"]),
     "Boutique Courir": ("blocks automated reading", ["https://boutiquecourir.com/robots.txt", "https://boutiquecourir.com/products.json"]),
-    # Nov 1: every RunFree shop's robots.txt says "Disallow: /api/" since ~Oct 30; the reader needs /api/product + /api/options.
-    # "robots.txt#/api/" = open only when that path is allowed again (one shop stands for all 27: same platform rules)
-    "RunFree (27 US shops + Runner's Soul)": ("robots.txt Disallow /api/ since ~Oct 30",
-                ["https://shop.charlotterunning.com/robots.txt#/api/product", "https://shop.charlotterunning.com/sitemap.xml"]),
     "Honey Stinger": ("blocks GitHub's servers", ["https://www.honeystinger.com/robots.txt", "https://www.honeystinger.com/products.json"]),
 }
 WALL = re.compile(r"Just a moment|cf-chl|captcha|Access Denied|Request unsuccessful|Pardon Our Interruption|px-captcha", re.I)

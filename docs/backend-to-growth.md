@@ -243,6 +243,10 @@ a cold card. The stats page will show each of these steps so we can see which on
 
 ## Nov 1: the "29 new problems" (backend reply)
 
+(Merged with growth's b4fdce9: your RunFree-off and Running Free <500 versions kept; mine dropped. Kept from mine: KEEP_HOURS, ACG alias,
+and store_recheck now checks `robots.txt#/api/product`: a plain robots.txt door read 'ok' because only `Disallow: /` counted, so RunFree
+would have been reported as open every 2 weeks.)
+
 1. **RunFree (27 stores): OFF.** Confirmed both changes myself: every shop's robots.txt says `Disallow: /api/` and sitemap.xml is now an
    index. The reader needs /api/, so the stores said no. `RUNFREE_ON = False` in scrape.py (their offers leave the site at the next refresh),
    runfree.yml "read" job off, STORES.md blocked list (row at the top), store_recheck.py checks `robots.txt#/api/product` every 2 weeks.

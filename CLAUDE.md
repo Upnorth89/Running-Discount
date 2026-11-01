@@ -706,7 +706,7 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   Sport Chek rows are ignored (`CATALOG_LIVE`). If it ever answers 403/captcha: stop, don't work around it. Checked Oct 14: Atmosphere
   closed its online store (moved into Sport Chek); Sports Experts is behind an Incapsula 403 wall (no).
 - Failed stores (Nov 1): a store keeps its last listings for `KEEP_HOURS` (48 h) after its last good read, then leaves the site until it
-  reads again (it used to keep them forever). Running Free's night read never saves an empty/halved copy over a good one.
+  reads again (it used to keep them forever). (Running Free's night read keeps its last good file when a read finds under 500 products: growth's fix.)
 - Speed (Oct 5): stores are read in 4 lanes at once (`run(st,fn)` + ThreadPoolExecutor(4)); all Shopify stores share one
   sequential lane (4 at once got 429s). The full scrape takes ~13 min instead of ~35.
 - Shopify stores: listed in `SHOPIFY_STORES` in scrape.py (~44). Read via `/products.json`, prices checked
@@ -901,8 +901,9 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
 - US shops (Shopify, `US_SHOPS`): Best Running Stores winners etc., ~26 (list in scrape.py and STORES.md). Finder: tools/find_stores.py
   + store-finder.yml (tests tools/us_candidates.txt from GitHub's network; my sandbox can't reach some hosts). Only ~1 in 4 US
   independents is on Shopify; many sell in store only.
-- RunFree: OFF since Nov 1 (every shop's robots.txt says `Disallow: /api/`; `RUNFREE_ON` in scrape.py, runfree.yml read job off, store_recheck.py
-  checks it every 2 weeks; STORES.md blocked list). Was: RunFree (runfreeproject.com, a shop system for running stores; 25 stores in `RF.RUNFREE_STORES`; Runner's Soul (AB) is Canadian:
+- **RunFree OFF since Nov 1, 2026** (robots.txt `Disallow: /api/` on every RunFree shop since ~Oct 30; `RUNFREE_ON = False` in scrape.py, runfree.yml read job `if: false`,
+  store_recheck.py watches it; runfree.yml's skip check now reads thefeed.json). Was:
+- RunFree (runfreeproject.com, a shop system for running stores; 25 stores in `RF.RUNFREE_STORES`; Runner's Soul (AB) is Canadian:
   `RF.CANADIAN`, CAD, Canada side; the rest `RUNFREE_US`): scraper/runfree.py, nightly
   runfree.yml 08:23 UTC: sitemap.xml lists every product; POST /api/product (details, kept 7 days in runfree-cache.json) and
   /api/options (sizes, stock per location, cost = price, retail = regular); 1 request/second per store, all stores in parallel;
