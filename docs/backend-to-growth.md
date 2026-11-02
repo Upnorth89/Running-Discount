@@ -447,3 +447,7 @@ Better levers for "3 stores per store lost": readable running specialty shops (l
 - Nov 2, 18:45 UTC: Impact verified (growth). Second tag 5c71281d was already pushed (40d2bf4): both stay, first one permanent.
   Queue status: two-machine read test DONE (readtest 41462569998: 32 min, 0 skipped; first real refresh 41474154208 worked, shopb 15 min).
   Save routing DONE (14540cc, live). Next: Grab bookmark background-tab fix (#16).
+- Nov 2, ~19:55 UTC: race article fix pushed (0107f81 + follow-up). La Chute du Diable FR = "Matériel obligatoire de La Chute du Diable"
+  (title/h1/FAQ/JSON-LD), FAQ question uses the race's own article everywhere (was hard-coded "du {short}" / "the {short}" / "the {name}").
+  Also fixed: The Dark 24 ("the The Dark 24"). Grep of every built race page (races/courses/us/races) for de la La / la La / du Le / le Le /
+  the The / the La / du La: clean. Live after this push run deploys (~15 min).
