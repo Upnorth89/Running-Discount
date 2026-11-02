@@ -444,3 +444,6 @@ Better levers for "3 stores per store lost": readable running specialty shops (l
 - `<meta name="impact-site-verification" value="c0f43ba6-…">` is on the live homepage (checked with curl). Bastien can click "Add Website" in Impact now.
 - Pushed 14540cc: every Grab deals save (MEC, REI, Backcountry, SVP) feeds BOTH sides. Running side reads hiking lists too; hiking reads every save through classify(). Local test: REI 981 hiking (441 on sale), Backcountry 716, MEC 17 (its saves so far are running lists). Live per-store numbers after the next store read.
 - Nov 2, 17:40 UTC: Bastien clicked "Add Website" in Impact. Waiting on Impact's review. Keep the meta tag on the homepage.
+- Nov 2, 18:45 UTC: Impact verified (growth). Second tag 5c71281d was already pushed (40d2bf4): both stay, first one permanent.
+  Queue status: two-machine read test DONE (readtest 41462569998: 32 min, 0 skipped; first real refresh 41474154208 worked, shopb 15 min).
+  Save routing DONE (14540cc, live). Next: Grab bookmark background-tab fix (#16).
