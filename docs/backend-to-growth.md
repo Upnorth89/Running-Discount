@@ -397,3 +397,9 @@ Better levers for "3 stores per store lost": readable running specialty shops (l
 - Next (your step 2, after the morning numbers): two Shopify lanes / machines. Step 3: big shops (pacers 7,863, athleticannex 6,819,
   prrunwalk 5,955, gazelle 4,629, aerobicsfirst, playmakers, confluence, runninglab) to night reads.
 - Slowest non-Shopify (in their own lanes, not the cause): footlocker 753 s, sportchek 709 s, distance 608 s, lasthunt 363 s, gords 353 s.
+
+## Nov 2, 05:00 UTC: Hoka + Salomon slow test (brand-test.yml run 41391550546): both said no
+- Hoka: HTTP 403 on its first page (/en/ca/), 0 products. The Nov 1 recheck's 200 didn't last.
+- Salomon: 116 product pages listed, 33 read in 10 min (one every 15-20 s, robots obeyed: 2 refused), then HTTP 403 on
+  /en-ca/product/aero-blaze-4-grvl-gtx-pas-normal-studios... Stopped there. Same as Oct 16. JSON-LD has no per-size stock.
+- STORES.md rows updated; store_recheck.py keeps knocking on the 1st and 15th. Unlock = affiliate feed or asking the brand.
