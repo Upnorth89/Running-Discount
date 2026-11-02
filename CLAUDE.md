@@ -43,6 +43,7 @@ move backlog rows. When he asks "what's on the to-do list", answer from the curr
   Exception (Nov 1, Bastien: "Yes fox pro"): the Fox Pro build (Stripe checkout, "I bought it" price protection, My account) continues
   during the freeze, hidden behind a switch until his Nov 16 preview; nothing of it visible to visitors before his OK.
   Price gate (scrape.py `price_gate`): a store whose prices AND regular prices move 20%+ together vs its last read keeps its last listings.
+- **The team (Nov 2, Bastien: "Build us a solid team of experts we can count on, marketing, sales")**: specialist agents in .claude/agents/ (cmo, copywriter, partnerships, growth-analyst, social-producer, compliance), shared rules + who does what in docs/team.md. The growth chat leads them and brings Bastien one finished result; every public piece passes compliance first. Agents never push code, send emails or post.
 - **Stores and readers: build and turn on without asking** (Nov 1, Bastien: "Build any reader always if it works towards /goal which is growth and dominating the space"; goal 200+ stores on the running side, US first). Bar stays: robots.txt + polite.py, no AI block, sortcheck clean, live price checks, check.py ALL GOOD; tell him after, with numbers.
 - **Push straight to `main`.** No pull requests or side branches (the site deploys from `main`).
 - **Never ask him to paste secret keys into chat.** Secrets live only in GitHub secrets, Supabase or Vault.
