@@ -795,7 +795,7 @@ RACES.update({
     },
     # lachutedudiable.ca/guide.html, "Matériel obligatoire" (2026 guide; the 1 km has none)
     "la-chute-du-diable": {
-        "name": "La Chute du Diable", "short": "Chute du Diable", "de": "de la ", "le": "la ",
+        "name": "La Chute du Diable", "short": "La Chute du Diable", "de": "de ", "le": "",
         "where": _C("Saint-Alexis-des-Monts (Mauricie), Québec", "Saint-Alexis-des-Monts (Mauricie), Québec"),
         "when": _C("September 2027 (date to come; 2026: Sept. 5)", "Septembre 2027 (date à venir; 2026 : 5 sept.)"),
         "dists": ["75", "50", "35", "22", "10"], "default": "75", "cupless": True,
@@ -1305,7 +1305,7 @@ S = {
         "srcLink": "official list", "srcRead": "From the race's official list (as published when we read it, {date}). Rules can change: check the {link} before race day.", "notAff": "The Gear Fox isn't affiliated with the race.",
         "boxH": "Get gear deals in your size every Friday until race day", "boxTxt": "Free. One email on Friday mornings with the best deals in your sizes. Unsubscribe in one tap.",
         "boxBtn": "Send me the deals", "faqH": "Quick answers",
-        "qList": "What is the mandatory gear for the {short} {d}?", "aList": "{items}.",
+        "qList": "What is the mandatory gear for {the}{short} {d}?", "aList": "{items}.",
         "qJacket": "Is a windbreaker enough for the {name}?", "aJacket": "No. The race asks for a jacket with an attached hood and a waterproof, breathable membrane (on the {dists}). Windbreakers aren't accepted.",
         "qCup": "Do the {name} aid stations have cups?", "aCup": "No. The aid stations have no cups: bring your own reusable cup.",
         "kbBest": "From {p} · {n} picks", "kbBestN": "Not in your size today", "aisle": "Race gear lists",
@@ -1337,7 +1337,7 @@ S = {
         "srcLink": "liste officielle", "srcRead": "Selon la liste officielle de la course (telle que publiée quand nous l'avons lue, le {date}). Les règles peuvent changer : vérifiez la {link} avant la course.", "notAff": "The Gear Fox n'est pas affilié à la course.",
         "boxH": "Les aubaines de matériel dans votre taille, chaque vendredi jusqu'à la course", "boxTxt": "Gratuit. Un courriel le vendredi matin avec les meilleures aubaines dans vos tailles. Désabonnement en un clic.",
         "boxBtn": "Envoyez-moi les aubaines", "faqH": "Réponses rapides",
-        "qList": "Quel est le matériel obligatoire du {short} {d}?", "aList": "{items}.",
+        "qList": "Quel est le matériel obligatoire {de}{short} {d}?", "aList": "{items}.",
         "qJacket": "Un coupe-vent suffit-il pour {le}{name}?", "aJacket": "Non. La course demande un manteau avec capuchon attaché et une membrane imperméable et respirante (sur le {dists}). Les coupe-vent ne sont pas acceptés.",
         "qCup": "Y a-t-il des verres aux ravitaillements {de}{name}?", "aCup": "Non. Les ravitaillements n'ont pas de verres : apportez votre gobelet réutilisable.",
         "kbBest": "Dès {p} · {n} choix", "kbBestN": "Rien dans votre taille aujourd'hui", "aisle": "Listes de matériel de course",
@@ -1361,7 +1361,7 @@ SUG = {
            "desc": "The gear the {name} suggests for the {dists}, item by item (none of it required), with today's best prices on each in your size at Canadian stores.",
            "h1": "{name} suggested gear list", "R": "Suggested by the race",
            "sNote": "The race suggests this gear; none of it is required. The only must-haves are what the race hands out (marked Provided).",
-           "qList": "Is any gear mandatory for the {short} {d}?", "aList": "No. The race suggests: {items}."},
+           "qList": "Is any gear mandatory for {the}{short} {d}?", "aList": "No. The race suggests: {items}."},
     "fr": {"title": "Matériel suggéré {de}{name} ({short} {dists})",
            "desc": "Le matériel que suggère {le}{name} pour le {dists}, article par article (rien d'obligatoire), avec les meilleurs prix du jour dans votre taille dans les boutiques canadiennes.",
            "h1": "Matériel suggéré {de}{name}", "R": "Suggéré par la course",
@@ -1706,7 +1706,8 @@ def cat_link(kind, L, s, Tl, slug):
 def page(slug, race, L, items, stores, pages=None, fx=1.0):
     s, Tl = (dict(S[L], **SUG[L]) if race.get("suggested") else S[L]), tl(L)
     fmt = dict(name=race["name"], short=race["short"], dists=dlabs(race, L), where=race["where"][L if L != "us" else "en"],
-               when=race["when"][L if L != "us" else "en"], de=race.get("de", "de l'"), le=race.get("le", "l'"))
+               when=race["when"][L if L != "us" else "en"], de=race.get("de", "de l'"), le=race.get("le", "l'"),
+               the="" if re.match(r"(?i)(the|la|le|les)\s|l'", race["short"]) else "the ")
     if L == "us":   # English, US stores; the "Canadian stores" switch goes to the same race with Canadian stores
         head = page_head(US, s["title"].format(**fmt), s["desc"].format(**fmt), f"/us/races/{slug}/", "", f"<style>{CSS}</style>").replace('class="sw" href="/shoes/"', f'class="sw" href="/races/{slug}/"')
     else:
