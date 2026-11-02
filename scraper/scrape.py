@@ -5011,19 +5011,38 @@ def main():
     # (Shopify counts requests from one machine across all its stores: 4 at once got "429 too many requests"),
     # every other reader in its own lane, 4 lanes at once, each keeping its polite pace. Results are used in STORES
     # order so the merge (first store names the card) never changes.
+    # Nov 2: the Nov 1 afternoon read hit GitHub's 75-min job limit and was cancelled (no read, no email). A time limit for the whole
+    # read: stores not started by READ_LIMIT minutes are skipped, and from READ_LIMIT + 5 every request fails at once, so the
+    # stores still reading keep their last listings (KEEP_HOURS) and the run always publishes. The log says which.
+    t_read = time.time()
+    limit = float(os.environ.get("READ_LIMIT_MIN", "50")) * 60
+    if not REMERGE:
+        polite.DEADLINE = t_read + limit + 300
     shop = [st for st in STORES if st in dict((x[0], 1) for x in SHOPIFY_STORES)]
     lanes = [shop] + [[st] for st in STORES if st not in shop]
     lanes.sort(key=lambda l: -len(l))
     results = {}
+    late = []
+
+    def over(st):
+        late.append(st)
+        raise RuntimeError(f"not read: the read reached its {limit / 60:.0f}-min time limit")
+
     def lane(sts):
         for st in sts:
-            results[st] = run(st, STORES[st])
+            if not REMERGE and time.time() - t_read > limit:
+                results[st] = run(st, lambda st=st: over(st))
+            else:
+                results[st] = run(st, STORES[st])
     with ThreadPoolExecutor(1 if REMERGE else 4) as ex:
         list(ex.map(lane, lanes))
     # a store that said "too busy" (429/5xx) gets one more go at the end, after a pause, before it falls back to its
     # last read (Oct 8: The Feed's 2,370 products kept a half-day-old read after one 429)
     busy = [st for st in STORES if results[st][1] is False and re.search(r"\b(429|50[0234])\b", results[st][2] or "")]
-    if busy and not REMERGE:
+    if late:
+        print(f"::warning::read time limit ({limit / 60:.0f} min): {len(late)} stores not read this time, kept their last read: "
+              + ", ".join(late), file=sys.stderr)
+    if busy and not REMERGE and time.time() - t_read < limit:
         print(f"trying again in 90 s: {', '.join(busy)}", file=sys.stderr)
         time.sleep(90)
         for st in busy:

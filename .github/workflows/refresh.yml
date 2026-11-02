@@ -60,7 +60,7 @@ jobs:
       cancel-in-progress: false
     if: needs.check.outputs.skip != 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 75   # Nov 1: a first polite read ran 49 min and was cancelled at 50
+    timeout-minutes: 85   # Nov 1: a first polite read ran 49 min and was cancelled at 50
     steps:
       - uses: actions/checkout@v4
         with:

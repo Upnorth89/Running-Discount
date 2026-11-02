@@ -14,6 +14,7 @@ import contextlib
 import fcntl
 import os
 import re
+import sys
 import threading
 import time
 from urllib.parse import urlsplit
@@ -24,6 +25,7 @@ UA = "Mozilla/5.0 (compatible; TheGearFoxBot/1.0; +https://thegearfox.com/about.
 AGENTS = ("thegearfoxbot", "claudebot", "anthropic-ai")
 GAP = 1.0                    # seconds between two requests to the same site, when robots.txt asks nothing
 MAX_GAP = 60.0
+DEADLINE = 0.0      # Nov 2: scrape.py sets it (read start + limit); after it every request fails at once (store keeps its last read)
 # Big shops on a CDN that ask for no Crawl-delay. Nov 1: at 1-2 pages a second the first polite read took 49 min and GitHub
 # cancelled it (Altitude 44 min, shared with the hiking read). Still far gentler than before (10 pages at once, unpaced), and once a
 # read has finished, only changed/on-sale products are re-read (Altitude: ~100 of 2,500).
@@ -184,6 +186,8 @@ class PoliteSession(requests.Session):
         return self._robots[host]
 
     def request(self, method, url, *a, **kw):
+        if DEADLINE and time.time() > DEADLINE:          # Nov 2: the whole read is over its time limit: stop asking, fail fast
+            raise requests.RequestException("read time limit reached")
         u = urlsplit(url)
         host = u.netloc.lower()
         path = (u.path or "/") + (("?" + u.query) if u.query else "")
@@ -192,17 +196,26 @@ class PoliteSession(requests.Session):
         if not allowed(g, path):
             st["no"] += 1
             raise RobotsNo(f"robots.txt says no: {host}{path[:80]}")
+        t0 = time.time()                                # time spent on this site: waiting our turn + the answer
         gap = max(HOST_GAP.get(host, self.gap), g.get("delay") or 0)
         plat = getattr(_tl, "platform", None)
         if plat:
             _pace("platform-" + plat, PLATFORM_GAP.get(plat, 0.5))
         _pace(host, gap)
-        r = super().request(method, url, *a, **kw)
+        try:
+            r = super().request(method, url, *a, **kw)
+        except requests.RequestException as e:
+            st["err"] = st.get("err", 0) + 1
+            st["wait"] = st.get("wait", 0) + time.time() - t0
+            print(f"  polite: {host} {type(e).__name__} after {time.time() - t0:.0f}s", file=sys.stderr, flush=True)
+            raise
         st["n"] += 1
+        st["wait"] = st.get("wait", 0) + time.time() - t0
         if r.status_code in (429, 503):                # "slow down": this site gets a longer gap for the rest of the run
             st["slow"] += 1
             ra = r.headers.get("Retry-After", "")
-            _slow(host, max(2 * gap, float(ra) if ra.isdigit() else 0))
+            new_gap = _slow(host, max(2 * gap, float(ra) if ra.isdigit() else 0))
+            print(f"  polite: {host} HTTP {r.status_code} (Retry-After {ra or '-'}): gap now {new_gap:.0f}s", file=sys.stderr, flush=True)
         return r
 
 
@@ -218,4 +231,7 @@ def report(top=25):
     for h, v in rows[top:]:
         if v["slow"] or v["no"]:
             lines.append(f"  {h}: {v['n']}, {v['slow']} slow-downs, {v['no']} robots no")
+    slow = sorted(((v.get("wait", 0), h, v) for h, v in STATS.items()), reverse=True)[:8]
+    lines.append("  most time (waiting our turn + answers): " + ", ".join(
+        f"{h} {w / 60:.1f} min" + (f" ({v['err']} errors)" if v.get("err") else "") for w, h, v in slow if w >= 30))
     return "\n".join(lines)
