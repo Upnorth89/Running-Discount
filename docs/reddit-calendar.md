@@ -24,6 +24,7 @@ Nov 4 r/ultrarunning: use the drafted gear-list post in docs/reddit-drafts/ultra
 ## Log (newest first)
 | Date | Sub | Posted? | Visits from it (7 days) |
 |------|-----|---------|-------------------------|
+| Nov 2 | r/RunningDeals (week D Monday: 8 CA + 8 US shoes, shoe page links only; Hoka Rocket X left out: failed post_check; ?ref=reddit-runningdeals) | waiting | |
 | Oct 30 | r/ultrarunning (week C Friday slot) | skipped: moved to Nov 4, the drafted gear-list post (Bastien, Oct 29: "not a shoe list") | |
 | Oct 29 | r/trailrunning (9 CA + 1 US trail shoes) | skipped (Bastien: not with one US shoe; the sub "wasn't a big hit") | |
 | Oct 28 | r/RunningDeals midweek (8 CA + 7 US shoes, none from Oct 26, shoe page links only; ?ref=reddit-runningdeals-wed) | yes (6 lines had wrong math; corrected body sent Oct 28) | 96 first visits on Oct 28 |
