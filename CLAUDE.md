@@ -323,6 +323,11 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   referral bonus = "your first year is 13 months". Giveaway cut. A Canadian e-commerce/consumer lawyer (BC-based is fine: Bastien is in BC) who also covers Québec rules reviews terms + cancel/renewal flow before Dec 2; sales tax (GST, BC PST on digital services) = a question for his accountant. Launch musts:
   online cancel (Québec Bill 10), renewal reminder 30-60 days before, total yearly price first at checkout, terms emailed after purchase, claim emails say
   "The store decides". Waitlist ask in drop alert emails from Nov 17. Targets: 40+ on the list by Nov 30 (else open Jan 5), 8-20 founders by Jan 31.
+  Nov 2 (Bastien: "Yes, launch only when the readiness bar is met"): founding list (waitlist) Nov 17-30; the list gets the checkout link Dec 2,
+  PUBLIC launch Fri Dec 4 (Friday email + Reel + posts + outreach; leftover founding spots open to all). Payments ONLY if the READINESS BAR holds
+  for the 2 weeks before (checked Nov 27): (1) no wrong price reaching the site (gate/checks catch it; no visitor price report that is ours),
+  (2) every store read finishes in time, 0 stores skipped, (3) morning email "nothing needs you" most days, (4) "I bought it" tested on real
+  purchases with correct claim emails, (5) lawyer review done, (6) 40+ on the list. Not met = same plan in January; nobody pays before it's met.
   Free watchlist limit (Oct 31, Bastien: "10 now and 5 at launch"): 10 until the Dec 2 Pro launch, then 5 free / unlimited Pro. Data (funnel
   WATCHLIST SIZE, Oct 31): of 150 real members 112 watch nothing, 21 one item, 10 more than 3, 7 more than 5, 0 more than 10.
   Plan: 6-month plan doc "Fox Pro launch plan" + "Founding round: how we get traction"; backend builds Stripe + "I bought it" price protection (preview Nov 16). Value = same-morning alerts + unlimited watchlist + price history +
