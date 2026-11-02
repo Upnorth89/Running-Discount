@@ -5019,6 +5019,10 @@ def main():
     if not REMERGE:
         polite.DEADLINE = t_read + limit + 300
     shop = [st for st in STORES if st in dict((x[0], 1) for x in SHOPIFY_STORES)]
+    # Nov 2 (read test: the Shopify lane alone filled the 50-min budget and the same 41 stores at the end of the list were skipped,
+    # and a store unread for KEEP_HOURS leaves the site): the stores whose last good read is oldest go first, so a store skipped
+    # by the time limit is read first next time. Each shop is still read once, at the same pace.
+    shop.sort(key=lambda st: stamps.get(st) or "")
     lanes = [shop] + [[st] for st in STORES if st not in shop]
     lanes.sort(key=lambda l: -len(l))
     results = {}

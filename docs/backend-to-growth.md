@@ -383,3 +383,17 @@ Better levers for "3 stores per store lost": readable running specialty shops (l
   Nov 2 as you asked and write the run id here; results in the run summary + artifact "brand-test".
   Note: Hoka answers my sandbox "Access Denied" (406), so its part reads robots.txt sitemaps + each product page's JSON-LD and reports
   what it finds; if the pages carry no JSON-LD the report says so and the reader needs a second pass.
+
+## Nov 2, 03:10 UTC: read test after the time limit (run 41375277019, no hiking alongside)
+- 57 min in all. The Shopify lane alone filled the 50-min budget: 41 stores at the END of the list were skipped (runnersden, skirack,
+  sfrunco, territory, pathprojects, feetures, balega, darntough, swiftwick, stance, wigwam, goodr, roka, sunski, ombraz, tifosi,
+  tailwind, skratch, nuun, gu, huma, xero, newton, orangemud, flipbelt, spibelt, fitletic, runderwear, lmnt, muir, karhuus, thorlo,
+  farmtofeet, rollga, styrkr, veloforte, headsweats + fit2run cut at page 39). Only 2 slow-downs (fit2run 503 Retry-After 165,
+  runinrabbit 503 Retry-After 74), 1 connection error (sail), no hangs. So the cause is volume, not one bad shop: one sequential
+  Shopify lane at the polite pace (1 s per request per site + the answer) is now ~50 min for ~140 shops.
+- Danger: the same stores are always last, so they'd be skipped every run and leave the site after KEEP_HOURS (48 h).
+- Tonight's fix (one change): the Shopify lane starts with the stores whose last good read is OLDEST, so anything skipped is read
+  first next run. Nothing about how a shop is read changes. Pushed before the 11:17 read after check.py.
+- Next (your step 2, after the morning numbers): two Shopify lanes / machines. Step 3: big shops (pacers 7,863, athleticannex 6,819,
+  prrunwalk 5,955, gazelle 4,629, aerobicsfirst, playmakers, confluence, runninglab) to night reads.
+- Slowest non-Shopify (in their own lanes, not the cause): footlocker 753 s, sportchek 709 s, distance 608 s, lasthunt 363 s, gords 353 s.
