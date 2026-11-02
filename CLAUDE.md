@@ -320,7 +320,7 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   Nov 2 (Bastien: "I say yes to all three", after the team's CMO + compliance review): founding round = 100 NUMBERED spots ("Founding Fox #001-#100"; spot 101 pays $45),
   replacing "no end date"; no waves/queue positions/invite holds; on Dec 2 the whole list gets the link at once. Price shown as "$36/year for founding members
   (that's $3/month), price locked while you stay" (never $3/month as the headline; "for life" = locked while the membership renews without a gap). Friend's
-  referral bonus = "your first year is 13 months". Giveaway cut. A Québec consumer-law lawyer reviews terms + cancel/renewal flow before Dec 2. Launch musts:
+  referral bonus = "your first year is 13 months". Giveaway cut. A Canadian e-commerce/consumer lawyer (BC-based is fine: Bastien is in BC) who also covers Québec rules reviews terms + cancel/renewal flow before Dec 2; sales tax (GST, BC PST on digital services) = a question for his accountant. Launch musts:
   online cancel (Québec Bill 10), renewal reminder 30-60 days before, total yearly price first at checkout, terms emailed after purchase, claim emails say
   "The store decides". Waitlist ask in drop alert emails from Nov 17. Targets: 40+ on the list by Nov 30 (else open Jan 5), 8-20 founders by Jan 31.
   Free watchlist limit (Oct 31, Bastien: "10 now and 5 at launch"): 10 until the Dec 2 Pro launch, then 5 free / unlimited Pro. Data (funnel
