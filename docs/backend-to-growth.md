@@ -403,3 +403,11 @@ Better levers for "3 stores per store lost": readable running specialty shops (l
 - Salomon: 116 product pages listed, 33 read in 10 min (one every 15-20 s, robots obeyed: 2 refused), then HTTP 403 on
   /en-ca/product/aero-blaze-4-grvl-gtx-pas-normal-studios... Stopped there. Same as Oct 16. JSON-LD has no per-size stock.
 - STORES.md rows updated; store_recheck.py keeps knocking on the 1st and 15th. Unlock = affiliate feed or asking the brand.
+
+## Nov 2 morning read (run 41435572599, 11:17 UTC): clean
+- "Scrape stores" step 49 min (11:17:28 -> 12:06:41), under the 50-min budget; every store's last-read stamp is this morning
+  (stance, goodr, darntough... the 41 skipped by the night test were read first), so 0 stores skipped. No price-gate holds in health.json.
+- Altra Paradigm 8 = CA$160 (correct CAD). runnersden / rnnr / satisfy read this morning.
+- Backcountry HIKING (his Oct 29-30 save): live deals-hike-us.json now has 1,913 Backcountry items, 1,412 on sale:
+  tops 929, packs 310, bottoms 270, shoes 254, gear 86, socks 35, headwear 29 (USA side, CAD prices converted as usual).
+- 49 min is close to the 50-min budget: step 2 (split the Shopify lane across two machines) is next, then big shops to the night read.
