@@ -700,6 +700,8 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   Swiftwick, Ciele, Janji, Nathan, Tailwind, Skratch via Shopify Collabs). The Feed and Stance: CJ (Stance
   refuses deal sites). Altitude and The Last Hunt: Rakuten/FlexOffers. Sporting Life: Partnerize.
   Mount to Coast: Impact. Sovrn Commerce/Skimlinks as a catch-all.
+- Impact (Nov 2): verification tag `<meta name="impact-site-verification" …>` on the homepage (keep it; Impact rechecks it), Bastien clicked
+  "Add Website" Nov 2. Waiting on Impact's review. Approval = links in `AFF` + About/privacy updated the same day (rule below).
 - Small Canadian shops (Coureur Nordique, Endurance, VanRunCo, Capra, Fit First): no program, email directly
   with the monthly click numbers.
 - Oct 7 (Bastien: subreddits refuse sites with affiliate links): NO affiliate links live. `AFF` is empty; About + privacy say "Right now, no
