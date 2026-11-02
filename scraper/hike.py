@@ -105,7 +105,7 @@ RULES = [  # (group, type, pattern); first match wins, tested on the product nam
     ("bottoms", "base", r"\b(base ?layer|baselayer|thermal|long ?(johns|underwear)|merino)\b.*\b(bottoms?|pants?|tights?|leggings?)\b|"
                         r"\b(bottoms?|tights?|leggings?)\b"),
     ("bottoms", "short", r"\bskirts?\b|(?<!short sleeve )\bshorts\b|\bshort\b(?![- ]sleeve)|\bskorts?\b|\bbermudas?\b"),
-    ("bottoms", "pant", r"\bpants?\b|\btrousers?\b|\bpantalons?\b|\bzip[- ]off\b(?!.*\bjacket)|\bconvertible\b(?!.*jacket)|\bknickers?\b"),
+    ("bottoms", "pant", r"\bpants?\b|\btrousers?\b|\bpantalons?\b|\bzip[- ]off\b(?!.*\bjacket)|\bconvertible\b(?!.*(?:jacket|shirt|top|hoodie|mitts?|gloves?))|\bknickers?\b"),
     ("tops", "insulated", r"\binsulated\b.*\b(jackets?|parkas?|hood(y|ie)|vests?|coats?)\b"),
     ("tops", "shell", r"\b(rain|waterproof|hard ?shell|storm|gtx|gore-?tex|h2no|futurelight|precip|torrentshell|beta|zeta|alpha|"
                       r"microlight|aspire|helium|foray|interstellar|stretch ozonic|minimalist)\b.*\b(jackets?|anoraks?|shells?|parkas?|ponchos?)\b|"
@@ -489,48 +489,43 @@ def ct_store(st, base):
     return out
 
 
-def backcountry_hike():
-    """Backcountry's hiking/camping lists from the Grab deals bookmark (Nov 1, Bastien: Backcountry hiking "should be there").
-    scrape.py leaves these saves out of the running site (outdoor_list); here each product goes through classify() like every
-    hiking store. Prices USD -> CAD; USA side only (Backcountry is a US shop); camping -> camp files (not published)."""
-    fx, out, seen, used, dates = s.fx_to_cad("USD"), [], set(), 0, []
+# Nov 2 (Bastien: "All outdoor gear that we have on the website. I thought this was obvious."): every Grab deals save (Bastien's
+# own browser reads stores that block robots: MEC, REI, Backcountry, SVP) feeds BOTH sides. Here: every save of each store, whatever
+# list it came from, through classify() like every hiking store (camping -> camp files, not published); the running site keeps what
+# its own sorting calls running. Newest save first, one offer per product. Side = where the store sells.
+SAVED = {"backcountry": ("us", lambda grp: s.scrape_backcountry_grab(grp)),
+         "rei": ("us", lambda grp: s.scrape_rei_saved(grp)),
+         "mec": ("ca", lambda grp: s.scrape_mec_saved(grp)),
+         "svp": ("ca", lambda grp: s.scrape_svp_saved(grp))}
+
+
+def saved_hike(st):
+    side, read = SAVED[st]
     kinds = {}
 
-    def grp(title, crumbs, brand):
-        c = classify(title, " ".join(crumbs), " ".join(crumbs), brand)
+    def grp(title, hint, brand):
+        hint = " ".join(hint) if isinstance(hint, (list, tuple)) else (hint or "")   # Backcountry: its breadcrumb list
+        c = classify(title, hint, hint, brand)
         if c:
             kinds[title] = c
             return "gear" if c[0] == "camp" else c[0]
         return None
-    for f in s.saved_pages():                     # newest first: this week's price wins
-        if f.suffix != ".json":
-            continue
-        try:
-            d = json.loads(f.read_text())
-        except Exception:
-            continue
-        if d.get("store") != "backcountry" or not s.outdoor_list(d):
-            continue
-        used += 1
-        dates.append((d.get("saved") or "")[:10])
-        for p in d.get("products") or []:
-            url = p.get("url") or ""
-            if not url or url in seen:
+    out = []
+    for o in read(grp) or []:
+        c = kinds.get(o.get("n") or "")
+        if not c:                                  # tidied titles (shopify_items) : sort the item's own name again
+            c = classify(o.get("n") or "", "", "", o.get("b") or "")
+            if not c:
                 continue
-            seen.add(url)
-            try:
-                o = s.bc_item(p, url, grp)
-            except Exception:
-                continue
-            if not o:
-                continue
-            g, t = kinds.get(p.get("title") or "", (o["g"], None))
-            out.append(dict(o, g=g, _t=t, ca=False, us=True, no_ca=True, lp=round(o["lp"] * fx, 2),
-                            sz=[[k, round(pr * fx, 2), round(rg * fx, 2), u] for k, pr, rg, u in o["sz"]]))
+        o = dict(o, g=c[0], _t=c[1])
+        if side == "us":
+            o.update(ca=False, us=True, no_ca=True)
+        else:
+            o.update(ca=True, us=False, no_us=True)
+        out.append(o)
     sale = sum(1 for o in out if any(e[1] < e[2] * 0.99 for e in o["sz"]))
     by = collections.Counter(o["g"] for o in out)
-    print(f"  backcountry (hiking): {len(out)} products ({sale} on sale) from {used} save(s)"
-          + (f" of {', '.join(sorted(set(dates)))}" if dates else "") + f", USD->CAD {fx}; " + ", ".join(f"{g} {n}" for g, n in by.most_common()),
+    print(f"  {st} (hiking): {len(out)} products ({sale} on sale) from its saves; " + ", ".join(f"{g} {n}" for g, n in by.most_common()),
           file=sys.stderr)
     return out
 
@@ -728,7 +723,7 @@ def main():
         jobs = [(st, (lambda st=st, b=b: ct_store(st, b))) for st, b in (("altitude", "https://www.altitude-sports.com"),
                                                                            ("lasthunt", "https://www.thelasthunt.com"))]
         jobs += [(st, (lambda st=st, b=b, c=c, sd=sd: shopify_store(st, b, c, sd))) for st, b, c, sd in SHOPIFY]
-        jobs += [("backcountry", backcountry_hike)]      # Bastien's bookmark saves (no store visit)
+        jobs += [(st, (lambda st=st: saved_hike(st))) for st in SAVED]      # Bastien's bookmark saves (no store visit)
         jobs = [j for j in jobs if not only or j[0] in only]
 
         def run(job):

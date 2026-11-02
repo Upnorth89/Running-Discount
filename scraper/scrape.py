@@ -2367,10 +2367,11 @@ def mec_running(h):
     return any(c.startswith("Products > Running") or c.endswith("> Running packs")
                for c in cats.get("lvl1", []) + cats.get("lvl2", []))
 
-def mec_item(h):
+def mec_item(h, grp=None):
     if (h.get("inventoryStatus") or "IN_STOCK") == "OUT_OF_STOCK":
         return None
-    g = mec_group(h)
+    cats = " ".join((h.get("categories") or {}).get("lvl2", []) or [])
+    g = grp(h.get("title") or "", cats, h.get("brand") or "") if grp else mec_group(h)
     if not g:
         return None
     best, reg, img = None, None, h.get("image")
@@ -2453,11 +2454,14 @@ def rei_page(url):
         raise RuntimeError("no product data on page (blocked or redesigned)")
     return json.loads(m.group(1))["ProductSearch"]["products"]["searchResults"]
 
-def rei_item(r, fx):
+def rei_item(r, fx, grp=None):
     if not r.get("available", True):
         return None
     title = r.get("cleanTitle") or r.get("title") or ""
-    g = "nutrition" if re.search(SL_FOOD, title.lower()) else group_of(title)
+    if grp:
+        g = grp(title, r.get("link") or "", r.get("brand") or "")
+    else:
+        g = "nutrition" if re.search(SL_FOOD, title.lower()) else group_of(title)
     if not g:
         return None
     dp = r.get("displayPrice") or {}
@@ -2913,7 +2917,9 @@ def saved_pages():
             files.append((age, f))
     return [f for _, f in sorted(files)]    # newest first, so this week's price wins over last week's
 
-def scrape_mec_saved():
+def scrape_mec_saved(grp=None):
+    """Nov 2 (Bastien: "All outdoor gear that we have on the website"): every MEC save, whatever list it came from. Running site:
+    mec_running() keeps the running items. grp = the hiking files' sorting (hike.py): every item it classes as hiking."""
     out, seen, used = [], set(), 0
     for f in saved_pages():
         text = f.read_text(errors="ignore")
@@ -2923,9 +2929,6 @@ def scrape_mec_saved():
             except Exception:
                 continue
             if d.get("store") != "mec":
-                continue
-            if outdoor_list(d):          # hiking/camping list: kept for the hiking files (Oct 25)
-                print(f"  {f.name}: a hiking/camping list, kept out of the running site", file=sys.stderr)
                 continue
             hits = d.get("hits") or []
         else:
@@ -2940,16 +2943,16 @@ def scrape_mec_saved():
         used += 1
         for h in hits:
             key = h.get("parentSku") or h.get("url")
-            if key in seen or not mec_running(h):
+            if key in seen or (grp is None and not mec_running(h)):
                 continue
             seen.add(key)
-            it = mec_item(h)
+            it = mec_item(h, grp)
             if it:
                 out.append(it)
     print(f"  mec: {used} saved page(s)", file=sys.stderr)
     return out                      # no fresh pages -> no MEC items (never keep stale prices)
 
-def scrape_svp_saved():
+def scrape_svp_saved(grp=None):
     """SVP Sports (Ontario): Shopify behind a Cloudflare check, so read from the collection Bastien saves with the
     Grab deals bookmark (svp-YYYY-MM-DD.json: Shopify products as the store serves them, in CAD)."""
     prods, seen, used = [], set(), 0
@@ -2962,9 +2965,6 @@ def scrape_svp_saved():
             continue
         if d.get("store") != "svp":
             continue
-        if outdoor_list(d):          # hiking/camping list: kept for the hiking files (Oct 25)
-            print(f"  {f.name}: a hiking/camping list, kept out of the running site", file=sys.stderr)
-            continue
         used += 1
         for p in d.get("products") or []:
             if p.get("id") in seen:
@@ -2972,13 +2972,15 @@ def scrape_svp_saved():
             seen.add(p.get("id"))
             prods.append(p)
     print(f"  svp: {used} saved page(s), {len(prods)} products", file=sys.stderr)
-    items = shopify_items("svp", "https://www.svpsports.ca", prods, generic_group("gear"), size_aware=True, collapse=True,
-                          size_fn=generic_size)
+    group = (lambda p: grp(p.get("title") or "", f'{p.get("product_type") or ""} {" ".join(p.get("tags") or []) if isinstance(p.get("tags"), list) else p.get("tags") or ""}',
+                           p.get("vendor") or "")) if grp else generic_group("gear")
+    items = shopify_items("svp", "https://www.svpsports.ca", prods, group, size_aware=True, collapse=True, size_fn=generic_size)
     for o in items:
         o["ca"] = True
     return items
 
-def scrape_rei_saved():
+def scrape_rei_saved(grp=None):
+    """Every REI save (Nov 2: hiking/camping lists too); grp = the hiking files' sorting (hike.py)."""
     fx = usd_cad()
     out, seen, used = [], set(), 0
     for f in saved_pages():
@@ -2989,9 +2991,6 @@ def scrape_rei_saved():
             except Exception:
                 continue
             if d.get("store") != "rei":
-                continue
-            if outdoor_list(d):          # hiking/camping list: kept for the hiking files (Oct 25)
-                print(f"  {f.name}: a hiking/camping list, kept out of the running site", file=sys.stderr)
                 continue
             results = d.get("results") or []
         else:
@@ -3007,10 +3006,10 @@ def scrape_rei_saved():
             if r.get("prodId") in seen:
                 continue
             seen.add(r.get("prodId"))
-            it = rei_item(r, fx)
+            it = rei_item(r, fx, grp)
             if it:
                 out.append(it)
-    print(f"  rei: {used} saved page(s), USD->CAD {fx}", file=sys.stderr)
+    print(f"  rei{' (hiking)' if grp else ''}: {used} saved page(s), {len(out)} products, USD->CAD {fx}", file=sys.stderr)
     return out
 
 # ---------------------------------------------------------------- Catalog file (Sport Chek, adidas.ca, REI)
@@ -5417,7 +5416,7 @@ def backcountry_night(out, sale_only=False):
             p.write_text(json.dumps(prev, separators=(",", ":"), ensure_ascii=False))
     return 0
 
-def scrape_backcountry_grab():
+def scrape_backcountry_grab(grp=None):
     """Backcountry from the Grab deals bookmark (Oct 16, 2026; Bastien: "Are able to have a grab deal for backcountry"): its bot
     protection answers GitHub's servers "202, empty", so Bastien's own browser reads a list and each product's page data
     (bookmark: slim copy of pageProps.product). Newest save first; prices USD -> CAD; USA side (US_SHOPS)."""
@@ -5431,9 +5430,6 @@ def scrape_backcountry_grab():
             continue
         if d.get("store") != "backcountry":
             continue
-        if outdoor_list(d):          # hiking/camping list: kept for the hiking files (Oct 25)
-            print(f"  {f.name}: a hiking/camping list, kept out of the running site", file=sys.stderr)
-            continue
         used += 1
         for p in d.get("products") or []:
             url = p.get("url") or ""
@@ -5441,7 +5437,7 @@ def scrape_backcountry_grab():
                 continue
             seen.add(url)
             try:
-                o = bc_item(p, url)
+                o = bc_item(p, url, grp)
             except Exception:
                 continue
             if o:

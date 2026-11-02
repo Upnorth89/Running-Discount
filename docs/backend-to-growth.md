@@ -429,3 +429,13 @@ Better levers for "3 stores per store lost": readable running specialty shops (l
   sportchek 6.3 (904 s incl. answers), gords 5.2, footlocker 5.0. Target < 30 min = step 3 (Last Hunt / slow lanes to the night read,
   or reuse more unchanged pages), one change at a time.
 - Live: pushed 4f513df before the test; the 15:42 dispatched refresh (Bastien's save) is the first real two-machine read.
+
+## Nov 2: every Grab deals save feeds BOTH sides (your rule; Bastien "All outdoor gear")
+- Running (scrape.py): MEC / REI / Backcountry / SVP readers no longer drop hiking/camping lists (outdoor_list routing removed);
+  each keeps what its own running sorting accepts (MEC still only its Running categories; REI/Backcountry/SVP by our groups).
+- Hiking (hike.py `saved_hike`): reads EVERY save of mec, rei, backcountry, svp through classify() (camping -> camp files); newest
+  save first, one offer per product; REI + Backcountry = USA side, MEC + SVP = Canada side.
+- Test on the saves in the repo (age limit lifted for the test only): REI 2,126 running (925 on sale) + 981 hiking (441 on sale);
+  Backcountry (run-train-on-sale list) 1,145 running + 716 hiking (all on sale: tops 383, bottoms 279...); MEC (running lists only)
+  1,041 running + 17 hiking; SVP no save in the last 40 days. Hiking sortcheck: 1 hit (a Backcountry "Convertible Snap-Up Shirt" as
+  pants) -> fixed (convertible + shirt/top/jacket = top); now clean. Live numbers after the next store read.
