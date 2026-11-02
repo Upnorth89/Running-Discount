@@ -4,7 +4,29 @@
    then opens the next pages one at a time (a relaxed ~2 s apart, like clicking "next"), and
    downloads one file to upload to saved-pages/ on GitHub. */
 (async () => {
-  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  // Nov 2 (growth spec): a tab in the background slows the page's own timers (Chrome: about once a minute after 5 minutes hidden),
+  // so Bastien had to keep the tab in front for ~20 min. The pauses between pages now come from a small helper (a Web Worker),
+  // whose timer isn't slowed; the pages are still read one polite step at a time, from this tab. If the store's page doesn't
+  // allow the helper, each pause falls back to the normal timer (as before).
+  let wk = null, wid = 0;
+  const waits = new Map();
+  try {
+    wk = new Worker(URL.createObjectURL(new Blob(["onmessage=e=>setTimeout(()=>postMessage(e.data[0]),e.data[1])"], { type: "text/javascript" })));
+    wk.onmessage = e => { const f = waits.get(e.data); if (f) f(); };
+    wk.onerror = () => { wk = null; for (const f of [...waits.values()]) f(); };
+  } catch (e) { wk = null; }
+  const sleep = ms => new Promise(r => {
+    if (!wk) return setTimeout(r, ms);
+    const id = ++wid;
+    let done = false;
+    const end = () => { if (!done) { done = true; waits.delete(id); r(); } };
+    waits.set(id, end);
+    setTimeout(end, ms + 4000);            // the helper never answered: carry on with the normal timer
+    wk.postMessage([id, ms]);
+  });
+  // Progress in the tab's name ("Fox 412/1,300"), so it shows from any other tab; the real name comes back at the end.
+  const title0 = document.title;
+  const prog = (a, b) => { document.title = `Fox ${a.toLocaleString("en-CA")}/${b.toLocaleString("en-CA")}`; };
   const box = document.createElement("div");
   box.style.cssText = "position:fixed;z-index:2147483647;top:16px;right:16px;background:#17201C;color:#fff;font:600 15px/1.4 system-ui;padding:14px 18px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,.3);max-width:320px";
   document.body.appendChild(box);
@@ -64,7 +86,7 @@
       let hits = first.hits.map(slim); const pages = Math.min(first.nbPages || 1, 80);
       let offset = null;
       for (let n = 1; n < pages; n++) {
-        say(`MEC: page ${n + 1} of ${pages}…`); await sleep(2000);
+        say(`MEC: page ${n + 1} of ${pages}… (you can switch tabs)`); prog(n + 1, pages); await sleep(2000);
         for (const cand of offset === null ? [n + 1, n] : [n + offset]) {
           const u = new URL(location.href); u.searchParams.set("page", cand);
           const doc = await fetchDoc(u);
@@ -85,7 +107,7 @@
       let items = first.results.map(slim);
       const start = +(new URL(location.href).searchParams.get("page") || 1);
       for (let n = start + 1; n <= pages; n++) {
-        say(`REI: page ${n} of ${pages}…`); await sleep(2000);
+        say(`REI: page ${n} of ${pages}… (you can switch tabs)`); prog(n, pages); await sleep(2000);
         const u = new URL(location.href); u.searchParams.set("page", n);
         items = items.concat((results(await fetchDoc(u)).results || []).map(slim));
       }
@@ -94,6 +116,20 @@
       // Oct 16: any Backcountry list (running deals, running shoes...): its pages, then each product's page data for the sizes
       // in stock (Backcountry answers our servers "202, empty", so this runs in your browser), a relaxed ~1.5 s apart.
       const pp = doc => JSON.parse(doc.getElementById("__NEXT_DATA__").textContent).props.pageProps;
+      // Nov 2 (growth spec): "Sale only" = a quick pass (a few minutes) that re-reads only what's on sale now, plus what was on sale
+      // last time (so a sale that ended gets its full price back); the whole list stays a weekly job.
+      const saleOnly = await new Promise(res => {
+        box.textContent = "";
+        const t = document.createElement("div"); t.textContent = "Backcountry: what should I read?";
+        const mk = (label, sub, v, main) => {
+          const b = document.createElement("button");
+          b.innerHTML = `${label}<br><span style="font-weight:500;font-size:12px">${sub}</span>`;
+          b.style.cssText = `display:block;width:100%;text-align:left;margin-top:8px;font:800 15px system-ui;border:0;border-radius:10px;padding:10px 14px;cursor:pointer;${main ? "background:#D7F23A;color:#17201C" : "background:#fff;color:#17201C"}`;
+          b.onclick = () => res(v);
+          return b;
+        };
+        box.append(t, mk("Sale only", "a few minutes: today's sale prices", true, true), mk("Whole list", "once a week: every product, full price too", false, false));
+      });
       say("Backcountry: reading the list…");
       const first = pp(await fetchDoc(location.href));
       const cat = (((first.plpData || {}).data || {}).category) || {};
@@ -107,7 +143,8 @@
       add(first);
       let param = null;
       for (let n = 2; n <= 150; n++) {
-        say(`Backcountry: list page ${n}${said ? ` of ${said}` : ""} (${urls.size} products so far)…`); await sleep(1500);
+        say(`Backcountry: list page ${n}${said ? ` of ${said}` : ""} (${urls.size} products so far)… (you can switch tabs)`);
+        document.title = `Fox list ${n}${said ? `/${said}` : ""}`; await sleep(1500);
         let fresh = 0;
         for (const k of param ? [param] : ["page", "p"]) {
           const u = new URL(location.href); u.searchParams.set(k, n);
@@ -120,11 +157,15 @@
       // always, so people can heart and watch stuff drop"): the whole list, sale items first, 4 product pages at a time, and it
       // picks up where it stopped: products read in the last 7 days are skipped (sale items are always read again: prices move).
       // "Send what's read so far" at any moment; the site keeps every send for 5 days, so a few short sessions cover everything.
-      let seen = {};
+      // Nov 2: a product is skipped only when it was read in the last 4 days (was 7): the site drops saves after 5 days, so a
+      // product skipped at day 6 had no copy left at all; with 4, every product read once keeps a copy under 5 days old.
+      let seen = {}, wasSale = {};
       try { seen = JSON.parse(localStorage.getItem("gf-bc-read") || "{}"); } catch (e) {}
-      const week = Date.now() - 7 * 864e5;
+      try { wasSale = JSON.parse(localStorage.getItem("gf-bc-sale") || "{}"); } catch (e) {}
+      const fresh4 = Date.now() - 4 * 864e5, week = Date.now() - 7 * 864e5;
       const all = [...urls.entries()].sort((a, b) => b[1] - a[1]);
-      const todo = all.filter(([u, sale]) => sale > 0 || !(seen[u] > week)).map(x => x[0]).slice(0, 3000);
+      const todo = all.filter(([u, sale]) => saleOnly ? (sale > 0 || wasSale[u]) : (sale > 0 || !(seen[u] > fresh4)))
+        .map(x => x[0]).slice(0, 3000);
       const skipped = all.length - todo.length;
       if (!all.length) throw new Error("no product list on this page: open a list like Running shoes or the running deals");
       const products = [];
@@ -143,10 +184,18 @@
       const worker = async () => {
         while (!stop && next < todo.length) {
           const u = todo[next++];
-          try { const p = pp(await fetchDoc(location.origin + u)).product; if (p) { products.push(slim(u, p)); seen[u] = Date.now(); } } catch (e) {}
+          try {
+            const p = pp(await fetchDoc(location.origin + u)).product;
+            if (p) {
+              products.push(slim(u, p)); seen[u] = Date.now();
+              if ((p.skus || []).some(k => k.salePrice && k.listPrice && k.salePrice < k.listPrice)) wasSale[u] = 1; else delete wasSale[u];
+            }
+          } catch (e) {}
           done++;
-          say(`Backcountry: ${done} of ${todo.length} read (sale items first${skipped ? `; ${skipped} already read this week` : ""}). ` +
-              `Keep this tab in front, or send what's read so far: next time it continues.`);
+          prog(done, todo.length);
+          say(`Backcountry: ${done} of ${todo.length} read (${saleOnly ? "sale only" : "sale items first"}` +
+              `${skipped && !saleOnly ? `; ${skipped} read in the last 4 days` : ""}). ` +
+              `You can switch tabs on a computer (on a phone, keep this tab open), or send what's read so far: next time it continues.`);
           box.appendChild(early);
           await sleep(300);
         }
@@ -154,8 +203,9 @@
       await Promise.all([worker(), worker(), worker(), worker()]);
       early.remove();
       try { for (const k in seen) if (seen[k] < week) delete seen[k]; localStorage.setItem("gf-bc-read", JSON.stringify(seen)); } catch (e) {}
-      if (!products.length) throw new Error(skipped ? "everything here was already read this week" : "no product could be read");
-      save(`backcountry-${new Date().toISOString().slice(0, 10)}.json`, { store: "backcountry", saved: new Date().toISOString(), url: location.href, products });
+      try { localStorage.setItem("gf-bc-sale", JSON.stringify(wasSale)); } catch (e) {}
+      if (!products.length) throw new Error(saleOnly ? "nothing on sale in this list" : skipped ? "everything here was read in the last 4 days" : "no product could be read");
+      save(`backcountry-${new Date().toISOString().slice(0, 10)}.json`, { store: "backcountry", saved: new Date().toISOString(), url: location.href, sale_only: saleOnly, products });
     } else if (/svpsports\.ca$/.test(host)) {
       // SVP is a Shopify store: read the collection you're on (e.g. running shoes on sale) page by page
       const m = location.pathname.match(/^((?:\/[a-z]{2})?\/collections\/[^/]+)/);
@@ -216,5 +266,8 @@
   } catch (e) {
     say("Couldn't read this page (" + e.message + "). Open a product list (running deals, Running shoes, Running clothing...), then try again.");
   }
+  document.title = keep ? `Fox ✓ ready to send · ${title0}` : title0;
+  if (keep) addEventListener("focus", () => { document.title = title0; }, { once: true });
+  try { if (wk) wk.terminate(); } catch (e) {}
   if (!keep) setTimeout(() => box.remove(), 12000);
 })();
