@@ -5023,16 +5023,62 @@ def main():
     # and a store unread for KEEP_HOURS leaves the site): the stores whose last good read is oldest go first, so a store skipped
     # by the time limit is read first next time. Each shop is still read once, at the same pace.
     shop.sort(key=lambda st: stamps.get(st) or "")
-    lanes = [shop] + [[st] for st in STORES if st not in shop]
-    lanes.sort(key=lambda l: -len(l))
+    # Nov 2 (Bastien: "move these to 2 readers asap so we stop missing stores"): SHOP_SPLIT=B (refresh.yml job "shopb", its own GitHub
+    # machine) reads every other Shopify store by name and writes its results to SHOPB_OUT, nothing else; SHOP_SPLIT=A (the build)
+    # reads the rest plus every other reader, and takes B's results from the run's "shopb" artifact (wait_b) before the merge.
+    # Each shop is still read once, at the same pace, by one machine.
+    split = "" if REMERGE else os.environ.get("SHOP_SPLIT", "")
+    half_b = set(sorted(shop)[1::2]) if split else set()
     results = {}
     late = []
+    if split == "B":
+        lanes = [[st for st in shop if st in half_b]]
+    else:
+        shop_a = [st for st in shop if st not in half_b]
+        lanes = [shop_a] + [[st] for st in STORES if st not in shop]
+        lanes.sort(key=lambda l: -len(l))
+        if split == "A":
+            lanes.append(("wait_b",))
 
     def over(st):
         late.append(st)
         raise RuntimeError(f"not read: the read reached its {limit / 60:.0f}-min time limit")
 
+    def wait_b():
+        """The other machine's Shopify half: poll this run's artifacts until "shopb" is there (or the time limit), then use it."""
+        got = None
+        repo, run_id, tok = os.environ.get("GITHUB_REPOSITORY"), os.environ.get("GITHUB_RUN_ID"), os.environ.get("GITHUB_TOKEN")
+        h = {"Authorization": f"Bearer {tok}", "Accept": "application/vnd.github+json"}
+        while repo and tok and time.time() < polite.DEADLINE:
+            try:
+                arts = requests.get(f"https://api.github.com/repos/{repo}/actions/runs/{run_id}/artifacts", headers=h, timeout=30).json()
+                a = next((x for x in arts.get("artifacts", []) if x["name"] == "shopb"), None)
+                if a:
+                    import io, zipfile
+                    z = requests.get(a["archive_download_url"], headers=h, timeout=120)
+                    got = json.loads(zipfile.ZipFile(io.BytesIO(z.content)).read("shopb.json"))
+                    break
+                jobs = requests.get(f"https://api.github.com/repos/{repo}/actions/runs/{run_id}/jobs", headers=h, timeout=30).json()
+                jb = next((j for j in jobs.get("jobs", []) if j["name"] == "shopb"), None)
+                if (jb is None or jb.get("status") == "completed") and time.time() - t_read > 120:   # no second machine / ended without results
+                    if True:
+                        print(f"  shopb: job {'missing' if jb is None else jb.get('conclusion')}, no results", file=sys.stderr)
+                        break
+            except Exception as e:
+                print(f"  shopb: {str(e)[:100]}", file=sys.stderr)
+            time.sleep(20)
+        for st in sorted(half_b):
+            if got and st in got["results"]:
+                g, ok, line = got["results"][st]
+                results[st] = (g, ok, line)
+            else:
+                results[st] = run(st, lambda: (_ for _ in ()).throw(RuntimeError("the second machine's read didn't arrive in time")))
+        print(f"shopb: {len(half_b)} Shopify stores from the second machine" + (f" (read in {got['minutes']} min)" if got else ": NOT received"),
+              file=sys.stderr)
+
     def lane(sts):
+        if sts == ("wait_b",):
+            return wait_b()
         for st in sts:
             if not REMERGE and time.time() - t_read > limit:
                 results[st] = run(st, lambda st=st: over(st))
@@ -5042,7 +5088,8 @@ def main():
         list(ex.map(lane, lanes))
     # a store that said "too busy" (429/5xx) gets one more go at the end, after a pause, before it falls back to its
     # last read (Oct 8: The Feed's 2,370 products kept a half-day-old read after one 429)
-    busy = [st for st in STORES if results[st][1] is False and re.search(r"\b(429|50[0234])\b", results[st][2] or "")]
+    busy = [st for st in STORES if st in results and st not in (half_b if split == "A" else ())
+            and results[st][1] is False and re.search(r"\b(429|50[0234])\b", results[st][2] or "")]
     if late:
         print(f"::warning::read time limit ({limit / 60:.0f} min): {len(late)} stores not read this time, kept their last read: "
               + ", ".join(late), file=sys.stderr)
@@ -5053,6 +5100,13 @@ def main():
             again = run(st, STORES[st])
             if again[1]:
                 results[st] = (again[0], True, again[2] + " (second try)")
+    if split == "B":
+        print(polite.report(), file=sys.stderr)
+        Path(os.environ.get("SHOPB_OUT", "/tmp/shopb/shopb.json")).parent.mkdir(parents=True, exist_ok=True)
+        Path(os.environ.get("SHOPB_OUT", "/tmp/shopb/shopb.json")).write_text(json.dumps(
+            {"minutes": round((time.time() - t_read) / 60, 1), "results": {st: results[st] for st in half_b if st in results}}))
+        print(f"shopb: {len(half_b)} stores written in {(time.time() - t_read) / 60:.1f} min", file=sys.stderr)
+        return 0
     if not REMERGE:
         print(polite.report(), file=sys.stderr)       # Nov 1: requests per site, slow-downs, robots.txt refusals
         try:                                          # Nov 1: the health email counts real store reads (planned 2 a day)

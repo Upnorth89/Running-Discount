@@ -8,7 +8,48 @@ name: Read test
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+  actions: read       # Nov 2: the read picks up the second machine's Shopify half (artifact "shopb")
+
 jobs:
+  # Nov 2: same split as refresh.yml: every other Shopify store is read on this second machine
+  shopb:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r scraper/requirements.txt
+      - name: Last read's raw store files (private cache, read only)
+        continue-on-error: true
+        uses: actions/cache/restore@v4
+        with:
+          path: /tmp/rawcache
+          key: raw-offers-${{ github.run_id }}
+          restore-keys: raw-offers-
+      - name: Last read
+        continue-on-error: true
+        run: |
+          curl -fsSL "https://thegearfox.com/deals.json" -o site/deals.json || true
+          if [ -s /tmp/rawcache/offers.json.gz ]; then gunzip -c /tmp/rawcache/offers.json.gz > site/offers.json; fi
+      - name: Read the second half of the Shopify stores
+        env:
+          SHOP_SPLIT: B
+          SHOPB_OUT: /tmp/shopb/shopb.json
+        run: |
+          START=$(date +%s)
+          python scraper/scrape.py site/deals.json 2> /tmp/readb.log || true
+          echo "::notice title=Second machine::read took $(( ($(date +%s) - START) / 60 )) min"
+          grep -E "FAILED|polite: |most time|shopb:" /tmp/readb.log | head -40 | while read -r l; do echo "::warning title=Second machine::$l"; done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: shopb
+          path: /tmp/shopb/shopb.json
+          retention-days: 1
+
   read:
     runs-on: ubuntu-latest
     timeout-minutes: 80
@@ -56,11 +97,13 @@ jobs:
         env:
           SUPABASE_URL: "https://krwymmkauwqqxjxbvkyq.supabase.co"
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          SHOP_SPLIT: A
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           START=$(date +%s)
           python scraper/scrape.py site/deals.json 2> /tmp/read.log || true
           MIN=$(( ($(date +%s) - START) / 60 ))
           echo "::notice title=Read test::full read took ${MIN} min (refresh limit 75)"
-          grep -E "FAILED|across the board|polite: " /tmp/read.log | head -60 | while read -r l; do echo "::warning title=Read test::$l"; done
+          grep -E "FAILED|across the board|polite: |most time|shopb:|time limit" /tmp/read.log | head -60 | while read -r l; do echo "::warning title=Read test::$l"; done
           grep -E "items \([0-9]+ on sale\) in [0-9]+s" /tmp/read.log | awk '{t=$NF; sub("s","",t); if (t+0 > 300) print}' | while read -r l; do echo "::notice title=Slow store::$l"; done
           [ "$MIN" -lt 60 ] || { echo "::error title=Read test::the read took ${MIN} min: too close to the 75 min limit"; exit 1; }

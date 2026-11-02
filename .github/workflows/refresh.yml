@@ -23,6 +23,7 @@ permissions:
   contents: write     # the build pushes the daily price history to the "history" branch (not the site)
   pages: write
   id-token: write
+  actions: read       # Nov 2: the build picks up the second machine's Shopify half (artifact "shopb") from this run
 
 # One build and one deploy at a time. Set per job, not for the whole workflow (Oct 8): GitHub keeps only one run waiting
 # per group, so a late schedule run that the check job then skips bumped a waiting push run out of the queue (8086c30
@@ -52,6 +53,43 @@ jobs:
           fi
           echo "skip=$skip" >> "$GITHUB_OUTPUT"
           [ "$field" = reported ] && echo "morning=true" >> "$GITHUB_OUTPUT" || true
+
+  # Nov 2 (Bastien: "move these to 2 readers asap so we stop missing stores"): every other Shopify store (by name) is read on
+  # this second GitHub machine at the same polite pace; the build reads the rest and takes these results before its merge.
+  # Store reads only (not push runs: those rebuild from the last read). Nothing is published from here.
+  shopb:
+    needs: check
+    if: needs.check.outputs.skip != 'true' && github.event_name != 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r scraper/requirements.txt
+      - name: Last read's raw store files (private cache, read only)
+        continue-on-error: true
+        uses: actions/cache/restore@v4
+        with:
+          path: /tmp/rawcache
+          key: raw-offers-${{ github.run_id }}
+          restore-keys: raw-offers-
+      - name: Last read (each store's fallback + read times)
+        continue-on-error: true
+        run: |
+          curl -fsSL "https://thegearfox.com/deals.json" -o site/deals.json || true
+          if [ -s /tmp/rawcache/offers.json.gz ]; then gunzip -c /tmp/rawcache/offers.json.gz > site/offers.json; fi
+      - name: Read the second half of the Shopify stores
+        env:
+          SHOP_SPLIT: B
+          SHOPB_OUT: /tmp/shopb/shopb.json
+        run: python scraper/scrape.py site/deals.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: shopb
+          path: /tmp/shopb/shopb.json
+          retention-days: 1
 
   build:
     needs: check
@@ -125,6 +163,8 @@ jobs:
         env:                       # SUPABASE_*: deals sent from the phone "Grab deals" bookmark (grab_saves, Oct 8)
           SUPABASE_URL: "https://krwymmkauwqqxjxbvkyq.supabase.co"
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          SHOP_SPLIT: ${{ github.event_name != 'push' && 'A' || '' }}   # Nov 2: half the Shopify stores come from job "shopb"
+          GITHUB_TOKEN: ${{ github.token }}
         # Nov 1: a code push reuses this morning's/afternoon's store read (offers.json from the private cache) and rebuilds the pages,
         # so shops see us twice a day as planned, not once per push. No cached read (rare) = a normal full read.
         run: |

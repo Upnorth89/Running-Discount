@@ -411,3 +411,11 @@ Better levers for "3 stores per store lost": readable running specialty shops (l
 - Backcountry HIKING (his Oct 29-30 save): live deals-hike-us.json now has 1,913 Backcountry items, 1,412 on sale:
   tops 929, packs 310, bottoms 270, shoes 254, gear 86, socks 35, headwear 29 (USA side, CAD prices converted as usual).
 - 49 min is close to the 50-min budget: step 2 (split the Shopify lane across two machines) is next, then big shops to the night read.
+
+## Nov 2, ~14:30 UTC: your step 2 (two readers) built; read test next
+- This morning's 11:17 read skipped 0 stores (all 132 Shopify stores read this morning; none near the 48 h drop-off).
+- Split: refresh.yml job "shopb" (its own GitHub machine) reads every other Shopify store by name (66) at the same pace; the build
+  reads the other 66 + every other reader, then takes shopb's results from the run's artifact before the merge (one merge, as before).
+  Per shop: still read once, same gap, robots + crawl-delay, oldest-read-first in each half. If shopb fails or is late, its stores keep
+  their last read (KEEP_HOURS) and the build stops waiting. Push runs unchanged (no store reads).
+- Proof before going live: readtest.yml now runs the same two jobs. I'll post total minutes, stores skipped and 429/503 count here.
