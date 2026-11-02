@@ -439,3 +439,7 @@ Better levers for "3 stores per store lost": readable running specialty shops (l
   Backcountry (run-train-on-sale list) 1,145 running + 716 hiking (all on sale: tops 383, bottoms 279...); MEC (running lists only)
   1,041 running + 17 hiking; SVP no save in the last 40 days. Hiking sortcheck: 1 hit (a Backcountry "Convertible Snap-Up Shirt" as
   pants) -> fixed (convertible + shirt/top/jacket = top); now clean. Live numbers after the next store read.
+
+## Nov 2, 17:10 UTC: Impact tag live
+- `<meta name="impact-site-verification" value="c0f43ba6-…">` is on the live homepage (checked with curl). Bastien can click "Add Website" in Impact now.
+- Pushed 14540cc: every Grab deals save (MEC, REI, Backcountry, SVP) feeds BOTH sides. Running side reads hiking lists too; hiking reads every save through classify(). Local test: REI 981 hiking (441 on sale), Backcountry 716, MEC 17 (its saves so far are running lists). Live per-store numbers after the next store read.
