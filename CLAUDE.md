@@ -693,6 +693,10 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
 - Oct 4: AvantLink network application DENIED (site too new). Reapply early December with the Dec 1 click report,
   Search Console traffic and Black Friday results, (About page, contact email and affiliate disclosure: live Oct 3).
   Meanwhile: Sovrn Commerce, Shopify Collabs (brand programs), small shops directly.
+- Nov 2: Impact (impact.com) partner account (hello@thegearfox.com; publisher / individual / website / deals; website + Friday email channels; profile
+  written) VERIFIED with the homepage meta tag impact-site-verification c0f43ba6… (keep it in site/index.html <head>) and the Brands Marketplace
+  application is In Review (~72 h). Once approved: apply to Sport Chek (Impact). An older Impact account made via REI's invite link (REI declined:
+  2,000 followers minimum) dead-ended; ignore it. No affiliate links go live until a program approves (AFF stays empty; About/privacy unchanged).
 - Oct 6: Decathlon affiliate application DECLINED (same reason expected: site too new). Reapply early December with AvantLink,
   with Decathlon's Nov click count from the Dec 1 monthly report. Decathlon deals stay on the site (ranking never favours paying stores).
 
