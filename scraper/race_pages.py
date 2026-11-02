@@ -1306,8 +1306,8 @@ S = {
         "boxH": "Get gear deals in your size every Friday until race day", "boxTxt": "Free. One email on Friday mornings with the best deals in your sizes. Unsubscribe in one tap.",
         "boxBtn": "Send me the deals", "faqH": "Quick answers",
         "qList": "What is the mandatory gear for {the}{short} {d}?", "aList": "{items}.",
-        "qJacket": "Is a windbreaker enough for the {name}?", "aJacket": "No. The race asks for a jacket with an attached hood and a waterproof, breathable membrane (on the {dists}). Windbreakers aren't accepted.",
-        "qCup": "Do the {name} aid stations have cups?", "aCup": "No. The aid stations have no cups: bring your own reusable cup.",
+        "qJacket": "Is a windbreaker enough for {thename}{name}?", "aJacket": "No. The race asks for a jacket with an attached hood and a waterproof, breathable membrane (on the {dists}). Windbreakers aren't accepted.",
+        "qCup": "Do {thename}{name} aid stations have cups?", "aCup": "No. The aid stations have no cups: bring your own reusable cup.",
         "kbBest": "From {p} · {n} picks", "kbBestN": "Not in your size today", "aisle": "Race gear lists",
         "waOne": "Watch the 1 thing I'm missing", "waN": "Watch the {n} things I'm missing", "waDone": "Watching {n} · Undo",
         "waCap": "Your free watchlist holds {cap} items: we watched the first {n}.", "waSize": "Pick your size above to watch what you're missing.", "waMember": "Watching. We'll email you when they drop in your size.", "waNew": "Watching, on this phone. Add your email and we'll tell you when they drop.",
@@ -1358,7 +1358,7 @@ S["us"] = dict(S["en"], dir="us/races", desc="The {name} mandatory gear list for
 # Oct 27: races whose whole list is suggested (Sinister Sports: "no mandatory gear" but the bib and chip it hands out)
 SUG = {
     "en": {"title": "{name} gear list: what the race suggests ({short} {dists})",
-           "desc": "The gear the {name} suggests for the {dists}, item by item (none of it required), with today's best prices on each in your size at Canadian stores.",
+           "desc": "The gear {thename}{name} suggests for the {dists}, item by item (none of it required), with today's best prices on each in your size at Canadian stores.",
            "h1": "{name} suggested gear list", "R": "Suggested by the race",
            "sNote": "The race suggests this gear; none of it is required. The only must-haves are what the race hands out (marked Provided).",
            "qList": "Is any gear mandatory for {the}{short} {d}?", "aList": "No. The race suggests: {items}."},
@@ -1368,7 +1368,7 @@ SUG = {
            "sNote": "La course suggère ce matériel; rien n'y est obligatoire. Seul ce que la course remet (marqué Fourni) est exigé.",
            "qList": "Y a-t-il du matériel obligatoire pour {le}{short} {d}?", "aList": "Non. La course suggère : {items}."},
 }
-SUG["us"] = dict(SUG["en"], desc="The gear the {name} suggests for the {dists}, item by item (none of it required), with today's best prices on each in your size at US stores.")
+SUG["us"] = dict(SUG["en"], desc="The gear {thename}{name} suggests for the {dists}, item by item (none of it required), with today's best prices on each in your size at US stores.")
 
 
 def twins(head, slug, race):
@@ -1708,6 +1708,7 @@ def page(slug, race, L, items, stores, pages=None, fx=1.0):
     fmt = dict(name=race["name"], short=race["short"], dists=dlabs(race, L), where=race["where"][L if L != "us" else "en"],
                when=race["when"][L if L != "us" else "en"], de=race.get("de", "de l'"), le=race.get("le", "l'"),
                the="" if re.match(r"(?i)(the|la|le|les)\s|l'", race["short"]) else "the ")
+    fmt["thename"] = "" if re.match(r"(?i)(the|la|le|les)\s|l'", race["name"]) else "the "
     if L == "us":   # English, US stores; the "Canadian stores" switch goes to the same race with Canadian stores
         head = page_head(US, s["title"].format(**fmt), s["desc"].format(**fmt), f"/us/races/{slug}/", "", f"<style>{CSS}</style>").replace('class="sw" href="/shoes/"', f'class="sw" href="/races/{slug}/"')
     else:
