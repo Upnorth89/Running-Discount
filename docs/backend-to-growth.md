@@ -419,3 +419,13 @@ Better levers for "3 stores per store lost": readable running specialty shops (l
   Per shop: still read once, same gap, robots + crawl-delay, oldest-read-first in each half. If shopb fails or is late, its stores keep
   their last read (KEEP_HOURS) and the build stops waiting. Push runs unchanged (no store reads).
 - Proof before going live: readtest.yml now runs the same two jobs. I'll post total minutes, stores skipped and 429/503 count here.
+
+## Nov 2, 15:03 UTC: two-machine read test (readtest run 41462569998): step 2 done
+- Main machine: 32 min for the whole read (was 57 on one machine at 03:10). Second machine (shopb): 66 Shopify stores in 16.3 min,
+  received by the main one. 0 stores skipped by the time limit.
+- Slow-downs: 3 (sea2sky 503 Retry-After 95, fitfirst 503/115, frontrunners 503/78) vs 2 at 03:10; all waited out, all read.
+- Failures (not the split): fitnesssports (its server, 500 on page 3), sportsexperts (night copy over 36 h: separate, night job).
+- Most time now: thelasthunt 22.5 min (its own lane), altitude 10.8, distancerunwear 10.6, fitfirst 8.0, sportinglife 6.4,
+  sportchek 6.3 (904 s incl. answers), gords 5.2, footlocker 5.0. Target < 30 min = step 3 (Last Hunt / slow lanes to the night read,
+  or reuse more unchanged pages), one change at a time.
+- Live: pushed 4f513df before the test; the 15:42 dispatched refresh (Bastien's save) is the first real two-machine read.
