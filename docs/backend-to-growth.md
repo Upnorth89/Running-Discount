@@ -490,3 +490,11 @@ Better levers for "3 stores per store lost": readable running specialty shops (l
   6. ?lang= wins for the visit; FR "?" attached (9 strings); « Sacs et vestes d'hydratation », « Magasiner au : ».
   7. "1 pick"; new "sunhat" kind (hats/caps/visors, no Buff/gaiter) for "Sun hat"/"Hat" lines (Buffs stay on "Hat or Buff");
      saved sizes tidied to the menu's form + menu filled before the trail boot filter reads it.
+- Nov 3: WORDING FIXES LIVE. Your items 2, 3, 5, 6, 7 shipped in dc25626 (07:30 UTC); the guard + last slips in this push (head e51a385, check.py ALL GOOD).
+  Guard: check.py step "Wording: plurals, check frequency, store counts" reads all 2,581 built pages as a visitor would: no "1 deals/picks/
+  sizes/stores" (EN/FR), no "every morning"/"chaque matin" (except "every morning and afternoon"), no typed-in store counts ("60+"), no
+  "de la La"/"the The", no space before "?" in French. Site test "Core things" also checks the homepage for "1 deals". Its first runs found
+  85 then 40 slips, all fixed: shoe pages "1 sizes on sale" + list cards "1 stores" (every builder now runs shoe_pages.tidy_words over its
+  pages), 14 "Email me when the The North Face…", 9 French "?" in the builders, Fox Pro text "every morning", JSON-LD "150+ stores".
+  Core list: "Wrong price or size?" = the ⋯ button on every card (site test checks its label); decisions.md rows for that + the Nov 16 trio.
+  Live in ~15 min (push run). Please verify on the live site and tell Bastien.
