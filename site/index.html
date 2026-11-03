@@ -1849,7 +1849,7 @@ function rdBuild(){
   $("rdCtry").addEventListener("click",e=>{e.stopPropagation();menuOpen($("menu").hidden)});   // Oct 23 fix: the click reached the page and closed the menu it opened
   $("rdLang").addEventListener("click",e=>{e.stopPropagation();menuOpen($("menu").hidden)});   // Oct 23: the language list in the menu, like the country
   $("rdMy").addEventListener("click",editSizes);$("ddSize").addEventListener("click",editSizes);
-  $("ddCat").addEventListener("change",e=>{const v=e.target.value;ana("category","dd|"+(v||"__all"));state.groups=v?[v]:ORDER.slice();view.open={};saveProfile();renderAll()});
+  $("ddCat").addEventListener("change",e=>{const v=e.target.value;ana("category","dd|"+(v||"__all"));view.circle=false;state.groups=v?[v]:ORDER.slice();view.open={};saveProfile();renderAll()});
   $("ddBrand").addEventListener("change",e=>{view_rd.brand=e.target.value;ana("filter","brand|"+(e.target.value||"-"));view.open={};renderAll()});
   $("ddPrice").addEventListener("change",e=>{view_rd.max=+e.target.value||0;ana("filter","price|"+view_rd.max);view.open={};renderAll()});
   $("ddStore").addEventListener("change",e=>shopStore(e.target.value,"filter"));
@@ -1864,7 +1864,7 @@ function rdText(){   // words that change with the language
   $("ddSale").parentNode.querySelector(".tl").textContent=R.sale;
   $("filtBtn").querySelector("[data-i18n]").textContent=R.more}
 function rdCat(k){const gs=RD_TILES[k].filter(g=>!(g==="bras"&&state.gender==="men"));
-  const same=gs.length===state.groups.length&&gs.every(g=>state.groups.includes(g));state.groups=same?ORDER.slice():gs;
+  const same=gs.length===state.groups.length&&gs.every(g=>state.groups.includes(g));state.groups=same?ORDER.slice():gs;view.circle=!same;
   view.open={};saveProfile();renderAll();rdGoDeals(!same)}   // a category picked: straight to its deals; tapped again: back to the circles
 function rdGoDeals(top){const el=top?$("dealList"):$("rdTiles");if(el)scrollTo({top:Math.max(0,el.getBoundingClientRect().top+scrollY-(top?140:80)),behavior:"smooth"})}
 function rdUpdate(all,p){   // hero, dropdowns, tiles, why: from today's data, every render
@@ -2229,7 +2229,7 @@ function offerStore(){
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")setTimeout(offerStore,400)});
 window.addEventListener("focus",()=>setTimeout(offerStore,400));
 window.addEventListener("pageshow",()=>setTimeout(offerStore,400));
-$("cats").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;const v=b.dataset.v;ana("category",v);
+$("cats").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;const v=b.dataset.v;ana("category",v);view.circle=false;
   const all=ORDER.every(g=>state.groups.includes(g));
   if(v==="__all")state.groups=ORDER.slice();
   else if(all)state.groups=[v];                       // from "all", tapping one narrows to it
@@ -2256,7 +2256,8 @@ function popShow(){const inp=$("dSearch"),list=(POPQ[US()?"us":"ca"]||[]).slice(
   box.innerHTML=`<b>${t("popH")}</b><div>${list.map(q=>`<button type="button" data-pq="${esc(q)}">${esc(q)}</button>`).join("")}</div>`;box.hidden=false}
 $("dSearch").addEventListener("focus",popShow);$("dSearch").addEventListener("input",popShow);
 $("dSearch").addEventListener("blur",()=>{const b=$("popq");if(b)b.hidden=true});addEventListener("scroll",()=>{const b=$("popq");if(b&&!b.hidden&&document.activeElement!==$("dSearch"))b.hidden=true},{passive:true});
-const qStart=v=>{if(String(v||"").trim()&&!String(view.q||"").trim())state.groups=ORDER.slice()};   // Nov 3: a new search looks in every category
+// Nov 3 (growth's walk): a category picked with a CIRCLE is cleared by a new search; one picked in Filters (chips/menu) keeps searches inside it
+const qStart=v=>{if(view.circle&&String(v||"").trim()&&!String(view.q||"").trim()){state.groups=ORDER.slice();view.circle=false}};
 let searchT;$("dSearch").addEventListener("input",e=>{clearTimeout(searchT);searchT=setTimeout(()=>{qStart(e.target.value);view.q=e.target.value;view.open={};view.anySize=false;view.anyFit=false;renderAll()},200)});
 let anaQ="",anaQT;$("dSearch").addEventListener("input",e=>{clearTimeout(anaQT);anaQT=setTimeout(()=>{const q=e.target.value.trim().toLowerCase();
   if(q.length<2||q===anaQ||!ITEMS.length||!document.querySelector("#dealList .deal,#dealList .searchhelp,#dealList .widen"))return;   // Oct 26: not before the deals have loaded
