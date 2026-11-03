@@ -153,7 +153,8 @@ def build(site):
     flat = one_per_brand(flat, lambda r: (r["day"], -r["off"]))[:12]
     up = one_per_brand(up, lambda r: -r["gap"])[:8]
     return dict(today=today, upd=upd, real=real, flat=flat, up=up, n_real=n_real, n_sale=n_sale, n_old=n_old, n_flat=n_flat,
-                n_stores=sale.get("n_stores") or len(names), reg=reg)
+                # Nov 3 (growth's walk): "170 stores" on a Canadian page counted both sides; the Canadian stores in today's sale file
+                n_stores=len({SP.host(u) for d in sale.get("items", []) for u in d.get("of", [])}) or sale.get("n_stores") or len(names), reg=reg)
 
 
 # Oct 31 (daily review: the page was 7.3 phone screens, 32 rows at once): 4 per list, the rest behind "Show all N"

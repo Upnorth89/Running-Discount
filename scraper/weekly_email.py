@@ -115,7 +115,9 @@ def terrain_ok(d, p):
 def match(items, p):
     """Mirror of matchItems() on the site: items in stock in the profile's sizes, with best price."""
     favs = {b.lower() for b in p.get("brands") or []}
-    groups, gender = set(p.get("groups") or []), p.get("gender")
+    # Nov 3 (growth's walk): "groups" in a profile was the category last tapped on the site (one circle tap = shoes only, saved),
+    # never a subscription choice: every category goes in. (The site no longer saves it either.)
+    groups, gender = set(GROUP_LABEL), p.get("gender")
     ca_only = (p.get("ships") or "ca") != "all"
     out = []
     for d in items:
@@ -419,7 +421,7 @@ def build(p, sale, watch=None):
 {E(tr(lang, "drops_head"))} <span style="font:400 14px Arial,sans-serif;color:#5C6660">{len(drops)}</span></td></tr>
 {"".join(card(d, lang, shop) for d in drops[:DROPS])}''')
     skip = {id(d) for d in drops[:DROPS]}
-    order = [g for g in GROUP_LABEL if g in set(p.get("groups") or [])]
+    order = list(GROUP_LABEL)
     for g in order:
         ds = [d for d in sale if d["g"] == g and id(d) not in skip]
         if not ds or shown >= TOTAL:

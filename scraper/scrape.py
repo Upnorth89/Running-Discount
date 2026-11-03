@@ -3976,7 +3976,7 @@ def tidy_nutrition(offers):
     return out
 
 # Clothing that stores file next to headlamps and bottles: compression sleeves, warmers, recovery tights, caps.
-GEAR_LEG = re.compile(r"\b(calf|leg|compression|booster)\b.*\b(sleeves?|warmers?)\b|\b(leg|knee) warmers?\b|\bcalf (guards?|tubes?)\b|"
+GEAR_LEG = re.compile(r"\b(calf|leg|compression|booster)\b.*\b(sleeves?|warmers?)\b|\b(leg|knee) warm(ers?)?\b|\bcalf (guards?|tubes?)\b|"
                       r"^booster elite", re.I)
 SHOE_BRANDS = {"asics", "adidas", "hoka", "brooks", "salomon", "saucony", "new balance", "nike", "on", "on running", "altra", "mizuno",
                "puma", "la sportiva", "merrell", "topo", "topo athletic", "norda", "nnormal", "under armour", "inov-8", "scarpa"}
@@ -4037,9 +4037,31 @@ def tidy_food(offers):
             o["g"] = "gear"
     return offers
 
+# Nov 3 (growth's walk of the live site): bottle/flask caps sold as "caps" were under hats (Nathan "Soft Flask Cap With Hose", Hydrapak
+# "Water Bottle Filter Cap", Humangear "CapCAP+"); league fan socks (MLB/NFL/NBA/NHL) and ski/snowboard socks aren't running socks;
+# everyday underwear labels (Hanes, Fruit of the Loom, Jockey, Calvin Klein) aren't running gear.
+CAP_NOT_HAT = re.compile(r"\b(water bottle|bottles?|flasks?|filter|hose|bite valve|spout|reservoir)\b|capcap", re.I)
+SOCK_NOT_RUN = re.compile(r"\b(mlb|nfl|nba|nhl|ski|snowboard|snow)\b", re.I)
+UNDERWEAR_BRANDS = {"hanes", "fruit of the loom", "jockey", "calvin klein"}
+
+
 def tidy_gear(offers):
     offers = tidy_food(offers)
     for o in offers:
+        if (o["b"] or "").lower() in UNDERWEAR_BRANDS:
+            o["g"] = "_drop"
+            continue
+        if o["g"] == "headwear" and CAP_NOT_HAT.search(o["n"]):
+            o["g"] = "gear"
+            continue
+        if o["g"] == "socks" and SOCK_NOT_RUN.search(o["n"]):
+            o["g"] = "_drop"
+            continue
+        if o["g"] in ("gloves", "headwear", "socks") and GEAR_ARM.search(o["n"]) and re.search(r"warm", o["n"], re.I):
+            o["g"] = "tops"            # arm warmers filed as gloves/hats by a store: with tops, like gear's arm warmers
+            continue
+        if o["g"] in ("gloves", "headwear") and GEAR_LEG.search(o["n"]):
+            o["g"] = "socks"
         # a shoe brand in numbered sizes filed by a word in its name: "Gel Kayano 33" (food), Merrell "Trail Glove 8" (gloves)
         if o["g"] in ("nutrition", "gloves") and (o["b"] or "").lower() in SHOE_BRANDS and SHOE_SIZES(o):
             o["g"] = "_drop" if COURT_SHOE.search(o["n"]) or CASUAL_SHOE.search(o["n"]) else "shoes"

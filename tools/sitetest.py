@@ -424,6 +424,21 @@ def site_flow(base, per, accented):
             return "; ".join(out) or "neither in these sizes today"
         check("Search forgives a plural, an extra e or a filler word")(plural, page)
 
+        def french_words():   # Nov 3 (growth's walk): "bas" found base layers; French gear words found nothing
+            all_gear()
+            page.fill("#dSearch", "bas")
+            settle(page, 900)
+            names = page.eval_on_selector_all("#dealList .rdc .name, #dealList .card .name", "e => e.map(x => x.textContent.toLowerCase())")
+            base = [n for n in names if "base" in n]
+            page.fill("#dSearch", "manteau de pluie")
+            settle(page, 900)
+            rain = len(cards(page))
+            page.fill("#dSearch", "")
+            settle(page)
+            assert not base, f"'bas' (socks) still shows base layers: {base[:3]}"
+            return f"'bas': {len(names)} cards, no base layer; 'manteau de pluie': {rain} cards"
+        check("Search: French gear words (bas = socks, manteau de pluie = rain jacket)")(french_words, page)
+
         def nonsense():
             all_gear()
             page.fill("#dSearch", "zzqxw")
@@ -1178,12 +1193,21 @@ def site_flow(base, per, accented):
             q.click('[data-rdtile="shoes"]')
             q.wait_for_timeout(800)
             cat = q.evaluate("() => [!!document.querySelector('.rdcatbar'), [...new Set([...document.querySelectorAll('#dealList section.grp:not(.new)')].map(x=>x.id))]]")
+            # Nov 3 (growth's walk): a circle is a view, never saved: the saved profile keeps every category, and a reload shows them all
+            saved = q.evaluate("() => {try{return (JSON.parse(localStorage.getItem('rd-profile')||'{}').groups||[]).length}catch(e){return -1}}")
+            q.reload(wait_until="domcontentloaded")
+            q.wait_for_selector("#dealList .rdc", timeout=30000)
+            q.wait_for_timeout(600)
+            reload_n = q.evaluate("() => [!!document.querySelector('.rdcatbar'), document.querySelectorAll('#dealList section.grp:not(.new)').length]")
+            q.click('[data-rdtile="shoes"]')
+            q.wait_for_timeout(800)
             q.click(".rdcatbar button")
             q.wait_for_timeout(800)
             back = q.evaluate("() => [!!document.querySelector('.rdcatbar'), document.querySelectorAll('#dealList section.grp:not(.new)').length]")
             c.close()
             assert cat[0] and cat[1] == ["grp-shoes"], f"Shoes circle: bar {cat[0]}, sections {cat[1]}"
             assert not back[0] and back[1] >= 4, f"'× All categories' didn't bring every category back: {back}"
+            assert saved != 1 and not reload_n[0] and reload_n[1] >= 4, f"a Shoes circle tap was saved (profile groups {saved}; after reload: bar {reload_n[0]}, {reload_n[1]} sections)"
             assert hit == "page", "the closed filter panel covers the page (taps don't reach it)"
             assert cols == 1, f"small phone: {cols} deals per row (want 1)"
             assert bar, "after scrolling: the old bar still shows, or the header's Filters button isn't on screen"

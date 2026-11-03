@@ -54,7 +54,7 @@ FILLER = {"for", "with", "the", "and", "of", "pour", "avec", "et", "des", "du"} 
 def words(q):
     """Same as the site: plain words lose a "v" before digits ("v15" = "15"), others lose punctuation ("arc'teryx");
     filler words go when other words remain ("running vest for women" = "running vest women")."""
-    w = [x for x in (re.sub(r"v(?=\d)", "", w) if re.fullmatch(r"[a-z0-9]+", w) else sq(w) for w in fold(q.strip()).split()) if x]
+    w = [x for x in (re.sub(r"v(?=\d)", "", w) if re.fullmatch(r"[a-z0-9]+", w) else sq(w) for w in frq(fold(q.strip())).split()) if x]
     k = [x for x in w if x not in FILLER]
     return k if k else w
 
@@ -71,8 +71,26 @@ def lev(a, b):
     return p[len(b)]
 
 
+# Nov 3: same as the site's FR_WORD / FR_PHRASE (French words also look for their English word; "bas" only means socks)
+FR_WORD = {"bas": ["sock"], "chaussettes": ["sock"], "chaussette": ["sock"], "souliers": ["shoe"], "soulier": ["shoe"], "chaussures": ["shoe"],
+           "chaussure": ["shoe"], "tuque": ["tuque", "toque", "beanie"], "gants": ["glove"], "gant": ["glove"],
+           "cuissard": ["tight", "cuissard"], "collants": ["tight", "collant"], "collant": ["tight", "collant"], "manteau": ["jacket", "manteau"],
+           "veste": ["jacket", "veste"], "frontale": ["headlamp", "frontale"]}
+FR_PHRASE = [(r"\b(manteau|veste) de pluie\b", "rainjacket"), (r"\b(souliers|chaussures) de course\b", r"\1"), (r"\blampe frontale\b", "frontale")]
+
+
+def frq(s):
+    for r, v in FR_PHRASE:
+        s = re.sub(r, v, s)
+    return s
+
+
 def qhas(t, w):
-    """index.html qhas() (Oct 24): a word also matches without a trailing s or e ("endorphins", "glycerine")."""
+    return any(qhas0(t, a) for a in FR_WORD.get(w, [w]))
+
+
+def qhas0(t, w):
+    """index.html qhas0() (Oct 24): a word also matches without a trailing s or e ("endorphins", "glycerine")."""
     i = t.find("\x01")
     m = t if i < 0 else t[:i]
     return w in m or (len(w) > 4 and w[-1] in "se" and w[:-1] in m) or (i >= 0 and len(w) >= 5 and "\x01" + w + "\x01" in t)

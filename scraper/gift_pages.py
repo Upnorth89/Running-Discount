@@ -21,7 +21,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import shoe_pages as SP  # noqa: E402
 
 PATHS = {"en": "gifts-for-runners", "fr": "cadeaux-coureurs", "us": "us/gifts-for-runners"}
-NOT = re.compile(r"\b(l/s|s/s|long sleeve|short sleeve|half-?zip|1/4 zip|quarter zip|tee|shirt|jacket|hoodie|tights?|shorts?|pants?|race number|"
+# Nov 3 (growth's walk): a goodr strap showed as sunglasses, "Bottle Bright Cleaning Tablets" as a gift: accessories/consumables out
+NOT = re.compile(r"\b(retainers?|leash|cleaning|tablets?|lens cloth|replacement|spare|refills?|l/s|s/s|long sleeve|short sleeve|half-?zip|1/4 zip|quarter zip|tee|shirt|jacket|hoodie|tights?|shorts?|pants?|race number|"
                  r"attachment|replacement|refill|lens only|strap only|insoles?|laces?|kids?|junior)\b", re.I)
 PACK = re.compile(r"\b(\d+[- ]?(pack|pk)|pack of|bundle|set of|multi-?pack|kit|gift set|\d+ pairs?)\b", re.I)
 HYD = re.compile(r"hydration|race vest|\d+ ?l\b(?!/)|belt|flask|bottle", re.I)
@@ -32,19 +33,19 @@ KIND = {"headwear": ("Hats & headbands", "Tuques et bandeaux"), "gloves": ("Glov
 BUDGETS = (25, 50, 100)
 S = {
     "en": dict(title="Gifts for runners: under $25, $50 and $100",
-               sub="Ideas you can buy without knowing their size (one size, or small/medium/large in stock) at Canadian stores: today's sales first, then full-price favourites worth watching. Updated every morning.",
+               sub="Ideas you can buy without knowing their size (one size, or small/medium/large in stock) at Canadian stores: today's sales first, then full-price favourites worth watching. Updated twice a day.",
                under="Under ${c}", onsale="On sale today", full="Full price: we'll email you if it drops", fp="Full price", watch="♡ Watch the price",
                box="Prices often drop again on Boxing Day. Watch an item and we'll email you if it drops.", boxing="Boxing Day: get ready →",
                more="Run yourself? See deals in your size →", note="Prices change daily: check on the store's site. Nothing here earns us money.",
                upd="Updated {d}", none="Nothing in this budget today."),
     "fr": dict(title="Cadeaux pour coureurs : moins de 25 $, 50 $ et 100 $",
-               sub="Des idées sans souci de taille (taille unique, ou petit/moyen/grand en stock) dans des boutiques canadiennes : les soldes du jour d'abord, puis des classiques à prix régulier à suivre. Mis à jour chaque matin.",
+               sub="Des idées sans souci de taille (taille unique, ou petit/moyen/grand en stock) dans des boutiques canadiennes : les soldes du jour d'abord, puis des classiques à prix régulier à suivre. Mis à jour deux fois par jour.",
                under="Moins de {c} $", onsale="En solde aujourd'hui", full="Prix régulier : on vous écrit s'il baisse", fp="Prix régulier", watch="♡ Suivre le prix",
                box="Le 26 décembre (Boxing Day), bien des prix baissent encore. Suivez un article : on vous écrit s'il baisse.", boxing="Boxing Day : préparez-vous →",
                more="Vous courez aussi ? Voyez les aubaines dans votre taille →", note="Les prix changent chaque jour : vérifiez sur le site de la boutique. Rien ici ne nous rapporte d'argent.",
                upd="Mis à jour le {d}", none="Rien dans ce budget aujourd'hui."),
 }
-S["us"] = dict(S["en"], sub="Ideas you can buy without knowing their size (one size, or small/medium/large in stock) at US stores: today's sales first, then full-price favorites worth watching. Updated every morning.",
+S["us"] = dict(S["en"], sub="Ideas you can buy without knowing their size (one size, or small/medium/large in stock) at US stores: today's sales first, then full-price favorites worth watching. Updated twice a day.",
                box="Black Friday is November 27. Watch an item and we'll email you if it drops.", boxing="Black Friday deals →")
 CSS = """<style>.gf-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:6px 0 4px}
 @media(min-width:720px){.gf-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(min-width:1000px){.gf-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
@@ -78,6 +79,8 @@ def build(site, side="ca"):
     cand = []
     for d in items:
         k = kind(d)
+        if re.search(r"\bstraps?\b", d["n"], re.I) and not re.search(r"\bwatch", d["n"], re.I):
+            continue            # Nov 3: a goodr strap (an accessory) was shown as sunglasses; a watch "with silicone strap" stays
         if not k or not d.get("img") or not d.get("ca") or (NOT.search(d["n"]) and k != "packs") or PACK.search(d["n"]):
             continue
         ps = [s[1] for s in d["sz"]]

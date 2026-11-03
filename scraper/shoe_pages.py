@@ -2,7 +2,7 @@
 """One page per popular shoe model, for Google: "Saucony Endorphin Speed 5 on sale in Canada".
 
 Each page lists every size in stock with the best price, the store (linked straight to that size) and the % off,
-in English (/shoes/<slug>/) and French (/chaussures/<slug>/). Rebuilt every morning from deals.json, after the
+in English (/shoes/<slug>/) and French (/chaussures/<slug>/). Rebuilt twice a day from deals.json, after the
 price history step (so "lowest price we've seen" can show; good news only, never "it was cheaper before").
 
 A model gets a page once 3+ stores that ship from Canada carry it. Pages never disappear: a model that drops out
@@ -18,7 +18,7 @@ import json
 import os
 import re
 import sys
-from collections import defaultdict
+from collections import Counter, defaultdict
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -38,14 +38,14 @@ T = {
         "about": "The {name} is a {type}. Today {stores} stores in Canada carry it and we found {sizes} sizes in stock.",
         "aboutBest": " The lowest price is {price} at {store} ({bsizes}).", "aboutMost": " {store} is the cheapest in the most sizes ({n}).",
         "qSale": "Is the {name} on sale in Canada right now?",
-        "aSaleYesG": "Yes. {lines} Prices are checked every morning.",
+        "aSaleYesG": "Yes. {lines} Prices are checked twice a day.",
         "aSaleG": "{g}: from {price} ({p}% off) at {store}, in {bsizes}.", "aSaleGNo": "{g}: not on sale today, from {price}.",
-        "aSaleYes": "Yes. Today it's up to {p}% off: {price} at {store} in {bsizes}, and {n} sizes on sale in all. Prices are checked every morning.",
+        "aSaleYes": "Yes. Today it's up to {p}% off: {price} at {store} in {bsizes}, and {n} sizes on sale in all. Prices are checked twice a day.",
         "aSaleNo": "Not today. It's in stock at full price from {price}. Tap \u201cWatch the price\u201d and we'll email you when it drops.",
         "qSizes": "Which sizes are in stock?", "qWhere": "Where is the {name} cheapest in Canada?",
         "aWhere": "{store}, at {price} today ({bsizes}). Each size can be cheapest at a different store: the tables above show the best one for every size.",
         "typeLower": {"daily": "road running shoe", "race": "racing shoe", "trail": "trail running shoe", "hike": "hiking shoe", "": "running shoe"},
-        "hubs": {"all": ("Running shoes on sale in Canada", "Running shoes on sale in Canada today", "Every popular running shoe on sale today at Canadian stores, sorted by the biggest discount. Checked every morning."),
+        "hubs": {"all": ("Running shoes on sale in Canada", "Running shoes on sale in Canada today", "Every popular running shoe on sale today at Canadian stores, sorted by the biggest discount. Checked twice a day."),
                  "road": ("Road running shoes on sale in Canada", "Road running shoes on sale", "Daily trainers and road shoes on sale today at Canadian stores, biggest discount first."),
                  "trail": ("Trail running shoes on sale in Canada", "Trail running shoes on sale", "Trail running shoes on sale today at Canadian stores, biggest discount first."),
                  "racing": ("Carbon racing shoes on sale in Canada", "Racing shoes on sale", "Carbon-plated and racing shoes on sale today at Canadian stores, biggest discount first."),
@@ -55,25 +55,25 @@ T = {
         "sizeDir": "size", "gWord": {"men": "Men's", "women": "Women's"}, "gLab": {"men": "Men's", "women": "Women's"},
         "sizeTitle": "{g} Size {s} Running Shoes on Sale in Canada: {n} deals today",
         "sizeH1": "{g} running shoes on sale in size {s}",
-        "sizeIntro": "{n} running shoes on sale today in {g} size {s} at Canadian stores. Every price is the price in size {s}, biggest discount first. Checked every morning.",
+        "sizeIntro": "{n} running shoes on sale today in {g} size {s} at Canadian stores. Every price is the price in size {s}, biggest discount first. Checked twice a day.",
         "sizeAt": "at {store}", "sizeNav": "Other sizes", "sizeOther": "{g} sizes",
         "brandDir": "brands", "brandTitle": "{brand} Sale Canada: {n} running shoes on sale, up to {p}% off", "brandH1": "{brand} on sale in Canada",
-        "brandIntro": "Every {brand} running shoe we track at Canadian stores, with today's best price. Biggest discount first; checked every morning.",
+        "brandIntro": "Every {brand} running shoe we track at Canadian stores, with today's best price. Biggest discount first; checked twice a day.",
         "browse": "Browse", "brandsH": "Brands", "bfLink": "Black Friday",
         "sizesStores": "{sizes} sizes · {stores} stores", "fullPrice": "full price",
         "bfDir": "black-friday", "bfTitle": "Black Friday 2026 running shoe deals in Canada",
         "bfH1": "Black Friday 2026: running deals in Canada",
-        "bfIntro": "Black Friday is Friday, November 27. We check 60+ Canadian running and outdoor stores every morning and show only what's in stock. Here are today's biggest running shoe deals; on Black Friday this page fills with that week's best.",
+        "bfIntro": "Black Friday is Friday, November 27. We check {n} Canadian running and outdoor stores twice a day and show only what's in stock. Here are today's biggest running shoe deals; on Black Friday this page fills with that week's best.",
         "bfTitlePre": "Black Friday 2026 running shoe deals in Canada: what to expect",
         "bfH1Pre": "Black Friday 2026 in Canada: November {date}",
-        "bfIntroPre": "{days} days to go. Black Friday deals aren't out yet. During Black Friday week this page shows the real deals from 60+ Canadian running stores, checked every morning.",
+        "bfIntroPre": "{days} days to go. Black Friday deals aren't out yet. During Black Friday week this page shows the real deals from {n} Canadian running stores, checked twice a day.",
         "bfOther": ("In the US?", "See Black Friday deals at US stores →", "/us/black-friday/"),   # Oct 10: both sides link each other
         # Boxing Day (Oct 21; asked by a Reddit user Oct 4, backlog: live by early November so search engines know it before Dec 26)
         "bdDir": "boxing-day", "bdLink": "Boxing Day",
         "bdTitle": "Boxing Day {y} running shoe deals in Canada", "bdH1": "Boxing Day {y}: running deals in Canada",
-        "bdIntro": "Boxing Day is {day}, December 26. We check 60+ Canadian running and outdoor stores every morning and show only what's in stock. Here are today's biggest running shoe deals in sizes people wear.",
+        "bdIntro": "Boxing Day is {day}, December 26. We check {n} Canadian running and outdoor stores twice a day and show only what's in stock. Here are today's biggest running shoe deals in sizes people wear.",
         "bdTitlePre": "Boxing Day {y} running shoe deals in Canada: what to expect", "bdH1Pre": "Boxing Day {y} in Canada: {day}, December 26",
-        "bdIntroPre": "{days} days to go. From December 19, this page shows the real Boxing Day deals from 60+ Canadian running stores, checked every morning. Until then: how to get ready, and today's best deals.",
+        "bdIntroPre": "{days} days to go. From December 19, this page shows the real Boxing Day deals from {n} Canadian running stores, checked twice a day. Until then: how to get ready, and today's best deals.",
         "bdSpotH": "How to get the most out of Boxing Day",
         "bdSpot": ["Pick your sizes now, so on Boxing Day you only see what's left in your size.",
                    "Watch the shoes you want: we email you when one drops in your size, so you don't have to check every store.",
@@ -97,7 +97,7 @@ T = {
         "bfCta": "Get the Black Friday deals in your size", "bfCtaTxt": "Pick your sizes once. Our Friday email lands on Black Friday morning with the best deals in your sizes, and price-drop alerts for the shoes you watch.",
         "homeH": "Today's best running shoe deals in Canada", "homeMore": "All shoe prices by model",
         "h1sub": "On sale in Canada: every size, every store",
-        "desc": "{name}: today's best price in every size at {n} Canadian running stores{off}. Checked every morning by The Gear Fox.",
+        "desc": "{name}: today's best price in every size at {n} Canadian running stores{off}. Checked twice a day by The Gear Fox.",
         "descOff": ", up to {p}% off",
         "from": "From <b>{price}</b> <s>{reg}</s> ({p}% off)",
         "fromFull": "From <b>{price}</b>",
@@ -125,8 +125,8 @@ T = {
         "types": {"daily": "Road running shoe", "race": "Racing shoe (plated)", "trail": "Trail running shoe", "hike": "Hiking & winter shoe"},
         "idxTitle": "Running shoe prices by model in Canada",
         "idxH1": "Shoe prices by model",
-        "idxIntro": "Every popular running shoe we track, with today's best price in each size at Canadian stores. Updated every morning.",
-        "idxDesc": "Today's best price in every size for {n} running shoe models at Canadian stores. Updated every morning by The Gear Fox.",
+        "idxIntro": "Every popular running shoe we track, with today's best price in each size at Canadian stores. Updated twice a day.",
+        "idxDesc": "Today's best price in every size for {n} running shoe models at Canadian stores. Updated twice a day by The Gear Fox.",
         "onSale": "on sale", "home": "The Gear Fox", "switch": "Français", "menu": "Menu", "mDeals": "Today's deals", "mShoes": "Shoe prices by model", "mWatch": "Your watchlist", "mSizes": "My sizes", "mAbout": "About The Gear Fox", "mRaces": "Race gear lists", "tagline": "OUTFOX FULL PRICE",
         "hdrSearch": "Search deals", "hdrSearchPh": "Shoes, brands, gear", "hdrSearchGo": "Search",
         "yourSize": "Your size", "at": "at", "see": "See it", "watch": "Watch the price", "alertH": "Email me when the {name} drops in my size",
@@ -154,14 +154,14 @@ T = {
         "about": "La {name} est une {type}. Aujourd'hui, {stores} boutiques au Canada la vendent et nous avons trouvé {sizes} pointures en stock.",
         "aboutBest": " Le prix le plus bas est {price} chez {store} ({bsizes}).", "aboutMost": " {store} est la moins chère dans le plus de pointures ({n}).",
         "qSale": "La {name} est-elle en solde au Canada en ce moment?",
-        "aSaleYesG": "Oui. {lines} Les prix sont vérifiés chaque matin.",
+        "aSaleYesG": "Oui. {lines} Les prix sont vérifiés deux fois par jour.",
         "aSaleG": "{g} : à {price} ({p} % de rabais) chez {store}, en {bsizes}.", "aSaleGNo": "{g} : pas en solde aujourd'hui, à {price}.",
-        "aSaleYes": "Oui. Aujourd'hui, jusqu'à {p} % de rabais : {price} chez {store} en {bsizes}, et {n} pointures en solde en tout. Les prix sont vérifiés chaque matin.",
+        "aSaleYes": "Oui. Aujourd'hui, jusqu'à {p} % de rabais : {price} chez {store} en {bsizes}, et {n} pointures en solde en tout. Les prix sont vérifiés deux fois par jour.",
         "aSaleNo": "Pas aujourd'hui. Elle est en stock au prix régulier dès {price}. Touchez « Suivre le prix » et on vous écrira dès qu'elle baisse.",
         "qSizes": "Quelles pointures sont en stock?", "qWhere": "Où la {name} est-elle la moins chère au Canada?",
         "aWhere": "Chez {store}, à {price} aujourd'hui ({bsizes}). Chaque pointure peut être moins chère ailleurs : les tableaux ci-dessus montrent la meilleure boutique pour chacune.",
         "typeLower": {"daily": "chaussure de course sur route", "race": "chaussure de compétition", "trail": "chaussure de course en sentier", "hike": "chaussure de randonnée", "": "chaussure de course"},
-        "hubs": {"all": ("Chaussures de course en solde au Canada", "Chaussures de course en solde aujourd'hui", "Toutes les chaussures de course populaires en solde aujourd'hui dans les boutiques canadiennes, du plus gros rabais au plus petit. Vérifié chaque matin."),
+        "hubs": {"all": ("Chaussures de course en solde au Canada", "Chaussures de course en solde aujourd'hui", "Toutes les chaussures de course populaires en solde aujourd'hui dans les boutiques canadiennes, du plus gros rabais au plus petit. Vérifié deux fois par jour."),
                  "road": ("Chaussures de course sur route en solde au Canada", "Chaussures de route en solde", "Chaussures d'entraînement et de route en solde aujourd'hui au Canada, plus gros rabais en premier."),
                  "trail": ("Chaussures de course en sentier en solde au Canada", "Chaussures de sentier en solde", "Chaussures de course en sentier en solde aujourd'hui au Canada, plus gros rabais en premier."),
                  "racing": ("Chaussures de compétition en solde au Canada", "Chaussures de compétition en solde", "Chaussures à plaque de carbone et de compétition en solde aujourd'hui au Canada, plus gros rabais en premier."),
@@ -171,24 +171,24 @@ T = {
         "sizeDir": "pointure", "gWord": {"men": "pour hommes", "women": "pour femmes"}, "gLab": {"men": "Hommes", "women": "Femmes"},
         "sizeTitle": "Chaussures de course {g} pointure {s} en solde au Canada : {n} aubaines aujourd'hui",
         "sizeH1": "Chaussures de course {g} en solde, pointure {s}",
-        "sizeIntro": "{n} chaussures de course {g} en solde aujourd'hui en pointure {s} dans les boutiques canadiennes. Chaque prix est celui de la pointure {s}, du plus gros rabais au plus petit. Vérifié chaque matin.",
+        "sizeIntro": "{n} chaussures de course {g} en solde aujourd'hui en pointure {s} dans les boutiques canadiennes. Chaque prix est celui de la pointure {s}, du plus gros rabais au plus petit. Vérifié deux fois par jour.",
         "sizeAt": "chez {store}", "sizeNav": "Autres pointures", "sizeOther": "Pointures {g}",
         "brandDir": "marques", "brandTitle": "{brand} en solde au Canada : {n} chaussures de course, jusqu'à {p} % de rabais", "brandH1": "{brand} en solde au Canada",
-        "brandIntro": "Toutes les chaussures de course {brand} que nous suivons dans les boutiques canadiennes, avec le meilleur prix du jour. Plus gros rabais en premier; vérifié chaque matin.",
+        "brandIntro": "Toutes les chaussures de course {brand} que nous suivons dans les boutiques canadiennes, avec le meilleur prix du jour. Plus gros rabais en premier; vérifié deux fois par jour.",
         "browse": "Parcourir", "brandsH": "Marques", "bfLink": "Vendredi fou",
         "sizesStores": "{sizes} pointures · {stores} boutiques", "fullPrice": "prix régulier",
         "bfDir": "vendredi-fou", "bfTitle": "Vendredi fou 2026 : aubaines de chaussures de course au Canada",
         "bfH1": "Vendredi fou 2026 : aubaines course au Canada",
-        "bfIntro": "Le Vendredi fou (Black Friday) tombe le vendredi 27 novembre. Nous vérifions plus de 60 boutiques canadiennes de course et de plein air chaque matin et montrons seulement ce qui est en stock. Voici les plus gros rabais du jour; le Vendredi fou, cette page affichera les meilleures aubaines de la semaine.",
+        "bfIntro": "Le Vendredi fou (Black Friday) tombe le vendredi 27 novembre. Nous vérifions {n} boutiques canadiennes de course et de plein air deux fois par jour et montrons seulement ce qui est en stock. Voici les plus gros rabais du jour; le Vendredi fou, cette page affichera les meilleures aubaines de la semaine.",
         "bfTitlePre": "Vendredi fou 2026 : aubaines de chaussures de course au Canada, à quoi s'attendre",
         "bfH1Pre": "Vendredi fou 2026 au Canada : le {date} novembre",
-        "bfIntroPre": "Encore {days} jours. Les aubaines du Vendredi fou ne sont pas encore là. Pendant la semaine du Vendredi fou, cette page montre les vraies aubaines de plus de 60 boutiques de course canadiennes, vérifiées chaque matin.",
+        "bfIntroPre": "Encore {days} jours. Les aubaines du Vendredi fou ne sont pas encore là. Pendant la semaine du Vendredi fou, cette page montre les vraies aubaines de {n} boutiques de course canadiennes, vérifiées deux fois par jour.",
         "bfOther": ("Aux États-Unis ?", "Voir les aubaines du Black Friday dans les boutiques américaines →", "/us/black-friday/"),
         "bdDir": "soldes-apres-noel", "bdLink": "Boxing Day",
         "bdTitle": "Boxing Day {y} : soldes d'après-Noël en chaussures de course au Canada", "bdH1": "Boxing Day {y} : aubaines course au Canada",
-        "bdIntro": "Le Boxing Day tombe le {day} 26 décembre. Nous vérifions plus de 60 boutiques canadiennes de course et de plein air chaque matin et montrons seulement ce qui est en stock. Voici les plus gros rabais du jour dans les pointures courantes.",
+        "bdIntro": "Le Boxing Day tombe le {day} 26 décembre. Nous vérifions {n} boutiques canadiennes de course et de plein air deux fois par jour et montrons seulement ce qui est en stock. Voici les plus gros rabais du jour dans les pointures courantes.",
         "bdTitlePre": "Boxing Day {y} : soldes d'après-Noël en chaussures de course au Canada, à quoi s'attendre", "bdH1Pre": "Boxing Day {y} au Canada : le {day} 26 décembre",
-        "bdIntroPre": "Encore {days} jours. À partir du 19 décembre, cette page montre les vraies aubaines du Boxing Day de plus de 60 boutiques de course canadiennes, vérifiées chaque matin. D'ici là : comment vous préparer, et les meilleures aubaines du jour.",
+        "bdIntroPre": "Encore {days} jours. À partir du 19 décembre, cette page montre les vraies aubaines du Boxing Day de {n} boutiques de course canadiennes, vérifiées deux fois par jour. D'ici là : comment vous préparer, et les meilleures aubaines du jour.",
         "bdSpotH": "Comment profiter au maximum du Boxing Day",
         "bdSpot": ["Choisissez vos tailles dès maintenant : au Boxing Day, vous ne verrez que ce qui reste dans votre taille.",
                    "Suivez les chaussures que vous voulez : on vous écrit quand l'une baisse dans votre pointure, pas besoin de vérifier chaque boutique.",
@@ -212,7 +212,7 @@ T = {
         "bfCta": "Recevez les aubaines du Vendredi fou dans votre pointure", "bfCtaTxt": "Choisissez vos tailles une fois. Notre courriel du vendredi arrive le matin du Vendredi fou avec les meilleures aubaines dans vos tailles, et des alertes de baisse de prix pour les chaussures que vous suivez.",
         "homeH": "Meilleures aubaines de chaussures de course au Canada aujourd'hui", "homeMore": "Tous les prix par modèle",
         "h1sub": "En solde au Canada : chaque pointure, chaque boutique",
-        "desc": "{name} : le meilleur prix du jour dans chaque pointure dans {n} boutiques de course canadiennes{off}. Vérifié chaque matin par The Gear Fox.",
+        "desc": "{name} : le meilleur prix du jour dans chaque pointure dans {n} boutiques de course canadiennes{off}. Vérifié deux fois par jour par The Gear Fox.",
         "descOff": ", jusqu'à {p} % de rabais",
         "from": "À partir de <b>{price}</b> <s>{reg}</s> ({p} % de rabais)",
         "fromFull": "À partir de <b>{price}</b>",
@@ -239,8 +239,8 @@ T = {
         "types": {"daily": "Chaussure de course sur route", "race": "Chaussure de compétition (plaque)", "trail": "Chaussure de course en sentier", "hike": "Chaussure de randonnée et d'hiver"},
         "idxTitle": "Prix des chaussures de course par modèle au Canada",
         "idxH1": "Prix par modèle",
-        "idxIntro": "Toutes les chaussures de course populaires que nous suivons, avec le meilleur prix du jour dans chaque pointure dans les boutiques canadiennes. Mis à jour chaque matin.",
-        "idxDesc": "Le meilleur prix du jour dans chaque pointure pour {n} modèles de chaussures de course dans les boutiques canadiennes. Mis à jour chaque matin par The Gear Fox.",
+        "idxIntro": "Toutes les chaussures de course populaires que nous suivons, avec le meilleur prix du jour dans chaque pointure dans les boutiques canadiennes. Mis à jour deux fois par jour.",
+        "idxDesc": "Le meilleur prix du jour dans chaque pointure pour {n} modèles de chaussures de course dans les boutiques canadiennes. Mis à jour deux fois par jour par The Gear Fox.",
         "onSale": "en solde", "home": "The Gear Fox", "switch": "English", "menu": "Menu", "mDeals": "Aubaines du jour", "mShoes": "Prix des chaussures par modèle", "mWatch": "Vos favoris", "mSizes": "Mes tailles", "mAbout": "À propos de The Gear Fox", "mRaces": "Listes de matériel de course", "tagline": "FLAIREZ LES AUBAINES",
         "hdrSearch": "Chercher des aubaines", "hdrSearchPh": "Chaussures, marques…", "hdrSearchGo": "Chercher",
         "yourSize": "Votre pointure", "at": "chez", "see": "Voir", "watch": "Suivre le prix", "alertH": "M'avertir quand {name} baisse dans ma pointure",
@@ -270,7 +270,7 @@ US.update({
     "titleSale": "{name} Sale: from {price} (−{p}%)",
     "about": "The {name} is a {type}. Today {stores} US stores carry it and we found {sizes} sizes in stock.",
     "qSale": "Is the {name} on sale right now?", "qWhere": "Where is the {name} cheapest?",
-    "hubs": {"all": ("Running shoes on sale", "Running shoes on sale today", "Every popular running shoe on sale today at US running stores, sorted by the biggest discount. Checked every morning."),
+    "hubs": {"all": ("Running shoes on sale", "Running shoes on sale today", "Every popular running shoe on sale today at US running stores, sorted by the biggest discount. Checked twice a day."),
              "road": ("Road running shoes on sale", "Road running shoes on sale", "Daily trainers and road shoes on sale today at US running stores, biggest discount first."),
              "trail": ("Trail running shoes on sale", "Trail running shoes on sale", "Trail running shoes on sale today at US running stores, biggest discount first."),
              "racing": ("Carbon racing shoes on sale", "Racing shoes on sale", "Carbon-plated and racing shoes on sale today at US running stores, biggest discount first."),
@@ -278,17 +278,17 @@ US.update({
              "men": ("Men's running shoes on sale", "Men's running shoes on sale", "Men's running shoes on sale today at US running stores, biggest discount first.")},
     "hubDir": "us/running-shoes-sale", "brandDir": "us/brands", "bfDir": "us/black-friday", "bdDir": None,   # no Boxing Day in the US
     "sizeTitle": "{g} Size {s} Running Shoes on Sale: {n} deals today",
-    "sizeIntro": "{n} running shoes on sale today in {g} size {s} at US running stores. Every price is the price in size {s}, biggest discount first. Checked every morning.",
+    "sizeIntro": "{n} running shoes on sale today in {g} size {s} at US running stores. Every price is the price in size {s}, biggest discount first. Checked twice a day.",
     "brandTitle": "{brand} Sale: {n} running shoes on sale, up to {p}% off", "brandH1": "{brand} shoes on sale",
-    "brandIntro": "Every {brand} running shoe we track at US running stores, with today's best price. Biggest discount first; checked every morning.",
+    "brandIntro": "Every {brand} running shoe we track at US running stores, with today's best price. Biggest discount first; checked twice a day.",
     "bfTitle": "Black Friday 2026 running shoe deals", "bfH1": "Black Friday 2026: running shoe deals",
-    "bfIntro": "Black Friday is Friday, November 27. We check local running stores across the US every morning and show only what's in stock. Here are today's biggest running shoe deals.",
+    "bfIntro": "Black Friday is Friday, November 27. We check local running stores across the US twice a day and show only what's in stock. Here are today's biggest running shoe deals.",
     "bfTitlePre": "Black Friday 2026 running shoe deals: what to expect", "bfH1Pre": "Black Friday 2026: November {date}",
-    "bfIntroPre": "{days} days to go. Black Friday deals aren't out yet. During Black Friday week this page shows the real deals from local running stores across the US, checked every morning.",
+    "bfIntroPre": "{days} days to go. Black Friday deals aren't out yet. During Black Friday week this page shows the real deals from local running stores across the US, checked twice a day.",
     "h1sub": "On sale at US running stores: every size, every store",
-    "desc": "{name}: today's best price in every size at {n} US running stores{off}. Checked every morning by The Gear Fox.",
-    "idxTitle": "Running shoe prices by model", "idxIntro": "Every popular running shoe we track, with today's best price in each size at US running stores. Updated every morning.",
-    "idxDesc": "Today's best price in every size for {n} running shoe models at US running stores. Updated every morning by The Gear Fox.",
+    "desc": "{name}: today's best price in every size at {n} US running stores{off}. Checked twice a day by The Gear Fox.",
+    "idxTitle": "Running shoe prices by model", "idxIntro": "Every popular running shoe we track, with today's best price in each size at US running stores. Updated twice a day.",
+    "idxDesc": "Today's best price in every size for {n} running shoe models at US running stores. Updated twice a day by The Gear Fox.",
     "switch": "Canadian stores", "homeH": "Today's best running shoe deals",
     "bfOther": ("In Canada?", "See Black Friday deals at Canadian stores →", "/black-friday/"),
     "bfTrackTxt": "Since October 6 we record the price of every running product we follow at US stores, every day: {n} products so far. So on Black Friday we'll know which deals are real and which prices went up in November just to come back down.",
@@ -1185,8 +1185,8 @@ def price_chart(its, L, updated, prefix=""):
         lo_i, lo = min(pts, key=lambda t: (t[1], -t[0]))         # the most recent day at the lowest price
         now = pts[-1][1]
         if now <= lo:                                              # good news only: today is the lowest, 30+ days (badge rule)
-            if len(days) >= 30 and max(v for _, v in pts) > now * 1.02:
-                blocks.append((lab, "good", "✓ " + L["pwLow"].format(n=min(len(days), 60), today=money(now))))
+            if len(days) - 1 >= 30 and max(v for _, v in pts) > now * 1.02:   # Nov 3: days of history (as the badge counts), not days listed
+                blocks.append((lab, "good", "✓ " + L["pwLow"].format(n=min(len(days) - 1, 60), today=money(now))))
         elif lo < now * 0.95:                                      # it was cheaper: "don't miss the next one" + the email box
             blocks.append((lab, "was", L["pwWas"].format(low=money(lo), date=short_date(days[lo_i], L), now=money(now))))
     if not blocks:
@@ -1309,6 +1309,11 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None,
                f'data-dir="/{L["dir"]}/" data-h="{esc(L["altH"][kind])}" data-h0="{esc(L["altH0"][kind])}" data-in="{esc(L["altIn"])}" '
                f'data-n="{esc(L["altN"])}" data-fr="{1 if L["lang"] == "fr-CA" else 0}"><h2></h2><div class="altw"><button type="button" class="arr l" aria-label="‹" disabled>‹</button><div class="altrow"></div><button type="button" class="arr r" aria-label="›">›</button></div></section>')
     if sm:     # a few lines Google (and people) can read: what it is, where it's cheapest, sizes, today's answers
+        # Nov 3 (growth's walk: "31 sizes in stock" over "46 sizes", "The Last Hunt is the cheapest in the most sizes" over a table that
+        # mostly named Le Coureur Nordique): every number here counts the tables on this page
+        cheap = Counter(r[2] for _, r in allrows)
+        most_h, most_n = cheap.most_common(1)[0] if cheap else ("", 0)
+        sm = dict(sm, sizes=len(allrows), sale_sizes=len(sale), most=stores.get(most_h, [most_h])[0], most_n=most_n)
         about = L["about"].format(name=esc(name), type=L["typeLower"].get(sm["t"], L["typeLower"][""]), stores=sm["stores"], sizes=sm["sizes"])
         bsz = sizes_phrase(sm.get("best_sizes") or [], L)
         g1 = sm.get("best_sx")
@@ -1320,7 +1325,7 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None,
             about += L["aboutMost"].format(store=esc(sm["most"]), n=sm["most_n"])
         ranges = []
         for lab, rows in merged.items():
-            nums = sorted({float(m.group(1)) for k, _ in rows for m in [re.match(r"(?:W )?(\d+(?:\.5)?)", k)] if m})
+            nums = sorted({float(m.group(1)) for k, _ in rows for m in [re.match(r"(?:[MW] )?(\d+(?:\.5)?)", k)] if m})
             if nums:
                 fr = L["lang"] == "fr-CA"
                 f = lambda x: f"{x:g}".replace(".", ",") if fr else f"{x:g}"
@@ -1459,7 +1464,10 @@ def bf_stats(site, today):
         hist = os.environ.get("HISTORY_FILE") or "hist/prices.jsonl"
         if not Path(hist).exists():
             return None
-        return RP.compute(str(site / "deals.json"), hist, (today - timedelta(days=14)).isoformat())
+        R = RP.compute(str(site / "deals.json"), hist, (today - timedelta(days=14)).isoformat())
+        if R:
+            R["day"] = today.isoformat()     # Nov 3 (growth's walk): the section said "today (Nov. 3)" over "(Nov. 2)": Vancouver date everywhere
+        return R
     except Exception as e:
         print(f"  ! Black Friday stats left out ({e})", file=sys.stderr)
         return None
@@ -1666,13 +1674,14 @@ def main():
             extra_urls.append(f'/{L["brandDir"]}/{slugify(b)}/')
         # Black Friday: live from now on so it is known to search engines well before Nov 27
         bf_rows = [r for r in kinds["all"] if r[2]["sizes"] >= 6][:40]
+        n_ca = len({host(u) for d in items for u in d["of"]})     # Nov 3: the real count of Canadian stores in today's data (was "60+")
         cta = qs_box(L, L["bfCta"], "black-friday")
         p = site / L["bfDir"] / "index.html"
         p.parent.mkdir(parents=True, exist_ok=True)
         today = (datetime.fromisoformat(updated.replace("Z", "+00:00")) if updated else datetime.now(timezone.utc)).astimezone(HOME_TZ).date()
         bf = black_friday(today.year if today <= black_friday(today.year) + timedelta(days=4) else today.year + 1)
         if bf - timedelta(days=7) <= today <= bf + timedelta(days=4):     # Black Friday week to Cyber Monday: the real deals
-            p.write_text(list_page(L, "/black-friday/", "/vendredi-fou/", L["bfTitle"], L["bfH1"], L["bfIntro"], real_first(bf_rows), brands,
+            p.write_text(list_page(L, "/black-friday/", "/vendredi-fou/", L["bfTitle"], L["bfH1"], L["bfIntro"].format(n=n_ca), real_first(bf_rows), brands,
                                    bf_live_line(L) + bf_other(L) + real_line(L, bf_rows) + cta))
         else:   # before: honest page, the price tracking + tips, and today's deals clearly labelled as today's (Bastien, Oct 4)
             tracked = sum(1 for i in items if i.get("hd"))
@@ -1683,7 +1692,7 @@ def main():
                      + f'<h2>{esc(L["bfSpotH"])}</h2><ul>' + "".join(f"<li>{esc(x)}</li>" for x in L["bfSpot"]) + "</ul>"
                      + f'<h2>{esc(L["bfTodayH"].format(date=fmt_date(updated, L)))}</h2>')
             p.write_text(list_page(L, "/black-friday/", "/vendredi-fou/", L["bfTitlePre"], L["bfH1Pre"].format(date=bf.day),
-                                   L["bfIntroPre"].format(days=(bf - today).days), bf_rows[:6], brands, extra))
+                                   L["bfIntroPre"].format(days=(bf - today).days, n=n_ca), bf_rows[:6], brands, extra))
         extra_urls.append(f'/{L["bfDir"]}/')
         # Boxing Day (Dec 26): same idea; the real deals from Dec 19 to Jan 3, an honest "get ready" page before that
         y = today.year if today <= date(today.year, 12, 26) + timedelta(days=8) else today.year + 1
@@ -1696,12 +1705,12 @@ def main():
         cta = qs_box(L, L["bdCta"], "boxing-day")
         if bd - timedelta(days=7) <= today <= bd + timedelta(days=8):
             p.write_text(list_page(L, "/boxing-day/", "/soldes-apres-noel/", L["bdTitle"].format(y=y), L["bdH1"].format(y=y),
-                                   L["bdIntro"].format(day=dayname), bf_rows, brands, cta))
+                                   L["bdIntro"].format(day=dayname, n=n_ca), bf_rows, brands, cta))
         else:
             extra = (cta + f'<h2>{esc(L["bdSpotH"])}</h2><ul>' + "".join(f"<li>{esc(x)}</li>" for x in L["bdSpot"]) + "</ul>" + bd_other
                      + f'<h2>{esc(L["bdTodayH"].format(date=fmt_date(updated, L)))}</h2>')
             p.write_text(list_page(L, "/boxing-day/", "/soldes-apres-noel/", L["bdTitlePre"].format(y=y), L["bdH1Pre"].format(y=y, day=dayname),
-                                   L["bdIntroPre"].format(days=(bd - today).days), bf_rows[:6], brands, extra))
+                                   L["bdIntroPre"].format(days=(bd - today).days, n=n_ca), bf_rows[:6], brands, extra))
         extra_urls.append(f'/{L["bdDir"]}/')
     for L in T.values():
         (site / L["dir"]).mkdir(parents=True, exist_ok=True)
@@ -1893,12 +1902,12 @@ _H = {
                altH={k: "Other hiking boots & shoes on sale in your size" for k in ("hike", "boot", "approach", "daily")},
                altH0={k: "Other hiking boots & shoes on sale today" for k in ("hike", "boot", "approach", "daily")},
                h1sub="On sale in Canada: every size, every store",
-               desc="{name}: today's best price in every size at {n} Canadian outdoor stores{off}. Checked every morning by The Gear Fox.",
+               desc="{name}: today's best price in every size at {n} Canadian outdoor stores{off}. Checked twice a day by The Gear Fox.",
                cta="Get it in your size", ctaTxt="Pick your sizes once. Every Friday we email the best hiking deals in them, and you can get a price-drop alert on this boot.",
                more="More {brand} boots & shoes", all="All boot & hiking shoe models", mShoes="Boot prices by model", mDeals="Today's hiking deals",
                idxTitle="Hiking boot & shoe prices by model in Canada", idxH1="Boot prices by model",
-               idxIntro="Every hiking boot and shoe we track, with today's best price in each size at Canadian outdoor stores. Updated every morning.",
-               idxDesc="Today's best price in every size for {n} hiking boot and shoe models at Canadian outdoor stores. Updated every morning by The Gear Fox.",
+               idxIntro="Every hiking boot and shoe we track, with today's best price in each size at Canadian outdoor stores. Updated twice a day.",
+               idxDesc="Today's best price in every size for {n} hiking boot and shoe models at Canadian outdoor stores. Updated twice a day by The Gear Fox.",
                find="Search a model (e.g. Moab)", alertDone="You're watching this boot. We'll email you when it drops in your size."),
     "fr": dict(dir="bottes-randonnee", q="&lang=fr&sport=hike", home="/?lang=fr&sport=hike",
                title="{name} : prix au Canada, chaque pointure, chaque boutique", titleSale="{name} en solde au Canada : dès {price} (−{p} %)",
@@ -1909,20 +1918,20 @@ _H = {
                altH={k: "Autres bottes et chaussures de randonnée en solde dans votre pointure" for k in ("hike", "boot", "approach", "daily")},
                altH0={k: "Autres bottes et chaussures de randonnée en solde aujourd'hui" for k in ("hike", "boot", "approach", "daily")},
                h1sub="En solde au Canada : chaque pointure, chaque boutique",
-               desc="{name} : le meilleur prix du jour dans chaque pointure dans {n} boutiques de plein air canadiennes{off}. Vérifié chaque matin par The Gear Fox.",
+               desc="{name} : le meilleur prix du jour dans chaque pointure dans {n} boutiques de plein air canadiennes{off}. Vérifié deux fois par jour par The Gear Fox.",
                cta="Trouvez-la dans votre pointure", ctaTxt="Choisissez vos tailles une fois. Chaque vendredi, on vous envoie les meilleures aubaines de randonnée dans vos tailles, et vous pouvez suivre le prix de ce modèle.",
                more="Autres modèles {brand}", all="Toutes les bottes et chaussures de randonnée", mShoes="Prix des bottes par modèle", mDeals="Aubaines de randonnée du jour",
                idxTitle="Prix des bottes et chaussures de randonnée par modèle au Canada", idxH1="Prix des bottes par modèle",
-               idxIntro="Toutes les bottes et chaussures de randonnée que nous suivons, avec le meilleur prix du jour dans chaque pointure dans les boutiques de plein air canadiennes. Mis à jour chaque matin.",
-               idxDesc="Le meilleur prix du jour dans chaque pointure pour {n} modèles de bottes et chaussures de randonnée dans les boutiques canadiennes. Mis à jour chaque matin par The Gear Fox.",
+               idxIntro="Toutes les bottes et chaussures de randonnée que nous suivons, avec le meilleur prix du jour dans chaque pointure dans les boutiques de plein air canadiennes. Mis à jour deux fois par jour.",
+               idxDesc="Le meilleur prix du jour dans chaque pointure pour {n} modèles de bottes et chaussures de randonnée dans les boutiques canadiennes. Mis à jour deux fois par jour par The Gear Fox.",
                find="Chercher un modèle (ex. Moab)", alertDone="Vous suivez ce modèle. On vous écrit quand il baisse dans votre pointure."),
     "us": dict(dir="us/hiking-boots", q="&c=us&sport=hike", home="/?c=us&sport=hike",
                title="{name} price: every size, every store", titleSale="{name} Sale: from {price} (−{p}%)",
                about="The {name} is a {type}. Today {stores} US stores carry it and we found {sizes} sizes in stock.",
                h1sub="On sale at US outdoor stores: every size, every store",
-               desc="{name}: today's best price in every size at {n} US outdoor stores{off}. Checked every morning by The Gear Fox.",
-               idxTitle="Hiking boot & shoe prices by model", idxIntro="Every hiking boot and shoe we track, with today's best price in each size at US outdoor stores. Updated every morning.",
-               idxDesc="Today's best price in every size for {n} hiking boot and shoe models at US outdoor stores. Updated every morning by The Gear Fox."),
+               desc="{name}: today's best price in every size at {n} US outdoor stores{off}. Checked twice a day by The Gear Fox.",
+               idxTitle="Hiking boot & shoe prices by model", idxIntro="Every hiking boot and shoe we track, with today's best price in each size at US outdoor stores. Updated twice a day.",
+               idxDesc="Today's best price in every size for {n} hiking boot and shoe models at US outdoor stores. Updated twice a day by The Gear Fox."),
 }
 
 

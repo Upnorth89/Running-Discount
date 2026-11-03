@@ -45,6 +45,7 @@ BRANDS = {
     "gloves": "black diamond|outdoor research|smartwool|craft|salomon|brooks|nathan|arc'teryx|icebreaker|montane|the north face|saucony",
     "midlayer": "salomon|smartwool|icebreaker|brooks|craft|patagonia|arc'teryx|outdoor research|kari traa|hoka|on|saucony|the north face|mons royale|odlo|ciele",
     "cap": "buff|ciele|salomon|satisfy|fractel|boco|patagonia|arc'teryx|on|nnormal|nathan|smartwool",
+    "sunhat": "ciele|salomon|satisfy|fractel|boco|patagonia|arc'teryx|on|nnormal|nathan|smartwool|outdoor research|headsweats",
     "pants": "salomon|patagonia|montane|outdoor research|rab|black diamond|mammut|dynafit|scott|kiprun|brooks|craft",
     "poles": "black diamond|leki|salomon|dynafit|norda|raidlight|ultraspire|la sportiva|scott|kiprun|komperdell",
     "food": "maurten|näak|naak|precision fuel & hydration|gu|spring energy|neversecond|xact nutrition|skratch labs|skratch|huma|science in sport|honey stinger|clif|krono|brix|lecka",
@@ -81,6 +82,9 @@ KINDS = {
                      x=r"vest|sleeveless|short sleeve|tank|singlet|arm sleeve|crop|tie dye|stella mccartney|bra\b|polo|cotton|plus size|graphic|logo"),
     "cap":      dict(g={"headwear"}, need=r"\bcap\b|buff|bandana|gaiter|casquette|visor|neckwear|tube", good=r"\brun|trail|race|ultra|tech|light|panel|neck|cool|air",
                      x=r"beanie|tuque|toque|trucker|snapback|dad hat|corduroy|cotton"),
+    # Nov 3 (growth's walk: a Buff neck gaiter under "Sun hat"): a line that asks for a hat shows hats, caps and visors only
+    "sunhat":   dict(g={"headwear"}, need=r"\bcap\b|\bhat\b|casquette|visor|bucket|brim|sahara|chapeau", good=r"\brun|trail|race|ultra|tech|light|panel|cool|air|sun",
+                     x=r"buff|gaiter|bandana|neck|tube|beanie|tuque|toque|headband|ear ?warmer|trucker|snapback|dad hat|corduroy|cotton"),
     "pants":    dict(g={"bottoms"}, t={"pant"}, need=WATERPROOF, good=r"\brun|trail|light|pack|stretch|race|ultra|active", x=r"short|\bski\b|snow|insulat|\bbib\b"),
     "poles":    dict(g={"gear"}, need=r"\bpoles?\b|bâtons?|z-pole", good=r"\brun|trail|ultra|distance|\bz\b|z-pole|carbon|fold|compact|race|\bfl\b",
                      x=r"basket|tip|strap|nordic|touring|\bft-?\d|\bski\b"),
@@ -418,7 +422,7 @@ RACES.update({
             (_SIN("filter", "Water filter", "Filtre à eau"), "RRR", False),
             (_SIN("jacket", "Wind and water resistant jacket", "Manteau coupe-vent et déperlant"), "RRR", True),
             (_SIN("tuque", "Toque or warm hat", "Tuque ou chapeau chaud"), "RRR", False),
-            (_SIN("cap", "Sun hat", "Chapeau de soleil"), "RRR", False),
+            (_SIN("sunhat", "Sun hat", "Chapeau de soleil"), "RRR", False),
             (_SIN("gloves", "Full-finger gloves", "Gants à doigts complets"), "RRR", False),
             (_SIN("poles", "Running or trekking poles", "Bâtons de course ou de randonnée"), "RRR", False),
             (_SIN("whistle", "Whistle", "Sifflet"), "RRR", False),
@@ -448,7 +452,7 @@ RACES.update({
                   "No cups at aid stations: bring something to drink from.", "Pas de verres aux ravitos : apportez de quoi boire."), "RR", False),
             (_SIN("jacket", "Wind and water resistant jacket", "Manteau coupe-vent et déperlant"), "RR", True),
             (_SIN("tuque", "Toque or warm hat", "Tuque ou chapeau chaud"), "RR", False),
-            (_SIN("cap", "Sun hat", "Chapeau de soleil"), "RR", False),
+            (_SIN("sunhat", "Sun hat", "Chapeau de soleil"), "RR", False),
             (_SIN("gloves", "Full-finger gloves", "Gants à doigts complets"), "RR", False),
             (_SIN("poles", "Running or trekking poles", "Bâtons de course ou de randonnée"), "RR", False),
             (_SIN("whistle", "Whistle", "Sifflet"), "RR", False),
@@ -469,7 +473,7 @@ _SBASE = lambda dark="after 8 pm", dfr="après 20 h": [
           "No cups at aid stations: bring something to drink from.", "Pas de verres aux ravitos : apportez de quoi boire."), "R", False),
     (_SIN("jacket", "Wind and water resistant jacket", "Manteau coupe-vent et déperlant"), "R", True),
     (_SIN("tuque", "Toque or warm hat", "Tuque ou chapeau chaud"), "R", False),
-    (_SIN("cap", "Sun hat", "Chapeau de soleil"), "R", False),
+    (_SIN("sunhat", "Sun hat", "Chapeau de soleil"), "R", False),
     (_SIN("whistle", "Whistle", "Sifflet"), "R", False),
     (_SIN("blanket", "Space blanket", "Couverture de survie"), "R", False),
     (_SIN("bear", "Bear spray or bear banger", "Chasse-ours en aérosol ou pétard", "Only if you know how to use it.",
@@ -495,7 +499,7 @@ RACES.update({
             (_SIN("water", "Full water bottle or hydration pack", "Gourde pleine ou sac d'hydratation"), "R", False),
             (_SIN("jacket", "Wind and water resistant jacket", "Manteau coupe-vent et déperlant"), "R", True),
             (_SIN("tuque", "Toque or warm hat", "Tuque ou chapeau chaud"), "R", False),
-            (_SIN("cap", "Sun hat", "Chapeau de soleil"), "R", False),
+            (_SIN("sunhat", "Sun hat", "Chapeau de soleil"), "R", False),
             (_SIN("sun", "Sunglasses", "Lunettes de soleil"), "R", False),
             (_SIN("eyes", "Clear eye protection", "Lunettes à verres clairs", "For Leg 5's dense forest.", "Pour la forêt dense de l'étape 5."), "R", False),
             (_SIN("whistle", "Whistle", "Sifflet"), "R", False),
@@ -529,7 +533,7 @@ RACES.update({
             (_SIN("water", "1 to 2 L of fluid: bottles or a hydration pack", "1 à 2 L de liquide : gourdes ou sac d'hydratation"), "R", False),
             (_SIN("jacket", "Wind and water resistant jacket", "Manteau coupe-vent et déperlant"), "R", True),
             (_SIN("tuque", "Toque or warm hat", "Tuque ou chapeau chaud"), "R", False),
-            (_SIN("cap", "Sun hat", "Chapeau de soleil"), "R", False),
+            (_SIN("sunhat", "Sun hat", "Chapeau de soleil"), "R", False),
             (_SIN("whistle", "Whistle", "Sifflet"), "R", False),
             (_SIN("blanket", "Space blanket", "Couverture de survie"), "R", False),
         ] + _SBIB, 1),
@@ -625,7 +629,7 @@ RACES.update({
             (_SIN("wind", "Lightweight jacket", "Manteau léger"), "RRRRR", False),
             (_SIN("longpants", "Long pants", "Pantalon long"), "RRRRR", False),
             (_SIN("sunscreen", "Sunscreen", "Crème solaire"), "RRRRR", False),
-            (_SIN("cap", "Sun hat", "Chapeau de soleil"), "RRRRR", False),
+            (_SIN("sunhat", "Sun hat", "Chapeau de soleil"), "RRRRR", False),
             (_SIN("midlayer2", "Long-sleeve sun layer", "Haut à manches longues contre le soleil"), "RRRRR", False),
             (_SIN("sun", "Sunglasses", "Lunettes de soleil"), "RRRRR", False),
             (_SIN("gloves4", "Sun gloves", "Gants contre le soleil"), "RRRRR", False),
@@ -717,7 +721,7 @@ _DTR = [   # "Recommended Gear ... to Carry at ALL Times", same on every 200
     _SIN("gaiters", "Gaiters", "Guêtres"),
     _SIN("headlamp2", "Extra headlamp", "Deuxième lampe frontale"),
     _SIN("vest", "Room for 3 L of water", "De quoi porter 3 L d'eau"),
-    _SIN("cap", "Sun hat", "Chapeau de soleil"),
+    _SIN("sunhat", "Sun hat", "Chapeau de soleil"),
     _SIN("filter", "Water filter", "Filtre à eau"),
     _SIN("warmjacket", "Puffy jacket with a hood", "Doudoune avec capuchon"),
     _SIN("battery2", "Battery pack", "Batterie externe"),
@@ -1210,7 +1214,7 @@ RACES.update({
             (_SIN("jacket", "Waterproof jacket", "Manteau imperméable"), "MM ", True),
             (_SIN("midlayer", "Insulating long-sleeve layer", "Couche isolante à manches longues"), "MM ", False),
             (_SIN("gloves", "Gloves", "Gants"), "MM ", False),
-            (_SIN("cap", "Hat", "Chapeau"), "RR ", False),
+            (_SIN("sunhat", "Hat", "Chapeau"), "RR ", False),
             (_SIN("water", "Bottles, soft flasks or a bladder: 2 L of fluid", "Gourdes, flasques ou réservoir : 2 L de liquide",
                   "Four 500 ml soft flasks = 2 L.", "Quatre flasques de 500 ml = 2 L."), "RR ", False),
             (_SIN("cup", "Collapsible cup", "Gobelet pliable", "A cup-less event: for drinks and food at every aid station.",
@@ -1254,7 +1258,7 @@ RACES.update({
             (_SIN("longpants", "Tights or pants", "Collant ou pantalon"), "RRRRR", False),
             (_SIN("food", "Food", "Nourriture"), "RRRRR", False),
             (_SIN("gloves", "Gloves", "Gants"), "RRRRR", False),
-            (_SIN("cap", "Hat", "Chapeau"), "RRRRR", False),
+            (_SIN("sunhat", "Hat", "Chapeau"), "RRRRR", False),
             (_SIN("watch", "Watch", "Montre"), "RRRRR", False),
             (_SIN("sun", "Sunglasses", "Lunettes de soleil"), "RRR R", False),
             (_SIN("sunscreen", "Sunscreen", "Crème solaire"), "RRR R", False),
@@ -1294,7 +1298,7 @@ S = {
         "M": "Mandatory", "R": "Recommended", "A": "Allowed", "P": "Provided", "L": "Ask the race",
         "lNote": "The race lists these as \"a mix of mandatory and recommended\" without saying which. Ask the race before you count on skipping one.", "aProv": "The race provides: {items}.",
         "have": "I have it", "progress": "You have {h} of {n} mandatory items. Tick what you already own.", "progressAll": "You have every mandatory item. See you at the start.",
-        "deals": "On sale now", "dealsSize": "On sale now in your size", "noDeals": "None in stock in your size today. We check every morning.", "few": "Only {n} in {fit} {size} today. We check every morning.",
+        "deals": "On sale now", "dealsSize": "On sale now in your size", "noDeals": "None in stock in your size today. We check twice a day.", "few": "Only {n} in {fit} {size} today. We check twice a day.",
         "notSold": "The stores we check don't sell this.", "spec": "Check the spec before you buy.",
         "more": "See more on sale →", "moreN": "See all {n}", "less": "Show fewer", "catAll": "See more {w} on sale →", "shH": "Trail running shoes", "shTag": "Your pick", "shPh": "What do you race in?", "shSize": "Size", "shGone": "Not in stock in size {s} today. We'll tell you when it's back.", "shPickSize": "Pick your size too.", "shPickFit": "Pick Men's or Women's above first.", "shFrom": "{p} in size {s} today", "shPage": "Every size & store", "shNone": "Not in our trail shoe list. Try the brand name.", "shRm": "Remove", "watch": "Watch", "watchOn": "Watching", "watchL": "Watch the price", "wMember": "Watching. We'll email you when it drops in your size.", "wNew": "Watching, on this phone. Add your email and we'll tell you when it drops.", "wPending": "Watching. Confirm your email (check your inbox) to get the drop emails.", "wAdd": "Add my email", "wOff": "Removed from your watchlist.", "sizeH": "Your size", "sizeTxt": "Pick it once to see deals that fit you.",
         "men": "Men's", "women": "Women's", "change": "Change", "off": "off",
@@ -1326,7 +1330,7 @@ S = {
         "M": "Obligatoire", "R": "Recommandé", "A": "Permis", "P": "Fourni", "L": "À confirmer",
         "lNote": "La course présente ces articles comme « un mélange d'obligatoire et de recommandé » sans préciser lesquels. Vérifiez auprès de la course avant d'en laisser un.", "aProv": "La course fournit : {items}.",
         "have": "Je l'ai", "progress": "Vous avez {h} des {n} articles obligatoires. Cochez ce que vous avez déjà.", "progressAll": "Vous avez tout le matériel obligatoire. On se voit au départ.",
-        "deals": "En solde maintenant", "dealsSize": "En solde dans votre taille", "noDeals": "Rien en stock dans votre taille aujourd'hui. On vérifie chaque matin.", "few": "Seulement {n} en {size} {fit} aujourd'hui. On vérifie chaque matin.",
+        "deals": "En solde maintenant", "dealsSize": "En solde dans votre taille", "noDeals": "Rien en stock dans votre taille aujourd'hui. On vérifie deux fois par jour.", "few": "Seulement {n} en {size} {fit} aujourd'hui. On vérifie deux fois par jour.",
         "notSold": "Les boutiques que nous suivons n'en vendent pas.", "spec": "Vérifiez les caractéristiques avant d'acheter.",
         "more": "Voir plus d'aubaines →", "moreN": "Voir les {n}", "less": "Voir moins", "catAll": "Voir plus d'aubaines : {w} →", "shH": "Chaussures de course en sentier", "shTag": "Votre choix", "shPh": "Vos chaussures de course ?", "shSize": "Pointure", "shGone": "Pas en stock en pointure {s} aujourd'hui. On vous avertit dès son retour.", "shPickSize": "Choisissez aussi votre pointure.", "shPickFit": "Choisissez d'abord Homme ou Femme plus haut.", "shFrom": "{p} en pointure {s} aujourd'hui", "shPage": "Toutes les pointures et boutiques", "shNone": "Pas dans notre liste de chaussures de sentier. Essayez le nom de la marque.", "shRm": "Retirer", "watch": "Suivre", "watchOn": "Suivi", "watchL": "Suivre le prix", "wMember": "Suivi. On vous écrit quand il baisse dans votre taille.", "wNew": "Suivi, sur ce téléphone. Ajoutez votre courriel et on vous avertira quand il baisse.", "wPending": "Suivi. Confirmez votre courriel (voyez votre boîte de réception) pour recevoir les alertes.", "wAdd": "Ajouter mon courriel", "wOff": "Retiré de vos favoris.", "sizeH": "Votre taille", "sizeTxt": "Choisissez-la une fois pour voir les aubaines à votre taille.",
         "men": "Homme", "women": "Femme", "change": "Modifier", "off": "de rabais",
@@ -1686,7 +1690,7 @@ def deal_html(L, r):
 # item's picks, "See more jackets on sale →" opens the homepage on that category (?cat=&t=); kinds without one category (water, food) get none
 CAT_LINK = {"jacket": ("tops", "jacket", "jackets", "manteaux"), "warmjacket": ("tops", "jacket", "jackets", "manteaux"),
             "wind": ("tops", "jacket", "jackets", "manteaux"), "midlayer": ("tops", "layer", "layers", "couches"),
-            "tuque": ("headwear", "", "hats and tuques", "tuques et casquettes"), "cap": ("headwear", "", "hats and tuques", "tuques et casquettes"),
+            "tuque": ("headwear", "", "hats and tuques", "tuques et casquettes"), "cap": ("headwear", "", "hats and tuques", "tuques et casquettes"), "sunhat": ("headwear", "", "hats and tuques", "tuques et casquettes"),
             "gloves": ("gloves", "", "gloves", "gants"), "pants": ("bottoms", "pant", "pants", "pantalons"),
             "longpants": ("bottoms", "", "tights and pants", "collants et pantalons"), "vest": ("packs", "", "vests and packs", "vestes d'hydratation et sacs"),
             "socks": ("socks", "", "socks", "bas"), "sun": ("gear", "sun", "sunglasses", "lunettes de soleil"),
@@ -1843,7 +1847,7 @@ var best=function(){gl.querySelectorAll(".gi:not(.shoe):not(.mini)").forEach(fun
   var ps=[].slice.call(li.querySelectorAll(".dl .pr b")).map(function(b){return parseFloat(b.textContent.replace(/[^0-9.,]/g,"").replace(",","."))}).filter(function(x){return x>0}),
       shown=li.querySelector(".dl:not([hidden])");
   if(ps.length&&shown){var m=Math.min.apply(null,ps),b0=[].slice.call(li.querySelectorAll(".dl .pr b")).filter(function(b){return parseFloat(b.textContent.replace(/[^0-9.,]/g,"").replace(",","."))===m})[0];
-    k.className="kb";k.textContent="$BEST".replace("{p}",b0?b0.textContent:m).replace("{n}",ps.length)}else{k.className="kb no";k.textContent="$BESTN"}})};
+    k.className="kb";k.textContent=(ps.length===1?"$BEST".replace(" picks"," pick"):"$BEST").replace("{p}",b0?b0.textContent:m).replace("{n}",ps.length)}else{k.className="kb no";k.textContent="$BESTN"}})};
 gl.addEventListener("click",function(e){var hd=e.target.closest(".gi:not(.shoe):not(.mini) .hd");if(!hd||e.target.closest("input,button,a"))return;hd.parentNode.classList.toggle("kopen")});
 new MutationObserver(function(){clearTimeout(best.t);best.t=setTimeout(best,60)}).observe(gl,{childList:true,subtree:true});setTimeout(best,300)})();
 </script>"""
@@ -1953,8 +1957,11 @@ var sbox=document.getElementById("shoeBox"),sq=document.getElementById("shoeQ"),
 var fold=function(t){return String(t).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g," ").trim()};
 SH.forEach(function(x){x.f=fold(x.b+" "+x.m).split(" ")});
 /* the shoe size: remembered from the profile or the shoe pages (gf-shoe-size), saved back there when picked here */
-function shoeSize(){var ss=get("gf-shoe-size");if(ss&&ss.s&&(!fit||ss.g===fit||ss.g==="any"))return String(ss.s);
-  var z=prof&&prof.sizes&&prof.sizes.shoes&&(prof.sizes.shoes.sizes||[])[0];return z&&(!fit||prof.gender===fit||prof.gender==="any")?String(z):""}
+/* Nov 3 (growth's walk: a trail page's boot size stayed empty for a visitor with size 11 saved): saved sizes can read "M:11", "11.0"
+   or "10~W"; the menu's options read "11", so the size is tidied to that form */
+function szTidy(x){var n=parseFloat(String(x||"").replace(/^[MWE]:/,"").replace(/~\w$/,""));return isNaN(n)?"":String(n)}
+function shoeSize(){var ss=get("gf-shoe-size");if(ss&&ss.s&&(!fit||ss.g===fit||ss.g==="any"))return szTidy(ss.s);
+  var z=prof&&prof.sizes&&prof.sizes.shoes&&(prof.sizes.shoes.sizes||[])[0];return z&&(!fit||prof.gender===fit||prof.gender==="any")?szTidy(z):""}
 function sizeMenu(){var v=ssel.value||shoeSize(),lo=fit==="women"?5:6,hi=fit==="women"?12:15,o='<option value="">'+esc(ssel.dataset.ph)+'</option>';
   for(var n=lo;n<=hi;n+=0.5)o+='<option>'+n+'</option>';ssel.innerHTML=o;ssel.value=v}
 ssel.addEventListener("change",function(){if(ssel.value){put("gf-shoe-size",{g:fit||"men",s:ssel.value});rt("shoesize",ssel.value)}shoeMine()});
@@ -1999,7 +2006,7 @@ if(WA)WA.addEventListener("click",function(){var w=get("gf-watch")||{},sub=get("
   var capTxt=take.length<m.length?" "+WA.dataset.cap.replace("{cap}",WCAP).replace("{n}",take.length):"";
   if(sub.key&&sub.active){take.forEach(function(x){rpc("watch_add",{p_token:sub.key,p_key:x[0].k,p_meta:w[x[0].k]}).catch(function(){})});say(WA.dataset.member+capTxt)}
   else if(sub.pending)say(gl.dataset.wpending+capTxt);else say(WA.dataset.new+capTxt,!!document.getElementById("raceBox"))});
-var render0=render;render=function(){render0();hearts();sizeMenu();shoeMine();waShow()};
+var render0=render;render=function(){sizeMenu();render0();hearts();sizeMenu();shoeMine();waShow()};   // Nov 3: the size menu first, so a page that reads it (trail boots) sees the saved size
 render();
 (function(){var box=document.getElementById("raceBox"),f=box.querySelector("form"),msg=box.querySelector(".msg"),RM=box.dataset.rm;
 var sub=get("gf-sub");
