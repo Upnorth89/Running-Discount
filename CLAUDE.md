@@ -409,7 +409,7 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   monitor you").** The list (site test "Core things are on the page" checks each, on the current and the new design):
   "♡ Watch price" in words on every card, your sizes shown (the "Top drop" link left the list Oct 23: Bastien OK'd removing it, <18 of 4,644 clicks) + a way
   to change them, the sign-up card ("Free with your email"), search, Ships from Canada / Canadian brands / Include full price /
-  Sort, "Wrong price or size?" on every card, "All sizes & stores" on shoe cards, the "Lowest price in N days" badge, the store and
+  Sort, "Wrong price or size?" on every card (since Oct 22 = the ⋯ button on each card, which opens it; Bastien Nov 3: "keep the ⋯"), "All sizes & stores" on shoe cards, the "Lowest price in N days" badge, the store and
   where it ships from on each card, the currency after prices (CAD/USD), Canada/USA and EN/FR switches, the footer links
   (Instagram, Shoe prices, About, Privacy). Adding to it: when Bastien agrees a feature, it goes on this list.
 - **Design work: phone first, one complete mockup before code (Oct 22).** The redesign built Bastien's computer rendering

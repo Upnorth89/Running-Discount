@@ -86,7 +86,7 @@ S = {
                hubDesc="Quoi apporter pour les randonnées populaires au Canada et aux États-Unis : les 10 essentiels et ce que chaque sentier ajoute, avec les aubaines du jour dans votre taille.",
                hubIntro="Choisissez votre sentier : les 10 essentiels et ce que ce sentier ajoute (ours, pluie, neige, rivières), avec les aubaines du jour dans votre taille.",
                hubGo="Quoi apporter →", groups={"ca": "Canada", "us": "États-Unis"},
-               otherSide="Vous magasinez aux États-Unis ? Cette liste avec les boutiques américaines →"),
+               otherSide="Vous magasinez aux États-Unis? Cette liste avec les boutiques américaines →"),
 }
 S["us"] = dict(S["en"], dir="us/hikes", desc="What to bring for {name} ({where}): the 10 essentials and what this trail adds, with today's best prices in your size at US stores.",
                otherSide="Shopping in Canada? This list with Canadian stores →")
@@ -117,7 +117,7 @@ FUEL = {
                fu_snack="Collations pour la journée : {a} à {b} kcal (repère courant : 200 à 300 kcal par heure de marche).",
                fu_fine="Estimation tirée du modèle de l'armée américaine sur la marche avec charge (Load Carriage Decision Aid, Looney et coll., 2022), en sentier, la moitié de la marche en montée et l'autre en descente selon la pente moyenne du sentier, plus votre dépense au repos pour le reste de la journée. Le froid, la neige, un rythme rapide ou un sac plus lourd en demandent plus.",
                fu_noclimb="Ce parc ne publie pas le dénivelé : ajoutez-le pour une meilleure estimation.",
-               fu_gpx="Votre propre itinéraire ? Chargez son fichier GPX (AllTrails, Gaia GPS, Strava et Garmin en exportent tous un)",
+               fu_gpx="Votre propre itinéraire? Chargez son fichier GPX (AllTrails, Gaia GPS, Strava et Garmin en exportent tous un)",
                fu_gpxOk="Votre itinéraire : {km} km, {m} m de dénivelé.", fu_gpxBad="Impossible de lire ce fichier. Essayez un export GPX."),
 }
 FUEL["us"] = FUEL["en"]

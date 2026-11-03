@@ -356,6 +356,39 @@ def main():
         return f"{len(got)} deals for a size-11 runner"
     step("Friday email matching + cards", email)
 
+    def wording():   # Nov 3 (Bastien: "This looks sloppy"): growth's walk found "1 deals", "1 picks", "every morning" next to
+        # "twice a day", "60+ stores" next to "170": every built page is read the way a visitor reads it, and these never come back
+        import html as H
+        bad = [(re.compile(r"(?<![\d.,])1 (deals|picks|sizes|stores|products|aubaines|choix aubaines|pointures|boutiques|produits)\b"), "a plural after 1"),
+               (re.compile(r"\bevery morning\b|\bchaque matin\b", re.I), "'every morning' (we check twice a day)"),
+               (re.compile(r"\b\d+\+ (Canadian )?(running |outdoor )?stores\b|plus de \d+ boutiques"), "a typed-in store count (use the real one)"),
+               (re.compile(r"\bde la La |\bthe The |\bthe La |\bdu La "), "a doubled article"),
+               (re.compile(r"\b(deals|aubaines) \?|[a-zé] \?(?=\s|$)"), "a space before ? (French style here: attached)")]
+        skip = ("report/", "rapport/", "grab", "stats", "catalog")
+        hits, n = [], 0
+        for f in site.rglob("index.html"):
+            rel = str(f.relative_to(site))
+            if rel.startswith(skip):
+                continue
+            n += 1
+            t = re.sub(r"<script.*?</script>|<style.*?</style>", " ", f.read_text(errors="ignore"), flags=re.S)
+            t = re.sub(r"\s+", " ", H.unescape(re.sub(r"<[^>]+>", " ", t)))
+            for rx, why in bad:
+                m = rx.search(t)
+                if m:
+                    hits.append(f"{rel}: {why}: “…{t[max(0, m.start() - 40):m.end() + 20]}…”")
+        # the homepage's own words (built in the browser from its dictionary): the same phrases in its strings
+        home = (ROOT / "site" / "index.html").read_text()
+        for rx, why in bad[1:3]:
+            for m in rx.finditer(home):
+                line = home.count("\n", 0, m.start()) + 1
+                if not re.match(r"\s*(//|/\*|\*)", home.splitlines()[line - 1]):
+                    hits.append(f"site/index.html line {line}: {why}")
+        if hits:
+            raise RuntimeError(f"{len(hits)} slips, e.g. " + " | ".join(hits[:4]))
+        return f"{n} pages read: no '1 deals/picks/sizes', no 'every morning', no typed-in store counts, no doubled articles"
+    step("Wording: plurals, check frequency, store counts", wording)
+
     def preview():
         dst = ROOT / "site" / "deals.json"
         had = dst.exists()

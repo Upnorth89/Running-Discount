@@ -1236,7 +1236,10 @@ def site_flow(base, per, accented):
                     'your sizes shown': /11/.test(txt('#subhead,#sizeSummary,#ddSize,#rdQS,#rdBarZ')),
                     'sign-up card': !!document.querySelector('#dealList .signup'),
                     'search box': vis(document.getElementById('dSearch')),
-                    '"Wrong price or size?" on cards': cards.every(w => !!w.querySelector('.rep')),
+                    // Nov 3 (Bastien: keep the ⋯, his card cleanup): the report option = the ⋯ button on every card, labelled "Wrong price or size?"
+                    '"Wrong price or size?" (⋯) on cards': cards.every(w => {const r=w.querySelector('.rep');return !!r && /wrong price|prix ou taille/i.test((r.getAttribute('aria-label')||'')+' '+r.textContent)}),
+                    // Nov 3 (Bastien: "This looks sloppy"): never "1 deals" / "1 picks" / "1 sizes" anywhere on the page
+                    'no "1 deals/picks/sizes"': !/(^|[^\d.,])1 (deals|picks|sizes|aubaines|pointures)\b/.test(document.body.innerText),
                     'store on cards': cards.every(w => !!w.querySelector('.store')),
                     'currency after prices': cards.every(w => /CAD|USD/.test(w.querySelector('.price')?.innerText || '')),
                     'footer links': ['shoes/','about.html','privacy.html','instagram'].every(h => [...document.querySelectorAll('.foot a')].some(a => a.href.includes(h)))}}""")
