@@ -368,12 +368,8 @@ RACES.update({
         "check": "https://docs.google.com/document/d/11T91y8udwMeJRU628SQug64kIhEfMlfn/export?format=txt",
         "read": {"en": "November 3, 2026 (2026 Racer Guide)", "fr": "3 novembre 2026 (guide du coureur 2026)"},
         "notes": {
-            "en": ["Every distance carries the same mandatory gear, at all times on course.",
-                   "Pacers must carry their own mandatory gear and can't carry gear for their runner (they may share the runner's GPX device).",
-                   "Random gear checks on course: missing gear means getting it from your crew before going on, and a possible penalty or disqualification."],
-            "fr": ["Toutes les distances portent le même matériel obligatoire, en tout temps sur le parcours.",
-                   "Les meneurs d'allure doivent porter leur propre matériel obligatoire et ne peuvent pas porter celui de leur coureur (ils peuvent partager l'appareil GPX du coureur).",
-                   "Vérifications de matériel au hasard sur le parcours : il faut récupérer ce qui manque auprès de son équipe avant de repartir, avec pénalité ou disqualification possible."],
+            "en": ["Pacers carry their own mandatory gear. Random checks on course: missing gear can mean a penalty or disqualification."],
+            "fr": ["Les meneurs d'allure portent leur propre matériel obligatoire. Vérifications au hasard sur le parcours : du matériel manquant peut mener à une pénalité ou à une disqualification."],
         },
         "items": [
             ("cup", "MMM", {"en": ("Collapsible cup", "A cupless event: for drinks and food at every aid station."), "fr": ("Gobelet pliable", "Course sans verres : pour boire et manger à chaque ravito.")}, False),
