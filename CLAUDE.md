@@ -692,7 +692,8 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
 
 - Oct 4: AvantLink network application DENIED (site too new). Reapply early December with the Dec 1 click report,
   Search Console traffic and Black Friday results, (About page, contact email and affiliate disclosure: live Oct 3).
-  Meanwhile: Sovrn Commerce, Shopify Collabs (brand programs), small shops directly.
+  Meanwhile: Shopify Collabs (brand programs), small shops directly (member-only codes). Sovrn DENIED Oct 29 (twice, incl. a
+  re-evaluation after the Terms page): don't ask Sovrn again before January (docs/decisions.md).
 - Nov 2: Impact (impact.com) partner account (hello@thegearfox.com; publisher / individual / website / deals; website + Friday email channels; profile
   written) VERIFIED with the homepage meta tag impact-site-verification c0f43ba6… (keep it in site/index.html <head>) and the Brands Marketplace
   application is In Review (~72 h). Once approved: apply to Sport Chek (Impact). An older Impact account made via REI's invite link (REI declined:
@@ -703,7 +704,7 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
 - AvantLink covers MEC and 9 of our brands (rabbit 10%, Sunski 8%, Oiselle 6% but no coupon/deal sites,
   Swiftwick, Ciele, Janji, Nathan, Tailwind, Skratch via Shopify Collabs). The Feed and Stance: CJ (Stance
   refuses deal sites). Altitude and The Last Hunt: Rakuten/FlexOffers. Sporting Life: Partnerize.
-  Mount to Coast: Impact. Sovrn Commerce/Skimlinks as a catch-all.
+  Mount to Coast: Impact. Skimlinks as a catch-all (Sovrn denied Oct 29).
 - Impact (Nov 2): verification tag `<meta name="impact-site-verification" …>` on the homepage (keep it; Impact rechecks it), Bastien clicked
   "Add Website" Nov 2. Waiting on Impact's review. Approval = links in `AFF` + About/privacy updated the same day (rule below).
 - Small Canadian shops (Coureur Nordique, Endurance, VanRunCo, Capra, Fit First): no program, email directly
@@ -714,10 +715,12 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
 - Sovrn Commerce (Oct 3): first link was the Norvan LD 4 at Sporting Life -> https://sovrn.co/jfmu34u (removed Oct 7). `AFF` map in index.html
   (store product URL without query -> affiliate link, applied in the card href by `affUrl`; `data-store` keeps click counts on the store).
   Disclosure: About page "How we make money" + privacy page (Sovrn may set a cookie).
-  Sovrn rates seen Oct 3 (application pending; clicks before approval don't earn; $25 payout minimum): Altitude Sports 10%
+  Sovrn rates seen Oct 3 (application DENIED Oct 29, history only; clicks before approval don't earn; $25 payout minimum): Altitude Sports 10%
   (EPC $0.33), MEC 7.5% + CPC (EPC $0.17, AOV $139: keep MEC saves fresh; ask Sovrn for an MEC product feed), The Last Hunt
   1% (EPC $0.04), per click: Sporting Life, The Feed, Stance, 2XU. adidas 2-10.5% but only adidas.com (not a store of ours).
-  After approval: Bastien sends Sovrn's install code -> all links to those stores earn; ranking never favours paying stores.
+  Ranking never favours paying stores. The day ANY paid link goes live (affiliate or a shop referral deal), change the same day:
+  scraper/bf_live.py (~line 34 "Free, no affiliate links, no store pays to be listed"), About + privacy + Terms, and a short
+  disclosure near deal links (compliance, Nov 3).
 
 ## Stores and data
 
