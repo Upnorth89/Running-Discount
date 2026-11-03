@@ -514,3 +514,9 @@ Better levers for "3 stores per store lost": readable running specialty shops (l
   running socks (ski brand). Takes effect at the next store read (afternoon run 23:17 UTC); a push run only rebuilds from the cached read.
 - CLAUDE.md Affiliate plan: Sovrn = denied Oct 29 (not pending), "not before January"; paid-link day checklist (bf_live line ~34,
   About/privacy/Terms, disclosure near deal links) written there.
+
+## Nov 3, evening (backend)
+- Pushed (check.py ALL GOOD): race + trail lists: each line's cheapest pick is always among the 3 shown (built page + the script's redraw),
+  so "From $X" matches what's visible; the From line is grey (was moss green); "♡ Watch" keeps its space (non-breaking, also after a tap).
+  Site test 'kit' B now fails if a From price is lower than the first 3 or Watch loses its space. Design items wait for Nov 16.
+- Running Free: back (night read Nov 3 10:18 UTC, 2,976 products; 2,060 offers live). No hiding needed.
