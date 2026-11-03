@@ -2176,3 +2176,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+    import shoe_pages as _SP     # Nov 3: "1 picks" / "1 sizes" / "the The" never reach a page
+    print(f"words tidied on {_SP.tidy_pages(Path(sys.argv[1] if len(sys.argv) > 1 else 'site'))} pages")

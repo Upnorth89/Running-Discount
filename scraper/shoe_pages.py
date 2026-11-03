@@ -430,6 +430,34 @@ def final_sale(d, e):
 HOME_TZ = ZoneInfo("America/Vancouver")   # Oct 8: the 4:17pm update is already "tomorrow" in UTC ("checked Oct 9" on Oct 8)
 
 
+# Nov 3 (Bastien: "This looks sloppy"; check.py "Wording" found "1 sizes on sale", "2 sizes · 1 stores", "Email me when the The North Face"):
+# every page builder runs this over the pages it wrote; it only touches a count of exactly 1 and a doubled "the The"
+_ONE = re.compile(r"(?<![\d.,$])1 (sizes|stores|products|deals|picks|pointures|boutiques|produits|aubaines)\b")
+_SING = {"sizes": "size", "stores": "store", "products": "product", "deals": "deal", "picks": "pick", "pointures": "pointure",
+         "boutiques": "boutique", "produits": "produit", "aubaines": "aubaine"}
+
+
+def tidy_words(html):
+    html = _ONE.sub(lambda m: "1 " + _SING[m.group(1)], html)
+    return re.sub(r"\b([Tt])he The\b", "The", html)
+
+
+def tidy_pages(site, dirs=None):
+    """Run tidy_words over every index.html under site (or under the given sub-folders); returns how many changed."""
+    n = 0
+    roots = [site / d for d in dirs] if dirs else [site]
+    for root in roots:
+        for f in (root.rglob("index.html") if root.is_dir() else []):
+            if f.parent == site:            # the homepage is the site's own template (its strings handle 1 themselves)
+                continue
+            t = f.read_text()
+            u = tidy_words(t)
+            if u != t:
+                f.write_text(u)
+                n += 1
+    return n
+
+
 def fmt_date(iso, L):
     dt = (datetime.fromisoformat(iso.replace("Z", "+00:00")) if iso else datetime.now(timezone.utc)).astimezone(HOME_TZ)
     return L["date"](dt.day, L["months"][dt.month - 1])
@@ -2096,3 +2124,4 @@ if __name__ == "__main__":
         hike_main(Path(sys.argv[1]))
     else:
         main()
+    print(f"words tidied on {tidy_pages(Path(sys.argv[1] if len(sys.argv) > 1 else 'site'))} pages ('1 sizes' -> '1 size', 'the The')")
