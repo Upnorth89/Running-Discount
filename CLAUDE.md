@@ -490,6 +490,9 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   Nov 3 (freeze exception, Bastien: "yes build them now"; Sinister Sports referrals): `moose-mountain` (lewistonultraevents.com race info: jacket M 29 km+,
   R 16 km, the rest of its "highly recommended" list = R; cupless) and `canmore-ultra` (5peaks.com/canmoreultra: bear spray + 1 L = M, belt/vest R, poles A; the
   series FAQ is not this race's list).
+  Nov 3 TRUST FIX (Fat Dog 120's organizers wrote: we mislabeled their gear): `fat-dog-120` rebuilt word for word from the 2026 Racer Guide (Google Doc; `check` =
+  its text export): 120M/100K/50M/40M, same M list for all four, tracker = P (120M), 16 R lines; RACES `notes` = {en:[…], fr:[…]} lines shown on top (pacers carry
+  their own gear; random gear checks). Lesson: every line of a race's list in its own words, every distance it names.
   Test 'kit' (Oct 27, Bastien: "Yes race kit"; LIVE 50/50 on race + trail gear lists): B = `KITB` compact top + every line folded to one row
   (tick, name, level, "From $X · N picks", tap = picks; class kopen, not "open" = See all). Sinister 7 4.6 -> 2.5 phone screens, UTMB 9.2 -> 4.0,
   Alum Cave 8.9 -> 4.1. Coin = homepage's (gf-did + "kit"), "exp|kit|A/B" once per session; ?exp=kit:B or ?kit=b forces B. Metric: list
