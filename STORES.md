@@ -670,3 +670,7 @@ read). Hettas (Vancouver women's running shoes, hettas.com): readable but its sh
 - runningwarehouse.com (runningwarehouse.com)
 
 Approach per group: **needs a reader** = backend builds it (generic WooCommerce/Lightspeed/BigCommerce readers, one config line per shop); **RunFree** = the permission email (plan doc tab "Store emails (Nov 1)"); **in-store only / no data** = nothing to read (recheck yearly); **says no** = store_recheck.py every 2 weeks; **didn't answer** = retry from GitHub's servers (store-finder.yml).
+
+Nov 2, 2026 robots.txt scan (211 store sites, running + hiking): Cloudflare's managed AI block (`User-agent: ClaudeBot` / `Disallow: /`)
+found on 3: Sports Experts (off), Garage Grown Gear (hiking; last good read Oct 27) and Kelty (hiking; never on the site). The hiking reader now
+drops a store not read for 48 h (KEEP_HOURS), so both hiking stores stay off by themselves and come back if their robots.txt opens again.

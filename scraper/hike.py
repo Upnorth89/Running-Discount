@@ -22,6 +22,7 @@ Trail running shoes stay on the running side; ski, bike, paddling, hunting, clim
 Polite: one page every 1.5 s per store, robots.txt checked for each store (STORES.md "Hiking"); a 403/429 wall = stop.
 """
 import collections
+import datetime as dt
 import os
 import json
 import re
@@ -746,6 +747,20 @@ def main():
             print(line, file=sys.stderr)
             if data:
                 raw[st] = data
+        # Nov 2 (growth: Garage Grown Gear + Kelty now block ClaudeBot in robots.txt; GGG's Oct 27 listings were still up):
+        # the running side's KEEP_HOURS rule here too. A store not read successfully for KEEP_HOURS leaves the hiking files until it
+        # reads again; a store no longer on the list leaves at once (a full run only; a run for named stores keeps the rest).
+        names = {j[0] for j in jobs}
+        for st in list(raw):
+            at = (raw[st] or {}).get("at")
+            try:
+                age = (dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(at)).total_seconds() / 3600 if at else None
+            except Exception:
+                age = None
+            if (not only and st not in names) or age is None or age > s.KEEP_HOURS:
+                print(f"{st}: taken off the hiking files (last good read {('%.0f h ago' % age) if age is not None else 'unknown'}, "
+                      f"over {s.KEEP_HOURS} h, or no longer read)", file=sys.stderr)
+                raw.pop(st)
         raw_path.write_text(json.dumps(raw, separators=(",", ":"), ensure_ascii=False))
         print(s.polite.report(), file=sys.stderr)
     offers = [o for v in raw.values() for o in (v.get("o") or [])]
