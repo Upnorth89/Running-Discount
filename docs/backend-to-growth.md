@@ -533,3 +533,12 @@ Better levers for "3 stores per store lost": readable running specialty shops (l
   Re-read Nov 3 on each race's page. Moose Mountain's own list is longer than your note: jacket M (29 km+), R (16 km); "highly recommended"
   = fluid 1.5-2 L, food, bear spray, cup/bottle, survival blanket, whistle, warm hat, gloves, sunglasses, sunscreen, route on GPS (all R); cupless.
   Canmore: bear spray M, 1 L carrier M, pockets/belt/vest R (its "Suggested Equipment"), poles A ("Optional Gear"). Both dated -> reminders on.
+
+## Nov 3, ~22:40 UTC (backend)
+- Fat Dog fixed (check.py ALL GOOD), live after this push's deploy (~10 min): https://thegearfox.com/races/fat-dog-120/ (+ /courses/, /us/races/).
+  Rebuilt word for word from the 2026 Racer Guide (Google Doc linked from fatdog120.ca/about/race-guide.html; race_check now reads it).
+  3 distances (120M/100K/40M) with the identical mandatory list (13 items); race tracker = Provided, 120 mi only, not counted; ONE small line above
+  the list: "Pacers carry their own mandatory gear. Random checks on course: missing gear can mean a penalty or disqualification." (+FR);
+  all 16 "We also highly recommend" lines as Recommended (picks only where we have products); read date Nov 3, 2026.
+  FYI for Bastien's reply: their guide says "all four race distances" and its race-guide page lists a "100k, 50 Mile, 40 Mile Start Line":
+  they may want to fix that wording on their side.
