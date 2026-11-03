@@ -471,3 +471,22 @@ Better levers for "3 stores per store lost": readable running specialty shops (l
   | SVP (CA) | 745 / 694 (live Shopify read) | 0 (hiking only comes from saves; no SVP save in the last 5 days) |
   Items can show on both sides (a trail runner or rain shell is both). MEC hiking was 17 before the change (its saves are running lists:
   the hiking side now gets every outdoor item those lists hold); a MEC hiking-list save would add more.
+- Nov 3, ~07:30 UTC: your 7-item walk batch PUSHED (dc25626 + follow-up), check.py ALL GOOD (2nd round: round 1 caught my search change
+  clearing a Filters category too; now only a CIRCLE's category is cleared by a new search, Filters keeps searches inside it as before).
+  1. circles = view only (viewProfile vs toProfile); profile groups always all; weekly_email.match ignores p.groups (every category for
+     everyone, so no affected-profile list needed: anyone narrowed gets the full email from this Friday). Site test: circle tap not saved + reload.
+  2. count line + h1 step aside while search/category/type/store view is on; "1 deal"/« 1 aubaine » everywhere (8 labels compared a
+     formatted string to 1).
+  3. FR_WORD/FR_PHRASE in index.html + search_check.py (bas/chaussettes=sock only, souliers/chaussures=shoe, manteau|veste de pluie=rainjacket,
+     lampe frontale=headlamp, tuque, gants=glove only ("gant" sat in "elegant"), cuissard/collant). Site test "Search: French gear words".
+  4. tidy_gear: CAP_NOT_HAT headwear->gear (69 bottle/flask caps), SOCK_NOT_RUN (MLB/NFL/NBA/NHL/ski/snow: 211 out), arm warmers in
+     gloves/hats -> tops, knee/leg warm(er) -> socks, Hanes/Fruit of the Loom/Jockey/Calvin Klein out. Running underwear (Ciele, SAXX,
+     Runderwear) stays but never leads Top deals. Gift page: straps (not watches), cleaning, tablets, retainers out. sortcheck: 3 new rules.
+     Takes effect at the next store read.
+  5. "twice a day" / « deux fois par jour » in every visitor string; BF/BD intros = real Canadian store count; BF live = Canadian stores
+     only; bf_data date = Vancouver; shoe pages: About/Quick answers sizes = table rows, "cheapest in the most sizes" = the table's own
+     winner, size range reads "M 5", price line days = days of history (31, as the badge); About "more than 150".
+     NOT changed: "Prices from X and 165 more stores" = 170 - 5 named (consistent); "at 45 stores" = Canadian stores selling running shoes.
+  6. ?lang= wins for the visit; FR "?" attached (9 strings); « Sacs et vestes d'hydratation », « Magasiner au : ».
+  7. "1 pick"; new "sunhat" kind (hats/caps/visors, no Buff/gaiter) for "Sun hat"/"Hat" lines (Buffs stay on "Hat or Buff");
+     saved sizes tidied to the menu's form + menu filled before the trail boot filter reads it.
