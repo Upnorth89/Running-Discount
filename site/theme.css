@@ -258,7 +258,7 @@ html.rd,html:root.rd{color-scheme:light;
 .rd .rdc .szrow .szmore{display:none}
 @media(max-width:559px){.rd .rdc .szrow .sz.far{display:none}}
 .rd .rdc .badge.lo30{margin-top:4px}
-.rd .rdc .lostamp{background:var(--forest)}
+.rd .rdc .lostamp{background:var(--forest);color:#fff;border:1.5px solid rgba(255,255,255,.55);letter-spacing:.3px}   /* Nov 3: white on forest (dark green text failed contrast) */
 /* heart: a plain outline at the photo's top right (the words stay for screen readers) */
 .rd .rdc .heart{top:6px;right:6px;bottom:auto;width:40px;min-width:40px;height:40px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--ink)}
 .rd .rdc .heart .hl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}

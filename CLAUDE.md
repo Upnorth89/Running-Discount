@@ -188,8 +188,9 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
     and `hd` (days of history) to deals.json/sale.json. For "Is this deal real?" badges before Black Friday (Nov 27).
     Badge rule (Bastien, Oct 3): good news only ("Lowest price we've seen in N days", 30+ days of history), never "was cheaper before".
     Badges (Oct 6; Bastien chose it from pill/stamp/burst/tag/ribbon/line/check trials, "a bit smaller"): a small tilted green stamp
-    "LOWEST PRICE / N DAYS" on the product photo (`.lostamp` inside `.pic`); no photo or it fails to load = green line "✓ Lowest price in
-    N days" / « ✓ Plus bas prix en N jours » under the price (`.badge.lo30`, kept for screen readers when the stamp shows). Rule in `lowDays()`
+    "LOWEST WE'VE SEEN / IN N DAYS" (« PLUS BAS PRIX VU / EN N JOURS »; Nov 3, Bastien: "yes ship it": white on forest, tip "across the stores we
+    track, since Oct 2", was "in any store") on the product photo (`.lostamp` inside `.pic`); no photo or it fails to load = green line "✓ Lowest price we've seen in
+    N days" / « ✓ Plus bas prix vu en N jours » under the price (`.badge.lo30`, kept for screen readers when the stamp shows). Rule in `lowDays()`
     (site test "Lowest-price badge rule"): today's price in your size <= `lo`, `hd` >= 30, and `hi` (highest in the 60-day window) 2%+ above today: a real drop,
     not a price that never moved (Oct 6: 76% of sale items were "at their lowest", 15% with the drop rule). N is capped at 60.
     Shoe pages use the same rule. USA side: its own history lines ("us|" keys) in USD, so exchange rates never fake a low;

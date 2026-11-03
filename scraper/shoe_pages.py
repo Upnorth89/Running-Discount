@@ -218,7 +218,7 @@ T = {
         "fromFull": "À partir de <b>{price}</b>",
         "facts": "{sizes} pointures en stock · {stores} boutiques · vérifié le {date}",
         "none": "Pas en stock dans les boutiques que nous suivons en ce moment. Les prix changent chaque jour : on l'affichera ici dès son retour.",
-        "low": "Le plus bas prix vu en {d} jours",
+        "low": "Plus bas prix vu en {d} jours",
         "bfReal": "{n} de ces {t} aubaines sont à leur plus bas prix en 30 jours ou plus selon nos relevés quotidiens : de vraies baisses, pas un prix gonflé avant. Elles sont en premier.",
         "size": "Pointure", "price": "Prix", "store": "Boutique", "was": "avant",
         "men": "Homme", "women": "Femme", "unisex": "Unisexe (pointures homme)", "unisexMW": "Unisexe (pointures homme et femme)", "wide": "large",
