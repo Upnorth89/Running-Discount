@@ -451,3 +451,15 @@ Better levers for "3 stores per store lost": readable running specialty shops (l
   (title/h1/FAQ/JSON-LD), FAQ question uses the race's own article everywhere (was hard-coded "du {short}" / "the {short}" / "the {name}").
   Also fixed: The Dark 24 ("the The Dark 24"). Grep of every built race page (races/courses/us/races) for de la La / la La / du Le / le Le /
   the The / the La / du La: clean. Live after this push run deploys (~15 min).
+- Nov 3, ~00:50 UTC: Sports Experts OFF + robots scan (your 3 asks), pushed:
+  1. SPORTSEXPERTS_ON = False (scrape.py), runfree.yml sportsexperts job `if: false`, health.py OFF_STORES (one "turned off on purpose" line,
+     no daily problem), store_recheck.py STORES has Sports Experts (robots_says() tested on a Cloudflare-style file: "no (ClaudeBot...)").
+  2. STORES.md row 348 + hiking notes updated as you wrote.
+  3. robots.txt scan of all 211 store sites (running + hiking, one request each): ClaudeBot block on 3 = Sports Experts, Garage Grown Gear
+     (hiking, last good read Oct 27, still on the hiking side), Kelty (hiking, never on the site). Snow Peak + Sporting Life refused robots.txt (403, as before).
+  Why SE was still up: KEEP_HOURS counted from when the refresh LOADED the night copy (Nov 2 03:12), not when the copy was made (Oct 31);
+  copies up to 36 h are accepted, so ~3.5 days. Now DATA_AT / deals.json "data_at" for every night-copy store (SE, Running Free, Fleet Feet,
+  brands, The Feed, Decathlon). The hiking reader had NO KEEP_HOURS at all: added (a store unread for 48 h leaves; today only GGG).
+- Grab bookmark (#16) pushed 23:06 UTC: Web Worker pauses (normal timer if a page blocks it; tested both), tab-name progress, Backcountry
+  "Sale only" (sale now + sale last time), skip window 4 days instead of 7 (NOT the 8-day save window: older saves showed sold-out sizes Oct 30).
+- Afternoon read Nov 2 (run 41544203111): read step 29.7 min (main), shopb 13.5 min, 1 failed store (sportsexperts), 0 skipped for time.
