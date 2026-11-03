@@ -508,3 +508,9 @@ Better levers for "3 stores per store lost": readable running specialty shops (l
   Nov 1) + Sports Experts (off since Nov 2): expected.
   Morning sortcheck still showed 13 + 11 bottle caps under Hats: a cap a store files as gear was moved to Hats later in tidy_gear by the
   old GEAR_CAP rule. Fixed (GEAR_CAP skips CAP_NOT_HAT + a last pass at the end of tidy_clothes). Takes effect at the afternoon read.
+
+## Nov 3, ~13:20 UTC (backend)
+- Pushed (check.py ALL GOOD): bottle/flask caps never under Hats (GEAR_CAP + last pass), AeroPress out (coffee), Kombi socks out of
+  running socks (ski brand). Takes effect at the next store read (afternoon run 23:17 UTC); a push run only rebuilds from the cached read.
+- CLAUDE.md Affiliate plan: Sovrn = denied Oct 29 (not pending), "not before January"; paid-link day checklist (bf_live line ~34,
+  About/privacy/Terms, disclosure near deal links) written there.
