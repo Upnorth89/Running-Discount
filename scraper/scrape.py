@@ -4043,18 +4043,20 @@ def tidy_food(offers):
 CAP_NOT_HAT = re.compile(r"\b(water bottle|bottles?|flasks?|filter|hose|bite valve|spout|reservoir)\b|capcap", re.I)
 SOCK_NOT_RUN = re.compile(r"\b(mlb|nfl|nba|nhl|ski|snowboard|snow)\b", re.I)
 UNDERWEAR_BRANDS = {"hanes", "fruit of the loom", "jockey", "calvin klein"}
+NOT_RUN_BRANDS = {"aeropress"}                 # Nov 3 (growth): coffee makers' filter caps
+SKI_SOCK_BRANDS = {"kombi"}                    # Nov 3 (growth): a ski/winter brand; its socks never say "ski"
 
 
 def tidy_gear(offers):
     offers = tidy_food(offers)
     for o in offers:
-        if (o["b"] or "").lower() in UNDERWEAR_BRANDS:
+        if (o["b"] or "").lower() in UNDERWEAR_BRANDS or (o["b"] or "").lower() in NOT_RUN_BRANDS:
             o["g"] = "_drop"
             continue
         if o["g"] == "headwear" and CAP_NOT_HAT.search(o["n"]):
             o["g"] = "gear"
             continue
-        if o["g"] == "socks" and SOCK_NOT_RUN.search(o["n"]):
+        if o["g"] == "socks" and (SOCK_NOT_RUN.search(o["n"]) or (o["b"] or "").lower() in SKI_SOCK_BRANDS):
             o["g"] = "_drop"
             continue
         if o["g"] in ("gloves", "headwear", "socks") and GEAR_ARM.search(o["n"]) and re.search(r"warm", o["n"], re.I):
