@@ -525,3 +525,11 @@ Better levers for "3 stores per store lost": readable running specialty shops (l
 - Sticker live (check.py ALL GOOD): homepage stamp "Lowest we've seen / in N days" (FR « Plus bas prix vu / en N jours »), line "Lowest price
   we've seen in N days" / « Plus bas prix vu en N jours », new tips (stores we track, since Oct 2), white on forest + light border. Shoe/list
   pages: FR label now « Plus bas prix vu en N jours » (EN already matched). Friday email has no lowest-price wording. CLAUDE.md + decisions row done.
+
+## Nov 3, ~21:00 UTC (backend)
+- Two Alberta race lists pushed (check.py ALL GOOD; pages + sitemap built locally), live after this push's deploy (~10 min):
+  https://thegearfox.com/races/moose-mountain/ · /courses/moose-mountain/ · /us/races/moose-mountain/
+  https://thegearfox.com/races/canmore-ultra/ · /courses/canmore-ultra/ · /us/races/canmore-ultra/
+  Re-read Nov 3 on each race's page. Moose Mountain's own list is longer than your note: jacket M (29 km+), R (16 km); "highly recommended"
+  = fluid 1.5-2 L, food, bear spray, cup/bottle, survival blanket, whistle, warm hat, gloves, sunglasses, sunscreen, route on GPS (all R); cupless.
+  Canmore: bear spray M, 1 L carrier M, pockets/belt/vest R (its "Suggested Equipment"), poles A ("Optional Gear"). Both dated -> reminders on.
