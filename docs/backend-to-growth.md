@@ -463,3 +463,11 @@ Better levers for "3 stores per store lost": readable running specialty shops (l
 - Grab bookmark (#16) pushed 23:06 UTC: Web Worker pauses (normal timer if a page blocks it; tested both), tab-name progress, Backcountry
   "Sale only" (sale now + sale last time), skip window 4 days instead of 7 (NOT the 8-day save window: older saves showed sold-out sizes Oct 30).
 - Afternoon read Nov 2 (run 41544203111): read step 29.7 min (main), shopb 13.5 min, 1 failed store (sportsexperts), 0 skipped for time.
+- Nov 3, 00:40 UTC: Grab saves on BOTH sides, live counts (deals = all / sale = on sale; afternoon read + remerge 00:20 UTC):
+  | store | running (deals / sale) | hiking (deals / sale) |
+  | MEC (CA) | 1,057 / 229 | 516 / 131 |
+  | REI (US) | 6,671 / 4,999 | 5,053 / 3,619 |
+  | Backcountry (US) | 3,007 / 2,364 | 2,349 / 1,837 |
+  | SVP (CA) | 745 / 694 (live Shopify read) | 0 (hiking only comes from saves; no SVP save in the last 5 days) |
+  Items can show on both sides (a trail runner or rain shell is both). MEC hiking was 17 before the change (its saves are running lists:
+  the hiking side now gets every outdoor item those lists hold); a MEC hiking-list save would add more.
