@@ -487,6 +487,9 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   for 50K and 27K" PDF; 13K has no gear check; cup-less) and `iron-legs` (ironlegs.ca per-distance "Mandatory Gear" + "Suggested Gear"; relay's bear
   spray = L: page says suggested, 2026 guide says mandatory). Not built (no readable list): Steep Ultra, Gaspésia 100 (Canva blocks ClaudeBot),
   Racing Dusk 20 Miler: built Oct 28 (`racing-dusk`, ironlegs.ca/racing-dusk: 7 mandatory, headlamp only if the last loop starts after 2pm, bib = P).
+  Nov 3 (freeze exception, Bastien: "yes build them now"; Sinister Sports referrals): `moose-mountain` (lewistonultraevents.com race info: jacket M 29 km+,
+  R 16 km, the rest of its "highly recommended" list = R; cupless) and `canmore-ultra` (5peaks.com/canmoreultra: bear spray + 1 L = M, belt/vest R, poles A; the
+  series FAQ is not this race's list).
   Test 'kit' (Oct 27, Bastien: "Yes race kit"; LIVE 50/50 on race + trail gear lists): B = `KITB` compact top + every line folded to one row
   (tick, name, level, "From $X · N picks", tap = picks; class kopen, not "open" = See all). Sinister 7 4.6 -> 2.5 phone screens, UTMB 9.2 -> 4.0,
   Alum Cave 8.9 -> 4.1. Coin = homepage's (gf-did + "kit"), "exp|kit|A/B" once per session; ?exp=kit:B or ?kit=b forces B. Metric: list

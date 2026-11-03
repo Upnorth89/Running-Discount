@@ -1287,6 +1287,50 @@ RACES.update({
             (_SIN("bib", "Race bib", "Dossard", "Handed out by the race.", "Remis par la course."), "P", False),
         ]),
     },
+    # lewistonultraevents.com/moose-mountain-race-information "REQUIRED/MANDATORY GEAR" + "HIGHLY RECOMMENDED GEAR" (updated Sept 2026,
+    # read Nov 3, 2026; growth chat, Bastien OK'd as a freeze exception: warm referral from Sinister Sports). Jacket mandatory 29/42/50 km only.
+    "moose-mountain": {
+        "name": "Moose Mountain Trail Races", "short": "Moose Mountain", "de": "des ", "le": "les ", "unit": "label", "cupless": True,
+        "where": {"en": "West Bragg Creek (Kananaskis), AB", "fr": "West Bragg Creek (Kananaskis), Alb."},
+        "when": {"en": "August 21, 2027", "fr": "21 août 2027"},
+        "dists": ["50K", "42K", "29K", "16K"], "default": "50K",
+        "src": "https://www.lewistonultraevents.com/moose-mountain-race-information",
+        "read": {"en": "November 3, 2026 (page updated September 2026)", "fr": "3 novembre 2026 (page mise à jour en septembre 2026)"},
+        "items": _r([
+            (_SIN("jacket", "Wind/waterproof jacket", "Manteau coupe-vent et imperméable", "Checked at race-morning check-in (29 km and up). No jacket? The race says an emergency blanket or a garbage bag will do.",
+                  "Vérifié à l'enregistrement le matin (29 km et plus). Pas de manteau? La course accepte une couverture de survie ou un sac à ordures."), "MMMR", True),
+            (_SIN("water", "1.5 to 2 L of fluid", "1,5 à 2 L de liquide", "There is no water fill station at the start line.",
+                  "Pas de remplissage d'eau au départ."), "RRRR", False),
+            (_SIN("food", "Extra calories, food and electrolytes", "Calories, nourriture et électrolytes en plus"), "RRRR", False),
+            (_SIN("bear", "Bear spray", "Chasse-ours en aérosol", "Know how to use it.", "Sachez vous en servir."), "RRRR", False),
+            (_SIN("cup", "Collapsible cup or bottle", "Gobelet pliable ou gourde", "A cup-less event: no disposable cups at aid stations.",
+                  "Course sans verres : aucun verre jetable aux ravitos."), "RRRR", False),
+            (_SIN("blanket", "Survival blanket or bivy", "Couverture de survie ou bivy"), "RRRR", False),
+            (_SIN("whistle", "Whistle or horn", "Sifflet ou corne"), "RRRR", False),
+            (_SIN("tuque", "Warm hat", "Tuque"), "RRRR", True),
+            (_SIN("gloves", "Gloves", "Gants"), "RRRR", True),
+            (_SIN("sun", "Sunglasses", "Lunettes de soleil"), "RRRR", False),
+            (_SIN("sunscreen", "Sunscreen and lip balm", "Crème solaire et baume à lèvres"), "RRRR", False),
+            (_SIN("gps", "Route on your GPS or phone (Trailforks, for example)", "Tracé sur votre GPS ou téléphone (Trailforks, par exemple)"), "RRRR", False),
+        ]),
+    },
+    # 5peaks.com/canmoreultra "Mandatory Gear" + "Suggested Equipment" + schedule's "Optional Gear" (read Nov 3, 2026; growth chat, Bastien OK'd as a
+    # freeze exception). The series FAQ's suggestions are series-wide, not this race's list: left out.
+    "canmore-ultra": {
+        "name": "Canmore 25K & Ultra", "short": "Canmore", "de": "du ", "le": "le ", "unit": "label",
+        "where": {"en": "Canmore Nordic Centre, AB", "fr": "Centre nordique de Canmore, Alb."},
+        "when": {"en": "June 5, 2027", "fr": "5 juin 2027"},
+        "dists": ["50K", "25K"], "default": "50K",
+        "src": "https://5peaks.com/canmoreultra",
+        "read": {"en": "November 3, 2026", "fr": "3 novembre 2026"},
+        "items": _r([
+            (_SIN("bear", "Bear spray", "Chasse-ours en aérosol", "Carried at all times. The race sells and rents it as a registration add-on.",
+                  "À porter en tout temps. La course en vend et en loue à l'inscription."), "MM", False),
+            (_SIN("water", "Bottle, cup or bladder: at least 1 L between aid stations", "Gourde, gobelet ou réservoir : au moins 1 L entre les ravitos"), "MM", False),
+            (_SIN("vest", "Pockets, belt or vest to carry fuel and liquid", "Poches, ceinture ou veste pour la nourriture et le liquide"), "RR", False),
+            (_SIN("poles", "Hiking poles", "Bâtons de randonnée"), "AA", False),
+        ]),
+    },
 })
 
 S = {
