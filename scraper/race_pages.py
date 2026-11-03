@@ -1607,6 +1607,11 @@ def picks(p, n=SHOW):
     if top and not any(map(sale, top[:FIRST])) and any(map(sale, top)):
         j = next(i for i, r in enumerate(top) if sale(r))
         top.insert(FIRST - 1, top.pop(j))
+    if top:   # Nov 3 (growth): the line's "From $X" (its cheapest pick) is always among the first shown
+        lo = min(range(len(top)), key=lambda i: min(e[1] for e in top[i]["s"]))
+        if lo >= FIRST:
+            t = next((i for i in range(FIRST - 1, -1, -1) if not sale(top[i])), FIRST - 1)
+            top.insert(t, top.pop(lo))
     return top
 
 
@@ -1683,7 +1688,7 @@ def deal_html(L, r):
             f'<span class="nm"><b>{esc(r["b"])}</b>{esc(nm(L, r["n"]))}<small>{esc(r["st"])}</small></span>'
             f'<span class="pr">{price_html(L, e)}</span></a>'
             f'<button type="button" class="wt" data-k="{esc(r["k"])}" data-p="{e[1]}" data-u="{esc(e[3])}" aria-pressed="false" aria-label="{esc(S[L]["watchL"])}: {esc(r["b"])} {esc(r["n"])}">'
-            f'<span class="hh">♡</span><span class="wl"> {S[L]["watch"]}</span></button></li>')
+            f'<span class="hh">♡</span><span class="wl">&nbsp;{S[L]["watch"]}</span></button></li>')
 
 
 # Oct 29 (Bastien: "hyper link the title items to the category on the website if people want to see the whole catalog"): under each
@@ -1830,7 +1835,7 @@ html.kitb .gi:not(.shoe) .hd h3{grid-column:2;font-size:17px}html.kitb .gi:not(.
 html.kitb .gi:not(.shoe) .hd .lv{grid-column:2;grid-row:2;justify-self:start;font-size:10px;padding:1px 6px;margin:0}
 html.kitb .gi:not(.shoe) .hd::after{content:"";grid-column:3;grid-row:1/3;align-self:center;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .15s}
 html.kitb .gi.kopen .hd::after{transform:rotate(-135deg)}
-html.kitb .gi .kb{grid-column:2;grid-row:3;font:600 14px var(--body);color:var(--moss,#2f6b3a)}html.kitb .gi .kb.no{color:var(--muted);font-weight:400}
+html.kitb .gi .kb{grid-column:2;grid-row:3;font:600 14px var(--body);color:var(--muted,#5f6b66)}html.kitb .gi .kb.no{color:var(--muted);font-weight:400}
 html.kitb .gi.mini .hd::after,html.kitb .gi.mini .kb{display:none}
 html.kitb .gi:not(.kopen):not(.shoe) .dl,html.kitb .gi:not(.kopen):not(.shoe) .ft,html.kitb .gi:not(.kopen):not(.shoe) .none,html.kitb .gi:not(.kopen):not(.shoe) .note{display:none}
 html.kitb .gi.got .kb{display:none}
@@ -1896,6 +1901,8 @@ function render(){
     var sale=function(x){return x[1][2]>x[1][1]*1.01},picks=all.slice(0,10),more=all.slice(10).filter(sale);   // same rule as picks() in race_pages.py
     while(picks.filter(sale).length<3&&more.length){var i=-1;picks.forEach(function(x,j){if(!sale(x))i=j});if(i<0)break;picks[i]=more.shift()}
     if(!picks.slice(0,3).some(sale)&&picks.some(sale)){var j=picks.findIndex(sale);picks.splice(2,0,picks.splice(j,1)[0])}
+    var lo=0;picks.forEach(function(x,j){if(x[1][1]<picks[lo][1][1])lo=j});   // Nov 3 (growth): the line's "From $X" pick is always among the 3 shown
+    if(lo>2){var t=2;for(var q=2;q>=0;q--){if(!sale(picks[q])){t=q;break}}picks.splice(t,0,picks.splice(lo,1)[0])}
     var ul=li.querySelector(".dl"),none=li.querySelector(".none"),mb=li.querySelector(".mored");
     ul.hidden=!picks.length;none.hidden=!!picks.length;mb.hidden=picks.length<=3;mb.textContent=mb.dataset.n.replace("{n}",picks.length);
     var few=li.querySelector(".few");if(!few){few=document.createElement("span");few.className="few";mb.after(few)}   // Oct 20: fewer than 10 in this size = say so
@@ -1904,7 +1911,7 @@ function render(){
     SHOWN[k]=picks.slice(0,3).map(function(x){return x[0].n});if(!picks.length)return;
     ul.innerHTML=picks.map(function(x){var r=x[0],e=x[1];
       var pr=e[2]>e[1]*1.01?'<b>'+money(e[1])+'</b><s>'+money(e[2])+'</s> <span class="off">−'+Math.round(100*(1-e[1]/e[2]))+'%</span>':'<b>'+money(e[1])+'</b>',h=gl.dataset.home;
-      return '<li><a class="dg" href="'+esc(e[3])+'" data-store="'+esc(r.h)+'" target="_blank" rel="noopener"><img src="'+esc(r.img)+'" alt="" loading="lazy" referrerpolicy="no-referrer"><span class="nm"><b>'+esc(r.b)+'</b>'+esc(nm(r.n))+'<small>'+esc(r.st)+(SIZED[r.g]&&size?" · "+esc(e[0]):"")+'</small></span><span class="pr">'+pr+'</span></a><button type="button" class="wt" data-k="'+esc(r.k)+'" data-p="'+e[1]+'" data-u="'+esc(e[3])+'" aria-pressed="false" aria-label="'+esc(gl.dataset.watch)+': '+esc(r.b+" "+r.n)+'"><span class="hh">♡</span><span class="wl"> '+esc(gl.dataset.watch)+'</span></button></li>'}).join("")});
+      return '<li><a class="dg" href="'+esc(e[3])+'" data-store="'+esc(r.h)+'" target="_blank" rel="noopener"><img src="'+esc(r.img)+'" alt="" loading="lazy" referrerpolicy="no-referrer"><span class="nm"><b>'+esc(r.b)+'</b>'+esc(nm(r.n))+'<small>'+esc(r.st)+(SIZED[r.g]&&size?" · "+esc(e[0]):"")+'</small></span><span class="pr">'+pr+'</span></a><button type="button" class="wt" data-k="'+esc(r.k)+'" data-p="'+e[1]+'" data-u="'+esc(e[3])+'" aria-pressed="false" aria-label="'+esc(gl.dataset.watch)+': '+esc(r.b+" "+r.n)+'"><span class="hh">♡</span><span class="wl">\u00a0'+esc(gl.dataset.watch)+'</span></button></li>'}).join("")});
   var pg=document.getElementById("prog");pg.hidden=!n;pg.textContent=n&&h>=n?pg.dataset.all:pg.dataset.t.replace("{h}",h).replace("{n}",n);
   var box=document.getElementById("rsize");box.classList.toggle("set",!!(fit&&size)&&!box.dataset.open);
   box.querySelector(".cur span").textContent=(fit?box.dataset[fit]:"")+" · "+size+Object.keys(by).map(function(g){var b0=box.querySelector('[data-bg="'+g+'"]');return " ("+b0.closest(".byrow").querySelector("b").textContent.toLowerCase()+" "+by[g]+")"}).join("");
@@ -1936,7 +1943,7 @@ var SB="https://krwymmkauwqqxjxbvkyq.supabase.co/rest/v1/rpc/",KEY="sb_publishab
 var rpc=function(fn,body){return fetch(SB+fn,{method:"POST",headers:{apikey:KEY,"Content-Type":"application/json"},body:JSON.stringify(body)})};
 var byK={};Object.keys(pools).forEach(function(k){pools[k].forEach(function(r){byK[r.k]=r})});
 function hearts(){var w=get("gf-watch")||{};[].forEach.call(document.querySelectorAll(".wt"),function(b){var on=!!w[b.dataset.k];
-  b.setAttribute("aria-pressed",String(on));b.querySelector(".hh").textContent=on?"♥":"♡";b.querySelector(".wl").textContent=" "+(on?gl.dataset.won:gl.dataset.watch)})}
+  b.setAttribute("aria-pressed",String(on));b.querySelector(".hh").textContent=on?"♥":"♡";b.querySelector(".wl").textContent="\u00a0"+(on?gl.dataset.won:gl.dataset.watch)})}
 var toastT=null;function say(txt,add){var t=document.getElementById("wtoast");if(!t){t=document.createElement("div");t.id="wtoast";t.className="wtoast";t.setAttribute("role","status");document.body.appendChild(t)}
   t.innerHTML="";var p=document.createElement("div");p.textContent=txt;t.appendChild(p);
   if(add){var b=document.createElement("button");b.type="button";b.textContent=gl.dataset.wadd;b.onclick=function(){t.hidden=true;var bx=document.getElementById("raceBox");bx.scrollIntoView({block:"center"});var i=bx.querySelector("input");if(i)i.focus()};t.appendChild(b)}

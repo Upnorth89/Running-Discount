@@ -2283,6 +2283,17 @@ def site_flow(base, per, accented):
                             li.locator(".hd h3").click()
                             q.wait_for_timeout(200)
                             assert "kopen" in (li.get_attribute("class") or ""), f"{path}: tapping a row doesn't open it"
+                            bad = q.evaluate(r"""() => {const num = t => parseFloat(t.replace(/[^0-9.,]/g, '').replace(',', '.'));
+                                const out = [];
+                                document.querySelectorAll('.gi:not(.shoe):not(.mini)').forEach(li => {
+                                    const kb = li.querySelector('.kb:not(.no)'); if (!kb) return;
+                                    const from = num(kb.textContent.split('·')[0]);
+                                    const vis = [...li.querySelectorAll('.dl > li')].slice(0, 3).map(x => num((x.querySelector('.pr b') || {}).textContent || ''));
+                                    if (vis.length && Math.min(...vis) > from + 0.001) out.push((li.querySelector('h3') || {}).textContent + ': From ' + from + ', first 3 start at ' + Math.min(...vis));
+                                    const wl = li.querySelector('.wt .wl'); if (wl && !/^\s|^\u00a0/.test(wl.textContent)) out.push('Watch button without a space');
+                                });
+                                return out.slice(0, 3)}""")
+                            assert not bad, f"{path}: " + "; ".join(bad)
                             h = q.evaluate("document.documentElement.scrollHeight")
                             out.append(f"{path} B {h}px")
                         else:
