@@ -4081,7 +4081,7 @@ def tidy_gear(offers):
             o["g"] = "socks"           # calf sleeves / leg warmers: with socks (CEP, BV Sport sell them together)
         elif GEAR_TIGHTS.search(n):
             o["g"] = "bottoms"
-        elif GEAR_CAP.search(n):
+        elif GEAR_CAP.search(n) and not CAP_NOT_HAT.search(n):   # Nov 3: a bottle/flask "cap" filed as gear stays gear
             o["g"] = "headwear"
     return [o for o in offers if o["g"] != "_drop"]
 
@@ -4181,6 +4181,9 @@ def tidy_clothes(offers):
         elif o["g"] == "tops" and CLOTH_BOTW.search(n) and not CLOTH_TOPW.search(n):
             o["g"] = "bottoms"
         out.append(o)
+    for o in out:     # Nov 3: the last word on bottle/flask caps, whatever rule above filed them (a store's "Hats" type, GEAR_CAP)
+        if o["g"] == "headwear" and CAP_NOT_HAT.search(o["n"]):
+            o["g"] = "gear"
     return out
 
 def garment_type(g, n):

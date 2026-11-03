@@ -498,3 +498,13 @@ Better levers for "3 stores per store lost": readable running specialty shops (l
   pages), 14 "Email me when the The North Face…", 9 French "?" in the builders, Fox Pro text "every morning", JSON-LD "150+ stores".
   Core list: "Wrong price or size?" = the ⋯ button on every card (site test checks its label); decisions.md rows for that + the Nov 16 trio.
   Live in ~15 min (push run). Please verify on the live site and tell Bastien.
+- Nov 3 morning read (run 41626242889, 11:17 UTC) vs Nov 2 afternoon (41544203111):
+  | | main read ("Scrape stores") | shopb (2nd machine) | failed | skipped for time |
+  | Nov 2 23:17 afternoon | 29.7 min | 13.5 min | 1 (sportsexperts) | 0 |
+  | Nov 3 11:17 morning | 49.0 min | 33.5 min | 0 | 0 |
+  The morning is heavier (both shopb and main ~20 min more): mornings re-read Altitude/Last Hunt/Sporting Life pages whose copies passed
+  REUSE_HOURS overnight, plus the night copies. 49 min is close to the 50-min READ_LIMIT, so step 3 (move the slow lanes to the night
+  read / more page reuse) moves up: I'll do it next (read test first). 28 stores "not read this morning" = the 27 RunFree shops (off since
+  Nov 1) + Sports Experts (off since Nov 2): expected.
+  Morning sortcheck still showed 13 + 11 bottle caps under Hats: a cap a store files as gear was moved to Hats later in tidy_gear by the
+  old GEAR_CAP rule. Fixed (GEAR_CAP skips CAP_NOT_HAT + a last pass at the end of tidy_clothes). Takes effect at the afternoon read.
