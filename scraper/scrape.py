@@ -633,6 +633,7 @@ def runningfree_night(out, hours=4.5):
 def _rf_fresh():
     try:
         d = json.loads(Path(RUNNINGFREE_FILE).read_text())
+        DATA_AT.setdefault("runningfree", d["updated"])
         return (dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(d["updated"])).total_seconds() < 36 * 3600 and d
     except Exception:
         return None
@@ -811,6 +812,7 @@ def scrape_sportsexperts():
     d = _se_fresh()
     if not d:
         raise RuntimeError("no Sports Experts night copy from the last 36 h")
+    DATA_AT["sportsexperts"] = d["updated"]
     out, skipped = [], collections.Counter()
     for pid, p in d["prods"].items():
         full, cat = p["name"], p["cat"]
@@ -995,6 +997,7 @@ def scrape_fleetfeet():
         raise RuntimeError("no night read of Fleet Feet yet")
     if dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(d["updated"]) > dt.timedelta(hours=36):
         raise RuntimeError(f"Fleet Feet night read last worked {d['updated'][:10]}")
+    DATA_AT["fleetfeet"] = d["updated"]
     out, skipped, fx = [], collections.Counter(), fx_to_cad("USD")      # offers are kept in CAD, like every US store
     for u, p in d["prods"].items():
         gender, _, model = p["title"].partition(" | ") if " | " in p["title"] else ("", "", p["title"])
@@ -1225,6 +1228,7 @@ def scrape_jl_site(key):
         fresh = False
     if not fresh:
         raise RuntimeError(f"no {brand} night copy from the last 36 h")
+    DATA_AT[key] = d["updated"]
     out, skipped = [], collections.Counter()
     for u, p in d["prods"].items():
         name = re.sub(r"\s+", " ", p.get("name") or "").strip()
@@ -1360,6 +1364,7 @@ def scrape_brand_site(key):
         fresh = False
     if not fresh:
         raise RuntimeError(f"no {cfg['brand']} night copy from the last 36 h")
+    DATA_AT[key] = d["updated"]
     out, skipped = [], collections.Counter()
     for sku, p in d["prods"].items():
         name = re.sub(r"\s+", " ", p["name"]).strip()
@@ -2222,6 +2227,7 @@ def scrape_thefeed():
         age = (dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(d["updated"])).total_seconds() / 3600
         if age < 36 and d.get("prods"):
             saved = d
+            DATA_AT["thefeed"] = d["updated"]
             print(f"  thefeed: night copy from {d['updated']} ({age:.0f} h old)", file=sys.stderr)
     except Exception:
         pass
@@ -2826,6 +2832,10 @@ def scrape_sportinglife():
 # Files older than SAVED_MAX_DAYS are ignored so stale prices never linger.
 SAVED_DIR = Path(__file__).resolve().parents[1] / "saved-pages"
 KEEP_HOURS = 48       # Nov 1: a store that fails keeps its last listings this long, then leaves the site until it reads again
+# Nov 2: stores read from a night copy (Sports Experts, Running Free, Fleet Feet, brand sites, The Feed, Decathlon) record when
+# that copy was MADE, not when the refresh loaded it: the refresh takes copies up to 36 h old, so counting KEEP_HOURS from the
+# load time let Sports Experts' Oct 31 prices stay up ~3.5 days. DATA_AT[st] = the copy's own time; kept in deals.json "data_at".
+DATA_AT = {}
 SAVED_MAX_DAYS = 5     # Oct 30 (Bastien: "down to 5 for everyone we grab deal"): a REI save 6-10 days old showed sold-out sizes
 
 def _file_age_days(path):
@@ -3900,6 +3910,12 @@ for _st, _base, _kind in SHOPIFY_STORES:
 RUNFREE_ON = False
 for _st in (RUNFREE if RUNFREE_ON else []):
     STORES[_st] = (lambda st: lambda: scrape_runfree(st))(_st)
+# Sports Experts OFF (Nov 2, 2026; growth chat): sportsexperts.ca's robots.txt now carries Cloudflare's managed AI block
+# ("User-agent: ClaudeBot / Disallow: /"), so the night read stops at its first page (RobotsNo) and its Oct 31 copy is all we have.
+# Out under our bar (no AI block). store_recheck.py checks it every 2 weeks; back on = SPORTSEXPERTS_ON = True + runfree.yml job.
+SPORTSEXPERTS_ON = False
+if not SPORTSEXPERTS_ON:
+    STORES.pop("sportsexperts", None)
 
 # Casual footwear some running stores also sell; not what people come here for.
 CASUAL_BRANDS = {"ambler", "birkenstock", "wolky", "teva", "crocs", "ugg", "blundstone", "dr. martens", "clarks", "oofos", "billy footwear", "vessi", "pony"}   # Ambler (Oct 8): toques, and its only "shoe" is a wool slipper; Pony (Oct 30): retro sneakers in SVP's running collection led the Friday email's shoes at $14.99
@@ -4969,6 +4985,7 @@ def main():
     prev = load(OUT)
     prev_offers = load(OUT.parent / "offers.json")   # yesterday's raw per-store listings, for fallback
     stamps, offers, failed, raw, why = dict(prev.get("stores", {})), [], [], {}, {}
+    data_at = dict(prev.get("data_at", {}))     # Nov 2: when each night-copy store's data was made (KEEP_HOURS counts from it)
     def run(st, fn):
         """One store: (listings, ok, log line). A store that fails or empties keeps yesterday's listings."""
         t = time.time()
@@ -4997,7 +5014,7 @@ def main():
             # Nov 1 (growth chat: RunFree's 27 stores closed /api/ to robots ~Oct 30): a failed store used to keep its last
             # listings forever (each night's fallback became the next night's "last run"), so frozen prices looked fresh.
             # Now a store not read successfully for KEEP_HOURS leaves the site until it reads again.
-            last = stamps.get(st)
+            last = data_at.get(st) or stamps.get(st)
             try:
                 age = (dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(last)).total_seconds() / 3600 if last else None
             except Exception:
@@ -5120,6 +5137,7 @@ def main():
         raw[st] = got
         if ok:
             stamps[st] = now()
+            data_at[st] = DATA_AT.get(st) or stamps[st]
         elif ok is False:
             failed.append(st)
             why[st] = line.split("FAILED (", 1)[-1].split("); kept")[0][:160]   # for the health email: why it failed
@@ -5154,7 +5172,7 @@ def main():
     except Exception:
         usd = FX_FALLBACK["USD"]
     n_ca = n_us = len({o["st"] for o in offers} | {o["st"] for o in us_offers})   # "N stores checked daily": one total, both sides
-    OUT.write_text(json.dumps({"v": 2, "updated": now(), "stores": stamps, "n_stores": n_ca, "failed": why, "fx": {"USD": usd}, "items": items},
+    OUT.write_text(json.dumps({"v": 2, "updated": now(), "stores": stamps, "data_at": data_at, "n_stores": n_ca, "failed": why, "fx": {"USD": usd}, "items": items},
                               separators=(",", ":"), ensure_ascii=False))
     # the site loads sale items first: same shape, only items with at least one size on sale
     sale = [i for i in items if any(e[1] < e[3] for e in i["sz"])]   # same test as the site's % off
@@ -5189,6 +5207,7 @@ def scrape_decathlon_saved():
     except Exception:
         raise RuntimeError("no night read of Decathlon yet")
     t = dt.datetime.fromisoformat(d["updated"])
+    DATA_AT["decathlon"] = d["updated"]
     if dt.datetime.now(dt.timezone.utc) - t > dt.timedelta(hours=36):
         raise RuntimeError(f"Decathlon night read last worked {t:%b %d}" + (f" ({d['failed']})" if d.get("failed") else ""))
     # products read before Oct 20 may carry cross-sell sizes (see dec_offer): until re-read, one whose sizes differ in price

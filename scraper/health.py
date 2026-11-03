@@ -52,6 +52,11 @@ if re.search(r"^RUNFREE_ON = False", _SCRAPE, re.M):
     except Exception:
         pass
 PARKED = {"adidasca", "catalog"}   # catalog-file stores Bastien let go (Oct 30); silent while empty
+# Nov 2: stores switched off on purpose in scrape.py (their robots.txt now blocks us): silent, one "turned off" line
+OFF_STORES = {}
+if re.search(r"^SPORTSEXPERTS_ON = False", _SCRAPE, re.M):
+    OFF_STORES["sportsexperts"] = "Sports Experts (its robots.txt blocks ClaudeBot since Nov 2)"
+PARKED |= set(OFF_STORES)
 SAVED = {"mec", "rei", "adidasca"}   # (Sport Chek read live since Oct 13)       # (SVP parked Oct 6)      # stores read from pages you save by hand (their sites block automated access)
 
 
@@ -131,6 +136,8 @@ def read_count(prev):
     night = []
     for f, name in (("decathlon", "Decathlon"), ("thefeed", "The Feed"), ("sportsexperts", "Sports Experts"),
                     ("fleetfeet", "Fleet Feet"), ("brands", "brand sites"), ("runningfree", "Running Free")):
+        if f in OFF_STORES:
+            continue
         u = when(load(Path(f"/tmp/{f}.json")).get("updated") or "")
         if u and NOW - u <= timedelta(hours=24):
             night.append(name)
@@ -415,6 +422,8 @@ def main():
     rd_line, rd_probs, reads = read_count(load(PREV / "health.json"))
     cat_line += rd_line
     problems += rd_probs
+    for name in OFF_STORES.values():
+        cat_line += f"\nTurned off on purpose: {name}; store_recheck.py tells us if it opens again"
     if OFF_RUNFREE:
         cat_line += (f"\nTurned off on purpose: {len(OFF_RUNFREE)} RunFree stores (their robots.txt blocks /api/ since Nov 1); "
                      "their deals come from the catalog file while it's fresh")

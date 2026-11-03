@@ -22,6 +22,9 @@ UA = {"User-Agent": "Mozilla/5.0 (compatible; TheGearFoxBot/1.0; +https://thegea
 STORES = {
     "RunFree shops (27 stores: Charlotte Running, Sole Sports, Hanson's, Runner's Soul…)": ("robots.txt 'Disallow: /api/' since ~Oct 30, 2026 (its sizes/prices service); OK again = RUNFREE_ON in scrape.py + runfree.yml read job",
             ["https://shop.charlotterunning.com/robots.txt#/api/product", "https://solesports.runfreeproject.com/robots.txt#/api/product"]),
+    "Sports Experts": ("robots.txt 'User-agent: ClaudeBot / Disallow: /' since Nov 2, 2026 (Cloudflare's managed AI block); OK again = "
+                       "SPORTSEXPERTS_ON in scrape.py + runfree.yml sportsexperts job",
+                       ["https://www.sportsexperts.ca/robots.txt", "https://www.sportsexperts.ca/en-CA/running/running/running-shoes"]),
     "MEC": ("blocks automated reading (Grab deals bookmark meanwhile)",
             ["https://www.mec.ca/robots.txt", "https://www.mec.ca/en/products/running/deals"]),
     "REI (USA)": ("blocks automated reading (Grab deals bookmark meanwhile)",

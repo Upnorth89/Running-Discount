@@ -744,7 +744,9 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   Sport Chek rows are ignored (`CATALOG_LIVE`). If it ever answers 403/captcha: stop, don't work around it. Checked Oct 14: Atmosphere
   closed its online store (moved into Sport Chek); Sports Experts is behind an Incapsula 403 wall (no).
 - Failed stores (Nov 1): a store keeps its last listings for `KEEP_HOURS` (48 h) after its last good read, then leaves the site until it
-  reads again (it used to keep them forever). (Running Free's night read keeps its last good file when a read finds under 500 products: growth's fix.)
+  reads again (it used to keep them forever). Nov 2: for night-copy stores (Sports Experts, Running Free, Fleet Feet, brand sites, The Feed,
+  Decathlon) the 48 h count from when the COPY was made (`DATA_AT` -> deals.json `data_at`), not when the refresh loaded it (copies up to 36 h old
+  are accepted, so Sports Experts' Oct 31 prices would have stayed ~3.5 days). (Running Free's night read keeps its last good file when a read finds under 500 products: growth's fix.)
 - **Polite reading (Nov 1, Bastien: "avoid triggering any bot detection", "yes do 1-3")**: every store request goes through
   scraper/polite.py `PoliteSession` (scrape.py `S`, so hike.py/livecheck too): our own name (TheGearFoxBot UA, never a browser
   disguise), robots.txt Disallow obeyed (`RobotsNo`; Google-style matching for TheGearFoxBot/ClaudeBot/anthropic-ai, else *) +
@@ -788,6 +790,9 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   in stock in that size (checked against product pages). Saved to runningfree.json on the history branch; the refresh downloads it
   (`RUNNINGFREE_FILE`, fresh = under 36 h). While fresh, the catalog file's Running Free rows are skipped. Short brands `RF_SHORT`
   (NB, SW, TNF, PI). Waist sizes (Size-28…) and shoe-drop filters (4mm…) are not read.
+- **Sports Experts OFF since Nov 2, 2026**: its robots.txt now carries Cloudflare's managed AI block (`User-agent: ClaudeBot` / `Disallow: /`),
+  so the night read stopped at its first page (RobotsNo). `SPORTSEXPERTS_ON = False` in scrape.py, runfree.yml job `if: false`, health.py `OFF_STORES`
+  (one "turned off on purpose" line), store_recheck.py watches it. Unlock: affiliate feed (FGL/Canadian Tire) or permission. Was:
 - Sports Experts (Oct 15; Québec chain, Canadian Tire/FGL; Bastien: "GPT keeps running out of tokens"): its Cloudflare wall
   stops Claude's sandbox but NOT GitHub's servers (probe.yml showed 200s, robots.txt allows category + product pages; Disallow
   search/sort/account/GoogleProductFeed), so it's read at night: runfree.yml job "sportsexperts" (`scrape.py --sportsexperts-night

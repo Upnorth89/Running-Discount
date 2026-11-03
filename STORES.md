@@ -345,7 +345,7 @@ Stores with under 25 products in stock are left out. Numbers from the Oct 8b fil
 |---|---|---|
 | Sport Chek | national | **Read live since Oct 13, 2026** (`scrape_sportchek`). Oct 2: "Access Denied", saved pages had no sizes; Oct 8-13: from the GPT catalog file. Oct 13 it answered again: robots.txt blocks only cart/checkout/account, and it publishes an llms.txt. Read with our own bot name through the data its own pages use (public key printed in every page, no login): search of the Running section + trail running, running jackets, hydration, sunglasses (~1,090 products), one price/stock call per 500 colour+sizes, size details only for products with online stock. Only sizes in the web warehouse that ship home. The catalog file's Sport Chek rows are ignored (`CATALOG_LIVE`). A 403/captcha one day = stop |
 | Atmosphere | national | **Closed online** (Oct 14, 2026): atmosphere.ca shows a "Consolidation Notice": everything moved to Sport Chek, which we read live since Oct 13 (its trail running section is in the read) |
-| Sports Experts | QC | **Read at night since Oct 15, 2026** (`sportsexperts_night`, runfree.yml). Its Cloudflare wall stops Claude's sandbox, but GitHub's servers get plain pages and robots.txt allows category + product pages (not search/sort/account/its Google feed). Oct 14 a 403 from the sandbox looked like a block. First read: 1,915 products, 1,334 cards, 4 of 4 sale prices matched |
+| Sports Experts | QC | **OUT since Nov 2, 2026: robots.txt Disallows ClaudeBot (Cloudflare's managed AI block: `User-agent: ClaudeBot` / `Disallow: /`; `*` still allowed with Content-Signal ai-train=no). Night job off (`SPORTSEXPERTS_ON = False`), store_recheck.py watches it. Unlock: an affiliate feed (FGL / Canadian Tire) or permission.** Was: read at night since Oct 15, 2026 (`sportsexperts_night`, runfree.yml). Its Cloudflare wall stops Claude's sandbox, but GitHub's servers get plain pages and robots.txt allows category + product pages (not search/sort/account/its Google feed). Oct 14 a 403 from the sandbox looked like a block. First read: 1,915 products, 1,334 cards, 4 of 4 sale prices matched |
 | Boutique Courir (boutiquecourir.com) | Montréal | blocks automated reading (Oct 1, 2026) |
 | SVP Sports (svpsports.ca) | Ontario chain | Shopify behind a Cloudflare "verify your connection" check on products.json and collections (Oct 4, 2026). Its Shopify shopping-agent catalog (UCP/MCP) exists but is meant for buyer assistants and needs an agent profile; not used. Read from the Grab deals bookmark (Oct 4): Bastien saved SVP's running sale collection (svp-DATE.json). **Parked Oct 6, 2026**: the sale page is mostly soccer and budget shoes, not worth a weekly save; reader kept. **Live again Oct 12, 2026**: products.json answers (no Cloudflare check), robots allow it (but forbid /cart.js: `NO_CART`, currency from meta.json = CAD, ships to CA only). Reads /collections/running-collection (~1,370 products: adidas/Nike/Saucony/NB/Puma/ASICS, Endorphin Speed 5 48% off); `tidy_svp` drops "Brand - ", style codes, "Shoes", yoga/maternity/track suits, reads "M11" as 11. Sorting check clean; 5 of 5 prices matched on the store's page |
 | Kintec (kintec.net) | BC | no readable product feed (Oct 1, 2026) |
@@ -432,7 +432,7 @@ Didn't answer from the sandbox (check from GitHub): Live Out There, ULA Equipmen
 Ultralight makers rarely discount: their value for us is "watch the price" (full price included) + Black Friday / seconds sales.
 Their gear = the "Fastpack / ultralight" filter (packs, shelters, quilts). Shelters/quilts are camping-side: read, not published.
 
-Next to add for hiking (stores we already read for running, hiking sections not yet): Sports Experts (night read: add hiking lists),
+Next to add for hiking (stores we already read for running, hiking sections not yet): (Sports Experts out since Nov 2: robots.txt blocks ClaudeBot),
 Sporting Life (outdoor section), Decathlon (hiking section, night slices), Sport Chek (hiking search), Bushtukah, Coureur Nordique,
 Run Uphill, Arc'teryx (hiking lines beyond ARC_RUN). MEC: Bastien's saved pages (Grab deals) of its hiking lists.
 USA side later: REI (saved pages), Sports Basement (hiking collection); Backcountry stays blocked.
@@ -464,7 +464,7 @@ Zamberlan disagree by half a size, so those stay EU unless a store's own label g
 
 Readable snow shops (Shopify): Comor Sports (comorsports.com, Vancouver), Oberson (oberson.com, Québec: alpine + big
 nordic range), Kunstadt Sports (kunstadt.com, Toronto: alpine, ski boots, nordic), Skiis & Biikes (skiisandbiikes.com,
-Toronto), Boardroom (boardroomshop.com, Vancouver: snowboard). evo.com readable but US. Blocked: Sporting Life. (Sports Experts: read since Oct 15.)
+Toronto), Boardroom (boardroomshop.com, Vancouver: snowboard). evo.com readable but US. Blocked: Sporting Life. (Sports Experts: read Oct 15 - Nov 1; out since Nov 2, robots.txt blocks ClaudeBot.)
 Altitude / The Last Hunt (already read): categories /c/snowboarding (Altitude 1,894, Last Hunt 1,074 listings: goggles,
 helmets, snow jackets and pants, snowboards, boots), /c/cross-country-skiing (220 / 164), /c/backcountry-skiing (470 / 143:
 skins, avalanche gear). Plan if built: groups skis (alpine/nordic/touring), ski boots (mondo from shoe size), snowboards

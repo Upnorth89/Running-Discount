@@ -143,7 +143,9 @@ jobs:
   # category and product pages. Listing pages + every product page (sizes in stock), a page every 3 s (~1 h).
   sportsexperts:
     needs: check
-    if: needs.check.outputs.skip != 'true' && (inputs.only == '' || inputs.only == null || inputs.only == 'all' || inputs.only == 'sportsexperts')
+    # OFF since Nov 2, 2026: sportsexperts.ca's robots.txt now says "User-agent: ClaudeBot / Disallow: /" (Cloudflare's managed AI
+    # block). Back on with scrape.py SPORTSEXPERTS_ON (store_recheck.py watches it).
+    if: false && needs.check.outputs.skip != 'true' && (inputs.only == '' || inputs.only == null || inputs.only == 'all' || inputs.only == 'sportsexperts')
     runs-on: ubuntu-latest
     timeout-minutes: 240
     steps:
