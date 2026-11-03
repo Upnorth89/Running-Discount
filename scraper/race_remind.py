@@ -58,7 +58,7 @@ R_STR = {
         none0="Rien en stock dans les boutiques que nous suivons aujourd'hui. On vérifie chaque matin.",
         notsold="Les boutiques que nous suivons ne vendent pas cet article.",
         buy="Voir chez {store}", watch="♡ Suivre", size="Taille {z}",
-        button="Ouvrir ma liste", tick="Vous avez déjà quelque chose ? Cochez-le sur votre liste et il ne reviendra plus.",
+        button="Ouvrir ma liste", tick="Vous avez déjà quelque chose? Cochez-le sur votre liste et il ne reviendra plus.",
         why=lambda race: f"Vous recevez ce courriel parce que vous nous avez demandé sur thegearfox.com un rappel 30 jours avant {race}. C'est le seul rappel pour cette course.",
         src="La liste est celle de la course ({link}). Les règles peuvent changer : vérifiez-la avant la course.", link="liste officielle",
         notaff="The Gear Fox n'est pas affilié à la course."),

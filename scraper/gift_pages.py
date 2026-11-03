@@ -42,7 +42,7 @@ S = {
                sub="Des idées sans souci de taille (taille unique, ou petit/moyen/grand en stock) dans des boutiques canadiennes : les soldes du jour d'abord, puis des classiques à prix régulier à suivre. Mis à jour deux fois par jour.",
                under="Moins de {c} $", onsale="En solde aujourd'hui", full="Prix régulier : on vous écrit s'il baisse", fp="Prix régulier", watch="♡ Suivre le prix",
                box="Le 26 décembre (Boxing Day), bien des prix baissent encore. Suivez un article : on vous écrit s'il baisse.", boxing="Boxing Day : préparez-vous →",
-               more="Vous courez aussi ? Voyez les aubaines dans votre taille →", note="Les prix changent chaque jour : vérifiez sur le site de la boutique. Rien ici ne nous rapporte d'argent.",
+               more="Vous courez aussi? Voyez les aubaines dans votre taille →", note="Les prix changent chaque jour : vérifiez sur le site de la boutique. Rien ici ne nous rapporte d'argent.",
                upd="Mis à jour le {d}", none="Rien dans ce budget aujourd'hui."),
 }
 S["us"] = dict(S["en"], sub="Ideas you can buy without knowing their size (one size, or small/medium/large in stock) at US stores: today's sales first, then full-price favorites worth watching. Updated twice a day.",

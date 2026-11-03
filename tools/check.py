@@ -360,9 +360,9 @@ def main():
         # "twice a day", "60+ stores" next to "170": every built page is read the way a visitor reads it, and these never come back
         import html as H
         bad = [(re.compile(r"(?<![\d.,])1 (deals|picks|sizes|stores|products|aubaines|choix aubaines|pointures|boutiques|produits)\b"), "a plural after 1"),
-               (re.compile(r"\bevery morning\b|\bchaque matin\b", re.I), "'every morning' (we check twice a day)"),
+               (re.compile(r"\bevery morning\b(?! and afternoon)|\bchaque matin\b(?! et chaque après-midi)", re.I), "'every morning' (we check twice a day)"),
                (re.compile(r"\b\d+\+ (Canadian )?(running |outdoor )?stores\b|plus de \d+ boutiques"), "a typed-in store count (use the real one)"),
-               (re.compile(r"\bde la La |\bthe The |\bthe La |\bdu La "), "a doubled article"),
+               (re.compile(r"\bde la La |\bthe The |\bthe La (?!Sportiva)|\bdu La (?!Sportiva)"), "a doubled article"),
                (re.compile(r"\b(deals|aubaines) \?|[a-zé] \?(?=\s|$)"), "a space before ? (French style here: attached)")]
         skip = ("report/", "rapport/", "grab", "stats", "catalog")
         hits, n = [], 0
@@ -384,8 +384,9 @@ def main():
                 line = home.count("\n", 0, m.start()) + 1
                 if not re.match(r"\s*(//|/\*|\*)", home.splitlines()[line - 1]):
                     hits.append(f"site/index.html line {line}: {why}")
+        Path("/tmp/gf-wording.txt").write_text("\n".join(hits))
         if hits:
-            raise RuntimeError(f"{len(hits)} slips, e.g. " + " | ".join(hits[:4]))
+            raise RuntimeError(f"{len(hits)} slips (all in /tmp/gf-wording.txt), e.g. " + " | ".join(hits[:4]))
         return f"{n} pages read: no '1 deals/picks/sizes', no 'every morning', no typed-in store counts, no doubled articles"
     step("Wording: plurals, check frequency, store counts", wording)
 
