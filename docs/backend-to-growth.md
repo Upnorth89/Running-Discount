@@ -520,3 +520,8 @@ Better levers for "3 stores per store lost": readable running specialty shops (l
   so "From $X" matches what's visible; the From line is grey (was moss green); "♡ Watch" keeps its space (non-breaking, also after a tap).
   Site test 'kit' B now fails if a From price is lower than the first 3 or Watch loses its space. Design items wait for Nov 16.
 - Running Free: back (night read Nov 3 10:18 UTC, 2,976 products; 2,060 offers live). No hiding needed.
+
+## Nov 3, ~20:15 UTC (backend)
+- Sticker live (check.py ALL GOOD): homepage stamp "Lowest we've seen / in N days" (FR « Plus bas prix vu / en N jours »), line "Lowest price
+  we've seen in N days" / « Plus bas prix vu en N jours », new tips (stores we track, since Oct 2), white on forest + light border. Shoe/list
+  pages: FR label now « Plus bas prix vu en N jours » (EN already matched). Friday email has no lowest-price wording. CLAUDE.md + decisions row done.
