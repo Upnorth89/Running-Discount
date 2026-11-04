@@ -98,7 +98,7 @@ T = {
                    "Check your size: a big discount often only covers sizes nobody wears.",
                    "Look at the return policy: many sale items are final sale. We label them."],
         "bfTodayH": "Not Black Friday yet: today's best running shoe deals ({date})",
-        "bfCta": "Get the Black Friday deals in your size", "bfCtaTxt": "Pick your sizes once. Our Friday email lands on Black Friday morning with the best deals in your sizes, and price-drop alerts for the shoes you watch.",
+        "bfCta": "Black Friday deals in your size", "bfCtaTxt": "Pick your sizes once. Our Friday email lands on Black Friday morning with the best deals in your sizes, and price-drop alerts for the shoes you watch.",
         "homeH": "Today's best running shoe deals in Canada", "homeMore": "All shoe prices by model",
         "h1sub": "On sale in Canada: every size, every store",
         "desc": "{name}: today's best price in every size at {n} Canadian running stores{off}. Checked twice a day by The Gear Fox.",
@@ -217,7 +217,7 @@ T = {
                    "Vérifiez votre pointure : un gros rabais ne couvre souvent que des tailles que personne ne porte.",
                    "Regardez la politique de retour : plusieurs articles en solde sont en vente finale. On les indique."],
         "bfTodayH": "Pas encore le Vendredi fou : les meilleures aubaines du jour ({date})",
-        "bfCta": "Recevez les aubaines du Vendredi fou dans votre pointure", "bfCtaTxt": "Choisissez vos tailles une fois. Notre courriel du vendredi arrive le matin du Vendredi fou avec les meilleures aubaines dans vos tailles, et des alertes de baisse de prix pour les chaussures que vous suivez.",
+        "bfCta": "Recevez les aubaines du Vendredi\u00a0fou dans votre pointure", "bfCtaTxt": "Choisissez vos tailles une fois. Notre courriel du vendredi arrive le matin du Vendredi fou avec les meilleures aubaines dans vos tailles, et des alertes de baisse de prix pour les chaussures que vous suivez.",
         "homeH": "Meilleures aubaines de chaussures de course au Canada aujourd'hui", "homeMore": "Tous les prix par modèle",
         "h1sub": "En solde au Canada : chaque pointure, chaque boutique",
         "desc": "{name} : le meilleur prix du jour dans chaque pointure dans {n} boutiques de course canadiennes{off}. Vérifié deux fois par jour par The Gear Fox.",
@@ -670,8 +670,8 @@ tr.yours td:first-child{font-weight:700;box-shadow:inset 4px 0 0 var(--hivis)}
 .pw.good{border-left-color:#1C6B37}.pw b{display:block;font-size:14px;color:var(--muted)}
 .pwbtn{display:inline-block;margin-top:2px;background:var(--hivis);color:#17201C;font-weight:700;text-decoration:none;border-radius:999px;padding:8px 14px}
 .browse.sizes a[aria-current]{background:var(--ink);color:var(--card)}
-.bfline{background:var(--card);border:1.5px solid var(--line);border-left:5px solid var(--hivis);border-radius:12px;padding:10px 14px;margin:12px 0;font-size:15px}.browse.onsale{margin-top:18px}.browse.onsale b{flex-basis:100%;font:700 13px var(--body);color:var(--muted);margin-bottom:2px}
-"""
+.links.onsale a,.links.bfp a{white-space:nowrap}.alert.qs h2{text-wrap:balance}
+.bfline{background:var(--card);border:1.5px solid var(--line);border-left:5px solid var(--hivis);border-radius:12px;padding:10px 14px;margin:12px 0;font-size:15px}"""
 
 
 MENU_SVG = ('<svg class="mi" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" '
@@ -1574,16 +1574,21 @@ def sale_row(L, its, today=None):
         return ""
     hub = lambda k: f'/{L["hubDir"]}/' + (f'{L["hubSlugs"][k]}/' if L["hubSlugs"][k] else "")
     k = {"daily": "road", "trail": "trail", "race": "racing"}.get(its[0].get("t"), "all")
-    links = [(hub(k), L["hubs"][k][0])]
+    fr = L["lang"] == "fr-CA"
+    SHORT = ({"all": "Chaussures de course en solde", "road": "Chaussures de route en solde", "trail": "Chaussures de sentier en solde",
+              "racing": "Chaussures de compétition en solde", "women": "Chaussures pour femme en solde", "men": "Chaussures pour homme en solde"} if fr else
+             {"all": "Running shoes on sale", "road": "Road running shoes on sale", "trail": "Trail running shoes on sale",
+              "racing": "Racing shoes on sale", "women": "Women's running shoes on sale", "men": "Men's running shoes on sale"})   # Nov 4 (designer): short labels
+    links = [(hub(k), SHORT[k])]
     sx = set()
     for d in its:
         g = d.get("sx") or []
         sx |= set(g) if len(g) == 1 and g[0] in ("men", "women") else {"men", "women"}
-    links += [(hub(g), L["hubs"][g][0]) for g in ("women", "men") if g in sx]
+    links += [(hub(g), SHORT[g]) for g in ("women", "men") if g in sx]
     links += [x for x in season_links(L, today, gifts=False)]
-    lab = "En solde maintenant" if L["lang"] == "fr-CA" else "On sale now"
-    return (f'<nav class="browse onsale" aria-label="{lab}"><b>{lab}</b>' +
-            "".join(f'<a href="{u}">{esc(t)}</a>' for u, t in links) + "</nav>")
+    lab = "En solde maintenant" if fr else "On sale now"
+    return (f'<h2>{lab}</h2><ul class="links onsale">' +       # Nov 4 (designer): same heading + pills as "More {brand} shoes"
+            "".join(f'<li><a href="{u}">{esc(t)}</a></li>' for u, t in links) + "</ul>")
 
 
 def browse_nav(L, brands):
@@ -1678,6 +1683,22 @@ def bf_live_line(L):
     return f'<p class="bflive"><strong>{esc(q)}</strong> <a href="{href}">{esc(txt)}</a></p>' + gift
 
 
+def bf_pills(L):
+    """Nov 4 (designer): the Black Friday pages' links in one pill row (was three paragraphs): deal check, gifts, the other side."""
+    us, fr = L["lang"] == "en-US", L["lang"] == "fr-CA"
+    if us:
+        links = [("/us/gifts-for-runners/", "Gifts under $25, $50, $100 →"), ("/black-friday/", "Canadian stores →")]
+    elif fr:
+        links = [("/vendredi-fou/direct/", "Vraie aubaine? La vérification →"), ("/cadeaux-coureurs/", "Cadeaux à moins de 25, 50, 100 $ →"),
+                 ("/us/black-friday/", "Boutiques américaines →")]
+    else:
+        links = [("/black-friday/live/", "Deal check: real drops →"), ("/gifts-for-runners/", "Gifts under $25, $50, $100 →"),
+                 ("/us/black-friday/", "US stores →")]
+    if us and L.get("bfLive"):
+        links.insert(0, (L["bfLive"][2], "Deal check: real drops →"))
+    return '<ul class="links bfp">' + "".join(f'<li><a href="{u}">{esc(t)}</a></li>' for u, t in links) + "</ul>"
+
+
 def bf_other(L):
     q, txt, href = L["bfOther"]
     return f'<p><strong>{esc(q)}</strong> <a href="{href}">{esc(txt)}</a></p>'
@@ -1717,7 +1738,7 @@ def home_section(L_en, L_fr, rows, brands, us=None):
         li = "".join(f'<li><a href="/{L["dir"]}/{s}/">{esc(n)}</a> · {money(sm["price"])}' + (f' (−{sm["top"]}%)' if sm["top"] >= 10 else "") + "</li>"
                      for s, n, sm in rows)
         nav = " · ".join(f'<a href="{u}">{esc(t)}</a>' for u, t in
-                         [(f'/{L["hubDir"]}/', L["hubs"]["all"][1]), (f'/{L["bfDir"]}/', L["bfLink"])] +
+                         [(f'/{L["hubDir"]}/', L["hubs"]["all"][1]), (f'/{L["bfDir"]}/', "Aubaines du Vendredi fou 2026" if L["lang"] == "fr-CA" else "Black Friday 2026 shoe deals")] +
                          [x for x in season_links(L) if x[0] not in (f'/{L["bfDir"]}/', f'/{L.get("bdDir")}/')] + [(f'/{L["dir"]}/', L["homeMore"])])
         br = " · ".join(f'<a href="/{L["brandDir"]}/{slugify(b)}/">{esc(b)}</a>' for b in brands[:12])
         lang = "en" if code == "us" else code
@@ -1842,12 +1863,12 @@ def main():
         bf = black_friday(today.year if today <= black_friday(today.year) + timedelta(days=4) else today.year + 1)
         if bf - timedelta(days=7) <= today <= bf + timedelta(days=4):     # Black Friday week to Cyber Monday: the real deals
             p.write_text(list_page(L, "/black-friday/", "/vendredi-fou/", L["bfTitle"], L["bfH1"], L["bfIntro"].format(n=n_ca), real_first(bf_rows), brands,
-                                   bf_live_line(L) + bf_other(L) + real_line(L, bf_rows) + cta))
+                                   bf_pills(L) + real_line(L, bf_rows) + cta))
         else:   # before: honest page, the price tracking + tips, and today's deals clearly labelled as today's (Bastien, Oct 4)
             tracked = sum(1 for i in items if i.get("hd"))
             if "bf_R" not in globals():
                 globals()["bf_R"] = bf_stats(site, today)
-            extra = (bf_live_line(L) + bf_other(L) + cta + f'<h2>{esc(L["bfTrackH"])}</h2><p>{esc(L["bfTrackTxt"].format(n=f"{tracked:,}".replace(",", " " if L is T["fr"] else ",")))}</p>'
+            extra = (bf_pills(L) + cta + f'<h2>{esc(L["bfTrackH"])}</h2><p>{esc(L["bfTrackTxt"].format(n=f"{tracked:,}".replace(",", " " if L is T["fr"] else ",")))}</p>'
                      + bf_data(L, globals()["bf_R"])
                      + f'<h2>{esc(L["bfSpotH"])}</h2><ul>' + "".join(f"<li>{esc(x)}</li>" for x in L["bfSpot"]) + "</ul>"
                      + f'<h2>{esc(L["bfTodayH"].format(date=fmt_date(updated, L)))}</h2>')
@@ -2039,10 +2060,10 @@ def build_us(site, stores, ca_models, ca_brands):
     p.parent.mkdir(parents=True, exist_ok=True)
     if bf - timedelta(days=7) <= today <= bf + timedelta(days=4):
         p.write_text(list_page(L, own, "/black-friday/", L["bfTitle"], L["bfH1"], L["bfIntro"], real_first(bf_rows), brands,
-                               bf_live_line(L) + bf_other(L) + real_line(L, bf_rows) + cta))
+                               bf_pills(L) + real_line(L, bf_rows) + cta))
     else:
         tracked = sum(1 for i in items if i.get("hd"))
-        extra = (bf_live_line(L) + bf_other(L) + cta + f'<h2>{esc(L["bfTrackH"])}</h2><p>{esc(L["bfTrackTxt"].format(n=f"{tracked:,}"))}</p>'
+        extra = (bf_pills(L) + cta + f'<h2>{esc(L["bfTrackH"])}</h2><p>{esc(L["bfTrackTxt"].format(n=f"{tracked:,}"))}</p>'
                  + bf_data(L, bf_stats(site, today, "us"))     # Nov 4 (SEO audit #5): the US page's own price data (us| history)
                  + f'<h2>{esc(L["bfSpotH"])}</h2><ul>' + "".join(f"<li>{esc(x)}</li>" for x in L["bfSpot"]) + "</ul>"
                  + f'<h2>{esc(L["bfTodayH"].format(date=fmt_date(updated, L)))}</h2>')

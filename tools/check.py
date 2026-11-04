@@ -391,7 +391,7 @@ def main():
                 if 'http-equiv="refresh"' in t:
                     continue
                 n += 1
-                row = re.search(r'<nav class="browse onsale".*?</nav>', t, re.S)
+                row = re.search(r'<ul class="links onsale">.*?</ul>', t, re.S)
                 if not row:
                     bad.append(f"/{d}/{f.parent.name}/: no 'On sale now' row")
                     continue

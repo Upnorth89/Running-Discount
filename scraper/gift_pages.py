@@ -24,7 +24,7 @@ PATHS = {"en": "gifts-for-runners", "fr": "cadeaux-coureurs", "us": "us/gifts-fo
 # Nov 3 (growth's walk): a goodr strap showed as sunglasses, "Bottle Bright Cleaning Tablets" as a gift: accessories/consumables out
 NOT = re.compile(r"\b(retainers?|leash|cleaning|tablets?|lens cloth|replacement|spare|refills?|l/s|s/s|long sleeve|short sleeve|half-?zip|1/4 zip|quarter zip|tee|shirt|jacket|hoodie|tights?|shorts?|pants?|race number|"
                  r"attachment|replacement|refill|lens only|strap only|insoles?|laces?|kids?|junior)\b", re.I)
-PACK = re.compile(r"\b(\d+[- ]?(pack|pk)|pack of|bundle|set of|multi-?pack|kit|gift set|\d+ pairs?)\b", re.I)
+PACK = re.compile(r"\b(\d+[- ]?(pack|pk)|pack of|bundle|set of|multi-?pack|kit|gift set|\d+ pairs?|package|add the|add-?on)\b", re.I)   # Nov 4: goodr "Add the Chrome Package"
 HYD = re.compile(r"hydration|race vest|\d+ ?l\b(?!/)|belt|flask|bottle", re.I)
 ONE = {"OS", "O/S", "ONE SIZE", "ONESIZE", "TU", "UNI", "1", "ONE", "NS"}
 KIND = {"headwear": ("Hats & headbands", "Tuques et bandeaux"), "gloves": ("Gloves & mitts", "Gants et mitaines"), "socks": ("Socks", "Bas"),
@@ -81,7 +81,7 @@ def build(site, side="ca"):
         k = kind(d)
         if re.search(r"\bstraps?\b", d["n"], re.I) and not re.search(r"\bwatch", d["n"], re.I):
             continue            # Nov 3: a goodr strap (an accessory) was shown as sunglasses; a watch "with silicone strap" stays
-        if not k or not d.get("img") or not d.get("ca") or (NOT.search(d["n"]) and k != "packs") or PACK.search(d["n"]):
+        if not k or not d.get("img") or "rei.com/" in d["img"] or not d.get("ca") or (NOT.search(d["n"]) and k != "packs") or PACK.search(d["n"]):   # Nov 4: REI's photos don't load outside rei.com (12 of 36 blank)
             continue
         ps = [s[1] for s in d["sz"]]
         regs = [s[3] for s in d["sz"] if len(s) > 3 and s[3]]
@@ -169,11 +169,13 @@ def page(lang, data):
             body.append(f'<p class="gf-h3">{SP.esc(s["full"])}</p>{cards(r["f"])}')
     boxing = "/us/black-friday/" if lang == "us" else "/soldes-apres-noel/" if lang == "fr" else "/boxing-day/"
     bf = [u for u, _ in SP.season_links(L, gifts=False) if u in ("/black-friday/", "/vendredi-fou/")]
+    mine = (f' · <a href="{L["home"]}{"&" if "?" in L["home"] else "?"}ref=gifts">'
+            + ("Les aubaines à ma taille →" if lang == "fr" else "Deals in your size →") + "</a>")   # Nov 4 (designer): inside the box, no line of its own
     if lang != "us" and bf:     # Nov 4 (SEO L3): Nov 1 - Dec 1, the Canadian gift pages link their Black Friday page
-        body.append('<p class="gf-box">Vous magasinez aussi pour vous? <a href="/vendredi-fou/">Aubaines de chaussures de course du Vendredi fou 2026 →</a></p>'
-                    if lang == "fr" else '<p class="gf-box">Shopping for yourself too? <a href="/black-friday/">Black Friday 2026 running shoe deals →</a></p>')
-    body.append(f'<p class="gf-box">{SP.esc(s["box"])} <a href="{boxing}">{SP.esc(s["boxing"])}</a></p>'
-                f'<p><a href="{L["home"]}{"&" if "?" in L["home"] else "?"}ref=gifts"><strong>{SP.esc(s["more"])}</strong></a></p>'
+        body.append('<p class="gf-box">Vous magasinez aussi pour vous? <a href="/vendredi-fou/">Aubaines de chaussures de course du Vendredi fou 2026 →</a>' + mine + '</p>'
+                    if lang == "fr" else '<p class="gf-box">Shopping for yourself too? <a href="/black-friday/">Black Friday 2026 running shoe deals →</a>' + mine + '</p>')
+        mine = ""
+    body.append(f'<p class="gf-box">{SP.esc(s["box"])} <a href="{boxing}">{SP.esc(s["boxing"])}</a>{mine}</p>'
                 f'<p class="gf-sub">{SP.esc(s["note"])}</p>')
     out.append("".join(body))
     out.append(SP.page_foot(L))
