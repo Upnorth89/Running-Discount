@@ -293,10 +293,11 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   Test 'alts' (Oct 22, shoe pages, shoe_pages.py `alt_file()` -> /shoes/alts.json): B = one scrolling row "Other race/trail/road
   shoes on sale in your size" (up to 12, 2 per brand max, other brands first; arrows on computers) under the size tables;
   metric = shoe-page first visits that go on to another of our pages (funnel "went on to another of our pages"; baseline 5%
-  reached the homepage), ~435 per group, decide ~Nov 8. Site test "Shoe page: other shoes on sale in your size".
+  reached the homepage), ~435 per group. Nov 4 (Bastien): keeps running 50/50 until Dec 23, judged on shoe-page first-visit SIGN-UPS. Site test "Shoe page: other shoes on sale in your size".
   Test 'run1st' (Oct 22, Bastien OK'd): B = in rdKnownFirst, names matching GYM (training, HIIT, studio, yoga, lifestyle…; never shoes)
   go after running gear and one store fills at most 2 of the first 12 Top deals; metric = homepage first visits that click a deal
-  (35%), ~580 per group, decide ~Nov 9. Every non-homepage page uses the homepage's light look (theme.css `html:root:not(.rd)`, light
+  (35%), ~580 per group. ENDED Nov 4 (Bastien): A for everyone, B code removed. Next: test 'look2' (homepage phone cards, docs/look2-draft.css),
+  built early December, live Dec 7, cards2 off first; metric = first visits that click a store 33% -> 38%, decide ~Dec 21. Every non-homepage page uses the homepage's light look (theme.css `html:root:not(.rd)`, light
   even in dark mode, charcoal header, logo-mark-dark.svg); the store bar stays dark on purpose (contrast, Bastien Oct 22).
   Oct 22 (Bastien: "The view all brands button doesn't lead anywhere. How did you miss this"): it opened the brand menu, which phones hide.
   Now "View all brands" opens an A-Z list with "Find a brand" under the 8 tiles. Site test "Homepage: every button does something" presses

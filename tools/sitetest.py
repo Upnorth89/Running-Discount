@@ -2042,7 +2042,7 @@ def site_flow(base, per, accented):
             prof = ("localStorage.setItem('gf-peek','1');localStorage.setItem('gf-nosignup','1');localStorage.setItem('rd-profile',JSON.stringify({gender:'men',"
                     "terrain:'both',ships:'ca',country:'ca',groups:['shoes','tops','bottoms'],sizes:{shoes:{sizes:['11'],width:[]},tops:{sizes:['M']},"
                     "bottoms:{sizes:['M']}},brands:[],lang:'en'}))")
-            allb = "localStorage.setItem('gf-exp',JSON.stringify({r100:'B',run1st:'B',cards2:'B',short:'B',popq:'B',kit:'B',alts:'B',namecard:'B',watchsheet:'B',welcome:'A',layout:'A'}))"
+            allb = "localStorage.setItem('gf-exp',JSON.stringify({r100:'B',cards2:'B',short:'B',popq:'B',kit:'B',alts:'B',namecard:'B',watchsheet:'B',welcome:'A',layout:'A'}))"
             paths = ["", "?lang=fr", "shoes/", "black-friday/", "running-shoes-sale/", "races/", "races/ultra-trail-harricana/", "about.html", "gifts-for-runners/"]
             if site_get("hikes/"):
                 paths.append("hikes/")
@@ -2360,24 +2360,6 @@ def site_flow(base, per, accented):
             return "shoe (EN/FR), sale list, races, Black Friday, About, Privacy: light pages, charcoal header, fit the phone"
         check("Every page has the homepage's look (phone in dark mode)")(one_look, pg)
 
-        def run1st():           # Oct 22, test 'run1st' (B): running gear leads Today's top deals; one store fills at most 2 of the first 12
-            c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
-            stub(c)   # its own window: the next checks expect the shared page to stay where it was
-            c.add_init_script("""try{localStorage.setItem('gf-peek','1');localStorage.setItem('rd-profile',JSON.stringify({gender:'women',terrain:'both',ships:'ca',country:'ca',groups:['shoes','tops','bottoms','bras','socks','gloves','headwear','packs','gear','watches','nutrition'],sizes:{shoes:{sizes:['8'],width:[]},tops:{sizes:['S']},bottoms:{sizes:['S']}},brands:[],lang:'en'}))}catch(e){}""")
-            q = c.new_page()
-            q.goto(base + "?exp=run1st:B", wait_until="domcontentloaded")
-            q.wait_for_selector("#grp-__sale .deal", timeout=20000)
-            q.wait_for_timeout(600)
-            rows = q.evaluate("""() => [...document.querySelectorAll('#grp-__sale .dw')].slice(0, 12).map(w =>
-                [w.querySelector('.store') ? w.querySelector('.store').textContent.trim() : '', (w.querySelector('.name') || {}).textContent || ''])""")
-            c.close()
-            per = Counter(r[0] for r in rows)
-            assert rows, "no Top deals with test 'run1st' on"
-            assert max(per.values()) <= 2, f"one store fills {max(per.values())} of the first {len(rows)} top deals: {per.most_common(1)}"
-            gym = [n for _, n in rows[:6] if re.search(r"\b(training|hiit|studio|yoga|pilates|lounge)\b", n, re.I)]
-            assert not gym, f"gym/lifestyle in the first 6 with running gear first on: {gym}"
-            return f"{len(rows)} top deals from {len(per)} stores, max {max(per.values())} per store"
-        check("Test 'run1st': running gear first, max 2 per store")(run1st, pg)
 
         def every_button():     # Oct 22 (Bastien: "The view all brands button doesn't lead anywhere. How did you miss this"): every button and
             # link on the homepage's own sections is pressed once on a phone, and each must give ITS result (a first version only checked that

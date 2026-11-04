@@ -741,7 +741,7 @@ const ANA=(()=>{const ls=k=>{try{return localStorage.getItem(k)}catch(e){return 
   let over={};try{const q=new URLSearchParams(location.search).get("exp");over=JSON.parse(ls("gf-exp")||"{}");
     if(q){q.split(",").forEach(x=>{const [n,a]=x.split(":");if(n&&/^[AB]$/.test(a))over[n]=a});localStorage.setItem("gf-exp",JSON.stringify(over))}}catch(e){}
   const arm=n=>{if(over[n])return over[n];let h=2166136261;for(const c of did+"|"+n){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return (h>>>0)%2?"B":"A"};
-  const TESTS=["run1st","cards2","popq","namecard","watchsheet",...(matchMedia("(min-width:900px)").matches?["wlean"]:[])];   // Nov 1: 'wlean' = computers only   // Nov 1 (Bastien: "Do all 3"): 'short' ENDED, B for everyone (sizes 46.3% -> 51.4%, p=0.036); 'r100' ENDED, A for everyone (store clicks 55.2% vs 55.4%)   // Oct 29: 'watchsheet' B = the email step after a Watch tap names that item   // Oct 28: 'namecard' B = the sign-up card names a real deal in your size   // Oct 27: 'popq' B = popular searches under an empty search box
+  const TESTS=["cards2","popq","namecard","watchsheet",...(matchMedia("(min-width:900px)").matches?["wlean"]:[])];   // Nov 1: 'wlean' = computers only   // Nov 1 (Bastien: "Do all 3"): 'short' ENDED, B for everyone (sizes 46.3% -> 51.4%, p=0.036); 'r100' ENDED, A for everyone (store clicks 55.2% vs 55.4%)   // Oct 29: 'watchsheet' B = the email step after a Watch tap names that item   // Oct 28: 'namecard' B = the sign-up card names a real deal in your size   // Oct 27: 'popq' B = popular searches under an empty search box
     // Oct 25: 'short' live (Bastien OK'd)   // Oct 25: 'short' B = first sizes screen asks only fit + shoe size (Bastien OK'd)
     // Oct 22: 'run1st' = running gear leads the first rows (B)   // Oct 22: the redesign ('look' B) is the site for everyone (Bastien), 'runcard' ended (0 vs 2 sign-ups, too rare to decide), 'layout' ended Oct 19
      // Oct 21: 'look' = sizes on each card + category photos + store names (B)   // Oct 20: 'welcome' and 'drops' ended (A won); 'layout' back as a 50/50 test
@@ -1910,17 +1910,13 @@ var RDBS={n:-1,m:{}};
 function rdBrandStores(){if(RDBS.n===ITEMS.length)return RDBS.m;const m={};
   for(const d of ITEMS){const s=m[d.b]||(m[d.b]=new Set());(d.of||[]).forEach(u=>s.add(storeOf(u)))}
   RDBS={n:ITEMS.length,m};return m}
-/* Test 'run1st' (Oct 22, daily walk-through: a women's 8 saw 7 gym/lifestyle pieces in the first 10, mostly one store): B ranks
-   training/studio/lifestyle lines after running gear and lets one store fill at most 2 of the first 12 */
-const RUN1=ANA.arm("run1st")==="B";
-const GYM=/\b(training|train|hiit|studio|yoga|pilates|essentials?|club fleece|fleece jogger|lounge|tailored|game and go|cover[- ]?up|sportswear|originals|golf|tennis|pwrmesh|firm[- ]support|dance|gym|lifestyle|casual|sweatpants?|tracksuit|track (jacket|pants?|top)|camo)\b/i;
+// Test 'run1st' ENDED Nov 4 (Bastien: A for everyone): no gym-last re-rank, no 2-per-store cap
 function rdKnownFirst(list,mix=true){const bs=rdBrandStores();
   const known=d=>d.best>=15&&(d.g==="shoes"?!!shoePage(d):(bs[d.b]&&bs[d.b].size>=4));   // Oct 22: under $15 never leads (a $3 headband was #2)
   const undies=d=>/\b(boxers?|briefs?|underwear|bikini|thong|hipster)\b/i.test(d.n);   // Nov 3 (growth's walk): boxer briefs led as "shorts"
-  const gym=d=>(RUN1&&d.g!=="shoes"&&GYM.test(d.n))||undies(d);
+  const gym=d=>undies(d);
   const head=list.slice(0,200),a=head.filter(d=>known(d)&&!gym(d)),b=head.filter(d=>!known(d)&&!gym(d)),c=head.filter(gym);
   let out=(mix?shoesFirst(a):a).concat(b,c,list.slice(200));
-  if(RUN1){const per={},first=[],later=[];out.forEach(d=>{const h=storeOf(d.url);if(first.length<12&&(per[h]||0)<2){per[h]=(per[h]||0)+1;first.push(d)}else later.push(d)});out=first.concat(later)}
   return out}
 /* Oct 22 (Bastien: "pick your size ... it's not obvious"): no size yet + Shoes or Apparel picked = the sizes right in the category
    box. Men's / Women's, then one tap on a size narrows the list (saved like the size picker's; nothing else asked) */
