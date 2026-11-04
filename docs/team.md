@@ -9,7 +9,11 @@ Specialist agents in .claude/agents/ (any Claude session in this repo can call t
 | growth-analyst | funnel, A/B tests, waitlist/founder conversion, fact-checks every number | 3-line answer + evidence |
 | social-producer | Reels, Stories, Reddit value posts, daily media calendar | post/script + checked items + ?ref |
 | compliance | contests, CASL, Competition Bureau, platform rules, privacy, price accuracy | PASS / FIX / STOP |
-How it runs: the growth chat (Claude) is the team lead: assigns work, merges results, checks facts, and brings Bastien one finished thing. The backend chat writes all code. Agents draft; Bastien sends and posts. Every public piece passes compliance first.
+| designer | every visual before Bastien or the public sees it: phone size, nothing cut off/overlapping, real logos, brand + premium look (added Nov 3) | PASS / FIX / STOP + screenshots |
+| seo-lead | Google/Bing: pages near page 1, titles/links across generated pages, no thin pages, backlinks (added Nov 3) | ranked changes + metric |
+| data-auditor | what's ON the site vs the stores' and races' own pages: prices, sizes, categories, wholesale/bundle junk (added Nov 3) | PASS / PROBLEMS + evidence |
+| members-lead | after sign-up: Friday email, alerts, race reminders, Fox Pro emails, replies, retention + churn (added Nov 3) | one change + copy EN/FR + metric |
+How it runs: the growth chat (Claude) is the team lead: assigns work, merges results, checks facts, and brings Bastien one finished thing. The backend chat writes all code. Agents draft; Bastien sends and posts. Every public piece passes compliance first, and every visual passes the designer first (Nov 3, Bastien: "Yes add it").
 
 ## Shared rules for every agent (read before any task)
 - Read CLAUDE.md (repo root) and docs/decisions.md before working. The 6-month plan (Claude Docs project 36e1d545-7390-44fe-b080-80f03465af61) holds the weekly goals, the Fox Pro launch kit tab and the ideas backlog.

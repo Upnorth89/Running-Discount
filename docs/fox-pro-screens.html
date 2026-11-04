@@ -1,362 +1,421 @@
 <title>Fox Pro Screens</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,800&family=Inter:wght@400;500;600;700&family=Caveat:wght@600&display=swap">
 <style>
-/* Layout: review board. Feature table + blockers on top, then the 9 screens as 390px phone frames in visitor order, wrapping 1-3 per row. Single light look on purpose: it mirrors the live site's light theme. */
+/* Layout: review board. Feature table + blockers on top, then the 9 screens as 390px phones in visitor order. Pro screens live in the premium forest world (gold = founding only, mint = Pro emphasis, orange = Claim only); the free site around them stays light; emails stay light paper with a forest header band. */
 :root{
-  color-scheme:light;
-  --page:#ECEAE4; --cream:#F6F3EC; --card:#FFFFFF; --ink:#17232B; --muted:#5E6870; --line:#E2E4E0; --edge:#D5D8D4;
-  --hivis:#FF5A00; --forest:#25483D; --green:#1D6B45; --lo-bg:#E2F2E6; --char:#17201C; --dash:#9AA39E; --gold:#C9A24A; --amber:#9A6A00; --amber-bg:#FFF3D6; --warn:#B3261E;
-  --display:'Barlow Condensed','Arial Narrow',Impact,sans-serif; --body:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --stage:#E9E6DF; --stageInk:#22302A; --stageMuted:#5F6A64; --panel:#FFFFFF; --edge:#D6D2C8;
+  --forest:#0C241D; --forest2:#12352A; --pine:#1B4A3A; --fink:#F4EFE4; --fmuted:#B9C7BF; --fline:#2A5143;
+  --gold:#D9B25C; --gold2:#F3DE9C; --mint:#9FD6B8; --orange:#FF5A00; --green:#1D6B45;
+  --site:#F6F4EF; --siteCard:#FFFFFF; --siteInk:#17232B; --siteMuted:#5E6870; --siteLine:#E2E4E0; --char:#17201C;
+  --paper:#FBF8F2; --paperInk:#14211C; --paperMuted:#5E6B64; --paperLine:#E4DED2; --warn:#B3261E;
+  --display:'Barlow Condensed','Arial Narrow',Impact,sans-serif; --body:'Inter',system-ui,-apple-system,sans-serif; --hand:'Caveat','Bradley Hand',cursive;
 }
-body{background:var(--page);color:var(--ink);font:400 15px/1.55 var(--body)}
-.wrap{max-width:1290px;margin:0 auto;padding-block:28px 72px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:34px}
-h1{font:800 clamp(36px,6vw,58px)/.95 var(--display);margin:0;letter-spacing:.2px;text-wrap:balance}
-h2{font:800 28px/1.05 var(--display);margin:0 0 12px;text-wrap:balance}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--stage:#151A18;--stageInk:#E7E3DA;--stageMuted:#9AA5A0;--panel:#1D2421;--edge:#2E3833;color-scheme:dark}}
+:root[data-theme="dark"]{--stage:#151A18;--stageInk:#E7E3DA;--stageMuted:#9AA5A0;--panel:#1D2421;--edge:#2E3833;color-scheme:dark}
+body{background:var(--stage);color:var(--stageInk);font:400 15px/1.55 var(--body)}
+.wrap{max-width:1300px;margin:0 auto;padding-block:30px 72px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:34px}
+h1{font:800 clamp(38px,6vw,60px)/.95 var(--display);margin:0;text-wrap:balance}
+h2{font:700 28px/1.05 var(--display);margin:0 0 12px;text-wrap:balance}
 p{margin:0}
-.lede{max-width:68ch;color:var(--muted);margin-top:10px}
+.lede{max-width:70ch;color:var(--stageMuted);margin-top:10px;text-wrap:pretty}
 .top{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:22px;align-items:start}
 @media (max-width:900px){.top{grid-template-columns:1fr}}
-.panel{background:var(--card);border:1px solid var(--edge);border-radius:12px;padding:20px 22px;min-width:0}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
-th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700}
-td.y{color:var(--green);font-weight:700;white-space:nowrap} td.n{color:var(--muted);white-space:nowrap}
+.panel{background:var(--panel);border:1px solid var(--edge);border-radius:14px;padding:20px 22px;min-width:0}
 .tblwrap{overflow-x:auto}
-.price{margin-top:14px;font-size:14px;color:var(--muted)}
-.price b{color:var(--ink)}
-.block{border-left:4px solid var(--warn);background:#FBEDEC}
-.block ul{margin:0;padding-left:18px;display:grid;gap:8px;font-size:14px}
+.ft{width:100%;border-collapse:collapse;font-size:14px}
+.ft th,.ft td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--edge);vertical-align:top}
+.ft th{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--stageMuted);font-weight:600}
+.ft th.thp{color:var(--green)}
+.ft td.y{color:var(--green);font-weight:700;white-space:nowrap}.ft td.n{color:var(--stageMuted);white-space:nowrap}
+.pricenote{margin-top:14px;font-size:14px;color:var(--stageMuted)}.pricenote b{color:var(--stageInk)}
+.block{border-left:4px solid var(--warn)}
 .block h2{color:var(--warn)}
-.screens{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,392px),1fr));gap:30px 26px;align-items:start}
-.scr{display:grid;gap:10px;min-width:0}
+.block ul{margin:0;padding-left:18px;display:grid;gap:8px;font-size:14px}
+.screens{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,392px),1fr));gap:34px 26px;align-items:start}
+.scr{display:grid;gap:10px;min-width:0;justify-items:start}
 .meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.num{font:800 22px/1 var(--display);color:var(--ink)}
-.chip{font:700 11px/1 var(--body);letter-spacing:.06em;text-transform:uppercase;border-radius:99px;padding:5px 9px}
-.chip.new{background:#FFE4D3;color:#A33A00} .chip.ok{background:var(--lo-bg);color:var(--green)}
-.where{font-size:13px;color:var(--muted)}
-.phone{width:100%;max-width:390px;background:var(--cream);border:1px solid #CFCFC8;border-radius:30px;box-shadow:0 10px 30px rgba(23,35,43,.12);overflow:hidden;font-size:15px}
-.bar{height:30px;display:flex;justify-content:space-between;align-items:center;padding:0 22px;font:600 12px var(--body);color:var(--ink)}
-.hdr{background:var(--char);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:10px 16px}
-.hdr img{height:24px}
-.hdr span{font-size:20px}
+.num{font:800 24px/1 var(--display)}
+.chip{font:700 11px/1 var(--body);letter-spacing:.06em;text-transform:uppercase;border-radius:99px;padding:5px 9px;background:#E0EFE5;color:var(--green)}
+.where{font-size:13px;color:var(--stageMuted);max-width:390px;text-wrap:pretty}
+.fr{font-size:12.5px;color:var(--stageMuted);max-width:390px;border-top:1px dashed var(--edge);padding-top:8px;text-wrap:pretty}
+.fr b{color:var(--stageInk);font-weight:600}
+.eg{font:700 9.5px/1 var(--body);letter-spacing:.08em;color:#1A1405;background:var(--gold2);border-radius:3px;padding:2px 5px;vertical-align:1px;white-space:nowrap}
+.nw{white-space:nowrap}
+/* phone */
+.phone{width:100%;max-width:390px;border-radius:34px;overflow:hidden;box-shadow:0 18px 40px -16px rgba(10,20,15,.45);border:6px solid #0A0F0D;font-size:15px}
+.sb{height:30px;display:flex;justify-content:space-between;align-items:center;padding:0 22px;font:600 12px var(--body)}
+.hd{display:flex;align-items:center;justify-content:space-between;padding:10px 16px}
+.hd img{height:26px;width:auto}
+.burger{width:20px;height:13px;border-top:2px solid currentColor;border-bottom:2px solid currentColor;position:relative}
+.burger:after{content:"";position:absolute;left:0;right:0;top:3.5px;border-top:2px solid currentColor}
+/* worlds */
+.pro{background:var(--forest);color:var(--fink)}
+.pro .sb,.pro .hd{color:var(--fink)}
+.site{background:var(--site);color:var(--siteInk)}
+.site .sb{color:var(--siteInk)}
+.site .hd{background:var(--char);color:#fff}
+.mailw{background:var(--paper);color:var(--paperInk)}
+.mailw .sb{color:var(--paperInk)}
 .body{padding:16px;display:grid;gap:12px}
-.fr{font-size:12.5px;color:var(--muted);max-width:390px;border-top:1px dashed var(--edge);padding-top:8px}
-.fr b{color:var(--ink);font-weight:600}
-.eg{font:700 10px/1 var(--body);letter-spacing:.06em;color:#A33A00;background:#FFE4D3;border-radius:4px;padding:3px 5px;vertical-align:middle}
-.flag{font-size:12px;color:var(--warn);font-weight:600}
-/* mock components */
-.c{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
-.dk{background:linear-gradient(150deg,#244C3F,#173329);color:#F4EFE3;border:0;border-radius:16px;padding:18px}
-.ring{width:54px;height:54px;border-radius:50%;border:3px solid var(--gold);background:var(--hivis) center/cover;flex:none}
-.tag{display:inline-block;font:800 11px/1 var(--body);letter-spacing:.1em;color:#2A2108;background:var(--gold);border-radius:4px;padding:4px 7px}
-.ttl{font:800 24px/1.05 var(--display)}
-.sm{font-size:13px;color:var(--muted)} .dk .sm{color:#C9D3CC}
-.btn{display:block;text-align:center;font:700 15px/1 var(--body);border-radius:10px;padding:13px 14px;border:0}
-.btn.char{background:var(--char);color:#fff} .btn.out{background:#fff;color:var(--char);border:1.5px solid var(--char)}
-.btn.or{background:var(--hivis);color:#fff} .btn.cream{background:#F4EFE3;color:#173329}
-.btn.ghost{background:transparent;color:var(--muted);font-weight:600;padding:8px}
-.row{display:flex;gap:10px;align-items:center}
-.row>*{min-width:0}
-.input{border:1.5px solid var(--edge);border-radius:10px;padding:12px;color:var(--muted);background:#fff;font-size:14px}
-ul.ticks{list-style:none;margin:0;padding:0;display:grid;gap:7px;font-size:14px}
-ul.ticks li{display:flex;gap:9px} ul.ticks li::before{content:"✓";color:var(--green);font-weight:800}
-.dk ul.ticks li::before{color:#9FD8B4}
-.sheet{background:#fff;border-radius:18px 18px 0 0;padding:18px 16px 20px;box-shadow:0 -8px 24px rgba(0,0,0,.12);display:grid;gap:11px}
-.grab{width:40px;height:4px;border-radius:4px;background:var(--edge);margin:0 auto}
-.dim{background:rgba(23,35,43,.35);padding-top:150px}
-.mini{display:flex;gap:10px;align-items:center;font-size:13px}
-.thumb{width:46px;height:46px;border-radius:8px;background:#E9EBE7;flex:none;display:grid;place-items:center;font-size:20px}
-.grid2{display:grid;grid-template-columns:1fr auto auto;gap:6px 12px;font-size:13.5px;align-items:center}
-.grid2 .h{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700}
-.grid2 .y{color:var(--green);font-weight:800;text-align:center} .grid2 .n{color:var(--muted);text-align:center}
-details{border-top:1px solid var(--line);padding-top:8px;font-size:14px} details+details{margin-top:-4px}
-summary{font-weight:600;cursor:pointer}
-.mail{background:#fff}
-.mhead{padding:12px 16px;border-bottom:1px solid var(--line);font-size:13px;color:var(--muted)}
-.mhead b{display:block;color:var(--ink);font-size:16px;margin-bottom:2px}
-.mbody{padding:16px;display:grid;gap:12px;font-size:14.5px}
-.foot{font-size:11.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px}
-.copy{background:var(--cream);border:1px dashed var(--dash);border-radius:10px;padding:10px 12px;font-size:13px}
-.lo{background:var(--lo-bg);color:var(--green);border-radius:8px;padding:8px 10px;font-weight:700;font-size:14px}
-.sw{width:38px;height:22px;border-radius:99px;background:var(--char);position:relative;flex:none}
-.sw::after{content:"";position:absolute;top:3px;right:3px;width:16px;height:16px;border-radius:50%;background:#fff}
-.sw.off{background:#D6D9D5} .sw.off::after{right:auto;left:3px}
-.set{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px;padding:8px 0;border-bottom:1px solid var(--line)}
-.set:last-child{border-bottom:0}
-.code{border:1.5px dashed var(--dash);border-radius:10px;padding:10px;text-align:center;font:800 20px/1 var(--display);letter-spacing:1px;background:#FAFAF8}
-.prog{height:8px;border-radius:8px;background:#E3E7E3;overflow:hidden} .prog i{display:block;height:100%;width:25%;background:var(--green)}
-.pill{font:700 11px/1 var(--body);border-radius:99px;padding:4px 8px;white-space:nowrap}
-.pill.g{background:var(--lo-bg);color:var(--green)} .pill.a{background:var(--amber-bg);color:var(--amber)}
-.stripe{background:#fff}
+/* premium pieces */
+.dk{position:relative;overflow:hidden;background:radial-gradient(120% 90% at 50% 0%,var(--pine),var(--forest) 75%);color:var(--fink);border-radius:18px;padding:20px 18px;box-shadow:0 14px 30px -14px rgba(0,0,0,.55)}
+.topo{position:absolute;inset:0;pointer-events:none}
+.badge{width:58px;height:58px;border-radius:50%;padding:3px;background:linear-gradient(180deg,#2E6A55,#173E31);flex:none}
+.badge div{width:100%;height:100%;border-radius:50%;background:var(--forest2);display:grid;place-items:center}
+.badge img{width:42px}
+.badge.gold{background:linear-gradient(135deg,var(--gold2),var(--gold) 60%,#a9843a)}
+.eyebrow{font:600 11.5px/1 var(--body);letter-spacing:.2em;text-transform:uppercase;color:var(--fmuted)}
+.eyebrow.g{color:var(--gold)}
+.ttl{font:800 italic 30px/1 var(--display);text-wrap:balance}
+.ttl span{color:var(--mint)}
+.h3{font:700 24px/1.05 var(--display);text-wrap:balance}
+.mut{color:var(--fmuted);font-size:13.5px;text-wrap:pretty}
+.amt{font:700 44px/1 var(--display)}.amt small{font:600 18px var(--display);color:var(--fmuted)}
+.cta{display:block;text-align:center;font:700 16px/1 var(--body);color:#1A1405;background:linear-gradient(180deg,var(--gold2),var(--gold));border-radius:12px;padding:15px 14px;box-shadow:0 10px 22px -10px rgba(217,178,92,.7)}
+.btn{display:block;text-align:center;font:700 15px/1 var(--body);border-radius:12px;padding:14px;border:0}
+.btn.line{border:1.5px solid var(--fline);color:var(--fink)}
+.btn.ghost{color:var(--fmuted);font-weight:600;padding:6px}
+.btn.forest{background:var(--forest);color:var(--fink)}
+.btn.out{border:1.5px solid var(--forest);color:var(--forest)}
+.btn.claim{background:var(--orange);color:#fff}
+.fine{font-size:12px;color:var(--fmuted);text-align:center;text-wrap:pretty}
+.ticks{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-size:14px}
+.ticks li{display:grid;grid-template-columns:18px 1fr;gap:8px}.ticks li:before{content:"✓";color:var(--mint);font-weight:700}
+.row{display:flex;gap:10px;align-items:center}.row>*{min-width:0}
+.spread{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.mini{display:grid;grid-template-columns:56px 1fr;gap:10px;align-items:center;font-size:13.5px}
+.thumb{width:56px;height:56px;border-radius:10px;background:#fff;object-fit:cover;display:block}
+.pro .thumb{background:#fff;border:1px solid var(--fline)}
+.panelD{background:rgba(255,255,255,.04);border:1px solid var(--fline);border-radius:14px;padding:14px;display:grid;gap:10px}
+.cmp{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
+.cmp th{font:600 10.5px var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--fmuted);padding:0 4px 8px;text-align:center}
+.cmp th:first-child{width:46%}.cmp th.p{color:var(--mint)}
+.cmp td{padding:9px 4px;border-top:1px solid var(--fline);text-align:center;color:var(--fmuted);white-space:nowrap}
+.cmp td:first-child{text-align:left;color:var(--fink);white-space:normal;padding-left:0}
+.cmp td.p{color:var(--mint);font-weight:600}
+/* member card */
+.mcard{position:relative;aspect-ratio:1.586;width:100%;max-width:280px;margin:2px auto 4px;border-radius:16px;padding:14px 16px;overflow:hidden;background:linear-gradient(135deg,#1E5442 0%,#0F2E24 55%,#0A211A 100%);transform:rotate(-2deg);box-shadow:0 20px 30px -12px rgba(0,0,0,.6),inset 0 0 0 1px rgba(243,222,156,.25);color:var(--fink)}
+.mcard:before{content:"";position:absolute;inset:-40%;background:linear-gradient(115deg,transparent 40%,rgba(243,222,156,.16) 50%,transparent 60%)}
+.mcard .wm{position:absolute;right:-20px;bottom:-40px;width:170px;opacity:.13;filter:grayscale(1) brightness(1.8);pointer-events:none}
+.mcard .tag{position:relative;font:700 11px/1 var(--body);letter-spacing:.18em;color:#1A1405;background:linear-gradient(90deg,var(--gold),var(--gold2));padding:6px 8px;border-radius:4px}
+.mcard .since{position:relative;font:500 11px var(--body);color:var(--fmuted);white-space:nowrap}
+.mcard .no{position:absolute;left:16px;bottom:36px;font:700 36px/1 var(--display);letter-spacing:2px;background:linear-gradient(180deg,var(--gold2),var(--gold) 60%,#a9843a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.mcard .who{position:absolute;left:16px;bottom:14px;font:600 12px var(--body)}
+/* site pieces */
+.siteCard{background:var(--siteCard);border:1px solid var(--siteLine);border-radius:14px;padding:12px}
+.site .mut{color:var(--siteMuted)}
+.dimmed{position:relative}
+.dimmed:after{content:"";position:absolute;inset:0;background:rgba(10,20,15,.45)}
+.sheet{position:relative;z-index:1;margin-top:-40px;background:var(--forest);color:var(--fink);border-radius:20px 20px 0 0;padding:16px 16px 20px;display:grid;gap:12px}
+.grab{width:40px;height:4px;border-radius:4px;background:var(--fline);margin:0 auto}
+/* stripe */
+.stripe{background:#fff;color:#1A1F36}
+.stripe .sb{color:#1A1F36}
+.stripe .mut{color:#697386}
 .sline{display:flex;justify-content:space-between;font-size:14px;padding:6px 0}
-.sline.t{font-weight:800;font-size:17px;border-top:1px solid var(--line);padding-top:10px}
-.chk{display:flex;gap:9px;font-size:13px;align-items:flex-start}
-.box{width:18px;height:18px;border:1.5px solid var(--ink);border-radius:4px;flex:none;margin-top:1px}
+.sline.t{font-weight:700;font-size:16px;border-top:1px solid #E3E8EE;padding-top:10px}
+.input{border:1px solid #E3E8EE;border-radius:8px;padding:11px 12px;color:#8792A2;font-size:14px;background:#fff}
+.chk{display:grid;grid-template-columns:18px 1fr;gap:9px;font-size:13px;align-items:start}
+.box{width:16px;height:16px;border:1.5px solid #1A1F36;border-radius:4px;margin-top:2px}
+.stripe .btn.forest{background:var(--forest)}
+.flag{font-size:12px;color:var(--warn);font-weight:600}
+/* emails */
+.mband{background:radial-gradient(120% 120% at 50% 0%,var(--pine),var(--forest) 80%);padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
+.mband img{height:24px}
+.mhead{padding:12px 16px;border-bottom:1px solid var(--paperLine);font-size:12.5px;color:var(--paperMuted)}
+.mhead b{display:block;color:var(--paperInk);font-size:16px;margin-bottom:2px;text-wrap:balance}
+.mbody{padding:16px;display:grid;gap:12px;font-size:14.5px}
+.mbody .mut{color:var(--paperMuted)}
+.mfoot{font-size:12px;color:var(--paperMuted);border-top:1px solid var(--paperLine);padding-top:10px}
+.mfoot a,.mbody a{color:var(--green)}
+.drop{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#EAF4EE;border-radius:12px;padding:12px}
+.drop b{color:var(--green)}
+.copy{background:#fff;border:1.5px dashed #B9C2BC;border-radius:12px;padding:10px 12px;font-size:13px}
+.btn.claimS{background:var(--orange);color:#fff;padding:10px 12px;font-size:14px;white-space:nowrap}
+.cardMail{background:linear-gradient(135deg,#1E5442,#0F2E24);color:var(--fink);border-radius:14px;padding:14px;display:flex;gap:12px;align-items:center}
+.cardMail .no{font:700 30px/1 var(--display);background:linear-gradient(180deg,var(--gold2),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+/* account */
+.sw{width:38px;height:22px;border-radius:99px;background:var(--fink);position:relative;flex:none}
+.sw:after{content:"";position:absolute;top:3px;right:3px;width:16px;height:16px;border-radius:50%;background:var(--forest)}
+.sw.off{background:#3A5A4E}.sw.off:after{right:auto;left:3px;background:#8FA59B}
+.set{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px;padding:9px 0;border-bottom:1px solid var(--fline)}
+.set:last-child{border-bottom:0}
+.code{border:1.5px dashed #5E7A6E;border-radius:10px;padding:10px;text-align:center;font:700 20px/1 var(--display);letter-spacing:1px}
+.prog{height:8px;border-radius:8px;background:rgba(255,255,255,.08);overflow:hidden}.prog i{display:block;height:100%;width:25%;background:#2F8A5C}
+.pill{font:700 11px/1 var(--body);border-radius:99px;padding:5px 8px;white-space:nowrap}
+.pill.g{background:#1F4D3A;color:var(--mint)}.pill.a{background:transparent;border:1px solid var(--fline);color:var(--fmuted)}
+.btn.share{background:var(--char);color:#fff;border:1px solid #33443C}
+.lo{background:#1F4D3A;color:var(--mint);border-radius:10px;padding:10px 12px;font-weight:700;font-size:14px}
+.green{color:#6FD39D}
+a{color:inherit}
 @media (prefers-reduced-motion:no-preference){.phone{transition:transform .2s}.phone:hover{transform:translateY(-2px)}}
+.site .dk .mut,.site .sheet .mut{color:var(--fmuted)}
+.dk .thumb,.sheet .thumb{background:#fff;border:1px solid var(--fline)}
+.row:has(.btn){flex-wrap:wrap}
+.lo span:first-child{font-size:13.5px}
+.body>*,.panelD>*,.dk>*{min-width:0}
+.lo{flex-wrap:wrap}
+.mcard .tag{white-space:nowrap}
+@media (max-width:360px){.mcard .since{display:none}}
+.body .mcard{width:calc(100% - 18px)}
+.btn.mintb{background:var(--mint);color:var(--forest);border-radius:12px;font-weight:700;text-align:center}
+.wallet{display:grid;grid-template-columns:1fr 1fr;gap:8px}.wallet span{background:#000;color:#fff;border-radius:99px;height:44px;display:grid;place-items:center;font:600 15px var(--body)}
+.taxl{color:var(--paperMuted);font-weight:500;white-space:nowrap}
+.sline span:last-child{white-space:nowrap}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:360px){.mcard{transform:rotate(-1.5deg)}.body .mcard,.mcard{width:calc(100% - 16px)}}
 </style>
 
 <div class="wrap">
 <header>
   <h1>Fox Pro screens</h1>
-  <p class="lede">Every screen a visitor meets on the paid side, in order, as it would look on a phone. "Agreed" = the look Bastien already approved. All screens approved by Bastien on Nov 3 (with: "locked while you stay" everywhere, a teaser of "I bought it" for free members, no year summary in the renewal email at launch, tax line after the accountant). Item names, dates and member numbers marked EXAMPLE are placeholders; every price follows the locked plan.</p>
+  <p class="lede">Every screen on the paid side, in the order people meet it, in the new premium look (Nov 3). Same flows, prices and wording Bastien approved on Nov 3, with tonight's compliance, copywriter and designer fixes. Item names, dates, member numbers and store policy text marked <span class="eg">EXAMPLE</span> are placeholders.</p>
 </header>
 
-<div class="top">
-  <section class="panel">
+<section class="top">
+  <div class="panel">
     <h2>What Pro adds (final list)</h2>
-    <div class="tblwrap"><table>
-      <thead><tr><th>Feature</th><th>Free member</th><th>Fox Pro</th></tr></thead>
+    <div class="tblwrap"><table class="ft">
+      <thead><tr><th>Feature</th><th>Free member</th><th class="thp">Fox Pro</th></tr></thead>
       <tbody>
         <tr><td>Deals in your size, shoe price pages, race and trail gear lists</td><td class="y">Yes</td><td class="y">Yes</td></tr>
         <tr><td>Friday deals email (drops in your size + watchlist news)</td><td class="y">Yes</td><td class="y">Yes</td></tr>
         <tr><td>"Lowest price we've seen in N days" badge</td><td class="y">Yes</td><td class="y">Yes</td></tr>
         <tr><td>Watchlist</td><td class="n">10 now, 5 from Dec 2</td><td class="y">Unlimited</td></tr>
-        <tr><td>Drop alerts</td><td class="n">In the Friday email</td><td class="y">The same morning</td></tr>
-        <tr><td>Full price history on every item</td><td class="n">Shoe pages' one line</td><td class="y">Yes</td></tr>
-        <tr><td>Price protection: "You buy, we watch, you claim"</td><td class="n">No</td><td class="y">Yes</td></tr>
-        <tr><td>Founding Fox number + badge</td><td class="n">No</td><td class="y">First 100</td></tr>
+        <tr><td>Drop alerts</td><td class="n">In the Friday email</td><td class="y">Next morning</td></tr>
+        <tr><td>Full price history on every item</td><td class="n">Shoe pages</td><td class="y">Yes</td></tr>
+        <tr><td>Price protection: you buy, we watch, you claim (about 25 stores publish a price-match window)</td><td class="n">Teaser only</td><td class="y">Yes</td></tr>
+        <tr><td>Founding Fox number + card</td><td class="n">No</td><td class="y">First 100</td></tr>
       </tbody>
     </table></div>
-    <p class="price"><b>Price:</b> $45/year. <b>Founding round</b> (100 numbered spots, opens Dec 2 to the list, public Dec 4): $36/year, price locked while you stay. 30-day full refund. Yearly only. <b>Referral:</b> friend's first year is 13 months; you get +1 free month per friend who pays (up to 12), counted at day 60.</p>
-  </section>
-  <section class="panel block">
+    <p class="pricenote"><b>Price:</b> $45 CAD/year. <b>Founding round</b> (100 numbered spots, list gets the link Dec 2, public Dec 4): $36 CAD/year <span class="nw">(that's $3/month)</span>, plus applicable taxes, price locked while you stay. Yearly only. 30-day full refund. <b>Referral:</b> a friend's first year is 13 months; you get +1 free month per friend who pays (up to 12), counted at day 60.</p>
+  </div>
+  <div class="panel block">
     <h2>Blockers (only Bastien)</h2>
     <ul>
       <li><b>Stripe account by ~Nov 8</b> (business details + bank, Canada). Put the TEST secret key + webhook secret into Supabase yourself. Never paste them in chat.</li>
-      <li><b>How the Supabase functions get deployed</b> (checkout, webhook, refund, cancel page): you paste them in the dashboard, or add a SUPABASE_ACCESS_TOKEN GitHub secret so a workflow deploys them.</li>
-      <li><b>Accountant: GST + BC PST.</b> Do we charge tax on a $36 digital membership? Until we know, checkout can't show a correct tax line (screen 4).</li>
+      <li><b>How the Supabase functions get deployed</b> (checkout, webhook, refund, cancel page): paste them in the dashboard, or add a SUPABASE_ACCESS_TOKEN GitHub secret so a workflow deploys them (recommended).</li>
+      <li><b>Accountant: GST + BC PST.</b> Do we charge tax on a $36 digital membership? Until we know, checkout shows "+ applicable taxes" (screen 4).</li>
     </ul>
-  </section>
-</div>
+  </div>
+</section>
 
-<section>
-<h2>The screens, in the order people meet them</h2>
-<div class="screens">
+<h2 style="margin:0">The screens, in the order people meet them</h2>
+<section class="screens">
 
-<!-- 1 waitlist -->
+<!-- 1 founding list card -->
 <div class="scr">
-  <div class="meta"><span class="num">1</span><span class="chip ok">Approved Nov 3</span></div>
+  <div class="meta"><span class="num">1</span><span class="chip">Approved Nov 3 · new look, needs OK</span></div>
   <p class="where">Homepage sign-up card slot + Black Friday pages, Nov 17-30. Members join with one tap; others type their email.</p>
-  <div class="phone"><div class="bar"><span>9:41</span><span>●●● 5G</span></div>
-    <div class="hdr"><img src="../site/logo-mark-dark.svg" alt="The Gear Fox"><span>☰</span></div>
+  <div class="phone site">
+    <div class="sb"><span>9:41</span><span>●●● 5G</span></div>
+    <div class="hd"><img src="../site/logo-mark-dark.svg" alt="The Gear Fox"><span class="burger"></span></div>
     <div class="body">
-      <div class="dk" style="display:grid;gap:12px">
-        <div class="row"><div class="ring" style="background-image:url(../site/img/fox-face.webp)"></div><div><span class="tag">FOUNDING SPOTS</span><div class="ttl" style="margin-top:6px">Fox Pro opens Dec 2</div></div></div>
-        <p style="font-size:14.5px">We watch the price after you buy, and tell you the same morning when something you watch drops.</p>
-        <p><b style="font-size:17px">$36/year for founding members</b><br><span class="sm">(that's $3/month), price locked while you stay. 100 numbered spots. Then $45/year.</span></p>
-        <span class="btn cream">Join the founding list</span>
-        <p class="sm">No payment now. On Dec 2 everyone on the list gets the link at the same time.</p>
+      <div class="dk">
+        <svg class="topo" viewBox="0 0 340 300" preserveAspectRatio="none" aria-hidden="true"><g fill="none" stroke="#2A5143" stroke-width="1" opacity=".6"><path d="M-10 60 C60 30 120 90 190 55 S300 25 350 55"/><path d="M-10 100 C70 70 130 130 200 95 S300 65 350 95"/><path d="M-10 150 C80 115 140 180 210 145 S310 110 350 145"/><path d="M-10 210 C90 180 150 235 220 205 S320 175 350 205"/></g></svg>
+        <div class="row" style="position:relative;gap:12px"><span class="badge gold"><div><img src="fox-pro/fox.png" alt=""></div></span><div><div class="eyebrow g">Founding round</div><div class="ttl" style="font-size:28px">Fox Pro opens <span>Dec 2</span></div></div></div>
+        <p class="mut" style="position:relative;margin:12px 0">We watch the price after you buy, and email you the next morning when something you watch drops.</p>
+        <div style="position:relative"><div class="amt" style="font-size:36px">$36<small> CAD/year</small></div><p class="mut">for founding members <span class="nw">(that's $3/month)</span>. Price locked while you stay. 100 numbered spots, then $45/year.</p></div>
+        <span class="cta" style="position:relative;margin-top:14px">Join the founding list</span>
+        <p class="fine" style="position:relative;margin-top:8px">No payment now. On Dec 2 everyone on the list gets the link at the same time.</p>
       </div>
-      <div class="c sm">After a tap: <b style="color:var(--ink)">You're on the list.</b> We'll email you on Dec 2. Nothing to pay before then.</div>
+      <div class="siteCard"><b>You're on the list.</b> <span class="mut">We'll email you on Dec 2. Nothing to pay before then.</span></div>
     </div>
   </div>
-  <p class="fr"><b>FR:</b> « Fox Pro ouvre le 2 décembre » · « 36 $/an pour les membres fondateurs (3 $/mois), prix garanti tant que vous restez membre. 100 places numérotées. Ensuite 45 $/an. » · [M'inscrire sur la liste] · « Vous êtes sur la liste. »</p>
+  <p class="fr">FR: <b>« Fox Pro ouvre le 2 décembre »</b> · « On surveille le prix après votre achat, et on vous écrit le lendemain matin quand un article suivi baisse. » · « 36 $ CA/an pour les membres fondateurs (soit 3 $/mois). Prix bloqué tant que vous restez membre. 100 places numérotées, ensuite 45 $/an. » · [M'inscrire sur la liste des fondateurs] · « Vous êtes sur la liste. »</p>
 </div>
 
-<!-- 2 watch limit -->
+<!-- 2 watchlist full -->
 <div class="scr">
-  <div class="meta"><span class="num">2</span><span class="chip ok">Approved Nov 3</span></div>
+  <div class="meta"><span class="num">2</span><span class="chip">Approved Nov 3 · new look, needs OK</span></div>
   <p class="where">From Dec 2: a free member taps "♡ Watch price" on a 6th item.</p>
-  <div class="phone"><div class="bar"><span>9:41</span><span>●●● 5G</span></div>
-    <div class="dim">
-      <div class="sheet">
-        <div class="grab"></div>
-        <div class="ttl">Your watchlist is full (5 of 5)</div>
-        <p class="sm" style="color:var(--ink)">Free members watch 5 items. Remove one to add this, or watch everything with Fox Pro.</p>
-        <div class="mini"><div class="thumb">👟</div><div><b>adidas Adizero EVO SL</b> <span class="eg">EXAMPLE</span><br><span class="sm">$119.98 at Sporting Life, was $200</span></div></div>
-        <ul class="ticks"><li>Watch as many items as you like</li><li>Alerts the same morning a price drops</li><li>We keep watching after you buy</li></ul>
-        <span class="btn char">See Fox Pro: $36/year founding price</span>
-        <span class="btn out">Manage my watchlist</span>
-        <span class="btn ghost">Not now</span>
-      </div>
+  <div class="phone site">
+    <div class="sb"><span>9:41</span><span>●●● 5G</span></div>
+    <div class="dimmed"><div class="hd"><img src="../site/logo-mark-dark.svg" alt=""><span class="burger"></span></div><div class="body"><div class="siteCard" style="height:120px"></div><div class="siteCard" style="height:60px"></div></div></div>
+    <div class="sheet">
+      <div class="grab"></div>
+      <div class="h3">Your watchlist is full (5 of 5)</div>
+      <p class="mut">Free members watch 5 items. Remove one to add this one, or watch everything with Fox Pro.</p>
+      <div class="mini"><img class="thumb" src="fox-pro/shoe.jpg" alt="adidas Adizero EVO SL"><span><b>adidas Adizero EVO SL</b> <span class="eg">EXAMPLE</span><br><span class="mut">$119.98 at Sporting Life, was $200</span></span></div>
+      <ul class="ticks"><li>Watch as many items as you like</li><li>Drop alerts the next morning</li><li>We keep watching after you buy</li></ul>
+      <span class="cta">See Fox Pro: $36/year founding</span>
+      <span class="btn line">Manage my watchlist</span>
+      <span class="btn ghost">Not now</span>
     </div>
   </div>
-  <p class="fr"><b>FR:</b> « Votre liste est pleine (5 sur 5) » · « Les membres gratuits suivent 5 articles. Retirez-en un, ou suivez tout avec Fox Pro. » · [Voir Fox Pro : 36 $/an, prix fondateur] · [Gérer ma liste] · [Pas maintenant]</p>
+  <p class="fr">FR: <b>« Votre liste est pleine (5 sur 5) »</b> · « Les membres gratuits suivent 5 articles. Retirez-en un, ou suivez tout avec Fox Pro. » · [Voir Fox Pro : 36 $/an, prix fondateur] · [Gérer ma liste] · [Pas maintenant]</p>
 </div>
 
 <!-- 3 pro page -->
 <div class="scr">
-  <div class="meta"><span class="num">3</span><span class="chip ok">Approved Nov 3</span></div>
-  <p class="where">thegearfox.com/pro/ (/fr/pro/), linked from the card, the limit sheet, alert emails and My account.</p>
-  <div class="phone"><div class="bar"><span>9:41</span><span>●●● 5G</span></div>
-    <div class="hdr"><img src="../site/logo-mark-dark.svg" alt="The Gear Fox"><span>☰</span></div>
-    <div class="body">
-      <div><div class="ttl" style="font-size:32px">Fox Pro. We watch the price after you buy.</div>
-      <p class="sm" style="margin-top:6px">Same-morning drop alerts, unlimited watchlist, full price history, and price protection: when something you bought drops, we tell you and hand you the message to claim the difference.</p></div>
-      <div class="c" style="display:grid;gap:8px">
-        <div class="grid2"><span class="h"></span><span class="h">Free</span><span class="h">Pro</span>
-          <span>Deals in your size</span><span class="y">✓</span><span class="y">✓</span>
-          <span>Friday email</span><span class="y">✓</span><span class="y">✓</span>
-          <span>Watchlist</span><span class="n">5</span><span class="y">All</span>
-          <span>Same-morning alerts</span><span class="n">–</span><span class="y">✓</span>
-          <span>Full price history</span><span class="n">–</span><span class="y">✓</span>
-          <span>Price protection</span><span class="n">–</span><span class="y">✓</span>
-        </div>
-      </div>
-      <div class="dk" style="display:grid;gap:8px">
-        <span class="tag" style="justify-self:start">FOUNDING FOX</span>
-        <p><b style="font-size:20px">$36/year</b> <span class="sm">for founding members (that's $3/month)</span></p>
-        <p class="sm">Price locked while you stay. After the 100 founding spots: $45/year.</p>
-        <p class="sm"><b style="color:#F4EFE3">63 of 100 founding spots left</b> <span class="eg">EXAMPLE</span> (the real count, updated live)</p>
-        <span class="btn cream">Become a Founding Fox</span>
-        <p class="sm">30-day full refund. Cancel anytime online, in two taps.</p>
-      </div>
-      <details open><summary>What is price protection?</summary><p class="sm" style="margin-top:6px">Some stores refund the difference if the price drops after you buy. We watch the item at that store for its window, show the store's own rule, and give you a message to send. The store decides.</p></details>
-      <details><summary>Can I cancel or get my money back?</summary></details>
-      <details><summary>Will I be reminded before it renews?</summary></details>
-      <details><summary>Is the free site going away?</summary></details>
+  <div class="meta"><span class="num">3</span><span class="chip">Approved Nov 3 · new look, needs OK</span></div>
+  <p class="where">thegearfox.com/pro/ (/fr/pro/), linked from the card, the limit sheet, alert emails and My account. Full page: <a href="https://claude.ai/artifact/BJozKHznga5GPhE6ZXUex9" target="_blank" rel="noopener">Fox Pro Premium</a>. Top of it shown here.</p>
+  <div class="phone pro">
+    <div class="sb"><span>9:41</span><span>●●● 5G</span></div>
+    <div class="hd"><img src="../site/logo-mark-dark.svg" alt="The Gear Fox"><span class="burger"></span></div>
+    <div class="body" style="text-align:center;gap:10px">
+      <span class="badge" style="width:76px;height:76px;margin:0 auto"><div><img src="fox-pro/fox.png" alt="" style="width:54px"></div></span>
+      <div class="eyebrow">Fox Pro</div>
+      <div class="ttl" style="font-size:36px">We watch the price<br><span>after you buy.</span></div>
+      <p class="mut">Gear you bought drops at the same store? We email you the next morning, with the message to ask for the difference.</p>
+      <div class="mcard"><img class="wm" src="fox-pro/card-watermark.png" alt=""><div class="spread"><span class="tag">FOUNDING FOX</span><span class="since">Member since Dec 2026</span></div><div class="no">№ 037</div><div class="who">Bastien H. <span class="eg">EXAMPLE</span></div></div>
+      <p style="font-size:15px"><b>$36 CAD/year</b> for founding members <span class="nw">(that's $3/month)</span></p>
+      <span class="cta">Become a Founding Fox</span>
+      <p class="fine">Founding spots #001 to #100 · <span class="nw">30-day full refund</span></p>
     </div>
   </div>
-  <p class="fr"><b>FR:</b> « Fox Pro. On surveille le prix après votre achat. » · « 36 $/an pour les membres fondateurs (3 $/mois). Prix garanti tant que vous restez membre. » · [Devenir membre fondateur] · « Remboursement complet sous 30 jours. Annulez en ligne en deux touches. » · « La décision revient au magasin. »</p>
+  <p class="fr">FR: <b>« On surveille le prix après votre achat. »</b> · « Un article que vous avez acheté baisse au même magasin? On vous écrit le lendemain matin, avec le message pour demander la différence. » · « 36 $ CA/an pour les membres fondateurs (soit 3 $/mois) » · [Devenez Renard fondateur] · « Places fondatrices nº 001 à 100 · Remboursement complet sous 30 jours » · « C'est le magasin qui décide. »</p>
 </div>
 
 <!-- 4 checkout -->
 <div class="scr">
-  <div class="meta"><span class="num">4</span><span class="chip ok">Approved Nov 3</span></div>
-  <p class="where">Stripe Checkout (Stripe's page, our logo and colours). The total yearly price comes first.</p>
-  <div class="phone stripe"><div class="bar"><span>9:41</span><span>●●● 5G</span></div>
-    <div class="body" style="background:#fff">
-      <div class="row"><img src="../site/logo-mark-dark.svg" alt="" style="height:22px;filter:invert(1) hue-rotate(180deg)"><span class="sm">The Gear Fox</span></div>
-      <div><p class="sm">Fox Pro: Founding Fox membership</p><p style="font:800 34px/1.1 var(--body)">$36.00 <span style="font-size:15px;font-weight:600">CAD per year</span></p></div>
-      <div class="c" style="padding:10px 14px">
+  <div class="meta"><span class="num">4</span><span class="chip">Approved Nov 3 · new look, needs OK</span></div>
+  <p class="where">Stripe Checkout (Stripe's page with our logo and forest colour). The total yearly price comes first.</p>
+  <div class="phone stripe">
+    <div class="sb"><span>9:41</span><span>●●● 5G</span></div>
+    <div class="body">
+      <div class="row"><img src="../site/logo-mark.svg" alt="The Gear Fox" style="height:26px"></div>
+      <div><p class="mut" style="font-size:13px">Fox Pro · Founding Fox membership</p><p style="font:700 34px/1.1 var(--body)">$36.00 <span style="font-size:15px;font-weight:600;color:#697386">CAD per year</span></p></div>
+      <div style="border:1px solid #E3E8EE;border-radius:10px;padding:10px 12px">
         <div class="sline"><span>Founding Fox, yearly</span><span>$36.00</span></div>
-        <div class="sline"><span>Tax</span><span class="flag">pending accountant</span></div>
-        <div class="sline t"><span>Total due today</span><span>$36.00</span></div>
+        <div class="sline"><span>Tax</span><span class="taxl">+ applicable taxes</span></div>
+        <div class="sline t"><span>Total due today</span><span>$36.00 + tax</span></div>
       </div>
-      <p class="sm">Renews Dec 2, 2027 at $36.00 CAD. We email you 30 days before. Cancel anytime online.</p>
-      <div class="input">Email</div>
-      <div class="input">Card number · MM/YY · CVC</div>
-      <div class="input" style="text-align:center;color:var(--ink);font-weight:600"> Pay  ·  G Pay</div>
-      <div class="chk"><span class="box"></span><span>I agree to the <u>Fox Pro terms</u>, including the 30-day full refund and yearly renewal.</span></div>
-      <span class="btn char">Subscribe: $36.00 per year</span>
-      <p class="sm" style="text-align:center">Have a friend's code? <u>Add promotion code</u></p>
+      <p class="mut" style="font-size:13px">Renews Dec 2, 2027 at $36.00 CAD. We email you 30 days before. Cancel online anytime.</p>
+      <div class="input">Email</div><div class="input">Card number · MM/YY · CVC</div>
+      <div class="wallet"><span>Apple Pay</span><span>Google Pay</span></div>
+      <div class="chk"><span class="box"></span><span>I agree to the <u>Fox Pro terms</u>, including the <span class="nw">30-day</span> full refund and yearly renewal.</span></div>
+      <span class="btn forest">Subscribe: $36.00 per year</span>
+      <p class="mut" style="text-align:center;font-size:12.5px">Have a friend's code? <u>Add promotion code</u></p>
     </div>
   </div>
-  <p class="fr"><b>FR:</b> « 36,00 $ CA par an » · « Se renouvelle le 2 décembre 2027 à 36,00 $. Courriel 30 jours avant. Annulez en ligne en tout temps. » · « J'accepte les conditions de Fox Pro, y compris le remboursement complet sous 30 jours et le renouvellement annuel. »<br><span class="flag">Tax line: shows "+ applicable tax" or a real GST/PST line once the accountant answers.</span></p>
+  <p class="fr">FR: « 36,00 $ CA par an » · « + taxes applicables » · « Se renouvelle le 2 décembre 2027 à 36,00 $ CA. Courriel 30 jours avant. Annulez en ligne en tout temps. » · « J'accepte les conditions de Fox Pro, y compris le remboursement complet sous 30 jours et le renouvellement annuel. » <span class="flag">Tax line: "+ applicable taxes" until the accountant answers, then a real GST/PST line (switchable, no code change).</span></p>
 </div>
 
 <!-- 5 welcome email -->
 <div class="scr">
-  <div class="meta"><span class="num">5</span><span class="chip ok">Approved Nov 3</span></div>
+  <div class="meta"><span class="num">5</span><span class="chip">Approved Nov 3 · new look, needs OK</span></div>
   <p class="where">Email right after payment, from "Bastien from The Gear Fox". Stripe's receipt arrives separately.</p>
-  <div class="phone mail"><div class="bar"><span>9:41</span><span>●●● 5G</span></div>
-    <div class="mhead"><b>You're Founding Fox #037 🦊</b>Bastien from The Gear Fox · to you</div>
+  <div class="phone mailw">
+    <div class="sb"><span>9:41</span><span>●●● 5G</span></div>
+    <div class="mhead"><b>You're Founding Fox #037</b>Bastien from The Gear Fox · to you</div>
+    <div class="mband"><img src="../site/logo-mark-dark.svg" alt="The Gear Fox"><span class="badge gold" style="width:40px;height:40px;padding:2px"><div><img src="fox-pro/fox.png" alt="" style="width:28px"></div></span></div>
     <div class="mbody">
-      <div class="dk row" style="padding:14px"><div class="ring" style="width:44px;height:44px;background-image:url(../site/img/fox-face.webp)"></div><div><span class="tag">FOUNDING MEMBER</span><div class="ttl" style="font-size:22px;margin-top:4px">Founding Fox #037 <span class="eg">EXAMPLE</span></div></div></div>
+      <div class="cardMail"><div style="flex:1"><div style="font:700 10.5px var(--body);letter-spacing:.18em;color:var(--gold)">FOUNDING MEMBER</div><div class="no">№ 037</div></div><span class="eg">EXAMPLE</span></div>
       <p>Thanks for joining Fox Pro. Here's what's on, starting now:</p>
-      <ul class="ticks"><li>Drop alerts the same morning</li><li>Watch as many items as you like</li><li>Full price history on every item</li><li>Tap "I bought it" after a purchase and we'll watch the price for you</li></ul>
-      <p><b>Your plan:</b> $36.00 CAD per year, price locked while you stay. Next renewal: Dec 2, 2027. We'll email you 30 days before.</p>
-      <p><b>Changed your mind?</b> Full refund within 30 days, from My account in one tap.</p>
-      <span class="btn char">Open My account</span>
-      <div class="foot">Your Fox Pro terms are attached and at thegearfox.com/terms/ · <u>Manage or cancel</u> · The Gear Fox, [mailing address] · <u>Unsubscribe</u></div>
+      <ul style="margin:0;padding-left:18px;display:grid;gap:6px"><li>Drop alerts the next morning</li><li>Watch as many items as you like</li><li>Full price history on every item</li><li>Tap "I bought it" after a purchase and we watch the price for you</li></ul>
+      <p><b>Your plan:</b> $36.00 CAD per year plus applicable taxes, price locked while you stay. Next renewal: Dec 2, 2027. We'll email you 30 days before.</p>
+      <p><b>Changed your mind?</b> Full refund within 30 days: one tap in My account.</p>
+      <span class="btn forest">Open My account</span>
+      <p class="mfoot">Your Fox Pro terms are attached and at thegearfox.com/terms/ · <a href="#">Manage or cancel</a> · The Gear Fox, [mailing address] · <a href="#">Unsubscribe</a></p>
     </div>
   </div>
-  <p class="fr"><b>FR:</b> « Vous êtes le membre fondateur nº 037 » · « 36,00 $/an, prix garanti tant que vous restez membre. Prochain renouvellement : 2 décembre 2027. Courriel 30 jours avant. » · « Remboursement complet sous 30 jours, en une touche dans Mon compte. » · [Gérer ou annuler]</p>
+  <p class="fr">FR: <b>« Vous êtes le Renard fondateur nº 037 »</b> · « 36,00 $ CA/an plus taxes, prix bloqué tant que vous restez membre. Prochain renouvellement : 2 décembre 2027. Courriel 30 jours avant. » · « Remboursement complet sous 30 jours, en une touche dans Mon compte. » · [Ouvrir Mon compte] · [Gérer ou annuler]</p>
 </div>
 
 <!-- 6 I bought it -->
 <div class="scr">
-  <div class="meta"><span class="num">6</span><span class="chip ok">Approved Nov 3</span></div>
-  <p class="where">Back on our site after clicking a deal (same visit, within 45 min). Pro members: “We’re watching it for you.” Free members: a light teaser, “Fox Pro would watch this price for you · See Fox Pro” (Bastien, Nov 3).</p>
-  <div class="phone"><div class="bar"><span>9:41</span><span>●●● 5G</span></div>
-    <div class="body" style="padding-top:60px">
-      <div class="c" style="display:grid;gap:11px;box-shadow:0 8px 24px rgba(0,0,0,.1)">
-        <div class="mini"><div class="thumb">👟</div><div><b>Did you buy the adidas Adizero EVO SL?</b> <span class="eg">EXAMPLE</span><br><span class="sm">Size 11 · $119.98 at Sporting Life</span></div></div>
-        <div class="row"><span class="btn char" style="flex:1">I bought it</span><span class="btn out" style="flex:1">Not yet</span></div>
+  <div class="meta"><span class="num">6</span><span class="chip">Approved Nov 3 · new look, needs OK</span></div>
+  <p class="where">Back on our site after clicking a deal (same visit, within 45 min), at the ~25 stores with a price-match window. Pro: "We're watching it for you." Free members: a light teaser (Bastien, Nov 3).</p>
+  <div class="phone site">
+    <div class="sb"><span>9:41</span><span>●●● 5G</span></div>
+    <div class="hd"><img src="../site/logo-mark-dark.svg" alt=""><span class="burger"></span></div>
+    <div class="body">
+      <div class="dk" style="padding:16px">
+        <div class="mini"><img class="thumb" src="fox-pro/shoe.jpg" alt="adidas Adizero EVO SL"><span><b>Did you buy the adidas Adizero EVO SL?</b> <span class="eg">EXAMPLE</span><br><span class="mut">Size 11 · $119.98 at Sporting Life</span></span></div>
+        <div class="row" style="margin-top:12px"><span class="btn mintb" style="flex:1 1 130px;padding:13px">I bought it</span><span class="btn line" style="flex:1 1 130px;padding:12px">Not yet</span></div>
       </div>
-      <p class="sm" style="text-align:center">After "I bought it":</p>
-      <div class="c" style="display:grid;gap:8px;border-color:#BFE0C8">
-        <p><b>We're watching it for you.</b></p>
-        <p class="sm" style="color:var(--ink)">Adizero EVO SL, size 11, at Sporting Life until <b>Dec 2</b> (their price-match window: 30 days <span class="eg">EXAMPLE</span>).</p>
-        <p class="sm">If it drops, we'll email you the difference and the message to send. Wrong item? <u>Undo</u></p>
+      <p class="mut" style="font-size:12.5px;text-align:center">After "I bought it":</p>
+      <div class="dk" style="padding:16px">
+        <div class="eyebrow" style="color:var(--mint)">Fox Pro</div>
+        <div class="h3" style="margin:6px 0">We're watching it for you.</div>
+        <p class="mut">Adizero EVO SL, size 11, at Sporting Life until <b style="color:var(--fink)">Dec 2</b> (their price-match window: 30 days <span class="eg">EXAMPLE</span>). If it drops, we email you the next morning with the message to send. <u>Undo</u></p>
       </div>
-      <p class="sm">Also in the watchlist and My account: "I bought this" on any item, for purchases made another way.</p>
+      <div class="siteCard"><b>Free members see:</b> <span class="mut">"Fox Pro would watch this price for you." </span><b style="color:var(--green)">See Fox Pro</b></div>
     </div>
   </div>
-  <p class="fr"><b>FR:</b> « Avez-vous acheté les adidas Adizero EVO SL? » · [Je l'ai acheté] [Pas encore] · « On le surveille pour vous. … chez Sporting Life jusqu'au 2 décembre (sa période d'ajustement de prix). » · [Annuler]</p>
+  <p class="fr">FR: <b>« Avez-vous acheté les adidas Adizero EVO SL? »</b> · [Je l'ai acheté] [Pas encore] · « On le surveille pour vous. … chez Sporting Life jusqu'au 2 décembre (sa période d'ajustement de prix). » · Membres gratuits : « Fox Pro surveillerait ce prix pour vous · Voir Fox Pro »</p>
 </div>
 
 <!-- 7 claim email -->
 <div class="scr">
-  <div class="meta"><span class="num">7</span><span class="chip ok">Approved Nov 3</span></div>
+  <div class="meta"><span class="num">7</span><span class="chip">Approved Nov 3 · new look, needs OK</span></div>
   <p class="where">Email when a bought item drops inside the store's window (same size and colour, checked on the store's own page that morning).</p>
-  <div class="phone mail"><div class="bar"><span>9:41</span><span>●●● 5G</span></div>
+  <div class="phone mailw">
+    <div class="sb"><span>9:41</span><span>●●● 5G</span></div>
     <div class="mhead"><b>It dropped $20 since you bought it</b>Bastien from The Gear Fox · to you</div>
+    <div class="mband"><img src="../site/logo-mark-dark.svg" alt="The Gear Fox"><span style="font:600 11px var(--body);letter-spacing:.18em;color:var(--mint)">FOX PRO</span></div>
     <div class="mbody">
-      <div class="lo">adidas Adizero EVO SL, size 11: now $99.98 at Sporting Life <span class="eg">EXAMPLE</span></div>
-      <p>You bought it on <b>Nov 4</b> for <b>$119.98</b>. It's <b>$20.00 lower</b> today.</p>
-      <p class="sm" style="color:var(--ink)"><b>Sporting Life's policy, as published on Nov 1:</b> "[the store's own words, quoted]" <span class="eg">EXAMPLE</span></p>
-      <p class="sm"><b style="color:var(--ink)">The store decides.</b> We can't promise a refund; this is their rule and our dated price record.</p>
+      <div class="drop"><span>Adizero EVO SL, size 11<br><b>Now $99.98</b><br><span class="nw">at Sporting Life</span> <span class="eg">EXAMPLE</span></span><span class="btn claimS">Claim $20</span></div>
+      <p>You bought it on Nov 4 for $119.98. It's <b>$20.00 lower</b> today.</p>
+      <p class="mut"><b style="color:var(--paperInk)">Sporting Life's policy, as published on Nov 1:</b> <span class="nw">"[their own words]"</span> <span class="eg">EXAMPLE</span></p>
+      <p><b>The store decides.</b> We can't promise a refund; this is their rule and our dated price record.</p>
       <div class="copy">Hi, I bought the adidas Adizero EVO SL (size 11) on Nov 4 for $119.98, order #[your order]. It's now $99.98 on your site. Under your price adjustment policy, could you refund the $20.00 difference? Thank you!</div>
-      <div class="row"><span class="btn char" style="flex:1">Copy the message</span><span class="btn out" style="flex:1">Our price record</span></div>
-      <div class="foot">Watching until Dec 2. <u>Stop watching this item</u> · <u>Manage or cancel Fox Pro</u> · The Gear Fox, [mailing address] · <u>Unsubscribe</u></div>
+      <div class="row"><span class="btn forest" style="flex:1 1 130px;padding:12px">Copy message</span><span class="btn out" style="flex:1 1 130px;padding:11px">Our price record</span></div>
+      <p class="mfoot">Watching until Dec 2 · <a href="#">Stop watching this item</a> · <a href="#">Manage or cancel Fox Pro</a> · The Gear Fox, [mailing address] · <a href="#">Unsubscribe</a></p>
     </div>
   </div>
-  <p class="fr"><b>FR:</b> « Le prix a baissé de 20 $ depuis votre achat » · « Politique de Sporting Life, publiée le 1er novembre : "…" » · « La décision revient au magasin. » · [Copier le message] [Notre relevé de prix]</p>
+  <p class="fr">FR: <b>« Le prix a baissé de 20 $ depuis votre achat »</b> · « Politique de Sporting Life, publiée le 1er novembre : "…" » · « C'est le magasin qui décide. » · [Copier le message] [Notre relevé de prix] · [Réclamer 20 $]</p>
 </div>
 
-<!-- 8 My account (agreed) -->
+<!-- 8 my account -->
 <div class="scr">
-  <div class="meta"><span class="num">8</span><span class="chip ok">Agreed</span></div>
-  <p class="where">My account (☰ → My account, with the badge beside it). Members only. Orange is used only for "Claim".</p>
-  <div class="phone"><div class="bar"><span>9:41</span><span>●●● 5G</span></div>
-    <div class="hdr"><img src="../site/logo-mark-dark.svg" alt="The Gear Fox"><span>☰</span></div>
+  <div class="meta"><span class="num">8</span><span class="chip">Approved Nov 3 · new look, needs OK</span></div>
+  <p class="where">My account (☰ → My account, badge beside it). Members only. Same layout as agreed, now in the premium look. Orange only for "Claim".</p>
+  <div class="phone pro">
+    <div class="sb"><span>9:41</span><span>●●● 5G</span></div>
+    <div class="hd"><img src="../site/logo-mark-dark.svg" alt="The Gear Fox"><span class="burger"></span></div>
     <div class="body">
-      <div class="dk" style="display:grid;gap:10px">
-        <div class="row"><div class="ring" style="background-image:url(../site/img/fox-face.webp)"></div><div><span class="tag">FOUNDING MEMBER</span><div class="ttl" style="margin-top:5px">Founding Fox #037</div></div></div>
-        <p class="sm">Member since Dec 2026 · $36/year, locked while you stay</p>
-      </div>
-      <div class="c" style="display:grid;gap:6px">
-        <p style="font-weight:700">Your plan</p>
-        <p class="sm" style="color:var(--ink)">Fox Pro, yearly · renews Dec 2, 2027 · $36.00 CAD</p>
-        <p class="sm">Reminder email 30 days before. <u>Manage or cancel</u> · <u>Refund me</u> (until Jan 1)</p>
-      </div>
-      <div class="c" style="display:grid;gap:9px">
-        <p style="font-weight:700">Invite friends</p>
-        <p class="sm" style="color:var(--ink)">Each friend who joins Pro gives you <b style="color:var(--green)">+1 month</b> free (up to 12). Their first year is 13 months.</p>
+      <div class="mcard" style="max-width:300px"><img class="wm" src="fox-pro/card-watermark.png" alt=""><div class="spread"><span class="tag">FOUNDING FOX</span><span class="since">Member since Dec 2026</span></div><div class="no">№ 037</div><div class="who">$36/year · locked while you stay</div></div>
+      <div class="panelD"><div class="h3" style="font-size:20px">Your plan</div><p class="mut">Fox Pro, yearly · renews Dec 2, 2027 · $36.00 CAD</p><p class="mut">Reminder email 30 days before. <u>Manage or cancel</u> · <u>Refund me</u> (until Jan 1)</p></div>
+      <div class="panelD">
+        <div class="h3" style="font-size:20px">Invite friends</div>
+        <p class="mut">Each friend who joins Pro gives you <b class="green">+1 month</b> free (up to 12). Their first year is 13 months.</p>
         <div class="code">FOX-BASTIEN</div>
-        <div class="row"><span class="btn char" style="flex:1">Share</span><span class="btn out" style="flex:1">Copy</span></div>
+        <div class="pair"><span class="btn share" style="padding:12px">Share</span><span class="btn line" style="padding:12px">Copy</span></div>
         <div class="prog"><i></i></div>
-        <p class="sm"><b style="color:var(--green)">3 of 12 free months earned</b> · 1 pending</p>
+        <p style="font-size:13.5px"><b class="green">3 of 12 free months earned</b> <span class="mut" style="white-space:nowrap">·&nbsp;1&nbsp;pending</span></p>
         <div class="row" style="flex-wrap:wrap;gap:6px"><span class="pill g">Marie ✓</span><span class="pill g">Jon ✓</span><span class="pill g">a friend ✓</span><span class="pill a">Anne · pending</span></div>
-        <p class="sm" style="font-size:11.5px">A month counts 60 days after your friend's first payment.</p>
+        <p class="mut" style="font-size:12px">A month counts 60 days after your friend's first payment.</p>
       </div>
-      <div class="c" style="display:grid;gap:8px">
-        <p style="font-weight:700">Things you bought, we're watching</p>
-        <div class="mini"><div class="thumb">👟</div><div style="flex:1"><b>Adizero EVO SL</b> · size 11<br><span class="sm">Bought Nov 4 at Sporting Life, $119.98 · watching until Dec 2</span></div></div>
-        <div class="lo" style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span>Now $99.98: dropped $20</span><span class="btn or" style="padding:9px 12px;font-size:14px">Claim $20</span></div>
+      <div class="panelD">
+        <div class="h3" style="font-size:20px">Things you bought, we're watching</div>
+        <div class="mini"><img class="thumb" src="fox-pro/shoe.jpg" alt="adidas Adizero EVO SL"><span><b>Adizero EVO SL</b> <span class="nw">· size 11</span><br><span class="mut">Bought Nov 4 at Sporting Life, $119.98 · watching until Dec 2</span></span></div>
+        <div class="spread lo"><span>Dropped $20 · now $99.98</span><span class="btn claimS">Claim $20</span></div>
       </div>
-      <div class="c">
-        <p style="font-weight:700;margin-bottom:4px">Settings</p>
-        <div class="set"><span>My sizes · men's 11 / M</span><u class="sm">Edit</u></div>
-        <div class="set"><span>Watchlist · 14 items</span><u class="sm">Open</u></div>
+      <div class="panelD" style="gap:0">
+        <div class="h3" style="font-size:20px;margin-bottom:4px">Settings</div>
+        <div class="set"><span>My sizes · men's 11 / M</span><u class="mut">Edit</u></div>
+        <div class="set"><span>Watchlist · 14 items</span><u class="mut">Open</u></div>
         <div class="set"><span>Friday deals email</span><span class="sw"></span></div>
-        <div class="set"><span>Same-morning drop alerts</span><span class="sw"></span></div>
+        <div class="set"><span>Drop alerts (next morning)</span><span class="sw"></span></div>
         <div class="set"><span>Race reminders</span><span class="sw off"></span></div>
       </div>
-      <p class="sm" style="text-align:center">Signed in as b•••@gmail.com · <u>Sign out</u></p>
+      <p class="mut" style="text-align:center;font-size:12.5px">Signed in as b•••@gmail.com · <u>Sign out</u></p>
     </div>
   </div>
-  <p class="fr"><b>FR:</b> « Membre fondateur nº 037 » · « Membre depuis déc. 2026 · 36 $/an, prix garanti » · « Invitez des amis : +1 mois gratuit par ami (jusqu'à 12). Leur première année compte 13 mois. » · « Ce que vous avez acheté, on surveille » · [Réclamer 20 $] · « Gérer ou annuler » · « Me rembourser »</p>
+  <p class="fr">FR: <b>« Renard fondateur nº 037 »</b> · « Membre depuis déc. 2026 · 36 $/an, prix bloqué tant que vous restez membre » · « Invitez des amis : +1 mois gratuit par ami (jusqu'à 12). Leur première année compte 13 mois. » · « Ce que vous avez acheté, on le surveille » · [Réclamer 20 $] · « Gérer ou annuler » · « Me rembourser »</p>
 </div>
 
-<!-- 9 renewal reminder -->
+<!-- 9 renewal email -->
 <div class="scr">
-  <div class="meta"><span class="num">9</span><span class="chip ok">Approved Nov 3</span></div>
-  <p class="where">Email 30 days before each yearly renewal (required). Plain, with the amount, date and a cancel link up front.</p>
-  <div class="phone mail"><div class="bar"><span>9:41</span><span>●●● 5G</span></div>
+  <div class="meta"><span class="num">9</span><span class="chip">Approved Nov 3 · new look, needs OK</span></div>
+  <p class="where">Email 30 days before each yearly renewal (required). Plain: the amount, the date and the cancel link up front. No year summary at launch (Bastien, Nov 3).</p>
+  <div class="phone mailw">
+    <div class="sb"><span>9:41</span><span>●●● 5G</span></div>
     <div class="mhead"><b>Fox Pro renews on Dec 2: $36.00</b>Bastien from The Gear Fox · to you</div>
+    <div class="mband"><img src="../site/logo-mark-dark.svg" alt="The Gear Fox"><span style="font:600 11px var(--body);letter-spacing:.18em;color:var(--mint)">FOX PRO</span></div>
     <div class="mbody">
-      <p>Hi, a heads-up: your Fox Pro membership renews on <b>Dec 2, 2027</b> for <b>$36.00 CAD</b> (your founding price, still locked).</p>
+      <p>Hi, a heads-up: your Fox Pro membership renews on <b>Dec 2, 2027</b> for <b>$36.00 CAD</b> plus applicable taxes (your founding price, still locked).</p>
       <p>Nothing to do if you'd like to stay. To change or cancel before the renewal:</p>
-      <span class="btn char">Manage or cancel</span>
-      <div class="foot">Card ending 4242 will be charged Dec 2, 2027. · The Gear Fox, [mailing address] · <u>Unsubscribe</u></div>
+      <span class="btn forest">Manage or cancel</span>
+      <p class="mut" style="font-size:13px">Cancel any time before Dec 2 and you won't be charged. You keep Pro until then.</p>
+      <p class="mfoot">Card ending 4242 will be charged Dec 2, 2027 · The Gear Fox, [mailing address] · <a href="#">Unsubscribe</a></p>
     </div>
   </div>
-  <p class="fr"><b>FR:</b> « Fox Pro se renouvelle le 2 décembre : 36,00 $ » · « Votre abonnement se renouvelle le 2 décembre 2027 pour 36,00 $ CA (votre prix fondateur, toujours garanti). » · [Gérer ou annuler]</p>
+  <p class="fr">FR: <b>« Fox Pro se renouvelle le 2 décembre : 36,00 $ »</b> · « Votre abonnement se renouvelle le 2 décembre 2027 pour 36,00 $ CA plus taxes (votre prix fondateur, toujours bloqué). » · [Gérer ou annuler] · « Annulez avant le 2 décembre et vous ne serez pas facturé. »</p>
 </div>
 
-</div>
 </section>
 </div>
