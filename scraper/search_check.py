@@ -93,7 +93,19 @@ def qhas0(t, w):
     """index.html qhas0() (Oct 24): a word also matches without a trailing s or e ("endorphins", "glycerine")."""
     i = t.find("\x01")
     m = t if i < 0 else t[:i]
-    return w in m or (len(w) > 4 and w[-1] in "se" and w[:-1] in m) or (i >= 0 and len(w) >= 5 and "\x01" + w + "\x01" in t)
+    return wstart(m, w) or (len(w) > 4 and w[-1] in "se" and wstart(m, w[:-1])) or (i >= 0 and len(w) >= 5 and "\x01" + w + "\x01" in t)
+
+
+def wstart(m, w):
+    """index.html wstart() (Nov 4): the typed word starts a word of the name ("rain" never inside "training")."""
+    an = lambda c: c.isascii() and c.isalnum()
+    i = m.find(w)
+    while i >= 0:
+        e = re.sub(r"^(es|s)", "", m[i + len(w):])
+        if i == 0 or not an(m[i - 1]) or not an(e[:1] or " "):     # or it ends a word: "lamp" = headlamp, "goat" = Speedgoat
+            return True
+        i = m.find(w, i + 1)
+    return False
 
 
 class Side:
@@ -132,10 +144,11 @@ class Side:
             if len(w) < 4:
                 out.append(w)
                 continue
-            best, bd, bn = None, (2 if len(w) >= 7 else 1) + 1, 0
+            lim = 2 if len(w) >= 7 else 1
+            best, bd, bn = None, lim + 1, 0
             for k, n in self.vocab.items():
                 dd = lev(w, k)
-                if dd < bd or (dd == bd and n > bn):
+                if dd <= lim and (dd < bd or (dd == bd and n > bn)):
                     best, bd, bn = k, dd, n
             if best:
                 changed = True

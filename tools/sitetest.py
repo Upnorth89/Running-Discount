@@ -439,6 +439,26 @@ def site_flow(base, per, accented):
             return f"'bas': {len(names)} cards, no base layer; 'manteau de pluie': {rain} cards"
         check("Search: French gear words (bas = socks, manteau de pluie = rain jacket)")(french_words, page)
 
+        def word_start():   # Nov 4 (growth's round): "rain jacket" showed only Craft "Nordic TRAINing" jackets
+            all_gear()
+            bad = {}
+            for q, no in (("rain jacket", ("training", "terrain")), ("run", ("brunch", "trunk", "strung"))):
+                page.fill("#dSearch", q)
+                settle(page, 900)
+                names = page.eval_on_selector_all("#dealList .rdc .name, #dealList .card .name", "e => e.map(x => x.textContent.toLowerCase())")
+                hit = [n for n in names if any(x in n for x in no) and not re.search(r"\b" + q.split()[0] + r"\b", n)]
+                if hit:
+                    bad[q] = hit[:3]
+            page.fill("#dSearch", "xqzt")
+            settle(page, 900)
+            dym = page.inner_text("main")
+            page.fill("#dSearch", "")
+            settle(page)
+            assert not bad, f"a search word matched inside another word: {bad}"
+            assert "Did you mean" not in dym, "'xqzt' got a 'Did you mean' 2 letters away (the rule is 1 under 7 letters)"
+            return "'rain jacket' has no Training, 'run' no Brunch/Trunk, 'xqzt' gets no far-off suggestion"
+        check("Search: a word matches the start (or end) of a word, never its middle")(word_start, page)
+
         def nonsense():
             all_gear()
             page.fill("#dSearch", "zzqxw")

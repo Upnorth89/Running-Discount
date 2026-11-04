@@ -1529,8 +1529,12 @@ const SQ=s=>s.replace(/[^a-z0-9]/g,"").replace(/v(?=\d)/g,"");
 // Oct 24 (searches that found nothing: "saucony endorphins speed", "glycerine"): a word also matches without a trailing s or e
 /* Oct 29 (morning email: "nike zoomfly" found nothing, 12 names say "Zoom Fly"): after \u0001 the hay keeps two neighbouring words
    joined ("zoomfly"); those only match a typed word EXACTLY, so "odlo" still never finds "Hood - Long" */
+/* Nov 4 (growth's round: "rain jacket" found only Craft "Nordic TRAINing" jackets): a typed word must start a word of the name
+   ("rain" never inside "training", "run" never inside "Brunch"/"Trunk"); the trailing s/e forgiveness stays */
+const AN=/[a-z0-9]/,wstart=(m,w)=>{for(let i=m.indexOf(w);i>=0;i=m.indexOf(w,i+1)){const e=m.slice(i+w.length).replace(/^(es|s)/,"");
+  if(!i||!AN.test(m[i-1])||!AN.test(e[0]||" "))return true}return false};   // or it ends a word: "lamp" = headlamp, "goat" = Speedgoat
 const qhas0=(t,w)=>{const i=t.indexOf("\u0001"),m=i<0?t:t.slice(0,i);
-  return m.includes(w)||(w.length>4&&/[se]$/.test(w)&&m.includes(w.slice(0,-1)))||(i>=0&&w.length>=5&&t.includes("\u0001"+w+"\u0001"))};
+  return wstart(m,w)||(w.length>4&&/[se]$/.test(w)&&wstart(m,w.slice(0,-1)))||(i>=0&&w.length>=5&&t.includes("\u0001"+w+"\u0001"))};
 /* Nov 3 (growth's walk: "bas" found base layers, "manteau de pluie" / "souliers de course" / "lampe frontale" found nothing): French
    words look for their English word too (names are mostly English). "bas"/"souliers"/"chaussettes" ONLY mean socks/shoes (never inside
    "base"). Same list in scraper/search_check.py (FR_WORD / FR_PHRASE). */
@@ -1549,8 +1553,8 @@ function lev(a,b){if(Math.abs(a.length-b.length)>2)return 9;let p=Array.from({le
 function suggest(q,fold){const V=vocab(fold);let changed=false;
   const out=q.map(w=>{if([...V.keys()].some(k=>qhas(k,w)))return w;
     const m=w.match(/^([a-z]{3,})(\d+)$/);if(m&&V.has(m[1])){changed=true;return m[1]+" "+m[2]}   // "norda000" -> "norda 000"
-    if(w.length<4)return w;let best=null,bd=(w.length>=7?2:1)+1,bn=0;
-    for(const [k,n] of V){const d=lev(w,k);if(d<bd||(d===bd&&n>bn)){best=k;bd=d;bn=n}}
+    if(w.length<4)return w;const lim=w.length>=7?2:1;let best=null,bd=lim+1,bn=0;   // Nov 4: never a word lim+1 away ("xqzt" -> "xact")
+    for(const [k,n] of V){const d=lev(w,k);if(d<=lim&&(d<bd||(d===bd&&n>bn))){best=k;bd=d;bn=n}}
     if(best){changed=true;return best}return w});
   return changed?out.join(" "):null}
 function searchHelp(q,p,n,fold){const raw=esc(view.q.trim()),bits=[];
