@@ -33,6 +33,10 @@ T = {
         "dir": "shoes", "lang": "en-CA", "other": "fr",
         "title": "{name} price in Canada: every size, every store",
         "titleSale": "{name} Sale Canada: from {price} (−{p}%)",
+        "titleBF": "{name} Black Friday price tracker, Canada: from {price} (−{p}%)",
+        "brandBF": " | Black Friday price tracker",
+        "bfLine": "Black Friday is November 27. This page updates twice a day: watch this shoe, add your email, and we'll let you know when it drops 10% or more in your size.",
+        "bfLineA": "Black Friday deals →",
         "aboutH": "About this shoe", "faqH": "Quick answers",
         "pwLow": "Today's price is the lowest we've seen in {n} days: {today}.", "pwWas": "It was {low} on {date} ({now} today). Sales come back: don't miss the next one.", "pwBtn": "Email me when it drops",
         "about": "The {name} is a {type}. Today {stores} stores in Canada carry it and we found {sizes} sizes in stock.",
@@ -149,6 +153,10 @@ T = {
         "dir": "chaussures", "lang": "fr-CA", "other": "en",
         "title": "{name} : prix au Canada, chaque pointure, chaque boutique",
         "titleSale": "{name} en solde au Canada : dès {price} (−{p} %)",
+        "titleBF": "{name} : suivi des prix du Vendredi fou au Canada, dès {price} (−{p} %)",
+        "brandBF": " | Suivi des prix du Vendredi fou",
+        "bfLine": "Le Vendredi fou tombe le 27 novembre. Cette page est mise à jour deux fois par jour : suivez cette chaussure, ajoutez votre courriel et on vous avertit quand son prix baisse de 10 % ou plus dans votre pointure.",
+        "bfLineA": "Aubaines du Vendredi fou →",
         "aboutH": "À propos de cette chaussure", "faqH": "Réponses rapides",
         "pwLow": "Le prix d'aujourd'hui est le plus bas des {n} derniers jours : {today}.", "pwWas": "Elle était à {low} le {date} ({now} aujourd'hui). Les soldes reviennent : ne manquez pas la prochaine.", "pwBtn": "M'avertir quand il baisse",
         "about": "La {name} est une {type}. Aujourd'hui, {stores} boutiques au Canada la vendent et nous avons trouvé {sizes} pointures en stock.",
@@ -268,6 +276,7 @@ US.update({
     "dir": "us/shoes", "lang": "en-US", "other": "en-CA", "q": "&c=us", "home": "/?c=us", "cur": "USD",
     "title": "{name} price: every size, every store",
     "titleSale": "{name} Sale: from {price} (−{p}%)",
+    "titleBF": "{name} Black Friday price tracker: from {price} (−{p}%)",
     "about": "The {name} is a {type}. Today {stores} US stores carry it and we found {sizes} sizes in stock.",
     "qSale": "Is the {name} on sale right now?", "qWhere": "Where is the {name} cheapest?",
     "hubs": {"all": ("Running shoes on sale", "Running shoes on sale today", "Every popular running shoe on sale today at US running stores, sorted by the biggest discount. Checked twice a day."),
@@ -661,7 +670,7 @@ tr.yours td:first-child{font-weight:700;box-shadow:inset 4px 0 0 var(--hivis)}
 .pw.good{border-left-color:#1C6B37}.pw b{display:block;font-size:14px;color:var(--muted)}
 .pwbtn{display:inline-block;margin-top:2px;background:var(--hivis);color:#17201C;font-weight:700;text-decoration:none;border-radius:999px;padding:8px 14px}
 .browse.sizes a[aria-current]{background:var(--ink);color:var(--card)}
-.browse.onsale{margin-top:18px}.browse.onsale b{flex-basis:100%;font:700 13px var(--body);color:var(--muted);margin-bottom:2px}
+.bfline{background:var(--card);border:1.5px solid var(--line);border-left:5px solid var(--hivis);border-radius:12px;padding:10px 14px;margin:12px 0;font-size:15px}.browse.onsale{margin-top:18px}.browse.onsale b{flex-basis:100%;font:700 13px var(--body);color:var(--muted);margin-bottom:2px}
 """
 
 
@@ -1299,6 +1308,14 @@ def price_chart(its, L, updated, prefix=""):
     return {lab: f'<section class="pws"><p class="pw {k}">{esc(t)}</p>{btn}</section>' for lab, k, t in blocks}, ""
 
 
+def bf_titles(today=None):
+    """Nov 4 (SEO audit #2, compliance-checked text): Black Friday wording on running model + brand pages, Nov 10 - Dec 1, Vancouver
+    date (pages are rebuilt every morning, so Dec 2 builds without it). BF_TITLES=1 forces it (previews, checks)."""
+    import datetime
+    d = today or datetime.datetime.now(HOME_TZ).date()
+    return bool(os.environ.get("BF_TITLES")) or (11, 10) <= (d.month, d.day) <= (12, 1)
+
+
 def model_page(slug, its, stores, L, updated, related, brand_models, paths=None, brand_pages=(), hide=False):
     first = its[0]
     brand = first["b"]
@@ -1324,7 +1341,8 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None,
     top = max((round(100 * (1 - p / r)) for p, r, *_ in sale), default=0)
     n_stores = len({host(u) for d in its for u in d["of"]})          # every store that carries it, not just the cheapest
     sm = summary(its, stores) if any(d["sz"] for d in its) else None
-    title = (L["titleSale"].format(name=name, price=money(sm["price"]), p=sm["off"]) if sm and sm["off"] >= 10
+    bfw = bf_titles() and not L.get("hike") and "titleBF" in L
+    title = ((L["titleBF"] if bfw else L["titleSale"]).format(name=name, price=money(sm["price"]), p=sm["off"]) if sm and sm["off"] >= 10
              else L["title"].format(name=name))
     desc = L["desc"].format(name=name, n=n_stores, off=L["descOff"].format(p=top) if top >= 10 else "")
     ld = ""
@@ -1354,6 +1372,8 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None,
         img = f'<img src="{esc(photo)}" alt="{esc(name)}" loading="lazy" referrerpolicy="no-referrer">' if photo else ""
         out.append(f'<div class="hero">{img}<div>{f"<span class=tag>{esc(t)}</span>" if t else ""}<p>{line}</p>{badge}'
                    f'<p class="facts">{L["facts"].format(sizes=len(allrows), stores=n_stores, date=fmt_date(updated, L))}</p></div></div>')
+        if bfw:       # the one Black Friday line (never on a page with nothing in stock: that one shows #backBox)
+            out.append(f'<p class="bfline">{esc(L["bfLine"])} <a href="/{L["bfDir"]}/">{esc(L["bfLineA"])}</a></p>')
     else:
         out.append(f'<div class="hero"><div>{f"<span class=tag>{esc(t)}</span>" if t else ""}<p>{L["none"]}</p></div></div>')
         # Oct 27 (Bastien OK'd idea 1: ~114 shoe pages say "Not in stock"; shoe pages bring most sign-ups): watch the PAGE ("page|<slug>",
@@ -1674,7 +1694,8 @@ def brand_title(L, b, rows):
     on = [r for r in rows if (r[2].get("top") or 0) > 0]
     if not on:
         return L["brandTitle"].split(":")[0].format(brand=bname(b))
-    return L["brandTitle"].format(brand=bname(b), n=len(on), p=max(r[2]["top"] for r in on))
+    t = L["brandTitle"].format(brand=bname(b), n=len(on), p=max(r[2]["top"] for r in on))
+    return t + L["brandBF"] if bf_titles() and L.get("brandBF") and not L.get("hike") else t
 
 
 def list_page(L, path_en, path_fr, title, h1, intro, rows, brands, extra="", after=""):
