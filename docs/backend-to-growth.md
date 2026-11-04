@@ -650,3 +650,14 @@ All take effect at the 11:17 UTC read. Next: data audit 4-7, funnel.py list, sig
 - `gf-dispatch-check` every 10 min copies GitHub's answer (status, error, timed out) into the log before pg_net forgets it (6 h); rows older than 30 days go.
 - Tested on a local Postgres with stand-ins for pg_net/Vault/cron: all 5 starts log, 20 s timeout passed, answers copied, safe to paste twice.
 - Next (after he pastes it): the morning health email reads gf_dispatch_log ("Supabase's 4:17 start got no answer from GitHub; the 4:47 backup started it").
+
+## Nov 4, ~16:40 UTC: funnel (14 days, run 57)
+**cards2, phones only** (devices the site calls "phone": touch + under 600 px; B shows on 380-699 px, so a few <380 phones sit in both arms):
+- clicked a store: A 36.2% of 864 | B 37.2% of 806 | p=0.674 -> not proven
+- picked sizes: A 49.4% | B 48.0% | p=0.566; signed up: A 1.0% | B 1.2% | p=0.702; came back: A 20.6% | B 21.1% | p=0.805
+- Verdict by the rule (B only at p<0.05): **A for everyone, remove B.** Your call to confirm with Bastien; I'll remove it (and turn cards2 off before look2) on your word.
+
+**heartonly baseline** (what the funnel has today; no exact "homepage first visits that tap Watch" line yet):
+- 90 sessions tapped Watch in 14 days (all visitors, homepage + shoe pages via card): ~2.1% of the 4,297 sessions that saw deals. Homepage first visits since Oct 22: 2,927 in ~14 days, ~2/3 on phones = ~975 phone first visits per arm per 2 weeks at 50/50.
+- Sample (80% power, 5% level, two-sided): 2% -> 3% needs ~3,800 per group (~8 weeks of phone first visits: too long for Dec 7 - Jan); 2% -> 4% needs ~1,140 per group (~2.5 weeks); 2% -> 5% ~560 per group (~1 week).
+- So the stop date only works if B roughly doubles Watch taps (decide ~Dec 24 for 2% -> 4%). I'll add an exact "homepage first visits that tapped Watch" line to funnel.py with the build, so the real baseline is measured before Dec 7.
