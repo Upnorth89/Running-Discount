@@ -3957,6 +3957,8 @@ if not SPORTSEXPERTS_ON:
     STORES.pop("sportsexperts", None)
 
 # Casual footwear some running stores also sell; not what people come here for.
+JEWELRY = re.compile(r"\b(necklaces?|earrings?|pendants?|bracelets?)\b", re.I)
+JEWELRY_BRANDS = {"brighton", "bronwen", "artiken", "play monster", "pura vida", "alex and ani", "kendra scott"}
 CASUAL_ANY = {"birkenstock", "crocs", "ugg", "dr. martens", "clarks", "blundstone", "wolky", "teva", "pony"}   # Nov 4: out in every group
 SOCCER_ANY = re.compile(r"(?i:\b(soccer|futsal|mercurial|goalkeeper)\b|\b(fg|ag|sg)(/\w+)?\s+cleats?\b)")   # never ice cleats (traction gear)
 CLOTH_VEST_WORDS = re.compile(r"hybrid|insulated|shield|\bwind|thermal|\bdown\b|puffer|subz|fleece|soft-?shell|visible|quilted|primaloft", re.I)
@@ -4401,6 +4403,11 @@ def tidy_shoes(offers):
         if (o["b"] or "").lower() in CASUAL_ANY or (o["b"] or "").lower() == "tyrol":
             continue
         if o["g"] != "shoes" and SOCCER_ANY.search(o["n"]):
+            continue
+        # Nov 4 (growth's re-check): gift-shop items at running stores (Brighton necklaces filed as shorts at Confluence, ArtiKen
+        # bracelets as bras, BRONWEN earrings as shorts); REI's Patagonia PowSlayer ski line. Watch bands ("bracelet de montre") stay
+        if (o["b"] or "").lower() in JEWELRY_BRANDS or (JEWELRY.search(o["n"]) and o["g"] != "watches" and not re.search(r"watch|montre|band", o["n"], re.I)) \
+                or (re.search(r"\bpow ?slayer\b", o["n"], re.I) and o["g"] != "headwear"):
             continue
         if o["g"] == "bottoms" and re.search(r"\b(jacket|coat|parka|anorak|blazer)\b", o["n"], re.I) and not re.search(r"\bset\b", o["n"], re.I):
             o["g"] = "tops"            # "Emiko Short Shell Jacket", "Chelsea Short Coat": short jackets, not shorts
