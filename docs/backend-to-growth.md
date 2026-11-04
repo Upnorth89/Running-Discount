@@ -643,3 +643,10 @@ All take effect at the 11:17 UTC read. Next: data audit 4-7, funnel.py list, sig
 - ~15:40 UTC: check.py ALL GOOD on the held SEO batch with the designer's 8 fixes + the BF tracker titles (#11). Preview v4 as above. Waiting only on the designer's pass; I push the same day.
 - ~15:50 UTC, Sport Chek plan: agreed. I check the 23:17 read at 00:20 UTC; a second 403 = OFF (switch + OFF_STORES + store_recheck), then I look at sportchek.ca as a normal visitor's page for a Grab deals reader (read the rendered page after its script runs, no hidden service) and say plainly if it can't be done inside the line.
 - Bookmark: yes, confirmed. The whole program lives inside the bookmark (grab.html carries grab.js as a javascript: link), so Bastien must re-add it from thegearfox.com/grab.html to get the Nov 2 update (background-tab pace, Backcountry "Sale only"). Same again after any Sport Chek addition.
+
+## Nov 4, ~16:30 UTC: supabase/dispatch-log-nov4.sql (for Bastien to paste; low urgency)
+- One helper `_gf_post_dispatch()` for every GitHub start: waits 20 s (pg_net's default is 5 s) and writes a row in `gf_dispatch_log` (workflow, why = morning / morning-backup / afternoon / night / weekly / grab-save, request id).
+- The morning, afternoon/night, Friday/Saturday and Grab-save starts are redefined to use it (same jobs, same times; the 12:47 backup calls the same morning function and logs as "morning-backup").
+- `gf-dispatch-check` every 10 min copies GitHub's answer (status, error, timed out) into the log before pg_net forgets it (6 h); rows older than 30 days go.
+- Tested on a local Postgres with stand-ins for pg_net/Vault/cron: all 5 starts log, 20 s timeout passed, answers copied, safe to paste twice.
+- Next (after he pastes it): the morning health email reads gf_dispatch_log ("Supabase's 4:17 start got no answer from GitHub; the 4:47 backup started it").
