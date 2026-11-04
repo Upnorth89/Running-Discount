@@ -4342,10 +4342,45 @@ SHOE_CARE = re.compile(r"\blaces?\b|\blacets?\b|quicklace|cleaner|cleaning|repel
 LEAD_SHOE = re.compile(r"^(trail |road )?running shoes?\s*[-–,]\s*", re.I)      # Stampeak (NNormal), Decathlon: "Trail running shoes - Tomir 2.0"
 ONE_COLOUR = re.compile(r"\s+[-–]\s+(black|white|beige|blue|green|orange|red|brown|burgundy|grey|gray|pink|purple|yellow|navy)(?=\s+[-–]\s+(men|women|unisex))", re.I)
 
+# Nov 4 (data audit): store codes left in names. Running Room puts its SKU in brackets ("Bedlam 3 Running Shoe (BRK-120330 1B
+# 46432F0 12 (117) JET/ATLANTIS/A) - Women's"); PR Run & Walk leaves an unclosed "(" and a style code ("GEL-Nimbus 26 ( - 1012B602.400
+# - Women's", "ASCIS GT-2000 14 ("); Scranton/Columbus add Saucony codes ("Hurricane 25 S21026", "Hurricane 25, 205").
+RR_SKU = re.compile(r"\s*\([A-Z]{2,4}-\w+\s.*\)(?=(\s+-\s+(Men|Women|Unisex)[’']?s?)?$)")
+CODE_SEG = re.compile(r"(?=.*\d)(?:(?:[A-Z0-9]*\d[A-Z0-9]*(?:[.\-][A-Z0-9]+)*|[A-Z0-9]{1,2})\s*)+", re.I)
+
+def strip_codes(n, shoe):
+    m = RR_SKU.search(n)
+    wide = bool(m and shoe and re.search(r"\b[246]E\b", m.group()))   # "(BRK-110365 4E 4857960 …)" = extra wide
+    n = RR_SKU.sub("", n)
+    if not shoe:
+        return n
+    n = re.sub(r"^ASCIS\s+", "", n)
+    n = re.sub(r"\bGT - (\d)", r"GT-\1", n)
+    m = re.search(r"\s*\(([^()]*)$", n)                      # an unclosed "(": "Ghost 16 ( - 120407 1D 175 - Women's"
+    if m:
+        wide = wide or bool(re.match(r"\s*(extra |x-?)?wide\b", m.group(1), re.I))
+        rest = re.sub(r"^\s*((extra |x-?)?wide)?\s*", "", m.group(1), flags=re.I)
+        n = n[:m.start()] + (" " + rest if rest else "")
+    segs = [x.strip() for x in n.split(" - ")]
+    keep = [segs[0]] + [x for x in segs[1:] if x and not (CODE_SEG.fullmatch(x) and re.search(r"(?=[\w.-]*\d)[\w.-]{5,}", x))]   # never "2E"
+    n = " - ".join(keep)
+    n = re.sub(r"[-\s]+S[123]\d{4}(-\d+)?\b|,\s*\d{3}\b(?=\s+-\s|$)", "", n)   # Saucony style codes, a colour number
+    n = re.sub(r"\s*-\s*-\s*", " - ", re.sub(r"\s{2,}", " ", n)).strip(" -")
+    return n + ("\x00w" if wide else "")
+
 def tidy_shoes(offers):
     """Drop casual footwear and narrow-only shoes; mark wide ones from the product name."""
     out = []
     for o in offers:
+        n0 = strip_codes(o["n"], o["g"] == "shoes")
+        if n0.endswith("\x00w"):
+            n0, o["w"] = n0[:-2], True
+        o["n"] = n0 or o["n"]
+        if o["g"] == "shoes" and o.get("sz") and all(str(z[0]).upper() == "OS" for z in o["sz"]):
+            if re.search(r"\bhorn\b|dryer|\brack\b|pocket|preventer|\bbag\b|wallet|\bclip", o["n"], re.I):
+                o["g"] = "gear"        # shoe things filed as shoes (shoe horn, dryer)
+            else:
+                continue               # a shoe with no readable size matched every visitor (Performance Running: one product per size)
         if o["g"] == "shoes" and LEAD_SHOE.search(o["n"]):       # Oct 19 (mystery shop): "Tomir 2.0 - Unisex", one card for every colour
             lead = re.sub(r"[\s,–-]+$", "", LEAD_SHOE.search(o["n"]).group(0))      # "Trail Running Shoes" goes after the model
             n = re.sub(r"\s+–\s+", " - ", ONE_COLOUR.sub("", LEAD_SHOE.sub("", o["n"])))  # (keeps "trail" for the road/trail type)
