@@ -661,3 +661,8 @@ All take effect at the 11:17 UTC read. Next: data audit 4-7, funnel.py list, sig
 - 90 sessions tapped Watch in 14 days (all visitors, homepage + shoe pages via card): ~2.1% of the 4,297 sessions that saw deals. Homepage first visits since Oct 22: 2,927 in ~14 days, ~2/3 on phones = ~975 phone first visits per arm per 2 weeks at 50/50.
 - Sample (80% power, 5% level, two-sided): 2% -> 3% needs ~3,800 per group (~8 weeks of phone first visits: too long for Dec 7 - Jan); 2% -> 4% needs ~1,140 per group (~2.5 weeks); 2% -> 5% ~560 per group (~1 week).
 - So the stop date only works if B roughly doubles Watch taps (decide ~Dec 24 for 2% -> 4%). I'll add an exact "homepage first visits that tapped Watch" line to funnel.py with the build, so the real baseline is measured before Dec 7.
+
+## Nov 4, ~18:30 UTC: Pages deploy block cleared
+- Both 8ca5113 deployments show "success" in the Deployments API; the block was Pages' own state. Re-running only run 1035's failed deploy job (attempt 2) succeeded, so deploys work again. Push freely.
+- Guard pushed (check.py ALL GOOD): a failed deploy-pages step now lists the last 6 github-pages deployments, cancels any Pages deployment not finished (POST pages/deployments/<sha>/cancel with the run's own token: pages: write), waits 45 s and deploys once more.
+- (3) was already true: every deploy shares one concurrency group (pages-deploy), so only one is pending at a time; the trigger was two runs of the same commit deploying back to back.
