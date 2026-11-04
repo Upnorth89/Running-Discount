@@ -2094,6 +2094,10 @@ def hidden_product(p):
     # (Gear Trade "UnNew", Sea to Summit "(Like New)", wildrock "-used" handles, Feathered Friends "Washed and Returned")
     if any(t.startswith("consignment") or t in ("used", "pre-owned", "like new", "factory second", "refurbished") for t in tl):
         return True
+    # Nov 4 (data audit): Gazelle's soccer jerseys/shorts carry no soccer word in the name; the store's own tags/type say it
+    if any(t in ("activity:soccer", "soccer apparel", "gs soccer") or t.startswith("apparel type:soccer") for t in tl) \
+            or re.search(r"\bsoccer\b", p.get("product_type") or "", re.I):
+        return True
     h = (p.get("handle") or "").lower()
     return bool(USED_RX.search(p.get("title") or "") or h.endswith("-used") or "-like-new" in h or "factory-second" in h)
 
