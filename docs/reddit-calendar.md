@@ -11,7 +11,7 @@ every link opened on the live site first, the copy page + the Markdown block. Ba
 |------|--------|-----------|--------|
 | A | r/RunningDeals (`--side both --direct`) | r/runTO (`--toronto`, mod-approved) | (open: r/trailrunning dropped Oct 29, pick a new sub) |
 | B | r/RunningDeals | r/runninglifestyle | r/xxrunning (`--sex women`, check rules) |
-| C | r/RunningDeals | r/RunVancouver (`--city vancouver`) | r/ultrarunning (`--kind trail`, his own story first) |
+| C | r/RunningDeals | r/RunVancouver (`--city vancouver`) | (r/ultrarunning dropped Nov 4: no traction; slot open) |
 | D | r/RunningDeals | r/runningmontreal (`--city montreal`, FR + EN) | r/FrugalMaleFashionCDN (`--side ca --sex men`, check rules) |
 
 Weeks: B = the week of Mon Oct 19, 2026, then C (Oct 26), D (Nov 2), A (Nov 9), B (Nov 16)… (week letter = A + ((Monday - Nov 9) / 7) mod 4). This week skips Monday (r/RunningDeals was posted Oct 18). Black Friday week (Nov 23-30): every post points to /black-friday/ (US /us/black-friday/).
@@ -24,7 +24,7 @@ Nov 4 r/ultrarunning: use the drafted gear-list post in docs/reddit-drafts/ultra
 ## Log (newest first)
 | Date | Sub | Posted? | Visits from it (7 days) |
 |------|-----|---------|-------------------------|
-| Nov 4 | r/ultrarunning (5 CA + 5 US trail shoes, shoe page links only, + race gear lists line /races/?ref=reddit-ultra; Hoka Rocket X left out: failed post_check; ?ref=reddit-ultrarunning) | waiting | |
+| Nov 4 | r/ultrarunning (5 CA + 5 US trail shoes, shoe page links only, + race gear lists line /races/?ref=reddit-ultra; Hoka Rocket X left out: failed post_check; ?ref=reddit-ultrarunning) | skipped (Bastien, Nov 4: "There's no traction there"). Dropped from the rotation | |
 | Nov 2 | r/RunningDeals (week D Monday: 8 CA + 8 US shoes, shoe page links only; Hoka Rocket X left out: failed post_check; ?ref=reddit-runningdeals) | waiting | |
 | Oct 30 | r/ultrarunning (week C Friday slot) | skipped: moved to Nov 4, the drafted gear-list post (Bastien, Oct 29: "not a shoe list") | |
 | Oct 29 | r/trailrunning (9 CA + 1 US trail shoes) | skipped (Bastien: not with one US shoe; the sub "wasn't a big hit") | |
