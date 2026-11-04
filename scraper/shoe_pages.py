@@ -442,6 +442,69 @@ def tidy_words(html):
     return re.sub(r"\b([Tt])he The\b", "The", html)
 
 
+ALT_RE = re.compile(r'<link rel="alternate" hreflang="([^"]+)" href="([^"]+)">')
+ALT_ORDER = ["en-CA", "fr-CA", "en-US"]
+
+
+def hreflang_sync(site):
+    """Nov 4 (growth's SEO audit: Google ignores one-way hreflang; Canadian shoe pages never named their US twin): every page in a
+    twin set (en-CA / fr-CA / en-US) lists ALL members + itself + x-default, whichever builder made which page. Forwarding pages
+    (instant redirect) stay out. Returns how many pages changed."""
+    site = Path(site)
+    pages, lang, links = {}, {}, {}
+    for f in site.rglob("index.html"):
+        if f.parent == site:
+            continue
+        t = f.read_text(errors="ignore")
+        if 'http-equiv="refresh"' in t:
+            continue
+        url = BASE + "/" + str(f.parent.relative_to(site)).replace("\\", "/") + "/"
+        pages[url] = f
+        alts = [(h, u) for h, u in ALT_RE.findall(t) if h != "x-default"]
+        links[url] = [u for _, u in alts]
+        for h, u in alts:
+            lang.setdefault(u, h)
+    parent = {u: u for u in pages}
+    def find(u):
+        while parent[u] != u:
+            parent[u] = parent[parent[u]]
+            u = parent[u]
+        return u
+    for u, ts in links.items():
+        for v in ts:
+            if v in pages and v != u:
+                parent[find(u)] = find(v)
+    groups = {}
+    for u in pages:
+        groups.setdefault(find(u), []).append(u)
+    n = 0
+    for members in groups.values():
+        if len(members) < 2:
+            continue
+        by = {}
+        for u in members:
+            h = lang.get(u)
+            if not h or h in by:          # unknown or two pages claiming one language: leave this set as it is
+                by = None
+                break
+            by[h] = u
+        if not by:
+            continue
+        block = "\n".join(f'<link rel="alternate" hreflang="{h}" href="{by[h]}">' for h in ALT_ORDER if h in by)
+        block += f'\n<link rel="alternate" hreflang="x-default" href="{by.get("en-CA") or by.get("en-US") or by[next(iter(by))]}">'
+        for u in members:
+            f = pages[u]
+            t = f.read_text(errors="ignore")
+            spans = [m.span() for m in re.finditer(r'<link rel="alternate" hreflang="[^"]+" href="[^"]+">\n?', t)]
+            if not spans:
+                continue
+            new = t[:spans[0][0]] + block + "\n" + re.sub(r'<link rel="alternate" hreflang="[^"]+" href="[^"]+">\n?', "", t[spans[0][0]:])
+            if new != t:
+                f.write_text(new)
+                n += 1
+    return n
+
+
 def tidy_pages(site, dirs=None):
     """Run tidy_words over every index.html under site (or under the given sub-folders); returns how many changed."""
     n = 0
@@ -455,6 +518,7 @@ def tidy_pages(site, dirs=None):
             if u != t:
                 f.write_text(u)
                 n += 1
+    hreflang_sync(site)          # Nov 4: twin pages always name each other (whichever builder ran last)
     return n
 
 
@@ -1755,6 +1819,12 @@ def main():
     if "<!--SEO-TODAY-->" in html_ and "<!--/SEO-TODAY-->" in html_:
         block = home_section(T["en"], T["fr"], [r for r in kinds["all"] if r[2]["sizes"] >= 6][:12], brands, us_home)
         html_ = re.sub(r"<!--SEO-TODAY-->.*?<!--/SEO-TODAY-->", lambda m: "<!--SEO-TODAY-->" + block + "<!--/SEO-TODAY-->", html_, flags=re.S)
+        try:   # Nov 4 (growth's SEO audit): the homepage's store count = today's real count, rounded down to 10 ("more than 170")
+            ns = int(json.loads((site / "sale.json").read_text()).get("n_stores") or 0)
+            if ns >= 20:
+                html_ = re.sub(r"more than \d+ running stores", f"more than {ns // 10 * 10} running stores", html_)
+        except Exception:
+            pass
         idx.write_text(html_)
     (site / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
                                       "".join(f"<url><loc>{BASE}{u}</loc><lastmod>{day}</lastmod></url>\n" for u in urls if u not in NOINDEX) + "</urlset>\n")
@@ -1815,7 +1885,7 @@ def forward_old(known, models, site, dirs):
             p.parent.mkdir(parents=True, exist_ok=True)
             u = f"/{d}/{to}/"
             p.write_text(f'<!DOCTYPE html><html><head><meta charset="UTF-8"><title>{esc(known[to]["n"])}</title><link rel="canonical" href="{BASE}{u}">'
-                         f'<meta name="robots" content="noindex"><meta http-equiv="refresh" content="0; url={u}"></head><body><a href="{u}">{esc(known[to]["n"])}</a></body></html>')
+                         f'<meta http-equiv="refresh" content="0; url={u}"></head><body><a href="{u}">{esc(known[to]["n"])}</a></body></html>')
 
 
 def build_us(site, stores, ca_models, ca_brands):

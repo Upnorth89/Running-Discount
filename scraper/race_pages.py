@@ -348,7 +348,11 @@ def utmb_na(cats):
     return out
 
 
-def utmb_race(name, short, where, when, cats, src, side="ca", de="de l'", le="l'", default=None):
+def utmb_race(name, short, where, when, cats, src, side="ca", de=None, le=None, default=None):
+    # Nov 4 (growth's SEO audit): « de l'Rothrock » was wrong French; l' only before a vowel or h, else du / le
+    vow = re.match(r"[AEIOUYHÀÂÉÈÊÎÔÛ]", name, re.I)
+    de = de or ("de l'" if vow else "du ")
+    le = le or ("l'" if vow else "le ")
     return {"name": name, "short": short, "de": de, "le": le, "where": where, "when": when, "side": side,
             "dists": [d for d, _ in cats], "default": default or cats[0][0], "unit": "label", "src": src, "cupless": True,
             "read": {"en": "October 21, 2026 (2026–2027 list)", "fr": "21 octobre 2026 (liste 2026-2027)"},

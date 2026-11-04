@@ -251,6 +251,21 @@ jobs:
           [ -f hist/prices.jsonl ] && python scraper/history.py hist/prices.jsonl site --hike ${{ github.event_name == 'push' && '--no-save' || '' }} || echo "::warning::hiking price history failed"
           python scraper/shoe_pages.py site --hike || echo "::warning::boot pages failed"   # boot & hiking shoe price pages (Oct 25)
           python scraper/hike_pages.py site || echo "::warning::trail gear lists failed"   # trail gear lists (Oct 25): checked hikes only
+      # Nov 4 (growth's SEO audit): sitemap <lastmod> = the day each page's text last changed (tools/lastmod.py), not "today" for all
+      - uses: actions/cache/restore@v4
+        with:
+          path: /tmp/lastmod-state.json
+          key: lastmod-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: lastmod-
+      - name: Sitemap dates (last real change per page)
+        continue-on-error: true
+        run: python tools/lastmod.py site /tmp/lastmod-state.json
+      - uses: actions/cache/save@v4
+        if: always()
+        continue-on-error: true
+        with:
+          path: /tmp/lastmod-state.json
+          key: lastmod-${{ github.run_id }}-${{ github.run_attempt }}
       # a robot visitor clicks through today's site before it goes live: sizes, every category, one search per category,
       # filters, hearts, menu, French, shoe pages, links (tools/sitetest.py, Oct 5, 2026). Results go in the health email;
       # a critical failure (no deals, crash, empty shoe pages) is retried once, then stops publishing (see below).

@@ -356,6 +356,46 @@ def main():
         return f"{len(got)} deals for a size-11 runner"
     step("Friday email matching + cards", email)
 
+    def hreflang():   # Nov 4 (growth's SEO audit): Google ignores one-way hreflang; every twin must name this page back
+        rx = re.compile(r'<link rel="alternate" hreflang="([^"]+)" href="https://thegearfox.com(/[^"]*)">')
+        bad, n = [], 0
+        for f in site.rglob("index.html"):
+            if f.parent == site:
+                continue
+            t = f.read_text(errors="ignore")
+            if 'http-equiv="refresh"' in t:
+                continue
+            me = "/" + str(f.parent.relative_to(site)) + "/"
+            for h, u in rx.findall(t):
+                if h == "x-default" or u == me:
+                    continue
+                g = site / u.strip("/") / "index.html"
+                if not g.exists():
+                    continue
+                n += 1
+                if f'href="https://thegearfox.com{me}"' not in g.read_text(errors="ignore"):
+                    bad.append(f"{u} doesn't name {me} back")
+        if bad:
+            raise RuntimeError(f"{len(bad)} one-way language links, e.g. " + " | ".join(bad[:4]))
+        return f"{n} language links, every one answered by its twin"
+    step("Language twins (hreflang) name each other back", hreflang)
+
+    def lastmods():   # Nov 4 (growth's SEO audit): every sitemap URL carries a date, and an unchanged page keeps its old one
+        st = work / "lastmod-state.json"
+        for _ in range(2):                    # 1st run: no memory (all today); 2nd run on the same pages: every page unchanged
+            r = subprocess.run([sys.executable, str(ROOT / "tools" / "lastmod.py"), str(site), str(st)], capture_output=True, text=True)
+            if r.returncode:
+                raise RuntimeError(r.stderr[-400:])
+        xml = (site / "sitemap.xml").read_text()
+        urls = re.findall(r"<url>.*?</url>", xml, re.S)
+        miss = [u for u in urls if "<lastmod>" not in u]
+        if miss:
+            raise RuntimeError(f"{len(miss)} sitemap URLs without a date, e.g. {miss[0][:120]}")
+        if "0 unchanged" in r.stdout or not re.search(r"\b0 pages changed", r.stdout):
+            raise RuntimeError("a second read of the same pages should change none: " + r.stdout.strip())
+        return f"{len(urls)} sitemap URLs dated; {r.stdout.strip()}"
+    step("Sitemap dates: every page dated, unchanged pages keep their day", lastmods)
+
     def wording():   # Nov 3 (Bastien: "This looks sloppy"): growth's walk found "1 deals", "1 picks", "every morning" next to
         # "twice a day", "60+ stores" next to "170": every built page is read the way a visitor reads it, and these never come back
         import html as H
@@ -363,7 +403,8 @@ def main():
                (re.compile(r"\bevery morning\b(?! and afternoon)|\bchaque matin\b(?! et chaque après-midi)", re.I), "'every morning' (we check twice a day)"),
                (re.compile(r"\b\d+\+ (Canadian )?(running |outdoor )?stores\b|plus de \d+ boutiques"), "a typed-in store count (use the real one)"),
                (re.compile(r"\bde la La |\bthe The |\bthe La (?!Sportiva)|\bdu La (?!Sportiva)"), "a doubled article"),
-               (re.compile(r"\b(deals|aubaines) \?|[a-zé] \?(?=\s|$)"), "a space before ? (French style here: attached)")]
+               (re.compile(r"\b(deals|aubaines) \?|[a-zé] \?(?=\s|$)"), "a space before ? (French style here: attached)"),
+               (re.compile(r"(?<![A-Za-zÀ-ÿ])[dlDL]['’](?=[BCDFGJKMNPQRSTVWXZ])"), "l'/d' before a consonant (« de l'Rothrock »)")]
         skip = ("report/", "rapport/", "grab", "stats", "catalog")
         hits, n = [], 0
         for f in site.rglob("index.html"):

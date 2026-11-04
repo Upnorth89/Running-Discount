@@ -25,24 +25,7 @@ HOST = "thegearfox.com"
 STATE = Path(sys.argv[1] if len(sys.argv) > 1 else "/tmp/indexnow-state.json")
 UA = {"User-Agent": "TheGearFox-IndexNow/1.0 (+https://thegearfox.com/about.html)"}
 
-MON = r"(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?"
-MOIS = r"(?:janv|févr|fevr|mars|avr|mai|juin|juil|août|aout|sept|oct|nov|déc|dec)[a-zéû]*\.?"
-STAMPS = [re.compile(p, re.I) for p in (
-    rf"\b{MON} \d{{1,2}}(?:, \d{{4}})?",            # Oct 23 / October 23, 2026 / Oct. 22
-    rf"\b\d{{1,2}}(?:er)? {MOIS}(?: \d{{4}})?",      # 23 oct. / 1er novembre 2026
-    r"\b\d{4}-\d{2}-\d{2}(?:T[\d:.+Z-]+)?",           # 2026-10-23
-    r"\b\d+ days? to go|\bencore \d+ jours?",          # Black Friday / Boxing Day countdowns
-    r"\b\d+ (?:h|hours?|heures?|min) ago|il y a \d+ ?(?:h|min)",
-)]
-
-
-def fingerprint(html):
-    t = re.sub(r"(?is)<(script|style|noscript|template)\b.*?</\1>", " ", html)   # scripts carry dateModified etc.
-    t = unescape(re.sub(r"<[^>]+>", " ", t))
-    for p in STAMPS:
-        t = p.sub(" ", t)
-    t = re.sub(r"\s+", " ", t).strip()
-    return hashlib.sha1(t.encode()).hexdigest()[:16]
+from lastmod import STAMPS, fingerprint   # Nov 4: one fingerprint for IndexNow and the sitemap dates
 
 
 def read(url):
