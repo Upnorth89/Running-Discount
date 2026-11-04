@@ -403,8 +403,11 @@ def shopify_store1(st, base, cols, side):
             p["_col"] = c or ""
             prods.append(p)
         time.sleep(PAUSE)
-    if st == "geartrade":            # new stock only (consignment = used one-offs, a later idea)
-        prods = [p for p in prods if "RetailVendorPartner" in (p.get("tags") or [])]
+    if st == "geartrade":            # new stock only. Nov 4 (data audit): used items ("UnNew … Good condition") carry RetailVendorPartner too and
+        # sat on top of Hiking as "80% off"; keep only listings whose own description says "is in New condition"
+        prods = [p for p in prods if "RetailVendorPartner" in (p.get("tags") or [])
+                 and re.search(r"\bis in New condition\b", re.sub(r"<[^>]+>", " ", p.get("body_html") or ""))
+                 and "unnew" not in (p.get("body_html") or "").lower()]
     fx = s.fx_to_cad(cur)
     kinds = {}
 

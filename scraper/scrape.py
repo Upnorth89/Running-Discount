@@ -2075,15 +2075,27 @@ def drop_colour(p):
 
 # Nov 3 (growth; a visitor flagged LMNT at "USD $22.50"): wholesale/B2B products a shopper can't buy at that price (LMNT tags them
 # 'Hidden', 'Wholesale Product', 'Bulk Buyer', 'syncio-hidden'); whole tag, any case, every Shopify store (running + hiking).
-HIDDEN_TAGS = {"hidden", "wholesale", "wholesale product", "wholesale cart product", "b2b", "bulk buyer", "syncio-hidden"}
+# Not bare "hidden"/"wholesale": Balega's sock line is called "Hidden", and Janji/Bandit tag retail items "wholesale" (also sold to shops)
+HIDDEN_TAGS = {"wholesale product", "wholesale cart product", "wholesale only", "b2b", "b2b only", "bulk buyer", "syncio-hidden"}
 HIDDEN_SKIPPED = collections.Counter()
+
+
+USED_RX = re.compile(r"\b(used|like[- ]new|unnew|factory[- ]seconds?|washed and returned|refurbished|pre-?owned|open[- ]box|demo (?:unit|model|item)s?)\b|\((?:sample|demo)\)", re.I)
 
 
 def hidden_product(p):
     tags = p.get("tags") or []
     if isinstance(tags, str):
         tags = tags.split(",")
-    return any(str(t).strip().lower() in HIDDEN_TAGS for t in tags)
+    tl = [str(t).strip().lower() for t in tags]
+    if any(t in HIDDEN_TAGS for t in tl):
+        return True
+    # Nov 4 (data audit): used / like-new / factory-second / returned / refurbished / demo / sample listings are not new-gear sales
+    # (Gear Trade "UnNew", Sea to Summit "(Like New)", wildrock "-used" handles, Feathered Friends "Washed and Returned")
+    if any(t.startswith("consignment") or t in ("used", "pre-owned", "like new", "factory second", "refurbished") for t in tl):
+        return True
+    h = (p.get("handle") or "").lower()
+    return bool(USED_RX.search(p.get("title") or "") or h.endswith("-used") or "-like-new" in h or "factory-second" in h)
 
 
 def shopify_items(st, base, prods, group_fn, fx=1.0, size_aware=False, size_fn=None, collapse=False):
@@ -3858,6 +3870,11 @@ def make_shopify_scraper(st, base, kind):
             prods = paragon_prods(prods)
         if st == "jdsports":
             prods = jd_prods(prods)
+        if st == "svp":   # Nov 4 (data audit): adidas lifestyle clearance (NMD, Ozweego, Run 70s…) held 17 of Canada's top 30; SVP tags it Casual/Originals
+            # (its Casual tag also sits on a few real running shoes, Adistar 4 / Gel-DS Trainer: a name saying Running or Trainer stays)
+            prods = [p for p in prods if not (any(re.search(r"(^|-)casual$|^originals$|lifestyle", t.strip(), re.I) for t in (p.get("tags") or []))
+                                              and not re.search(r"\brunning\b|\btrainer\b|adistar", p.get("title") or "", re.I))
+                     and not re.search(r"\b(NMD|Ozweego|Oztral|X_?PLR ?Boost|Run 70s|Swift Run)\b", p.get("title") or "", re.I)]
         if st in ("boutiquedulac", "fauxmouvement", "aupiedsportif", "borealrunning", "33off", "foveo"):
             prods = qc_prods(st, prods)
         fx = fx_to_cad(cur)

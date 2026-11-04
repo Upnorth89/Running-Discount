@@ -1408,18 +1408,18 @@ S = {
         "srcLink": "liste officielle", "srcRead": "Selon la liste officielle de la course (telle que publiée quand nous l'avons lue, le {date}). Les règles peuvent changer : vérifiez la {link} avant la course.", "notAff": "The Gear Fox n'est pas affilié à la course.",
         "boxH": "Les aubaines de matériel dans votre taille, chaque vendredi jusqu'à la course", "boxTxt": "Gratuit. Un courriel le vendredi matin avec les meilleures aubaines dans vos tailles. Désabonnement en un clic.",
         "boxBtn": "Envoyez-moi les aubaines", "faqH": "Réponses rapides",
-        "qList": "Quel est le matériel obligatoire {de}{short} {d}?", "aList": "{items}.",
+        "qList": "Quel est le matériel obligatoire {des}{short} {d}?", "aList": "{items}.",
         "qJacket": "Un coupe-vent suffit-il pour {le}{name}?", "aJacket": "Non. La course demande un manteau avec capuchon attaché et une membrane imperméable et respirante (sur le {dists}). Les coupe-vent ne sont pas acceptés.",
         "qCup": "Y a-t-il des verres aux ravitaillements {de}{name}?", "aCup": "Non. Les ravitaillements n'ont pas de verres : apportez votre gobelet réutilisable.",
         "kbBest": "Dès {p} · {n} choix", "kbBestN": "Rien dans votre taille aujourd'hui", "aisle": "Listes de matériel de course",
         "waOne": "Suivre le seul article qui me manque", "waN": "Suivre les {n} articles qui me manquent", "waDone": "Suivi : {n} · Annuler",
         "waCap": "Votre liste gratuite compte {cap} articles : on a suivi les {n} premiers.", "waSize": "Choisissez votre taille plus haut pour suivre ce qui vous manque.", "waMember": "Suivis. On vous écrit quand ils baissent dans votre taille.", "waNew": "Suivis, sur ce téléphone. Ajoutez votre courriel et on vous avertira quand ils baissent.",
         "rmH": "Rien d'oublié le jour de la course",
-        "rmTxt": "Cochez ce que vous avez déjà. Le {rday}, 30 jours avant {le}{short} ({rdate}), on vous écrit ce qui vous manque encore, chaque article avec le meilleur prix du jour dans votre taille. Vous recevrez aussi le courriel d'aubaines du vendredi. Gratuit, désabonnement en un clic.",
+        "rmTxt": "Cochez ce que vous avez déjà. Le {rday}, 30 jours avant {les}{short} ({rdate}), on vous écrit ce qui vous manque encore, chaque article avec le meilleur prix du jour dans votre taille. Vous recevrez aussi le courriel d'aubaines du vendredi. Gratuit, désabonnement en un clic.",
         "rmBtn": "Me le rappeler", "rmMember": "Un clic : on utilise le courriel de votre inscription.",
-        "rmDone": "C'est noté ✓ On vous écrit le {rday} avec ce qui manque encore à votre liste {de}{short} ({dist}). Cochez au fur et à mesure : le courriel ne liste que ce qui reste.",
+        "rmDone": "C'est noté ✓ On vous écrit le {rday} avec ce qui manque encore à votre liste {des}{short} ({dist}). Cochez au fur et à mesure : le courriel ne liste que ce qui reste.",
         "rmSync": "Vos cases cochées sont enregistrées dans votre compte : ouvrez cette page sur tout appareil où vous êtes connecté.",
-        "rmPending": "Presque fini : ouvrez le courriel envoyé à {email} et touchez le lien. Votre liste {de}{short} (avec vos cases cochées) sera enregistrée à ce moment-là.", "money": T["fr"]["money"], "otherSide": "Vous magasinez aux États-Unis? Cette liste avec les boutiques américaines →",
+        "rmPending": "Presque fini : ouvrez le courriel envoyé à {email} et touchez le lien. Votre liste {des}{short} (avec vos cases cochées) sera enregistrée à ce moment-là.", "money": T["fr"]["money"], "otherSide": "Vous magasinez aux États-Unis? Cette liste avec les boutiques américaines →",
     },
 }
 
@@ -1437,7 +1437,7 @@ SUG = {
            "desc": "Le matériel que suggère {le}{name} pour le {dists}, article par article (rien d'obligatoire), avec les meilleurs prix du jour dans votre taille dans les boutiques canadiennes.",
            "h1": "Matériel suggéré {de}{name}", "R": "Suggéré par la course",
            "sNote": "La course suggère ce matériel; rien n'y est obligatoire. Seul ce que la course remet (marqué Fourni) est exigé.",
-           "qList": "Y a-t-il du matériel obligatoire pour {le}{short} {d}?", "aList": "Non. La course suggère : {items}."},
+           "qList": "Y a-t-il du matériel obligatoire pour {les}{short} {d}?", "aList": "Non. La course suggère : {items}."},
 }
 SUG["us"] = dict(SUG["en"], desc="The gear {thename}{name} suggests for the {dists}, item by item (none of it required), with today's best prices on each in your size at US stores.")
 
@@ -1785,6 +1785,16 @@ def page(slug, race, L, items, stores, pages=None, fx=1.0):
                when=race["when"][L if L != "us" else "en"], de=race.get("de", "de l'"), le=race.get("le", "l'"),
                the="" if re.match(r"(?i)(the|la|le|les)\s|l'", race["short"]) else "the ")
     fmt["thename"] = "" if re.match(r"(?i)(the|la|le|les)\s|l'", race["name"]) else "the "
+    # Nov 4: {de}/{le} follow the FULL name; the short name may start differently ("l'Ultra-Trail Whistler" but "le Whistler",
+    # "de l'Sayam" was the slip): {des}/{les} = the same article, elided or not by the SHORT name's first letter
+    vow = bool(re.match(r"[AEIOUYHÀÂÉÈÊÎÔÛ]", race["short"], re.I))
+    d0 = fmt["de"]
+    if d0 in ("de ", "des "):
+        fmt["des"], fmt["les"] = d0, fmt["le"]
+    else:
+        fem = d0 == "de la " or fmt["le"] == "la "
+        fmt["des"] = "de l'" if vow else ("de la " if fem else "du ")
+        fmt["les"] = "l'" if vow else ("la " if fem else "le ")
     if L == "us":   # English, US stores; the "Canadian stores" switch goes to the same race with Canadian stores
         head = page_head(US, s["title"].format(**fmt), s["desc"].format(**fmt), f"/us/races/{slug}/", "", f"<style>{CSS}</style>").replace('class="sw" href="/shoes/"', f'class="sw" href="/races/{slug}/"')
     else:

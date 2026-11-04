@@ -235,6 +235,7 @@ def page(h, L, items, stores, checked_on):
     s, Tl = S[L], (US if L == "us" else T[L])
     slug, LL = h["slug"], ("en" if L == "us" else L)
     fmt = dict(name=h["name"], where=where(h, LL))
+    fmt.setdefault("des", fmt.get("de", "")); fmt.setdefault("les", fmt.get("le", ""))   # Nov 4: race_pages strings use {des}/{les} with the short name
     own = f'/{s["dir"]}/{slug}/'
     if L == "us":
         head = page_head(HL("us"), s["title"].format(**fmt), s["desc"].format(**fmt), own, "", f"<style>{RP.CSS}{FUEL_CSS}</style>").replace('class="sw" href="/shoes/"', f'class="sw" href="/hikes/{slug}/"')
