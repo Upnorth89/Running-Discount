@@ -19,7 +19,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import shoe_pages as SP  # noqa: E402
 
-PATHS = {"en": ("black-friday/live", "Black Friday deal check, live"), "fr": ("vendredi-fou/direct", "Vendredi fou : vraies et fausses aubaines, en direct")}
+PATHS = {"en": ("black-friday/live", "Black Friday 2026 deal check: are these running deals real? (Canada, live)"), "fr": ("vendredi-fou/direct", "Vendredi fou (Black Friday) 2026 : vraies et fausses aubaines course, en direct")}
 S = {
     "en": dict(
         lead="Every morning and afternoon we compare each sale price at {n} stores with what the same item cost over the last 60 days. Here is what's really new, and what isn't.",

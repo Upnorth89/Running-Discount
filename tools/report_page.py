@@ -20,8 +20,10 @@ def stores_map():
     return json.loads(re.search(r"const STORES=(\{.*?\});", html, re.S).group(1))
 
 
-def compute(deals, prices, back):
+def compute(deals, prices, back, side="ca"):
+    """side "us" (Nov 4, SEO audit #5): US stores only and the history's "us|" lines (USD, so rates never fake a drop)."""
     S = stores_map()
+    want, pre = (["US"], "us|") if side == "us" else ([], "")
 
     def store(u):
         h = urlparse(u).netloc.lower()
@@ -35,7 +37,7 @@ def compute(deals, prices, back):
     for i in D["items"]:
         if i["g"] != "shoes" or i.get("t") == "spike":
             continue
-        zs = [z for z in i["sz"] if (store(i["of"][z[2]]) or ["", "?"])[1:] == []]   # best price at a Canadian store
+        zs = [z for z in i["sz"] if (store(i["of"][z[2]]) or ["", "?"])[1:] == want]   # best price at a store on this side
         if not zs:
             continue
         sale = [z for z in zs if z[3] and z[1] < z[3] * 0.99]
@@ -70,7 +72,7 @@ def compute(deals, prices, back):
         H[o["k"]] = o["h"]
     tot = same = 0
     for r in on:
-        h = H.get(itemkey(r[0]))
+        h = H.get(pre + itemkey(r[0]))
         if not h or h[0][0] > back:
             continue
         then = [e for e in h if e[0] <= back][-1][1]

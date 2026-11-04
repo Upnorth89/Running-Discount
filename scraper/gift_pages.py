@@ -32,20 +32,20 @@ KIND = {"headwear": ("Hats & headbands", "Tuques et bandeaux"), "gloves": ("Glov
         "sun": ("Sunglasses", "Lunettes de soleil"), "packs": ("Vests & belts", "Vestes d'hydratation et ceintures"), "watches": ("Watches", "Montres")}
 BUDGETS = (25, 50, 100)
 S = {
-    "en": dict(title="Gifts for runners: under $25, $50 and $100",
+    "en": dict(title="Gifts for Runners in Canada: Under $25, $50 and $100",
                sub="Ideas you can buy without knowing their size (one size, or small/medium/large in stock) at Canadian stores: today's sales first, then full-price favourites worth watching. Updated twice a day.",
                under="Under ${c}", onsale="On sale today", full="Full price: we'll email you if it drops", fp="Full price", watch="♡ Watch the price",
                box="Prices often drop again on Boxing Day. Watch an item and we'll email you if it drops.", boxing="Boxing Day: get ready →",
                more="Run yourself? See deals in your size →", note="Prices change daily: check on the store's site. Nothing here earns us money.",
                upd="Updated {d}", none="Nothing in this budget today."),
-    "fr": dict(title="Cadeaux pour coureurs : moins de 25 $, 50 $ et 100 $",
+    "fr": dict(title="Cadeaux pour coureurs au Canada : moins de 25 $, 50 $ et 100 $",
                sub="Des idées sans souci de taille (taille unique, ou petit/moyen/grand en stock) dans des boutiques canadiennes : les soldes du jour d'abord, puis des classiques à prix régulier à suivre. Mis à jour deux fois par jour.",
                under="Moins de {c} $", onsale="En solde aujourd'hui", full="Prix régulier : on vous écrit s'il baisse", fp="Prix régulier", watch="♡ Suivre le prix",
                box="Le 26 décembre (Boxing Day), bien des prix baissent encore. Suivez un article : on vous écrit s'il baisse.", boxing="Boxing Day : préparez-vous →",
                more="Vous courez aussi? Voyez les aubaines dans votre taille →", note="Les prix changent chaque jour : vérifiez sur le site de la boutique. Rien ici ne nous rapporte d'argent.",
                upd="Mis à jour le {d}", none="Rien dans ce budget aujourd'hui."),
 }
-S["us"] = dict(S["en"], sub="Ideas you can buy without knowing their size (one size, or small/medium/large in stock) at US stores: today's sales first, then full-price favorites worth watching. Updated twice a day.",
+S["us"] = dict(S["en"], title="Gifts for runners: under $25, $50 and $100", sub="Ideas you can buy without knowing their size (one size, or small/medium/large in stock) at US stores: today's sales first, then full-price favorites worth watching. Updated twice a day.",
                box="Black Friday is November 27. Watch an item and we'll email you if it drops.", boxing="Black Friday deals →")
 CSS = """<style>.gf-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:6px 0 4px}
 @media(min-width:720px){.gf-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(min-width:1000px){.gf-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
