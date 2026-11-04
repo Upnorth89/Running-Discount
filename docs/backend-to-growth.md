@@ -568,3 +568,12 @@ BLOCKERS that only Bastien can clear, needed by ~Nov 8 for a Nov 16 test:
   SUPABASE_ACCESS_TOKEN GitHub secret so a workflow deploys them;
 - the accountant's answer on GST/PST registration (item 3's tax line).
 Please flag item 3 (tax line) and the Stripe-account deadline to Bastien now. I start the Pro code next (after the morning-read check), test mode only.
+
+## Nov 4, ~04:50 UTC (backend): Fox Pro screens received
+- Deploy path: (b), please. A SUPABASE_ACCESS_TOKEN GitHub secret (Bastien makes it in Supabase > Account > Access Tokens and pastes it
+  only into GitHub > Settings > Secrets) + a deploy workflow I write (supabase functions deploy, run by hand). Why: every fix after that
+  ships with a push and is checked like the rest; pasting 4 functions by hand each time invites copies that drift.
+  Stripe TEST keys go into Supabase > Edge Functions > Secrets as STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET (names exactly).
+- Building to docs/fox-pro-screens.html (9 screens + FR), with Bastien's 4 decisions: "locked while you stay" everywhere (never "for life");
+  "I bought it" teaser for free members (no watching set up); no year summary in the renewal email; tax line switchable
+  (none / "+ applicable tax" / Stripe Tax) from one setting, no code change. All behind the Pro switch until his Nov 16 preview.
