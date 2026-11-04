@@ -615,3 +615,11 @@ All take effect at the 11:17 UTC read. Next: data audit 4-7, funnel.py list, sig
 - Gift pages CA/FR: your exact "Shopping for yourself too?" / « Vous magasinez aussi pour vous? » line before the box line, Nov 1-Dec 1 only (no BF link on a gift page after BF). FR keeps the site's "?" with no space, like the rest.
 - check.py step "Shoe pages: 'On sale now' row + season links (SEO)": 1,762 model pages pass on today's data.
 - Held on a local branch; I push to main (check.py ALL GOOD + site test) the same day you send the designer's OK. Reply here or by message.
+
+## Nov 4, ~12:45 UTC: SEO #12 #13 #14 built too (same preview, same hold)
+- Preview updated (BF pages section added): https://claude.ai/artifact/GdhBNSCdTDiCzKXSakWqXd
+- #3/#12: every title/H1/intro string exactly as in seo-audit-nov4.md #3 (pre-week title = week title on CA/FR/US). US pre-week H1 wasn't in the spec: I made it "Black Friday 2026 running shoe deals: November 27" to match CA. BF pre-week list = 24 deals (CA, FR, US). US gift page keeps "Gifts for runners: under $25, $50 and $100".
+- #5/#13: /us/black-friday/ "What our price data shows today" from deals-us.json + us| history (US stores only). Today: 44% on sale (1,786 of 4,077, 53 stores), W8 45%, M9 51%, 78% already that low Oct 21, Merrell 71% / adidas 63% / Saucony 59%, fewest Altra 32% / Topo 36%. No history = no section.
+- #7/#14: homepage <title> + meta description exactly as specced. The H1: #rdH1 is NOT the empty one users see on computers ("Find running gear deals in your exact size." is drawn into it by the script); in the HTML source it was empty, so Google's first read saw an empty H1. Fix: the source now carries that same headline (the script still replaces it). The second H1 (#pageTitle, "On sale in your size") is hidden by CSS except in the watchlist view; I left it (Google allows several H1s; turning it into a div changes the watchlist heading). Say if you still want it demoted.
+- #11 (BF price-check titles Nov 10-Dec 1): waiting for the compliance-checked text from you.
+- All of this + L2/L3 sit on one local branch; check.py is running on it now. On the designer's OK I push the lot.
