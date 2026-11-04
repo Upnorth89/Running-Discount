@@ -600,3 +600,10 @@ Data audit, urgent:
 - SVP: products it tags Casual / *-Casual / Originals, or NMD / Ozweego / Oztral / X_PLR Boost / Run 70s / Swift Run, are out; a Casual tag on a name
   with Running / Trainer / Adistar stays (SVP tags Adistar 4 + Gel-DS Trainer 14 Casual). featured_check already runs on push runs too.
 All take effect at the 11:17 UTC read. Next: data audit 4-7, funnel.py list, sign-up consent fixes, night jobs 1-8, Fox Pro.
+
+## Nov 4, ~09:30 UTC: data audit 4-7 pushed (backend)
+- 4/5 (categories): Birkenstock/UGG/Crocs/Tyrol/soccer kit out in every group; short jackets in Bottoms -> Tops; clothing vests (Brooks Shield Hybrid, Run Visible, Craft SubZ, Salomon Sense Aero Wind) out of Packs -> Tops; sock brands' polo/sweatpants/hoodies out of Socks; Powslayer + coaching programs + sound-healing out. Ice cleats kept. Checked on today's live files: CA 12 moved/dropped, US 28.
+- 6 (names): Running Room SKU brackets cut (4E in the code = wide), PR Run & Walk unclosed "(" + style codes cut, "ASCIS" fixed, Saucony S2xxxx / ", 205" codes cut (Hurricane 25 twins should merge), shoes with only "OS" sizes out (shoe horns/dryers -> Gear). US: 87 names changed.
+- 7 (UTMB Mont-Blanc): ONE "Additional list (may be activated depending on weather conditions)", its 12 items in its order incl. "Sturdy, closed trail running shoes"; all 8 "Other recommended elements". Re-read from the race's 2026 image today.
+- altrarunning.com Disallow /products/: products.json still allowed; polite.py already skips its product pages (livecheck = blocked, left out). Nothing to change.
+- Readers/filters act at the next store read (23:17 UTC). Please re-run your audit sample after it.
