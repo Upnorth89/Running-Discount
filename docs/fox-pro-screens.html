@@ -84,9 +84,9 @@ p{margin:0}
 .ticks li{display:grid;grid-template-columns:18px 1fr;gap:8px}.ticks li:before{content:"✓";color:var(--mint);font-weight:700}
 .row{display:flex;gap:10px;align-items:center}.row>*{min-width:0}
 .spread{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.mini{display:grid;grid-template-columns:48px 1fr;gap:10px;align-items:center;font-size:13.5px}
-.thumb{width:48px;height:48px;border-radius:10px;background:#E9EBE7;display:grid;place-items:center}
-.pro .thumb{background:var(--forest2);border:1px solid var(--fline)}
+.mini{display:grid;grid-template-columns:56px 1fr;gap:10px;align-items:center;font-size:13.5px}
+.thumb{width:56px;height:56px;border-radius:10px;background:#fff;object-fit:cover;display:block}
+.pro .thumb{background:#fff;border:1px solid var(--fline)}
 .panelD{background:rgba(255,255,255,.04);border:1px solid var(--fline);border-radius:14px;padding:14px;display:grid;gap:10px}
 .cmp{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
 .cmp th{font:600 10.5px var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--fmuted);padding:0 4px 8px;text-align:center}
@@ -97,7 +97,7 @@ p{margin:0}
 /* member card */
 .mcard{position:relative;aspect-ratio:1.586;width:100%;max-width:280px;margin:2px auto 4px;border-radius:16px;padding:14px 16px;overflow:hidden;background:linear-gradient(135deg,#1E5442 0%,#0F2E24 55%,#0A211A 100%);transform:rotate(-2deg);box-shadow:0 20px 30px -12px rgba(0,0,0,.6),inset 0 0 0 1px rgba(243,222,156,.25);color:var(--fink)}
 .mcard:before{content:"";position:absolute;inset:-40%;background:linear-gradient(115deg,transparent 40%,rgba(243,222,156,.16) 50%,transparent 60%)}
-.mcard .wm{position:absolute;right:-18px;bottom:-34px;width:172px;opacity:.13;filter:grayscale(1) brightness(1.8);pointer-events:none}
+.mcard .wm{position:absolute;right:-20px;bottom:-40px;width:170px;opacity:.13;filter:grayscale(1) brightness(1.8);pointer-events:none}
 .mcard .tag{position:relative;font:700 11px/1 var(--body);letter-spacing:.18em;color:#1A1405;background:linear-gradient(90deg,var(--gold),var(--gold2));padding:6px 8px;border-radius:4px}
 .mcard .since{position:relative;font:500 11px var(--body);color:var(--fmuted);white-space:nowrap}
 .mcard .no{position:absolute;left:16px;bottom:36px;font:700 36px/1 var(--display);letter-spacing:2px;background:linear-gradient(180deg,var(--gold2),var(--gold) 60%,#a9843a);-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -144,14 +144,14 @@ p{margin:0}
 .code{border:1.5px dashed #5E7A6E;border-radius:10px;padding:10px;text-align:center;font:700 20px/1 var(--display);letter-spacing:1px}
 .prog{height:8px;border-radius:8px;background:rgba(255,255,255,.08);overflow:hidden}.prog i{display:block;height:100%;width:25%;background:#2F8A5C}
 .pill{font:700 11px/1 var(--body);border-radius:99px;padding:5px 8px;white-space:nowrap}
-.pill.g{background:#1F4D3A;color:var(--mint)}.pill.a{background:#4A3E1C;color:var(--gold2)}
+.pill.g{background:#1F4D3A;color:var(--mint)}.pill.a{background:transparent;border:1px solid var(--fline);color:var(--fmuted)}
 .btn.share{background:var(--char);color:#fff;border:1px solid #33443C}
 .lo{background:#1F4D3A;color:var(--mint);border-radius:10px;padding:10px 12px;font-weight:700;font-size:14px}
 .green{color:#6FD39D}
 a{color:inherit}
 @media (prefers-reduced-motion:no-preference){.phone{transition:transform .2s}.phone:hover{transform:translateY(-2px)}}
 .site .dk .mut,.site .sheet .mut{color:var(--fmuted)}
-.dk .thumb,.sheet .thumb{background:var(--forest2);border:1px solid var(--fline)}
+.dk .thumb,.sheet .thumb{background:#fff;border:1px solid var(--fline)}
 .row:has(.btn){flex-wrap:wrap}
 .lo span:first-child{font-size:13.5px}
 .body>*,.panelD>*,.dk>*{min-width:0}
@@ -159,6 +159,12 @@ a{color:inherit}
 .mcard .tag{white-space:nowrap}
 @media (max-width:360px){.mcard .since{display:none}}
 .body .mcard{width:calc(100% - 18px)}
+.btn.mintb{background:var(--mint);color:var(--forest);border-radius:12px;font-weight:700;text-align:center}
+.wallet{display:grid;grid-template-columns:1fr 1fr;gap:8px}.wallet span{background:#000;color:#fff;border-radius:99px;height:44px;display:grid;place-items:center;font:600 15px var(--body)}
+.taxl{color:var(--paperMuted);font-weight:500;white-space:nowrap}
+.sline span:last-child{white-space:nowrap}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:360px){.mcard{transform:rotate(-1.5deg)}.body .mcard,.mcard{width:calc(100% - 16px)}}
 </style>
 
 <div class="wrap">
@@ -231,7 +237,7 @@ a{color:inherit}
       <div class="grab"></div>
       <div class="h3">Your watchlist is full (5 of 5)</div>
       <p class="mut">Free members watch 5 items. Remove one to add this one, or watch everything with Fox Pro.</p>
-      <div class="mini"><span class="thumb">👟</span><span><b>adidas Adizero EVO SL</b> <span class="eg">EXAMPLE</span><br><span class="mut">$119.98 at Sporting Life, was $200</span></span></div>
+      <div class="mini"><img class="thumb" src="fox-pro/shoe.jpg" alt="adidas Adizero EVO SL"><span><b>adidas Adizero EVO SL</b> <span class="eg">EXAMPLE</span><br><span class="mut">$119.98 at Sporting Life, was $200</span></span></div>
       <ul class="ticks"><li>Watch as many items as you like</li><li>Drop alerts the next morning</li><li>We keep watching after you buy</li></ul>
       <span class="cta">See Fox Pro: $36/year founding</span>
       <span class="btn line">Manage my watchlist</span>
@@ -273,13 +279,13 @@ a{color:inherit}
       <div><p class="mut" style="font-size:13px">Fox Pro · Founding Fox membership</p><p style="font:700 34px/1.1 var(--body)">$36.00 <span style="font-size:15px;font-weight:600;color:#697386">CAD per year</span></p></div>
       <div style="border:1px solid #E3E8EE;border-radius:10px;padding:10px 12px">
         <div class="sline"><span>Founding Fox, yearly</span><span>$36.00</span></div>
-        <div class="sline"><span>Tax</span><span class="flag">+ applicable taxes</span></div>
+        <div class="sline"><span>Tax</span><span class="taxl">+ applicable taxes</span></div>
         <div class="sline t"><span>Total due today</span><span>$36.00 + tax</span></div>
       </div>
       <p class="mut" style="font-size:13px">Renews Dec 2, 2027 at $36.00 CAD. We email you 30 days before. Cancel online anytime.</p>
       <div class="input">Email</div><div class="input">Card number · MM/YY · CVC</div>
-      <div class="input" style="text-align:center;color:#1A1F36;font-weight:600"> Pay · G Pay</div>
-      <div class="chk"><span class="box"></span><span>I agree to the <u>Fox Pro terms</u>, including the 30-day full refund and yearly renewal.</span></div>
+      <div class="wallet"><span>Apple Pay</span><span>Google Pay</span></div>
+      <div class="chk"><span class="box"></span><span>I agree to the <u>Fox Pro terms</u>, including the <span class="nw">30-day</span> full refund and yearly renewal.</span></div>
       <span class="btn forest">Subscribe: $36.00 per year</span>
       <p class="mut" style="text-align:center;font-size:12.5px">Have a friend's code? <u>Add promotion code</u></p>
     </div>
@@ -293,7 +299,7 @@ a{color:inherit}
   <p class="where">Email right after payment, from "Bastien from The Gear Fox". Stripe's receipt arrives separately.</p>
   <div class="phone mailw">
     <div class="sb"><span>9:41</span><span>●●● 5G</span></div>
-    <div class="mhead"><b>You're Founding Fox #037 🦊</b>Bastien from The Gear Fox · to you</div>
+    <div class="mhead"><b>You're Founding Fox #037</b>Bastien from The Gear Fox · to you</div>
     <div class="mband"><img src="../site/logo-mark-dark.svg" alt="The Gear Fox"><span class="badge gold" style="width:40px;height:40px;padding:2px"><div><img src="fox-pro/fox.png" alt="" style="width:28px"></div></span></div>
     <div class="mbody">
       <div class="cardMail"><div style="flex:1"><div style="font:700 10.5px var(--body);letter-spacing:.18em;color:var(--gold)">FOUNDING MEMBER</div><div class="no">№ 037</div></div><span class="eg">EXAMPLE</span></div>
@@ -317,8 +323,8 @@ a{color:inherit}
     <div class="hd"><img src="../site/logo-mark-dark.svg" alt=""><span class="burger"></span></div>
     <div class="body">
       <div class="dk" style="padding:16px">
-        <div class="mini"><span class="thumb">👟</span><span><b>Did you buy the adidas Adizero EVO SL?</b> <span class="eg">EXAMPLE</span><br><span class="mut">Size 11 · $119.98 at Sporting Life</span></span></div>
-        <div class="row" style="margin-top:12px"><span class="cta" style="flex:1 1 130px;padding:13px">I bought it</span><span class="btn line" style="flex:1 1 130px;padding:12px">Not yet</span></div>
+        <div class="mini"><img class="thumb" src="fox-pro/shoe.jpg" alt="adidas Adizero EVO SL"><span><b>Did you buy the adidas Adizero EVO SL?</b> <span class="eg">EXAMPLE</span><br><span class="mut">Size 11 · $119.98 at Sporting Life</span></span></div>
+        <div class="row" style="margin-top:12px"><span class="btn mintb" style="flex:1 1 130px;padding:13px">I bought it</span><span class="btn line" style="flex:1 1 130px;padding:12px">Not yet</span></div>
       </div>
       <p class="mut" style="font-size:12.5px;text-align:center">After "I bought it":</p>
       <div class="dk" style="padding:16px">
@@ -341,7 +347,7 @@ a{color:inherit}
     <div class="mhead"><b>It dropped $20 since you bought it</b>Bastien from The Gear Fox · to you</div>
     <div class="mband"><img src="../site/logo-mark-dark.svg" alt="The Gear Fox"><span style="font:600 11px var(--body);letter-spacing:.18em;color:var(--mint)">FOX PRO</span></div>
     <div class="mbody">
-      <div class="drop"><span>Adizero EVO SL, size 11<br><b>Now $99.98 at <span class="nw">Sporting Life</span></b> <span class="eg">EXAMPLE</span></span><span class="btn claimS">Claim $20</span></div>
+      <div class="drop"><span>Adizero EVO SL, size 11<br><b>Now $99.98</b><br><span class="nw">at Sporting Life</span> <span class="eg">EXAMPLE</span></span><span class="btn claimS">Claim $20</span></div>
       <p>You bought it on Nov 4 for $119.98. It's <b>$20.00 lower</b> today.</p>
       <p class="mut"><b style="color:var(--paperInk)">Sporting Life's policy, as published on Nov 1:</b> <span class="nw">"[their own words]"</span> <span class="eg">EXAMPLE</span></p>
       <p><b>The store decides.</b> We can't promise a refund; this is their rule and our dated price record.</p>
@@ -367,15 +373,15 @@ a{color:inherit}
         <div class="h3" style="font-size:20px">Invite friends</div>
         <p class="mut">Each friend who joins Pro gives you <b class="green">+1 month</b> free (up to 12). Their first year is 13 months.</p>
         <div class="code">FOX-BASTIEN</div>
-        <div class="row"><span class="btn share" style="flex:1 1 130px;padding:12px">Share</span><span class="btn line" style="flex:1 1 130px;padding:12px">Copy</span></div>
+        <div class="pair"><span class="btn share" style="padding:12px">Share</span><span class="btn line" style="padding:12px">Copy</span></div>
         <div class="prog"><i></i></div>
-        <p style="font-size:13.5px"><b class="green">3 of 12 free months earned</b> <span class="mut">· 1 pending</span></p>
+        <p style="font-size:13.5px"><b class="green">3 of 12 free months earned</b> <span class="mut" style="white-space:nowrap">·&nbsp;1&nbsp;pending</span></p>
         <div class="row" style="flex-wrap:wrap;gap:6px"><span class="pill g">Marie ✓</span><span class="pill g">Jon ✓</span><span class="pill g">a friend ✓</span><span class="pill a">Anne · pending</span></div>
         <p class="mut" style="font-size:12px">A month counts 60 days after your friend's first payment.</p>
       </div>
       <div class="panelD">
         <div class="h3" style="font-size:20px">Things you bought, we're watching</div>
-        <div class="mini"><span class="thumb">👟</span><span><b>Adizero EVO SL</b> · size 11<br><span class="mut">Bought Nov 4 at Sporting Life, $119.98 · watching until Dec 2</span></span></div>
+        <div class="mini"><img class="thumb" src="fox-pro/shoe.jpg" alt="adidas Adizero EVO SL"><span><b>Adizero EVO SL</b> <span class="nw">· size 11</span><br><span class="mut">Bought Nov 4 at Sporting Life, $119.98 · watching until Dec 2</span></span></div>
         <div class="spread lo"><span>Dropped $20 · now $99.98</span><span class="btn claimS">Claim $20</span></div>
       </div>
       <div class="panelD" style="gap:0">
