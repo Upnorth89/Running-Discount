@@ -156,8 +156,11 @@ def check():
               for f in cat]
         newest = max((float(x) for x in ts if x), default=max(f.stat().st_mtime for f in cat))
         age = (datetime.now(timezone.utc).timestamp() - newest) / 86400
-        if 2 <= age <= 3:
-            problems.append(("catalog-due", f"Catalog file (adidas.ca, REI, Zappos…) is {age:.0f} days old: its deals come "
+        cc = load(SITE / "catalog-check.json") if (SITE / "catalog-check.json").exists() else {}
+        if 2 <= age <= 3 and not cc.get("leaving"):    # Nov 3 (growth): the "Leaving today: …" line already says it
+            top = [k for k, v in sorted((cc.get("stores") or {}).items(), key=lambda kv: -(kv[1][0] if isinstance(kv[1], list) else 0))][:3]
+            names = (", ".join(top) + "…") if top else "its stores"
+            problems.append(("catalog-due", f"Catalog file ({names}) is {age:.0f} days old: its deals come "
                                             f"off the site tomorrow. Upload a fresh one to saved-pages/."))
     deals, deals0 = load(SITE / "deals.json"), load(PREV / "deals.json")
     offers, offers0 = load(SITE / "offers.json"), load(PREV / "offers.json")

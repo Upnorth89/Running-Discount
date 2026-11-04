@@ -2073,11 +2073,27 @@ def drop_colour(p):
     return t2 if re.search(r"[A-Za-z0-9]{2}", t2) else t
 
 
+# Nov 3 (growth; a visitor flagged LMNT at "USD $22.50"): wholesale/B2B products a shopper can't buy at that price (LMNT tags them
+# 'Hidden', 'Wholesale Product', 'Bulk Buyer', 'syncio-hidden'); whole tag, any case, every Shopify store (running + hiking).
+HIDDEN_TAGS = {"hidden", "wholesale", "wholesale product", "wholesale cart product", "b2b", "bulk buyer", "syncio-hidden"}
+HIDDEN_SKIPPED = collections.Counter()
+
+
+def hidden_product(p):
+    tags = p.get("tags") or []
+    if isinstance(tags, str):
+        tags = tags.split(",")
+    return any(str(t).strip().lower() in HIDDEN_TAGS for t in tags)
+
+
 def shopify_items(st, base, prods, group_fn, fx=1.0, size_aware=False, size_fn=None, collapse=False):
     """One card per first option (pack size / colour) when a product has several options;
     flavours or sizes become the card's "sizes". Every in-stock variant is included."""
     out = []
     for p in prods:
+        if hidden_product(p):
+            HIDDEN_SKIPPED[st] += 1
+            continue
         g = group_fn(p)
         if not g:
             continue
@@ -3221,7 +3237,7 @@ def catalog_validate(got, prods):
         sale = [r for r in rs if price_ok(r) and float(r["Current price"]) < float(r.get("Regular price") or 0) * 0.99]
         stores[str(ret)] = [len({r.get("Item ID") for r in rs}), len({r.get("Item ID") for r in sale})]
         deep = [r for r in sale if float(r["Current price"]) < float(r["Regular price"]) * 0.3]
-        if sale and len(deep) / len(sale) > 0.2:
+        if len(sale) >= 5 and len(deep) / len(sale) > 0.2:   # Nov 3: 1 of 1 = "100%" was a false alarm (Palmetto)
             warn.append(f"{ret}: {len(deep) / len(sale):.0%} of its sale sizes are 70%+ off (a price mix-up?)")
         doms = collections.Counter(host(url(r)) for r in rs if url(r))
         if doms and doms.most_common(1)[0][1] / sum(doms.values()) < 0.95:
@@ -5152,6 +5168,8 @@ def main():
         return 0
     if not REMERGE:
         print(polite.report(), file=sys.stderr)       # Nov 1: requests per site, slow-downs, robots.txt refusals
+        if HIDDEN_SKIPPED:                            # Nov 3: wholesale/hidden products left out, per store
+            print("hidden/wholesale products skipped: " + ", ".join(f"{k} {v}" for k, v in HIDDEN_SKIPPED.most_common()), file=sys.stderr)
         try:                                          # Nov 1: the health email counts real store reads (planned 2 a day)
             Path("/tmp/store-read.json").write_text(json.dumps({"at": now(), "requests": sum(v["n"] for v in polite.STATS.values())}))
         except Exception:
