@@ -1,0 +1,31 @@
+/* look2: pieces we like from the GPT redesign, on our own size-first cards */
+html.look2 .rdc{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;border-radius:0!important}
+html.look2 .rdc .deal{padding:0 0 54px!important;background:transparent!important;border:0!important;display:flex;flex-direction:column}
+html.look2 .rdc.hascmp .deal{padding-bottom:54px!important}
+html.look2 .rdc .cmp{bottom:14px!important;left:auto!important;right:2px!important;font:600 13px Inter,system-ui,sans-serif!important}
+html.look2 .rdc .pic{background:#EFECE4!important;border-radius:6px!important;aspect-ratio:1/1!important;height:auto!important;width:100%!important;margin:0 0 10px!important;display:flex;align-items:center;justify-content:center;overflow:hidden}
+html.look2 .rdc .pic{margin:0 0 10px!important}
+html.look2 .rdc .pic img{width:86%!important;height:86%!important;padding:0!important;object-fit:contain!important;mix-blend-mode:multiply!important;background:transparent!important}
+html.look2 .rdc .pct{background:#fff!important;color:#17201C!important;border-radius:3px!important;font:700 12px/1 Inter,system-ui,sans-serif!important;letter-spacing:.04em;padding:6px 7px!important;top:10px!important;left:10px!important}
+html.look2 .rdc .name{font:500 15px/1.3 Inter,system-ui,sans-serif!important;color:#17201C}
+html.look2 .rdc .name .brand{display:block;font:600 11.5px/1.2 Inter,system-ui,sans-serif!important;letter-spacing:.12em;text-transform:uppercase;color:#6B746F;margin-bottom:4px}
+html.look2 .rdc .kind{font-size:13px!important;color:#6B746F!important;margin-top:2px}
+html.look2 .rdc .price{display:flex;align-items:baseline;gap:5px;white-space:nowrap;margin-top:8px!important}
+html.look2 .rdc .price b{font:700 18px/1 Inter,system-ui,sans-serif!important}
+html.look2 .rdc .price s{font-size:13px;color:#8A928D}
+html.look2 .rdc .store{border-top:1px solid #DDD8CE;margin-top:10px!important;padding-top:9px;font-size:13px!important;display:flex;justify-content:space-between;align-items:center}
+html.look2 .rdc .store::after{content:"→";font-size:16px;color:#17201C}
+html.look2 .rdc .store b{font-weight:600}
+html.look2 .rdc .store2,html.look2 .rdc .yoursz,html.look2 .rdc .sz{font-size:12.5px!important}
+html.look2 .rdgrid,html.look2 .rdlist,html.look2 .grid{row-gap:30px!important;column-gap:14px!important}
+html.look2 .rdsec,html.look2 section.rdtop{margin-top:34px!important}
+html.look2 .rdc .heart{left:0!important;bottom:6px!important}
+html.look2 .rdc .store::after{content:none}
+html.look2 .rdc .deal{padding-bottom:50px!important}
+html.look2 .rdc .cmp{bottom:52px!important;left:0!important;right:auto!important}
+html.look2 .rdc.hascmp .deal{padding-bottom:80px!important}
+html.look2 .rdc .pic img{width:100%!important;height:100%!important;object-fit:cover!important}
+html.look2 .rdc .name .brand{font-size:12px!important}
+html.look2 .rdc .name{min-height:calc(1.3em * 2 + 18px)}
+html.look2 .rdc .pct,html.look2 .rdc .rep{box-shadow:0 0 0 1px #DDD8CE!important;border-radius:3px!important}
+html.look2 .rdc .name{-webkit-line-clamp:3!important;line-clamp:3}
