@@ -380,6 +380,33 @@ def main():
         return f"{n} language links, every one answered by its twin"
     step("Language twins (hreflang) name each other back", hreflang)
 
+    def salerow():   # Nov 4 (SEO L2/L3, Bastien OK'd): every running model page links its kind hub + the season's pages
+        sys.path.insert(0, str(ROOT / "scraper"))
+        import shoe_pages as SPg
+        bad, n = [], 0
+        for d, L in (("shoes", SPg.T["en"]), ("chaussures", SPg.T["fr"]), ("us/shoes", SPg.US)):
+            want = [u for u, _ in SPg.season_links(L, gifts=False)]
+            for f in (site / d).glob("*/index.html"):
+                t = f.read_text(errors="ignore")
+                if 'http-equiv="refresh"' in t:
+                    continue
+                n += 1
+                row = re.search(r'<nav class="browse onsale".*?</nav>', t, re.S)
+                if not row:
+                    bad.append(f"/{d}/{f.parent.name}/: no 'On sale now' row")
+                    continue
+                miss = ([] if f'href="/{L["hubDir"]}/' in row.group(0) else ["a sale hub"]) + [u for u in want if f'href="{u}"' not in row.group(0)]
+                if miss:
+                    bad.append(f"/{d}/{f.parent.name}/ misses {miss}")
+        for p in ("shoes", "running-shoes-sale", "brands/asics"):
+            g = site / p / "index.html"
+            if g.exists() and "black-friday/" in " ".join(u for u, _ in SPg.season_links(SPg.T["en"])) and 'href="/black-friday/live/"' not in g.read_text(errors="ignore"):
+                bad.append(f"/{p}/ has no deal check link")
+        if bad:
+            raise RuntimeError(f"{len(bad)} pages, e.g. " + " | ".join(bad[:4]))
+        return f"{n} model pages carry the 'On sale now' row ({', '.join(u for u, _ in SPg.season_links(SPg.T['en'], gifts=False)) or 'no seasonal link today'})"
+    step("Shoe pages: 'On sale now' row + season links (SEO)", salerow)
+
     def lastmods():   # Nov 4 (growth's SEO audit): every sitemap URL carries a date, and an unchanged page keeps its old one
         st = work / "lastmod-state.json"
         for _ in range(2):                    # 1st run: no memory (all today); 2nd run on the same pages: every page unchanged

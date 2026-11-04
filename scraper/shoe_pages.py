@@ -656,6 +656,7 @@ tr.yours td:first-child{font-weight:700;box-shadow:inset 4px 0 0 var(--hivis)}
 .pw.good{border-left-color:#1C6B37}.pw b{display:block;font-size:14px;color:var(--muted)}
 .pwbtn{display:inline-block;margin-top:2px;background:var(--hivis);color:#17201C;font-weight:700;text-decoration:none;border-radius:999px;padding:8px 14px}
 .browse.sizes a[aria-current]{background:var(--ink);color:var(--card)}
+.browse.onsale{margin-top:18px}.browse.onsale b{flex-basis:100%;font:700 13px var(--body);color:var(--muted);margin-bottom:2px}
 """
 
 
@@ -1463,6 +1464,7 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None,
     if related:
         out.append(f'<h2>{L["more"].format(brand=esc(brand))}</h2><ul class="links">' +
                    "".join(f'<li><a href="/{L["dir"]}/{s}/">{esc(brand_models[s])}</a></li>' for s in related) + "</ul>")
+    out.append(sale_row(L, its))
     out.append(page_foot(L))
     return "".join(out)
 
@@ -1521,13 +1523,52 @@ def card_list(L, rows):
     return '<ul class="cards">' + "".join(out) + "</ul>"
 
 
+def season_links(L, today=None, gifts=True):
+    """Nov 4 (SEO L2/L3, Bastien OK'd): Black Friday (+ the deal check, Canada) Nov 1 - Dec 1, Boxing Day (Canada) Dec 2 - Jan 3,
+    the gift page while gift_season() is on. Vancouver date; pages are rebuilt every morning, so each link leaves after its window."""
+    import datetime
+    d = today or datetime.datetime.now(HOME_TZ).date()
+    us, fr = L["lang"] == "en-US", L["lang"] == "fr-CA"
+    md = (d.month, d.day)
+    out = []
+    if (11, 1) <= md <= (12, 1):
+        out.append((f'/{L["bfDir"]}/', "Aubaines du Vendredi fou 2026" if fr else "Black Friday 2026 running shoe deals"))
+        if not us:
+            out.append(("/vendredi-fou/direct/", "Vérification Vendredi fou") if fr else ("/black-friday/live/", "Black Friday deal check"))
+    elif (md >= (12, 2) or md <= (1, 3)) and L.get("bdDir"):
+        out.append((f'/{L["bdDir"]}/', "Aubaines du Boxing Day" if fr else "Boxing Day running shoe deals"))
+    if gifts and gift_season(d):
+        out.append(("/us/gifts-for-runners/", "Gifts for runners") if us else ("/cadeaux-coureurs/", "Cadeaux pour coureurs") if fr
+                   else ("/gifts-for-runners/", "Gifts for runners"))
+    return out
+
+
+def sale_row(L, its, today=None):
+    """L2: one short "On sale now" row on running model pages: the shoe's kind hub, its gender hub(s), the season's pages."""
+    if L.get("hike"):
+        return ""
+    hub = lambda k: f'/{L["hubDir"]}/' + (f'{L["hubSlugs"][k]}/' if L["hubSlugs"][k] else "")
+    k = {"daily": "road", "trail": "trail", "race": "racing"}.get(its[0].get("t"), "all")
+    links = [(hub(k), L["hubs"][k][0])]
+    sx = set()
+    for d in its:
+        g = d.get("sx") or []
+        sx |= set(g) if len(g) == 1 and g[0] in ("men", "women") else {"men", "women"}
+    links += [(hub(g), L["hubs"][g][0]) for g in ("women", "men") if g in sx]
+    links += [x for x in season_links(L, today, gifts=False)]
+    lab = "En solde maintenant" if L["lang"] == "fr-CA" else "On sale now"
+    return (f'<nav class="browse onsale" aria-label="{lab}"><b>{lab}</b>' +
+            "".join(f'<a href="{u}">{esc(t)}</a>' for u, t in links) + "</nav>")
+
+
 def browse_nav(L, brands):
     """Links between the pages: by kind, by brand, Black Friday (same order in both languages)."""
     if L.get("hike"):      # boot pages (Oct 25): hiking deals + every boot model; no running lists
         return f'<nav class="browse" aria-label="{L["browse"]}"><a href="{L["home"]}">{esc(L["mDeals"])}</a><a href="/{L["dir"]}/">{esc(L["all"])}</a></nav>'
     hub = lambda k: f'/{L["hubDir"]}/' + (f'{L["hubSlugs"][k]}/' if L["hubSlugs"][k] else "")
     links = [(hub(k), L["hubs"][k][1]) for k in ("all", "road", "trail", "racing", "women", "men")]
-    links += [(f'/{L["bfDir"]}/', L["bfLink"])] + ([(f'/{L["bdDir"]}/', L["bdLink"])] if L.get("bdDir") else []) + [(f'/{L["dir"]}/', L["all"])]
+    extra = [x for x in season_links(L) if x[0] != f'/{L["bfDir"]}/' and x[0] != f'/{L.get("bdDir")}/']   # L3: deal check + gifts
+    links += [(f'/{L["bfDir"]}/', L["bfLink"])] + extra + ([(f'/{L["bdDir"]}/', L["bdLink"])] if L.get("bdDir") else []) + [(f'/{L["dir"]}/', L["all"])]
     links.append(("/us/races/" if L["lang"] == "en-US" else "/courses/" if L["lang"] == "fr-CA" else "/races/", L["mRaces"]))   # Oct 21: race gear lists
     out = f'<nav class="browse" aria-label="{L["browse"]}">' + "".join(f'<a href="{u}">{esc(t)}</a>' for u, t in links) + "</nav>"
     if brands:
@@ -1650,7 +1691,8 @@ def home_section(L_en, L_fr, rows, brands, us=None):
         li = "".join(f'<li><a href="/{L["dir"]}/{s}/">{esc(n)}</a> · {money(sm["price"])}' + (f' (−{sm["top"]}%)' if sm["top"] >= 10 else "") + "</li>"
                      for s, n, sm in rows)
         nav = " · ".join(f'<a href="{u}">{esc(t)}</a>' for u, t in
-                         [(f'/{L["hubDir"]}/', L["hubs"]["all"][1]), (f'/{L["bfDir"]}/', L["bfLink"]), (f'/{L["dir"]}/', L["homeMore"])])
+                         [(f'/{L["hubDir"]}/', L["hubs"]["all"][1]), (f'/{L["bfDir"]}/', L["bfLink"])] +
+                         [x for x in season_links(L) if x[0] not in (f'/{L["bfDir"]}/', f'/{L.get("bdDir")}/')] + [(f'/{L["dir"]}/', L["homeMore"])])
         br = " · ".join(f'<a href="/{L["brandDir"]}/{slugify(b)}/">{esc(b)}</a>' for b in brands[:12])
         lang = "en" if code == "us" else code
         return (f'<div class="seo-{code}" lang="{lang}"><h2>{esc(L["homeH"])}</h2><ol>{li}</ol>'

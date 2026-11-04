@@ -168,6 +168,10 @@ def page(lang, data):
         if r["f"]:
             body.append(f'<p class="gf-h3">{SP.esc(s["full"])}</p>{cards(r["f"])}')
     boxing = "/us/black-friday/" if lang == "us" else "/soldes-apres-noel/" if lang == "fr" else "/boxing-day/"
+    bf = [u for u, _ in SP.season_links(L, gifts=False) if u in ("/black-friday/", "/vendredi-fou/")]
+    if lang != "us" and bf:     # Nov 4 (SEO L3): Nov 1 - Dec 1, the Canadian gift pages link their Black Friday page
+        body.append('<p class="gf-box">Vous magasinez aussi pour vous? <a href="/vendredi-fou/">Aubaines de chaussures de course du Vendredi fou 2026 →</a></p>'
+                    if lang == "fr" else '<p class="gf-box">Shopping for yourself too? <a href="/black-friday/">Black Friday 2026 running shoe deals →</a></p>')
     body.append(f'<p class="gf-box">{SP.esc(s["box"])} <a href="{boxing}">{SP.esc(s["boxing"])}</a></p>'
                 f'<p><a href="{L["home"]}{"&" if "?" in L["home"] else "?"}ref=gifts"><strong>{SP.esc(s["more"])}</strong></a></p>'
                 f'<p class="gf-sub">{SP.esc(s["note"])}</p>')
