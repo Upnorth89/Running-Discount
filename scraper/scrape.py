@@ -3541,7 +3541,9 @@ NOT_RUNNING = re.compile(r"challenge patch|pickleball|gift ?card|pannier|eyeglas
                          # ski touring (Ski Uphill, Oct 7); trail crampons and goodr "Donkey Goggles" sunglasses stay
                          r"\bskis\b|\bhelmets?\b|airbag|avalanche|(?<!donkey )\bgoggles?\b|\b(powder|pole) baskets?\b|climbing skins?|skinalp|"
                          r"\bbindings?\b|splitboard|glide wax|liquid wax|aenergy harness|footwear refresh|"
-                         r"seat ?mast|seat ?post|\bbiogel\b", re.I)   # Oct 20: a Trek seatmast cap under headwear, Garneau Biogel cycling gloves
+                         r"seat ?mast|seat ?post|\bbiogel\b|"
+                         # Nov 4 (data audit): ski/snowboard outerwear, coaching plans, a sound-healing device
+                         r"powslayer|training programs?|coaching plan|sound.?s healing|singing bowl", re.I)   # Oct 20: a Trek seatmast cap under headwear, Garneau Biogel cycling gloves
 FOOD = re.compile(r"\bgels?\b(?!-)|[ée]lectrolyte|boisson|\bbarres?\b|jujubes?|\bchews?\b|\bbars?\b|electrolyte|drink mix|hydration mix|energy|\bfuel\b|"
                   r"nutrition|recovery drink|protein|waffle|stroopwafel|salt tab|capsule", re.I)
 
@@ -3582,7 +3584,7 @@ def generic_group(kind):
         if kind == "food":             # fuel brands: food, unless it's clearly merch/gear (a cap, a flask)
             return g if g and not FOOD.search(title) else "nutrition"
         if kind == "socks":            # sock brands: socks unless it's clearly a tee/hoodie/etc.
-            return g if g and g != "tops" or re.search(r"\btee\b|shirt|tank|hoodie|jacket|pullover", title, re.I) else "socks"
+            return g if g and g != "tops" or re.search(r"\btee\b|shirt|tank|hoodie|\bhood|jacket|pullover|polo|sweat(pant|shirt)?s?\b|crewneck|jogger|\bpants?\b", title, re.I) else "socks"
         if kind == "eyewear":          # sunglasses brands: everything is eyewear except hats/apparel
             return g if g in ("headwear", "tops", "bottoms") else "gear"
         if FOOD.search(ptype) or (FOOD.search(title) and not g and not re.search(r"apparel|clothing|shoe|footwear|v[êe]tement", ptype, re.I)):
@@ -3951,10 +3953,13 @@ if not SPORTSEXPERTS_ON:
     STORES.pop("sportsexperts", None)
 
 # Casual footwear some running stores also sell; not what people come here for.
+CASUAL_ANY = {"birkenstock", "crocs", "ugg", "dr. martens", "clarks", "blundstone", "wolky", "teva", "pony"}   # Nov 4: out in every group
+SOCCER_ANY = re.compile(r"(?i:\b(soccer|futsal|mercurial|goalkeeper)\b|\b(fg|ag|sg)(/\w+)?\s+cleats?\b)")   # never ice cleats (traction gear)
+CLOTH_VEST_WORDS = re.compile(r"hybrid|insulated|shield|\bwind|thermal|\bdown\b|puffer|subz|fleece|soft-?shell|visible|quilted|primaloft", re.I)
 CASUAL_BRANDS = {"ambler", "birkenstock", "wolky", "teva", "crocs", "ugg", "blundstone", "dr. martens", "clarks", "oofos", "billy footwear", "vessi", "pony"}   # Ambler (Oct 8): toques, and its only "shoe" is a wool slipper; Pony (Oct 30): retro sneakers in SVP's running collection led the Friday email's shoes at $14.99
 CASUAL_SHOE = re.compile(r"\b(sandal|sandale|clog|sabot|slipper|pantoufle|mule|flip[- ]flops?|ellipse flip|loafer|slide|clearwater cnx|ks86|recovery (flip|slide)|ora recovery|bobs|casual sneaker|leather sneaker|chelsea|traction bootie)s?\b", re.I)   # Oct 19 (mystery shop): Skechers BOBS, Keen KS86 Leather, Xero "Casual Sneaker"
 # court and lifestyle shoes from running brands (ASICS tennis/pickleball lines, retro sneakers)
-COURT_SHOE = re.compile(r"pick[el]+ball|\btennis\b|\bpadel\b|\bcourt\b|gel[- ]?(resolution|dedicate|game|challenger|1130|nyc|kahana)|solution speed", re.I)
+COURT_SHOE = re.compile(r"\btyrol\b|pick[el]+ball|\btennis\b|\bpadel\b|\bcourt\b|gel[- ]?(resolution|dedicate|game|challenger|1130|nyc|kahana)|solution speed", re.I)
 # lifestyle lines stores file under running (brand + model; Foot Locker, Oct 4, 2026)
 LIFESTYLE_SHOE = re.compile(r"^(new balance\s+(740|2002r?|9060|530|1906r?)|on\s+(cloud\s?6|cloudtilt|cloudzone|cloud\s?5|cloudnova|roger)"
                             r"|salomon\s+xt-?(6|pathway|whisper|4|quest)|asics\s+gel-?(kayano\s?(14|20)|k1011)"
@@ -4352,6 +4357,17 @@ def tidy_shoes(offers):
             o["n"] = re.sub(r"\s+-\s+(Men|Women)$", r" - \1's", o["n"])   # Stampeak: "Cadi - Men"
         if o["g"] == "shoes" and SHOE_CARE.search(f"{o['b'] or ''} {o['n']}") and not re.search(r"running shoes?|\bshoes?$", o["n"], re.I):
             o["g"] = "gear"            # laces, cleaners, sprays, spike wrenches: shoe things, not shoes (Oct 7 audit)
+        # Nov 4 (data audit): casual footwear brands sell socks/clothing too (Birkenstock "Cotton Crew" under tops); soccer kit filed
+        # under tops (Gazelle: Mercurial FG cleats, jerseys); pickleball brand Tyrol
+        if (o["b"] or "").lower() in CASUAL_ANY or (o["b"] or "").lower() == "tyrol":
+            continue
+        if o["g"] != "shoes" and SOCCER_ANY.search(o["n"]):
+            continue
+        if o["g"] == "bottoms" and re.search(r"\b(jacket|coat|parka|anorak|blazer)\b", o["n"], re.I) and not re.search(r"\bset\b", o["n"], re.I):
+            o["g"] = "tops"            # "Emiko Short Shell Jacket", "Chelsea Short Coat": short jackets, not shorts
+        if o["g"] == "packs" and re.search(r"\bvest\b|\bgilet\b", o["n"], re.I) and CLOTH_VEST_WORDS.search(o["n"]) \
+                and not re.search(r"hydration|\d+(\.\d+)?\s?l\b|lit(er|re)|flask|bladder|reservoir|race vest|\bpack\b|\bset\b", o["n"], re.I):
+            o["g"] = "tops"            # Brooks Shield Hybrid / Run Visible Insulated, Craft SubZ: clothing vests, not hydration vests
         if o["g"] == "shoes":
             if (o["b"] or "").lower() in CASUAL_BRANDS or (o["b"] or "").lower() in BIKE_SHOE_BRANDS or CASUAL_SHOE.search(o["n"]) or SOCCER.search(o["n"]) or COURT_SHOE.search(o["n"]) \
                     or LIFESTYLE_SHOE.search(f'{o["b"]} {o["n"]}'):
