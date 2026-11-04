@@ -552,3 +552,19 @@ Better levers for "3 stores per store lost": readable running specialty shops (l
      holds the old offers. Per-store count = scrape log line "hidden/wholesale products skipped: …" (I'll post the numbers after the morning read).
   2. catalog_validate's 70%+ warning needs 5+ sale sizes (health.py's disc check already needs 20+ products).
   3. "Catalog file (…) is N days old" is skipped when catalog-check.json has a "leaving" list; otherwise it names the file's 3 biggest stores.
+
+## Nov 4, ~02:50 UTC (backend): Fox Pro launch musts by Nov 16, honest status
+Nothing of Stripe is built yet (no Stripe code in the repo today). Plan, using Stripe Billing in TEST mode, behind the switch:
+1. Cancel online: Stripe Customer Portal link from My account + a "Manage or cancel" link in every Pro email (2-3 clicks). Buildable.
+2. Renewal reminder 30 days before: Stripe's own "upcoming renewal" email for yearly plans (set to 30 days) + our own Resend copy as backup. Buildable.
+3. Total yearly price first at checkout: Stripe Checkout shows "$36.00 per year" as the total. TAX LINE = AT RISK: it needs Stripe Tax set up with
+   Bastien's registrations (GST, BC PST) = the accountant's answer. Without it, checkout can only show "taxes included" or no tax line.
+4. Terms + receipt right after purchase: Stripe receipt + our welcome email with the terms (webhook -> Resend). Buildable.
+5. 30-day refund from one request: "Refund me" button in My account (first 30 days) -> edge function refunds through Stripe + cancels. Buildable.
+6. Claim emails say "The store decides": part of the "I bought it" flow, also not built yet. Buildable, but it's the biggest piece.
+BLOCKERS that only Bastien can clear, needed by ~Nov 8 for a Nov 16 test:
+- a Stripe account (business details), its TEST secret key + webhook secret stored as Supabase Edge Function secrets (never in chat);
+- deploying the Supabase Edge Functions (checkout, webhook, refund, portal): either he pastes them in the dashboard, or he adds a
+  SUPABASE_ACCESS_TOKEN GitHub secret so a workflow deploys them;
+- the accountant's answer on GST/PST registration (item 3's tax line).
+Please flag item 3 (tax line) and the Stripe-account deadline to Bastien now. I start the Pro code next (after the morning-read check), test mode only.
