@@ -102,7 +102,12 @@ def wstart(m, w):
     i = m.find(w)
     while i >= 0:
         e = re.sub(r"^(es|s)", "", m[i + len(w):])
-        if i == 0 or not an(m[i - 1]) or not an(e[:1] or " "):     # or it ends a word: "lamp" = headlamp, "goat" = Speedgoat
+        if i == 0 or not an(m[i - 1]):
+            return True
+        j = i
+        while j > 0 and an(m[j - 1]):
+            j -= 1
+        if i - j >= 4 and not an(e[:1] or " "):     # or it ends a word after 4+ letters: "lamp" = headlamp, "goat" = Speedgoat; never "terrain"
             return True
         i = m.find(w, i + 1)
     return False

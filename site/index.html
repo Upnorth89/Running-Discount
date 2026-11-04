@@ -1532,7 +1532,7 @@ const SQ=s=>s.replace(/[^a-z0-9]/g,"").replace(/v(?=\d)/g,"");
 /* Nov 4 (growth's round: "rain jacket" found only Craft "Nordic TRAINing" jackets): a typed word must start a word of the name
    ("rain" never inside "training", "run" never inside "Brunch"/"Trunk"); the trailing s/e forgiveness stays */
 const AN=/[a-z0-9]/,wstart=(m,w)=>{for(let i=m.indexOf(w);i>=0;i=m.indexOf(w,i+1)){const e=m.slice(i+w.length).replace(/^(es|s)/,"");
-  if(!i||!AN.test(m[i-1])||!AN.test(e[0]||" "))return true}return false};   // or it ends a word: "lamp" = headlamp, "goat" = Speedgoat
+  if(!i||!AN.test(m[i-1]))return true;let j=i;while(j>0&&AN.test(m[j-1]))j--;if(i-j>=4&&!AN.test(e[0]||" "))return true}return false};   // or it ends a word after 4+ letters: "lamp" = headlamp, "goat" = Speedgoat; never "terrain"
 const qhas0=(t,w)=>{const i=t.indexOf("\u0001"),m=i<0?t:t.slice(0,i);
   return wstart(m,w)||(w.length>4&&/[se]$/.test(w)&&wstart(m,w.slice(0,-1)))||(i>=0&&w.length>=5&&t.includes("\u0001"+w+"\u0001"))};
 /* Nov 3 (growth's walk: "bas" found base layers, "manteau de pluie" / "souliers de course" / "lampe frontale" found nothing): French
