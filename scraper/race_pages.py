@@ -1443,12 +1443,14 @@ SUG = {
            "desc": "The gear {thename}{name} suggests for the {dists}, item by item (none of it required), with today's best prices on each in your size at Canadian stores.",
            "h1": "{name} suggested gear list", "R": "Suggested by the race",
            "sNote": "The race suggests this gear; none of it is required. The only must-haves are what the race hands out (marked Provided).",
-           "qList": "Is any gear mandatory for {the}{short} {d}?", "aList": "No. The race suggests: {items}."},
+           "qList": "Is any gear mandatory for {the}{short} {d}?", "aList": "No. The race suggests: {items}.",
+           "aOnly": "Only what the race hands out ({prov}). Everything else is suggested: {items}."},
     "fr": {"title": "Matériel suggéré {de}{name} ({short} {dists})",
            "desc": "Le matériel que suggère {le}{name} pour le {dists}, article par article (rien d'obligatoire), avec les meilleurs prix du jour dans votre taille dans les boutiques canadiennes.",
            "h1": "Matériel suggéré {de}{name}", "R": "Suggéré par la course",
            "sNote": "La course suggère ce matériel; rien n'y est obligatoire. Seul ce que la course remet (marqué Fourni) est exigé.",
-           "qList": "Y a-t-il du matériel obligatoire pour {les}{short} {d}?", "aList": "Non. La course suggère : {items}."},
+           "qList": "Y a-t-il du matériel obligatoire pour {les}{short} {d}?", "aList": "Non. La course suggère : {items}.",
+           "aOnly": "Seulement ce que la course vous remet ({prov}). Tout le reste est suggéré : {items}."},
 }
 SUG["us"] = dict(SUG["en"], desc="The gear {thename}{name} suggests for the {dists}, item by item (none of it required), with today's best prices on each in your size at US stores.")
 
@@ -1848,7 +1850,10 @@ def page(slug, race, L, items, stores, pages=None, fx=1.0):
         inkit = {k for ks in (race.get("kits") or {}).values() for k in ks}
         must = [txt["en" if L == "us" else L][0] for kind, lv, txt, _ in race["items"] if lv[i] == ("R" if race.get("suggested") else "M") and kind not in inkit]
         prov = [txt["en" if L == "us" else L][0] for kind, lv, txt, _ in race["items"] if lv[i] == "P"]
-        ans = (s["aList"].format(items=", ".join(must)) if must else "") + (" " if must and prov else "") + (s["aProv"].format(items=", ".join(prov)) if prov else "")
+        if race.get("suggested") and prov and must:     # Nov 4 (growth): the race calls what it hands out "mandatory": never answer "No"
+            ans = s["aOnly"].format(prov=", ".join(prov), items=", ".join(must))
+        else:
+            ans = (s["aList"].format(items=", ".join(must)) if must else "") + (" " if must and prov else "") + (s["aProv"].format(items=", ".join(prov)) if prov else "")
         faq.append((s["qList"].format(d=dlab(race, d, L), **fmt), ans))
     if race.get("faq_jacket"):        # Harricana: "windbreakers will not be accepted"
         faq.append((s["qJacket"].format(**fmt), s["aJacket"].format(**{**fmt, "dists": dlabs(race, L, [d for i, d in enumerate(race["dists"]) if dict((k, lv) for k, lv, *_ in race["items"])["jacket"][i] == "M"])})))
