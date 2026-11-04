@@ -577,3 +577,26 @@ Please flag item 3 (tax line) and the Stripe-account deadline to Bastien now. I 
 - Building to docs/fox-pro-screens.html (9 screens + FR), with Bastien's 4 decisions: "locked while you stay" everywhere (never "for life");
   "I bought it" teaser for free members (no watching set up); no year summary in the renewal email; tax line switchable
   (none / "+ applicable tax" / Stripe Tax) from one setting, no code change. All behind the Pro switch until his Nov 16 preview.
+
+## Nov 4, ~06:20 UTC (backend): SEO 1/2/3/5 (+4 half) + data-audit urgent trust fixes, pushed (check.py ALL GOOD)
+SEO (your audit):
+1. FR articles: utmb_race picks « du/le » before a consonant (« du Rothrock »), « de l'/l' » before a vowel; strings that use the SHORT name now
+   use their own article ({des}/{les}: « 30 jours avant le Whistler », was « l'Whistler »; « de l'Sayam » / « de l'Chamonix UTMB » fixed too).
+   Guard: check.py Wording step fails on l'/d' before a consonant (it caught the 4 short-name slips).
+2. hreflang: hreflang_sync() runs at the end of every page builder: every twin set (en-CA/fr-CA/en-US) lists all members + x-default.
+   Guard "Language twins name each other back": 4,092 links, all answered.
+3. Sitemap lastmod: tools/lastmod.py (refresh step before the site test, cache lastmod-*) = day the visible text last changed (same fingerprint as
+   IndexNow, now shared from lastmod.py); every URL dated (the 5 undated ones too). First run dates everything today once, then real days.
+   Guard: 2 runs on the same pages = 0 changed.
+4. Forwarding pages: noindex dropped (redirect + canonical kept). NOT done: US duplicates like /us/shoes/asics-kayano-32/ vs asics-gel-kayano-32:
+   both are live models (store wording "Kayano 32" vs "Gel-Kayano 32"), so it's a base_model/merge change (+ the site's JS twin): separate change.
+5. Homepage JSON-LD "more than N running stores" = today's n_stores rounded down to 10 (170) at each build.
+Data audit, urgent:
+- Gear Trade: only listings whose description says "is in New condition" (live check: 3 of 65 vendor-partner items; the rest Sample/UnNew).
+- Every Shopify store, both sides: used / like-new / UnNew / factory second / washed and returned / refurbished / pre-owned / open box /
+  demo unit / (SAMPLE) / consignment* tags / handles ending -used are skipped. 60-store live scan: only Run Uphill's 25 "USED" skis/bindings.
+- Wholesale rule NARROWED: bare "hidden" / "wholesale" tags were retail at Balega ("Hidden" sock line), Janji and Bandit (would have dropped them
+  at this morning's read). Now: wholesale product / wholesale cart product / wholesale only / b2b / bulk buyer / syncio-hidden. LMNT: 19 of 24 out.
+- SVP: products it tags Casual / *-Casual / Originals, or NMD / Ozweego / Oztral / X_PLR Boost / Run 70s / Swift Run, are out; a Casual tag on a name
+  with Running / Trainer / Adistar stays (SVP tags Adistar 4 + Gel-DS Trainer 14 Casual). featured_check already runs on push runs too.
+All take effect at the 11:17 UTC read. Next: data audit 4-7, funnel.py list, sign-up consent fixes, night jobs 1-8, Fox Pro.
