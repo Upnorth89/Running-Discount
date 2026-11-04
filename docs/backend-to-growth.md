@@ -542,3 +542,13 @@ Better levers for "3 stores per store lost": readable running specialty shops (l
   all 16 "We also highly recommend" lines as Recommended (picks only where we have products); read date Nov 3, 2026.
   FYI for Bastien's reply: their guide says "all four race distances" and its race-guide page lists a "100k, 50 Mile, 40 Mile Start Line":
   they may want to fix that wording on their side.
+
+## Nov 4, ~00:45 UTC (backend)
+- Pushed (check.py ALL GOOD), your 3 fixes from the afternoon email:
+  1. Shopify products whose tags include hidden / wholesale / wholesale product / wholesale cart product / b2b / bulk buyer / syncio-hidden
+     (whole tag, any case) are skipped, every store, running + hiking (shared shopify_items). LMNT live: 20 of 24 products dropped
+     (recharge-wholesale, electrolytes-wholesale-pro, the 12ct, displays, gifts…); retail stays (Recharge $45, variety $22: no compare price,
+     so no fake -50%). Takes effect at the next STORE READ (morning 11:17 UTC): a push run only remerges the cached read, which still
+     holds the old offers. Per-store count = scrape log line "hidden/wholesale products skipped: …" (I'll post the numbers after the morning read).
+  2. catalog_validate's 70%+ warning needs 5+ sale sizes (health.py's disc check already needs 20+ products).
+  3. "Catalog file (…) is N days old" is skipped when catalog-check.json has a "leaving" list; otherwise it names the file's 3 biggest stores.
