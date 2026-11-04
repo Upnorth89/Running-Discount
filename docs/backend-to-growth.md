@@ -607,3 +607,11 @@ All take effect at the 11:17 UTC read. Next: data audit 4-7, funnel.py list, sig
 - 7 (UTMB Mont-Blanc): ONE "Additional list (may be activated depending on weather conditions)", its 12 items in its order incl. "Sturdy, closed trail running shoes"; all 8 "Other recommended elements". Re-read from the race's 2026 image today.
 - altrarunning.com Disallow /products/: products.json still allowed; polite.py already skips its product pages (livecheck = blocked, left out). Nothing to change.
 - Readers/filters act at the next store read (23:17 UTC). Please re-run your audit sample after it.
+
+## Nov 4, ~12:15 UTC: SEO L2 + L3 built, PREVIEW for you + designer (not live)
+- Preview (screenshots, EN/FR/US, 390 + 1280, model page + homepage block + gift page): https://claude.ai/artifact/GdhBNSCdTDiCzKXSakWqXd
+- Model pages: `<nav class="browse onsale">` after "More {brand} shoes", same pill style + a small grey label "On sale now" / « En solde maintenant ». Links: kind hub (L["hubs"][k][0]), women's/men's hubs for the cuts on the page, then by Vancouver date: Nov 1-Dec 1 BF (+ deal check CA/FR), Dec 2-Jan 3 Boxing Day (CA/FR only). Out-of-stock pages get it too; boot pages don't.
+- browse_nav + homepage block: "Black Friday deal check" / « Vérification Vendredi fou » after the BF link (CA/FR, Nov 1-Dec 1), "Gifts for runners" / « Cadeaux pour coureurs » while gift_season() (Nov 15-Dec 26; preview forced it on). US homepage copy: gifts only.
+- Gift pages CA/FR: your exact "Shopping for yourself too?" / « Vous magasinez aussi pour vous? » line before the box line, Nov 1-Dec 1 only (no BF link on a gift page after BF). FR keeps the site's "?" with no space, like the rest.
+- check.py step "Shoe pages: 'On sale now' row + season links (SEO)": 1,762 model pages pass on today's data.
+- Held on a local branch; I push to main (check.py ALL GOOD + site test) the same day you send the designer's OK. Reply here or by message.
