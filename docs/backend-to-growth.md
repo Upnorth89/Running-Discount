@@ -802,3 +802,47 @@ there's no check before it goes live. The token is a one-time 5-minute job, so I
 6. Supabase > Edge Functions > **Secrets** > Add: name `STRIPE_WEBHOOK_SECRET`, paste, Save.
 7. Back in Stripe on that endpoint: **Send test event** (any of the 8). It should show **200**. Tell me when done and I'll confirm from the logs.
 Later, for the LIVE account (before Dec 2): the same steps on the live side, and its own `whsec_` replaces this one (separate secret then).
+
+## Night shift #1 (Nov 5), backend results
+
+### JOB 1: stores
+- **Added: Hettas** (hettas.com, Vancouver, women's running shoes). Shopify; prices in USD but the shop is based in Canada (its own settings say
+  country CA), so it counts as "ships from Canada" (new `CA_USD` rule); ships to CA + US, so it's on both sides. 4 cards (Cambie, Alma Cruise,
+  Alma Tempo, Alma Speed; 14 sizes each), **0 on sale** (full price = something to watch; it was "add when it ships"). 4/4 page prices
+  matched (US$178 / US$198), sortcheck clean, Alma Speed typed race. On the 🍁 Canadian brands list. Live at the next store read (11:17 UTC).
+- **Only 1 tonight, not 2-3**, because the easy ones are used up: Gord's + Distance Runwear were already live (Nov 1; STORES.md rows fixed).
+  I re-tested the 24 "didn't answer" US shops from GitHub's servers: all 23 still dead/moved, and Heart & Sole isn't Shopify. Holabird: feeds still off;
+  Independence Run & Hike + Runner's Market: Store API still closed. Full list in STORES.md "Night shift Nov 5".
+- **What would add real volume next (needs a decision, not a night):**
+  (a) Salt Lake Running Co (+ Dick Pond, same BigCommerce system): robots allows AI crawlers with Crawl-delay 10; SLRC = 1,198 products, i.e. ~3.3 h
+  per full read, so a night reader read in slices over ~3 nights (like Fleet Feet). ~1 evening to build + a read test. I first need to confirm
+  sizes/stock are readable from the page.
+  (b) Refill the US candidate list: the Oct 6 list (The Running Event's 2026 winners) is spent; ~40 of its addresses are dead. A fresh list
+  (state running-store associations, 2025/26 Best Running Stores with current addresses) is a growth research job; I test them the same night.
+
+### JOB 2: Black Friday load readiness (measured tonight on the LIVE site)
+Phone = 390 px, DevTools "Fast 3G" (~160 KB/s, 562 ms latency) + CPU slowed x4, cache off, analytics blocked. Median of 2-3 runs:
+
+| visitor | first deal on screen | sale.json downloaded | of which download | processing + drawing |
+|---|---:|---:|---:|---:|
+| new (welcome deals) | **14.9 s** | 11.2 s | ~8.8 s | ~3.7 s |
+| returning (sizes saved) | **14.1 s** | 11.3 s | ~9.0 s | ~2.8 s |
+| no throttling, new / returning | 2.0 s / 1.7 s | 1.1 s / 1.0 s | | |
+
+- sale.json tonight: 9,451 items, 7.66 MB unpacked, **1.19 MB sent** (gzip). Where the bytes go: sizes 34%, store links 28%, photos 16%, store info 8%.
+- **Black Friday estimate:** 1.5x items = ~1.8 MB sent -> ~13 s download -> **~19-20 s** to first deal; 2x = ~2.4 MB -> **~25 s**.
+- The real problem is the download (about 75% of the wait), not the processing. Returning visitors within 10 min reuse the browser copy (max-age=600)
+  and later ones revalidate with the ETag, so the full cost hits visitors on the first load after each twice-a-day update.
+- **Smallest invisible fix (my pick): "first screen" file.** The morning build also writes sale-top.json (+ -us / -hike): the ~600 best deals,
+  **~70 KB sent, vs 1.19 MB**. The page draws from it right away, loads the full sale.json behind it, and swaps silently.
+  Expected: first deal at **~4 s instead of ~14-15 s** on that phone (page ~2.6 s + ~0.5 s download + ~0.5 s processing), and it stays
+  ~4 s at 2x items (only the full file grows).
+  Safe part (new visitors): the welcome screen's 3 deals + store count come from the small file. The visitor then picks sizes (several seconds),
+  and the full file is in by then: **fully invisible, can ship before Nov 20** with a site test ("welcome deals from the small file; full data
+  replaces it; nothing on screen changes").
+  Careful part (returning visitors): their Top deals come from the small file first. If a better match in their size is only in the full file,
+  the list could reorder when it arrives. Fix: draw only the first row from the small file and the rest after the full file. That's a visible
+  timing change, so it belongs in the **Nov 16 batch** with a preview.
+  Not worth it: trimming fields (dropping "?variant=" from links saves ~7% sent, i.e. ~0.6 s) is small next to this, with a risk of breaking size links.
+- Measuring it live: the site already logs `load` (ms to deals + kB). After the change, the funnel's load bands show it on real phones.
+- **Asking:** ship the new-visitor part before Nov 20 (no visible change), and the returning-visitor part in the Nov 16 batch?
