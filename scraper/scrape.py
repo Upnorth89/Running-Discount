@@ -70,7 +70,14 @@ PTL = {
     "poles": "gear", "energy-food-and-drinks": "nutrition",
 }
 # Fallback on product names (first match wins). Kept strict so "Short Sleeve" isn't shorts, "Light Jacket" isn't a light.
+# Nov 5 (Bastien: running strollers stay): jogging strollers + their parts are gear, before "jogger" makes them bottoms
+STROLLER = re.compile(r"\bstrollers?\b|\bpoussettes?\b|\burban glide\b|\bchariot\b|"
+                      r"\bbob (revolution|alterrain|rambler)\b|bumbleride|switch ?& ?jog|\bjogging (kit|stroller)\b", re.I)
+# not for running: city/travel strollers, wagons, car seats and bassinets (and their adapters), bike seats
+NOT_RUN_STROLLER = re.compile(r"car ?seat|bassinet|maxi-cosi|ride ?along|bike seat|\b(travel|umbrella|city) strollers?\b|"
+                              r"\bspring 2\b|4-wheel stroller|stroller wagon|switch ?& ?roll|switchback", re.I)
 RULES = [
+    ("gear",      STROLLER.pattern),
     ("shoes",     r"\bshoes?\b|\bchaussures?\b|\bspikes\b|\bfootwear\b|\bsneakers?\b"),
     ("bras",      r"\bbras?\b"),
     ("socks",     r"\bsocks?\b|\bchaussettes?\b|mini crew|micro crew|mid crew|crew height|no[- ]show|over[- ]the[- ]calf|\bquarter\b(?![- ]?zip)|cushion\b.*\bcrew\b"),
@@ -82,7 +89,7 @@ RULES = [
                   r"(?:\bpinnacle\b|(?<![.\d])\d+ ?l\b)(?!.*\b(jacket|pants?|shell|parka|singlet|tee|shirt|shorts?|tank|tights?|bra)\b)"),   # not "3L Jacket", Janji "Pinnacle Tee"
     ("bottoms",   r"\bbottoms?\b|(?<!short sleeve )\bshorts\b|\bshort\b(?! sleeve)|tights?\b|\bpants?\b|leggings?|joggers?|skirts?|skorts?|boxers?|briefs?"),
     ("tops",      r"t-?shirts?|\btees?\b|\bshirts?|\btops?\b|tanks?|singlets?|jackets?|\bcoats?\b|raincoats?|hood(ie|y)|\bvests?\b|gilets?|jersey|sweaters?|base ?layer|pullovers?|fleece|anorak|windbreaker|\bcrew\b|half zip|quarter zip|1/2 zip|1/4 zip|long sleeve|longsleeve|short sleeve|\bcrop\b"),
-    ("gear",      r"poles?\b|headlamp|bottles?|flasks?|sunglass|(?:arm|calf|leg|compression) sleeves?\b|gaiters|roller|massage|insoles?|chafe|chafing|\bbalm\b|\bglide\b"),
+    ("gear",      r"poles?\b|headlamp|bottles?|flasks?|sunglass|(?:arm|calf|leg|compression) sleeves?\b|gaiters|roller|massage|insoles?|chafe|chafing|\bbalm\b|\bbody ?glide\b|^glide\b"),   # Glide = the anti-chafe brand, not "Urban Glide"
 ]
 def group_of(*texts):
     t = " ".join(x for x in texts if x).lower()
@@ -4248,6 +4255,8 @@ def garment_type(g, n):
         n = re.split(r"\s+[—·]\s+", n)[0]       # "Women's GT-2000 14 — Winter Sea/White": the colour isn't the shoe
         if re.search(r"trail[- ]runn", n, re.I) and not re.search(r"\b(hik(e|er|ing)|mid|boots?|winter)\b", n, re.I):
             return "trail"                       # "Lowa Amplux Trail Running Shoes": a trail runner from a hiking brand
+    if g == "gear" and STROLLER.search(n):
+        return None                              # Nov 5: a stroller isn't a light, pole or bottle ("Chariot Sleek Cup Holder")
     for k, rx in TYPES.get(g, []):
         if rx.search(n):
             return k
@@ -4391,6 +4400,10 @@ def tidy_shoes(offers):
         if n0.endswith("\x00w"):
             n0, o["w"] = n0[:-2], True
         o["n"] = n0 or o["n"]
+        if STROLLER.search(o["n"]) and not re.search(r"\b(hats?|caps?|tees?|shirts?|trucker)\b", o["n"], re.I):
+            if NOT_RUN_STROLLER.search(o["n"]) and not re.search(r"\bjog", o["n"], re.I):
+                continue               # Nov 5 (Bastien): running strollers stay; city/travel strollers, car seats, bassinets go
+            o["g"] = "gear"            # jogging strollers + their parts ("Neoprene Grips for Switch&Jog Jogger" was bottoms)
         if o["g"] == "shoes" and o.get("sz") and all(str(z[0]).upper() == "OS" for z in o["sz"]):
             if re.search(r"\bhorn\b|dryer|\brack\b|pocket|preventer|\bbag\b|wallet|\bclip", o["n"], re.I):
                 o["g"] = "gear"        # shoe things filed as shoes (shoe horn, dryer)
@@ -5463,7 +5476,7 @@ def bc_data(path):
     raise requests.HTTPError(f"{r.status_code} {path}")
 
 def bc_list(sale_only=False):
-    """Every product in the running section: (url, on sale?). Strollers/joggers skipped."""
+    """Every product in the running section: (url, on sale?). Kids' things and non-running strollers skipped (Nov 5)."""
     seen = {}
     for path in BC_LISTS:
         page, last = 1, 1
@@ -5474,7 +5487,7 @@ def bc_list(sale_only=False):
             for k, v in pp["__APOLLO_STATE__"].items():
                 if k.startswith("Product:") and v.get("url"):
                     sale = ((v.get("aggregates") or {}).get("variationsOnSale") or 0) > 0
-                    if not re.search(r"stroller|jogger stroller|kids'|\bkids\b|toddler", v.get("name") or "", re.I):
+                    if not (re.search(r"kids'|\bkids\b|toddler", v.get("name") or "", re.I) or NOT_RUN_STROLLER.search(v.get("name") or "")):
                         seen[v["url"]] = seen.get(v["url"]) or sale
             page += 1
             time.sleep(BC_PACE)

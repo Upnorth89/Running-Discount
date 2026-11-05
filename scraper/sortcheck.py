@@ -99,6 +99,10 @@ def check(items, store=None):
             hits["socknotrun"].append(ex)
         if g in ("gear", "gloves", "headwear") and re.search(r"\b(arm|knee|leg) warm", n, re.I):
             hits["warmer"].append(ex)
+        # Nov 5 (Bastien: running strollers stay, as gear with no type)
+        if re.search(r"\bstrollers?\b|\bpoussettes?\b|\burban glide\b|\bthule chariot\b|\bchariot (cross|sport|lite|sleek)\b", f"{b} {n}", re.I) \
+                and not re.search(r"\b(hats?|caps?|tees?|shirts?|trucker)\b", n, re.I) and (g != "gear" or t):
+            hits["stroller"].append(f"{ex}" + (f" typed {t}" if t else ""))
     SHOE_MAKERS = {"under armour", "adidas", "nike", "puma", "new balance", "reebok", "the north face", "columbia", "arc'teryx", "craft"}
     # the odd one out for its brand (Oct 8: a Ciele cap and goodr sunglasses under Nutrition because of the word "Bar"):
     # a brand that is mostly something else, with one item filed as food or as a shoe
@@ -142,7 +146,7 @@ def check(items, store=None):
         if len(bs) > 1 and len(k) >= 3:
             hits["brands"].append(" = ".join(f"{b} ({c[b]})" for b in sorted(bs, key=lambda x: -c[x])))
     LABEL = {"capnothat": "bottle/flask caps under Hats", "socknotrun": "ski or fan socks under running Socks",
-             "warmer": "arm/knee/leg warmers outside clothing/socks", "junk": "junk listings (saved bundles, placeholders)", "food": "non-food under Nutrition",
+             "warmer": "arm/knee/leg warmers outside clothing/socks", "stroller": "running strollers outside gear (or with a type)", "junk": "junk listings (saved bundles, placeholders)", "food": "non-food under Nutrition",
              "shoes": "non-shoes under Shoes (laces, sprays, socks…)", "cloth": "clothing under gear/accessories",
              "tops": "bottoms under Tops", "bottoms": "tops under Bottoms", "gender": "name and gender disagree",
              "type": "trail shoes typed road/race", "brandname": "a product name in the brand field",

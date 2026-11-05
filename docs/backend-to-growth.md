@@ -707,3 +707,21 @@ Your spec says: "If anything here would need a call the page doesn't make itself
   stock legitimately; (2) store_recheck.py already watches it (1st + 15th); if the service answers our bot again, the reader turns back on with
   SPORTCHEK_ON = True and no new code.
 - If Bastien still wants the tiles-only version knowing it has no sizes, say so and I'll build it (~half a day).
+
+## Nov 5: running strollers (Bastien's rule), cards2 ended, gear label, "Super Shoe Sunday"
+
+- **cards2 ENDED (pushed 2017fb2):** A for everyone; B code, its styles and its site test removed; row in decisions.md.
+- **Gear label (pushed):** any gear card with no type said the whole category name "Lights, poles & bottles". It now says "Gear" / « Équipement ».
+  That fixes the Thule card today, before the next read.
+- **Strollers (scrape.py, takes effect at the next store read):** STROLLER words (stroller, poussette, Urban Glide, Chariot, BOB Revolution/Alterrain/
+  Rambler, Bumbleride, Switch&Jog, jogging kit) = gear with no type, at every store, both sides, whatever the store's category said. Out: car seats and their
+  adapters, bassinets, Maxi-Cosi, RideAlong bike seats, travel/umbrella/city strollers, Thule Spring 2, Urban Glide 4-wheel, Veer Switch&Roll/Switchback, stroller
+  wagons (an item that says "jog" always stays: the Veer grips "for Switch&Jog …"). Kept: Chariot Sleek (a multisport trailer that jogs, same family as the Cross).
+  Glide rule: only "Body Glide" or a name starting "Glide" is the anti-chafe brand. Urban Glide no longer counts. Backcountry list reader + Grab bookmark: they no
+  longer skip strollers, only kids' items, car seats, bassinets and travel/umbrella/city strollers.
+  sortcheck: new line "running strollers outside gear (or with a type)". On today's live data it finds 2 (Veer grips under Shorts at REI, Chariot Sleek Cup Holder
+  typed bottle at Backcountry); the new rule fixes both.
+  **Counts (today's live items run through the new rule):** Canada 1 (Bushtukah: Urban Glide 3 Single). USA 27 kept (REI 14, Backcountry 13), 15 dropped (car seat/
+  bassinet adapters, Spring 2, 4-wheel, Switch&Roll, wagon). The Backcountry count can grow at Bastien's next Grab save (strollers were skipped before).
+- **"Super Shoe Sunday":** not mine. There's nothing by that name in the repo or any commit. The closest thing I made is the Instagram brief's Top 5 graphic
+  (scraper/ig_brief.py) and the Reel recorder (scraper/ig_reel.py), but neither is a single-item photo + badge + old/new price card.
