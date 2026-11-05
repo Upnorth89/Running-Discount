@@ -6,6 +6,7 @@ Bastien (Montréal / Vancouver, ultrarunner; "runner from Montréal and Vancouve
 plus price-drop alerts on items they heart. Goal: $500–1,000/month by March 2027 from affiliate links,
 then a paid tier (Fox Pro). The 6-month plan with weekly tasks:
 https://claude.ai/code/artifact/36e1d545-7390-44fe-b080-80f03465af61
+**Growth chat start here: `docs/growth-handoff.md`** (open items, people, Stripe progress, scheduled tasks; rewritten Nov 5 when the growth chat restarted). **Video formats: `docs/social-formats.md`** (Bastien, Nov 5: "We need to stay on the same style"; Super Shoe Sunday + one-item guess-the-price + green screen).
 **Decisions log: `docs/decisions.md`** (Oct 22, Bastien: "file these changes and attempts somewhere with the data"): every
 idea tried, its numbers and the decision (kept / removed / parked / declined). Read it before building an idea; add a row after
 every decision or ended test.
