@@ -344,6 +344,12 @@ def base_model(n):
     n = re.sub(r"\(?\bavailable\s+in\s+(wide\s+)?widths?\b\)?", " ", n, flags=re.I)
     n = re.sub(r"\bGTX\s+Waterproof\b", "GTX", n, flags=re.I)
     n = re.sub(r"^((?:Fresh\s?Foam(?:\s+X)?|FuelCell)\s+)?(\d{3,4})\s+v(\d+)\b", r"\1\2v\3", n.strip(), flags=re.I)   # New Balance "880 v15" = "880v15"
+    # Nov 5 (growth's SEO check: 21 Canadian + 32 US shoes had two live pages each, splitting stores and prices): one page per shoe
+    n = re.sub(r"(^|\s+)(Men|Women)[’']?s$", "", n.strip(" -"), flags=re.I)        # "Addiction Walker 2 Men's"; "Men's" alone = no page
+    n = re.sub(r"\s+(large|d|2e|4e)$", "", n.strip(), flags=re.I)                  # "GT-2000 14 Large", "Wave Rider 29 D" (width, not a model)
+    n = re.sub(r"^(?:Fresh\s?Foam(?:\s+X)?|FuelCell)\s+(?=\S)", "", n.strip(), flags=re.I)   # NB "Fresh Foam X 880v15" = "880v15"
+    n = re.sub(r"^(?:Gel[- ]?)?(Cumulus|Nimbus|Kayano|Trabuco|Excite|Contend)\b", r"Gel-\1", n.strip(), flags=re.I)   # ASICS "Cumulus 27" = "Gel-Cumulus 27"
+    n = re.sub(r"\bTrail\s+Trail\b", "Trail", n, flags=re.I)                        # "ACG Pegasus Trail Trail"
     return re.sub(r"\s+", " ", n).strip(" -")
 
 
@@ -1948,6 +1954,9 @@ def forward_old(known, models, site, dirs):
     forwards to it: noindex, canonical, out of the sitemap."""
     for slug in [s_ for s_, v in known.items() if NOT_SHOE_PAGE.search(v["n"]) and s_ not in models]:
         del known[slug]                # a cleaning kit that was filed as a shoe: no page (it never was one)
+    for slug in [s_ for s_, v in known.items() if s_ not in models and not v.get("to")
+                 and not base_model(v["n"][len(v["b"]) + 1:] if v["n"].lower().startswith(v["b"].lower() + " ") else "x")]:
+        del known[slug]                # Nov 5: "New Balance Men's" (brand + gender, no model) never was one shoe: no page
     for slug in models:                # Oct 30: a forwarded page whose name has shoes again is a live page again (hoka-rocket-x-trail)
         if slug in known:
             known[slug].pop("to", None)

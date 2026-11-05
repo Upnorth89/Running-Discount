@@ -1492,6 +1492,10 @@ function baseModel(n){
   n=n.replace(/\bGore[- ]?Tex\b/gi,"GTX")   // Oct 24: one page per shoe
     .replace(/\(?\bavailable\s+in\s+(wide\s+)?widths?\b\)?/gi," ").replace(/\bGTX\s+Waterproof\b/gi,"GTX")   // Oct 30: same
     .trim().replace(/^((?:Fresh\s?Foam(?:\s+X)?|FuelCell)\s+)?(\d{3,4})\s+v(\d+)\b/i,"$1$2v$3");
+  // Nov 5 (growth's SEO check): one page per shoe, same rules as scraper/shoe_pages.py base_model()
+  n=n.replace(/^[ -]+|[ -]+$/g,"").replace(/(^|\s+)(Men|Women)[’']?s$/i,"").trim().replace(/\s+(large|d|2e|4e)$/i,"").trim()
+    .replace(/^(?:Fresh\s?Foam(?:\s+X)?|FuelCell)\s+(?=\S)/i,"").replace(/^(?:Gel[- ]?)?(Cumulus|Nimbus|Kayano|Trabuco|Excite|Contend)\b/i,"Gel-$1")
+    .replace(/\bTrail\s+Trail\b/gi,"Trail");
   return n.replace(/\s+/g," ").replace(/^[ -]+|[ -]+$/g,"");
 }
 function slugify(t){t=t.toLowerCase().replace(/\+/g," plus").replace(/&/g," and ").replace(/[üû]/g,"u").replace(/[öô]/g,"o").replace(/[éèêë]/g,"e").replace(/[àâä]/g,"a");
