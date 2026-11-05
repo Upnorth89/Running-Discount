@@ -16,6 +16,8 @@ every link opened on the live site first, the copy page + the Markdown block. Ba
 
 Weeks: B = the week of Mon Oct 19, 2026, then C (Oct 26), D (Nov 2), A (Nov 9), B (Nov 16)… (week letter = A + ((Monday - Nov 9) / 7) mod 4). This week skips Monday (r/RunningDeals was posted Oct 18). Black Friday week (Nov 23-30): every post points to /black-friday/ (US /us/black-friday/).
 
+**Common sizes only (Nov 5, Bastien: "dont give me shoes that would be on sale for sizes that arent common. this hurts the brand"; "i just dont want people to end up on a sold out shoe"):** a shoe line needs 3+ common sizes (men's 8-11.5, women's 6.5-9) at the shown price, each confirmed in stock on the store's page the day of the post, and 5+ live sizes in all. Spec sent to backend for reddit_post/post_check/social picks.
+
 Never: r/BuyCanadian (removed us), r/trailrunning (Oct 23: 24 first visits, 0 sign-ups; Oct 29 skipped, only 1 US trail shoe passed the line check), r/RunningShoeGeeks (no self-promotion), the same items twice in a sub (`--exclude`).
 Every 4 weeks: drop a sub that brought no visitors (funnel.yml first visits by ?ref=reddit-<sub>), try a new one in its slot.
 
