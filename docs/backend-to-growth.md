@@ -978,3 +978,19 @@ Phone = 390 px, DevTools "Fast 3G" (~160 KB/s, 562 ms latency) + CPU slowed x4, 
   - 802 logs didn't download, the same caveat as this morning: mostly big refresh logs. Only runs between ~14:42 and ~15:45 UTC on Oct 30 could ever have held one.
 - For docs/decisions.md: "deleted 1 run log across 1 workflow; 0 addresses left".
 - How: `log-scan.yml` now has a "delete" input (run ids). It deletes a run's logs only when they hold a full address, and never touches runs, artifacts or caches.
+
+## Speedland stores (Nov 5): added, USA side
+
+- **Speedland (runspeedland.com):**
+  - **6 shoe cards** with sizes on the USA side: RX:PNW, RX:SKY, RX:LDVL, RX:BLK, RXT:PHX, GS:TAM 2. Plus 2 hats and the Saysky collab shirt; gift card + Carbitex plate left out.
+  - Sizes "5 (Men's) / 6.5 (Women's)" are now read as unisex (men's 5 = women's 6.5), so they match both men's and women's sizes.
+  - 0 on sale (US$289-299): full-price cards people can watch. 3/3 live prices match.
+- **The Run House (therunhouse.com):**
+  - **619 cards**: 508 shoes, 83 socks, 23 nutrition. **90 on sale.**
+  - Read: its men's / women's / trail shoe collections + speedland, socks, nutrition. Its apparel is left out (team/race merch with the shop's logo).
+  - It lists one product per colour: colour + style codes are cut, so 1,380 colour cards became 508 shoe cards that join other stores' cards.
+  - Out: casual-tagged shoes (Hoka Transport…), Reebok Club C / Nano, its own merch, novelty/tactical socks (Crazy Compression alone was 346 cards).
+  - Sortcheck clean ("On Cloudboom Strike LightSpray" is a shoe: added to the OK list). 3/3 live sale prices match.
+- **Speedland on the US side** now also comes via The Run House (GS:SFD at US$200 + RX models), next to Pacers/Trailhead/Backcountry.
+- **Canada:** nothing to add, no Canadian stockist.
+- **When:** live from the next store read (23:17 UTC tonight); the push run only remerges cached data.
