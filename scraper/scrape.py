@@ -153,7 +153,7 @@ def canon_shoe(label, women=False):
     if m and 1 <= float(m.group(2)) - float(m.group(1)) <= 2:
         return [k for k in ("M:" + (_us(m.group(1)) or ""), "W:" + (_us(m.group(2)) or "")) if len(k) > 2]
     # "9 M / 10.5 W", "4.5 M / 6W" (Lems), "US 7M / 9W"
-    m = re.match(r"(?i)^(?:us\s*)?(\d+(?:\.\d)?)\s*m(?:en'?s)?\s*/\s*(\d+(?:\.\d)?)\s*w(?:omen'?s)?$", t)   # Oct 24: REI "5 Mens/6.5 Womens"
+    m = re.match(r"(?i)^(?:us\s*)?(\d+(?:\.\d)?)\s*\(?m(?:en[’']?s)?\)?\s*/\s*(\d+(?:\.\d)?)\s*\(?w(?:omen[’']?s)?\)?$", t)   # Oct 24: REI "5 Mens/6.5 Womens"; Nov 5: Speedland "5 (Men's) / 6.5 (Women's)"
     if m:
         return [k for k in ("M:" + (_us(m.group(1)) or ""), "W:" + (_us(m.group(2)) or "")) if len(k) > 2]
     low = t.lower()
@@ -3581,6 +3581,8 @@ SHOPIFY_STORES = [
     ("lmnt",           "https://www.drinklmnt.com",          "food"),   # LMNT: electrolyte drink mix
     ("muir",           "https://muirenergy.com",             "food"),   # Muir Energy: organic energy gels
     # batch 2 (Nov 1)
+    ("speedland",      "https://runspeedland.com",           "gear"),   # Nov 5 (Bastien asked for Speedland): the brand's own store (Portland), ships to the US only
+    ("runhouse",       "https://therunhouse.com",            "gear"),   # Nov 5: The Run House (Walpole MA): its shoe/sock/nutrition collections only (the rest is team + race merch)
     ("karhuus",        "https://us.karhu.com",               "gear"),   # Karhu (US store, ships to Canada): its running-shoes collection only (the rest is lifestyle)
     ("thorlo",         "https://thorlo.com",                 "socks"),  # Thorlo (North Carolina): its running-socks collection (US only)
     ("farmtofeet",     "https://farmtofeet.com",             "socks"),  # Farm to Feet (North Carolina): wool running/trail socks; ships to Canada
@@ -3678,8 +3680,9 @@ US_SHOPS = {"fleetfeet", "theloop", "fit2run", "skirack", "pacers", "portlandrun
             "runflagstaff", "runninglab", "playmakers", "millcity", "runningwell", "mountainrun", "confluence", "columbusrun",
             "scrantonrun", "trailheadrun", "prrunwalk", "performancerun", "fitnesssports", "athleticannex", "annarborrun",
             "tworivers", "xtramile", "lukeslocker", "sfrunco", "backcountry", "rei",
-            "territory", "pathprojects", "ombraz", "2xuus", "paragon", "daves"} | set(RUNFREE_US)   # REI ships within the US only
-US_COLLECTIONS = {"paragon": ["running-shoes", "running"], "sportsbasement": ["running"], "sail": ["outdoor-gear-running"], "svp": ["running-collection"], "jdsports": ["running-shoes"], "karhuus": ["running-shoes"], "thorlo": ["running-socks"], "humaca": ["nutrition"], "boutiquedulac": ["chaussures", "course-a-pied", "nutrition"], "skirack": ["run"]}   # (Canadian stores too: SAIL)   # general stores: their running section only (Sports Basement also sells
+            "territory", "pathprojects", "ombraz", "2xuus", "paragon", "daves", "speedland", "runhouse"} | set(RUNFREE_US)   # REI ships within the US only
+US_COLLECTIONS = {"runhouse": ["mens-running-walking-footwear", "womens-road-running-shoes", "trail-running-shoes", "speedland", "socks-1", "gels-and-nutrition"],
+                  "paragon": ["running-shoes", "running"], "sportsbasement": ["running"], "sail": ["outdoor-gear-running"], "svp": ["running-collection"], "jdsports": ["running-shoes"], "karhuus": ["running-shoes"], "thorlo": ["running-socks"], "humaca": ["nutrition"], "boutiquedulac": ["chaussures", "course-a-pied", "nutrition"], "skirack": ["run"]}   # (Canadian stores too: SAIL)   # general stores: their running section only (Sports Basement also sells
                                                    # snowboards, swimwear, tennis: those topped the US deals, Oct 6, 2026)
 # Shoebacca was tried and dropped (Oct 6, 2026): mostly PUMA/adidas/Diadora budget and gym shoes, no Hoka/Brooks/ASICS/Nike
 NO_CART = {"svp"}      # robots.txt forbids /cart.js: the currency comes from meta.json only (SVP: CAD)
@@ -3938,6 +3941,25 @@ def make_shopify_scraper(st, base, kind):
             prods = [p for p in prods if not (any(re.search(r"(^|-)casual$|^originals$|lifestyle", t.strip(), re.I) for t in (p.get("tags") or []))
                                               and not re.search(r"\brunning\b|\btrainer\b|adistar", p.get("title") or "", re.I))
                      and not re.search(r"\b(NMD|Ozweego|Oztral|X_?PLR ?Boost|Run 70s|Swift Run)\b", p.get("title") or "", re.I)]
+        if st == "runhouse":   # Nov 5: The Run House lists one product per colour ("HOKA Men's Clifton 11 - FADED NAVY / SLATE BLUE"): the colour
+            # and style codes go so its colours (and other stores' cards) join; casual-tagged shoes, Reebok Club C / Nano (court, gym) and its own merch out
+            keep = []
+            for p in prods:
+                t = p.get("title") or ""
+                tags = [x.strip().lower() for x in p.get("tags") or []]
+                if "casual" in tags and not re.search(r"\b(running|trail)\b", t, re.I):
+                    continue
+                v = (p.get("vendor") or "").lower()
+                if ((v == "reebok" or "reebok" in t.lower()) and re.search(r"\b(club c|nano)\b", t, re.I)) or v == "the run house":
+                    continue
+                if v in ("crazy compression", "mudgear", "minus33 merino wool clothing"):
+                    continue
+                t = re.sub(r"\s*\(\s*[\d.]+(?:_[A-Z0-9]+)?\s*\)", "", t)          # Diadora "(101.179073)" style codes
+                t = re.sub(r"(?<=\w)-[A-Z][A-Za-z ]+(?:/[A-Za-z ]+)+$", "", t)    # "Atomo V7000-Titanium Grey/White/Black"
+                t = t.split(" - ", 1)[0].strip()
+                t = re.sub(r"\s+[A-Za-z]+(?:/[A-Za-z]+)+$", "", t)                 # "Floatzig 2 Beige/Grey"
+                keep.append(dict(p, title=t))
+            prods = keep
         if st in ("boutiquedulac", "fauxmouvement", "aupiedsportif", "borealrunning", "33off", "foveo"):
             prods = qc_prods(st, prods)
         if st == "hettas":   # Nov 5: Hettas (Vancouver) sells only women's running shoes; its newest shoe (Cambie) has no product type

@@ -691,3 +691,12 @@ drops a store not read for 48 h (KEEP_HOURS), so both hiking stores stay off by 
   (SLRC); SLRC = 1,198 products -> ~3.3 h per full read: needs a night reader read slice by slice over ~3 nights (like Fleet Feet). Proposed as
   its own job (per-size stock check needed first).
 
+- **Added Nov 5: Speedland** (runspeedland.com, the brand's own store, Portland; Bastien asked for Speedland): Shopify, USD, ships to the US only -> USA side.
+  - 6 shoe cards (RX:PNW / SKY / LDVL / BLK, RXT:PHX, GS:TAM 2; $289-299, 0 on sale today: full-price cards to watch), 2 hats, 1 Saysky collab shirt. Gift card + Carbitex plate out.
+  - Sizes "5 (Men's) / 6.5 (Women's)" read as unisex M:/W: (canon_shoe). 3/3 live prices match.
+  - Canada: no Canadian stockist found.
+- **Added Nov 5: The Run House** (therunhouse.com, Walpole MA): Shopify, USD, ships everywhere -> USA side.
+  - ~23,000 products, mostly team/race merch, so only its collections mens-running-walking-footwear, womens-road-running-shoes, trail-running-shoes, speedland, socks-1, gels-and-nutrition (US_COLLECTIONS).
+  - One product per colour: colour + style codes cut from titles so colours join.
+  - Out: casual-tagged shoes, Reebok Club C / Nano, its own merch, novelty/tactical socks (Crazy Compression 346 cards, MudGear, Minus33).
+  - 619 cards (508 shoes, 83 socks, 23 nutrition), 90 on sale. Sortcheck clean (On "Cloudboom Strike LightSpray" added to OK). 3/3 live prices match.
