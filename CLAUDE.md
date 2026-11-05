@@ -297,7 +297,7 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   Test 'run1st' (Oct 22, Bastien OK'd): B = in rdKnownFirst, names matching GYM (training, HIIT, studio, yoga, lifestyle…; never shoes)
   go after running gear and one store fills at most 2 of the first 12 Top deals; metric = homepage first visits that click a deal
   (35%), ~580 per group. ENDED Nov 4 (Bastien): A for everyone, B code removed. Next: test 'look2' (homepage phone cards, docs/look2-draft.css),
-  built early December, live Dec 7, cards2 off first; metric = first visits that click a store 33% -> 38%, decide ~Dec 21. Every non-homepage page uses the homepage's light look (theme.css `html:root:not(.rd)`, light
+  built early December, live Dec 7 (cards2 already off); metric = first visits that click a store 33% -> 38%, decide ~Dec 21. Every non-homepage page uses the homepage's light look (theme.css `html:root:not(.rd)`, light
   even in dark mode, charcoal header, logo-mark-dark.svg); the store bar stays dark on purpose (contrast, Bastien Oct 22).
   Oct 22 (Bastien: "The view all brands button doesn't lead anywhere. How did you miss this"): it opened the brand menu, which phones hide.
   Now "View all brands" opens an A-Z list with "Find a brand" under the 8 tiles. Site test "Homepage: every button does something" presses
@@ -306,7 +306,7 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   computers' hero shorter (photo 230px, one-line headline, sub hidden once sized) so the category circles fit a 1366x650 browser;
   More filters scrolls its row into view; Brand menu + brand circles/A-Z count full-price items when Include full price is on ("only 1
   norda"), `.fullwait` line while deals.json (21 MB, 3.4 MB sent) loads, toast if it fails.
-  Test 'cards2' (Oct 25, Bastien OK'd; daily review: direct homepage first visits clicking a store fell 33% -> 15% after the redesign):
+  ENDED Nov 5 (phones only: clicked a store 36.2% A vs 37.2% B, p=0.674; Bastien's Nov 4 rule): A for everyone, B code + its site test removed. Was: test 'cards2' (Oct 25, Bastien OK'd; daily review: direct homepage first visits clicking a store fell 33% -> 15% after the redesign):
   B on phones 380-699px (`C2P()`, html.cards2, theme.css) = slimmer cards: photo 4:3, last line = "✓ Size 11" (`yourSize` minus "in stock") or
   sizes as "XS/S/M" (`sizeRow` -> .sztxt, yours in orange) + "♡ Watch" (`watchS`; core "Watch price" shortened for B only, his OK),
   smaller CAD (kept: not in the phone header), 6 top deals (`rdLim`). Metric = homepage first visits that click a store, p<0.05.
