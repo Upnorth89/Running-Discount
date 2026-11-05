@@ -67,7 +67,7 @@ Would either fit a line in your newsletter or a quick mention on the podcast? No
 
 Bastien · The Gear Fox · thegearfox.com · hello@thegearfox.com
 [MAILING_ADDRESS]
-If you'd rather not hear from me, just reply and I won't follow up.
+If this isn't a fit, just reply and I won't follow up.
 
 Compliance: OK Nov 5 (fixed: 150+, "updated twice a day" (night-read stores are read once a day), BF numbers dated + Canadian + page's exact wording, race lists = mandatory or suggested, CASL sign-off). Refresh the two BF numbers + date from the page on the day you send.
 
@@ -103,7 +103,7 @@ I can pull numbers for a brand or price range. No store pays us, and no link on 
 
 Bastien · The Gear Fox · thegearfox.com · hello@thegearfox.com
 [MAILING_ADDRESS]
-If you'd rather not hear from me, just reply and I won't follow up.
+If this isn't a fit, just reply and I won't follow up.
 
 Compliance: OK Nov 5 (fixed: "Dec 4" date unverified (the article is dated 2025; check the day in a browser or keep "2025"), "reads 150 stores twice a day" -> "150+ ... updated twice a day", BF numbers dated + Canadian + the page's definition of a real drop, CASL sign-off). Refresh numbers + date on the day you send; any number she quotes should carry its date.
 
