@@ -862,3 +862,30 @@ Phone = 390 px, DevTools "Fast 3G" (~160 KB/s, 562 ms latency) + CPU slowed x4, 
   four prints now pass through `scrub()` (address -> "<address>"). Reports to Bastien print his address from the HEALTH_EMAIL secret, which
   GitHub masks as ***.
 - **Waiting for Bastien's yes:** delete the logs of run 41077707857 (the run record stays). Count: **1 run, 1 subscriber address.**
+
+## SEO S1 / S2 / S3 (Nov 5, nightly SEO spec): shipped
+
+- **S2 (pushed, 845d7fc):** every forward now lands in ONE hop on a page in the sitemap: the 8 two-hop chains are 0, and the 4 US asics-corp-* forwards
+  now point at the live gel pages (they used to point at noindex ones). check.py now fails the push if any forward takes two hops or lands outside the sitemap.
+- **S3 (pushed, 845d7fc):** each hiking boot page and the /hikes/ and /hiking-boots/ hubs now name their /us/ twin in hreflang, and the twin names them back.
+- **S1 (pushed after check.py ALL GOOD):** base_model (Python) = baseModel (JS), with the same rules:
+  - "Men's"/"Women's" without a dash
+  - width words (Large, D, 2E, 4E)
+  - New Balance "Fresh Foam (X)"/"FuelCell" prefix dropped
+  - ASICS "Cumulus/Nimbus/Kayano/Trabuco/Excite/Contend" = "Gel-…"
+  - "Trail Trail" = "Trail"
+  - a brand+gender-only entry ("New Balance Men's") loses its page
+- **Twin counts on the live registries (live pages that are the same shoe):**
+
+  | | CA | US |
+  |---|---|---|
+  | Before | 18 groups | 23 groups |
+  | After | 0 | 0 |
+
+  The old rule saw them as different shoes. Your count (21/32) used a looser key; I verified mine by building against the live registries.
+  - New one-hop forwards: **CA 48, US 39**, none bad.
+  - Removed: us/new-balance-men-s and us/new-balance-women-s.
+  - Kept apart by design: Ghost vs Ghost Trail, Cloudsurfer vs Cloudsurfer Trail, Transport vs Transport X, Minimus vs Minimus Trail, Flite-D vs Flite-S.
+- **Side effect to know:** every New Balance FuelCell / Fresh Foam X page moves to the short name, even with no twin
+  (e.g. fuelcell-supercomp-elite-v5 -> supercomp-elite-v5). These are 301-style forwards (canonical + noindex), so ranking signals follow, but they take Google a few weeks.
+- **Left (small, pre-existing):** US new-balance-sd100-v5 vs sd100v5 (the store wrote "SD100v5" without a space). Say if you want it in the next pass.
