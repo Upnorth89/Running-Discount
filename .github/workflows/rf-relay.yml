@@ -1,0 +1,60 @@
+name: Running Free relay (Canada)
+
+# Nov 5, 2026 (Bastien: "Let's try supabase"). Run by hand. Deploys supabase/functions/rf-fetch (one runningfree.com page per call,
+# run in Supabase's Canadian region ca-central-1, our honest bot name) and probes it: robots.txt + the men's list page, printing only
+# status, size, whether the "only available to visitors in Canada" page shows, product cards found and the region that answered.
+# The key (RF_KEY) is derived from SUPABASE_SECRET_KEY, so the night job can compute it without a new secret; it is never printed.
+on:
+  workflow_dispatch:
+    inputs:
+      what:
+        description: "deploy (deploy + probe) | probe | remove"
+        required: true
+        default: "deploy"
+
+env:
+  PROJECT: krwymmkauwqqxjxbvkyq
+  SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+jobs:
+  relay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Key
+        env:
+          SK: ${{ secrets.SUPABASE_SECRET_KEY }}
+        run: |
+          K=$(printf '%s' "$SK:rf-relay" | sha256sum | cut -c1-48); echo "::add-mask::$K"; echo "RFK=$K" >> "$GITHUB_ENV"
+      - name: Deploy
+        if: inputs.what == 'deploy'
+        run: |
+          set -e
+          supabase secrets set --project-ref "$PROJECT" --yes RF_KEY="$RFK" >/dev/null
+          supabase functions deploy rf-fetch --project-ref "$PROJECT" --yes --no-verify-jwt --use-api
+          sleep 8
+      - name: Probe from Canada (robots.txt + men's list page)
+        if: inputs.what != 'remove'
+        run: |
+          probe() {
+            curl -sS -D /tmp/h -o /tmp/b -H "x-region: ca-central-1" -H "x-rf-key: $RFK" \
+              "https://$PROJECT.supabase.co/functions/v1/rf-fetch?path=$1" || true
+            reg=$(grep -i '^x-sb-edge-region' /tmp/h | tr -d '\r' | awk '{print $2}')
+            st=$(grep -i '^x-rf-status' /tmp/h | tr -d '\r' | awk '{print $2}')
+            wall=$(grep -c "only available to visitors in Canada" /tmp/b || true)
+            cards=$(grep -o 'class="prodPreview' /tmp/b | wc -l)
+            echo "PROBE $1: region=$reg store-status=$st bytes=$(wc -c </tmp/b) canada-only-page=$wall product-cards=$cards"
+          }
+          probe /robots.txt
+          head -c 400 /tmp/b | grep -iE "user-agent|disallow|crawl" || true
+          sleep 30
+          probe /products/All-Mens-66507/
+      - name: Remove
+        if: inputs.what == 'remove'
+        run: |
+          supabase functions delete rf-fetch --project-ref "$PROJECT" --yes || true
+          supabase secrets unset --project-ref "$PROJECT" --yes RF_KEY || true
