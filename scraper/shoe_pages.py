@@ -16,7 +16,7 @@ Usage: python scraper/shoe_pages.py SITE_DIR
 import html
 import json
 import os
-import re
+import collections, re
 import sys
 from collections import Counter, defaultdict
 from datetime import date, datetime, timedelta, timezone
@@ -478,6 +478,14 @@ def hreflang_sync(site):
         links[url] = [u for _, u in alts]
         for h, u in alts:
             lang.setdefault(u, h)
+    # Nov 5 (growth's SEO check: 22 boot models + the /hikes/ and /hiking-boots/ hubs had a US twin that neither side named): a
+    # page at /us/<path>/ IS the US version of /<path>/ when that page exists in English (en-CA): join them like any named twin
+    for url in list(pages):
+        if url.startswith(BASE + "/us/"):
+            ca = BASE + "/" + url[len(BASE + "/us/"):]
+            if ca in pages and lang.get(ca) == "en-CA" and ca not in links[url]:
+                links[url] = links[url] + [ca]
+                lang.setdefault(url, "en-US")
     parent = {u: u for u in pages}
     def find(u):
         while parent[u] != u:
@@ -1968,6 +1976,27 @@ def forward_old(known, models, site, dirs):
             hit = [k for k in models if k != slug and k in known and not known[k].get("to") and nk(k) == nk(slug)]
             if len(hit) == 1:
                 meta["to"] = hit[0]
+    # Nov 5 (growth's SEO check: 8 two-hop chains, 4 US forwards landing on noindex pages): every forward lands in ONE hop on a page
+    # Google may index. Follow the chain to its end; if that end is out of stock for HIDE_DAYS+ (noindex) and exactly one live page has
+    # the same words (ignoring Gel/Corp/trail/road: "asics-cumulus-27" -> "asics-gel-cumulus-27"), land there instead.
+    def indexable(k):
+        m = known.get(k) or {}
+        return not m.get("to") and (k in models or (m.get("seen") and (date.today() - date.fromisoformat(m["seen"])).days < HIDE_DAYS))
+    loose = lambda k: tuple(sorted(w for w in k.replace("-2e", "-wide").split("-") if w not in ("trail", "road", "gel", "corp")))
+    by_loose = collections.defaultdict(list)
+    for k in known:
+        if indexable(k):
+            by_loose[loose(k)].append(k)
+    for slug, meta in known.items():
+        to, hops = meta.get("to"), 0
+        while to and known.get(to, {}).get("to") and hops < 10:
+            to, hops = known[to]["to"], hops + 1
+        if to and not indexable(to):
+            alt = [k for k in by_loose.get(loose(to), []) if k != slug]
+            if len(alt) == 1:
+                to = alt[0]
+        if to and to != meta.get("to"):
+            meta["to"] = to
     for slug, to in {s: v["to"] for s, v in known.items() if v.get("to")}.items():
         for d in dirs:
             p = site / d / slug / "index.html"

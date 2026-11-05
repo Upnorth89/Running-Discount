@@ -171,7 +171,23 @@ def main():
                     raise RuntimeError(f"{u} is noindex but in the sitemap")
             elif u not in sm:
                 raise RuntimeError(f"{u} is missing from the sitemap")
-        return f"{n} shoe pages, {hidden} kept out of Google (out of stock or forwarded)"
+        # Nov 5 (growth's SEO check: 8 two-hop forwards, 4 forwards onto noindex pages): every forward lands in ONE hop on a page in the sitemap
+        fwd = 0
+        for reg, d in (("shoes/pages.json", "shoes"), ("us/shoes/pages.json", "us/shoes")):
+            f = site / reg
+            if not f.exists():
+                continue
+            known = json.loads(f.read_text())
+            for slug, meta in known.items():
+                to = meta.get("to")
+                if not to:
+                    continue
+                fwd += 1
+                if known.get(to, {}).get("to"):
+                    raise RuntimeError(f"/{d}/{slug}/ forwards to /{d}/{to}/, which forwards again (two hops)")
+                if f"/{d}/{to}/" not in sm:
+                    raise RuntimeError(f"/{d}/{slug}/ forwards to /{d}/{to}/, which isn't in the sitemap (noindex or missing)")
+        return f"{n} shoe pages, {hidden} kept out of Google (out of stock or forwarded), {fwd} forwards in one hop to live pages"
     step("Shoe pages, list pages, sitemap", pages)
 
     def real_drop_rule():   # Oct 23: Black Friday "is this deal real?" labels = the homepage badge's rule, good news only
