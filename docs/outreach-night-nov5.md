@@ -63,7 +63,7 @@ Two things your readers might use:
 - gear lists for 49 races, each as the race publishes it (mandatory or suggested), including Sinister 7's suggested list and the Canmore 25K & Ultra mandatory list (thegearfox.com/races/);
 - a live Black Friday deal check for Canadian stores, from prices we've kept since Oct 2. As of Nov 5: 315 real drops this week, and 83% of sale prices were already this low 2 weeks ago (thegearfox.com/black-friday/live/).
 
-Would either fit a newsletter issue or a 20-minute episode? Nothing paid, no affiliate links.
+Would either fit a line in your newsletter or a quick mention on the podcast? Nothing paid, no affiliate links.
 
 Bastien · The Gear Fox · thegearfox.com · hello@thegearfox.com
 [MAILING_ADDRESS]
