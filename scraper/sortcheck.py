@@ -99,6 +99,10 @@ def check(items, store=None):
             hits["socknotrun"].append(ex)
         if g in ("gear", "gloves", "headwear") and re.search(r"\b(arm|knee|leg) warm", n, re.I):
             hits["warmer"].append(ex)
+        # Nov 5 (growth: Boréal's Ghost Trail sat on the road Ghost page): a road-typed shoe whose every store link says "trail"
+        if g == "shoes" and t in ("daily", "race") and not re.search(r"\btrail\b", n, re.I) and i.get("of") and \
+                all(re.search(r"(^|[-_/])trail([-_/]|$)", str(u).split("?")[0].rsplit("/", 1)[-1], re.I) for u in i["of"]):
+            hits["trailurl"].append(ex)
         # Nov 5 (Bastien: running strollers stay, as gear with no type)
         if re.search(r"\bstrollers?\b|\bpoussettes?\b|\burban glide\b|\bthule chariot\b|\bchariot (cross|sport|lite|sleek)\b", f"{b} {n}", re.I) \
                 and not re.search(r"\b(hats?|caps?|tees?|shirts?|trucker)\b", n, re.I) and (g != "gear" or t):
@@ -146,7 +150,7 @@ def check(items, store=None):
         if len(bs) > 1 and len(k) >= 3:
             hits["brands"].append(" = ".join(f"{b} ({c[b]})" for b in sorted(bs, key=lambda x: -c[x])))
     LABEL = {"capnothat": "bottle/flask caps under Hats", "socknotrun": "ski or fan socks under running Socks",
-             "warmer": "arm/knee/leg warmers outside clothing/socks", "stroller": "running strollers outside gear (or with a type)", "junk": "junk listings (saved bundles, placeholders)", "food": "non-food under Nutrition",
+             "warmer": "arm/knee/leg warmers outside clothing/socks", "stroller": "running strollers outside gear (or with a type)", "trailurl": "trail shoes named without \"Trail\" (typed road)", "junk": "junk listings (saved bundles, placeholders)", "food": "non-food under Nutrition",
              "shoes": "non-shoes under Shoes (laces, sprays, socks…)", "cloth": "clothing under gear/accessories",
              "tops": "bottoms under Tops", "bottoms": "tops under Bottoms", "gender": "name and gender disagree",
              "type": "trail shoes typed road/race", "brandname": "a product name in the brand field",

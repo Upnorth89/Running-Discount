@@ -3683,7 +3683,13 @@ def qc_prods(st, prods):
             if re.search(r"running shoes|chaussures", p.get("product_type") or "", re.I):
                 ws = t.split()
                 k = next((i for i, w in enumerate(ws) if i > 1 and w.lower().strip(",") in BOREAL_DESC), len(ws))
-                t = " ".join(ws[:k])
+                # Nov 5 (growth: Boréal's women's Ghost Trail sat on the road Ghost page at $143.95): "Brooks Ghost Trail running shoes"
+                # was cut at "Trail". It's part of the model when it changes the kind of shoe (road Ghost vs Ghost Trail; Mazama, Rift…)
+                j = k
+                while j < len(ws) and ws[j].lower().strip(",") in ("unisex", "men", "women", "men's", "women's"):
+                    j += 1                                       # "Mizuno Neo Accera Unisex Trail Running Shoes"
+                trail = j < len(ws) and ws[j].lower() == "trail" and garment_type("shoes", " ".join(ws[:k])) not in ("trail", "hike")
+                t = " ".join(ws[:k] + (["Trail"] if trail else []))
             else:
                 t = re.sub(r"\s+(for\s+)?(wom[ae]n|m[ae]n)('?s)?\b", "", t, flags=re.I)
             t = re.sub(r"\s+(unisex|unisexe)\b", "", t, flags=re.I).strip() + gen
@@ -4181,7 +4187,7 @@ TYPES = {
 #   daily  everything else: road shoes for everyday and long runs (cushioned, stability)
 # Order matters (first match wins). Colour names are cut off first ("GT-2000 — Winter Sea" is not a winter shoe).
 TYPES["shoes"] = [
-    ("race", r"phantasm|s/lab pulsar|aero blaze(?!.*grvl)|alma speed"),   # Nov 5: Hettas Alma Speed = its "race-day" plated shoe      # Salomon's road racers ("S/Lab" otherwise means trail); Oct 29: Aero Blaze GRVL = trail
+    ("race", r"phantasm|s/lab pulsar(?!.*\btrail\b)|aero blaze(?!.*grvl)|alma speed"),   # Nov 5: Hettas Alma Speed = its "race-day" plated shoe      # Salomon's road racers ("S/Lab" otherwise means trail); Oct 29: Aero Blaze GRVL = trail
     # winter trail shoes with ice studs ("Speedgoat GTX Spike", "Norda G+ Spike") and "Norvan LD" (long distance) are trail
     ("trail", r"norvan|speedgoat.*spike|norda|\bg\+|carbide|cross spike|mtn racer|\bice\b"),
     ("spike", r"spikes?\b(?<!cross spike)|\bpointes?\b|\bxc\d*\b|\bm?xcs\d|\bwxcs|zoom rival|\bavanti\b|sprintstar|evospeed|"
