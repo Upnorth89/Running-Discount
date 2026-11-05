@@ -1312,7 +1312,7 @@ RACES.update({
         "items": _r([
             (_SIN("jacket", "Jacket", "Manteau"), "M", True),
             (_SIN("gloves", "Mitts or gloves", "Mitaines ou gants"), "M", True),
-            (_SIN("tuque", "Tuque", "Tuque"), "M", True),
+            (_SIN("tuque", "Toque", "Tuque"), "M", True),
             (_SIN("midlayer", "Additional warm layer", "Couche chaude de plus"), "M", True),
             (_SIN("water", "Water: 1 litre or more", "Eau : 1 litre ou plus"), "M", False),
             (_SIN("blanket", "Space blanket or bivy bag", "Couverture de survie ou sac bivy"), "M", False),

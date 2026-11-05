@@ -345,6 +345,8 @@ def site_flow(base, per, accented):
             assert h.count() and h.locator("[data-sq]").count(), "'saucony zzqxv' leaves a dead end (no closest matches)"
             first = h.locator("[data-sq]").first.inner_text()
             assert "saucony" in first.lower(), f"closest match for 'saucony zzqxv' isn't a Saucony: {first!r}"
+            # Nov 5 (growth's search round): the help line alone, never a second grey "Try clearing the search…" under it
+            assert not page.locator("#dealList .empty").count(), "a search with a help line also shows the grey 'Nothing matches' line"
             h.locator("[data-sq]").first.click()
             settle(page, 1200)
             n = len(cards(page))
@@ -353,6 +355,20 @@ def site_flow(base, per, accented):
             assert n, f"tapping '{first}' finds nothing"
             return f"'saucony zzqxv' -> {first}: {n} deals"
         check("Search: closest matches, never a dead end")(search_closest, page)
+
+        def search_headline():   # Nov 5 (growth: "gel nimbus 28" = 2 cards under "78 deals in your size"): the headline counts THIS search
+            if not page.locator("#rdH1").count():
+                return "no hero headline on this layout"
+            all_gear()
+            num = lambda: int(re.sub(r"[^0-9]", "", (re.match(r"\s*([\d,\s]+)", page.inner_text("#rdH1")) or [None, "0"])[1]) or 0)
+            page.fill("#dSearch", "saucony"); settle(page, 1200); a = num()
+            page.fill("#dSearch", "hoka"); settle(page, 1200); b = num()
+            page.fill("#dSearch", "saucony"); settle(page, 1200); a2 = num()
+            page.fill("#dSearch", ""); settle(page)
+            assert a and b, f"no count in the headline during a search (saucony {a}, hoka {b})"
+            assert a2 == a, f"headline lags a search behind: 'saucony' said {a}, then after 'hoka' ({b}) 'saucony' said {a2}"
+            return f"saucony {a} results, hoka {b}"
+        check("Search: the headline counts this search's results")(search_headline, page)
 
         def report_link():   # Oct 8: "Wrong price or size?" on a card -> three reasons -> thanks
             all_gear()

@@ -103,6 +103,18 @@ def check(items, store=None):
         if g == "shoes" and t in ("daily", "race") and not re.search(r"\btrail\b", n, re.I) and i.get("of") and \
                 all(re.search(r"(^|[-_/])trail([-_/]|$)", str(u).split("?")[0].rsplit("/", 1)[-1], re.I) for u in i["of"]):
             hits["trailurl"].append(ex)
+        # Nov 5 (growth's data audit): clothing filed as socks ("PEAKS SS", "Active Mesh Polo"), coats/sweaters/polos under bottoms,
+        # house slippers anywhere, spikes under packs/gear, swimwear/bike/climbing/avalanche/bedding anywhere
+        if g == "socks" and re.search(r"(?i:\bpolo\b|t-?shirt|\btee\b|sweater|jacket|\bcoat\b|hoodie)|\b[SL]S\b", n) and not re.search(r"\bsocks?\b", n, re.I):
+            hits["socktop"].append(ex)
+        if g == "bottoms" and re.search(r"\b(coat|parka|sweater|polo|cardigan|anorak)\b", n, re.I) and not BOTTOM_W.search(re.sub(r"(?i)\bshort (coat|parka)\b", "", n)):
+            hits["bottoms"].append(ex)
+        if re.search(r"\bslippers?\b(?!\s+socks?\b)|pantoufles?", n, re.I):
+            hits["notrun"].append(ex)
+        if g in ("packs", "gear") and re.search(r"\bspikes?\b", n, re.I) and re.search(r"\b(xc|track|spike)\b", n, re.I) and not re.search(r"\b(traction|ice|bag|wrench|pins?)\b", n, re.I):
+            hits["shoes"].append(f"{ex} (a spike shoe outside Shoes)")
+        if re.search(r"\bbikini (top|bottom)s?\b|swim ?suits?|swimwear|\bclip-?in\b|climbing shoes?|avalanche|airbag|snowboard|\bcomforter\b", n, re.I):
+            hits["notrun"].append(ex)
         # Nov 5 (Bastien: running strollers stay, as gear with no type)
         if re.search(r"\bstrollers?\b|\bpoussettes?\b|\burban glide\b|\bthule chariot\b|\bchariot (cross|sport|lite|sleek)\b", f"{b} {n}", re.I) \
                 and not re.search(r"\b(hats?|caps?|tees?|shirts?|trucker)\b", n, re.I) and (g != "gear" or t):
@@ -150,7 +162,7 @@ def check(items, store=None):
         if len(bs) > 1 and len(k) >= 3:
             hits["brands"].append(" = ".join(f"{b} ({c[b]})" for b in sorted(bs, key=lambda x: -c[x])))
     LABEL = {"capnothat": "bottle/flask caps under Hats", "socknotrun": "ski or fan socks under running Socks",
-             "warmer": "arm/knee/leg warmers outside clothing/socks", "stroller": "running strollers outside gear (or with a type)", "trailurl": "trail shoes named without \"Trail\" (typed road)", "junk": "junk listings (saved bundles, placeholders)", "food": "non-food under Nutrition",
+             "warmer": "arm/knee/leg warmers outside clothing/socks", "stroller": "running strollers outside gear (or with a type)", "socktop": "clothing filed as socks", "notrun": "not running or hiking gear (slippers, swimwear, bike/climbing shoes, avalanche, bedding)", "trailurl": "trail shoes named without \"Trail\" (typed road)", "junk": "junk listings (saved bundles, placeholders)", "food": "non-food under Nutrition",
              "shoes": "non-shoes under Shoes (laces, sprays, socks…)", "cloth": "clothing under gear/accessories",
              "tops": "bottoms under Tops", "bottoms": "tops under Bottoms", "gender": "name and gender disagree",
              "type": "trail shoes typed road/race", "brandname": "a product name in the brand field",

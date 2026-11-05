@@ -844,7 +844,7 @@ const PL=(n,one,many)=>n===1?one:many;
 const I18N={
 en:{
   tagline:"OUTFOX FULL PRICE",
-  rd:{nav:{deals:"Deals",shoes:"Shoes",apparel:"Apparel",packs:"Packs",gear:"Gear",races:"Race lists",shoePrices:"Shoe prices"},h1:["Find running gear deals","in your ","exact size."],h1n:n=>[`${n} deals`,"in your ","size."],
+  rd:{nav:{deals:"Deals",shoes:"Shoes",apparel:"Apparel",packs:"Packs",gear:"Gear",races:"Race lists",shoePrices:"Shoe prices"},h1:["Find running gear deals","in your ","exact size."],h1n:n=>[`${n} deals`,"in your ","size."],h1q:(n,c)=>[`${n} ${c===1?"result":"results"}`,"in your ","size."],
     sub:n=>`Twice a day we check ${n} running stores in Canada and the USA and show you the best prices in stock, in your size. No more guessing.`,
     ph:"Search shoes, apparel, packs, brands…",phS:"Search shoes, brands…",go:"Search",size:"Your size",cat:"Category",brand:"Brand",price:"Price",store:"Retailer",sale:"On sale only",more:"More filters",under:m=>`Under ${m}`,
     note:["Real deals.","Real sizes.","Real retailers."],tiles:{shoes:"Shoes",apparel:"Apparel",packs:"Packs & Vests",acc:"Accessories",nutrition:"Nutrition",gear:"Gear & Watches"},n:n=>`${n} ${(String(n).replace(/<[^>]*>/g,"").trim()==="1")?"deal":"deals"}`,
@@ -905,7 +905,7 @@ en:{
   get storesAll(){return US()?"stores in the US and abroad":"stores in Canada and abroad"},get storesCA(){return US()?"US stores":"Canadian stores"},
   lede:(s,a,w,u)=>`${s} on sale and ${a} in stock from ${w}${u?` · updated ${u}`:""}.`,
   secNew:"New since your last visit",dropTag:m=>`↓${m}`,secSale:"Top deals",secDrops:"Dropped today in your size",secDropsAll:"Dropped today",dropTop:"Fox Find of the day",
-  nothing:"Nothing matches right now. Try clearing the search or picking more categories.",
+  nothing:"Nothing matches right now. Try clearing the search or picking more categories.",nothingQ:"Nothing matches right now. Try clearing the search.",nothing0:"Nothing matches right now.",
   noHaveH:q=>`We don't have “${q}” yet.`,noHaveB:"We read every search that comes up empty to choose the next stores and brands we add.",
   noHaveGo:"See deals in my size",noHaveGoAll:"See today's deals",
   noSize:(q,n)=>`Nothing in your size for “${q}” right now, but ${n} in other sizes.`,showAllSizes:"Show all sizes",yourSizesOnly:"Back to my sizes",
@@ -961,7 +961,7 @@ en:{
 },
 fr:{
   tagline:"FLAIREZ LES AUBAINES",
-  rd:{nav:{deals:"Aubaines",shoes:"Chaussures",apparel:"Vêtements",packs:"Sacs",gear:"Équipement",races:"Courses",shoePrices:"Prix des chaussures"},h1:["Les aubaines de course","dans votre ","taille exacte."],h1n:n=>[`${n} aubaines`,"à votre ","taille."],
+  rd:{nav:{deals:"Aubaines",shoes:"Chaussures",apparel:"Vêtements",packs:"Sacs",gear:"Équipement",races:"Courses",shoePrices:"Prix des chaussures"},h1:["Les aubaines de course","dans votre ","taille exacte."],h1q:(n,c)=>[`${n} ${c===1?"résultat":"résultats"}`,"à votre ","taille."],h1n:n=>[`${n} aubaines`,"à votre ","taille."],
     sub:n=>`Deux fois par jour, on vérifie ${n} boutiques de course au Canada et aux États-Unis et on vous montre les meilleurs prix en stock, dans votre taille. Fini les devinettes.`,
     ph:"Chercher chaussures, vêtements, sacs, marques…",phS:"Chaussures, marques…",go:"Chercher",size:"Votre taille",cat:"Catégorie",brand:"Marque",price:"Prix",store:"Boutique",sale:"En solde seulement",more:"Plus de filtres",under:m=>`Moins de ${m}`,
     note:["Vrais rabais.","Vraies tailles.","Vraies boutiques."],tiles:{shoes:"Chaussures",apparel:"Vêtements",packs:"Sacs et vestes d'hydratation",acc:"Accessoires",nutrition:"Nutrition",gear:"Équipement et montres"},n:n=>`${n} ${(String(n).replace(/<[^>]*>/g,"").trim()==="1")?"aubaine":"aubaines"}`,
@@ -1022,7 +1022,7 @@ fr:{
   get storesAll(){return US()?"des boutiques aux États-Unis et à l'étranger":"des boutiques au Canada et à l'étranger"},get storesCA(){return US()?"des boutiques américaines":"des boutiques canadiennes"},
   lede:(s,a,w,u)=>`${s} en solde et ${a} en stock ${w}${u?` · mis à jour ${u}`:""}.`,
   secNew:"Nouveau depuis votre dernière visite",dropTag:m=>`↓${m}`,secSale:"Meilleures aubaines",secDrops:"En baisse aujourd'hui dans votre taille",secDropsAll:"En baisse aujourd'hui",dropTop:"Trouvaille du jour",
-  nothing:"Rien ne correspond pour l'instant. Effacez la recherche ou choisissez plus de catégories.",
+  nothing:"Rien ne correspond pour l'instant. Effacez la recherche ou choisissez plus de catégories.",nothingQ:"Rien ne correspond pour l'instant. Effacez la recherche.",nothing0:"Rien ne correspond pour l'instant.",
   noHaveH:q=>`On n'a pas encore « ${q} ».`,noHaveB:"On lit chaque recherche sans résultat pour choisir les prochaines boutiques et marques à ajouter.",
   noHaveGo:"Voir les aubaines dans ma taille",noHaveGoAll:"Voir les aubaines du jour",
   noSize:(q,n)=>`Rien dans votre taille pour « ${q} » en ce moment, mais ${n} dans d'autres tailles.`,showAllSizes:"Voir toutes les tailles",yourSizesOnly:"Revenir à mes tailles",
@@ -1872,10 +1872,14 @@ function rdCat(k){const gs=RD_TILES[k].filter(g=>!(g==="bras"&&state.gender==="m
   const same=gs.length===state.groups.length&&gs.every(g=>state.groups.includes(g));state.groups=same?ORDER.slice():gs;view.circle=!same;
   view.open={};saveProfile();renderAll();rdGoDeals(!same)}   // a category picked: straight to its deals; tapped again: back to the circles
 function rdGoDeals(top){const el=top?$("dealList"):$("rdTiles");if(el)scrollTo({top:Math.max(0,el.getBoundingClientRect().top+scrollY-(top?140:80)),behavior:"smooth"})}
+// Nov 5 (growth's search round: "gel nimbus 28" = 2 cards under "78 deals in your size"): the headline was drawn before this render's
+// count, so it showed the previous one. Now render() calls it after counting; a search counts its own results ("2 results in your size").
+function rdH1(c,isQ){const R=t("rd"),on=hasSizes()&&c>0,h=on?(isQ?R.h1q:R.h1n)(num(c),c):R.h1;
+  $("rdH1").innerHTML=on?`${esc(h[0])} ${esc(h[1])}<em>${esc(h[2])}</em>`:`${esc(h[0])}<br>${esc(h[1])}<em>${esc(h[2])}</em>`}   // the count line flows (one line where it fits); the welcome line keeps the rendering's break
 function rdUpdate(all,p){   // hero, dropdowns, tiles, why: from today's data, every render
   const R=t("rd"),C=rdSource(p),n=num(storesLabel());
   $("rdCtry").innerHTML=`<span class="flag" aria-hidden="true">${US()?"🇺🇸":"🇨🇦"}</span>${US()?"US":"CA"} (${CUR})`;
-  const h=hasSizes()&&saleNow?R.h1n(num(saleNow)):R.h1;$("rdH1").innerHTML=hasSizes()&&saleNow?`${esc(h[0])} ${esc(h[1])}<em>${esc(h[2])}</em>`:`${esc(h[0])}<br>${esc(h[1])}<em>${esc(h[2])}</em>`;   // the count line flows (one line where it fits); the welcome line keeps the rendering's break
+  rdH1(saleNow,false);
   $("rdSub").textContent=R.sub(n);
   // Oct 22 (Bastien): "Men's 11 · M" says what the deals are filtered by (shoe + clothing size, no "US")
   const sz=hasSizes()?[{men:t("men"),women:t("women"),any:t("menWomen")}[state.gender]+(state.shoe.length?" "+state.shoe.slice(0,2).join(", "):""),state.cloth.slice(0,2).join(", ")].filter(Boolean).join(" · "):R.size;
@@ -2578,6 +2582,7 @@ function renderAll(){
   computeNew(onSale);renderStats();renderWatchButton();
   // Sale items only, unless "Include full price" is on; then everything in your size, sale items first
   const shown=(view.fullPrice||q.length?all:onSale).slice().sort((a,b)=>((b.pct>0)-(a.pct>0))||SORTS[view.sort](a,b));
+  if(LOOK_B)rdH1(q.length?shown.length:saleNow,q.length>0);
   const parts=[];
   // one category picked ("Lights, poles & bottles"): open straight on it, no Top deals / new row repeating part of it
   NARROW=p.groups.length===1;
@@ -2627,7 +2632,7 @@ function renderAll(){
   // test 'namecard' (Oct 28): the deal the card names = the first shoe in the Top deals they can see (else the first deal), not watched yet
   const topSeen=NARROW?[]:top.slice(0,view.open.__sale||(LOOK_B?rdLim(true):PAGE));
   NC=hasSizes()?topSeen.find(d=>d.g==="shoes"&&d.pct&&!watches[itemKey(d)])||topSeen.find(d=>d.pct&&!watches[itemKey(d)])||null:null;
-  if(firstGrp<0)body.push(noHave?`<div class="empty nohave"><b>${t("noHaveH",esc(view.q.trim().slice(0,40)))}</b>${t("noHaveB")}<button type="button" class="primary" data-sclear>${t(hasSizes()?"noHaveGo":"noHaveGoAll")}</button></div>`:`<div class="empty">${t("nothing")}</div>`);else body.splice(firstGrp+1,0,signupHTML());
+  if(firstGrp<0)body.push(noHave?`<div class="empty nohave"><b>${t("noHaveH",esc(view.q.trim().slice(0,40)))}</b>${t("noHaveB")}<button type="button" class="primary" data-sclear>${t(hasSizes()?"noHaveGo":"noHaveGoAll")}</button></div>`:(hint?"":`<div class="empty">${t(ORDER.every(g=>p.groups.includes(g)||(g==="bras"&&state.gender==="men"))?(q.length?"nothingQ":"nothing0"):"nothing")}</div>`));else body.splice(firstGrp+1,0,signupHTML());   // Nov 5 (growth): the help line already says it
   if(view.fullPrice&&!FULL)body.unshift(`<p class="fullwait" role="status">${t("fullWait")}</p>`);   // Oct 23: full price is a bigger file; until it lands only sale items show
   $("dealList").innerHTML=body.join("");
   bindSignup();

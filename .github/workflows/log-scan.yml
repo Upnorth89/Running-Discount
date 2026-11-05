@@ -11,9 +11,13 @@ on:
         description: "Scan runs created on/after this UTC time (ISO), e.g. 2026-10-30T14:00:00Z"
         required: true
         default: "2026-10-30T14:00:00Z"
+      delete:
+        description: "Run ids whose LOGS to delete (space-separated; only if they hold a full address; the runs, artifacts and caches stay)"
+        required: false
+        default: ""
 
 permissions:
-  actions: read
+  actions: write     # Nov 5 (Bastien: yes to deleting logs that print subscriber addresses): DELETE /actions/runs/{id}/logs only
 
 jobs:
   scan:
@@ -24,6 +28,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           SINCE: ${{ inputs.since }}
+          DELETE_RUNS: ${{ inputs.delete }}
           REPO: ${{ github.repository }}
         run: |
           python3 - <<'EOF'
@@ -56,8 +61,33 @@ jobs:
               except Exception:
                   stats["error"] += 1
                   return None
+          def delete_logs(run_id):
+              req = urllib.request.Request(f"https://api.github.com/repos/{repo}/actions/runs/{run_id}/logs", method="DELETE",
+                                           headers={"Authorization": f"Bearer {tok}", "Accept": "application/vnd.github+json"})
+              try:
+                  with urllib.request.urlopen(req, timeout=60) as r:
+                      return r.status
+              except urllib.error.HTTPError as e:
+                  return e.code
           ADDR = re.compile(r"[A-Za-z0-9._%+-]+@([A-Za-z0-9-]+\.)+[A-Za-z]{2,}")
           OK = re.compile(r"(thegearfox\.com|github\.com|noreply|users\.noreply|example\.com|anthropic\.com|resend\.dev)$", re.I)
+          def count_addr(run_id):
+              n = 0
+              for j in (api(f"/actions/runs/{run_id}/jobs?per_page=100") or {}).get("jobs") or []:
+                  t = api(f"/actions/jobs/{j['id']}/logs", raw=True) or ""
+                  for m in ADDR.finditer(t):
+                      local, dom = m.group(0).split("@", 1)
+                      if not (local.endswith("…") or local.endswith("...") or OK.search(dom)):
+                          n += 1
+              return n
+          for rid in os.environ.get("DELETE_RUNS", "").split():
+              n = count_addr(rid)
+              if not n:
+                  print(f"run {rid}: no full address in its logs: NOT deleted")
+                  continue
+              code = delete_logs(rid)
+              print(f"run {rid}: {n} address mention(s); delete logs -> HTTP {code}" + (" (deleted)" if code == 204 else ""))
+              print(f"run {rid}: after: {count_addr(rid)} address mention(s) left")
           runs, page = [], 1
           while True:
               d = api(f"/actions/runs?per_page=100&page={page}&created=>={since}")

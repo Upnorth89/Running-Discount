@@ -2207,6 +2207,8 @@ def shopify_items(st, base, prods, group_fn, fx=1.0, size_aware=False, size_fn=N
                 label = BB.sub("", label).strip()
             b = buckets.setdefault(key, {"lp": 0, "sz": {}, "bb": None, "vid": v["id"]})
             b["lp"] = max(b["lp"], cmp_)
+            if "pick" not in b or price < b["pick"][0]:
+                b["pick"] = (price, v["id"])  # Nov 5: the photo of the colour that has the lowest price (see below)
             lab = label or o1 or "OS"
             if lab.lower() == "default title":
                 lab = "OS"
@@ -2216,10 +2218,14 @@ def shopify_items(st, base, prods, group_fn, fx=1.0, size_aware=False, size_fn=N
                 if one not in b["sz"] or cad < b["sz"][one][0]:
                     b["sz"][one] = (cad, reg, v["id"])
             b["bb"] = b["bb"] or bb
+        # Nov 5 (growth's audit: Brainsport's Icebug Pace3 BUGrip GTX, $49.99 only in size 15 Black, showed the Black/Petroleum photo of the
+        # $199.99 colour): a card's photo = the picture Shopify ties to its cheapest variant, else the product's first picture
+        vimg = {vid: im.get("src") for im in p.get("images") or [] for vid in im.get("variant_ids") or [] if im.get("src")}
         for key, b in buckets.items():
+            pic = vimg.get((b.get("pick") or (0, None))[1])
             out.append({"st": st, "b": p.get("vendor") or "", "n": drop_colour(p) + (f" · {key}" if key else ""),
                         "u": f"{base}/products/{p['handle']}?variant={b['vid']}", "g": g, "sx": tag_gender(p) if g in ("tops", "bottoms", "bras") else [], "w": False,
-                        "img": img, "lp": round(b["lp"] * fx, 2), "bb": b["bb"],
+                        "img": (pic + ("&" if "?" in pic else "?") + "width=360") if pic else img, "lp": round(b["lp"] * fx, 2), "bb": b["bb"],
                         "sz": [[k, pr, rg, vid] for k, (pr, rg, vid) in b["sz"].items()]}
                        | ({"fs": 1} if any(FINAL_TAG.search(t) for t in p.get("tags") or []) or FINAL_TAG.search(p["title"]) else {}))
     return out
@@ -4101,11 +4107,11 @@ SHOE_SIZES = lambda o: o.get("sz") and all(re.match(r"^([MW]:)?\d{1,2}([.,][05])
 
 # Not food (Oct 7 audit: ~200 gloves, socks, caps, lights filed as nutrition, mostly by stores' own product types:
 # Brainsport types Stance socks "Nutrition"; The Feed sells gear). Only when the name has no food word.
-NOT_FOOD = re.compile(r"matches\b|fire ?(starter|striker)|ferro ?rod|headlamp|\blights?\b|luminator|reflective|\btape\b|\btowel|\bbag\b|\bspikes?\b|traction|massage|\bball\b|"
+NOT_FOOD = re.compile(r"\bbuckle\b|matches\b|fire ?(starter|striker)|ferro ?rod|headlamp|\blights?\b|luminator|reflective|\btape\b|\btowel|\bbag\b|\bspikes?\b|traction|massage|\bball\b|"
                       r"flasques?|bidon|gourde|\bcup\b|soft ?flask|sleeves?\b|\bcover\b|sling|bite valve|\btube\b|sheaths?|reservoir|(heel|gel) cups?|insoles?|orthotics?", re.I)
 CAMP_BRANDS = {"big agnes", "esbit"}
 NOT_SOCK = re.compile(r"t-?shirt|\btee\b|hood|jacket|sweat|pullover|\btank\b|shorts?\b|pants?\b|tights?\b|sleeve|jogger|"
-                      r"boxer|brief|underwear|legging|\btop\b|shirt|bralette|\bbra\b", re.I)
+                      r"boxer|brief|underwear|legging|\btop\b|shirt|bralette|\bbra\b|\bpolo\b|\b[SL]S\b|coat|cardigan|vest\b", re.I)   # Nov 5: Stance "PEAKS SS" (short sleeve)
 STRONG_FOOD = re.compile(r"\bgels?\b(?!-| pockets?| force| heel| cups?| ball| insoles?| arch)|\bchews?\b|drink mix|electrolyte|energy bar|protein|stroopwafel|(?<!wool )waffle|"
                          r"caffeine|hydration mix|\bfuel\b(?! belt|\W+n\W*\s*fly|\s*cell)|\bbars?\b(?=.*\b(\d+ ?g|pack|box|bar)\b)|nut butter|honey|\bmix\b|tablets|capsules", re.I)
 EYEWEAR_BRANDS = {"ombraz", "goodr", "sunski", "tifosi", "roka", "district vision", "julbo", "suncloud", "moana sunnies", "alpinamente", "knockaround"}
@@ -4177,6 +4183,9 @@ def tidy_gear(offers):
         if o["g"] in ("gloves", "headwear") and GEAR_LEG.search(o["n"]):
             o["g"] = "socks"
         # a shoe brand in numbered sizes filed by a word in its name: "Gel Kayano 33" (food), Merrell "Trail Glove 8" (gloves)
+        if o["g"] in ("packs", "gear") and re.search(r"\bspikes?\b", o["n"], re.I) and (o["b"] or "").lower() in SHOE_BRANDS and SHOE_SIZES(o):
+            o["g"] = "shoes"           # Nov 5: PR Run & Walk files New Balance "900v4 XC Spike" under bags
+            continue
         if o["g"] in ("nutrition", "gloves") and (o["b"] or "").lower() in SHOE_BRANDS and SHOE_SIZES(o):
             o["g"] = "_drop" if COURT_SHOE.search(o["n"]) or CASUAL_SHOE.search(o["n"]) else "shoes"
             continue
@@ -4261,7 +4270,7 @@ TYPES = {g: [(k, re.compile(rx, re.I)) for k, rx in v] for g, v in TYPES.items()
 CLOTH_SOCK = re.compile(r"\bsocks?\b|\bchaussettes?\b|mini crew|micro crew|mid crew|crew height|no[- ]show|over[- ]the[- ]calf|cushion\b.*\bcrew\b", re.I)
 
 CLOTH_TOPW = re.compile(r"short[- ]?sleeve|long[- ]?sleeve|arm (sleeve|warmer)s?|t-?shirt|\btee\b|\bshirt|singlet|\btank\b|hood(ie|y)?\b|jacket|"
-                        r"pullover|\bcrew\b|1/4 zip|half zip|quarter zip|\btop\b|\bvest\b", re.I)
+                        r"pullover|\bcrew\b|1/4 zip|half zip|quarter zip|\btop\b|\bvest\b|\bpolo\b|sweater|\bcoat\b|cardigan|parka|anorak", re.I)
 CLOTH_BOTW = re.compile(r"\bshorts?\b(?![- ]?sleeve)|tights?\b|leggings?|\bpants?\b|joggers?|skirt|skort|capri|bottoms?\b|"
                         r"\bbriefs?\b|boxers?|\bset\b|half tight|split", re.I)
 CLOTH_STRONG = re.compile(r"\bjacket|\bpants\b|singlet|\bt-?shirt|\btee\b|\bshorts\b|\btights\b|leggings|hoodie|\btank top", re.I)
@@ -4275,6 +4284,10 @@ def tidy_clothes(offers):
             o["g"] = "socks"   # Oct 19: MEC files Bridgedale's "3/4 Crew" under tops (also caught here, before the brand counts)
         if o["g"] in ("tops", "bottoms") and CLOTH_NOT.search(n):
             continue
+        if re.search(r"\bslippers?\b(?!\s+socks?\b)|pantoufles?", n, re.I):
+            continue                   # Nov 5 (growth's audit): Smartwool "Second Cut Fleece Slippers" was under tops: house slippers, not running
+        if o["g"] == "socks" and re.search(r"(?i:\bpolo\b|t-?shirt|\btee\b|sweater|jacket|\bcoat\b|hoodie)|\b[SL]S\b", n) and not re.search(r"\bsocks?\b|chaussettes", n, re.I):
+            o["g"] = "tops"            # Nov 5: Stance "PEAKS SS" (-84%, the USA side's deepest) and Smartwool "Active Mesh Polo" were socks
         if o["g"] == "tops" and CLOTH_BRA.search(n) and not re.search(r"tank|cami|top\b", n, re.I):
             o["g"] = "bras"
         elif o["g"] == "tops" and CLOTH_CAPRI.search(n):
@@ -4292,6 +4305,9 @@ def tidy_clothes(offers):
             o["g"] = "bottoms"         # Bandit "Quarter Tights" read as quarter-height socks
         if o["g"] == "bottoms" and CLOTH_TOPW.search(n) and not CLOTH_BOTW.search(n):
             o["g"] = "tops"
+        elif o["g"] == "bottoms" and re.search(r"\b(coat|parka|sweater|polo|cardigan|anorak|jacket)\b", n, re.I) \
+                and not re.search(r"\b(pants|tights|leggings|shorts|skirt|skort|joggers)\b", n, re.I):
+            o["g"] = "tops"            # Nov 5: Marmot "Chelsea Down Short Coat" ("Short" = the length) was a pair of shorts
         elif o["g"] == "tops" and CLOTH_BOTW.search(n) and not CLOTH_TOPW.search(n):
             o["g"] = "bottoms"
         out.append(o)
@@ -4587,9 +4603,15 @@ def soften_caps(n):
         return w.capitalize() if len(w) >= 4 or w.lower() in SOFT else w
     return " ".join("-".join(part(x) for x in word.split("-")) for word in n.split(" "))
 
+ASICS_KEEP = re.compile(r"\b(lite|show|platinum|wide|extra|gtx|gore|tex|tr|trail|plus|pro|paris|tokyo|mk|sps|elite|max|knit|nyc)\b", re.I)
+
+
 def tidy_name(b, n):
     """"Hoka - Cielo X 2 LD - Unisexe" -> "Cielo X 2 LD - Unisex": no repeated brand, gender words in English."""
-    n = re.sub(r"\s+", " ", n or "").strip()
+    n = re.sub(r"\s+", " ", re.sub(r"\s*[®™©]\s*", " ", n or "")).strip()   # Nov 5 (growth): "GEL-NIMBUS® 28" and "GEL-NIMBUS 28" were two cards
+    if (b or "").lower() == "asics":     # Nov 5: Sporting Life adds the colourway pack ("GEL-NIMBUS 28 Sunny Sizzle Running Shoe")
+        n = re.sub(r"^((?i:GEL-[a-z]+|GT-\d{4}|NOVABLAST|SUPERBLAST|MEGABLAST|MAGIC SPEED)\s+\d+(?:\.\d)?)\s+((?:[A-Z][a-z]+\s+){1,2})(?=(?i:(?:Trail )?Running) (?i:Shoes?)\b)",
+                   lambda m: m.group(1) + " " if not ASICS_KEEP.search(m.group(2)) else m.group(0), n)   # colour words Title-case only ("ATC" stays)
     n = re.sub(r"\bHommes?\b", "Men's", n)
     n = re.sub(r"\bFemmes?\b", "Women's", n)
     n = re.sub(r"\bUnisexe\b", "Unisex", n)
@@ -4741,8 +4763,26 @@ def mkey(o):
     # Canadian and cross-border offers stay separate, so "Canadian stores only" never hides a cheaper US price inside a card
     return (o["b"].lower().strip(), name, o["w"], o["g"], bool(o.get("ca")))
 
+# Nov 5 (growth's data audit: 109 REI swimsuits, clip-in bike shoes, climbing shoes, an avalanche airbag pack, a snowboard bag and a
+# fleece comforter on the USA side): the store readers' own filters (NOT_RUNNING, tidy_shoes) never see the catalog file and saved
+# pages, so this one runs in the merge, for every source, both sides (and the hiking merge: none of these is hiking gear either).
+NOT_ANY_SIDE = re.compile(r"swim ?suits?|swimwear|\bswim (trunks?|shorts?|tops?|bottoms?|briefs?|jammers?)\b|\bbikini (top|bottom)s?\b|tankini|"
+                          r"\bboard ?shorts?\b(?!\s+logo)|\bclip-?in\b|cycling shoes?|bike shoes?|climbing shoes?|avalanche|airbag|snowboard|"
+                          r"\bcomforter\b|\bduvet\b", re.I)
+
+
+def display_tidy(items):
+    """Nov 5 (growth's search round: "Nike Vaporfly 4 Road Racing Shoes"): the merge key already ignores "Road Racing Shoes" (so the
+    cards and shoe pages are right); the card's name drops it too. "Running Shoes" stays: it can carry "Trail" (Tomir 2.0 Trail)."""
+    for it in items:
+        if it.get("g") == "shoes":
+            it["n"] = re.sub(r"\s+(?:Road\s+)?Racing\s+Shoes?(?=\s+-\s+(?:Men's|Women's|Unisex)$|$)", "", it["n"])
+    return items
+
+
 def merge(offers):
     """Same product at several stores -> one item; each size keeps the cheapest store."""
+    offers = [o for o in offers if not NOT_ANY_SIDE.search(o.get("n") or "")]
     for o in offers:
         if (o["b"] or "").strip().lower() in ("not specified", "n/a", "none", "unknown", "default"):   # Brainsport leaves some blank
             m = re.match(r"^(?:(?:Men|Women|Kid)[’']?s\s+)?(\S+)", o["n"])
@@ -5097,6 +5137,11 @@ def merge(offers):
         # each store's own photo, kept only where it differs from the card's first one (saves space); the site picks the
         # photo of the store that has the price in the visitor's size
         im = it.pop("_im", [])
+        # Nov 5 (growth's audit: the #1 deal, Icebug Pace3 BUGrip GTX at $49.99 in size 15 Black, showed the $199.99 colour): the card's
+        # own photo = the listing that has its lowest price (the site still swaps in the photo of the price in the visitor's size)
+        low = min(it["sz"], key=lambda e: e[1], default=None)
+        if low and low[2] < len(im) and im[low[2]]:
+            it["img"] = im[low[2]]
         wins = {e[2] for e in it["sz"]}        # only stores that have the best price in some size can show on a card
         oi = {str(i): u for i, u in enumerate(im) if u and u != it["img"] and i in wins}
         if oi:
@@ -5381,7 +5426,7 @@ def main():
     us_offers = [dict(o, ca=bool(o.get("us")), sz=[list(e) for e in o["sz"]], sx=list(o.get("sx") or []))
                  for o in offers if (o.get("us") or o.get("st") in SHIPS_US or not o.get("ca")) and not o.get("no_us")]
     offers = [o for o in offers if o.get("st") not in US_SHOPS and not o.get("no_ca")]   # US shops may not ship to Canada
-    items = merge(offers)
+    items = display_tidy(merge(offers))
     report_groups(items)
     for it in items:
         it.pop("_st", None)
@@ -5398,7 +5443,7 @@ def main():
     sale = [i for i in items if any(e[1] < e[3] for e in i["sz"])]   # same test as the site's % off
     (OUT.parent / "sale.json").write_text(json.dumps({"v": 2, "updated": now(), "stores": stamps, "n_stores": n_ca, "fx": {"USD": usd}, "items": sale},
                                                      separators=(",", ":"), ensure_ascii=False))
-    us_items = merge(us_offers)
+    us_items = display_tidy(merge(us_offers))
     for it in us_items:
         it.pop("_st", None)
     us_items.sort(key=lambda i: (i["g"], i["b"].lower(), i["n"].lower()))
