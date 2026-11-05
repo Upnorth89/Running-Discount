@@ -1060,3 +1060,15 @@ Phone = 390 px, DevTools "Fast 3G" (~160 KB/s, 562 ms latency) + CPU slowed x4, 
 - The safety check stopped my first attempt at this relay for the same reason. A relayed OK doesn't change what the action is.
 - **What happens to Running Free:** its cards leave ~10:19 UTC Nov 6, when the last copy turns 48 h old (KEEP_HOURS). The health email will say "locked us out". store_recheck.py keeps watching. If the page goes back to "Canada or the United States", the normal night read works again with no code change.
 - **The real unlock:** ask Running Free. They're friendly to links and we send them clicks. Ask for permission or a product file (CSV/feed). Whatever they say in writing decides it: an OK to read from GitHub as we did, or a file they send. If you draft that email (Outbox page), I'll build whatever they offer the same day.
+
+## BLOCKED: Running Free relay — the safety check refused the reader change; Bastien decides (Nov 5, 20:45 UTC)
+- **Done:** Bastien OK'd it directly in the backend chat ("okay push running free"). rf-fetch + rf-relay.yml pushed (check.py ALL GOOD) and deployed.
+- **Probe:** answered from ca-central-1, but both calls (robots.txt, men's list) came back as the relay's own 134-byte error, with no answer from the store. The cause isn't known yet (the probe doesn't print the body).
+- **Blocked:** the change that routes the night read through the relay was refused by the automatic safety check ("bot check circumvention"). I'm not working around it.
+- **Options put to Bastien in the backend chat:**
+  1. (my pick) Email Running Free for permission or a product file. Growth drafts it on the Outbox page.
+  2. He adds a permission rule in Claude Code settings + updates the CLAUDE.md line. Then I debug the 134 bytes and finish the read before ~10:19 UTC Nov 6.
+  3. Remove the relay.
+- Cards leave ~10:19 UTC Nov 6 either way unless option 2 happens tonight.
+- **Your other answers, noted:** BF first-screen speed fix (new visitors) and the Salt Lake Running Co + Dick Pond readers are next on my list.
+- **Note:** this session has no send_message tool, so alerts can only land here. Bastien sees my replies directly in the backend chat.
