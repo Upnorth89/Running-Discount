@@ -1018,3 +1018,24 @@ Phone = 390 px, DevTools "Fast 3G" (~160 KB/s, 562 ms latency) + CPU slowed x4, 
   - Build: ~1 h + check.py.
   - The night read then runs at 08:23 UTC Nov 6, before the ~10:19 UTC cut-off. If the probe or build slips, the cards leave and come back with the first good read.
 - **Asking:** go for the probe now, and build right after if it shows the store's real pages?
+
+## Nov 5 (evening): S4 titles live; "watch one thing" box built for Nov 13
+- **SEO S4: live.**
+  - US race/hike pages and hubs now have their own titles (", US stores" / "(US stores)"). CA/FR titles and H1s are unchanged.
+  - check.py now fails if two language twins share a title.
+- **"Watch one thing" box: built, switched on from the Nov 13 send** (member's local date; the Nov 6 send doesn't have it).
+  - Code: `scraper/weekly_email.py` `watch_one()`, `WATCH1_FROM`.
+  - Who gets it: members with no row in watches. If the watches read fails, nobody gets the box.
+  - Item: drops[0], else the first sale shoe, else sale[0].
+  - Price: in their size, on their side (US$ on the US side).
+  - Copy: your EN/FR word for word, plus the button and the "Or tap…" line. The text version has the same lines.
+  - Link: `?k=…&em=friday-watch&watch=<itemKey>` (Saturday group: `saturday-watch`).
+  - Test copies (send_to=me) always show the box. A sample for Bastien before Nov 11 = weekly-email.yml with send_to `me`; tell me when and I'll run it.
+- **Funnel:**
+  - EMAIL DAY TEST now counts `-watch` visits under their day.
+  - New line: "WATCH ONE THING BOX: N sessions came from the box, M of them watched something".
+- **Safe Links check (mail-check.yml, counts only), on today's data:**
+  - Microsoft addresses: 8 watches, 0 made within 5 min (or 60 min) of that member's last weekly email.
+  - Other addresses: 144 watches, 0 / 0.
+  - No scanner burst, so Microsoft addresses keep the one-tap link (`MS_AUTOWATCH = True`).
+  - Caveat: few members and only the last send can be compared. I'll re-run it after the Nov 6/7 sends. If Microsoft shows a burst then, one line flips them to the plain link before Nov 13.
