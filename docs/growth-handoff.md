@@ -33,7 +33,7 @@ Done:
 
 To do:
 1. DONE Nov 5: SUPABASE_ACCESS_TOKEN saved as a GitHub secret (Supabase token "github-deploy", project TheGearFox only:
-   Project Settings Read, Edge Functions + Edge Function Secrets Read-write). EXPIRES 2027-11-04: renew before. Backend told to run the key test.
+   Project Settings Read, Edge Functions + Edge Function Secrets Read-write). EXPIRES 2027-10-24 (Bastien; the review screen said Nov 4): renew before. Backend told to run the key test.
 2. Public details. Check they're filled:
    - statement descriptor THEGEARFOX.COM;
    - support hello@thegearfox.com;
@@ -116,11 +116,12 @@ Backend was applying 3 last wording fixes and pushing Nov 5. Spot-check the live
 - **Grab deals bookmark:** updated Nov 2. Bastien re-added it Nov 4. Different stores can run in parallel tabs; never two tabs on one store.
 - **US junk cleared Nov 4:** PowSlayer, jewelry, Gazelle soccer (one Brazil jersey fixed by a name rule).
 - **Morning timer:** Nov 4's 11:17 UTC start got no answer from GitHub (pg_net timeout). Bastien pasted the 12:47 backup
-  (gear-fox-morning-backup). Backend's supabase/dispatch-log-nov4.sql (20 s timeout + log) is waiting for him to paste.
-- **Dashboard key:** stats.html fixed (only P0001 says "wrong key"). supabase/dashboard-timeout-nov4.sql is waiting for him to paste.
+  (gear-fox-morning-backup). Backend's supabase/dispatch-log-nov4.sql (20 s timeout + log): pasted Nov 5.
+- **Dashboard key:** stats.html fixed (only P0001 says "wrong key"). supabase/dashboard-timeout-nov4.sql: pasted Nov 5.
 
 ### Bastien's to-dos
-- Paste supabase/dispatch-log-nov4.sql and supabase/dashboard-timeout-nov4.sql, and send Part 1 output of the second.
+- DONE Nov 5: pasted dispatch-log-nov4.sql + dashboard-timeout-nov4.sql (both Success). Part 1: dashboard call mean 788 ms, max 4,117 ms
+  (over anon's old 3 s limit = the "wrong key" bug); anon/authenticated now 10 s. Check tomorrow's morning start in gf_dispatch_log.
 - Check the "[TEST]" Friday email bottom line and reply once, to confirm replies land in hello@.
 - Emails: the 8% emails to Le Coureur Nordique and Run Uphill; Heads or Trails; Iron Legs.
 - Stripe items 1-6 above, then the accountant.

@@ -694,7 +694,7 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   also gets `--html FILE` (a copy page: names as links + "Copy post" button that copies rich text, links survive a paste in
   Reddit's normal editor): publish it as an artifact and give him the link, plus the Markdown code block for Markdown mode.
 
-GitHub secrets (names only): `SUPABASE_ACCESS_TOKEN` (Nov 5: Supabase fine-grained token "github-deploy" for Edge Function deploys; EXPIRES 2027-11-04, renew before), `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_ADDRESS` (CASL footer),
+GitHub secrets (names only): `SUPABASE_ACCESS_TOKEN` (Nov 5: Supabase fine-grained token "github-deploy" for Edge Function deploys; EXPIRES 2027-10-24, renew before), `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_ADDRESS` (CASL footer),
 `HEALTH_EMAIL`.
 
 ## Affiliate plan (Oct 1, 2026: none live yet; networks want 60–90 days of traffic)
