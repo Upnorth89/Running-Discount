@@ -3966,6 +3966,9 @@ if not SPORTCHEK_ON:
 JEWELRY = re.compile(r"\b(necklaces?|earrings?|pendants?|bracelets?)\b", re.I)
 JEWELRY_BRANDS = {"brighton", "bronwen", "artiken", "play monster", "pura vida", "alex and ani", "kendra scott"}
 CASUAL_ANY = {"birkenstock", "crocs", "ugg", "dr. martens", "clarks", "blundstone", "wolky", "teva", "pony", "reef"}   # Nov 4: out in every group
+KIT_JERSEY = re.compile(r"(?i:\b(stadium|replica|national team|brazil|argentina|mexico|usmnt|uswnt|"
+                        r"france|england|portugal|spain|germany|italy|canada soccer|psg|barcelona|real madrid|chelsea|arsenal|liverpool|tottenham|inter|juventus|"
+                        r"bayern|dortmund|ajax|galaxy|lafc|whitecaps|cf montr[ée]al|toronto fc)\b[\w\s.'-]{0,30}\bjersey\b)")
 SOCCER_ANY = re.compile(r"(?i:\b(soccer|futsal|mercurial|goalkeeper)\b|\b(fg|ag|sg)(/\w+)?\s+cleats?\b)")   # never ice cleats (traction gear)
 CLOTH_VEST_WORDS = re.compile(r"hybrid|insulated|shield|\bwind|thermal|\bdown\b|puffer|subz|fleece|soft-?shell|visible|quilted|primaloft", re.I)
 CASUAL_BRANDS = {"ambler", "birkenstock", "wolky", "teva", "crocs", "ugg", "blundstone", "dr. martens", "clarks", "oofos", "billy footwear", "vessi", "pony"}   # Ambler (Oct 8): toques, and its only "shoe" is a wool slipper; Pony (Oct 30): retro sneakers in SVP's running collection led the Friday email's shoes at $14.99
@@ -4410,6 +4413,8 @@ def tidy_shoes(offers):
             continue
         if o["g"] != "shoes" and SOCCER_ANY.search(o["n"]):
             continue
+        if KIT_JERSEY.search(o["n"]) and not re.search(r"\brun(ning)?\b", f'{o["b"] or ""} {o["n"]}', re.I):
+            continue                   # Nov 5 (growth): team kit ("Brazil DF Home Stadium Jersey"), no soccer tag at the store
         # Nov 4 (growth's re-check): gift-shop items at running stores (Brighton necklaces filed as shorts at Confluence, ArtiKen
         # bracelets as bras, BRONWEN earrings as shorts); REI's Patagonia PowSlayer ski line. Watch bands ("bracelet de montre") stay
         if (o["b"] or "").lower() in JEWELRY_BRANDS or (JEWELRY.search(o["n"]) and o["g"] != "watches" and not re.search(r"watch|montre|band", o["n"], re.I)) \
