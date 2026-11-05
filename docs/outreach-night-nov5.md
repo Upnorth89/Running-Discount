@@ -10,9 +10,9 @@ Lane c (creators): none verified tonight (Running With Dusty, Humble Running: no
 |---|---|---|---|---|
 | 1 | Repousser les limites (J-F Dussault), weekly Québec running podcast | New ep. every Tuesday (#265 Nov 3; #264 Élisa Morin, Brooks trail team) | Facebook "Commandite, publicité, partenariat" link via https://linktr.ee/Repousserleslimites; jfdussaultcoaching@gmail.com (ep. #265 description, coaching label: Facebook first) | FR |
 | 2 | Pas sorti du bois (Yannick Vézina), Québec trail podcast | Ep. 297 Rose Vigneault (UTHC), ep. 298 Oct 28; sponsor Altitude Sports (a store we list) | DM @passortidubois (Instagram/Facebook), from https://passortidubois.buzzsprout.com | FR |
-| 3 | Community Trail Running (Adam Lee, Crowsnest Pass AB), newsletter "past 1,800 subscribers" + podcast | Sinister 7's home town; we list Sinister 7, Canmore, Moose Mountain | adam@communitytrailrunning.com (https://www.communitytrailrunning.com/about) | EN — SEND FIRST |
+| 3 | Community Trail Running (Adam Lee, Crowsnest Pass AB), newsletter "past 1,800 subscribers" + podcast — SENT Nov 5 (follow-up Nov 12 if no reply) | Sinister 7's home town; we list Sinister 7, Canmore, Moose Mountain | adam@communitytrailrunning.com (https://www.communitytrailrunning.com/about) | EN — SEND FIRST |
 | 4 | The SaskatchewRun Podcast (Jason Burns, Regina) | Weekly; Prairie runners, no outreach there yet | jasontburns40@gmail.com (feed owner + Nov 3 ep. description, https://rss.buzzsprout.com/2521036.rss) | EN |
-| 5 | CTV Shopping Trends, Alice Prendergast (Managing Editor) | Wrote "18 of the absolute best gifts for runners…" Dec 4, 2025: 2026 guide in the works | alice.prendergast@bellmedia.ca (https://www.shoppingtrends.ca/authors/alice-prendergast/) | EN — SEND SECOND |
+| 5 | CTV Shopping Trends, Alice Prendergast (Managing Editor) — SENT Nov 5 (follow-up Nov 12 if no reply) | Wrote "18 of the absolute best gifts for runners…" Dec 4, 2025: 2026 guide in the works | alice.prendergast@bellmedia.ca (https://www.shoppingtrends.ca/authors/alice-prendergast/) | EN — SEND SECOND |
 | 6 | Run Ottawa, yearly "runner's wish list" + newsletter | Budget-sorted list = our $25/$50/$100 gift page | questions@runottawa.ca (https://www.runottawa.ca/the-2025-run-ottawa-runners-wish-list/) | EN |
 | R | Explore magazine (Winnipeg), Alison Karlene Hodgins | Past holiday gift guides | via https://explore-mag.com/contributor-guidelines/ (confirm the address in a browser) | EN |
 
@@ -57,7 +57,7 @@ Subject: Free race gear checklists + Black Friday price data for your readers
 
 Hi Adam,
 
-Your Crowsnest Pass base is Sinister 7 country, so this felt like a fit. I'm Bastien, a runner from Montréal and Vancouver and a new dad. I built The Gear Fox, a free site that shows running and hiking gear on sale in your size from 150+ stores in Canada and the US, updated twice a day.
+Your Crowsnest Pass base is Sinister 7 country, so this felt like a fit. I'm Bastien, a trail runner and long-distance hiker from Montréal and Vancouver, and a new dad. I built The Gear Fox, a free site that shows running and hiking gear on sale in your size from 150+ stores in Canada and the US, updated twice a day.
 
 Two things your readers might use:
 - gear lists for 49 races, each as the race publishes it (mandatory or suggested), including Sinister 7's suggested list and the Canmore 25K & Ultra mandatory list (thegearfox.com/races/);
