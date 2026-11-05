@@ -38,6 +38,12 @@ Prices are re-checked on the store's own page (livecheck) the day it's posted. M
 - **Rejected on Nov 5:** a screen recording of the website ("I don't want people to just see the website"); a white "showcase"
   with a slow zoom; a light green-screen layout ("doesn't even look like what we've done before"). Stay on format 1/2.
 
+## 2b. One-item TALK card (Nov 5, Bastien: "simply have the card with the stroller, give me 10-15 seconds to talk about it and then we can show gearfox link in bio")
+- Same template as format 2 (docs/formats/one-item-guess-the-price.html), price already shown (s=b), no ??? step.
+- Title block states a fact instead of "Guess the price": e.g. "HALF PRICE" / « MOITIÉ PRIX » when the drop is exactly 50%. Only a fact the numbers prove.
+- Timing: card 13 s (he talks), fade 0.5 s at 12.5 s, end card (logo + LINK IN BIO) 3.5 s. Total 16 s.
+- First made for the Thule Urban Glide 3 Single (Bushtukah, $449.98, was $899.95; livechecked Nov 5 13:30 UTC). Files: out/stroller-en.mp4, out/stroller-fr.mp4 (not committed).
+
 ## 3. Green screen (how Bastien films)
 - **Background:** Instagram Reels → Effects → Green Screen → pick the video. Or CapCut: video first, his clip on top
   → Remove background / Chroma key.
