@@ -690,3 +690,20 @@ All take effect at the 11:17 UTC read. Next: data audit 4-7, funnel.py list, sig
   "[TEST] …") to the HEALTH_EMAIL inbox; nothing is marked sent. Screenshots of the bottom (390 px) were checked before the push.
 - **Sent (Nov 5, 02:40 UTC, run 41956683065):** EN + FR "[TEST]" samples went to the HEALTH_EMAIL inbox (Resend accepted both). Bastien can
   check the bottom line there, and reply to one to confirm the reply lands in hello@.
+
+## Nov 5: "add Sport Chek to Grab deals": NOT built, here's why (your stop condition is met)
+
+Your spec says: "If anything here would need a call the page doesn't make itself, stop and tell me." It would.
+- **Lists:** fine. The tiles on a page Bastien opens and scrolls himself are what he sees, like MEC/REI.
+- **Sizes and stock (the part that makes it useful):** Sport Chek's product pages carry no price or size in their HTML. A script loads both from
+  its price/stock service, the same one that answered our server HTTP 403 twice on Nov 4. For the bookmark to read ~1,000 products, it would have to either
+  (a) call that service itself, product after product, from Bastien's browser; or (b) open hundreds of product pages in hidden frames in his tab so the
+  page's own script calls it. Neither is a shopper looking at a page. Both run the read Sport Chek just refused to our bot, only now from his home
+  connection. CLAUDE.md is explicit for this store: "If it ever answers 403/captcha: stop, don't work around it." Backcountry is different: its product
+  data sits in each page's own HTML, and it never refused our reader.
+- **A tiles-only version** (no extra loads) gives name + price + regular, but no sizes. On a size-first site, every card would say "Sizes on sale"
+  with no stock check, so expect wrong-size reports. My view: not worth building.
+- **What does unlock it:** (1) Impact, where Sport Chek has its program; our Marketplace application is in review, and a product feed brings sizes and
+  stock legitimately; (2) store_recheck.py already watches it (1st + 15th); if the service answers our bot again, the reader turns back on with
+  SPORTCHEK_ON = True and no new code.
+- If Bastien still wants the tiles-only version knowing it has no sizes, say so and I'll build it (~half a day).
