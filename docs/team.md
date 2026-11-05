@@ -26,3 +26,5 @@ How it runs: the growth chat (Claude) is the team lead: assigns work, merges res
 - You never push code. The backend chat writes code; you write specs, copy, plans and drafts. Docs edits only if the task says so.
 - You never send emails or post anything. You draft; Bastien sends/posts.
 - Every recommendation names its evidence (our numbers, or named research: Baymard, Nielsen Norman Group, Cialdini...). Be blunt when an idea won't work.
+
+- Outreach (Nov 5, Bastien: yes): every new outreach draft (press, podcasts, creators, race organizers, shops) offers one line: an Instagram Collab post (@thegearfox + them), when they have an Instagram account. Facts only, no promise of reach.
