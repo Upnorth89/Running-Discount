@@ -36,6 +36,8 @@ FR
 > [♡ Suivre ce prix]
 > Ou touchez « ♡ Suivre le prix » sous n'importe quel article plus bas.
 
+**Compliance: OK Nov 5** (EN + FR as written). The promise matches alerts.py `is_drop()` (10% or $10) + back-in-size and names no timing, so it stays true after Dec 2 (free = Friday email). Members already consented to these emails; the box adds no new consent. Conditions: {price} must be the price in THAT member's size on their side (US$ on the US side, where "$10" = US$10); and run the Safe Links check below BEFORE Nov 13: if Microsoft scanners add watches nobody tapped, those people would get alerts they never asked for (a trust problem, not CASL): then send Microsoft addresses the box without the auto-watch link (link to the shoe page instead) until the one-tap confirm ships.
+
 Why each piece is safe:
 - **"we'll email you if…"** is the alert rule in alerts.py `is_drop()` (10% or $10 vs the notified price), plus back-in-size. It stays true after Dec 2: free members get the news in the Friday email, and Pro gets it the same morning. So it promises no timing.
 - **No mention of Black Friday urgency** and no countdown.
@@ -99,6 +101,8 @@ Facts-only. One trap: the email's "dropped" rule (`week_drop`: 10% or $10 below 
 | a drop | Black Friday week: {name} dropped {m} in your size, + {k} more | Semaine du Vendredi fou : {name} −{m} à votre taille, + {k} autres baisses |
 | no drop | Black Friday week: {n} deals in your size, up to {top}% off | Semaine du Vendredi fou : {n} aubaines à votre taille, jusqu'à {top} % de rabais |
 
+**Compliance (subjects): watchlist news OK, a drop OK. No drop: FIX.** "Up to {top}% off" (Competition Bureau: an "up to" claim misleads when only one item reaches it) is OK only if the {top}% item is shown in that same email in that member's size; otherwise use: EN "Black Friday week: {n} deals in your size" / FR « Semaine du Vendredi fou : {n} aubaines à votre taille ». The % off is against the store's own regular price (stores' compare-at): never against our history.
+
 **First lines** (`intro_drop` variant, then one line linking the deal check):
 
 EN
@@ -114,9 +118,13 @@ FR
 
 Check the US page text before the send to make sure it still matches.
 
+**Compliance (first lines): OK Nov 5 for EN/FR Canada** (the email states its own rule, never "real drop"; "the 'sales' that have been the same for weeks" mirrors the page's own heading « Not new: same "sale" price for weeks »). **US line: FIX**: "this year's prices" is not what the page says. Use: "Our Black Friday page compares today's sale prices with the last two weeks: thegearfox.com/us/black-friday/" (the page today: "81% of the shoes on sale today were already at that price or lower two weeks ago").
+
 **Optional fact line** (use only if the backend fills it from the same morning's bf_stats the page shows; otherwise leave it out):
 - EN: "This morning, {p}% of the sale prices we track were already this low 2 weeks ago."
 - FR: « Ce matin, {p} % des prix en solde qu'on suit étaient déjà aussi bas il y a 2 semaines. »
+
+**Compliance (fact line): OK, CANADA SIDE ONLY**, filled from the same morning's number the Canadian page shows (its wording: "of sale prices were already this low 2 weeks ago", Canadian stores). Never on the US email: the US page's stat is a different one (shoes only, "at that price or lower"). FR side = the /vendredi-fou/direct/ number.
 
 **Stays as is:**
 - the founding-list block (docs/members-plan-nov4.md 1b, incl. the Nov 25 readiness swap line);
@@ -133,6 +141,7 @@ Check the US page text before the send to make sure it still matches.
 - Weekly-email run logs from before the Nov 3 masking fix show whole subscriber addresses. One example: run 41077707857, Oct 30, a "nothing on sale" line. This repo's Actions logs are public.
 - Ask: delete the logs of weekly-email (and alerts/refresh) runs dated before Nov 3 (each run's "…" menu > Delete all logs, or the backend via the API).
 - The code is already fixed (`mask()`).
+- Compliance: agree, delete them (personal info in public logs; PIPEDA safeguards). Also check alerts/refresh/confirm-reminder/race-remind logs for the same before Nov 3.
 
 ## Asks (one line each)
 1. The "watch one thing" box in the Nov 13 weekly email for members who watch nothing (copy above)? yes/no
