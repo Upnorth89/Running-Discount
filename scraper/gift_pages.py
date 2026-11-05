@@ -169,10 +169,10 @@ def page(lang, data):
             body.append(f'<p class="gf-h3">{SP.esc(s["full"])}</p>{cards(r["f"])}')
     boxing = "/us/black-friday/" if lang == "us" else "/soldes-apres-noel/" if lang == "fr" else "/boxing-day/"
     bf = [u for u, _ in SP.season_links(L, gifts=False) if u in ("/black-friday/", "/vendredi-fou/")]
-    mine = (f' · <a href="{L["home"]}{"&" if "?" in L["home"] else "?"}ref=gifts">'
+    mine = (f'&nbsp;· <a style="white-space:nowrap" href="{L["home"]}{"&" if "?" in L["home"] else "?"}ref=gifts">'
             + ("Les aubaines à ma taille →" if lang == "fr" else "Deals in your size →") + "</a>")   # Nov 4 (designer): inside the box, no line of its own
     if lang != "us" and bf:     # Nov 4 (SEO L3): Nov 1 - Dec 1, the Canadian gift pages link their Black Friday page
-        body.append('<p class="gf-box">Vous magasinez aussi pour vous? <a href="/vendredi-fou/">Aubaines de chaussures de course du Vendredi fou 2026 →</a>' + mine + '</p>'
+        body.append('<p class="gf-box">Vous magasinez aussi pour vous? <a href="/vendredi-fou/">Aubaines du Vendredi fou 2026 →</a>' + mine + '</p>'
                     if lang == "fr" else '<p class="gf-box">Shopping for yourself too? <a href="/black-friday/">Black Friday 2026 running shoe deals →</a>' + mine + '</p>')
         mine = ""
     body.append(f'<p class="gf-box">{SP.esc(s["box"])} <a href="{boxing}">{SP.esc(s["boxing"])}</a>{mine}</p>'

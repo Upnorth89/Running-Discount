@@ -237,7 +237,7 @@ T = {
         "backBtn": "M'avertir", "backNo": "Non merci",
         "qsHub": "Les meilleures aubaines dans votre pointure, chaque vendredi", "qsTxt": "Gratuit. Un courriel le vendredi matin avec les aubaines dans votre pointure. Désabonnement en un clic.",
         "qsMen": "Homme", "qsWomen": "Femme", "qsSize": "Pointure", "qsBtn": "Envoyez-moi les aubaines", "qsPick": "Choisissez d'abord votre pointure.",
-        "qsMore": "Ou choisissez toutes vos tailles sur le site →",
+        "qsMore": "Ou choisissez toutes vos tailles →",
         "more": "Autres chaussures {brand}", "all": "Tous les modèles",
         "altH": {"daily": "Autres chaussures de route en solde dans votre pointure", "race": "Autres chaussures de compétition en solde dans votre pointure",
                  "trail": "Autres chaussures de sentier en solde dans votre pointure", "hike": "Autres chaussures de randonnée et d'hiver en solde dans votre pointure"},
@@ -1735,12 +1735,12 @@ def home_section(L_en, L_fr, rows, brands, us=None):
     side (us = (rows, brands) from deals-us.json; Oct 6, 2026); the site shows the copy matching its language and country."""
     def one(L, code, rows, brands):
         money = L["money"]
-        li = "".join(f'<li><a href="/{L["dir"]}/{s}/">{esc(n)}</a> · {money(sm["price"])}' + (f' (−{sm["top"]}%)' if sm["top"] >= 10 else "") + "</li>"
+        li = "".join(f'<li><a href="/{L["dir"]}/{s}/">{esc(n)}</a>&nbsp;· {money(sm["price"])}' + (f' (−{sm["top"]}%)' if sm["top"] >= 10 else "") + "</li>"
                      for s, n, sm in rows)
-        nav = " · ".join(f'<a href="{u}">{esc(t)}</a>' for u, t in
+        nav = "&nbsp;· ".join(f'<a href="{u}">{esc(t)}</a>' for u, t in
                          [(f'/{L["hubDir"]}/', L["hubs"]["all"][1]), (f'/{L["bfDir"]}/', "Aubaines du Vendredi fou 2026" if L["lang"] == "fr-CA" else "Black Friday 2026 shoe deals")] +
                          [x for x in season_links(L) if x[0] not in (f'/{L["bfDir"]}/', f'/{L.get("bdDir")}/')] + [(f'/{L["dir"]}/', L["homeMore"])])
-        br = " · ".join(f'<a href="/{L["brandDir"]}/{slugify(b)}/">{esc(b)}</a>' for b in brands[:12])
+        br = "&nbsp;· ".join(f'<a href="/{L["brandDir"]}/{slugify(b)}/">{esc(b)}</a>' for b in brands[:12])
         lang = "en" if code == "us" else code
         return (f'<div class="seo-{code}" lang="{lang}"><h2>{esc(L["homeH"])}</h2><ol>{li}</ol>'
                 f'<p>{nav}</p><p>{br}</p></div>')
