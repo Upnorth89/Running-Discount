@@ -725,3 +725,9 @@ Your spec says: "If anything here would need a call the page doesn't make itself
   bassinet adapters, Spring 2, 4-wheel, Switch&Roll, wagon). The Backcountry count can grow at Bastien's next Grab save (strollers were skipped before).
 - **"Super Shoe Sunday":** not mine. There's nothing by that name in the repo or any commit. The closest thing I made is the Instagram brief's Top 5 graphic
   (scraper/ig_brief.py) and the Reel recorder (scraper/ig_reel.py), but neither is a single-item photo + badge + old/new price card.
+- **SEO batch LIVE (7f6fbda, Nov 5 ~05:00 UTC; the push run deploys it in ~10 min):** L2/L3 link rows + #3/#5/#7/#11 + designer round 2 leftovers:
+  a no-break space before every "·" in the homepage block (EN + FR); text-wrap:balance on its h2; FR BF box link « Ou choisissez toutes vos tailles → »;
+  gift box FR « Aubaines du Vendredi fou 2026 → »; "Deals in your size →" / « Les aubaines à ma taille → » no-wrap. Checked myself at 320 + 390:
+  no line starts with "·" (measured on the page, EN + FR), and "site →" is gone. check.py ALL GOOD. BF titles switch on by themselves Nov 10 (bf_titles()).
+- **Stripe review:** received and filed as the checkout spec (founding # assigned in the webhook after payment, terms required, your exact submit
+  text EN/FR, portal cancel at period end, our purchase email carries the terms). I'm waiting for the image path.
