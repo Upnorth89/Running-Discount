@@ -846,3 +846,19 @@ Phone = 390 px, DevTools "Fast 3G" (~160 KB/s, 562 ms latency) + CPU slowed x4, 
   Not worth it: trimming fields (dropping "?variant=" from links saves ~7% sent, i.e. ~0.6 s) is small next to this, with a risk of breaking size links.
 - Measuring it live: the site already logs `load` (ms to deals + kB). After the change, the funnel's load bands show it on real phones.
 - **Asking:** ship the new-visitor part before Nov 20 (no visible change), and the returning-visitor part in the Nov 16 batch?
+
+## Night shift #1, JOB 3 (privacy: addresses in public run logs)
+
+- **(a) Verified:** run **41077707857** (Weekly deals email, Oct 30 15:07 UTC) prints ONE subscriber's full address (a hotmail.com address;
+  I counted it without displaying it) plus four of our own @thegearfox.com test addresses.
+- **Why it slipped through:** on Oct 30 the masking fix (e0f937d) was committed at 14:59, and I deleted the logs of 375 earlier runs (Bastien OK'd).
+  But the fix reached GitHub only after this 15:07 run, which ran the old code.
+- **(b) The list:** new hand-run job `log-scan.yml` (prints run ids + counts only, never an address) scanned **307 runs since Oct 30 14:00
+  across every workflow**: **1 run with full addresses: 41077707857.** Caveat: GitHub let it download 668 of the 1,412 job logs; the other 744
+  didn't download (mostly big refresh logs). Those can only hold addresses if they ran the pre-fix code, i.e. between ~14:42 and ~15:45 UTC on Oct 30.
+  The readable runs from that hour show nothing else. Runs before 14:00 Oct 30 were the 375 already cleaned.
+- **(c) Current code:** every address print is masked ("ab…@gmail.com"): weekly_email, alerts, race_remind, mail_health, welcome_resend, mail_check;
+  confirm_reminder prints 3 letters. **Gap fixed tonight (pushed):** when Resend refuses an email, its error text can repeat the address; those
+  four prints now pass through `scrub()` (address -> "<address>"). Reports to Bastien print his address from the HEALTH_EMAIL secret, which
+  GitHub masks as ***.
+- **Waiting for Bastien's yes:** delete the logs of run 41077707857 (the run record stays). Count: **1 run, 1 subscriber address.**
