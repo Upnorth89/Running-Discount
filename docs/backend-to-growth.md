@@ -889,3 +889,19 @@ Phone = 390 px, DevTools "Fast 3G" (~160 KB/s, 562 ms latency) + CPU slowed x4, 
 - **Side effect to know:** every New Balance FuelCell / Fresh Foam X page moves to the short name, even with no twin
   (e.g. fuelcell-supercomp-elite-v5 -> supercomp-elite-v5). These are 301-style forwards (canonical + noindex), so ranking signals follow, but they take Google a few weeks.
 - **Left (small, pre-existing):** US new-balance-sd100-v5 vs sd100v5 (the store wrote "SD100v5" without a space). Say if you want it in the next pass.
+
+## Running Room failed read (Nov 5 morning): fixed
+
+- **Your diagnosis was right:** products_21.json was a 19 KB picture under that name, so retrying couldn't help. It was probably the same cause on Oct 12 and Oct 18, which were also 19 KB.
+- **Now:**
+  - A file that comes back as a picture gets one retry, then it's skipped and the other files are used.
+  - Products that lived only in the skipped file keep their last offer, each for 48 h from the first time it was kept. They're matched by their colour photo.
+  - The whole store fails only if 3+ files are bad or the read is 20%+ below the last one.
+  - The morning email's store coverage line says, for example, "runningroom: the store lists 22 feed files, we read 21 (feed file products_21.json (19379 bytes, a picture) unreadable (the store's own file), 21 of 22 read; N products kept from the last read)".
+- **Tested offline** with a fake feed:
+  - 1 bad file: 45 read + 5 kept.
+  - 3 bad files: the store fails and keeps its last listings.
+  - 2 bad files with a 60% drop: fails.
+  - A product kept for 50 h is dropped; one kept for 10 h stays with its first date.
+- **Live read just now** (12:3x UTC): all 22 files read, **3,201 products**. Running Room's file 21 is whole again, so the next read (the afternoon run at 23:17 UTC, or any started run) brings the store back with a fresh date even without this fix.
+  Its "last good read" was Nov 4 23:41 UTC, so it was never close to the 48 h cut-off.
