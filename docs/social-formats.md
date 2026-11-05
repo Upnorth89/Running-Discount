@@ -59,6 +59,12 @@ Prices are re-checked on the store's own page (livecheck) the day it's posted. M
 Screen recordings of the site with safe bands, payoff first (CLAUDE.md "Instagram Reels"). These are the automatic weekly kit only.
 The hand-made deal videos above are separate.
 
+## Caption style (keep it; Bastien Nov 5: "We've had a style of posts. With the Fox emoji etc")
+From scraper/ig_reel.py `script()`: one hook sentence with the facts + 👀; one line on how the site works ("Heart anything on The Gear Fox and we watch
+the price for you, in your size, at 80+ Canadian stores. Free. Link in bio 🦊"); "Prices can change: check the store before you buy."; blank line;
+5 lowercase hashtags (EN e.g. #runcanada #trailrunning #runningdeals + 2 for the item; FR #course #courseapied #coureur #quebecrunning #aubaines style).
+FR = Québec, tutoiement, casual ("pis", "fait que"). Store count from today's data (Canadian stores ~83 on Nov 5).
+
 ## Things to remember
 - Bastien is a new dad (Nov 2026). Compliance-approved hook: "New dad here." FR: « Je viens d'être papa. » Never imply he owns
   the product.
