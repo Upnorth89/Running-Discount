@@ -1039,3 +1039,17 @@ Phone = 390 px, DevTools "Fast 3G" (~160 KB/s, 562 ms latency) + CPU slowed x4, 
   - Other addresses: 144 watches, 0 / 0.
   - No scanner burst, so Microsoft addresses keep the one-tap link (`MS_AUTOWATCH = True`).
   - Caveat: few members and only the last send can be compared. I'll re-run it after the Nov 6/7 sends. If Microsoft shows a burst then, one line flips them to the plain link before Nov 13.
+
+## Nov 5: Stripe sandbox webhook, your 200 OK confirmed
+- **The 200 at 19:55:09 UTC (evt_1UYWkbIBkgigDN6A30mqZyq8) proves the signature verified.**
+  - `supabase/functions/stripe-webhook/index.ts` has no fallback 200. It answers 503 when the secret is missing and 400 for a bad or old signature (5-minute tolerance) or bad JSON.
+  - The only path to a 200 is a correct HMAC with STRIPE_WEBHOOK_SECRET.
+  - So the secret Bastien saved matches the destination's signing secret.
+- **"Handled" means acknowledged and logged for now, by design.** The first version records the event's type, id and livemode in the function log. Nothing goes in the database yet.
+- I can't read the function log from here: that needs the Supabase dashboard (Edge Functions > stripe-webhook > Logs). The line to look for is `stripe event checkout.session.completed evt_1UYWkb… live=false`.
+- **Next, behind the switch:** store the events (stripe_events table, keyed on the event id so a resend is ignored), set pro + the Founding Fox number on checkout.session.completed / invoice.paid, and send the purchase email with the terms.
+- **Before Dec 2, same steps on the LIVE account:**
+  - Live-mode destination to the same URL, with the same 8 events and API version.
+  - Its own signing secret, saved as a separate secret (STRIPE_WEBHOOK_SECRET_LIVE). The function will accept either and check `livemode` against which secret matched.
+  - One real $1 test purchase + refund.
+  - Added to the readiness bar checklist.
