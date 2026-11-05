@@ -937,3 +937,35 @@ Phone = 390 px, DevTools "Fast 3G" (~160 KB/s, 562 ms latency) + CPU slowed x4, 
   - **Bastien's call:** email Running Free (we've sent them clicks) for permission or a product file.
     Want a draft from the partnerships agent?
 - **Running Room:** this morning's manual read was cancelled by later pushes, so tonight's 23:17 UTC run reads it. Its last read stays on the site until Nov 6 23:41 UTC, so nothing is lost.
+
+## Search round + data audit (Nov 5): fixed
+
+- **Search:**
+  - A search with a help line ("Closest: …", "Nothing in your size … but 2 in other sizes") no longer adds the grey "Try clearing the search or picking more categories" line.
+  - With no category picked, the grey line never mentions categories ("Nothing matches right now. Try clearing the search.").
+  - The big headline counts THIS search: "2 results in your size" / « 2 résultats à votre taille ». It used to be drawn before the count, so it showed the previous search's number ("gel nimbus 28" said 78 = "trail shoes").
+  - New site test: "Search: the headline counts this search's results".
+- **Names (merge, all stores, both sides):**
+  - ® ™ © removed (2,772 card names had one).
+  - ASICS colourway packs after the version are cut ("GEL-NIMBUS 28 Sunny Sizzle", "Novablast 6 Tenka", "Magic Speed 5 Ekiden"), so they join their model. Title-case words only, and Lite-Show / Platinum / GTX / TR / Paris etc. stay.
+  - "Road Racing Shoes" is off shoe names ("Vaporfly 4"). "Running Shoes" stays, because cutting it would move the Tomir 2.0 Trail page.
+- **Categories:**
+  - Stance "PEAKS SS" and Smartwool "Active Mesh Polo" -> Tops.
+  - Coat / sweater / polo under Bottoms -> Tops: Marmot Short Coat, BGA Golf Polo, Tribal Sweater.
+  - House slippers are out; slipper SOCKS stay.
+  - Spikes filed as Packs -> Shoes (NB 900v4 / 700v5 XC).
+  - "Repair Buckle" isn't food (Infinit "Repair" drink stays food).
+- **Shared filter in the merge** (catalog + saved pages too, both sides, hiking too):
+  - Out: swimsuits / swimwear / swim trunks / bikini tops+bottoms / boardshorts, clip-in bike shoes, climbing shoes, avalanche airbag packs, snowboard bags, comforters / duvets.
+  - Kept: underwear "bikini" briefs, "Boardshort Logo" shirts, rash-guard tees.
+  - Re-merging today's Canadian data with old vs new code changes only what's listed above.
+- **Photos:**
+  - A Shopify product now gives each colour its own photo, the one Shopify ties to that colour.
+  - A card's main photo = the listing with its lowest price.
+  - Brainsport's Icebug ($49.99, size 15 Black) now shows the Black photo, not the $199.99 Black/Petroleum. This shows from the next store read (tonight 23:17 UTC).
+- **Sorting check (morning email)** has new lines: "clothing filed as socks", "not running or hiking gear (slippers, swimwear, bike/climbing shoes, avalanche, bedding)", coats/sweaters/polos under Bottoms, spikes outside Shoes.
+- **Racing Dusk:** "Toque" (the race's word).
+- **Not changed:**
+  - NNormal Tomir 2.0 Trail photo: the picture loads (200 OK, 520 KB). It's a beige shoe on white, so it looks empty. Tell me if you want a different store's photo preferred.
+  - Wildrock kayak part: not in today's hiking files (nothing to remove).
+- **Queued for Nov 16 (needs Bastien's OK):** other-gender hint, one "All <model> models" box, the "Full price: watch for a drop" label.
