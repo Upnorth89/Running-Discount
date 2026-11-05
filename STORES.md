@@ -208,8 +208,8 @@ every check (rule in CLAUDE.md: try every allowed way first; a store that says n
 | Squarespace/WooCommerce shops without a catalogue | USA | nothing online to read | | none |
 | **Readable, needs its own reader (not built yet)** | | | | |
 | Injinji | brand (US) | Magento shop, no products.json (Oct 8) | products.json, cart.js | sitemap + product pages (JSON-LD), robots allows |
-| Distance Runwear | Vancouver | Lightspeed; ~730 products, mostly barefoot/lifestyle (Oct 8) | **?format=json works** | build a Lightspeed reader |
-| Gord's Running Store | Calgary | WooCommerce, Store API open (Oct 6) | | build a WooCommerce reader |
+| Distance Runwear | Vancouver | READ since Nov 1 (Lightspeed reader, LIGHTSPEED_SITES) | | done |
+| Gord's Running Store | Calgary | READ since Nov 1 (WooCommerce Store API reader, WOO_SITES) | | done |
 | Saucony, Puma, Salomon (salomon.com/en-ca) | brands | readable pages, need their own reader | | one at a time |
 | **No answer from my machine or GitHub** | | | | |
 | Bivo, Spring Energy, Fit Right NW | US West | no connection (Oct 8: sandbox + store finder; domains may differ) | bivo.co/.com, springenergy.co/.com | find the right address, retry |
@@ -520,7 +520,7 @@ Oct 20, 2026 (night), US cities + Gear Patrol "best running shops" list (Bastien
 
 Oct 20 (Bastien): added Praise Endurance (Montréal apparel brand, praiseendurance.com, Shopify; Canadian brands list) and Foveō Running
 (Courtenay BC, foveo.run, Shopify; "- Men"/"- Women" names tidied). Endurance Tap: its site now forwards to The Feed (sold there, already
-read). Hettas (Vancouver women's running shoes, hettas.com): readable but its shoes are pre-order ("ships early November"): add when they ship.
+read). Hettas (Vancouver women's running shoes, hettas.com): readable but its shoes are pre-order ("ships early November"): add when they ship. **ADDED Nov 5** (in stock): Shopify, prices in USD but based in Canada (`CA_USD`: ships from Canada), 4 women's shoes (Cambie, Alma Cruise/Tempo/Speed), all full price, 14 sizes each; 4/4 page prices matched; sortcheck clean.
 
 ## US running shop audit (Nov 1, 2026; Bastien: "if a reader is needed build it, otherwise catalog the reason")
 
@@ -674,3 +674,20 @@ Approach per group: **needs a reader** = backend builds it (generic WooCommerce/
 Nov 2, 2026 robots.txt scan (211 store sites, running + hiking): Cloudflare's managed AI block (`User-agent: ClaudeBot` / `Disallow: /`)
 found on 3: Sports Experts (off), Garage Grown Gear (hiking; last good read Oct 27) and Kelty (hiking; never on the site). The hiking reader now
 drops a store not read for 48 h (KEEP_HOURS), so both hiking stores stay off by themselves and come back if their robots.txt opens again.
+
+## Night shift Nov 5, 2026 (growth's job: 2-3 new stores)
+
+- **Added: Hettas** (Vancouver, women's running shoes): see the note above. Canada side + USA side (ships to both), 4 cards, 0 on sale today
+  (full price = watchable). Alma Speed typed race (its "race-day" plated shoe).
+- **Re-checked from GitHub's servers (store-finder.yml), still no answer (domains dead or moved), 23:** Second Sole, Brooklyn Running Co, Colorado
+  Running Company, Georgetown Running Company, See Jane Run, St. Pete Running Company, Shu's Idaho Running Co, Lincoln Running Company, Delaware
+  Running Company, Runners Route, Medved Running, Run For Your Life, Haddonfield Running Co, Bob Roncker's, Run 816, Runner's Edge, Running Wild,
+  Runner's Roost, Prairie Striders, Run In Columbia, Jacksonville Running Co, Ridgefield Running Company, North Wales Running Co.
+  Heart & Sole (heartandsolesports.com) answers but isn't Shopify. Next step for these: find each shop's current web address by hand.
+- **Holabird Sports** (US): products.json and collection feeds still switched off (404), product .js too; only its sitemap + product pages are
+  open: a product-page reader would mean thousands of page visits a night. Waits (or an affiliate feed: Holabird is on AvantLink).
+- **Independence Run & Hike, Runner's Market**: WooCommerce Store API still closed (404 "no route").
+- **Salt Lake Running Co (slrc.com) and Dick Pond Athletics**: BigCommerce; robots.txt allows product pages for AI crawlers with **Crawl-delay 10**
+  (SLRC); SLRC = 1,198 products -> ~3.3 h per full read: needs a night reader read slice by slice over ~3 nights (like Fleet Feet). Proposed as
+  its own job (per-size stock check needed first).
+

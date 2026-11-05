@@ -3388,6 +3388,7 @@ def scrape_catalog_others():
 # Each store is tested during the run: if it isn't Shopify, blocks us, or sells nothing running-related,
 # it is skipped and noted in the log. Currency is read from the store and converted to CAD.
 # kind: "gear" = classify each product; "food" = race-fuel brand; "socks" = sock brand; "eyewear" = sunglasses brand.
+CA_USD = {"hettas"}   # Nov 5: Canadian stores that price in USD (Hettas, Vancouver: meta.json country CA): they still ship from Canada
 SHOPIFY_STORES = [
     # Canadian running & outdoor shops (sell in CAD)
     ("vanrunco",       "https://vanrunco.com",               "gear"),   # Run As You Are / Vancouver Running Co.
@@ -3442,6 +3443,7 @@ SHOPIFY_STORES = [
     ("fauxmouvement",  "https://fauxmouvement.ca",           "gear"),   # Faux Mouvement (Québec City running shop, Oct 20)
     ("borealrunning",  "https://borealrunning.com/en",        "gear"),
     ("praise",         "https://praiseendurance.com",        "gear"),   # Praise Endurance (Montréal running apparel brand, Oct 20)
+    ("hettas",         "https://hettas.com",                 "gear"),   # Hettas (Vancouver women's running shoes; sells in USD, ships CA + US; in stock since Nov 2026)
     ("foveo",          "https://foveo.run",                  "gear"),   # Foveō Running (Courtenay BC, Vancouver Island; Oct 20)
     ("33off",          "https://33-off.com",                 "gear"),   # 33-Off (Sherbrooke QC outlet: nearly all on sale; colour in the name, Oct 20)   # Boréal Running (Saint-Augustin-de-Desmaures QC; English catalogue, Oct 20)
     ("aupiedsportif",  "https://aupiedsportiflaval.com",     "gear"),   # Au Pied Sportif Laval (QC shoes; vendor = the store, brand from the name, Oct 20)
@@ -3890,6 +3892,10 @@ def make_shopify_scraper(st, base, kind):
                      and not re.search(r"\b(NMD|Ozweego|Oztral|X_?PLR ?Boost|Run 70s|Swift Run)\b", p.get("title") or "", re.I)]
         if st in ("boutiquedulac", "fauxmouvement", "aupiedsportif", "borealrunning", "33off", "foveo"):
             prods = qc_prods(st, prods)
+        if st == "hettas":   # Nov 5: Hettas (Vancouver) sells only women's running shoes; its newest shoe (Cambie) has no product type
+            for p in prods:
+                if not (p.get("product_type") or "").strip() and not re.search(r"gift card|\btee\b", p.get("title") or "", re.I):
+                    p["product_type"] = "Shoe"
         fx = fx_to_cad(cur)
         print(f"  {st}: {len(prods)} products, store {home}, prices in {cur}" + (f" x{fx}" if cur != "CAD" else ""), file=sys.stderr)
         items = shopify_items(st, base, prods, generic_group(kind), fx=fx, size_aware=True, collapse=True,
@@ -3901,9 +3907,13 @@ def make_shopify_scraper(st, base, kind):
         if st == "paragon":
             for o in items:
                 o["g"] = "shoes"       # only its footwear is read ("AERO GLIDE 4" isn't Body Glide)
+        if st == "hettas":
+            for o in items:
+                if o["g"] == "shoes" and not re.search(r"women|men's", o["n"], re.I):
+                    o["n"], o["sx"] = o["n"] + " - Women's", ["women"]
         for o in items:
-            o["ca"] = home == "CAD"         # a store based in CAD ships from Canada; USD/EUR/GBP stores are cross-border
-            o["us"] = home == "USD"         # ships from the US (the USA side's "Ships from the US")
+            o["ca"] = home == "CAD" or st in CA_USD         # a store based in CAD ships from Canada; USD/EUR/GBP stores are cross-border
+            o["us"] = home == "USD" and st not in CA_USD    # ships from the US (the USA side's "Ships from the US")
             if ships and "*" not in ships:  # the store's own shipping list ("*" = everywhere) leaves a country out: not shown on that side
                 o["no_ca"], o["no_us"] = "CA" not in ships, "US" not in ships
         if ships and "*" not in ships and ("CA" not in ships or "US" not in ships):
@@ -4171,7 +4181,7 @@ TYPES = {
 #   daily  everything else: road shoes for everyday and long runs (cushioned, stability)
 # Order matters (first match wins). Colour names are cut off first ("GT-2000 — Winter Sea" is not a winter shoe).
 TYPES["shoes"] = [
-    ("race", r"phantasm|s/lab pulsar|aero blaze(?!.*grvl)"),      # Salomon's road racers ("S/Lab" otherwise means trail); Oct 29: Aero Blaze GRVL = trail
+    ("race", r"phantasm|s/lab pulsar|aero blaze(?!.*grvl)|alma speed"),   # Nov 5: Hettas Alma Speed = its "race-day" plated shoe      # Salomon's road racers ("S/Lab" otherwise means trail); Oct 29: Aero Blaze GRVL = trail
     # winter trail shoes with ice studs ("Speedgoat GTX Spike", "Norda G+ Spike") and "Norvan LD" (long distance) are trail
     ("trail", r"norvan|speedgoat.*spike|norda|\bg\+|carbide|cross spike|mtn racer|\bice\b"),
     ("spike", r"spikes?\b(?<!cross spike)|\bpointes?\b|\bxc\d*\b|\bm?xcs\d|\bwxcs|zoom rival|\bavanti\b|sprintstar|evospeed|"
