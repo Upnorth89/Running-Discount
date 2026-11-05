@@ -128,6 +128,7 @@ Backend was applying 3 last wording fixes and pushing Nov 5. Spot-check the live
 - Reddit: r/ultrarunning dropped Nov 4 (no traction). The Reddit rotation continues Mon/Wed/Fri.
 
 ## Scheduled tasks (moved to the new growth chat Nov 5)
+- Night shift 0:23am (5-10 growth + backend jobs a night; docs/night-shift.md; Bastien Nov 5).
 - Daily improvement round 5:43am.
 - Nightly SEO push 1:07am.
 - Reddit rotation Mon/Wed/Fri 6:15am.
