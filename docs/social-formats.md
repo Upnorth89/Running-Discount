@@ -44,6 +44,12 @@ Prices are re-checked on the store's own page (livecheck) the day it's posted. M
 - Timing: card 13 s (he talks), fade 0.5 s at 12.5 s, end card (logo + LINK IN BIO) 3.5 s. Total 16 s.
 - First made for the Thule Urban Glide 3 Single (Bushtukah, $449.98, was $899.95; livechecked Nov 5 13:30 UTC). Files: out/stroller-en.mp4, out/stroller-fr.mp4 (not committed).
 
+## 2c. Sticker card (Nov 5, Bastien: "a picture of the stroller with massive sticker on it")
+- Template: docs/formats/one-item-sticker.html (?l=en|fr &s=b|c). White panel, product photo big, a tilted green round sticker (site stamp
+  style) with "HALF PRICE / $449.98 / was $899.95" (FR « MOITIÉ PRIX / 449,98 $ / au lieu de 899,95 $ »), name + kind · colour · store + CA badge at the bottom.
+- The sticker carries the NUMBER, never a slogan ("pay less run more" gives no reason to stop; concrete beats clever).
+- Same timing as 2b (13 s talk + 3.5 s logo end). Cover = the card moved down so the 4:5 grid crop shows it whole (panel pasted at y=309).
+
 ## 3. Green screen (how Bastien films)
 - **Background:** Instagram Reels → Effects → Green Screen → pick the video. Or CapCut: video first, his clip on top
   → Remove background / Chroma key.
@@ -59,7 +65,16 @@ Prices are re-checked on the store's own page (livecheck) the day it's posted. M
 Screen recordings of the site with safe bands, payoff first (CLAUDE.md "Instagram Reels"). These are the automatic weekly kit only.
 The hand-made deal videos above are separate.
 
+## Caption style (keep it; Bastien Nov 5: "We've had a style of posts. With the Fox emoji etc")
+From scraper/ig_reel.py `script()`: one hook sentence with the facts + 👀; one line on how the site works ("Heart anything on The Gear Fox and we watch
+the price for you, in your size, at 80+ Canadian stores. Free. Link in bio 🦊"); "Prices can change: check the store before you buy."; blank line;
+5 lowercase hashtags (EN e.g. #runcanada #trailrunning #runningdeals + 2 for the item; FR #course #courseapied #coureur #quebecrunning #aubaines style).
+FR = Québec, tutoiement, casual ("pis", "fait que"). Store count from today's data (Canadian stores ~83 on Nov 5).
+
 ## Things to remember
+- RULE (Nov 5, Bastien): every social piece goes through the marketing team (social-producer + cmo, designer for visuals, compliance for words) before it reaches him.
+- Instagram posts are ENGLISH ONLY (Bastien, Nov 5: "Im only posting in English"): make EN video files + EN caption only. FR stays on the site/emails.
+- Reaction open (Nov 5): ~1 s genuine "wait, what?" face full screen, then he shrinks bottom-right (never over the sticker/price, above the bottom 400 px band). Cover stays the card, not his face.
 - Bastien is a new dad (Nov 2026). Compliance-approved hook: "New dad here." FR: « Je viens d'être papa. » Never imply he owns
   the product.
 - The demo profile is his sizes: men's 11, clothing M.
