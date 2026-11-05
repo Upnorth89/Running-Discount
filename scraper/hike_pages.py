@@ -88,7 +88,7 @@ S = {
                hubGo="Quoi apporter →", groups={"ca": "Canada", "us": "États-Unis"},
                otherSide="Vous magasinez aux États-Unis? Cette liste avec les boutiques américaines →"),
 }
-S["us"] = dict(S["en"], dir="us/hikes", desc="What to bring for {name} ({where}): the 10 essentials and what this trail adds, with today's best prices in your size at US stores.",
+S["us"] = dict(S["en"], dir="us/hikes", title="{name} gear list: what to bring (US stores)", hubTitle="Trail gear lists: what to bring for {n} hikes (US stores)", desc="What to bring for {name} ({where}): the 10 essentials and what this trail adds, with today's best prices in your size at US stores.",
                otherSide="Shopping in Canada? This list with Canadian stores →")
 # Oct 26 (Bastien: "include formula for calories per day consumed depending on hours hiked and weight on back"): the food box.
 # Oct 26 (Bastien: "switch to most accurate and up to date formula"): the US Army's Load Carriage Decision Aid (LCDA; Looney et al.,

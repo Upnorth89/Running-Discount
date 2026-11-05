@@ -396,6 +396,31 @@ def main():
         return f"{n} language links, every one answered by its twin"
     step("Language twins (hreflang) name each other back", hreflang)
 
+    def twin_titles():   # Nov 5 (SEO S4): twins (pages that name each other in hreflang) never share a <title>: each says its side
+        rx = re.compile(r'<link rel="alternate" hreflang="([^"]+)" href="https://thegearfox.com(/[^"]*)">')
+        title = lambda t: (re.search(r"<title>(.*?)</title>", t, re.S) or [None, ""])[1].strip()
+        bad, n = [], 0
+        for f in site.rglob("index.html"):
+            if f.parent == site:
+                continue
+            t = f.read_text(errors="ignore")
+            if 'http-equiv="refresh"' in t:
+                continue
+            me, mt = "/" + str(f.parent.relative_to(site)) + "/", title(t)
+            for h, u in rx.findall(t):
+                if h == "x-default" or u <= me:      # each pair once
+                    continue
+                g = site / u.strip("/") / "index.html"
+                if not g.exists():
+                    continue
+                n += 1
+                if mt and title(g.read_text(errors="ignore")) == mt:
+                    bad.append(f"{me} + {u}: '{mt[:60]}'")
+        if bad:
+            raise RuntimeError(f"{len(bad)} twin pairs share a title, e.g. " + " | ".join(bad[:4]))
+        return f"{n} twin pairs, every title different"
+    step("Language twins have different titles (SEO)", twin_titles)
+
     def salerow():   # Nov 4 (SEO L2/L3, Bastien OK'd): every running model page links its kind hub + the season's pages
         sys.path.insert(0, str(ROOT / "scraper"))
         import shoe_pages as SPg

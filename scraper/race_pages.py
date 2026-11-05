@@ -1434,7 +1434,7 @@ S = {
     },
 }
 
-S["us"] = dict(S["en"], dir="us/races", desc="The {name} mandatory gear list for the {dists}, item by item, with today's best prices on each in your size at US stores.",
+S["us"] = dict(S["en"], dir="us/races", title="{name} mandatory gear list ({short} {dists}), US stores", desc="The {name} mandatory gear list for the {dists}, item by item, with today's best prices on each in your size at US stores.",
                otherSide="Shopping in Canada? This list with Canadian stores →")
 
 # Oct 27: races whose whole list is suggested (Sinister Sports: "no mandatory gear" but the bib and chip it hands out)
@@ -1452,7 +1452,7 @@ SUG = {
            "qList": "Y a-t-il du matériel obligatoire pour {les}{short} {d}?", "aList": "Non. La course suggère : {items}.",
            "aOnly": "Seulement ce que la course vous remet ({prov}). Tout le reste est suggéré : {items}."},
 }
-SUG["us"] = dict(SUG["en"], desc="The gear {thename}{name} suggests for the {dists}, item by item (none of it required), with today's best prices on each in your size at US stores.")
+SUG["us"] = dict(SUG["en"], title="{name} gear list: what the race suggests ({short} {dists}), US stores", desc="The gear {thename}{name} suggests for the {dists}, item by item (none of it required), with today's best prices on each in your size at US stores.")
 
 
 def twins(head, slug, race):
@@ -2163,7 +2163,7 @@ HUB = {
            "go": "Liste du matériel obligatoire →", "goS": "Liste du matériel suggéré →", "dists": "{d} km",
            "find": "Trouvez votre course : nom, lieu ou pays", "findNone": "Aucune course ne correspond à « {q} » pour l'instant. Dites-nous laquelle : hello@thegearfox.com"},
 }
-HUB["us"] = dict(HUB["en"], desc="Gear lists for trail and ultra races, mandatory or suggested, item by item, with today's best prices in your size at US stores.")
+HUB["us"] = dict(HUB["en"], title=HUB["en"]["title"] + " (US stores)", desc="Gear lists for trail and ultra races, mandatory or suggested, item by item, with today's best prices in your size at US stores.")
 HUB["en"]["groups"] = HUB["us"]["groups"] = {"ca": "Canada", "us": "United States", "fr": "France", "it": "Italy", "ch": "Switzerland",
                                              "de": "Germany", "at": "Austria", "si": "Slovenia", "au": "Australia", "nz": "New Zealand"}
 HUB["fr"]["groups"] = {"ca": "Canada", "us": "États-Unis", "fr": "France", "it": "Italie", "ch": "Suisse", "de": "Allemagne", "at": "Autriche", "si": "Slovénie",
