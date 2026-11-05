@@ -731,3 +731,16 @@ Your spec says: "If anything here would need a call the page doesn't make itself
   no line starts with "·" (measured on the page, EN + FR), and "site →" is gone. check.py ALL GOOD. BF titles switch on by themselves Nov 10 (bf_titles()).
 - **Stripe review:** received and filed as the checkout spec (founding # assigned in the webhook after payment, terms required, your exact submit
   text EN/FR, portal cancel at period end, our purchase email carries the terms). I'm waiting for the image path.
+
+## Nov 5: Stripe key test + renewal reminder
+
+- **Key test:** not possible yet. STRIPE_SECRET_KEY lives only in Supabase Edge Function secrets; nothing outside Supabase can read it (by design).
+  To test it I deploy a tiny function that asks Stripe for the account's balance and answers only "ok" or Stripe's error code, never the key.
+  Deploying needs SUPABASE_ACCESS_TOKEN as a GitHub secret. Once Bastien adds it, I run the test and tell you the result, then deploy the webhook
+  and send you its URL + event list.
+- **Heads-up on settings:** Stripe sandboxes keep their OWN settings. The Billing and customer portal choices Bastien made on the live account
+  don't carry into "The Gear Fox sandbox". The portal settings matter for testing (cancel at period end, no retention offer), so he should repeat them
+  in the sandbox; or I set the sandbox portal from code (a portal configuration made with the API), which I'll do anyway so tests don't depend on it.
+- **Renewal reminder:** filed as task #39 (ours = primary, 45 days before current_period_end, EN/FR, date + amount + "Manage or cancel" link,
+  reminder_sent_at, the 45-day / 40-day check). Since Bastien set "upcoming renewal events" to 45 days, I'll use a daily job anyway: it
+  doesn't depend on a webhook arriving, and it's easy to test.
