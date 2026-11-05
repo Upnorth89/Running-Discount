@@ -32,9 +32,8 @@ Done:
 - Sandbox secret key saved in Supabase > Edge Functions > Secrets as STRIPE_SECRET_KEY.
 
 To do:
-1. SUPABASE_ACCESS_TOKEN (GitHub secret). Supabase's new fine-grained token screen ("Preset · No access" + 5 folded groups)
-   confused him and we stopped. Backend was asked for the exact minimum boxes as a click list. Give it to him only when
-   backend's code is ready to deploy. Fallback: he pastes the functions in the dashboard once.
+1. DONE Nov 5: SUPABASE_ACCESS_TOKEN saved as a GitHub secret (Supabase token "github-deploy", project TheGearFox only:
+   Project Settings Read, Edge Functions + Edge Function Secrets Read-write). EXPIRES 2027-11-04: renew before. Backend told to run the key test.
 2. Public details. Check they're filled:
    - statement descriptor THEGEARFOX.COM;
    - support hello@thegearfox.com;
