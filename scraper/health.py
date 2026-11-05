@@ -355,7 +355,8 @@ def coverage_check():
         listed, read = x.get("listed") or 0, x.get("read") or 0
         parts.append(f"{st} {read:,} of {listed:,}")
         if (listed and read < listed * 0.97) or x.get("note"):
-            probs.append((f"coverage:{st}", f"{st}: the store lists {listed:,} running products, we read {read:,}"
+            what = "feed files" if st == "runningroom" else "running products"   # Running Room's coverage counts its feed files (Nov 5)
+            probs.append((f"coverage:{st}", f"{st}: the store lists {listed:,} {what}, we read {read:,}"
                           + (f" ({x['note']})" if x.get("note") else "") + ". Deals may be missing: Claude should look."))
     return (f"- Store coverage (what each store lists vs what we read): {', '.join(parts)}\n" if parts else ""), probs
 

@@ -213,6 +213,7 @@ def eu_only(label):
 # media/ai/products_N.json, rebuilt ~5am daily): one record per size with price, sale price, stock, photo and a link that opens
 # that colour and size. Walking Room (its walking/casual shop, tax classes "9xx WR"), sandals, kids, swim and books are left out.
 RR_FEED = "https://ca.shop.runningroom.com/media/sitemap/ai_feed_sitemap.xml"
+PREV_OFFERS = {}      # last run's raw offers per store (main() fills it)
 RR_GROUP = {range(111, 127): "bottoms", range(131, 145): "tops", range(153, 155): "bottoms", range(155, 156): "bras",
             range(222, 223): "headwear", range(223, 224): "gear", range(224, 225): "gloves", range(225, 226): "headwear",
             range(229, 230): "gear", range(230, 240): "nutrition", range(242, 246): "socks", range(281, 282): "gear",
@@ -239,24 +240,34 @@ def scrape_runningroom():
     sm = S.get(RR_FEED, timeout=60)
     if sm.status_code != 200:
         raise RuntimeError(f"Running Room feed: HTTP {sm.status_code}")
-    recs = []
+    recs, bad = [], []
     urls = re.findall(r"<loc>([^<]+/products_\d+\.json)</loc>", sm.text)
     for u in urls:
         # Oct 12: asked for gzip, Running Room's server sometimes sends a file cut short (19 KB instead of 2 MB, no
         # content-encoding) and the whole store failed; uncompressed it comes back whole. Oct 18: still 19 KB twice
         # 10 s apart (the file was being rebuilt that morning; whole again later), so retries wait up to ~6 min in all.
+        # Nov 5 (growth: the store failed the morning read): products_21.json was a 19 KB JPEG picture under that name (the same
+        # 19 KB as Oct 12/18), so retrying can't help. A picture gets one retry; a file still unreadable is SKIPPED and the other
+        # files are used (the store fails only when 3+ files are bad or the read drops 20%+; products of the bad file keep their
+        # last offer for KEEP_HOURS, below).
+        name = u.rsplit('/', 1)[-1]
         for attempt, wait in enumerate((10, 60, 120, 180), 1):
             r = S.get(u, timeout=180, headers={"Accept-Encoding": "identity"})
             if r.status_code != 200:
-                raise RuntimeError(f"Running Room feed file {u.rsplit('/', 1)[-1]}: HTTP {r.status_code}")
+                raise RuntimeError(f"Running Room feed file {name}: HTTP {r.status_code}")
             try:
                 recs += r.json()
                 break
             except ValueError:
-                if attempt == 4:
-                    raise RuntimeError(f"Running Room feed file {u.rsplit('/', 1)[-1]}: not readable ({len(r.content)} bytes)")
+                pic = r.content[:3] in (b"\xff\xd8\xff", b"\x89PN", b"GIF", b"RIF") or "image" in r.headers.get("Content-Type", "")
+                if attempt == 4 or (pic and attempt == 2):
+                    bad.append(f"{name} ({len(r.content)} bytes{', a picture' if pic else ''})")
+                    print(f"  runningroom: feed file {name} not readable ({len(r.content)} bytes{', a picture' if pic else ''}): skipped", file=sys.stderr)
+                    break
                 time.sleep(wait)
         time.sleep(2)
+    if len(bad) >= 3 or (urls and len(bad) == len(urls)):
+        raise RuntimeError(f"Running Room feed: {len(bad)} of {len(urls)} files not readable ({', '.join(bad)})")
     offers, unknown = {}, collections.Counter()
     for p in recs:
         a = p.get("attributes") or {}
@@ -316,7 +327,30 @@ def scrape_runningroom():
         out.append(o)
     print(f"  runningroom: {len(recs)} feed records -> {len(out)} products", file=sys.stderr)
     new = {c: n for c, n in unknown.items() if n >= 20}
-    save_coverage("runningroom", len(urls), len(urls), ("new product codes we don't read yet: " + ", ".join(f"{c} ({n} sizes)" for c, n in sorted(new.items()))) if new else "")
+    note = ("new product codes we don't read yet: " + ", ".join(f"{c} ({n} sizes)" for c, n in sorted(new.items()))) if new else ""
+    if bad:
+        # Nov 5: products that only lived in the skipped file keep their last offer (same colour photo = same product), each for
+        # KEEP_HOURS from when it was first kept (`_kept`), then they leave until the file reads again.
+        prev = [o for o in PREV_OFFERS.get("runningroom", []) if o.get("img")]
+        if prev and len(out) < 0.8 * len(prev):
+            raise RuntimeError(f"Running Room feed: {len(bad)} of {len(urls)} files not readable and only {len(out)} products read (had {len(prev)})")
+        seen, now = {o["img"] for o in out}, dt.datetime.now(dt.timezone.utc)
+        kept = 0
+        for o in prev:
+            if o["img"] in seen:
+                continue
+            first = o.get("_kept") or now.isoformat(timespec="seconds")
+            try:
+                if (now - dt.datetime.fromisoformat(first)).total_seconds() > KEEP_HOURS * 3600:
+                    continue
+            except ValueError:
+                pass
+            out.append(dict(o, _kept=first))
+            kept += 1
+        print(f"  runningroom: kept {kept} products from the skipped file(s) (last good offer)", file=sys.stderr)
+        note = (f"feed file {', '.join(bad)} unreadable (the store's own file), {len(urls) - len(bad)} of {len(urls)} read; "
+                f"{kept} products kept from the last read" + ("; " + note if note else ""))
+    save_coverage("runningroom", len(urls), len(urls) - len(bad), note)
     return out
 
 
@@ -5146,6 +5180,7 @@ def main():
             return {}
     prev = load(OUT)
     prev_offers = load(OUT.parent / "offers.json")   # yesterday's raw per-store listings, for fallback
+    PREV_OFFERS.update(prev_offers)                  # Nov 5: Running Room keeps a skipped feed file's products from these
     stamps, offers, failed, raw, why = dict(prev.get("stores", {})), [], [], {}, {}
     data_at = dict(prev.get("data_at", {}))     # Nov 2: when each night-copy store's data was made (KEEP_HOURS counts from it)
     def run(st, fn):
