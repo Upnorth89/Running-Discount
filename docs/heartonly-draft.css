@@ -1,0 +1,7 @@
+/* heart-only Watch: heart in the photo corner, ⋯ moves to the footer */
+html.hrt .rdc .heart{top:8px!important;right:8px!important;left:auto!important;bottom:auto!important;width:40px!important;min-width:40px!important;height:40px!important;padding:0!important;border-radius:50%!important;background:#fff!important;border:0!important;box-shadow:0 0 0 1px #DDD8CE!important;display:flex!important;align-items:center;justify-content:center}
+html.hrt .rdc .heart .hl{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;white-space:nowrap}
+html.hrt .rdc .heart svg{width:21px!important;height:21px!important}
+html.hrt .rdc .rep{top:auto!important;bottom:0!important;right:0!important}
+html.hrt .rdc .deal,html.hrt .rdc.hascmp .deal{padding-bottom:40px!important}
+html.hrt .rdc .cmp{bottom:8px!important;left:0!important}

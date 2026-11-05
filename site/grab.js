@@ -139,7 +139,7 @@
       const pi = cat.pageInfo || {};
       const said = (pi.lastPage || {}).value || pi.totalPages || (pi.total && pi.pageSize ? Math.ceil(pi.total / pi.pageSize) : 0) || 0;
       const urls = new Map();
-      const add = p => { let fresh = 0; for (const [k, v] of Object.entries(p.__APOLLO_STATE__ || {})) if (k.startsWith("Product:") && v.url && !/stroller|kids'|\bkids\b|toddler/i.test(v.name || "")) { if (!urls.has(v.url)) fresh++; urls.set(v.url, (urls.get(v.url) || 0) + (((v.aggregates || {}).variationsOnSale || 0) > 0 ? 1 : 0)); } return fresh; };
+      const add = p => { let fresh = 0; for (const [k, v] of Object.entries(p.__APOLLO_STATE__ || {})) if (k.startsWith("Product:") && v.url && !/kids'|\bkids\b|toddler|car ?seat|bassinet|\b(travel|umbrella|city) strollers?\b/i.test(v.name || "")) { if (!urls.has(v.url)) fresh++; urls.set(v.url, (urls.get(v.url) || 0) + (((v.aggregates || {}).variationsOnSale || 0) > 0 ? 1 : 0)); } return fresh; };
       add(first);
       let param = null;
       for (let n = 2; n <= 150; n++) {

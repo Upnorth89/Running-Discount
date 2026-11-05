@@ -116,8 +116,16 @@ try{KEY=localStorage.getItem("gf-stats-key")}catch(e){}
 const pct=(a,b)=>b?Math.round(100*a/b)+"%":"–",fmt=n=>Math.round(n||0).toLocaleString("en-CA");
 async function load(){
   if(window.DEMO_BY)return window.DEMO_BY[DAYS];
-  const r=await fetch(SB+"/rest/v1/rpc/ana_dashboard",{method:"POST",headers:{apikey:PK,"Content-Type":"application/json"},body:JSON.stringify({p_key:KEY,p_days:DAYS})});
-  if(!r.ok)throw new Error("key");return r.json()}
+  // Nov 4 (Bastien: the key worked 1 try in 2-3): only Postgres' own "wrong key" (P0001) means a bad key; a timeout (57014)
+  // or a server hiccup is retried twice, with "Taking long, trying again…" on screen
+  for(let i=0;;i++){let r=null,j=null;
+    try{r=await fetch(SB+"/rest/v1/rpc/ana_dashboard",{method:"POST",headers:{apikey:PK,"Content-Type":"application/json"},body:JSON.stringify({p_key:KEY,p_days:DAYS})})}catch(e){}
+    if(r&&r.ok)return r.json();
+    if(r){try{j=await r.json()}catch(e){}}
+    if(j&&j.code==="P0001")throw new Error("key");
+    if(i>=2)throw new Error("slow");
+    $("keyErr").textContent="Taking long, trying again…";$("keyErr").hidden=false;
+    await new Promise(ok=>setTimeout(ok,1500*(i+1)))}}
 function bars(el,items,label){const max=Math.max(1,...items.map(x=>x.n));
   $(el).innerHTML=items.length?items.map(x=>`<div class="brow"><span class="k" title="${E(x.k)}">${E(label?label(x.k):x.k)}</span><span class="t" style="width:${Math.max(1,100*x.n/max)}%"></span><span class="n">${fmt(x.n)}${x.extra?" · "+x.extra:""}</span></div>`).join(""):`<p class="muted">Nothing yet.</p>`}
 const PREV=()=>DAYS===1?"the 24 hours before":"previous "+DAYS+" days";
@@ -232,9 +240,17 @@ function render(d){
 }
 async function go(){
   if(!KEY&&!window.DEMO_BY){$("keybox").hidden=false;$("dash").hidden=true;return}
-  try{const d=await load();$("keybox").hidden=true;$("dash").hidden=false;members();render(d)}
-  catch(e){$("keybox").hidden=false;$("dash").hidden=true;$("keyErr").hidden=!KEY}}
-$("keyGo").addEventListener("click",()=>{KEY=$("keyIn").value.trim();try{localStorage.setItem("gf-stats-key",KEY)}catch(e){}go()});
+  try{const d=await load();$("keyErr").hidden=true;$("keybox").hidden=true;$("dash").hidden=false;members();render(d)}
+  catch(e){if(e.message==="slow"&&!$("dash").hidden)return;   // the 1-minute refresh: keep what's on screen
+    if(e.message==="slow"){   // Nov 4: the saved key stays; one tap tries again with it (the key box only for a real "wrong key")
+      $("keybox").hidden=false;$("dash").hidden=true;$("keyIn").hidden=true;$("keyGo").textContent="Try again";
+      $("keyErr").textContent="The database is slow right now. Your key is fine: tap Try again.";$("keyErr").hidden=false;return}
+    $("keyIn").hidden=false;$("keyGo").textContent="Open the dashboard";
+    $("keyErr").textContent="That key didn't work. Check it and try again.";
+    $("keybox").hidden=false;$("dash").hidden=true;$("keyErr").hidden=!KEY}}
+$("keyGo").addEventListener("click",()=>{const v=$("keyIn").value.trim();   // Nov 4: an empty box never wipes the saved key
+  if(v&&!$("keyIn").hidden){KEY=v;try{localStorage.setItem("gf-stats-key",KEY)}catch(e){}}
+  if(KEY)go()});
 $("range").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;DAYS=+b.dataset.d;
   document.querySelectorAll("#range button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));go()});
 go();setInterval(()=>{if(!$("dash").hidden&&!window.DEMO_BY)go()},60000);

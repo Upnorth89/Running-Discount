@@ -462,7 +462,10 @@ try:
                          ("picked sizes", lambda s_, b: "sizes-saved" in s_["kinds"]),
                          ("clicked a store or picked sizes", lambda s_, b: "deal-click" in s_["kinds"] or "sizes-saved" in s_["kinds"]),
                          ("clicked a store", lambda s_, b: "deal-click" in s_["kinds"])):
-            for who, keep in (("everyone", lambda s_: True), ("picked sizes", lambda s_: "sizes-saved" in s_["kinds"])):
+            whos = [("everyone", lambda s_: True), ("picked sizes", lambda s_: "sizes-saved" in s_["kinds"])]
+            if tname == "cards2":     # Nov 4 (growth): B only shows on phones (380-699px), so judge it on phones; events carry dev, not width
+                whos.append(("phones only", lambda s_: s_.get("dev") == "phone"))
+            for who, keep in whos:
                 A = [f(s_, b) for s_, b in g["A"] if keep(s_)]
                 B = [f(s_, b) for s_, b in g["B"] if keep(s_)]
                 if A and B:

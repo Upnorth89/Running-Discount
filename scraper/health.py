@@ -56,6 +56,8 @@ PARKED = {"adidasca", "catalog"}   # catalog-file stores Bastien let go (Oct 30)
 OFF_STORES = {}
 if re.search(r"^SPORTSEXPERTS_ON = False", _SCRAPE, re.M):
     OFF_STORES["sportsexperts"] = "Sports Experts (its robots.txt blocks ClaudeBot since Nov 2)"
+if re.search(r"^SPORTCHEK_ON = False", _SCRAPE, re.M):
+    OFF_STORES["sportchek"] = "Sport Chek (its data service answers HTTP 403 since Nov 4)"
 PARKED |= set(OFF_STORES)
 SAVED = {"mec", "rei", "adidasca"}   # (Sport Chek read live since Oct 13)       # (SVP parked Oct 6)      # stores read from pages you save by hand (their sites block automated access)
 

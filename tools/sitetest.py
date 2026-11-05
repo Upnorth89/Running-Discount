@@ -599,7 +599,7 @@ def site_flow(base, per, accented):
 
         def watch_label():   # Oct 11: cards say "Watch price" (the small heart alone was used by 5 people in 3 weeks)
             labels = page.eval_on_selector_all("section.grp .heart .hl", "e => e.map(x => x.textContent)")
-            ok = ("Watch price", "Watching") + (("Watch",) if page.evaluate("document.documentElement.classList.contains('cards2')") else ())   # test cards2 B: "Watch" (Bastien OK'd, Oct 25)
+            ok = ("Watch price", "Watching")
             assert labels and all(x in ok for x in labels), f"cards' watch buttons say {set(labels)}"
             return f"{len(labels)} cards"
         check("Cards have a 'Watch price' button")(watch_label, page)
@@ -831,32 +831,6 @@ def site_flow(base, per, accented):
             return "6 choices, 2 ticked and saved, card closes after Send"
         check("Fox Pro waitlist: what would you use most?")(pro_poll, page)
 
-        def compact_cards():   # Oct 25 (Bastien: "more items would be better on a screen"): test 'cards2' B = slimmer two-per-row phone cards,
-            # last line = your size / "S/M/L" on the left + "♡ Watch" on the right, 6 top deals; A = as before
-            out = {}
-            for arm in ("B", "A"):
-                page.goto(base + f"?exp=cards2:{arm}", wait_until="domcontentloaded")
-                page.wait_for_selector("section.grp .deal", timeout=20000)
-                page.wait_for_timeout(600)
-                out[arm] = page.evaluate("""() => {const cs = [...document.querySelectorAll('#dealList section.grp:not(.new) .rdc')].slice(0, 12);
-                  const hit = (a, b) => { if (!a || !b) return false; const x = a.getBoundingClientRect(), y = b.getBoundingClientRect();
-                    return x.left < y.right - 1 && y.left < x.right - 1 && x.top < y.bottom - 1 && y.top < x.bottom - 1 };
-                  return {on: document.documentElement.classList.contains('cards2'), top: document.querySelectorAll('#grp-__sale .rdc').length,
-                    h: Math.round(cs.reduce((t, c) => t + c.getBoundingClientRect().height, 0) / Math.max(1, cs.length)),
-                    labels: [...new Set(cs.map(c => (c.querySelector('.heart .hl') || {}).textContent))],
-                    over: cs.filter(c => [...c.querySelectorAll('.yoursz,.sztxt,.cmp,.rdrep,.store,.price')].some(e => hit(e, c.querySelector('.heart')))).length,
-                    boxes: cs.filter(c => c.querySelector('.szrow')).length, wide: document.documentElement.scrollWidth > innerWidth}}""")
-            page.evaluate("() => {const o = JSON.parse(localStorage.getItem('gf-exp') || '{}'); delete o.cards2; localStorage.setItem('gf-exp', JSON.stringify(o))}")
-            b, a = out["B"], out["A"]
-            assert b["on"] and not a["on"], f"group switch didn't apply: {out}"
-            assert b["top"] == 6 and a["top"] == 4, f"top deals shown: B {b['top']}, A {a['top']} (should be 6 and 4)"
-            assert set(b["labels"]) <= {"Watch", "Watching"} and set(a["labels"]) <= {"Watch price", "Watching"}, f"watch labels B {b['labels']}, A {a['labels']}"
-            assert not b["over"], f"B: on {b['over']} cards the last line runs into 'Watch'"
-            assert not b["boxes"], f"B: {b['boxes']} cards still show size boxes"
-            assert not b["wide"], "B: the page is wider than the phone"
-            assert b["h"] < a["h"] * 0.85, f"B cards aren't slimmer: {b['h']}px vs {a['h']}px"
-            return f"B {b['h']}px a card (A {a['h']}px), 6 top deals, size + Watch on one line, no overlaps"
-        check("Compact phone cards (test cards2)")(compact_cards, page)
 
         def your_size_line():   # Oct 23 (Bastien OK'd): cards say "✓ Size 11 in stock" instead of a row of size chips
             lines = page.eval_on_selector_all("section.grp:not(.new) .deal .yoursz", "e => e.map(x => x.textContent)")
@@ -1252,7 +1226,7 @@ def site_flow(base, per, accented):
                 got = q.evaluate("""() => {const vis = el => !!el && el.getClientRects().length > 0, txt = s => [...document.querySelectorAll(s)].filter(vis).map(x => x.textContent).join(' ');
                   const cards = [...document.querySelectorAll('#dealList section.grp:not(.new) .dw')].slice(0, 6);
                   return {
-                    '"Watch price" in words on cards': cards.length > 0 && cards.every(w => /watch price|watching/i.test(w.querySelector('.heart')?.innerText || '') || (document.documentElement.classList.contains('cards2') && /^\W*watch$/i.test((w.querySelector('.heart')?.innerText || '').trim()))),
+                    '"Watch price" in words on cards': cards.length > 0 && cards.every(w => /watch price|watching/i.test(w.querySelector('.heart')?.innerText || '')),
                     'your sizes shown': /11/.test(txt('#subhead,#sizeSummary,#ddSize,#rdQS,#rdBarZ')),
                     'sign-up card': !!document.querySelector('#dealList .signup'),
                     'search box': vis(document.getElementById('dSearch')),
@@ -2042,7 +2016,7 @@ def site_flow(base, per, accented):
             prof = ("localStorage.setItem('gf-peek','1');localStorage.setItem('gf-nosignup','1');localStorage.setItem('rd-profile',JSON.stringify({gender:'men',"
                     "terrain:'both',ships:'ca',country:'ca',groups:['shoes','tops','bottoms'],sizes:{shoes:{sizes:['11'],width:[]},tops:{sizes:['M']},"
                     "bottoms:{sizes:['M']}},brands:[],lang:'en'}))")
-            allb = "localStorage.setItem('gf-exp',JSON.stringify({r100:'B',run1st:'B',cards2:'B',short:'B',popq:'B',kit:'B',alts:'B',namecard:'B',watchsheet:'B',welcome:'A',layout:'A'}))"
+            allb = "localStorage.setItem('gf-exp',JSON.stringify({r100:'B',short:'B',popq:'B',kit:'B',alts:'B',namecard:'B',watchsheet:'B',welcome:'A',layout:'A'}))"
             paths = ["", "?lang=fr", "shoes/", "black-friday/", "running-shoes-sale/", "races/", "races/ultra-trail-harricana/", "about.html", "gifts-for-runners/"]
             if site_get("hikes/"):
                 paths.append("hikes/")
@@ -2360,24 +2334,6 @@ def site_flow(base, per, accented):
             return "shoe (EN/FR), sale list, races, Black Friday, About, Privacy: light pages, charcoal header, fit the phone"
         check("Every page has the homepage's look (phone in dark mode)")(one_look, pg)
 
-        def run1st():           # Oct 22, test 'run1st' (B): running gear leads Today's top deals; one store fills at most 2 of the first 12
-            c = br.new_context(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, ignore_https_errors=INSECURE, locale="en-CA")
-            stub(c)   # its own window: the next checks expect the shared page to stay where it was
-            c.add_init_script("""try{localStorage.setItem('gf-peek','1');localStorage.setItem('rd-profile',JSON.stringify({gender:'women',terrain:'both',ships:'ca',country:'ca',groups:['shoes','tops','bottoms','bras','socks','gloves','headwear','packs','gear','watches','nutrition'],sizes:{shoes:{sizes:['8'],width:[]},tops:{sizes:['S']},bottoms:{sizes:['S']}},brands:[],lang:'en'}))}catch(e){}""")
-            q = c.new_page()
-            q.goto(base + "?exp=run1st:B", wait_until="domcontentloaded")
-            q.wait_for_selector("#grp-__sale .deal", timeout=20000)
-            q.wait_for_timeout(600)
-            rows = q.evaluate("""() => [...document.querySelectorAll('#grp-__sale .dw')].slice(0, 12).map(w =>
-                [w.querySelector('.store') ? w.querySelector('.store').textContent.trim() : '', (w.querySelector('.name') || {}).textContent || ''])""")
-            c.close()
-            per = Counter(r[0] for r in rows)
-            assert rows, "no Top deals with test 'run1st' on"
-            assert max(per.values()) <= 2, f"one store fills {max(per.values())} of the first {len(rows)} top deals: {per.most_common(1)}"
-            gym = [n for _, n in rows[:6] if re.search(r"\b(training|hiit|studio|yoga|pilates|lounge)\b", n, re.I)]
-            assert not gym, f"gym/lifestyle in the first 6 with running gear first on: {gym}"
-            return f"{len(rows)} top deals from {len(per)} stores, max {max(per.values())} per store"
-        check("Test 'run1st': running gear first, max 2 per store")(run1st, pg)
 
         def every_button():     # Oct 22 (Bastien: "The view all brands button doesn't lead anywhere. How did you miss this"): every button and
             # link on the homepage's own sections is pressed once on a phone, and each must give ITS result (a first version only checked that

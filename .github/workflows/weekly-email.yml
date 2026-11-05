@@ -7,7 +7,7 @@ on:
   workflow_dispatch:         # "Run workflow" button for a test send
     inputs:
       send_to:
-        description: "Your email for a test (only you get it). everyone = all subscribers now. due = the normal Friday send (7am local, once each)."
+        description: "me = an EN + FR sample to the health inbox. Or your email for a test (only you get it). everyone = all subscribers now. due = the normal Friday send (7am local, once each)."
         required: true
         default: ""
 
@@ -32,5 +32,6 @@ jobs:
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           MAILING_ADDRESS: ${{ secrets.MAILING_ADDRESS }}
           SEND_TO: ${{ inputs.send_to }}
+          HEALTH_EMAIL: ${{ secrets.HEALTH_EMAIL }}
           HISTORY_FILE: /tmp/prices.jsonl
         run: python scraper/weekly_email.py

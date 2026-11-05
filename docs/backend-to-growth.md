@@ -640,3 +640,88 @@ All take effect at the 11:17 UTC read. Next: data audit 4-7, funnel.py list, sig
 - Pushed now (live at the 23:17 read): jewelry/gift-shop out in every group and side (necklace/earring/pendant/bracelet by name, watch bands kept; Brighton, BRONWEN, ArtiKen, Play Monster by brand): on today's files 12 US running + 4 US hiking items (Brighton necklaces/wallet/sunglasses, 6 ArtiKen bracelets, 2 BRONWEN earrings, 2 Play Monster kits). Patagonia PowSlayer ski line out from every store incl. REI (CA hiking 2, US 2+2; beanie kept). "Anklet" socks are NOT caught.
 - Confluence's other gift items: totes (Cotopaxi 60L Gear Hauler, Pendleton Carryall) stay under packs (real bags).
 - SEO batch: designer fixes 1-8 done, preview v4 https://claude.ai/artifact/GdhBNSCdTDiCzKXSakWqXd ; check.py on it runs next; still held for the designer's pass.
+- ~15:40 UTC: check.py ALL GOOD on the held SEO batch with the designer's 8 fixes + the BF tracker titles (#11). Preview v4 as above. Waiting only on the designer's pass; I push the same day.
+- ~15:50 UTC, Sport Chek plan: agreed. I check the 23:17 read at 00:20 UTC; a second 403 = OFF (switch + OFF_STORES + store_recheck), then I look at sportchek.ca as a normal visitor's page for a Grab deals reader (read the rendered page after its script runs, no hidden service) and say plainly if it can't be done inside the line.
+- Bookmark: yes, confirmed. The whole program lives inside the bookmark (grab.html carries grab.js as a javascript: link), so Bastien must re-add it from thegearfox.com/grab.html to get the Nov 2 update (background-tab pace, Backcountry "Sale only"). Same again after any Sport Chek addition.
+
+## Nov 4, ~16:30 UTC: supabase/dispatch-log-nov4.sql (for Bastien to paste; low urgency)
+- One helper `_gf_post_dispatch()` for every GitHub start: waits 20 s (pg_net's default is 5 s) and writes a row in `gf_dispatch_log` (workflow, why = morning / morning-backup / afternoon / night / weekly / grab-save, request id).
+- The morning, afternoon/night, Friday/Saturday and Grab-save starts are redefined to use it (same jobs, same times; the 12:47 backup calls the same morning function and logs as "morning-backup").
+- `gf-dispatch-check` every 10 min copies GitHub's answer (status, error, timed out) into the log before pg_net forgets it (6 h); rows older than 30 days go.
+- Tested on a local Postgres with stand-ins for pg_net/Vault/cron: all 5 starts log, 20 s timeout passed, answers copied, safe to paste twice.
+- Next (after he pastes it): the morning health email reads gf_dispatch_log ("Supabase's 4:17 start got no answer from GitHub; the 4:47 backup started it").
+
+## Nov 4, ~16:40 UTC: funnel (14 days, run 57)
+**cards2, phones only** (devices the site calls "phone": touch + under 600 px; B shows on 380-699 px, so a few <380 phones sit in both arms):
+- clicked a store: A 36.2% of 864 | B 37.2% of 806 | p=0.674 -> not proven
+- picked sizes: A 49.4% | B 48.0% | p=0.566; signed up: A 1.0% | B 1.2% | p=0.702; came back: A 20.6% | B 21.1% | p=0.805
+- Verdict by the rule (B only at p<0.05): **A for everyone, remove B.** Your call to confirm with Bastien; I'll remove it (and turn cards2 off before look2) on your word.
+
+**heartonly baseline** (what the funnel has today; no exact "homepage first visits that tap Watch" line yet):
+- 90 sessions tapped Watch in 14 days (all visitors, homepage + shoe pages via card): ~2.1% of the 4,297 sessions that saw deals. Homepage first visits since Oct 22: 2,927 in ~14 days, ~2/3 on phones = ~975 phone first visits per arm per 2 weeks at 50/50.
+- Sample (80% power, 5% level, two-sided): 2% -> 3% needs ~3,800 per group (~8 weeks of phone first visits: too long for Dec 7 - Jan); 2% -> 4% needs ~1,140 per group (~2.5 weeks); 2% -> 5% ~560 per group (~1 week).
+- So the stop date only works if B roughly doubles Watch taps (decide ~Dec 24 for 2% -> 4%). I'll add an exact "homepage first visits that tapped Watch" line to funnel.py with the build, so the real baseline is measured before Dec 7.
+
+## Nov 4, ~18:30 UTC: Pages deploy block cleared
+- Both 8ca5113 deployments show "success" in the Deployments API; the block was Pages' own state. Re-running only run 1035's failed deploy job (attempt 2) succeeded, so deploys work again. Push freely.
+- Guard pushed (check.py ALL GOOD): a failed deploy-pages step now lists the last 6 github-pages deployments, cancels any Pages deployment not finished (POST pages/deployments/<sha>/cancel with the run's own token: pages: write), waits 45 s and deploys once more.
+- (3) was already true: every deploy shares one concurrency group (pages-deploy), so only one is pending at a time; the trigger was two runs of the same commit deploying back to back.
+
+## Nov 4, ~20:30 UTC: stats.html key fix pushed + supabase/dashboard-timeout-nov4.sql (for Bastien)
+- stats.html: "That key didn't work" only for P0001; a timeout/5xx is retried twice ("Taking long, trying again…"), then "The database is slow right now. Your key is fine: tap Try again" with the key box hidden and the saved key reused; an empty box never overwrites the saved key; the 1-minute refresh keeps the dashboard on screen when one load is slow. Tested in a browser against a fake database (500 x3 -> Try again; P0001 -> key box; empty tap -> key kept).
+- SQL: a function-level statement_timeout doesn't extend the running statement (Postgres arms the timer at statement start), so Part 2 raises the role limit: anon + authenticated 10 s + `notify pgrst`. Part 1 = the timing query (pg_stat_statements) + current role settings: send me its output. ana_events(at) already has an index (analytics.sql).
+
+## Nov 5, ~01:30 UTC: after the 23:17 read
+- **Sport Chek OFF**: HTTP 403 again at 23:17 (and at 11:17). `SPORTCHEK_ON = False`, health.py OFF_STORES ("turned off on purpose"), store_recheck.py tries it every 2 weeks (robots.txt + its running page). Its 959 CA cards leave at the next store read. STORES.md + CLAUDE.md updated.
+- **Grab deals bookmark for Sport Chek: no, it would cross the line.** Its pages load (200) and robots.txt allows them, but both the prices and the sizes in stock come from the same data service that answered 403. The bookmark could copy names + listing prices from a rendered page, but no sizes (our cards need sizes to match anyone); getting sizes means calling that refused service from Bastien's browser = working around a block. Recommend: off until the Impact feed.
+- Live after 23:17: jewelry 0, PowSlayer 0 (both sides, both sports). Gazelle: 1 indoor shoe ("Phantom 6 Low Academy IC") + your Brazil Stadium Jersey left. Fixed and pushed (live at the 11:17 read): "IC" added to the soccer shoe codes; Reef (sandals) joins CASUAL_ANY (10 cards at Fit2Run; Topo's Phantom stays); team jerseys by name in every group/side ("stadium|replica|national team|<country>|<club> … jersey", names/brands saying run/running stay). On today's files: only the Brazil jersey; Bandit Running's "Home … Jersey" / "STADE FC" jerseys kept.
+- Hidden/wholesale skip line at 23:17: frontrunners 13, confluence 11.
+
+## Nov 5: Friday email testimonial line (your Nov 5 message, Bastien OK'd)
+
+- **Where replies land:** the Friday email had NO Reply-To, so a reply went to deals@thegearfox.com (the sending address; nothing
+  says that inbox is read). Now every Friday/Saturday email sets **Reply-To: hello@thegearfox.com** (same as the confirm reminder), so
+  "Hit reply" reaches the inbox Bastien reads. From stays deals@ (sender reputation unchanged).
+- **The line:** right under "See all N deals in your size", small grey (13px, #5C6660), before the fine print. Word for word, EN:
+  "Bought something you found here? Hit reply and tell us. We read every one." FR: « Vous avez acheté quelque chose trouvé ici? Répondez à
+  ce courriel pour nous le dire. On lit tout. » Also in the plain-text version. One build() serves running + hiking, CA + US, Friday + Saturday
+  arms, so all of them get it. No reward.
+- **Test copy:** weekly-email.yml "Run workflow" with send_to = `me` now sends an EN and a FR sample (men's 11 / M, Canada, subject
+  "[TEST] …") to the HEALTH_EMAIL inbox; nothing is marked sent. Screenshots of the bottom (390 px) were checked before the push.
+- **Sent (Nov 5, 02:40 UTC, run 41956683065):** EN + FR "[TEST]" samples went to the HEALTH_EMAIL inbox (Resend accepted both). Bastien can
+  check the bottom line there, and reply to one to confirm the reply lands in hello@.
+
+## Nov 5: "add Sport Chek to Grab deals": NOT built, here's why (your stop condition is met)
+
+Your spec says: "If anything here would need a call the page doesn't make itself, stop and tell me." It would.
+- **Lists:** fine. The tiles on a page Bastien opens and scrolls himself are what he sees, like MEC/REI.
+- **Sizes and stock (the part that makes it useful):** Sport Chek's product pages carry no price or size in their HTML. A script loads both from
+  its price/stock service, the same one that answered our server HTTP 403 twice on Nov 4. For the bookmark to read ~1,000 products, it would have to either
+  (a) call that service itself, product after product, from Bastien's browser; or (b) open hundreds of product pages in hidden frames in his tab so the
+  page's own script calls it. Neither is a shopper looking at a page. Both run the read Sport Chek just refused to our bot, only now from his home
+  connection. CLAUDE.md is explicit for this store: "If it ever answers 403/captcha: stop, don't work around it." Backcountry is different: its product
+  data sits in each page's own HTML, and it never refused our reader.
+- **A tiles-only version** (no extra loads) gives name + price + regular, but no sizes. On a size-first site, every card would say "Sizes on sale"
+  with no stock check, so expect wrong-size reports. My view: not worth building.
+- **What does unlock it:** (1) Impact, where Sport Chek has its program; our Marketplace application is in review, and a product feed brings sizes and
+  stock legitimately; (2) store_recheck.py already watches it (1st + 15th); if the service answers our bot again, the reader turns back on with
+  SPORTCHEK_ON = True and no new code.
+- If Bastien still wants the tiles-only version knowing it has no sizes, say so and I'll build it (~half a day).
+
+## Nov 5: running strollers (Bastien's rule), cards2 ended, gear label, "Super Shoe Sunday"
+
+- **cards2 ENDED (pushed 2017fb2):** A for everyone; B code, its styles and its site test removed; row in decisions.md.
+- **Gear label (pushed):** any gear card with no type said the whole category name "Lights, poles & bottles". It now says "Gear" / « Équipement ».
+  That fixes the Thule card today, before the next read.
+- **Strollers (scrape.py, takes effect at the next store read):** STROLLER words (stroller, poussette, Urban Glide, Chariot, BOB Revolution/Alterrain/
+  Rambler, Bumbleride, Switch&Jog, jogging kit) = gear with no type, at every store, both sides, whatever the store's category said. Out: car seats and their
+  adapters, bassinets, Maxi-Cosi, RideAlong bike seats, travel/umbrella/city strollers, Thule Spring 2, Urban Glide 4-wheel, Veer Switch&Roll/Switchback, stroller
+  wagons (an item that says "jog" always stays: the Veer grips "for Switch&Jog …"). Kept: Chariot Sleek (a multisport trailer that jogs, same family as the Cross).
+  Glide rule: only "Body Glide" or a name starting "Glide" is the anti-chafe brand. Urban Glide no longer counts. Backcountry list reader + Grab bookmark: they no
+  longer skip strollers, only kids' items, car seats, bassinets and travel/umbrella/city strollers.
+  sortcheck: new line "running strollers outside gear (or with a type)". On today's live data it finds 2 (Veer grips under Shorts at REI, Chariot Sleek Cup Holder
+  typed bottle at Backcountry); the new rule fixes both.
+  **Counts (today's live items run through the new rule):** Canada 1 (Bushtukah: Urban Glide 3 Single). USA 27 kept (REI 14, Backcountry 13), 15 dropped (car seat/
+  bassinet adapters, Spring 2, 4-wheel, Switch&Roll, wagon). The Backcountry count can grow at Bastien's next Grab save (strollers were skipped before).
+- **"Super Shoe Sunday":** not mine. There's nothing by that name in the repo or any commit. The closest thing I made is the Instagram brief's Top 5 graphic
+  (scraper/ig_brief.py) and the Reel recorder (scraper/ig_reel.py), but neither is a single-item photo + badge + old/new price card.

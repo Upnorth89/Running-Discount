@@ -380,9 +380,31 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url || steps.deployment2.outputs.page_url }}
     steps:
       - id: deployment
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+      # Nov 4: two runs of the same commit (a push + a Grab-save start) left a Pages deployment GitHub still counted as "in
+      # progress", and the next deploys failed ("cancel <sha> first"). On a failed deploy: cancel any recent Pages deployment
+      # that isn't finished, wait, and deploy once more.
+      - name: Clear a stuck Pages deployment, then deploy again
+        if: steps.deployment.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          api() { curl -sS -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" "$@"; }
+          for sha in $(api "https://api.github.com/repos/$REPO/deployments?environment=github-pages&per_page=6" | python3 -c "import json,sys; print(' '.join(dict.fromkeys(d['sha'] for d in json.load(sys.stdin))))"); do
+            st=$(api "https://api.github.com/repos/$REPO/pages/deployments/$sha" | python3 -c "import json,sys; print(json.load(sys.stdin).get('status',''))" 2>/dev/null)
+            echo "$sha: ${st:-unknown}"
+            case "$st" in succeed|deployment_failed|deployment_cancelled|deployment_lost|deployment_content_failed|"") ;;
+              *) echo "cancelling $sha"; api -X POST "https://api.github.com/repos/$REPO/pages/deployments/$sha/cancel" -o /dev/null -w "%{http_code}\n" ;;
+            esac
+          done
+          sleep 45
+      - id: deployment2
+        if: steps.deployment.outcome == 'failure'
         uses: actions/deploy-pages@v4
 
   # IndexNow (Oct 11, 2026): after the morning deploy, tell Bing (+ DuckDuckGo, ChatGPT search) which pages changed today
