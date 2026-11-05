@@ -1941,9 +1941,10 @@ document.addEventListener("input",e=>{if(e.target.id!=="rdBQ")return;const q=rdF
 /* Oct 29 (morning email: two "wrong size" reports on an adidas Evo SL at Foot Locker, $99.99): with no size picked a card listed
    every size on sale (8-13) beside the lowest price, which only 11-13 had ($129.99 in the rest). Prices that differ by size = "From" */
 const fromTag=d=>{if(!d.any||!d.ok||d.ok.length<2)return "";const ps=d.ok.map(e=>e[1]);return Math.max(...ps)-Math.min(...ps)>0.5?`<span class="from">${t("fromP")}</span> `:""};
+/* Nov 5 (a Thule stroller read "Lights, poles & bottles"): gear with no type says plain "Gear" / « Équipement », not the category name */
 function rdCard(d,extra,real){
   const R=t("rd"),k=itemKey(d),on=!!watches[k];RENDERED[k]=d;const sp=shoePage(d),[m,gw]=rdModel(d);
-  const kind=(d.t&&R.kinds[d.t])||GL(d.g).toLowerCase(),sub=R.sub2(gw,kind);
+  const kind=(d.t&&R.kinds[d.t])||(d.g==="gear"?R.nav.gear:GL(d.g)).toLowerCase(),sub=R.sub2(gw,kind);
   const h=storeOf(d.url),s=STORES[h]||[h],home=US()?"US":"CA",org=s[1]||(STORES[h]?"CA":d.ca===false?"XX":home),from=org===home?"":org;
   const sized=SIZED.has(d.g)||accLetters(d);
   return `<div class="dw rdc${sp?" hascmp":""}"><a class="deal" href="${esc(affUrl(d.url))}" data-store="${esc(h)}" target="_blank" rel="noopener">
