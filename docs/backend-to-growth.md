@@ -780,3 +780,25 @@ there's no check before it goes live. The token is a one-time 5-minute job, so I
 - **Renewal reminder:** filed (backend task), part of the Fox Pro build: our daily job, 45 days before current_period_end, primary; Stripe's 30-day
   email is the backup (handoff line 27: 45 isn't offered in Stripe, which is fine since ours does 45).
 - Also done today: Friday email "Hit reply" line + Reply-To hello@ (live for Nov 6), cards2 ended (A for all), Sport Chek bookmark declined.
+
+## Nov 5 (~06:25 UTC): Stripe key works, sandbox portal set, webhook deployed
+
+- **Key test:** `{"mode":"test","result":"ok"}`. STRIPE_SECRET_KEY works and IS the sandbox key (the helper refuses to touch a live key).
+- **Sandbox customer portal:** set from code, default configuration bpc_…KGL: cancel = on, at period end, no reason asked, no retention offer,
+  card update on, invoice history on, terms + privacy links, return to thegearfox.com. (Bastien's live-account settings stay as he made them.)
+- The temporary helper deleted itself after each run (Supabase > Edge Functions should list only `stripe-webhook`).
+- The token's 3 boxes were enough: no 403.
+- **Webhook URL:** `https://krwymmkauwqqxjxbvkyq.supabase.co/functions/v1/stripe-webhook`
+  It checks Stripe's signature on every call; right now it answers 503 ("secret not saved yet"), as expected.
+
+**Click steps for Bastien (in the SANDBOX, "The Gear Fox sandbox"):**
+1. Stripe > Developers (or Workbench) > **Webhooks / Event destinations** > **Add destination** (or "Add endpoint").
+2. Events from: **Your account**. API version: leave the default.
+3. Select these 8 events:
+   `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`,
+   `invoice.paid`, `invoice.payment_failed`, `invoice.upcoming`, `charge.refunded`.
+4. Destination type: **Webhook endpoint**. URL: the one above. Description: "Fox Pro". Create.
+5. On the new endpoint's page: **Signing secret** > Reveal > copy (starts with `whsec_`). Never in chat.
+6. Supabase > Edge Functions > **Secrets** > Add: name `STRIPE_WEBHOOK_SECRET`, paste, Save.
+7. Back in Stripe on that endpoint: **Send test event** (any of the 8). It should show **200**. Tell me when done and I'll confirm from the logs.
+Later, for the LIVE account (before Dec 2): the same steps on the live side, and its own `whsec_` replaces this one (separate secret then).
