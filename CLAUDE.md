@@ -747,6 +747,8 @@ GitHub secrets (names only): `SUPABASE_SECRET_KEY`, `RESEND_API_KEY`, `MAILING_A
   Flow, Lone Peak 9+, Timp 6), 211 (Garmin/Wahoo watches), 151/152/261 (running tops) silently dropped: now read (+265 products, 55 on sale).
   Decathlon (Oct 26): each running list's own "N items" (`DEC_LIST_STATS`, saved as `lists` in decathlon.json when the list is
   refreshed weekly) vs colour pages collected (59 of 59 on running-shoes), plus listed products read in the last 14 days (261 of 262).
+- **Sport Chek OFF since Nov 5, 2026**: its data service answered HTTP 403 at both Nov 4 reads (our rule: a 403 = it said no). `SPORTCHEK_ON = False` in scrape.py,
+  health.py `OFF_STORES`, store_recheck.py watches it. Unlock: it answers again, or the Impact feed. Was:
 - Sport Chek (Oct 13; Bastien: "build the Sport Chek reader"): it stopped blocking (robots.txt allows products, llms.txt published),
   so `scrape_sportchek` reads it live with an honest bot name through the data its own pages use (public key in every page, no
   login): search of the Running section etc. (~1,090 products), price/stock per 500 colour+sizes, size details only for products in

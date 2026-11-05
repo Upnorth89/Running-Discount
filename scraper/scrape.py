@@ -3955,11 +3955,17 @@ for _st in (RUNFREE if RUNFREE_ON else []):
 SPORTSEXPERTS_ON = False
 if not SPORTSEXPERTS_ON:
     STORES.pop("sportsexperts", None)
+# Sport Chek OFF (Nov 5, 2026): its data service answered our honest reader "HTTP 403" at both Nov 4 reads (11:17 and 23:17 UTC).
+# A 403 = the store said no: we stop, never work around it. store_recheck.py tries it every 2 weeks; unlock = it answers again,
+# or an affiliate product feed (Impact). Back on = SPORTCHEK_ON = True.
+SPORTCHEK_ON = False
+if not SPORTCHEK_ON:
+    STORES.pop("sportchek", None)
 
 # Casual footwear some running stores also sell; not what people come here for.
 JEWELRY = re.compile(r"\b(necklaces?|earrings?|pendants?|bracelets?)\b", re.I)
 JEWELRY_BRANDS = {"brighton", "bronwen", "artiken", "play monster", "pura vida", "alex and ani", "kendra scott"}
-CASUAL_ANY = {"birkenstock", "crocs", "ugg", "dr. martens", "clarks", "blundstone", "wolky", "teva", "pony"}   # Nov 4: out in every group
+CASUAL_ANY = {"birkenstock", "crocs", "ugg", "dr. martens", "clarks", "blundstone", "wolky", "teva", "pony", "reef"}   # Nov 4: out in every group
 SOCCER_ANY = re.compile(r"(?i:\b(soccer|futsal|mercurial|goalkeeper)\b|\b(fg|ag|sg)(/\w+)?\s+cleats?\b)")   # never ice cleats (traction gear)
 CLOTH_VEST_WORDS = re.compile(r"hybrid|insulated|shield|\bwind|thermal|\bdown\b|puffer|subz|fleece|soft-?shell|visible|quilted|primaloft", re.I)
 CASUAL_BRANDS = {"ambler", "birkenstock", "wolky", "teva", "crocs", "ugg", "blundstone", "dr. martens", "clarks", "oofos", "billy footwear", "vessi", "pony"}   # Ambler (Oct 8): toques, and its only "shoe" is a wool slipper; Pony (Oct 30): retro sneakers in SVP's running collection led the Friday email's shoes at $14.99
@@ -3974,7 +3980,7 @@ LIFESTYLE_SHOE = re.compile(r"^(new balance\s+(740|2002r?|9060|530|1906r?)|on\s+
 NORDIC = re.compile(r"(?i)\bnordic (walking )?poles?\b|\b(nordic|xc|skate|ski)\b.*\bpoles?\b|"
                     r"^(atomic|rossignol|swix|fischer|madshus|one way|kv\+|exel|toko)\b.*\bpoles?\b|\b(xc|nordic|skate)\b.*\binsoles?\b")
 GOALIE = re.compile(r"goal ?keep|\b(copa|pred|predator) gl\b|\bvapor grip\b|\bgk (dynamic|match|vapor)", re.I)
-SOCCER = re.compile(r"\b(FG|AG|MG|SG|TF)\b|(?i:\b(soccer|futsal|predator|f50|copa|tiempo|mercurial)\b)")
+SOCCER = re.compile(r"\b(FG|AG|MG|SG|TF|IC)\b|(?i:\b(soccer|futsal|predator|f50|copa|tiempo|mercurial)\b)")
 
 def shoe_width_from_name(n, sx):
     """Widths many stores put in the product name: "Bondi 9 (2E)", "880v15 (D)", "Clifton 10 Wide".

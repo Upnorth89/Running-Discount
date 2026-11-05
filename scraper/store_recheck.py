@@ -25,6 +25,8 @@ STORES = {
     "Sports Experts": ("robots.txt 'User-agent: ClaudeBot / Disallow: /' since Nov 2, 2026 (Cloudflare's managed AI block); OK again = "
                        "SPORTSEXPERTS_ON in scrape.py + runfree.yml sportsexperts job",
                        ["https://www.sportsexperts.ca/robots.txt", "https://www.sportsexperts.ca/en-CA/running/running/running-shoes"]),
+    "Sport Chek": ("its data service answered HTTP 403 at both Nov 4, 2026 reads; OK again = SPORTCHEK_ON in scrape.py (or the Impact feed)",
+                   ["https://www.sportchek.ca/robots.txt", "https://www.sportchek.ca/en/cat/activities-equipment/running-DC2000077.html"]),
     "MEC": ("blocks automated reading (Grab deals bookmark meanwhile)",
             ["https://www.mec.ca/robots.txt", "https://www.mec.ca/en/products/running/deals"]),
     "REI (USA)": ("blocks automated reading (Grab deals bookmark meanwhile)",
