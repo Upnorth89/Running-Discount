@@ -23,7 +23,7 @@ Objet : Idée d'épisode avant le Vendredi fou
 
 Salut J-F,
 
-J'ai vu passer ton épisode #264 avec Élisa Morin. Je suis Bastien, ultramarathonien entre Montréal et Vancouver, et nouveau papa. J'ai bâti The Gear Fox, un site gratuit qui montre l'équipement de course en solde dans ta pointure, dans plus de 150 boutiques au Canada et aux États-Unis, mis à jour deux fois par jour.
+J'ai vu passer ton épisode #264 avec Élisa Morin. Je suis Bastien, coureur entre Montréal et Vancouver, et nouveau papa. J'ai bâti The Gear Fox, un site gratuit qui montre l'équipement de course en solde dans ta pointure, dans plus de 150 boutiques au Canada et aux États-Unis, mis à jour deux fois par jour.
 
 On garde l'historique des prix depuis le 2 octobre, alors on voit si une aubaine du Vendredi fou est vraiment nouvelle. Dans les boutiques canadiennes, au 5 novembre : 315 vraies baisses cette semaine, et 83 % des prix en solde étaient déjà aussi bas il y a 2 semaines (thegearfox.com/vendredi-fou/direct/).
 
@@ -39,7 +39,7 @@ Relance (jour 7) : Salut J-F, petit suivi sur l'idée d'épisode : les chiffres 
 ## 2. Pas sorti du bois (FR, Instagram DM)
 Salut Yannick,
 
-J'ai vu passer l'épisode 297 avec Rose Vigneault et son tour du chapeau à l'UTHC. Je suis Bastien, ultramarathonien entre Montréal et Vancouver. J'ai bâti The Gear Fox, un site gratuit qui montre l'équipement de course en sentier en solde dans ta pointure, dans plus de 150 boutiques au Canada et aux États-Unis.
+J'ai vu passer l'épisode 297 avec Rose Vigneault et son tour du chapeau à l'UTHC. Je suis Bastien, coureur entre Montréal et Vancouver. J'ai bâti The Gear Fox, un site gratuit qui montre l'équipement de course en sentier en solde dans ta pointure, dans plus de 150 boutiques au Canada et aux États-Unis.
 
 On publie aussi les listes de matériel de 49 courses, telles que chaque course les publie (obligatoire ou suggéré), dont le matériel obligatoire de l'Harricana et du QMT, en liste à cocher : thegearfox.com/courses/ultra-trail-harricana/. Et avec nos prix gardés depuis le 2 octobre, on voit si un prix du Vendredi fou est vraiment nouveau (boutiques canadiennes, au 5 novembre : 315 vraies baisses cette semaine).
 
@@ -57,7 +57,7 @@ Subject: Free race gear checklists + Black Friday price data for your readers
 
 Hi Adam,
 
-Your Crowsnest Pass base is Sinister 7 country, so this felt like a fit. I'm Bastien, an ultrarunner from Montréal and Vancouver and a new dad. I built The Gear Fox, a free site that shows running and hiking gear on sale in your size from 150+ stores in Canada and the US, updated twice a day.
+Your Crowsnest Pass base is Sinister 7 country, so this felt like a fit. I'm Bastien, a runner from Montréal and Vancouver and a new dad. I built The Gear Fox, a free site that shows running and hiking gear on sale in your size from 150+ stores in Canada and the US, updated twice a day.
 
 Two things your readers might use:
 - gear lists for 49 races, each as the race publishes it (mandatory or suggested), including Sinister 7's suggested list and the Canmore 25K & Ultra mandatory list (thegearfox.com/races/);
@@ -78,9 +78,9 @@ Subject: Guest idea before Black Friday: how to tell a real running-gear deal
 
 Hi Jason,
 
-I caught your Tall Shadows Preview recap and the Liz Tomczak episode. I'm Bastien, an ultrarunner who splits his time between Montréal and Vancouver, and a new dad. I built The Gear Fox, a free site that shows running gear on sale in your size across 150 stores in Canada and the US, checked twice a day, with a "Ships from Canada" filter.
+I caught your Tall Shadows Preview recap and the Liz Tomczak episode. I'm Bastien, a runner who splits his time between Montréal and Vancouver, and a new dad. I built The Gear Fox, a free site that shows running gear on sale in your size across 150 stores in Canada and the US, checked twice a day, with a "Ships from Canada" filter.
 
-We've kept every price since Oct 2, so we can tell whether a Black Friday "deal" is new: this week 321 real drops, while 82% of sale prices were already that low two weeks ago (thegearfox.com/black-friday/live/). That's practical for your listeners, along with the story of an ultrarunner building this on the side.
+We've kept every price since Oct 2, so we can tell whether a Black Friday "deal" is new: this week 321 real drops, while 82% of sale prices were already that low two weeks ago (thegearfox.com/black-friday/live/). That's practical for your listeners, along with the story of a runner building this on the side.
 
 Would a 30-minute chat before Nov 27 fit? Nothing paid, no affiliate links.
 
@@ -93,7 +93,7 @@ Subject: For your 2026 runner gift guide: current Canadian prices you can cite
 
 Hi Alice,
 
-Your 2025 piece "18 of the absolute best gifts for runners and aspiring runners" is the kind of list our price data can back with current Canadian prices. I'm Bastien, an ultrarunner from Montréal and Vancouver. The Gear Fox is a free site that shows running and outdoor gear on sale from 150+ stores in Canada and the US, updated twice a day.
+Your 2025 piece "18 of the absolute best gifts for runners and aspiring runners" is the kind of list our price data can back with current Canadian prices. I'm Bastien, a runner from Montréal and Vancouver. The Gear Fox is a free site that shows running and outdoor gear on sale from 150+ stores in Canada and the US, updated twice a day.
 
 Two pages you're welcome to use or cite:
 - Gifts for Runners in Canada under $25, $50 and $100: gifts you can buy without knowing a size, at Canadian stores, updated twice a day (thegearfox.com/gifts-for-runners/; in French: /cadeaux-coureurs/);
@@ -114,7 +114,7 @@ Subject: For your 2026 runner's wish list: gifts under $25 / $50 / $100
 
 Hi Run Ottawa team,
 
-I enjoyed your 2025 runner's wish list, sorted from stocking stuffers to premium gear. I'm Bastien, an ultrarunner from Montréal and Vancouver. I built The Gear Fox, a free site showing running gear on sale in your size across 150 stores in Canada and the US, checked twice a day.
+I enjoyed your 2025 runner's wish list, sorted from stocking stuffers to premium gear. I'm Bastien, a runner from Montréal and Vancouver. I built The Gear Fox, a free site showing running gear on sale in your size across 150 stores in Canada and the US, checked twice a day.
 
 If you do a 2026 list, two pages might help your members:
 - Gifts for Runners in Canada under $25, $50 and $100, updated daily from Canadian stores (thegearfox.com/gifts-for-runners/);
