@@ -716,11 +716,42 @@ def runningfree_night(out, hours=4.5):
     return 0
 
 
+def _rf_grab():
+    """Nov 5 (Bastien: "can we build a grab deals until they answer my email?"): the newest Running Free list sent from the Grab
+    deals bookmark (his own browser in Canada), in the night file's shape. Parts of one save share its `grabbed` time."""
+    groups = {}
+    for f in grab_saves():
+        try:
+            d = json.loads(f.read_text())
+        except Exception:
+            continue
+        if d.get("store") == "runningfree" and d.get("grabbed"):
+            g = groups.setdefault(d["grabbed"], {"updated": d["grabbed"], "brands": d.get("brands") or [], "prods": {}})
+            for p in d.get("products") or []:
+                g["prods"][str(p.get("pid"))] = {k: v for k, v in p.items() if k != "pid"}
+    if not groups:
+        return None
+    newest = max(groups)
+    return groups[newest]
+
+
 def _rf_fresh():
+    best = None
     try:
-        d = json.loads(Path(RUNNINGFREE_FILE).read_text())
-        DATA_AT.setdefault("runningfree", d["updated"])
-        return (dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(d["updated"])).total_seconds() < 36 * 3600 and d
+        best = json.loads(Path(RUNNINGFREE_FILE).read_text())
+    except Exception:
+        pass
+    try:
+        g = _rf_grab()
+        if g and (not best or g["updated"] > best.get("updated", "")):
+            print(f"  runningfree: using the Grab deals save of {g['updated'][:16]} ({len(g['prods'])} products)", file=sys.stderr)
+            best = g
+    except Exception as e:
+        print(f"  runningfree: grab save unreadable ({str(e)[:80]})", file=sys.stderr)
+    try:
+        DATA_AT.setdefault("runningfree", best["updated"])
+        age = (dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(best["updated"].replace("Z", "+00:00"))).total_seconds()
+        return age < 36 * 3600 and best
     except Exception:
         return None
 

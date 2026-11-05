@@ -1080,3 +1080,11 @@ Phone = 390 px, DevTools "Fast 3G" (~160 KB/s, 562 ms latency) + CPU slowed x4, 
 - **Meaning:** this isn't the country page. Running Free's firewall drops connections from that cloud network: a network-level "no" to data-centre computers. That falls under Bastien's own condition ("unless it is" a robot block). Trying other cloud providers until one gets through would be rotating addresses around that block, so I stopped here.
 - **Night read tonight:** through the relay it fails within seconds (no answer = nothing saved). The last good copy stays until ~10:19 UTC Nov 6, then Running Free leaves the site.
 - **Way back:** an email to Running Free asking them to allow TheGearFox (or send a product file). We can tell them exactly what we read and how slowly.
+
+## Nov 5, ~21:40 UTC: Running Free via the Grab deals bookmark (Bastien: "can we build a grab deals until they answer my email?")
+- **Built and pushed.** On any runningfree.com page, the bookmark reads the men's + women's lists and every size list (the same pages the night read used), one page every ~2.5 s, from Bastien's browser in Canada. It takes about 10 minutes, then "Send to The Gear Fox".
+- The refresh uses the newest save when it's newer than the night copy; it counts as fresh for 36 h, then the usual 48 h keep.
+- **Needs once:** Bastien pastes `supabase/grab-runningfree-nov5.sql` in Supabase > SQL Editor (it lets the store name through).
+- Under 500 products = nothing sent (a full read is ~3,000).
+- **Post rules shipped too:** shoes in Reddit/Bluesky/Pinterest/Instagram need 3+ common sizes + 5 sizes, each opened live. The Reddit `--pages-only` short format and the post_check "common:" line are live.
+- Test draft (CA, 4 shoes): 3 dropped for too few common sizes; all lines pass.

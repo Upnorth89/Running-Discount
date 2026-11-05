@@ -220,6 +220,77 @@
         if (batch.length < 250) break;
       }
       save(`svp-${new Date().toISOString().slice(0, 10)}.json`, { store: "svp", saved: new Date().toISOString(), url: location.href, products });
+    } else if (/runningfree\.com$/.test(host)) {
+      // Nov 5 (Bastien: "can we build a grab deals until they answer my email?"): Running Free shows its catalogue to visitors in
+      // Canada only, so the night read from GitHub's US computers stopped. This reads the same pages the night read did (men's and
+      // women's lists, then each size's list, which only shows what's in stock in that size) from Bastien's own browser, one page
+      // every ~2.5 s, and sends one list. Same shape as the night file (scrape.py runningfree_night), so the site reads it the same way.
+      const ROOTS = { men: "All-Mens-66507", women: "All-Womens-66508" };
+      const CLOTH = { XXSmall: "2XS", XSmall: "XS", Small: "S", Medium: "M", Large: "L", XLarge: "XL", XXLarge: "2XL", XXXLarge: "3XL" };
+      const SHOE = /^(\d+)(-5)?-(Regular|Narrow|Wide|XWide|XXWide)-\d+$/;
+      const un = t => { const x = document.createElement("textarea"); x.innerHTML = t.replace(/<[^>]+>/g, ""); return x.value.trim(); };
+      const cards = h => {
+        const out = {};
+        for (const blk of h.split('<div class="prodPreview').slice(1)) {
+          const m = blk.match(/href="(\/products\/[^"?]*?-p(\d+)\/)/);
+          const nm = blk.match(/class="ellipsis prodName">\s*<a[^>]*>([\s\S]*?)<br\s*\/?>\s*<span>([\s\S]*?)<\/span>/);
+          const reg = blk.match(/class="prodPrice"[^>]*>\s*\$\s*([\d,]+\.\d\d)/);
+          if (!m || !nm || !reg) continue;
+          const sale = blk.match(/class="prodPriceSale"[\s\S]*?\$\s*([\d,]+\.\d\d)/), img = blk.match(/<img[^>]+src="([^"]+)"/);
+          const lp = +reg[1].replace(/,/g, "");
+          out[m[2]] = { path: m[1], name: un(nm[1]), aux: un(nm[2]), lp, price: sale ? +sale[1].replace(/,/g, "") : lp,
+                        img: img ? (img[1].startsWith("/") ? location.origin + img[1] : img[1]) : null };
+        }
+        return out;
+      };
+      let read = 0;
+      const get = async path => {
+        if (read++) await sleep(2500);
+        const r = await fetch(`${location.origin}/products/${path}`, { credentials: "include" });
+        if (r.status === 403 || r.status === 429) throw new Error(`Running Free answered ${r.status}: stopped`);
+        const h = await r.text();
+        if (/only available to visitors in Canada/.test(h) && !h.includes("prodPreview")) throw new Error("Running Free shows its country page to this browser");
+        return h;
+      };
+      const pages = async function* (path) {
+        const h = await get(`${path}/?pp=96`);
+        yield h;
+        const m = h.match(/\(page 1 of (\d+)\)/);
+        for (let n = 2; n <= Math.min(m ? +m[1] : 1, 60); n++) yield await get(`${path}/${n}/?pp=96`);
+      };
+      const prods = {}, brands = new Set();
+      for (const [gender, root] of Object.entries(ROOTS)) {
+        let sizes = [], i = 0;
+        for await (const h of pages(root)) {
+          say(`Running Free: ${gender}'s list, page ${++i}… (${Object.keys(prods).length} products so far)`);
+          if (i === 1) {
+            const slugs = new Set([...h.matchAll(new RegExp(`href="/products/${root}/([A-Za-z0-9-]+-\\d+)/"`, "g"))].map(x => x[1]));
+            sizes = [...slugs].filter(x => SHOE.test(x) || CLOTH[x.replace(/-\d+$/, "")]).sort();
+            slugs.forEach(x => { if (!sizes.includes(x)) brands.add(x.replace(/-\d+$/, "").replace(/-/g, " ")); });
+          }
+          for (const [pid, c] of Object.entries(cards(h))) {
+            prods[pid] = prods[pid] || { ...c, roots: [], sizes: [] };
+            if (!prods[pid].roots.includes(gender)) prods[pid].roots.push(gender);
+          }
+        }
+        let k = 0;
+        for (const slug of sizes) {
+          const m = slug.match(SHOE);
+          const label = m ? m[1] + (m[2] ? ".5" : "") + (m[3] === "Regular" ? "" : " " + m[3].replace("XX", "X")) : CLOTH[slug.replace(/-\d+$/, "")];
+          say(`Running Free: ${gender}'s size ${label} (${++k} of ${sizes.length})… you can switch tabs`); prog(k, sizes.length);
+          for await (const h of pages(`${root}/${slug}`)) {
+            for (const [pid, c] of Object.entries(cards(h))) {
+              const p = prods[pid] = prods[pid] || { ...c, roots: [gender], sizes: [] };
+              p.price = Math.min(p.price, c.price);
+              p.sizes.push([gender, label, !!m]);
+            }
+          }
+        }
+      }
+      const products = Object.entries(prods).map(([pid, p]) => ({ pid, ...p }));
+      if (products.length < 500) throw new Error(`only ${products.length} products found (a full read has ~3,000): nothing sent`);
+      save(`runningfree-${new Date().toISOString().slice(0, 10)}.json`,
+           { store: "runningfree", grabbed: new Date().toISOString(), brands: [...brands].sort(), products });
     } else if (/latulippe\.com$/.test(host)) {
       // Oct 25 (Bastien: "build the grab deals for latulippe ... practical for camping stuff later"). Its wall stops our robots, so
       // we couldn't see how its pages are built: try a Shopify collection first, then the page's own product data (JSON-LD),
@@ -261,7 +332,7 @@
       download(`hoka-${new Date().toISOString().slice(0, 10)}.json`, { store: "hoka", saved: new Date().toISOString(), url: location.href, ld, data, tiles });
       say(`Hoka: ${tiles.length} shoes on this page saved. File saved.`);
     } else {
-      say("Open a product list on MEC, REI, Backcountry, SVP Sports or Latulippe first (the deals or all running gear), then tap the bookmark.");
+      say("Open a product list on MEC, REI, Backcountry, SVP Sports or Latulippe (or any Running Free page) first (the deals or all running gear), then tap the bookmark.");
     }
   } catch (e) {
     say("Couldn't read this page (" + e.message + "). Open a product list (running deals, Running shoes, Running clothing...), then try again.");
