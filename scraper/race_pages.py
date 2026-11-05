@@ -2152,18 +2152,18 @@ f.addEventListener("submit",function(e){e.preventDefault();
 
 
 HUB = {
-    "en": {"title": "Race gear lists: mandatory gear, item by item", "h1": "Race gear lists",
-           "desc": "Mandatory gear lists for trail and ultra races, item by item, with today's best prices in your size at Canadian stores.",
-           "intro": "The mandatory gear for each race, as the race publishes it, with today's best prices in your size. More races coming soon.",
+    "en": {"title": "Race gear lists: mandatory and suggested gear, item by item", "h1": "Race gear lists",
+           "desc": "Gear lists for trail and ultra races, mandatory or suggested, item by item, with today's best prices in your size at Canadian stores.",
+           "intro": "The gear list for each race, mandatory or suggested, from the race's own rules, with today's best prices in your size. More races coming soon.",
            "go": "Mandatory gear list →", "goS": "Suggested gear list →", "dists": "{d} km",
            "find": "Find your race: name, place or country", "findNone": "No race matches “{q}” yet. Tell us which one: hello@thegearfox.com"},
-    "fr": {"title": "Listes de matériel de course : le matériel obligatoire, article par article", "h1": "Listes de matériel de course",
-           "desc": "Le matériel obligatoire des courses en sentier et des ultras, article par article, avec les meilleurs prix du jour dans votre taille.",
-           "intro": "Le matériel obligatoire de chaque course, tel que publié par la course, avec les meilleurs prix du jour dans votre taille. D'autres courses s'en viennent.",
+    "fr": {"title": "Listes de matériel de course : obligatoire ou suggéré, article par article", "h1": "Listes de matériel de course",
+           "desc": "Le matériel des courses en sentier et des ultras, obligatoire ou suggéré, article par article, avec les meilleurs prix du jour dans votre taille.",
+           "intro": "La liste de matériel de chaque course, obligatoire ou suggéré, selon les règlements de la course, avec les meilleurs prix du jour dans votre taille. D'autres courses s'en viennent.",
            "go": "Liste du matériel obligatoire →", "goS": "Liste du matériel suggéré →", "dists": "{d} km",
            "find": "Trouvez votre course : nom, lieu ou pays", "findNone": "Aucune course ne correspond à « {q} » pour l'instant. Dites-nous laquelle : hello@thegearfox.com"},
 }
-HUB["us"] = dict(HUB["en"], desc="Mandatory gear lists for trail and ultra races, item by item, with today's best prices in your size at US stores.")
+HUB["us"] = dict(HUB["en"], desc="Gear lists for trail and ultra races, mandatory or suggested, item by item, with today's best prices in your size at US stores.")
 HUB["en"]["groups"] = HUB["us"]["groups"] = {"ca": "Canada", "us": "United States", "fr": "France", "it": "Italy", "ch": "Switzerland",
                                              "de": "Germany", "at": "Austria", "si": "Slovenia", "au": "Australia", "nz": "New Zealand"}
 HUB["fr"]["groups"] = {"ca": "Canada", "us": "États-Unis", "fr": "France", "it": "Italie", "ch": "Suisse", "de": "Allemagne", "at": "Autriche", "si": "Slovénie",
