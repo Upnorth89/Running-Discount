@@ -44,7 +44,7 @@ To do:
    He may not have saved this yet: ask him.
 4. A USD payout account (Settings > Bank accounts and currencies) once verified.
 5. DONE Nov 5 (SANDBOX): destination "fox-pro-webhook", 8 events, STRIPE_WEBHOOK_SECRET saved in Supabase; test checkout.session.completed = 200 OK. LIVE account: same steps before Dec 2 (its own whsec_).
-6. Accountant: GST / BC PST registration for a $36/yr digital membership (small supplier < $30k?). Before Dec 2.
+6. Tax (answered by growth Nov 5, from CRA + BC rules; Bastien to confirm 2 facts: not already GST-registered, and his OTHER self-employed taxable revenue + Gear Fox stays under $30k/yr): GST small supplier (<= $30k worldwide taxable revenue, associates included, single quarter and last 4 quarters) = no GST registration, no GST charged. BC PST: Fox Pro likely counts as software (watchlist/alerts = functionality beyond viewing; PST 105 + telecom bulletin), but small seller (<= $10k gross retail sales in past AND next 12 months, PST 003) = no registration. QST specified registration only past $30k to Québec consumers; US states $100k+. Checkout = "$36/year. No tax added." Stripe Tax stays off. Watch: Pro revenue past/next 12 months vs $10k (BC, ~142 paying members at $45 after the 100 founders) and all revenue vs $30k. Accountant still at income-tax time.
 7. Branding LATER (Bastien: "we can do the logo later"). Designer spec:
    - brand + accent #0C241D (forest, not charcoal/orange);
    - icon = docs/fox-pro/fox.png on a forest square;
