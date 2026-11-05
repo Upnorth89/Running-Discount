@@ -32,6 +32,11 @@ const PORTAL: Record<string, string> = {
   "features[subscription_cancel][mode]": "at_period_end",
   "features[subscription_cancel][proration_behavior]": "none",
   "features[subscription_cancel][cancellation_reason][enabled]": "false",
+  // Stripe requires the reason list even when the question is switched off (it is never shown)
+  "features[subscription_cancel][cancellation_reason][options][0]": "too_expensive",
+  "features[subscription_cancel][cancellation_reason][options][1]": "unused",
+  "features[subscription_cancel][cancellation_reason][options][2]": "missing_features",
+  "features[subscription_cancel][cancellation_reason][options][3]": "other",
   "features[payment_method_update][enabled]": "true",
   "features[invoice_history][enabled]": "true",
 };
