@@ -195,11 +195,18 @@ out.append("Visits from our emails: " + (", ".join(f"{k[6:]} {v}" for k, v in em
 # Oct 27, test 'emailday' (weekly email Friday for A, Saturday for B, Oct 31 - Nov 21): sessions and devices that came from each
 # day's email. Per send: divide by the subscribers in each group (the email workflow log prints "A n, B n" each run)
 try:
-    ed = {k: [e for e in rows if e["kind"] == "visit" and (e["detail"] or "") == f"email-{k}"] for k in ("friday", "saturday")}
+    ed = {k: [e for e in rows if e["kind"] == "visit" and (e["detail"] or "").startswith(f"email-{k}")] for k in ("friday", "saturday")}
     out.append("EMAIL DAY TEST (Fri = A, Sat = B, from Oct 31): " + ", ".join(
         f"{k} {len({e['sid'] for e in v})} sessions / {len({e.get('did') or e['sid'] for e in v})} devices" for k, v in ed.items()))
 except Exception as e:
     out.append(f"EMAIL DAY TEST: couldn't read ({str(e)[:60]})")
+# Nov 13: the weekly email's "watch one thing" box (members who watch nothing; links ?em=friday-watch / saturday-watch)
+try:
+    wb = {e["sid"] for e in rows if e["kind"] == "visit" and (e["detail"] or "").endswith("-watch") and (e["detail"] or "").startswith("email-")}
+    wadd = {e["sid"] for e in rows if e["kind"] == "watch-add" and e["sid"] in wb}
+    out.append(f"WATCH ONE THING BOX (weekly email): {len(wb)} sessions came from the box, {len(wadd)} of them watched something")
+except Exception as e:
+    out.append(f"WATCH ONE THING BOX: couldn't read ({str(e)[:60]})")
 # coming back (Oct 8): devices by the day they first came, how many came back on a later day, by where they first came from
 try:
     dv, step = [], 1000

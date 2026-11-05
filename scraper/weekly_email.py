@@ -191,6 +191,10 @@ STR = {
     "en": dict(your_size="Your size: ", best_by="Best by {}", all_sizes="All sizes & stores →", abroad="Ships from outside Canada · converted to CAD, duties may apply",
                abroad_us="Ships from outside the US, duties may apply", final="Final sale: no returns",
                see_all="See all {} on sale →", watch_head="Your watchlist", watch_link="♡ Watch the price",
+               w1_head="You're not watching anything yet.",
+               w1_body=lambda n, pr: f"Tap below and we'll email you if the {n} drops 10% or $10 from today's price in your size "
+                                     f"({pr} today), or comes back in your size after selling out. One tap on the site removes it.",
+               w1_btn="♡ Watch this price", w1_or="Or tap \"♡ Watch the price\" under anything below.",
                changes=lambda n: f"{n} {'change' if n == 1 else 'changes'} this week",
                change_sizes="Change your sizes", unsubscribe="Unsubscribe", privacy="Privacy", follow="Follow us on Instagram",
                subject=lambda n, top: f"The Gear Fox: {n} deals in your size this week, up to {top}% off",
@@ -213,6 +217,11 @@ STR = {
                abroad="Expédié de l'extérieur du Canada · converti en $ CA, des droits peuvent s'appliquer",
                abroad_us="Expédié de l'extérieur des États-Unis, des droits peuvent s'appliquer", final="Vente finale : aucun retour",
                see_all="Voir les {} articles en solde →", watch_head="Vos favoris", watch_link="♡ Suivre le prix",
+               w1_head="Vous ne suivez encore aucun article.",
+               w1_body=lambda n, pr: f"Touchez ci-dessous et on vous écrira si le prix du {n} baisse de 10 % ou 10 $ par rapport au prix "
+                                     f"d'aujourd'hui dans votre taille ({pr} aujourd'hui), ou s'il revient en stock dans votre taille. "
+                                     f"Un seul geste sur le site suffit pour le retirer.",
+               w1_btn="♡ Suivre ce prix", w1_or="Ou touchez « ♡ Suivre le prix » sous n'importe quel article plus bas.",
                changes=lambda n: f"{n} {'changement' if n == 1 else 'changements'} cette semaine",
                change_sizes="Modifier vos tailles", unsubscribe="Se désabonner", privacy="Confidentialité", follow="Suivez-nous sur Instagram",
                subject=lambda n, top: f"The Gear Fox : {n} aubaines à votre taille cette semaine, jusqu'à {top} % de rabais",
@@ -407,7 +416,33 @@ def shop_link(p):
     b = base64.urlsafe_b64encode(json.dumps(keep, separators=(",", ":")).encode()).decode().rstrip("=")
     return f"{SITE_URL}?p={b}" + ("&sport=hike" if SIDE.get("hike") else "")          # query string survives email link-wrappers better than #
 
-def build(p, sale, watch=None):
+MS_MAIL = re.compile(r"@(outlook|hotmail|live|msn)\.[a-z.]+$", re.I)
+MS_AUTOWATCH = True       # False = Microsoft addresses get the box with a plain link (no &watch=): Safe Links opens links by itself
+
+
+def watch_one(p, sale, drops, lang):
+    """Nov 13 (growth spec, Bastien yes; compliance OK Nov 5): members who watch nothing get one box naming the week's
+    biggest drop in their size (else the first shoe, else the first deal) with a one-tap watch link."""
+    from urllib.parse import quote
+    d = drops[0] if drops else next((x for x in sale if x["g"] == "shoes"), sale[0] if sale else None)
+    if not d:
+        return "", ""
+    key = f'{d["b"]}|{d["n"]}|{d["g"]}|{1 if d.get("w") else 0}'.lower()          # the site's itemKey()
+    url = shop_link(p) + f"&em={em_day()}-watch"
+    if MS_AUTOWATCH or not MS_MAIL.search(p.get("email") or ""):
+        url += "&watch=" + quote(key)
+    body = tr(lang, "w1_body", short_name(d, lang), money(d["best"], lang))
+    html = (f'<tr><td style="padding:4px 20px 14px"><div style="background:#FFF4EC;border:1.5px solid #F26A1B;border-radius:10px;'
+            f'padding:12px 14px;font:14px/1.45 Arial,sans-serif;color:#17201C"><b>{E(tr(lang, "w1_head"))}</b> {E(body)}'
+            f'<div style="margin:10px 0 6px"><a href="{E(url)}" style="display:inline-block;background:#F26A1B;color:#17201C;'
+            f'border:2px solid #17201C;border-radius:10px;padding:9px 16px;font:800 15px Arial,sans-serif;text-decoration:none">'
+            f'{E(tr(lang, "w1_btn"))}</a></div><div style="font-size:13px;color:#5C6660">{E(tr(lang, "w1_or"))}</div></div></td></tr>')
+    text = f'{tr(lang, "w1_head")} {body}\n{tr(lang, "w1_btn")}: {url}\n{tr(lang, "w1_or")}\n\n'
+    return html, text
+
+
+def build(p, sale, watch=None, watching=None):
+    """watching: False = this member watches nothing (gets the "watch one thing" box); True/None = no box."""
     lang = lang_of(p)
     shop = shop_link(p) + f"&em={em_day()}"      # Oct 8: visits from the Friday email show as "email-friday" (Oct 27: or "email-saturday")
     first = (p.get("name") or "").split(" ")[0] or tr(lang, "hi")
@@ -464,6 +499,8 @@ def build(p, sale, watch=None):
         gmail = re.search(r"@(gmail|googlemail)\.com$", (p.get("email") or "").lower())
         first_note = (f'<tr><td style="padding:4px 20px 14px"><div style="background:#FFF4EC;border:1.5px solid #F26A1B;border-radius:10px;'
                       f'padding:10px 14px;font:14px/1.45 Arial,sans-serif;color:#17201C">{tr(lang, "first_gmail" if gmail else "first_other")}</div></td></tr>')
+    w1, w1_text = watch_one(p, sale, drops, lang) if watching is False else ("", "")
+    first_note += w1
     body = f'''<!doctype html><html lang="{lang}"><body style="margin:0;background:#EEF1EC">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#EEF1EC"><tr><td align="center" style="padding:20px 12px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#FFFFFF;border:2px solid #17201C;border-radius:14px">
@@ -477,7 +514,7 @@ def build(p, sale, watch=None):
 <div style="font:12px/1.4 Arial,sans-serif;color:#5C6660;margin-top:14px">{tr(lang, "fine")}<br>
 {footer_links}</div></td></tr>
 </table></td></tr></table></body></html>'''
-    text = f"{subject}\n\n" + "\n".join(
+    text = f"{subject}\n\n{w1_text}" + "\n".join(
         f"- {d['b']} {d['n']}: {money(d['best'], lang)} ({tr(lang, 'was')} {money(d['reg'], lang)}, {pct_txt(d['pct'], lang)}) {d['url']}"
         for d in sale[:TOTAL]) + f"\n\n{tr(lang, 'all_deals')}: {shop}\n\n{tr(lang, 'reply')}\n\n" + (
         f"{tr(lang, 'unsubscribe')}: {SITE_URL}?unsub={p['token']}\n" if p.get("token") else "") + (
@@ -632,7 +669,7 @@ def main():
     except Exception as e:
         print(f"  (no shoe pages list: {e})")
     load_history()
-    watch_news = {}
+    watch_news, watched = {}, None       # watched: tokens with any row in watches (None = unknown: no "watch one thing" box)
     if SB_URL and SB_KEY and any(p.get("token") for p in profiles):
         try:
             import alerts as A
@@ -642,7 +679,9 @@ def main():
                 by_key.setdefault(A.item_key(d), []).append(d)
             for d in us_items + hike["us"]:
                 by_us.setdefault(A.item_key(d), []).append(d)
-            watch_news = A.evaluate_sides(A.fetch_rows(), by_key, by_us, datetime.now(timezone.utc), cooldown=False)
+            rows = A.fetch_rows()
+            watched = {(w.get("subscribers") or {}).get("token") for w in rows}
+            watch_news = A.evaluate_sides(rows, by_key, by_us, datetime.now(timezone.utc), cooldown=False)
             print(f"watchlist news for {sum(1 for w in watch_news.values() if w['drops'] or w['backs'])} people")
         except Exception as e:                      # the deals email still goes out without it
             print(f"watchlist news skipped: {e}")
@@ -665,7 +704,10 @@ def main():
         if not sale and not has_watch:
             print(f"{mask(who)}: nothing on sale in their sizes this week, no email sent")
             continue
-        subject, body, text = build(p, sale, watch)
+        watching = (p.get("token") in watched) if (watched is not None and p.get("token")) else None
+        if p.get("_test"):
+            watching = False          # test copies show the box
+        subject, body, text = build(p, sale, watch, watching)
         if p.get("_test"):
             subject = "[TEST] " + subject
         if DRY:

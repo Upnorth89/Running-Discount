@@ -177,6 +177,31 @@ if FIND:
     except Exception as e:
         out.append(f"LOOK-UP: failed ({str(e)[:160]})")
 
+# Nov 5 (growth spec, before the Nov 13 "watch one thing" box): do link scanners (Microsoft Safe Links) open our weekly email's
+# "&watch=" links by themselves? Watches made within 5 minutes after that member's last weekly email, Microsoft vs other addresses.
+# Counts only (public log). Fresh-box rule: a burst on Microsoft = weekly_email.MS_AUTOWATCH = False.
+try:
+    r = requests.get(f"{sb}/rest/v1/watches", headers=SH, timeout=60, params={
+        "select": "created_at,item_key,subscribers!inner(email,weekly_sent_at)", "limit": "20000"})
+    r.raise_for_status()
+    MS = re.compile(r"@(outlook|hotmail|live|msn)\.", re.I)
+    tally = {"Microsoft": [0, 0, 0], "other": [0, 0, 0]}          # watches, within 5 min after the send, within 60 min
+    for w in r.json():
+        sub = w.get("subscribers") or {}
+        k = "Microsoft" if MS.search(sub.get("email") or "") else "other"
+        tally[k][0] += 1
+        if not (sub.get("weekly_sent_at") and w.get("created_at")):
+            continue
+        sent = datetime.fromisoformat(sub["weekly_sent_at"].replace("Z", "+00:00"))
+        made = datetime.fromisoformat(w["created_at"].replace("Z", "+00:00"))
+        mins = (made - sent).total_seconds() / 60
+        tally[k][1] += 0 <= mins <= 5
+        tally[k][2] += 0 <= mins <= 60
+    out.append("SAFE LINKS CHECK (watches made right after that member's last weekly email): " + "; ".join(
+        f"{k}: {v[0]} watches, {v[1]} within 5 min, {v[2]} within 60 min" for k, v in tally.items()))
+except Exception as e:
+    out.append(f"SAFE LINKS CHECK: failed ({str(e)[:160]})")
+
 text = "\n".join(out)
 print(text)
 if os.environ.get("GITHUB_ACTIONS"):
