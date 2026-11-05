@@ -1,0 +1,53 @@
+name: Stripe setup (Fox Pro)
+
+# Nov 5, 2026. Run by hand. Deploys the Fox Pro edge functions to Supabase with SUPABASE_ACCESS_TOKEN (fine-grained:
+# Project Settings read, Edge Functions read-write, Edge Function Secrets read-write; expires 2027-11-04).
+#   check   = test STRIPE_SECRET_KEY (answers "ok" or Stripe's error code; the key itself is never printed)
+#   portal  = check + set the sandbox customer portal (cancel at period end, no reason asked, no retention offer)
+#   webhook = deploy stripe-webhook (signature-checked; refuses everything until STRIPE_WEBHOOK_SECRET is saved)
+# The stripe-setup helper is deployed, called once with a random per-run nonce, then deleted in the same run.
+on:
+  workflow_dispatch:
+    inputs:
+      what:
+        description: "check | portal | webhook | all"
+        required: true
+        default: "check"
+
+env:
+  PROJECT: krwymmkauwqqxjxbvkyq
+  SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Stripe key check / portal (temporary helper)
+        if: inputs.what != 'webhook'
+        run: |
+          set -e
+          NONCE=$(openssl rand -hex 24); echo "::add-mask::$NONCE"
+          supabase secrets set --project-ref "$PROJECT" SETUP_NONCE="$NONCE" >/dev/null
+          supabase functions deploy stripe-setup --project-ref "$PROJECT" --no-verify-jwt --use-api
+          sleep 8
+          call() { curl -sS -H "x-setup-nonce: $NONCE" "https://$PROJECT.supabase.co/functions/v1/stripe-setup?do=$1"; echo; }
+          echo "KEY CHECK: $(call check)"
+          if [ "${{ inputs.what }}" = "portal" ] || [ "${{ inputs.what }}" = "all" ]; then echo "PORTAL: $(call portal)"; fi
+      - name: Remove the temporary helper
+        if: always() && inputs.what != 'webhook'
+        run: |
+          supabase functions delete stripe-setup --project-ref "$PROJECT" || true
+          supabase secrets unset --project-ref "$PROJECT" SETUP_NONCE || true
+      - name: Deploy the webhook
+        if: inputs.what == 'webhook' || inputs.what == 'all'
+        run: |
+          set -e
+          supabase functions deploy stripe-webhook --project-ref "$PROJECT" --no-verify-jwt --use-api
+          sleep 5
+          code=$(curl -s -o /dev/null -w '%{http_code}' -X POST "https://$PROJECT.supabase.co/functions/v1/stripe-webhook" -d '{}')
+          echo "WEBHOOK URL: https://$PROJECT.supabase.co/functions/v1/stripe-webhook (unsigned test answered $code: 503 = secret not saved yet, 400 = refusing unsigned, both correct)"
