@@ -744,3 +744,25 @@ Your spec says: "If anything here would need a call the page doesn't make itself
 - **Renewal reminder:** filed as task #39 (ours = primary, 45 days before current_period_end, EN/FR, date + amount + "Manage or cancel" link,
   reminder_sent_at, the 45-day / 40-day check). Since Bastien set "upcoming renewal events" to 45 days, I'll use a daily job anyway: it
   doesn't depend on a webhook arriving, and it's easy to test.
+
+## Nov 5: SUPABASE_ACCESS_TOKEN, the exact boxes (Supabase's new fine-grained tokens)
+
+From Supabase's own page (supabase.com/docs/guides/platform/personal-access-tokens): each box is Read or Read-write on one thing; the deploy needs
+"Edge Functions" Read-write, setting function secrets needs "Edge Function Secrets" Read-write. We don't run `supabase link` (I deploy with
+`--project-ref`), so the token does NOT need API Keys / API Key Secrets (those would hand it our secret keys).
+
+Click list for Bastien (supabase.com > Account > Access Tokens > Generate token):
+1. Name: `github-deploy`.
+2. Preset: leave **No access** (Supabase's advice: "Read-only" still includes secret keys).
+3. Scope it to the organization and ONLY the project `krwymmkauwqqxjxbvkyq` (The Gear Fox), if the panel asks.
+4. **Application services** > **Edge Functions**: **Read-write**.
+5. **Application services** > **Edge Function Secrets**: **Read-write**.
+6. **Project** > **Project Settings**: **Read** (the CLI checks the project exists before deploying).
+7. Everything else stays **No access** (Database, Infrastructure, Account and organization: untouched).
+8. Expiry: 1 year if offered (note the date; same as the dispatch key, renew before it ends).
+9. Generate, copy it once, then GitHub > Running-Discount > Settings > Secrets and variables > Actions > New repository secret:
+   name `SUPABASE_ACCESS_TOKEN`, paste, Save. Never in chat.
+
+If my first deploy answers "403 / missing permission", the log names the missing box; he adds just that one (Edit token), nothing else.
+Fallback (paste in the dashboard: Edge Functions > Deploy a new function > editor): it works, but every fix would need him to paste again, and
+there's no check before it goes live. The token is a one-time 5-minute job, so I recommend it.
