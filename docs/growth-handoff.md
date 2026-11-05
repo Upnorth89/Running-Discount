@@ -42,7 +42,7 @@ To do:
 3. Customer portal: cancel at end of billing period, no retention offer, no required reason.
    He may not have saved this yet: ask him.
 4. A USD payout account (Settings > Bank accounts and currencies) once verified.
-5. Webhook: backend sends the URL + events, Bastien adds the endpoint, then STRIPE_WEBHOOK_SECRET goes into Supabase secrets.
+5. DONE Nov 5 (SANDBOX): destination "fox-pro-webhook", 8 events, STRIPE_WEBHOOK_SECRET saved in Supabase; test checkout.session.completed = 200 OK. LIVE account: same steps before Dec 2 (its own whsec_).
 6. Accountant: GST / BC PST registration for a $36/yr digital membership (small supplier < $30k?). Before Dec 2.
 7. Branding LATER (Bastien: "we can do the logo later"). Designer spec:
    - brand + accent #0C241D (forest, not charcoal/orange);
