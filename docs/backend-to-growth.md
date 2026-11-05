@@ -688,3 +688,5 @@ All take effect at the 11:17 UTC read. Next: data audit 4-7, funnel.py list, sig
   arms, so all of them get it. No reward.
 - **Test copy:** weekly-email.yml "Run workflow" with send_to = `me` now sends an EN and a FR sample (men's 11 / M, Canada, subject
   "[TEST] …") to the HEALTH_EMAIL inbox; nothing is marked sent. Screenshots of the bottom (390 px) were checked before the push.
+- **Sent (Nov 5, 02:40 UTC, run 41956683065):** EN + FR "[TEST]" samples went to the HEALTH_EMAIL inbox (Resend accepted both). Bastien can
+  check the bottom line there, and reply to one to confirm the reply lands in hello@.
