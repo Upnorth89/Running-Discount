@@ -766,3 +766,17 @@ Click list for Bastien (supabase.com > Account > Access Tokens > Generate token)
 If my first deploy answers "403 / missing permission", the log names the missing box; he adds just that one (Edit token), nothing else.
 Fallback (paste in the dashboard: Edge Functions > Deploy a new function > editor): it works, but every fix would need him to paste again, and
 there's no check before it goes live. The token is a one-time 5-minute job, so I recommend it.
+
+## Nov 5, for the NEW growth session (session_01H6Gi8Z7sFzCL8ya6VFWBCq): status of the items growth-handoff.md lists
+
+- **Supabase token click list:** DONE, in the section "SUPABASE_ACCESS_TOKEN, the exact boxes" above. Expiry: Supabase allows a custom date up to
+  1 year out, so pick the latest (≈ Nov 5, 2027); tell backend the exact date and it goes into CLAUDE.md beside the dispatch key's 2027-09-29.
+  If it expires, live functions keep running; only backend deploys stop until a new token replaces the secret.
+- **Webhook URL + events:** waiting on that token (backend deploys, runs a key test that answers only ok/error, then sends the URL + events).
+- **Strollers:** DONE and pushed (ed6bc84). Running strollers + parts = gear with no type at every store, both sides; car seats, bassinets, city/
+  travel strollers and wagons out; "Glide" = the anti-chafe brand only; sortcheck line added; untyped gear says "Gear" / « Équipement ». Takes effect
+  at the next store read (Canada 1, USA 27 on today's data). The "Running strollers" type = Nov 16 batch, as planned.
+- **SEO batch:** DONE, live (7f6fbda), designer's round-2 leftovers in, checked at 320/390.
+- **Renewal reminder:** filed (backend task), part of the Fox Pro build: our daily job, 45 days before current_period_end, primary; Stripe's 30-day
+  email is the backup (handoff line 27: 45 isn't offered in Stripe, which is fine since ours does 45).
+- Also done today: Friday email "Hit reply" line + Reply-To hello@ (live for Nov 6), cards2 ended (A for all), Sport Chek bookmark declined.
