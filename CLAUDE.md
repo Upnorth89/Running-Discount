@@ -689,6 +689,7 @@ saved-pages/             MEC/REI files from the Grab deals bookmark (ignored aft
   **Reddit = shoes only with shoe page links (Oct 24, Bastien: "Reddit is great for clicks but no sign ups"; 705 Reddit first visits in
   14 days, <1% signed up, 8 of 361 homepage landings picked sizes; shoe pages bring 24 of 61 sign-ups via "Email me when it drops"):
   `reddit_post.py --pages-only` (no ?q= searches, no gear). Compare sign-ups per post by ?ref.**
+  **Reddit post format (Nov 5, Bastien: "I want all the links hyperlink only under the shoe name and short", "this should be a rule for reddit posts"):** title + two sections only, "**Canada (CAD)**" and "**USA (USD)**", sorted by % off; one short line per shoe: "- [Brand Model (W)](shoe page ?ref=reddit-<sub>) $109.95, 52% off" (the name is the ONLY link, (W)/(M) for gender, no "was", no bare addresses, no footer); common sizes only (3+ of men's 8-11.5 / women's 6.5-9, every size confirmed live the day of). Delivered on the copy page (Copy post) + the same list in chat.
   **Every post checks itself (Oct 28, Bastien: "I need you to double check your work before I push stuff"; a line said "$75 (was $150, −33%)"):
   reddit_post.py ends with tools/post_check.py: each line must match a row on its live shoe page (price, was, %, 5+ sizes) or it exits 1
   and says which; never send a post whose POST CHECK isn't "all lines match".**
