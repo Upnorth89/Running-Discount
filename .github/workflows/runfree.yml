@@ -124,8 +124,13 @@ jobs:
         with:
           ref: history
           path: hist
-      - name: Read Running Free slowly
-        run: python scraper/scrape.py --runningfree-night hist/runningfree.json
+      - name: Read Running Free slowly (from our Canadian server, Nov 5)
+        env:
+          SK: ${{ secrets.SUPABASE_SECRET_KEY }}
+          RF_RELAY: https://krwymmkauwqqxjxbvkyq.supabase.co/functions/v1/rf-fetch
+        run: |
+          export RF_KEY=$(printf '%s' "$SK:rf-relay" | sha256sum | cut -c1-48); echo "::add-mask::$RF_KEY"
+          python scraper/scrape.py --runningfree-night hist/runningfree.json
       - name: Save to the history branch
         if: success()
         run: |

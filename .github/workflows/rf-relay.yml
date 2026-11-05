@@ -48,6 +48,7 @@ jobs:
             wall=$(grep -c "only available to visitors in Canada" /tmp/b || true)
             cards=$(grep -o 'class="prodPreview' /tmp/b | wc -l)
             echo "PROBE $1: region=$reg store-status=$st bytes=$(wc -c </tmp/b) canada-only-page=$wall product-cards=$cards"
+            [ -n "$st" ] || echo "  relay said: $(head -c 200 /tmp/b)"
           }
           probe /robots.txt
           head -c 400 /tmp/b | grep -iE "user-agent|disallow|crawl" || true

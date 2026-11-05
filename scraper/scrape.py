@@ -544,21 +544,64 @@ RF_SHOE = re.compile(r"^(\d+)(-5)?-(Regular|Narrow|Wide|XWide|XXWide)-\d+$")
 _rf_last = [0.0]
 
 
+# Nov 5 (Bastien, backend chat: "this is a canadian person asking a canadian website"): Running Free serves visitors in Canada
+# only, and GitHub's computers are in the US. The Gear Fox is run from Canada, so the night read can ask from our own Canadian
+# server (supabase/functions/rf-fetch in ca-central-1): same honest bot name, runningfree.com only, its robots.txt + 30 s
+# Crawl-delay, and any 403/429/check page still stops the night. Used only when RF_RELAY + RF_KEY are set (runfree.yml).
+RF_RELAY = os.environ.get("RF_RELAY", "")
+RF_KEY = os.environ.get("RF_KEY", "")
+_RF_ROBOTS = []
+
+
+class _RfAnswer:
+    def __init__(self, status, text):
+        self.status_code, self.text = status, text
+
+
+def _rf_fetch(path):
+    """GET runningfree.com<path>, straight or from our Canadian server. Returns the STORE's status + page."""
+    ua = "Mozilla/5.0 (compatible; TheGearFox/1.0; +https://thegearfox.com/about.html)"
+    if not RF_RELAY:
+        r = S.get(RF_BASE + path, headers={"User-Agent": ua}, timeout=60)
+        return _RfAnswer(r.status_code, r.text)
+    r = requests.get(RF_RELAY, params={"path": path}, timeout=70, headers={"x-region": "ca-central-1", "x-rf-key": RF_KEY})
+    if r.status_code != 200 or not r.headers.get("x-rf-status"):
+        raise requests.RequestException(f"relay answered {r.status_code}: {r.text[:80]}")
+    return _RfAnswer(int(r.headers["x-rf-status"]), r.text)
+
+
+def _rf_allowed(path):
+    """robots.txt read once from the same server: Disallow lines for TheGearFox/ClaudeBot or *."""
+    if not RF_RELAY:
+        return True
+    if not _RF_ROBOTS:
+        from urllib.robotparser import RobotFileParser
+        rp = RobotFileParser()
+        a = _rf_fetch("/robots.txt")
+        rp.parse(a.text.splitlines() if a.status_code == 200 else [])
+        _RF_ROBOTS.append(rp)
+        _rf_last[0] = time.time()
+    return all(_RF_ROBOTS[0].can_fetch(u, RF_BASE + path) for u in ("TheGearFox", "TheGearFoxBot", "ClaudeBot"))
+
+
 def _rf_get(path):
     """One page, never sooner than 30 s after the last one."""
+    if not _rf_allowed(f"/products/{path}"):
+        raise RuntimeError(f"Running Free said no (robots.txt disallows /products/{path})")
     wait = _rf_last[0] + RF_DELAY - time.time()
     if wait > 0:
         time.sleep(wait)
     for t in range(3):
         _rf_last[0] = time.time()
         try:
-            r = S.get(f"{RF_BASE}/products/{path}", headers={"User-Agent": "Mozilla/5.0 (compatible; TheGearFox/1.0; +https://thegearfox.com/about.html)"},
-                      timeout=60)
+            r = _rf_fetch(f"/products/{path}")
+            if r.status_code == 200 and re.search(r"captcha|just a moment|cf-chl", r.text[:5000], re.I):
+                raise RuntimeError("Running Free said no (a check page)")
             if r.status_code == 200:
                 if "only available to visitors in Canada" in r.text:
                     _RF_GEO["wall"] = True        # Nov 1: some GitHub computers sit outside North America: the store's country page
                     # Nov 5: the page now says "only available to visitors in Canada." (was "Canada or the United States"), so GitHub's
-                    # US computers get it every night. It's the store's choice: never read it through a Canadian address to get past it.
+                    # US computers get it every night: the night job reads from our Canadian server instead (RF_RELAY, above).
                 return r.text
             print(f"::warning::runningfree: {path} HTTP {r.status_code}", file=sys.stderr)
             if r.status_code in (403, 429):
