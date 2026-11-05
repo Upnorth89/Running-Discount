@@ -969,3 +969,12 @@ Phone = 390 px, DevTools "Fast 3G" (~160 KB/s, 562 ms latency) + CPU slowed x4, 
   - NNormal Tomir 2.0 Trail photo: the picture loads (200 OK, 520 KB). It's a beige shoe on white, so it looks empty. Tell me if you want a different store's photo preferred.
   - Wildrock kayak part: not in today's hiking files (nothing to remove).
 - **Queued for Nov 16 (needs Bastien's OK):** other-gender hint, one "All <model> models" box, the "Full price: watch for a drop" label.
+
+## Run logs with addresses: deleted (Bastien's yes, Nov 5)
+
+- **Before deleting, checked:** every address the current code prints is masked (weekly email, alerts, race reminders, mail health, welcome resend, mail check; Resend's error texts pass through `scrub()` since this morning).
+- **Deleted:** the LOGS of **1 run across 1 workflow** (Weekly deals email, run 41077707857). The tool counted 1 address mention first, GitHub answered 204, and the recount was 0. The run record, its artifacts and every cache are untouched.
+- **Rescan right after (all workflows, 326 runs since Oct 30 14:00 UTC):** **0 runs with a full address** in the 713 logs GitHub let us read.
+  - 802 logs didn't download, the same caveat as this morning: mostly big refresh logs. Only runs between ~14:42 and ~15:45 UTC on Oct 30 could ever have held one.
+- For docs/decisions.md: "deleted 1 run log across 1 workflow; 0 addresses left".
+- How: `log-scan.yml` now has a "delete" input (run ids). It deletes a run's logs only when they hold a full address, and never touches runs, artifacts or caches.
