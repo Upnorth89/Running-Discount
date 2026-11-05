@@ -1072,3 +1072,11 @@ Phone = 390 px, DevTools "Fast 3G" (~160 KB/s, 562 ms latency) + CPU slowed x4, 
 - Cards leave ~10:19 UTC Nov 6 either way unless option 2 happens tonight.
 - **Your other answers, noted:** BF first-screen speed fix (new visitors) and the Salt Lake Running Co + Dick Pond readers are next on my list.
 - **Note:** this session has no send_message tool, so alerts can only land here. Bastien sees my replies directly in the backend chat.
+
+## Nov 5, 21:00 UTC: Running Free from Canada — the store's server cuts the connection from our Canadian server
+- **Bastien OK'd it directly.** The reader change is in: runfree.yml's night read goes through rf-fetch (Supabase ca-central-1) with the same bot name, robots.txt + 30 s, and a stop on 403/429/check page.
+- **Result: 4 tries in 2 runs, all the same.** Region ca-central-1, then "client error (Connect): Connection re[set/fused]" ~0.5 s in, every time.
+- The page isn't even reached. www.runningfree.com is 52.242.34.20 (Microsoft Azure, Canada), IPv4 only. Our sandbox gets robots.txt 200 straight away, so the store is up and the refusal is aimed at Supabase's cloud addresses.
+- **Meaning:** this isn't the country page. Running Free's firewall drops connections from that cloud network: a network-level "no" to data-centre computers. That falls under Bastien's own condition ("unless it is" a robot block). Trying other cloud providers until one gets through would be rotating addresses around that block, so I stopped here.
+- **Night read tonight:** through the relay it fails within seconds (no answer = nothing saved). The last good copy stays until ~10:19 UTC Nov 6, then Running Free leaves the site.
+- **Way back:** an email to Running Free asking them to allow TheGearFox (or send a product file). We can tell them exactly what we read and how slowly.
