@@ -27,16 +27,34 @@ jobs:
           REPO: ${{ github.repository }}
         run: |
           python3 - <<'EOF'
-          import json, os, re, urllib.request, collections
+          import json, os, re, urllib.request, urllib.error, collections
           tok, repo, since = os.environ["GH_TOKEN"], os.environ["REPO"], os.environ["SINCE"]
+          class NoRedirect(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self, *a, **k):
+                  return None
+          noredir = urllib.request.build_opener(NoRedirect)
+          stats = collections.Counter()
           def api(path, raw=False):
               req = urllib.request.Request(f"https://api.github.com/repos/{repo}{path}",
                                            headers={"Authorization": f"Bearer {tok}", "Accept": "application/vnd.github+json"})
               try:
-                  with urllib.request.urlopen(req, timeout=60) as r:
+                  with noredir.open(req, timeout=60) as r:
                       b = r.read()
                       return b.decode("utf-8", "ignore") if raw else json.loads(b)
-              except Exception as e:
+              except urllib.error.HTTPError as e:
+                  # job logs answer 302 -> a signed storage URL: fetch it WITHOUT our token (sending it there fails)
+                  if e.code in (301, 302, 303, 307, 308) and e.headers.get("Location"):
+                      try:
+                          with urllib.request.urlopen(e.headers["Location"], timeout=120) as r:
+                              b = r.read()
+                              return b.decode("utf-8", "ignore") if raw else json.loads(b)
+                      except Exception:
+                          stats["redirect failed"] += 1
+                          return None
+                  stats[f"http {e.code}"] += 1
+                  return None
+              except Exception:
+                  stats["error"] += 1
                   return None
           ADDR = re.compile(r"[A-Za-z0-9._%+-]+@([A-Za-z0-9-]+\.)+[A-Za-z]{2,}")
           OK = re.compile(r"(thegearfox\.com|github\.com|noreply|users\.noreply|example\.com|anthropic\.com|resend\.dev)$", re.I)
@@ -54,6 +72,7 @@ jobs:
               n = 0
               for j in jobs:
                   t = api(f"/actions/jobs/{j['id']}/logs", raw=True) or ""
+                  stats["logs read" if t else "logs empty/missing"] += 1
                   for m in ADDR.finditer(t):
                       a = m.group(0)
                       local, dom = a.split("@", 1)
@@ -63,6 +82,7 @@ jobs:
               if n:
                   hits.append((r["id"], r["name"], r["created_at"], n))
           by = collections.Counter(h[1] for h in hits)
+          print("LOG STATS: " + ", ".join(f"{k} {v}" for k, v in stats.items()))
           print(f"RUNS WITH FULL ADDRESSES: {len(hits)}  " + ", ".join(f"{k}: {v}" for k, v in by.items()))
           for h in hits:
               print(f"  run {h[0]}  {h[1]}  {h[2]}  {h[3]} address mention(s)")
