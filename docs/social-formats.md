@@ -72,6 +72,7 @@ the price for you, in your size, at 80+ Canadian stores. Free. Link in bio 🦊"
 FR = Québec, tutoiement, casual ("pis", "fait que"). Store count from today's data (Canadian stores ~83 on Nov 5).
 
 ## Things to remember
+- RULE (Nov 5, Bastien): every social piece goes through the marketing team (social-producer + cmo, designer for visuals, compliance for words) before it reaches him.
 - Instagram posts are ENGLISH ONLY (Bastien, Nov 5: "Im only posting in English"): make EN video files + EN caption only. FR stays on the site/emails.
 - Reaction open (Nov 5): ~1 s genuine "wait, what?" face full screen, then he shrinks bottom-right (never over the sticker/price, above the bottom 400 px band). Cover stays the card, not his face.
 - Bastien is a new dad (Nov 2026). Compliance-approved hook: "New dad here." FR: « Je viens d'être papa. » Never imply he owns
