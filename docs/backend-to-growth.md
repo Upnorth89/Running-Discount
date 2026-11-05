@@ -905,3 +905,35 @@ Phone = 390 px, DevTools "Fast 3G" (~160 KB/s, 562 ms latency) + CPU slowed x4, 
   - A product kept for 50 h is dropped; one kept for 10 h stays with its first date.
 - **Live read just now** (12:3x UTC): all 22 files read, **3,201 products**. Running Room's file 21 is whole again, so the next read (the afternoon run at 23:17 UTC, or any started run) brings the store back with a fresh date even without this fix.
   Its "last good read" was Nov 4 23:41 UTC, so it was never close to the 48 h cut-off.
+
+## Your Nov 5 asks: wording, store risk list, health split (+ Running Free is locked out)
+
+- **Wording (pushed):**
+  - Race hubs (/races/, /courses/, /us/races/) now read "The gear list for each race, mandatory or suggested, from the race's own rules" /
+    « La liste de matériel de chaque course, obligatoire ou suggéré, selon les règlements de la course ».
+  - The hub title and Google description also say "mandatory or suggested" now.
+  - About: "Prices update twice a day." / « Les prix sont mis à jour deux fois par jour. »
+- **Store risk list:** `docs/store-risk.md`, made by `tools/store_risk.py` (run by hand; weekly is easy to add if you want it).
+  - Per store: how we read it, requests a read, last failure + its kind, sale cards it gives the best price on, and cards ONLY it carries.
+  - **Top 5 at risk:**
+    1. The Feed (824 cards only there; 429 history)
+    2. The Last Hunt (734 only there; ~1,400 requests a read through its catalogue service)
+    3. Running Free (377 only there; locked now, see below)
+    4. Boréal (894 only there; public products.json, low risk per read)
+    5. Altitude (228 only there; ~2,100 requests a read)
+  - Each of the five has a "what lowers it" line (fewer re-reads, the second daily read moved to night, affiliate feeds, a hello email to the store).
+  - Saved pages (REI 4,432 cards only there, Backcountry 926, MEC 86) can't lock us out: their risk is going stale, so they're listed separately.
+- **Health email split (pushed with check.py):** a failed store's line now says one of:
+  - "LOCKED US OUT (the store said no: a person asks the store…)"
+  - "OUR READER BROKE (ours to fix)"
+  - "the store's own site had a problem (usually back by itself)"
+
+  scrape.py keeps each store's last failure (when, kind, why) in deals.json `fails`.
+- **Running Free is locked out (found while building the list):**
+  - Last night's read got 0 products. Its site now shows GitHub's US computers a page saying it's "only available to visitors in Canada."
+    The page used to say "Canada or the United States".
+  - The site keeps its Nov 4 copy until **~Nov 6 10:19 UTC**, then its 558 sale cards (377 only there) leave.
+  - We will NOT read it through a Canadian address: that's getting around the store's choice.
+  - **Bastien's call:** email Running Free (we've sent them clicks) for permission or a product file.
+    Want a draft from the partnerships agent?
+- **Running Room:** this morning's manual read was cancelled by later pushes, so tonight's 23:17 UTC run reads it. Its last read stays on the site until Nov 6 23:41 UTC, so nothing is lost.
