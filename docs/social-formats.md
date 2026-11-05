@@ -44,6 +44,12 @@ Prices are re-checked on the store's own page (livecheck) the day it's posted. M
 - Timing: card 13 s (he talks), fade 0.5 s at 12.5 s, end card (logo + LINK IN BIO) 3.5 s. Total 16 s.
 - First made for the Thule Urban Glide 3 Single (Bushtukah, $449.98, was $899.95; livechecked Nov 5 13:30 UTC). Files: out/stroller-en.mp4, out/stroller-fr.mp4 (not committed).
 
+## 2c. Sticker card (Nov 5, Bastien: "a picture of the stroller with massive sticker on it")
+- Template: docs/formats/one-item-sticker.html (?l=en|fr &s=b|c). White panel, product photo big, a tilted green round sticker (site stamp
+  style) with "HALF PRICE / $449.98 / was $899.95" (FR « MOITIÉ PRIX / 449,98 $ / au lieu de 899,95 $ »), name + kind · colour · store + CA badge at the bottom.
+- The sticker carries the NUMBER, never a slogan ("pay less run more" gives no reason to stop; concrete beats clever).
+- Same timing as 2b (13 s talk + 3.5 s logo end). Cover = the card moved down so the 4:5 grid crop shows it whole (panel pasted at y=309).
+
 ## 3. Green screen (how Bastien films)
 - **Background:** Instagram Reels → Effects → Green Screen → pick the video. Or CapCut: video first, his clip on top
   → Remove background / Chroma key.
