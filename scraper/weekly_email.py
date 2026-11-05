@@ -35,6 +35,7 @@ DRY = "--dry-run" in sys.argv or not os.environ.get("RESEND_API_KEY")
 SITE_URL = os.environ.get("SITE_URL", "").rstrip("/") + "/"
 DEALS_URL = os.environ.get("DEALS_URL") or (SITE_URL + "deals.json" if SITE_URL != "/" else "")
 FROM = os.environ.get("FROM_EMAIL", "The Gear Fox <deals@thegearfox.com>")
+REPLY_TO = "hello@thegearfox.com"   # Nov 5: replies ("Bought something you found here? Hit reply") go to the inbox Bastien reads
 SB_URL = os.environ.get("SUPABASE_URL", "").rstrip("/")
 SB_KEY = os.environ.get("SUPABASE_SECRET_KEY", "")
 ADDRESS = os.environ.get("MAILING_ADDRESS", "").strip()
@@ -202,7 +203,8 @@ STR = {
                drops_head="Dropped this week in your size", wk_drop=lambda m: f"↓ {m} this week",
                subject_drop=lambda name, m, n: f"{name} dropped {m} in your size" + (f", + {n} more this week" if n else ""),
                intro_drop=lambda first, n: f"{first}, {n} {'thing' if n == 1 else 'things'} dropped in your sizes this week. Here they are, then the week's best deals.",
-               see_all_btn=lambda n: f"See all {n} deals in your size"),
+               see_all_btn=lambda n: f"See all {n} deals in your size",
+               reply="Bought something you found here? Hit reply and tell us. We read every one."),
     "fr": dict(your_size="Votre taille : ", best_by="Meilleur avant le {}", all_sizes="Toutes les pointures et boutiques →",
                abroad="Expédié de l'extérieur du Canada · converti en $ CA, des droits peuvent s'appliquer",
                abroad_us="Expédié de l'extérieur des États-Unis, des droits peuvent s'appliquer", final="Vente finale : aucun retour",
@@ -224,7 +226,8 @@ STR = {
                drops_head="En baisse cette semaine à votre taille", wk_drop=lambda m: f"↓ {m} cette semaine",
                subject_drop=lambda name, m, n: f"{name} : −{m} à votre taille" + (f", + {n} autres baisses cette semaine" if n else ""),
                intro_drop=lambda first, n: f"{first}, {n} {'article a baissé' if n == 1 else 'articles ont baissé'} dans vos tailles cette semaine. Les voici, puis les meilleures aubaines de la semaine.",
-               see_all_btn=lambda n: f"Voir les {n} aubaines à votre taille"),
+               see_all_btn=lambda n: f"Voir les {n} aubaines à votre taille",
+               reply="Vous avez acheté quelque chose trouvé ici? Répondez à ce courriel pour nous le dire. On lit tout."),
 }
 
 
@@ -466,12 +469,13 @@ def build(p, sale, watch=None):
 {first_note}<tr><td style="padding:0 20px 20px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">{"".join(sections)}</table></td></tr>
 <tr><td style="padding:14px 20px 22px;text-align:center;border-top:2px dashed #CBD2CC">
 <a href="{E(shop)}" style="display:inline-block;background:#F26A1B;color:#17201C;border:2px solid #17201C;border-radius:10px;padding:12px 20px;font:800 16px Arial,sans-serif;text-decoration:none">{E(tr(lang, "see_all_btn", len(sale)))}</a>
+<div style="font:13px/1.45 Arial,sans-serif;color:#5C6660;margin-top:14px">{E(tr(lang, "reply"))}</div>
 <div style="font:12px/1.4 Arial,sans-serif;color:#5C6660;margin-top:14px">{tr(lang, "fine")}<br>
 {footer_links}</div></td></tr>
 </table></td></tr></table></body></html>'''
     text = f"{subject}\n\n" + "\n".join(
         f"- {d['b']} {d['n']}: {money(d['best'], lang)} ({tr(lang, 'was')} {money(d['reg'], lang)}, {pct_txt(d['pct'], lang)}) {d['url']}"
-        for d in sale[:TOTAL]) + f"\n\n{tr(lang, 'all_deals')}: {shop}\n" + (
+        for d in sale[:TOTAL]) + f"\n\n{tr(lang, 'all_deals')}: {shop}\n\n{tr(lang, 'reply')}\n\n" + (
         f"{tr(lang, 'unsubscribe')}: {SITE_URL}?unsub={p['token']}\n" if p.get("token") else "") + (
         f"The Gear Fox, {ADDRESS}\n" if ADDRESS else "")
     return subject, body, text
@@ -564,10 +568,19 @@ def main():
     db = subscribers()
     seen = {p["email"].lower() for p in db}
     profiles = db + [p for p in profiles if (p.get("email") or "").lower() not in seen]
-    if MANUAL and not SEND_TO:
+    if SEND_TO == "me":    # Nov 5: a test copy for Bastien without typing an address (public repo): EN + FR samples to HEALTH_EMAIL
+        own = os.environ.get("HEALTH_EMAIL", "").strip()
+        if not own:
+            print("send_to=me needs the HEALTH_EMAIL secret: nothing sent")
+            return 1
+        base = {"gender": "men", "terrain": "both", "ships": "ca", "email": own, "_sent": "sample", "_test": True,
+                "sizes": {"shoes": {"sizes": ["11"], "width": []}, "tops": {"sizes": ["M"]}, "bottoms": {"sizes": ["M"]}}}
+        profiles = [{**base, "lang": "en", "name": "Sample"}, {**base, "lang": "fr", "name": "Exemple"}]
+        print("TEST SEND (me): an English and a French sample (men's 11 / M, Canada) to HEALTH_EMAIL")
+    elif MANUAL and not SEND_TO:
         print("Manual run with no 'send to' address: nothing sent. Type your email in the box (or 'everyone').")
         return 1
-    if SEND_TO and SEND_TO != "everyone":
+    if SEND_TO and SEND_TO not in ("everyone", "me"):
         want = {e.strip() for e in SEND_TO.split(",") if e.strip()}
         profiles = [p for p in profiles if (p.get("email") or "").lower() in want]
         missing = want - {p["email"].lower() for p in profiles}
@@ -649,6 +662,8 @@ def main():
             print(f"{mask(who)}: nothing on sale in their sizes this week, no email sent")
             continue
         subject, body, text = build(p, sale, watch)
+        if p.get("_test"):
+            subject = "[TEST] " + subject
         if DRY:
             out = ROOT / "email" / "preview.html"
             out.write_text(body)
@@ -656,7 +671,7 @@ def main():
             continue
         r = requests.post("https://api.resend.com/emails", timeout=60,
                           headers={"Authorization": f"Bearer {os.environ['RESEND_API_KEY']}"},
-                          json={"from": FROM, "to": [who], "subject": subject, "html": body, "text": text,
+                          json={"from": FROM, "to": [who], "reply_to": REPLY_TO, "subject": subject, "html": body, "text": text,
                                 **({"headers": {"List-Unsubscribe": f"<{SITE_URL}?unsub={p['token']}>"}} if p.get("token") else {})})
         if r.ok:
             print(f"{mask(who)}: sent {len(sale)} deals" + (" + watchlist news" if has_watch else ""))

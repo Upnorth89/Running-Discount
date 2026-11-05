@@ -676,3 +676,15 @@ All take effect at the 11:17 UTC read. Next: data audit 4-7, funnel.py list, sig
 - **Grab deals bookmark for Sport Chek: no, it would cross the line.** Its pages load (200) and robots.txt allows them, but both the prices and the sizes in stock come from the same data service that answered 403. The bookmark could copy names + listing prices from a rendered page, but no sizes (our cards need sizes to match anyone); getting sizes means calling that refused service from Bastien's browser = working around a block. Recommend: off until the Impact feed.
 - Live after 23:17: jewelry 0, PowSlayer 0 (both sides, both sports). Gazelle: 1 indoor shoe ("Phantom 6 Low Academy IC") + your Brazil Stadium Jersey left. Fixed and pushed (live at the 11:17 read): "IC" added to the soccer shoe codes; Reef (sandals) joins CASUAL_ANY (10 cards at Fit2Run; Topo's Phantom stays); team jerseys by name in every group/side ("stadium|replica|national team|<country>|<club> … jersey", names/brands saying run/running stay). On today's files: only the Brazil jersey; Bandit Running's "Home … Jersey" / "STADE FC" jerseys kept.
 - Hidden/wholesale skip line at 23:17: frontrunners 13, confluence 11.
+
+## Nov 5: Friday email testimonial line (your Nov 5 message, Bastien OK'd)
+
+- **Where replies land:** the Friday email had NO Reply-To, so a reply went to deals@thegearfox.com (the sending address; nothing
+  says that inbox is read). Now every Friday/Saturday email sets **Reply-To: hello@thegearfox.com** (same as the confirm reminder), so
+  "Hit reply" reaches the inbox Bastien reads. From stays deals@ (sender reputation unchanged).
+- **The line:** right under "See all N deals in your size", small grey (13px, #5C6660), before the fine print. Word for word, EN:
+  "Bought something you found here? Hit reply and tell us. We read every one." FR: « Vous avez acheté quelque chose trouvé ici? Répondez à
+  ce courriel pour nous le dire. On lit tout. » Also in the plain-text version. One build() serves running + hiking, CA + US, Friday + Saturday
+  arms, so all of them get it. No reward.
+- **Test copy:** weekly-email.yml "Run workflow" with send_to = `me` now sends an EN and a FR sample (men's 11 / M, Canada, subject
+  "[TEST] …") to the HEALTH_EMAIL inbox; nothing is marked sent. Screenshots of the bottom (390 px) were checked before the push.
