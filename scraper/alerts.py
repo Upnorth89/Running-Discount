@@ -15,6 +15,7 @@ Env: RESEND_API_KEY, SUPABASE_URL, SUPABASE_SECRET_KEY, SITE_URL, FROM_EMAIL, MA
 Usage: python scraper/alerts.py site/deals.json [--dry-run]
 """
 import json
+import re
 import os
 import sys
 from datetime import datetime, timezone
@@ -25,6 +26,10 @@ import requests
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import weekly_email as W  # noqa: E402  (shares match(), branding and settings)
+
+def scrub(t):
+    """Nov 5: a refused email's error text can repeat the address; logs of this public repo are readable by anyone"""
+    return re.sub(r"[A-Za-z0-9._%+-]+@([A-Za-z0-9-]+[.])+[A-Za-z]{2,}", "<address>", t or "")
 
 FORCE = "--any-day" in sys.argv
 DRY = "--dry-run" in sys.argv or not os.environ.get("RESEND_API_KEY")
@@ -260,7 +265,7 @@ def main():
             print(f"{mask(who)}: sent {len(p['drops'])} drops, {len(p['backs'])} back in size")
         else:
             failed += 1
-            print(f"{mask(who)}: FAILED {r.status_code} {r.text[:200]}")
+            print(f"{mask(who)}: FAILED {r.status_code} {scrub(r.text[:200])}")
             # keep their notified prices as they were so tomorrow retries
             ids = {i for i, _ in p["updates"]}
             updates = [(i, u) for i, u in updates if i not in ids]

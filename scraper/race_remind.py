@@ -28,6 +28,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import race_pages as RP            # noqa: E402
 import weekly_email as W           # noqa: E402
 
+def scrub(t):
+    """Nov 5: a refused email's error text can repeat the address; logs of this public repo are readable by anyone"""
+    return re.sub(r"[A-Za-z0-9._%+-]+@([A-Za-z0-9-]+[.])+[A-Za-z]{2,}", "<address>", t or "")
+
 E = W.E
 DRY = "--dry-run" in sys.argv or not os.environ.get("RESEND_API_KEY")
 CATCH_UP = 6                       # a run missed on the day still sends during the next 6 days
@@ -275,7 +279,7 @@ def sample(site, slug, out=None, to=None):
             print("no RESEND_API_KEY: not sent")
             return 1
         r = send(to, "[TEST] " + subject, html, text, sub["token"])
-        print("test send:", r.status_code, r.text[:200])
+        print("test send:", r.status_code, scrub(r.text[:200]))
         return 0 if r.ok else 1
     return 0
 
@@ -327,7 +331,7 @@ def main():
                 print(f"{mask(sub['email'])} {x['slug']}: sent ({n} lines)")
             else:
                 report["failed"] += 1
-                print(f"{mask(sub['email'])} {x['slug']}: FAILED {r.status_code} {r.text[:200]}")
+                print(f"{mask(sub['email'])} {x['slug']}: FAILED {r.status_code} {scrub(r.text[:200])}")
             time.sleep(0.7)       # Resend takes 2 a second
     elif races:
         print("Supabase not configured: nothing sent")

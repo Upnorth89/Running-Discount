@@ -1,0 +1,70 @@
+name: Log scan (addresses in public run logs)
+
+# Nov 5, 2026 (growth night shift, privacy): the repo is public, so Actions run logs are readable by anyone signed in to GitHub.
+# This lists runs (every workflow) created since SINCE, downloads each job's log and counts FULL email addresses in it
+# (masked "ab…@gmail.com", our own @thegearfox.com, GitHub/noreply ones and the Resend sender don't count).
+# It prints ONLY run ids, workflow names, dates and counts: never an address. Run by hand.
+on:
+  workflow_dispatch:
+    inputs:
+      since:
+        description: "Scan runs created on/after this UTC time (ISO), e.g. 2026-10-30T14:00:00Z"
+        required: true
+        default: "2026-10-30T14:00:00Z"
+
+permissions:
+  actions: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Scan logs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SINCE: ${{ inputs.since }}
+          REPO: ${{ github.repository }}
+        run: |
+          python3 - <<'EOF'
+          import json, os, re, urllib.request, collections
+          tok, repo, since = os.environ["GH_TOKEN"], os.environ["REPO"], os.environ["SINCE"]
+          def api(path, raw=False):
+              req = urllib.request.Request(f"https://api.github.com/repos/{repo}{path}",
+                                           headers={"Authorization": f"Bearer {tok}", "Accept": "application/vnd.github+json"})
+              try:
+                  with urllib.request.urlopen(req, timeout=60) as r:
+                      b = r.read()
+                      return b.decode("utf-8", "ignore") if raw else json.loads(b)
+              except Exception as e:
+                  return None
+          ADDR = re.compile(r"[A-Za-z0-9._%+-]+@([A-Za-z0-9-]+\.)+[A-Za-z]{2,}")
+          OK = re.compile(r"(thegearfox\.com|github\.com|noreply|users\.noreply|example\.com|anthropic\.com|resend\.dev)$", re.I)
+          runs, page = [], 1
+          while True:
+              d = api(f"/actions/runs?per_page=100&page={page}&created=>={since}")
+              if not d or not d.get("workflow_runs"):
+                  break
+              runs += d["workflow_runs"]; page += 1
+              if page > 30: break
+          print(f"{len(runs)} runs since {since}")
+          hits = []
+          for r in runs:
+              jobs = (api(f"/actions/runs/{r['id']}/jobs?per_page=100") or {}).get("jobs") or []
+              n = 0
+              for j in jobs:
+                  t = api(f"/actions/jobs/{j['id']}/logs", raw=True) or ""
+                  for m in ADDR.finditer(t):
+                      a = m.group(0)
+                      local, dom = a.split("@", 1)
+                      if local.endswith("…") or local.endswith("...") or OK.search(dom):
+                          continue
+                      n += 1
+              if n:
+                  hits.append((r["id"], r["name"], r["created_at"], n))
+          by = collections.Counter(h[1] for h in hits)
+          print(f"RUNS WITH FULL ADDRESSES: {len(hits)}  " + ", ".join(f"{k}: {v}" for k, v in by.items()))
+          for h in hits:
+              print(f"  run {h[0]}  {h[1]}  {h[2]}  {h[3]} address mention(s)")
+          print(f"::notice::{len(hits)} runs with full addresses since {since}: " + " ".join(str(h[0]) for h in hits))
+          EOF

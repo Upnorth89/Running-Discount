@@ -30,6 +30,10 @@ from pathlib import Path
 
 import requests
 
+def scrub(t):
+    """Nov 5: a refused email's error text can repeat the address; logs of this public repo are readable by anyone"""
+    return re.sub(r"[A-Za-z0-9._%+-]+@([A-Za-z0-9-]+[.])+[A-Za-z]{2,}", "<address>", t or "")
+
 ROOT = Path(__file__).resolve().parents[1]
 DRY = "--dry-run" in sys.argv or not os.environ.get("RESEND_API_KEY")
 SITE_URL = os.environ.get("SITE_URL", "").rstrip("/") + "/"
@@ -686,7 +690,7 @@ def main():
                         print(f"  could not update watch {wid}: {e}")
         else:
             failed += 1
-            print(f"{mask(who)}: FAILED {r.status_code} {r.text[:300]}")
+            print(f"{mask(who)}: FAILED {r.status_code} {scrub(r.text[:300])}")
     return 1 if failed else 0
 
 if __name__ == "__main__":

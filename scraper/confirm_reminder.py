@@ -7,11 +7,16 @@ Needs the column from supabase/confirm-reminder-oct11.sql; until it exists this 
 Env: SUPABASE_URL, SUPABASE_SECRET_KEY, RESEND_API_KEY.   Usage: python scraper/confirm_reminder.py [--dry-run]
 """
 import os
+import re
 import sys
 import time
 from datetime import datetime, timedelta, timezone
 
 import requests
+
+def scrub(t):
+    """Nov 5: a refused email's error text can repeat the address; logs of this public repo are readable by anyone"""
+    return re.sub(r"[A-Za-z0-9._%+-]+@([A-Za-z0-9-]+[.])+[A-Za-z]{2,}", "<address>", t or "")
 
 SB, KEY = os.environ.get("SUPABASE_URL", "").rstrip("/"), os.environ.get("SUPABASE_SECRET_KEY", "")
 RESEND = os.environ.get("RESEND_API_KEY", "")
@@ -77,7 +82,7 @@ def main():
             requests.patch(f"{SB}/rest/v1/subscribers", headers={**h, "Prefer": "return=minimal"}, timeout=30,
                            params={"email": f"eq.{x['email']}"}, json={"confirm_reminded_at": now.isoformat()})
         else:
-            print(f"confirm reminder not sent: HTTP {m.status_code} {m.text[:120]}")
+            print(f"confirm reminder not sent: HTTP {m.status_code} {scrub(m.text[:120])}")
         time.sleep(0.6)            # Resend allows 2 a second
     print(f"confirm reminders: {len(rows)} waiting, {sent} sent")
     return 0
