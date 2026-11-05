@@ -34,8 +34,6 @@ const PORTAL: Record<string, string> = {
   "features[subscription_cancel][cancellation_reason][enabled]": "false",
   "features[payment_method_update][enabled]": "true",
   "features[invoice_history][enabled]": "true",
-  "features[customer_update][enabled]": "false",
-  "features[subscription_update][enabled]": "false",
 };
 
 Deno.serve(async (req) => {
@@ -50,12 +48,12 @@ Deno.serve(async (req) => {
   }
   if (what === "portal") {
     const list = await stripe("/billing_portal/configurations?is_default=true&limit=1");
-    if (list.status !== 200) return out({ mode: m, result: list.j?.error?.code || `http ${list.status}` });
+    if (list.status !== 200) return out({ mode: m, step: "list", result: list.j?.error?.code || `http ${list.status}`, param: list.j?.error?.param, why: list.j?.error?.message });
     const cur = list.j?.data?.[0];
     const r = await stripe(cur ? `/billing_portal/configurations/${cur.id}` : "/billing_portal/configurations", new URLSearchParams(PORTAL));
     const c = r.j || {};
     return out({
-      mode: m, result: r.status === 200 ? "ok" : (c?.error?.code || c?.error?.message || `http ${r.status}`),
+      mode: m, result: r.status === 200 ? "ok" : (c?.error?.code || `http ${r.status}`), param: c?.error?.param, why: c?.error?.message,
       config: r.status === 200 ? {
         id: c.id, is_default: c.is_default, cancel: c.features?.subscription_cancel?.enabled,
         cancel_mode: c.features?.subscription_cancel?.mode, reason_asked: c.features?.subscription_cancel?.cancellation_reason?.enabled,
