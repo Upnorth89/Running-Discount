@@ -109,15 +109,28 @@ def candidate(i, stores):
             return None
     host = urlparse(i["of"][e[2]]).hostname.replace("www.", "")
     known = i["b"].lower() in (POPULAR if g in ("shoes", "tops", "bottoms") else GEAR_BRANDS | POPULAR)
-    return dict(score=pct + len(sale) * 0.5 + (15 if known else 0) + (min(e[3], 300) / 20 if g not in ("shoes", "tops", "bottoms") else 0), g=g, t=i.get("t"), b=i["b"],
+    if g == "shoes":
+        ROWS[id(i)] = (i, [x for x in i["sz"] if x[2] == e[2] and abs(x[1] - e[1]) < 0.01])
+    return dict(iid=id(i), score=pct + len(sale) * 0.5 + (15 if known else 0) + (min(e[3], 300) / 20 if g not in ("shoes", "tops", "bottoms") else 0), g=g, t=i.get("t"), b=i["b"],
                 n=clean(i["n"]), pct=pct, price=e[1], reg=e[3], store=stores.get(host, host), img=i["img"], sizes=sizes,
                 who=who, sex=sex_of(who, i), url=i["of"][e[2]], vid=e[4] if len(e) > 4 else None)
 
 
 DROPPED = []                             # picks the store's own page no longer shows on sale (listed in the email)
+ROWS = {}                                # shoes: id(item) -> (item, its sizes at the shown price and store)
 
 
 def live(x):
+    if x["g"] == "shoes" and x.get("iid") in ROWS:
+        # Nov 5 (Bastien: no shoes on sale only in odd sizes, no sold-out landings): every size opened on the store's page,
+        # 3+ common sizes (men's 8-11.5, women's 6.5-9) and 5+ in all must still be there
+        it, rows = ROWS[x["iid"]]
+        ok_rows, blocked = livecheck.live_sizes(it, rows)
+        ok, common = livecheck.shoe_ok(it, ok_rows)
+        if not ok:
+            DROPPED.append(f"{x['b']} {x['n']} ({x['store']}: " + ("couldn't check" if blocked and not ok_rows else
+                           f"only {len(ok_rows)} sizes still there, common {', '.join(common) or 'none'}") + ")")
+        return ok
     ok = livecheck.still_on_sale(x["url"], x["price"], x.get("vid"))
     if not ok:
         DROPPED.append(f"{x['b']} {x['n']} ({x['store']}: " + ("couldn't check" if ok is None else "not at that price any more") + ")")

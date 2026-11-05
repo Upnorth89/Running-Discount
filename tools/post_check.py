@@ -12,6 +12,7 @@ import re
 import sys
 import urllib.request
 
+SHORT = re.compile(r"^- \[([^\]]+)\]\((https://thegearfox\.com/(?:us/)?shoes/[^)]+)\) \$([\d.,]+), (\d+)% off", re.M)  # Nov 5 format
 LINE = re.compile(r"\[([^\]]+)\]\((https://thegearfox\.com/(?:us/)?shoes/[^)]+)\): \$([\d.,]+) \(was \$([\d.,]+), −(\d+)%\)(?: at ([^\n]+))?")
 ROW = re.compile(r"(\d+(?:\.5)?(?: \(wide\))?|[MW] \d+(?:\.5)?) \$([\d,]+\.\d\d) \$([\d,]+\.\d\d) −(\d+)%")
 
@@ -28,12 +29,31 @@ def rows(page_html):
     return out
 
 
-def check(md, log=print):
+COMMON = {"men": {x / 2 for x in range(16, 24)}, "women": {x / 2 for x in range(13, 19)}}
+
+
+def page_common(rel, p, sex):
+    """Common sizes (men's 8-11.5, women's 6.5-9) at $p or less on the shoe page, as labels."""
+    out = set()
+    for cut, size, price, _, _ in rel:
+        m = re.fullmatch(r"(?:([MW]) )?(\d+(?:\.5)?)", size)
+        if not m or price > p + 0.01:
+            continue
+        c = {"M": "men", "W": "women"}.get(m.group(1)) or ("women" if cut.startswith("Women") else "men")
+        if float(m.group(2)) in COMMON[c]:
+            out.add((c, float(m.group(2))))
+    return [f"{'W ' if c == 'women' and sex != 'women' else ''}{v:g}" for c, v in sorted(out)]
+
+
+def check(md, log=print, common=None):
+    """common: {line name: live common sizes} from reddit_post (opened on the store's pages); else read from the shoe page."""
     bad = []
-    for m in LINE.finditer(md):
-        name, url, p, w, pc, store = m.groups()
-        p, w = float(p.replace(",", "")), float(w.replace(",", ""))
-        sex = "women" if "(women's)" in name else "men" if "(men's)" in name else None
+    lines = [(m.group(1), m.group(2), m.group(3), None, m.group(4), None) for m in SHORT.finditer(md)] + \
+            [m.groups() for m in LINE.finditer(md)]
+    for name, url, p, w, pc, store in lines:
+        p = float(p.replace(",", ""))
+        w = float(w.replace(",", "")) if w else None
+        sex = "women" if re.search(r"\(women's\)|\(W\)", name) else "men" if re.search(r"\(men's\)|\(M\)", name) else None
         try:
             page = urllib.request.urlopen(url.split("?")[0] + "?check=post", timeout=30).read().decode()
         except Exception as e:
@@ -44,13 +64,25 @@ def check(md, log=print):
         if store:      # Oct 31: a line naming a store ("at BlackToe Running") must be that store's own price and sizes
             rel = [r for r in rel if r[4].startswith(store.strip())]
         n = len({(r[0], r[1]) for r in rel if r[2] <= p + 0.01 and "wide" not in r[1]})
-        exact = any(abs(r[2] - p) < 0.01 and abs(r[3] - w) < 0.6 for r in rel)
-        why = [] if round(100 * (1 - p / w)) == int(pc) else [f"${p:g} off ${w:g} is −{round(100 * (1 - p / w))}%, not −{pc}%"]
-        if not exact:
-            why.append(f"no size at ${p:g} (was ${w:g}) on the page")
+        if w is None:      # short line: the % must match a row at this price ("was" stays in this check's output only)
+            hit = [r for r in rel if abs(r[2] - p) < 0.01 and round(100 * (1 - p / r[3])) == int(pc)]
+            w = hit[0][3] if hit else max((r[3] for r in rel if abs(r[2] - p) < 0.01), default=p)
+            exact = bool(hit)
+            why = [] if exact else [f"no size at ${p:g} that is {pc}% off on the page"]
+        else:
+            exact = any(abs(r[2] - p) < 0.01 and abs(r[3] - w) < 0.6 for r in rel)
+            why = [] if round(100 * (1 - p / w)) == int(pc) else [f"${p:g} off ${w:g} is −{round(100 * (1 - p / w))}%, not −{pc}%"]
+            if not exact:
+                why.append(f"no size at ${p:g} (was ${w:g}) on the page")
         if n < 5:
             why.append(f"only {n} sizes at ${p:g} or less")
-        log(("OK  " if not why else "BAD ") + f"{name}: ${p:g} (was ${w:g}, −{pc}%)" + (f" | {'; '.join(why)}" if why else f" | {n} sizes"))
+        com = (common or {}).get(name)
+        if com is None:
+            com = page_common(rel, p, sex)
+        if len(com) < 3:
+            why.append(f"only {len(com)} common sizes")
+        log(("OK  " if not why else "BAD ") + f"{name}: ${p:g} (was ${w:g}, −{pc}%)"
+            + (f" | {'; '.join(why)}" if why else f" | {n} sizes") + f" | common: {', '.join(com) or 'none'}")
         if why:
             bad.append(name)
     return bad

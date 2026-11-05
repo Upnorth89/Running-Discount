@@ -206,7 +206,21 @@ def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, u
                     or ((canadian or kind) and brands.get(fold(it["b"]), 0) >= 2) \
                     or (kind == "gear" and nouns.get(noun(it["n"]), 0) >= 1):     # a mix of brands and of kinds of thing     # gear: a mix, at most 2 of a kind
                 continue
-            if not confirm(it, at, fx, side == "us"):
+            common = None
+            if kind == "shoes":       # Nov 5 (Bastien: no shoes on sale only in odd sizes; no sold-out landings): every size opened live
+                live, blocked = livecheck.live_sizes(it, at, fx, side == "us")
+                good, common = livecheck.shoe_ok(it, live)
+                if not good:
+                    if blocked and any(d in it["of"][blocked[0][2]] for d in hand):
+                        log(f"  CHECK BY HAND (store blocks our check): {it['b']} {it['n']}")
+                        at, common = blocked, None
+                    else:
+                        log(f"  skipped ({len({x[0] for x in live})} sizes live, common {', '.join(common) or 'none'}; "
+                            f"{len(blocked)} couldn't be checked): {it['b']} {it['n']}")
+                        continue
+                else:
+                    at = live
+            elif not confirm(it, at, fx, side == "us"):
                 u0 = it["of"][min(at, key=lambda s: s[1])[2]]
                 if any(d in u0 for d in hand):     # Oct 18 (Bastien: "add MEC ones and I'll manually check them"): kept, flagged
                     log(f"  CHECK BY HAND (store blocks our check): {it['b']} {it['n']} -> {u0}")
@@ -216,6 +230,8 @@ def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, u
             name = re.sub(r"[®™]", "", f"{it['b']} {base(it['n'])}")
             m = re.search(r"(men|women)'?s", it["n"], re.I)
             label = name + (f" ({m.group(1).lower()}'s)" if m and not re.search(r"(men|women)'?s", name, re.I) else "")
+            if pages_only:     # Nov 5 (Bastien: "all the links hyperlink only under the shoe name and short"): (W) / (M), unisex none
+                label = name + (f" ({m.group(1)[0].upper()})" if m and not re.search(r"(men|women)'?s", name, re.I) else "")
             sl = slug(name)
             if kind == "shoes" and sl in pages and not (pages[sl] or {}).get("to"):
                 link = f"{SITE}/{pre}/{sl}/?ref={ref}"
@@ -253,7 +269,7 @@ def side_picks(side, ref, n_shoes=6, n_gear=4, log=print, kind=None, sex=None, u
             names = store_names()
             shop = next((n for d_, n in names.items() if at_host.endswith(d_)), at_host) if stores else None
             got.append({"label": label, "price": lo, "was": was, "pct": round(pct * 100), "link": link,
-                        "sizes": len({s[0] for s in at}), "store": shop})
+                        "sizes": len({s[0] for s in at}), "store": shop, "common": common})
         out[kind] = got
     return out
 
@@ -263,10 +279,22 @@ def money(v):
 
 
 FOOT = ""
+SHORT = False        # --pages-only (Reddit since Nov 5): "- [Brand Model (W)](link) $109.95, 52% off", sorted by % off
+
+
+def whole(v):
+    return f"${v:,.2f}".replace(".00", "")
 
 
 def write(picks, sides):
     md, plain = [], []
+    if SHORT:
+        for side in sides:
+            md.append(f"**{'Canada (CAD)' if side == 'ca' else 'USA (USD)'}**\n")
+            for x in sorted(picks[side]["shoes"] + picks[side]["gear"], key=lambda x: -x["pct"]):
+                md.append(f"- [{x['label']}]({x['link']}) {whole(x['price'])}, {x['pct']}% off")
+            md.append("")
+        return "\n".join(md).rstrip() + "\n", ""
     for side in sides:
         title = "Canada" if side == "ca" else "USA"
         md.append(f"**{title}**\n")
@@ -292,6 +320,12 @@ def write_html(picks, sides, ref):
     md, _ = write(picks, sides)
     body = []
     for side in sides:
+        if SHORT:
+            body.append(f"<p><strong>{'Canada (CAD)' if side == 'ca' else 'USA (USD)'}</strong></p><ul>")
+            for x in sorted(picks[side]["shoes"] + picks[side]["gear"], key=lambda x: -x["pct"]):
+                body.append(f'<li><a href="{H.escape(x["link"])}">{H.escape(x["label"])}</a> {H.escape(whole(x["price"]))}, {x["pct"]}% off</li>')
+            body.append("</ul>")
+            continue
         if len(sides) > 1:
             body.append(f"<p><strong>{'Canada' if side == 'ca' else 'USA'}</strong></p>")
         body.append("<ol>")
@@ -360,7 +394,8 @@ def main():
                            canadian=a.canadian, direct=a.direct, stores=CITIES[a.city] if a.city else None,
                            exclude=[fold(x.strip()) for x in a.exclude.split(",") if x.strip()],
                            hand=[x.strip() for x in a.hand_check.split(",") if x.strip()], winter=a.winter, pages_only=a.pages_only) for s in sides}
-    global FOOT
+    global FOOT, SHORT
+    SHORT = a.pages_only and not a.city
     if a.direct:
         FOOT = (f"*Found with [thegearfox.com](https://thegearfox.com/?ref={a.ref}), a free site I made that shows running deals "
                 "in your size. No affiliate links, I don't make anything from these.*")
@@ -368,12 +403,14 @@ def main():
     print(md)
     if a.out:
         Path(a.out).write_text(md)
-        Path(a.out).with_suffix(".txt").write_text(plain)
+        if plain:
+            Path(a.out).with_suffix(".txt").write_text(plain)
     if a.html:
         Path(a.html).write_text(write_html(picks, sides, a.ref))
     # Oct 28 (Bastien: "I need you to double check your work before I push stuff"): every line checked on its live shoe page
     from post_check import check
-    wrong = check(md, log=lambda m: print(m, file=sys.stderr))
+    live = {x["label"]: x.get("common") for s in sides for x in picks[s]["shoes"]}
+    wrong = check(md, log=lambda m: print(m, file=sys.stderr), common=live)
     print(f"POST CHECK: {'all lines match their shoe page' if not wrong else f'{len(wrong)} line(s) WRONG, do not send: ' + ', '.join(wrong)}", file=sys.stderr)
     if wrong:
         sys.exit(1)

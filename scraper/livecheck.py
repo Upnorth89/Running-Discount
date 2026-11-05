@@ -118,5 +118,62 @@ def still_on_sale(url, price, variant=None, us=False):
         return None
 
 
+# Nov 5 (Bastien: "dont give me shoes that would be on sale for sizes that arent common. this hurts the brand"; "i just dont want
+# people to end up on a sold out shoe"): a shoe we feature (Reddit, Bluesky, Pinterest, Instagram) needs 3+ COMMON sizes at the shown
+# price, each one opened on the store's page right before posting. Common = men's 8-11.5, women's 6.5-9 (unisex "M:"/"W:" keys by
+# their own cut; a plain size on a unisex shoe = men's). Wide/narrow sizes never count.
+COMMON = {"men": {x / 2 for x in range(16, 24)}, "women": {x / 2 for x in range(13, 19)}}
+
+
+def size_cut(key, women_item=False):
+    """("men"|"women", 10.5) for a shoe size key ("10.5", "M:10", "W:8.5"); None for wide/narrow or unreadable keys."""
+    k = str(key)
+    if k.endswith(("~W", "~N")):
+        return None
+    m = re.fullmatch(r"(?:([MW]):)?(\d{1,2}(?:\.5)?)", k)
+    if not m:
+        return None
+    cut = {"M": "men", "W": "women"}.get(m.group(1)) or ("women" if women_item else "men")
+    return cut, float(m.group(2))
+
+
+def women_item(it):
+    return bool(re.search(r"women'?s|\bfemme\b", it.get("n", ""), re.I)) or it.get("sx") == ["women"]
+
+
+def is_common(key, women=False):
+    c = size_cut(key, women)
+    return bool(c) and c[1] in COMMON[c[0]]
+
+
+def size_label(key):
+    c = size_cut(key)
+    return f"{'W ' if str(key).startswith('W:') else ''}{c[1]:g}" if c else str(key)
+
+
+def live_sizes(it, at, fx=1.0, us=False):
+    """Open every size of `at` ([size, price, offer, regular, variant?] rows of a deals.json item) on the store's page.
+    Returns (confirmed rows, blocked rows): confirmed = the store shows that size at that price (or lower) right now;
+    blocked = the store wouldn't let us look (None). Gone/changed sizes are in neither."""
+    best = {}
+    for s in at:                                    # one row per size: its cheapest offer
+        if s[0] not in best or s[1] < best[s[0]][1]:
+            best[s[0]] = s
+    ok, blocked = [], []
+    for s in best.values():
+        u = it["of"][s[2]]
+        r = still_on_sale(u, round(s[1] / fx, 2), s[4] if len(s) > 4 else None, us=us and "/products/" in u)
+        (ok if r is True else blocked if r is None else []).append(s)
+    return ok, blocked
+
+
+def shoe_ok(it, rows, need_common=3, need_total=5):
+    """The featuring rule: 3+ common sizes and 5+ sizes in all among `rows` (live-confirmed rows). Returns (ok, common labels)."""
+    w = women_item(it)
+    keys = {s[0] for s in rows if size_cut(s[0], w)}
+    com = sorted((k for k in keys if is_common(k, w)), key=lambda k: size_cut(k, w))
+    return len(com) >= need_common and len(keys) >= need_total, [size_label(k) for k in com]
+
+
 if __name__ == "__main__":
     print(still_on_sale(sys.argv[1], float(sys.argv[2]), sys.argv[3] if len(sys.argv) > 3 else None))

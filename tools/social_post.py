@@ -56,6 +56,9 @@ def history():
     return h
 
 
+ROWS = {}     # (side, slug) -> (item, rows at the shown price, fx): the shoe's sizes, opened one by one in confirmed()
+
+
 def picks(sale, pages, hist, state, today, side="ca"):
     """side "us" (Oct 26, Pinterest's USA board): US stores, prices in US$ (the history's "us|" lines are in US$; the site files
     keep CAD, so today's price is divided by the file's fx), links to /us/shoes/."""
@@ -94,6 +97,7 @@ def picks(sale, pages, hist, state, today, side="ca"):
         u = d["of"][e[2]]
         gender = "Women's" if d.get("sx") == ["women"] else "Men's" if d.get("sx") == ["men"] else ""
         nm_ = re.sub(r"\b(?!GTX\b|BOA\b)[A-Z]{4,}\b", lambda w: w.group(0).capitalize(), SP.base_model(d["n"]))   # "Endorphin EDGE" -> "Endorphin Edge"
+        ROWS[(side, slug)] = (d, at, fx)
         out.append({"slug": slug, "b": d["b"], "name": f'{d["b"]} {nm_}', "gender": gender, "now": best,
                     "was": then, "reg": reg, "pct": round(100 * (1 - best / reg)), "drop": round(off), "store": names.get(host(u), host(u)),
                     "url": u, "variant": e[4] if len(e) > 4 else None, "sizes": len(at), "img": d.get("img") or "",
@@ -256,6 +260,16 @@ def confirmed(p):
     """Still on sale on the store's own page right now (the Instagram kit's rule: blocked or unsure = left out)."""
     try:
         import livecheck
+        if (p.get("side", "ca"), p.get("slug")) in ROWS and not p.get("cat"):
+            # Nov 5 (Bastien: no shoes on sale only in odd sizes, no sold-out landings): every size at the shown price opened
+            # on the store's page; 3+ common sizes (men's 8-11.5, women's 6.5-9) and 5+ sizes in all must still be there
+            it, at, fx = ROWS[(p.get("side", "ca"), p["slug"])]
+            live, _ = livecheck.live_sizes(it, at, fx, p.get("side") == "us")
+            ok, common = livecheck.shoe_ok(it, live)
+            p["sizes"] = len({s[0] for s in live})
+            if not ok:
+                print(f"  {p['name']}: only {p['sizes']} sizes live, common {', '.join(common) or 'none'}: left out")
+            return ok
         return livecheck.still_on_sale(p["url"], p["now"], p.get("variant"), us=p.get("side") == "us") is True
     except Exception:
         return False
