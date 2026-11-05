@@ -32,8 +32,8 @@ jobs:
         run: |
           set -e
           NONCE=$(openssl rand -hex 24); echo "::add-mask::$NONCE"
-          supabase secrets set --project-ref "$PROJECT" SETUP_NONCE="$NONCE" >/dev/null
-          supabase functions deploy stripe-setup --project-ref "$PROJECT" --no-verify-jwt --use-api
+          supabase secrets set --project-ref "$PROJECT" --yes SETUP_NONCE="$NONCE" >/dev/null
+          supabase functions deploy stripe-setup --project-ref "$PROJECT" --yes --no-verify-jwt --use-api
           sleep 8
           call() { curl -sS -H "x-setup-nonce: $NONCE" "https://$PROJECT.supabase.co/functions/v1/stripe-setup?do=$1"; echo; }
           echo "KEY CHECK: $(call check)"
@@ -41,13 +41,13 @@ jobs:
       - name: Remove the temporary helper
         if: always() && inputs.what != 'webhook'
         run: |
-          supabase functions delete stripe-setup --project-ref "$PROJECT" || true
-          supabase secrets unset --project-ref "$PROJECT" SETUP_NONCE || true
+          supabase functions delete stripe-setup --project-ref "$PROJECT" --yes || true
+          supabase secrets unset --project-ref "$PROJECT" --yes SETUP_NONCE || true
       - name: Deploy the webhook
         if: inputs.what == 'webhook' || inputs.what == 'all'
         run: |
           set -e
-          supabase functions deploy stripe-webhook --project-ref "$PROJECT" --no-verify-jwt --use-api
+          supabase functions deploy stripe-webhook --project-ref "$PROJECT" --yes --no-verify-jwt --use-api
           sleep 5
           code=$(curl -s -o /dev/null -w '%{http_code}' -X POST "https://$PROJECT.supabase.co/functions/v1/stripe-webhook" -d '{}')
           echo "WEBHOOK URL: https://$PROJECT.supabase.co/functions/v1/stripe-webhook (unsigned test answered $code: 503 = secret not saved yet, 400 = refusing unsigned, both correct)"
