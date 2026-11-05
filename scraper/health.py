@@ -193,7 +193,13 @@ def check():
         elif stale:
             pass
         elif st in why and n0:
-            problems.append((f"failed:{st}", f"{st}: couldn't be read this run ({why[st]}); still showing its {n} products from the "
+            # Nov 5 (growth, after the lockout talk with Bastien): say WHICH kind of failure. Locked out = the store said no (we stop,
+            # never work around it: a person asks the store); reader broke = ours to fix; the store's own problem = it comes back by itself.
+            kind = ((deals.get("fails") or {}).get(st) or {}).get("kind") or "broke"
+            lead = {"locked": "LOCKED US OUT (the store said no: a person asks the store, we never work around it)",
+                    "store": "the store's own site had a problem (usually back by itself)",
+                    "broke": "OUR READER BROKE (ours to fix)"}.get(kind, "OUR READER BROKE (ours to fix)")
+            problems.append((f"failed:{st}", f"{st}: {lead}: couldn't be read this run ({why[st]}); still showing its {n} products from the "
                                              f"last good read."))
         elif n == 0 and n0 > 0:
             problems.append((f"zero:{st}", f"{st}: 0 products today (had {n0} yesterday)."))

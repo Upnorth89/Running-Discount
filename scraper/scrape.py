@@ -555,8 +555,10 @@ def _rf_get(path):
             r = S.get(f"{RF_BASE}/products/{path}", headers={"User-Agent": "Mozilla/5.0 (compatible; TheGearFox/1.0; +https://thegearfox.com/about.html)"},
                       timeout=60)
             if r.status_code == 200:
-                if "only available to visitors in Canada or the United States" in r.text:
+                if "only available to visitors in Canada" in r.text:
                     _RF_GEO["wall"] = True        # Nov 1: some GitHub computers sit outside North America: the store's country page
+                    # Nov 5: the page now says "only available to visitors in Canada." (was "Canada or the United States"), so GitHub's
+                    # US computers get it every night. It's the store's choice: never read it through a Canadian address to get past it.
                 return r.text
             print(f"::warning::runningfree: {path} HTTP {r.status_code}", file=sys.stderr)
             if r.status_code in (403, 429):
@@ -659,8 +661,8 @@ def runningfree_night(out, hours=4.5):
                 if len(failed) > 10:
                     raise RuntimeError(f"Running Free: {len(failed)} size pages didn't load ({', '.join(failed[:5])}...)")
     if not prods and _RF_GEO.get("wall"):
-        print("::error::Running Free shows its 'only available in Canada or the United States' page to this GitHub computer: nothing saved "
-              "(last good read kept; the next night usually runs from a North American computer)", file=sys.stderr)
+        print("::error::Running Free shows its country page ('only available to visitors in Canada') to this GitHub computer: nothing saved "
+              "(last good read kept until it's 48 h old). Since Nov 5 the page says Canada only: a locked door, ask the store", file=sys.stderr)
         return 1
     if len(prods) < 500:      # Nov 1: a late second run read 0 products and saved that over a good read (2,962): keep the last good file
         print(f"::error::Running Free night read found only {len(prods)} products: NOT saved (last good read kept)", file=sys.stderr)
@@ -5172,6 +5174,23 @@ def price_gate(today, before):
                 f"across {len(pr)} products vs the last read")
     return None
 
+LOCKED = re.compile(r"HTTP (401|403|406|429|451)\b|\b(401|403|406|429|451) Client Error|said no|robots|RobotsNo|captcha|just a moment|access denied|"
+                    r"HTTP 202|country page|only available to visitors|rate.?limit", re.I)
+STORE_SIDE = re.compile(r"HTTP 5\d\d|\b5\d\d Server Error|timed? ?out|Timeout|ConnectionError|Connection (reset|aborted|refused)|not readable|"
+                        r"a picture|Tunnel connection failed", re.I)
+
+
+def fail_kind(why):
+    """Nov 5 (growth, after the lockout talk with Bastien): why a store failed, in three kinds for the health email and the risk list.
+    locked = the store said no (403/429/robots/country page/captcha): we stop, never work around it; store = its server or file was
+    broken (comes back by itself); broke = anything else: our reader misread something (ours to fix)."""
+    if LOCKED.search(why or ""):
+        return "locked"
+    if STORE_SIDE.search(why or ""):
+        return "store"
+    return "broke"
+
+
 def main():
     def load(path):
         try:
@@ -5183,6 +5202,7 @@ def main():
     PREV_OFFERS.update(prev_offers)                  # Nov 5: Running Room keeps a skipped feed file's products from these
     stamps, offers, failed, raw, why = dict(prev.get("stores", {})), [], [], {}, {}
     data_at = dict(prev.get("data_at", {}))     # Nov 2: when each night-copy store's data was made (KEEP_HOURS counts from it)
+    fails = dict(prev.get("fails", {}))         # Nov 5: each store's last failure {at, kind, why} (tools/store_risk.py, health email)
     def run(st, fn):
         """One store: (listings, ok, log line). A store that fails or empties keeps yesterday's listings."""
         t = time.time()
@@ -5339,7 +5359,8 @@ def main():
             data_at[st] = DATA_AT.get(st) or stamps[st]
         elif ok is False:
             failed.append(st)
-            why[st] = line.split("FAILED (", 1)[-1].split("); kept")[0][:160]   # for the health email: why it failed
+            why[st] = line.split("FAILED (", 1)[-1].split("); kept")[0].split("); taken off")[0][:160]   # for the health email: why it failed
+            fails[st] = {"at": now(), "kind": fail_kind(why[st]), "why": why[st]}    # Nov 5: last failure per store, kept across runs
         if line:
             print(line, file=sys.stderr)
         offers += got
@@ -5371,7 +5392,7 @@ def main():
     except Exception:
         usd = FX_FALLBACK["USD"]
     n_ca = n_us = len({o["st"] for o in offers} | {o["st"] for o in us_offers})   # "N stores checked daily": one total, both sides
-    OUT.write_text(json.dumps({"v": 2, "updated": now(), "stores": stamps, "data_at": data_at, "n_stores": n_ca, "failed": why, "fx": {"USD": usd}, "items": items},
+    OUT.write_text(json.dumps({"v": 2, "updated": now(), "stores": stamps, "data_at": data_at, "n_stores": n_ca, "failed": why, "fails": fails, "fx": {"USD": usd}, "items": items},
                               separators=(",", ":"), ensure_ascii=False))
     # the site loads sale items first: same shape, only items with at least one size on sale
     sale = [i for i in items if any(e[1] < e[3] for e in i["sz"])]   # same test as the site's % off
