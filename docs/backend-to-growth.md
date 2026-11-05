@@ -994,3 +994,27 @@ Phone = 390 px, DevTools "Fast 3G" (~160 KB/s, 562 ms latency) + CPU slowed x4, 
 - **Speedland on the US side** now also comes via The Run House (GS:SFD at US$200 + RX models), next to Pacers/Trailhead/Backcountry.
 - **Canada:** nothing to add, no Canadian stockist.
 - **When:** live from the next store read (23:17 UTC tonight); the push run only remerges cached data.
+
+## Running Free from Canada: feasibility (option 1 = YES, one probe left)
+
+- **(a) Database region:** I can't see it from here (the database host is IPv6-only and this sandbox has no IPv6), and the Supabase CLI doesn't print it without a login I won't ask for.
+  Not needed anyway, because (b) works whatever the database region is.
+- **(b) Edge Functions in Canada work on our plan.** Calling our existing function with the header `x-region: ca-central-1` (or `?forceFunctionRegion=ca-central-1`) answered from **ca-central-1 (Montréal)**; asking for us-west-1 answered from us-west-1. So code we run there leaves from an AWS Montréal address.
+- **Simplest build (better than pg_cron + a table):**
+  - **The function:** one Edge Function, `rf-fetch`, called with `x-region: ca-central-1`. It fetches ONE runningfree.com page with our honest UA (TheGearFoxBot) and returns the HTML.
+  - **Guards:** only runningfree.com paths, a secret header so it isn't an open relay, no cookies, no other site.
+  - **The night job stays the pacer:** runfree.yml's runningfree job keeps the 30 s Crawl-delay, robots.txt (read through the same function), the 500-product floor and "stop on 403/429/captcha". It only swaps `S.get` for the function call.
+  - **Why no table:** no HTML in the database and no pg_cron; the job builds runningfree.json exactly as today.
+- **Free-plan fit:**
+  - ~240 pages a night is ~7,200 calls a month (limit 500,000).
+  - Each call waits on the network, not CPU (the 2 s CPU limit doesn't count waiting). Pages are ~100-300 KB, well under egress limits.
+- **Still to prove (one probe, ~15 min):**
+  - Deploy a throwaway probe the stripe-setup way (deploy, call once, delete).
+  - It fetches runningfree.com/robots.txt and the men's listing page from ca-central-1, and reports only the HTTP status, the size, whether the "only available to visitors in Canada" page appears, and the number of product cards.
+  - If the country page still shows (AWS Montréal not seen as Canada), fall back to option 2 (Oracle Cloud Free VM in Toronto/Montréal as a self-hosted runner, which needs Bastien's account).
+- **Line kept:** honest name, robots.txt + Crawl-delay 30, one fixed region (no rotating addresses), stop the same day on any block by name, robots change or captcha.
+- **Timing:**
+  - Probe: today.
+  - Build: ~1 h + check.py.
+  - The night read then runs at 08:23 UTC Nov 6, before the ~10:19 UTC cut-off. If the probe or build slips, the cards leave and come back with the first good read.
+- **Asking:** go for the probe now, and build right after if it shows the store's real pages?
