@@ -18,6 +18,7 @@ Plan doc (6-month plan, weekly goals, Ideas backlog) = https://claude.ai/code/ar
 Until Nov 15 (no new features). Exceptions: bug/trust fixes, store readers, Fox Pro (hidden). First batch Nov 16.
 
 ## Open items, newest first
+- Nov 5 rule: Bastien reads only this chat. Backend sends "BLOCKED: ..." messages; relay them to him in the next reply. Answered tonight: Running Free probe GO, BF "first screen" file (new-visitor part YES, returning part -> Nov 16 preview), Salt Lake Running Co + Dick Pond readers YES.
 
 ### Stripe / Fox Pro (Bastien set up Stripe the night of Nov 4)
 Done:
