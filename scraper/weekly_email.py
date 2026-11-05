@@ -417,6 +417,7 @@ def shop_link(p):
     return f"{SITE_URL}?p={b}" + ("&sport=hike" if SIDE.get("hike") else "")          # query string survives email link-wrappers better than #
 
 MS_MAIL = re.compile(r"@(outlook|hotmail|live|msn)\.[a-z.]+$", re.I)
+WATCH1_FROM = "2026-11-13"   # first send day of the "watch one thing" box (member's local date)
 MS_AUTOWATCH = True       # False = Microsoft addresses get the box with a plain link (no &watch=): Safe Links opens links by itself
 
 
@@ -705,6 +706,8 @@ def main():
             print(f"{mask(who)}: nothing on sale in their sizes this week, no email sent")
             continue
         watching = (p.get("token") in watched) if (watched is not None and p.get("token")) else None
+        if not p.get("_test") and str(local_now(p).date()) < WATCH1_FROM:
+            watching = None           # the box starts with the Nov 13 send (Bastien sees the copy first)
         if p.get("_test"):
             watching = False          # test copies show the box
         subject, body, text = build(p, sale, watch, watching)
