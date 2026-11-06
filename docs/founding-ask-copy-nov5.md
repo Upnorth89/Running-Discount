@@ -1,5 +1,7 @@
 # Fox Pro founding-list ask: copy (Nov 5; copywriter draft + compliance fixes applied)
 
+Nov 6: the Friday email box + site card use Bastien's card design: https://claude.ai/artifact/X4E2mvP2mdfsWod67evvUM (headline "Good gear. Better timing." / « Le bon équipement. Au bon moment. »; same price + rule lines as below).
+
 Places + estimates (members-lead): Friday email Nov 20/21 + Nov 27 (8-12 joins), returning-member site card Nov 17-30 (6-12),
 drop-alert line Nov 17-Dec 1 (5-8), welcome email Nov 17-30 (1-3). CMO: + a line on the "You're in" step after every sign-up spot
 (non-members 15-36); total 35-70, target 60, floor 40. Stop rules: < 25 by Nov 24 = BF traffic not converting; < 40 on Nov 30 = open Jan 5.
