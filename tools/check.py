@@ -372,6 +372,40 @@ def main():
         return f"{len(got)} deals for a size-11 runner"
     step("Friday email matching + cards", email)
 
+    def founding():   # Nov 6 (Bastien picked card "A"): the Fox Pro founding-list pieces of the emails, behind founding.FOUND_LIVE
+        sys.path.insert(0, str(ROOT / "scraper"))
+        import weekly_email as W, alerts as A, founding as F
+        items = json.loads((site / "deals.json").read_text())["items"]
+        base = {"gender": "men", "terrain": "both", "ships": "ca", "token": "11111111-1111-4111-8111-111111111111", "_sent": "x",
+                "sizes": {"shoes": {"sizes": ["11"], "width": []}, "tops": {"sizes": ["M"]}, "bottoms": {"sizes": ["M"]}}}
+        sale = [d for d in W.match(items, base) if d["pct"] >= 1 and d["g"] != "nutrition"]
+        bad = []
+        for lang, words in (("en", ("Good gear.", "$36", "Join the founding list", "Free to join. Nothing to pay now.")),
+                            ("fr", ("Le bon équipement.", "36&nbsp;$", "M'inscrire à la liste", "Rien à payer maintenant."))):
+            _, body, text = W.build({**base, "lang": lang, "_test": True}, list(sale), None, None)
+            bad += [f"{lang}: no {w!r}" for w in words if w not in body]
+            if "pro=join&amp;em=" not in body or "pro=join&em=" not in text:
+                bad.append(f"{lang}: join link missing")
+        _, body, _ = W.build({**base, "lang": "en", "_test": True, "pro_wait": {"at": "x"}}, list(sale), None, None)
+        if "You're on" not in body or "Join the founding list" in body:
+            bad.append("on the list: not the 'You're on the list' box")
+        if not F.FOUND_LIVE:
+            _, body, _ = W.build({**base, "lang": "en"}, list(sale), None, None)
+            if "FOX PRO" in body:
+                bad.append("a real member gets the box while FOUND_LIVE is off")
+        d0 = sale[0]
+        sub = {"token": base["token"], "email": "t@example.com", "profile": {"lang": "en"}}
+        _, body, text = A.build(sub, [{"deal": d0, "was": d0["reg"]}], [], found=True)
+        if "em=alert-pro" not in text or "100 numbered spots" not in body:
+            bad.append("alert email: founding line missing")
+        _, body, _ = A.build({**sub, "profile": {"lang": "en", "pro_wait": {"at": "x"}}}, [{"deal": d0, "was": d0["reg"]}], [], found=True)
+        if "em=alert-pro" in body:
+            bad.append("alert email asks someone already on the list")
+        if bad:
+            raise RuntimeError("; ".join(bad))
+        return f"Friday box EN/FR + 'on the list' state, alert line, nothing for real members while off (FOUND_LIVE={F.FOUND_LIVE})"
+    step("Fox Pro founding list: email box + alert line", founding)
+
     def hreflang():   # Nov 4 (growth's SEO audit): Google ignores one-way hreflang; every twin must name this page back
         rx = re.compile(r'<link rel="alternate" hreflang="([^"]+)" href="https://thegearfox.com(/[^"]*)">')
         bad, n = [], 0
@@ -468,7 +502,7 @@ def main():
         # "twice a day", "60+ stores" next to "170": every built page is read the way a visitor reads it, and these never come back
         import html as H
         bad = [(re.compile(r"(?<![\d.,])1 (deals|picks|sizes|stores|products|aubaines|choix aubaines|pointures|boutiques|produits)\b"), "a plural after 1"),
-               (re.compile(r"\bevery morning\b(?! and afternoon)|\bchaque matin\b(?! et chaque après-midi)", re.I), "'every morning' (we check twice a day)"),
+               (re.compile(r"\bevery morning\b(?! and afternoon)|(?<!Alertes de baisse )\bchaque matin\b(?! et chaque après-midi)", re.I), "'every morning' (we check twice a day)"),   # Nov 6: Fox Pro's "Alertes de baisse chaque matin" = its alerts, not our reads
                (re.compile(r"\b\d+\+ (Canadian )?(running |outdoor )?stores\b|plus de \d+ boutiques"), "a typed-in store count (use the real one)"),
                (re.compile(r"\bde la La |\bthe The |\bthe La (?!Sportiva)|\bdu La (?!Sportiva)"), "a doubled article"),
                (re.compile(r"\b(deals|aubaines) \?|[a-zé] \?(?=\s|$)"), "a space before ? (French style here: attached)"),

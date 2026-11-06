@@ -803,30 +803,45 @@ def site_flow(base, per, accented):
             return f"'peg' -> {', '.join(sug[:3])}…"
         # Oct 22: test 'runcard' ended (Bastien); its check is off
 
-        def pro_card():   # Oct 25 (Bastien: "yes run the Pro price test from Nov 2"): the waitlist card, $3/$29 (A) vs $5/$49 (B)
-            seen = {}
-            for arm in ("B", "A"):
-                page.goto(base + f"?pro=1&exp=pro:{arm}", wait_until="domcontentloaded")
+        def pro_card():   # Nov 6 (Bastien picked card "A"): the Fox Pro founding-list card, members only, behind FOUND_LIVE
+            KEY = "11111111-1111-4111-8111-111111111111"
+            def go(q):
+                page.goto(base + q, wait_until="domcontentloaded")
                 page.wait_for_selector("section.grp .deal", timeout=20000)
-                if not page.locator(".procard").count():
-                    page.evaluate("() => localStorage.removeItem('gf-exp')")
-                    return "no card slot on this visit (waiting for an email confirmation): skipped"
-                seen[arm] = page.inner_text(".procard .proprice")
-            assert "$5/month or $49/year" in seen["B"], f"group B shows {seen['B']!r}"
-            assert "$3/month or $29/year" in seen["A"], f"group A shows {seen['A']!r}"
-            assert page.locator("#proForm, #proJoin").count(), "no way to join the waitlist"
-            page.click("#proNo")
-            page.wait_for_timeout(400)
-            gone = not page.locator(".procard").count()
-            page.evaluate("() => {localStorage.removeItem('gf-nopro'); localStorage.removeItem('gf-exp')}")
-            page.goto(base, wait_until="domcontentloaded")
-            page.wait_for_selector("section.grp .deal", timeout=20000)
-            assert gone, "'No thanks' didn't hide the card"
-            import datetime as _dt
-            if not ("2026-11-02" <= _dt.date.today().isoformat() <= "2026-11-16"):
-                assert not page.locator(".procard").count(), "the card shows outside the test window (Nov 2-16) without ?pro=1"
-            return "B $5/$49, A $3/$29, 'No thanks' hides it, nothing outside the test window"
-        check("Fox Pro waitlist card (price test)")(pro_card, page)
+                page.wait_for_timeout(500)
+            def clean():
+                page.evaluate("() => ['gf-sub','gf-pro','gf-nopro'].forEach(k => localStorage.removeItem(k))")
+            page.evaluate(f"() => {{localStorage.setItem('gf-sub', JSON.stringify({{key:'{KEY}',email:'t@example.com',active:True}})); localStorage.removeItem('gf-pro'); localStorage.removeItem('gf-nopro')}}".replace("True", "true"))
+            try:
+                go("")
+                off = page.locator(".fpcard").count()
+                go("?pro=1")
+                if not page.locator(".fpcard").count():
+                    return "no card slot for a member on this visit: skipped"
+                txt = page.inner_text(".fpcard")
+                for w in ("Good gear", "$36", "$45 / year after", "Join the founding list", "Free to join. Nothing to pay now.", "100 numbered spots"):
+                    assert w in txt, f"card is missing {w!r}"
+                assert "$3/month" not in txt and "for life" not in txt.lower(), "card says $3/month or 'for life'"
+                page.click("#fpJoin"); page.wait_for_timeout(500)
+                saved = page.evaluate("() => JSON.parse(localStorage.getItem('gf-pro') || 'null')")
+                assert saved and saved.get("via") == "site", f"joining saved {saved!r}"
+                assert not page.locator("#fpJoin").count(), "the card stayed after joining"
+                go("?pro=join&em=friday-pro")
+                on = page.locator("#fpOn").count() and not page.locator("#fpJoin").count()
+                assert on, "an email link for someone already on the list doesn't show 'You're on the list'"
+                page.evaluate("() => localStorage.removeItem('gf-pro')")
+                go("?pro=join&em=friday-pro")
+                assert page.locator("#fpJoin").count(), "an email link (?pro=join) doesn't show the card"
+                assert not page.evaluate("() => localStorage.getItem('gf-pro')"), "the email link joined by itself on page load (link scanners!)"
+                page.click("#fpNo"); page.wait_for_timeout(400)
+                go("?pro=1")
+                assert not page.locator(".fpcard").count(), "'No thanks' didn't hide the card"
+                assert not off, "the card shows without ?pro=1 while FOUND_LIVE is off"
+                return "member card: words, one-tap join saved, 'on the list' state, email link never joins by itself, No thanks hides it, off until switched on"
+            finally:
+                clean()
+                go("")
+        check("Fox Pro founding-list card")(pro_card, page)
 
         def pro_poll():   # Oct 28 (Bastien: "put all 6 together"): after joining the waitlist, "What would you use most?" with 6 Pro ideas
             page.goto(base + "?propoll=1", wait_until="domcontentloaded")

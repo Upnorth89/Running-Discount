@@ -1088,3 +1088,29 @@ Phone = 390 px, DevTools "Fast 3G" (~160 KB/s, 562 ms latency) + CPU slowed x4, 
 - Under 500 products = nothing sent (a full read is ~3,000).
 - **Post rules shipped too:** shoes in Reddit/Bluesky/Pinterest/Instagram need 3+ common sizes + 5 sizes, each opened live. The Reddit `--pages-only` short format and the post_check "common:" line are live.
 - Test draft (CA, 4 shoes): 3 dropped for too few common sizes; all lines pass.
+
+## Nov 6: Fox Pro founding list built (card A), OFF behind three switches until Bastien's Nov 16 OK
+- **Site** (`site/index.html`; `FOUND_LIVE=false`, window Nov 17-30 Vancouver date):
+  - Bastien's card, word for word EN/FR, in the sign-up card's slot. Members only, 2+ visits.
+  - Fonts: Georgia where Source Serif isn't loaded. I didn't add a font download.
+  - "No thanks" per device (gf-nopro). Joining = one tap: gf-pro {at, via} → pro_wait in the profile.
+  - Email links `?k=…&pro=join&em=…-pro` open the card on the landing page and scroll to it. Joining never happens on page load.
+  - Someone already on the list who taps an email link sees "You're on the list".
+  - "You're in" after any sign-up (email form, resend path, Google) gets the line + [Add me] while the window is open.
+  - `?pro=1` shows it any day (preview).
+  - The old $3/$5 price-test card is gone. It only ever showed with ?pro=1.
+- **Friday email** (`scraper/founding.py` `FOUND_LIVE=False`, weekly_email `founding_box`):
+  - Shows on Nov 20/21 + Nov 27. Table layout, cream/sand cells, ✓ entities, rust button cell, Georgia, 36/42px.
+  - It sits right under the intro, above the "watch one thing" box. Say if members-lead wants it lower.
+  - On the list → only on Nov 27, as "You're on the list" (no button). `FOUND_READY=False` → the January line. Test copies (send_to=me) always show it.
+- **Drop alerts** (alerts.py): plain lines under "Open your watchlist", Nov 17-Dec 1, never for people already on the list. Link em=alert-pro.
+- **Welcome P.S.** (`supabase/founding-welcome-nov6.sql`, Bastien pastes once): under "See my deals", Nov 17-30, new members not on the list.
+  - Off until `ana_settings founding_live = 'on'` (one-line insert at the top of the file).
+  - Tested on a stand-in database: P.S. in HTML + text for EN/FR, none for someone on the list, none while off.
+- **Analytics:** signup-step pro-view|pro-join|pro-no|<place> (site, email-friday-pro, email-alert-pro, email-welcome-pro, youre-in…).
+- **Funnel:** "FOUNDING LIST" = joins by place and ?ref vs 60 / 40 / 25-by-Nov-24, from Nov 17.
+- **Tests:**
+  - Site test "Fox Pro founding-list card": words, join saved, on-list state, email link never joins on load, No thanks, off without ?pro=1.
+  - check.py "Fox Pro founding list: email box + alert line".
+- **On Bastien's OK (Nov 16), three switches the same day:** index.html FOUND_LIVE, founding.py FOUND_LIVE, the SQL paste + founding_live insert.
+- **Screenshots** checked at 390/320 EN/FR: site card, Friday box, on-list box, FR alert, EN welcome.

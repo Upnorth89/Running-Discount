@@ -384,6 +384,31 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
 
 /* Friday email card */
 .signup{background:var(--band);color:var(--band-ink);border-radius:14px;padding:18px;margin:0 0 30px}
+/* Fox Pro founding card (Nov 6, Bastien's pick "A"): one fixed cream look in both themes; Georgia when Source Serif isn't loaded */
+.signup.fpcard{--fc:#F8F5EF;--fs:#EFE7DC;--ff:#24492F;--fk:#121A16;--fst:#5C5A55;--fr:#C8581E;--fse:"Source Serif 4",Georgia,"Times New Roman",serif;max-width:420px;margin-left:auto;margin-right:auto;box-sizing:border-box;background:var(--fc);color:var(--fk);border:0;border-radius:20px;padding:22px 22px 18px;box-shadow:0 1px 2px rgba(0,0,0,.06),0 10px 30px rgba(0,0,0,.08);display:grid;gap:14px;text-align:left}
+.fpcard .fptop{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-bottom:12px;border-bottom:1px solid #C9CFC4}
+.fpcard .fpbrand{font:700 15px/1 Inter,var(--body);letter-spacing:.2em;color:var(--ff)}
+.fpcard .fppill{font:700 12px/1 Inter,var(--body);letter-spacing:.1em;color:var(--ff);border:1.5px solid var(--ff);border-radius:999px;padding:5px 12px;white-space:nowrap}
+.signup.fpcard .fphl{font:800 clamp(32px,9.5vw,40px)/1.04 var(--fse);letter-spacing:-.02em;margin:2px 0 0;color:var(--fk);text-wrap:balance}
+.fpcard .fpsub{margin:0;font:400 18px/1.3 var(--fse);color:var(--fst);text-wrap:balance}
+.fpcard .fpprice{background:var(--fs);border-radius:14px;padding:14px 16px;display:grid;gap:6px}
+.fpcard .fprow{display:flex;align-items:center;gap:10px 12px;flex-wrap:wrap}
+.fpcard .fpamt{font:800 clamp(37px,10vw,46px)/1 var(--fse);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.fpcard .fpper{font:700 12.5px/1 Inter,var(--body);letter-spacing:.12em}
+.fpcard .fpafter{font:400 14px/1.25 var(--fse);color:var(--fst);border-left:1px solid #C9BFB1;padding-left:14px}
+.fpcard .fplock{margin:0;font:italic 400 16px var(--fse);color:var(--ff);text-wrap:balance}
+.fpcard .fpticks{list-style:none;margin:2px 0 0;padding:0;display:grid;gap:8px}
+.fpcard .fpticks li{display:flex;gap:10px;align-items:flex-start;font:600 17px/1.3 var(--fse);text-wrap:balance}
+.fpcard .fpticks svg{flex:none;margin-top:1px}
+.fpcard .fpfine{margin:0;font:400 14px var(--fse);color:var(--fst);text-align:center;text-wrap:balance}
+.fpcard .fpfree{margin-top:-4px}
+.fpcard .fpcta{display:flex;justify-content:center;align-items:center;width:100%;min-height:50px;border:0;background:var(--fr);color:#fff;border-radius:10px;padding:13px 16px;font:700 18px var(--fse);cursor:pointer}
+.fpcard .fpcta:focus-visible{outline:3px solid var(--ff);outline-offset:2px}
+.fpcard .fpfoot{margin:0;font:400 13px/1.4 var(--fse);color:var(--fst);text-align:center;padding-top:10px;border-top:1px solid #C9CFC4}
+.fpcard .fpno{justify-self:center;background:none;border:0;padding:6px 10px;min-height:0;font:500 14px Inter,var(--body);color:var(--fst);text-decoration:underline;cursor:pointer}
+.fpin{margin:8px 0 0}
+.fpcard .fpbrand{white-space:nowrap}.fpcard .fpfoot{text-wrap:balance}
+@media(max-width:359px){.signup.fpcard{padding:18px 16px 14px}.fpcard .fpbrand{letter-spacing:.12em;font-size:14px}.fpcard .fppill{font-size:10.5px;letter-spacing:.06em;padding:4px 9px}}
 .signup.procard{--pg:#0E2621;--pc:#F4EEE2;--pm:#D5DED8;--po:#FF6A13;--pk:#14201B;background:radial-gradient(120% 90% at 85% 10%,#163A30 0,var(--pg) 60%);color:#fff;border:0;border-radius:18px;text-align:left;padding:20px 20px 18px;max-width:780px;margin-left:auto;margin-right:auto;box-sizing:border-box;overflow:hidden}.procard .protop{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 14px}.procard .pbrand{display:flex;align-items:center;gap:10px;font:700 15px/1 Inter,var(--body);letter-spacing:.04em;text-transform:uppercase;color:#fff}.procard .pbrand img{width:36px;height:36px;border-radius:50%;display:block}.procard .cs{display:inline-flex;align-items:center;font:700 12px/1 Inter,var(--body);letter-spacing:.08em;text-transform:uppercase;color:#BFE6CC;background:rgba(143,212,168,.16);border:1px solid rgba(143,212,168,.45);padding:7px 12px;border-radius:99px;white-space:nowrap}.procard .progrid,.procard .proleft{display:flex;flex-direction:column}.procard .progrid>.prorc{display:none}.procard .prorc{margin:18px 0 2px}.signup.procard h3{font:700 40px/1.04 Poppins,Inter,var(--body);letter-spacing:-.025em;color:#fff;margin:0 0 12px}.procard h3 .ul{position:relative;display:inline-block}.procard h3 .ul svg{position:absolute;left:-2%;bottom:-.2em;width:104%;height:.32em;overflow:visible}.procard .prosub{font:400 16px/1.45 Inter,var(--body);color:var(--pm);margin:0;max-width:24em}.procard .prorc{position:relative;justify-self:center;width:min(74%,232px);align-self:center;background:var(--pc);color:var(--pk);padding:22px 20px 18px;transform:rotate(3deg);filter:drop-shadow(0 12px 20px rgba(0,0,0,.35));clip-path:polygon(0 3%,5% .5%,11% 2.6%,17% .4%,24% 2.4%,31% .8%,38% 2.8%,46% .5%,53% 2.3%,61% .6%,68% 2.6%,75% .9%,82% 2.4%,88% 3.8%,94% 7%,100% 11%,100% 100%,96% 98.6%,90% 99.8%,83% 98.4%,75% 99.6%,67% 98.2%,58% 99.7%,49% 98.4%,40% 99.8%,31% 98.3%,22% 99.6%,13% 98.5%,6% 99.7%,0 98.6%)}.procard .prorc:after{content:"";position:absolute;right:0;top:0;width:13%;height:11%;background:linear-gradient(225deg,transparent 48%,#D9D1C1 50%,#EDE6D8 80%)}.procard .prorc .r{display:flex;justify-content:space-between;gap:12px;font:500 16px/1.5 Inter,var(--body)}.procard .prorc .r b{font-weight:700}.procard .prorc hr{border:0;border-top:1.5px solid #CFC6B3;margin:10px 0 12px}.procard .prorc .lab{text-align:center;font:700 17px/1.2 Inter,var(--body)}.procard .prorc .big{position:relative;display:block;width:max-content;margin:8px auto 0;padding:10px 22px 2px;font:700 54px/1 Kalam,cursive;letter-spacing:-.02em}.procard .prorc .big svg{position:absolute;inset:0 -14px -6px;width:calc(100% + 28px);height:calc(100% + 6px);overflow:visible;transform:rotate(-4deg);z-index:-1}.procard .prorc .big{isolation:isolate}.procard .prosteps{list-style:none;padding:0;margin:20px 0 18px;display:flex;justify-content:center;gap:26px}.procard .prosteps li{display:flex;flex-direction:column;align-items:center;gap:8px}.procard .prosteps svg{width:28px;height:28px}.procard .prosteps strong{font:600 14.5px/1.2 Inter,var(--body);color:#fff;white-space:nowrap}.procard #proForm{display:flex;flex-direction:column;align-items:center;gap:8px;margin:0}.procard .pfw{position:relative;display:flex;justify-content:center;width:auto;max-width:100%;transition:width .25s ease}.procard #proForm .proin{display:none;width:100%}.procard #proForm.open .pfw{width:min(100%,420px)}.procard #proForm.open .proin{display:block}.procard #proForm input{width:100%;margin:0;box-sizing:border-box;min-height:52px;border:2px solid #fff;border-radius:99px;background:#fff;font:16px Inter,var(--body);padding:0 64px 0 20px;color:var(--pk)}.procard #proForm input:focus{outline:3px solid var(--po);outline-offset:2px}.procard #proForm button,.procard #proJoin{display:block;margin-left:auto!important;margin-right:auto!important;min-height:50px;margin:0;border:0;border-radius:99px;background:var(--po);color:var(--pk);font:700 17px Inter,var(--body);padding:0 30px;width:auto;cursor:pointer}.procard #proForm.open button{position:absolute;right:5px;top:5px;bottom:5px;width:auto!important;min-height:0;padding:0 16px;font-size:19px}.procard #proForm.open .jl{display:none}.procard #proForm .profine{display:none;margin:0;text-align:center;font-size:12.5px;color:#AFC0B6;max-width:30em}.procard #proForm.open .profine{display:block}@keyframes pfIn{from{opacity:0;transform:scaleX(.6)}to{opacity:1;transform:none}}@media(prefers-reduced-motion:reduce){.procard #proForm.open .proin{animation:none}}.procard .proprice{display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;gap:4px 10px;margin:12px 0 0;font:400 13.5px/1.4 Inter,var(--body);color:var(--pm)}.procard .proprice b{color:#fff;font-weight:700;font-size:15px}.procard .proprice .dot{opacity:.6}.procard .proprice button{font:inherit;color:#fff;padding:0;min-height:0;background:none;border:0;text-decoration:underline;cursor:pointer}.procard .err{color:#FFB4A8;margin:8px 0 0}.procard.propoll .pph{font-size:28px;margin:0 0 6px}.procard .ppl{display:flex;flex-direction:column;gap:8px;margin:14px 0 4px}.procard .ppo{text-align:left;min-height:46px;padding:10px 14px 10px 44px;border-radius:12px;border:1.5px solid rgba(213,222,216,.35);background:rgba(255,255,255,.04);color:#fff;font:500 15px/1.3 Inter,var(--body);cursor:pointer;position:relative}.procard .ppo:before{content:"";position:absolute;left:14px;top:50%;width:18px;height:18px;margin-top:-9px;border-radius:5px;border:1.5px solid rgba(213,222,216,.6)}.procard .ppo[aria-pressed=true]{border-color:#8FD4A8;background:rgba(143,212,168,.12)}.procard .ppo[aria-pressed=true]:before{background:#8FD4A8 url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Cpath d=%27M3.5 8.5l3 3 6-7%27 fill=%27none%27 stroke=%27%2314201B%27 stroke-width=%272.2%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E") center/14px no-repeat;border-color:#8FD4A8}.procard .proprice .ppgo{min-height:48px;border:0;border-radius:99px;background:var(--po);color:var(--pk);font:700 16px Inter,var(--body);padding:0 30px;cursor:pointer;text-decoration:none;margin-right:8px}.procard.propoll .proprice{align-items:center;margin-top:16px}@media(max-width:359px){.procard.propoll .pph{font-size:23px}}@media(max-width:359px){.signup.procard h3{font-size:34px}.procard .prosteps{gap:12px}.procard .prosteps strong{font-size:13px}.procard #proForm input{font-size:15px;padding-left:16px}.procard #proForm button{width:100%}}@media(min-width:620px){.signup.procard{padding:26px 30px 22px}.procard .progrid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);align-items:center;gap:24px}.procard .proleft{display:block}.procard .proleft .prorc{display:none}.procard .progrid>.prorc{display:block}.signup.procard h3{font-size:54px}.procard .prorc{width:100%;max-width:280px;margin:0}.procard .prorc .r{font-size:18px}.procard .prorc .lab{font-size:19px}.procard .prorc .big{font-size:64px}}
 .rcwrap{position:relative}.rcsug{display:flex;flex-direction:column;background:var(--card);border-radius:10px;overflow:hidden;margin-top:4px}.rcsug:empty{display:none}.rcsug button{all:unset;cursor:pointer;padding:11px 14px;font:500 15px/1.25 var(--body);color:var(--ink);border-top:1px solid var(--line)}.rcsug button:first-child{border-top:0}.rcsug button:active,.rcsug button:hover{background:var(--mist)}
 .runcard #suForm{flex-direction:column}.runcard #suForm input,.runcard #suForm .primary{flex:none;width:100%}.runcard #suForm .primary{min-height:48px;line-height:1.15;padding:8px 16px}
@@ -1096,6 +1121,20 @@ if(!HIKE_OK)SPORT="run";
 const HIKE=()=>SPORT==="hike";
 let LANG=LINK_LANG||LS0("gf-lang")||((LS0("rd-profile")||{}).lang)||(/^fr/i.test(navigator.language||"")?"fr":"en");
 function t(k,...a){const v=(I18N[LANG]&&I18N[LANG][k]!==undefined)?I18N[LANG][k]:I18N.en[k];return typeof v==="function"?v(...a):v}
+/* Fox Pro founding list (Nov 6, Bastien picked card "A"; words: docs/founding-ask-copy-nov5.md + artifact X4E2mvP2mdfsWod67evvUM). */
+Object.assign(I18N.en,{fpPill:"FIRST 100 MEMBERS",fpH:"Good gear.<br>Better timing.",fpSub:"Get the Fox Pro launch link first.",fpAmt:"$36",fpPer:"CAD / YEAR",
+  fpAfter:"$45 / year after<br>the founding round",fpLock:"Founding price locked while you stay.",fpT1:"Morning price-drop alerts",fpT2:"Unlimited watchlist",
+  fpT3:"Price-drop emails after you buy",fpPlan:"Planned from Dec 2. 30-day full refund.",fpJoin:"Join the founding list →",fpFree:"Free to join. Nothing to pay now.",
+  fpFoot:"100 numbered spots. Memberships go to the first 100 who pay.",fpThanks:"You're on the founding list. Your link arrives Wednesday, Dec 2.",
+  fpOnH:"You're on<br>the list.",fpOnSub:"Your founding link arrives Wednesday, Dec 2.",fpOnFoot:"$36 CAD / year, founding price locked while you stay.<br>100 numbered spots. Memberships go to the first 100 who pay.",
+  fpIn:"Want first access to one of 100 numbered founding spots ($36/year, locked while you stay)?",fpAdd:"Add me"});
+Object.assign(I18N.fr,{fpPill:"100 PREMIERS MEMBRES",fpH:"Le bon équipement.<br>Au bon moment.",fpSub:"Recevez le lien de lancement Fox Pro en premier.",fpAmt:"36\u00a0$",fpPer:"CAD / AN",
+  fpAfter:"45\u00a0$ / an après<br>la ronde fondatrice",fpLock:"Prix fondateur garanti tant que vous restez.",fpT1:"Alertes de baisse chaque matin",fpT2:"Favoris illimités",
+  fpT3:"Un courriel si le prix baisse après l'achat",fpPlan:"Prévu dès le 2 décembre. Remboursement complet sous 30\u00a0jours.",fpJoin:"M'inscrire à la liste →",
+  fpFree:"Inscription gratuite. Rien à payer maintenant.",fpFoot:"100 places numérotées. Elles vont aux 100 premiers qui paient.",
+  fpThanks:"Vous êtes sur la liste des fondateurs. Votre lien arrive le mercredi 2 décembre.",fpOnH:"Vous êtes<br>sur la liste.",fpOnSub:"Votre lien fondateur arrive le mercredi 2 décembre.",
+  fpOnFoot:"36\u00a0$ CAD / an, prix fondateur garanti tant que vous restez.<br>100 places numérotées. Elles vont aux 100 premiers qui paient.",
+  fpIn:"Voulez-vous un accès en premier à l'une des 100 places de membre fondateur (36\u00a0$/an, prix garanti tant que vous restez)?",fpAdd:"Ajoutez-moi"});
 const num=n=>Number(n).toLocaleString(LANG==="fr"?"fr-CA":"en-CA");
 function applyStatic(){
   document.documentElement.lang=LANG;
@@ -1443,7 +1482,7 @@ $("saveSizes").addEventListener("click",async()=>{
     try{const r=await rpc("subscribe",{p_email:email,p_profile:subProfile(p,"sheet")});track("signup",{method:"email",lang:LANG,where:"sheet",ref:REF||"none"});joined=joinedAs(email,r)}
     catch(e){suFail("sheet",email,e.message);btn.disabled=false;btn.textContent=t("subscribeShow");return gateErr(t("errServer"))}
     btn.disabled=false;closeSheet();view.open={};renderAll();window.scrollTo({top:0});
-    notice(joined?t("joinedNote",esc(email)):t("hereDeals",esc(email)));
+    joined?inNote(t("joinedNote",esc(email))):notice(t("hereDeals",esc(email)));
     return;
   }
   if(!state.gender){state.gender="any"}
@@ -2672,33 +2711,42 @@ let signupErr="",resentAt=0;
    Decision rule (plan doc): build Pro if 5%+ of the visitors who saw the card join at a price. ?pro=1 shows it any day (previews). */
 /* Oct 31 (Bastien: "lets lock in 5$ a month, founding members at 3$. We dont need to push the test card"): price decided, no test;
    the card no longer switches itself on (it only shows with ?pro=1, for previews) until Pro launches. */
-let proSeen=false,proErr="";
-function proOn(){const q=/[?&]pro=1\b/.test(location.search);
-  return q&&!LS.get("gf-pro")&&!LS.get("gf-nopro")}
-const proArm=()=>ANA.arm("pro"),proPrices=()=>proArm()==="B"?[5,49]:[3,29];
-function proHTML(member){
-  if(!proOn())return "";const [m,y]=proPrices();
-  if(!proSeen){proSeen=true;ana("signup-step",`pro-view|${proArm()}`)}
-  const mo=v=>LANG==="fr"?v+"\u00a0$":"$"+v;
-  const ic=d=>`<svg viewBox="0 0 28 28" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
-  const rc=`<div class="prorc" role="img" aria-label="${esc(t("proArtAlt"))}"><div aria-hidden="true">
-      <div class="r"><span>${t("proPaid")}</span><b>${mo(499)}</b></div>
-      <div class="r"><span>${t("proNew")}</span><b>${mo(420)}</b></div><hr>
-      <div class="lab">${t("proRef")}</div>
-      <span class="big">${mo(79)}<svg viewBox="0 0 120 60" preserveAspectRatio="none"><path d="M41 9C66 1 103 0 116 15c9 11 3 25-18 33-22 9-61 10-83 2C-1 44-4 29 6 19 17 8 42 3 66 2c13 0 25 1 33 4" fill="none" stroke="#FF6A13" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/><path d="M8 23C10 12 35 6 60 5c26-1 49 3 57 13" fill="none" stroke="#FF6A13" stroke-width="1.8" stroke-linecap="round" opacity=".55" vector-effect="non-scaling-stroke"/></svg></span></div></div>`;
-  return `<section class="signup procard" aria-labelledby="proTitle"><div class="protop"><span class="pbrand"><img src="img/fox-face.webp" alt="The Gear Fox" width="168" height="168">Fox Pro</span><span class="cs">${t("proSoon")}</span></div>
-    <div class="progrid"><div class="proleft">
-    <h3 id="proTitle">${t("proH1")}</h3>
-    <p class="prosub">${t("proSub")}</p>
-    ${rc}
-    <ol class="prosteps"><li>${ic('<path d="M3 5h3l2.6 11.5h12L23 8H7.3"/><circle cx="10.5" cy="21.5" r="1.5"/><circle cx="19" cy="21.5" r="1.5"/>')}<strong>${t("proS1h")}</strong></li><li>${ic('<circle cx="12" cy="12" r="7"/><path d="m17.2 17.2 6 6"/>')}<strong>${t("proS2h")}</strong></li><li>${ic('<path d="M7 18.5V12a7 7 0 0 1 14 0v6.5l2 2.5H5z"/><path d="M12 24a2 2 0 0 0 4 0"/>')}<strong>${t("proS3h")}</strong></li></ol>
-    ${member?`<button class="primary" type="button" id="proJoin">${t("proJoin")}</button>`
-      :`<form id="proForm" class="open" novalidate><label for="proEmail" class="hidden">${t("email")}</label>
-      <span class="pfw"><span class="proin"><input id="proEmail" type="email" autocomplete="email" inputmode="email" placeholder="${esc(t("proEmailPh"))}" value="${esc(state.email)}" required></span>
-      <button class="primary" type="submit" aria-label="${esc(t("proJoin").replace(" →",""))}"><span class="jl">${t("proJoin").replace(" →","")}</span> <span class="ar" aria-hidden="true">→</span></button></span><p class="profine">${t("proFineOpen")}</p></form>`}
-    ${proErr?`<p class="err" role="alert">${esc(proErr)}</p>`:""}
-    <p class="proprice"><b>${t("proPrice",m,y)}</b><span class="dot">•</span><span>${t("proNoPay")}</span><button type="button" id="proNo" class="linkbtn">${t("noThanks")}</button></p></div>${rc}</div></section>`;
+let proErr="";
+/* Fox Pro founding list (Nov 6; growth spec, Bastien picked the card). Members only, in the sign-up card's slot: returning members
+   (2+ visits) Nov 17-30, once FOUND_LIVE is on (Bastien's OK after the Nov 16 preview). Email links (?k=…&pro=join&em=…-pro) open it
+   on the landing page; joining is ONE TAP there, never on page load (link scanners open email links). Joined = gf-pro, sent with the
+   profile as pro_wait. Analytics signup-step pro-view|pro-join|pro-no|<place>. ?pro=1 shows it any day (previews, site test). */
+const FOUND_LIVE=false,FOUND_FROM="2026-11-17",FOUND_TO="2026-11-30";
+const FP_Q=new URLSearchParams(location.search),FP_PREVIEW=FP_Q.get("pro")==="1",PROJOIN=FP_Q.get("pro")==="join";
+const FP_PLACE=PROJOIN?"email-"+((FP_Q.get("em")||"link").replace(/[^a-z-]/g,"").slice(0,20)):"site";
+const vanDay=()=>new Date().toLocaleDateString("en-CA",{timeZone:"America/Vancouver"});
+const fpWindow=()=>FOUND_LIVE&&vanDay()>=FOUND_FROM&&vanDay()<=FOUND_TO;
+const onList=()=>!!LS.get("gf-pro");
+let fpSeen=false,fpScrolled=false;
+function fpShow(){if(!(sub&&sub.active)||LS.get("gf-nopro"))return false;
+  return FP_PREVIEW||PROJOIN||(fpWindow()&&ANA.nv()>=2)}
+function fpJoin(place){LS.set("gf-pro",{at:vanDay(),via:place});ana("signup-step",`pro-join|${place}`);saveProfile();toast(t("fpThanks"));renderAll()}
+function proHTML(){
+  if(!fpShow())return "";
+  if(onList())return PROJOIN?`<section class="signup fpcard fpon" id="fpOn"><div class="fptop"><span class="fpbrand">FOX PRO</span><span class="fppill">${t("fpPill")}</span></div>
+    <h3 class="fphl">${t("fpOnH")}</h3><p class="fpsub">${t("fpOnSub")}</p><p class="fpfoot">${t("fpOnFoot")}</p></section>`:"";
+  if(!fpSeen){fpSeen=true;ana("signup-step",`pro-view|${FP_PLACE}`)}
+  const tk=`<svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="10" fill="none" stroke="#24492F" stroke-width="1.6"/><path d="M6.5 11.5l3 3 6-6.5" fill="none" stroke="#24492F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  return `<section class="signup fpcard" aria-labelledby="fpT"><div class="fptop"><span class="fpbrand">FOX PRO</span><span class="fppill">${t("fpPill")}</span></div>
+    <h3 id="fpT" class="fphl">${t("fpH")}</h3><p class="fpsub">${t("fpSub")}</p>
+    <div class="fpprice"><div class="fprow"><span class="fpamt">${t("fpAmt")}</span><span class="fpper">${t("fpPer")}</span><span class="fpafter">${t("fpAfter")}</span></div><p class="fplock">${t("fpLock")}</p></div>
+    <ul class="fpticks"><li>${tk}${t("fpT1")}</li><li>${tk}${t("fpT2")}</li><li>${tk}${t("fpT3")}</li></ul>
+    <p class="fpfine">${t("fpPlan")}</p>
+    <button class="fpcta" type="button" id="fpJoin">${t("fpJoin")}</button>
+    <p class="fpfine fpfree">${t("fpFree")}</p>
+    <p class="fpfoot">${t("fpFoot")}</p>
+    <button type="button" id="fpNo" class="fpno">${t("noThanks")}</button></section>`;
 }
+/* "You're in" after any sign-up: one line + [Add me] while the founding list is open (or ?pro=1). */
+function inNote(html){
+  if((fpWindow()||FP_PREVIEW)&&!onList()&&sub&&sub.active){
+    notice(html+`<p class="fpin">${t("fpIn")}</p>`,{label:t("fpAdd"),run:()=>{fpJoin("youre-in");$("notice").classList.add("hidden")}})}
+  else notice(html)}
 /* Oct 28 (Bastien: "put all 6 together"): right after joining the Fox Pro waitlist, one question: which Pro ideas would they use?
    Any number of picks; "pro-want|<keys>" in analytics + saved in gf-pro (rides in the member's profile as pro_wait.wants). ?propoll=1 shows it (previews/site test). */
 const PRO_WANTS=["codes","last","returns","replace","passport","check"];
@@ -2715,11 +2763,10 @@ function signupHTML(){return proPollHTML()+signupHTML0()}
    step), then "or use your email". Drawn by Google's script once it's loaded (G.render); until then the old link line shows. */
 const gCard=()=>G.ready?`<div class="gwrap gcard"><div class="gbtn" id="gBtnCard"></div><p class="or"><span>${t("orUseEmail")}</span></p></div>`:"";
 function signupHTML0(){
-  if(sub&&sub.active)return proHTML(true);
+  if(sub&&sub.active)return proHTML();
   if(sub&&sub.pending)return `<div class="signup"><h3>${t("checkInbox")}</h3><p style="margin:0">${sub.signin?t("signinCard",esc(sub.pending)):t("checkInboxTxt",esc(sub.pending))}</p>
     ${mailBtn(sub.pending)}<p class="fine">${t("junkHint")}</p>
     <p class="fine"><button type="button" id="suResend" style="font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;cursor:pointer">${t("resend")}</button> · <button type="button" id="suRetry" style="font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;cursor:pointer">${t("otherEmail")}</button></p></div>`;
-  const pro=proHTML(false);if(pro)return pro;          // Nov 2-16: returning visitors see the Fox Pro waitlist card in this slot
   if(LS.get("gf-nosignup"))return "";                  // "No thanks" on this device: hearts still ask
   if(QLAND&&view.q)return `<div class="signup qsline"><p><b>${t("qsH")}</b> ${t("qsTxt")}</p>
     <form id="suForm" novalidate><label for="suEmail" class="hidden">${t("email")}</label>
@@ -2782,17 +2829,9 @@ function runCardHTML(){
 }
 function bindSignup(){
   if(G.ready&&$("gBtnCard"))setTimeout(()=>G.render(),0);   // Oct 29: Google first on the sign-up card
-  const pj=()=>{proJust=true;const [m,y]=proPrices();LS.set("gf-pro",{m,y,arm:proArm(),at:new Date().toISOString().slice(0,10)});ana("signup-step",`pro-join|${proArm()}`)};
-  const pb=$("proJoin");if(pb)pb.addEventListener("click",()=>{pj();saveProfile();toast(t("proThanks"));renderAll()});
-  const pf=$("proForm");if(pf)pf.addEventListener("submit",async e=>{
-    e.preventDefault();if(!pf.classList.contains("open")){pf.classList.add("open");ana("signup-step",`pro-open|${proArm()}`);$("proEmail").focus();return}const email=cleanMail($("proEmail").value);
-    if(!okMail(email)){suFail("pro",email,"bad-email");proErr=t("badEmail");renderAll();$("proEmail").focus();return}
-    const btn=pf.querySelector("button");btn.disabled=true;btn.textContent="…";
-    pj();state.email=email;const p=toProfile();LS.set("rd-profile",p);
-    try{const r=await rpc("subscribe",{p_email:email,p_profile:subProfile(p,"pro")});proErr="";track("signup",{method:"email",lang:LANG,where:"pro",ref:REF||"none"});joinedAs(email,r)}
-    catch(err){suFail("pro",email,err.message);LS.set("gf-pro",null);proErr=t("signupFail",err.message)}
-    renderAll()});
-  const pn=$("proNo");if(pn)pn.addEventListener("click",()=>{LS.set("gf-nopro",1);ana("signup-step",`pro-no|${proArm()}`);renderAll()});
+  const fj=$("fpJoin");if(fj)fj.addEventListener("click",()=>fpJoin(FP_PLACE));
+  const fn=$("fpNo");if(fn)fn.addEventListener("click",()=>{LS.set("gf-nopro",1);ana("signup-step",`pro-no|${FP_PLACE}`);renderAll()});
+  if(PROJOIN&&!fpScrolled){const c=$("fpJoin")||$("fpOn");if(c){fpScrolled=true;setTimeout(()=>c.closest("section").scrollIntoView({block:"center"}),300)}}
   document.querySelectorAll(".ppo").forEach(b=>b.addEventListener("click",()=>{const k=b.dataset.pw;proPick=proPick.includes(k)?proPick.filter(x=>x!==k):[...proPick,k];b.setAttribute("aria-pressed",proPick.includes(k))}));
   const pg=$("ppGo");if(pg)pg.addEventListener("click",()=>{LS.set("gf-prowant",proPick.length?proPick:["none"]);ana("signup-step",`pro-want|${proPick.join(",")||"none"}`);
     const w=LS.get("gf-pro");if(w){LS.set("gf-pro",{...w,wants:proPick});if(sub&&sub.active)saveProfile()}toast(t("ppThanks"));renderAll()});
@@ -2810,7 +2849,7 @@ function bindSignup(){
     let joined=false;
     try{const r=await rpc("subscribe",{p_email:email,p_profile:subProfile(p,"card")});signupErr="";track("signup",{method:"email",lang:LANG,where:rs?"runcard":nk?"namecard":"card",ref:REF||"none"});joined=joinedAs(email,r)}
     catch(err){suFail("card",email,err.message);signupErr=t("signupFail",err.message)}
-    renderAll();if(joined)notice(t("joinedNote",esc(email)));
+    renderAll();if(joined)inNote(t("joinedNote",esc(email)));
   });
   const rcs=$("rcShoe");if(rcs){
     rcs.addEventListener("focus",()=>ana("signup-step","runcard-focus"),{once:true});
@@ -2826,7 +2865,7 @@ function bindSignup(){
   const rs=$("suResend");if(rs)rs.addEventListener("click",async()=>{     // same email again (the server waits 2 min between sends)
     if(resentAt&&Date.now()-resentAt<120e3){toast(t("resendWait"));return}
     resentAt=Date.now();track("resend",{lang:LANG,signin:!!sub.signin});
-    try{if(sub.signin)await rpc("send_link",{p_email:sub.pending,p_lang:LANG});else{const em=sub.pending,r=await rpc("subscribe",{p_email:em,p_profile:subProfile(toProfile(),"card")});if(joinedAs(em,r)){renderAll();notice(t("joinedNote",esc(em)));return}}toast(t("resent"))}
+    try{if(sub.signin)await rpc("send_link",{p_email:sub.pending,p_lang:LANG});else{const em=sub.pending,r=await rpc("subscribe",{p_email:em,p_profile:subProfile(toProfile(),"card")});if(joinedAs(em,r)){renderAll();inNote(t("joinedNote",esc(em)));return}}toast(t("resent"))}
     catch(e){suFail("resend",sub&&sub.pending,e.message);resentAt=0;toast(t("resendFail"))}});
 }
 function renderSubLine(){
@@ -2927,7 +2966,7 @@ function linkFromGoogle(r,welcome){
   track(welcome===t("gWelcome")?"signin":"signup",{method:"google",lang:LANG});
   applyProfile({...(r.profile||{}),email:r.email});LS.set("rd-profile",toProfile());
   setSub({key:r.key,email:r.email,active:!!r.subscribed});gSession=null;signinMode=false;
-  closeSheet();view.open={};renderAll();syncWatches();window.scrollTo({top:0});notice(welcome);
+  closeSheet();view.open={};renderAll();syncWatches();window.scrollTo({top:0});welcome===t("gIn")?inNote(welcome):notice(welcome);
 }
 async function onGoogle(credential){
   gateErr("");

@@ -116,7 +116,17 @@ def alert_row(kind, a, lang="en"):
 </td></tr></table></a></td></tr>'''
 
 
-def build(sub, drops, backs):
+def found_today(now=None):
+    """Nov 17 - Dec 1 (Vancouver date), once founding.FOUND_LIVE is on."""
+    import founding as F
+    from datetime import datetime, timezone
+    from zoneinfo import ZoneInfo
+    d = (now or datetime.now(timezone.utc)).astimezone(ZoneInfo("America/Vancouver")).date().isoformat()
+    return F.FOUND_LIVE and F.ALERT_FROM <= d <= F.ALERT_TO
+
+
+def build(sub, drops, backs, found=None):
+    """found: show the Fox Pro founding-list line (None = by date + switch; members already on the list never get it)."""
     lang = W.lang_of(sub.get("profile"))
     n = len(drops) + len(backs)
     if len(drops) == 1 and not backs:
@@ -129,6 +139,10 @@ def build(sub, drops, backs):
         subject = at(lang, "subj_many", n)
     shop = f"{W.SITE_URL}?k={sub['token']}&em=alert"      # visits from alerts show as "email-alert" in our analytics
     rows = "".join(alert_row("drop", a, lang) for a in drops) + "".join(alert_row("back", a, lang) for a in backs)
+    import founding as F            # Nov 17 - Dec 1: one founding-list line under "Open your watchlist" (Nov 6, growth spec)
+    fp_html, fp_text = ("", "")
+    if (found_today() if found is None else found) and not F.on_list(sub.get("profile")):
+        fp_html, fp_text = F.alert_lines(lang, f"{W.SITE_URL}?k={sub['token']}&pro=join&em=alert-pro")
     footer = (f'<a href="{E(shop)}" style="color:#5C6660">{E(at(lang, "watchlist"))}</a> · '
               f'<a href="{E(W.SITE_URL)}?unsub={sub["token"]}" style="color:#5C6660">{E(W.tr(lang, "unsubscribe"))}</a> · '
               f'<a href="{E(W.SITE_URL)}privacy.html" style="color:#5C6660">{E(W.tr(lang, "privacy"))}</a>'
@@ -142,11 +156,11 @@ def build(sub, drops, backs):
 <tr><td style="padding:0 20px 16px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">{rows}</table></td></tr>
 <tr><td style="padding:14px 20px 22px;text-align:center;border-top:2px dashed #CBD2CC">
 <a href="{E(shop)}" style="display:inline-block;background:#F26A1B;color:#17201C;border:2px solid #17201C;border-radius:10px;padding:12px 20px;font:800 16px Arial,sans-serif;text-decoration:none">{E(at(lang, "button"))}</a>
-<div style="font:12px/1.4 Arial,sans-serif;color:#5C6660;margin-top:14px">{E(at(lang, "fine"))}<br>{footer}</div></td></tr>
+{fp_html}<div style="font:12px/1.4 Arial,sans-serif;color:#5C6660;margin-top:14px">{E(at(lang, "fine"))}<br>{footer}</div></td></tr>
 </table></td></tr></table></body></html>'''
     text = subject + "\n\n" + "\n".join(
         f"- {at(lang, 'drop') if a in drops else at(lang, 'back')}: {a['deal']['b']} {a['deal']['n']} {W.money(a['deal']['best'], lang)} {a['deal']['url']}"
-        for a in drops + backs) + (f"\n\n{at(lang, 'watchlist')}: {shop}\n{W.tr(lang, 'unsubscribe')}: {W.SITE_URL}?unsub={sub['token']}\n")
+        for a in drops + backs) + (f"\n\n{at(lang, 'watchlist')}: {shop}\n" + (f"\n{fp_text}\n" if fp_text else "") + f"{W.tr(lang, 'unsubscribe')}: {W.SITE_URL}?unsub={sub['token']}\n")
     return subject, body, text
 
 

@@ -442,6 +442,22 @@ def watch_one(p, sale, drops, lang):
     return html, text
 
 
+def founding_box(p, lang):
+    """Fox Pro founding list (Nov 6, Bastien picked card "A"): Nov 20 (Saturday group Nov 21) + Nov 27, members only. Nov 27: people
+    already on the list get "You're on the list" (no button); founding.FOUND_READY False = the January line. Test copies show it."""
+    import founding as F
+    if not p.get("token") and not p.get("_test"):
+        return "", ""
+    day = str(local_now(p).date())
+    if not (p.get("_test") or (F.FOUND_LIVE and day in F.BOX_DAYS)):
+        return "", ""
+    listed = F.on_list(p)
+    if listed and not (p.get("_test") or day == "2026-11-27"):
+        return "", ""
+    url = shop_link(p) + f"&pro=join&em={em_day()}-pro"
+    return F.box(lang, url, listed=listed, ready=F.FOUND_READY or day < "2026-11-27")
+
+
 def build(p, sale, watch=None, watching=None):
     """watching: False = this member watches nothing (gets the "watch one thing" box); True/None = no box."""
     lang = lang_of(p)
@@ -501,7 +517,9 @@ def build(p, sale, watch=None, watching=None):
         first_note = (f'<tr><td style="padding:4px 20px 14px"><div style="background:#FFF4EC;border:1.5px solid #F26A1B;border-radius:10px;'
                       f'padding:10px 14px;font:14px/1.45 Arial,sans-serif;color:#17201C">{tr(lang, "first_gmail" if gmail else "first_other")}</div></td></tr>')
     w1, w1_text = watch_one(p, sale, drops, lang) if watching is False else ("", "")
-    first_note += w1
+    fp, fp_text = founding_box(p, lang)
+    first_note += fp + w1
+    w1_text = fp_text + w1_text
     body = f'''<!doctype html><html lang="{lang}"><body style="margin:0;background:#EEF1EC">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#EEF1EC"><tr><td align="center" style="padding:20px 12px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#FFFFFF;border:2px solid #17201C;border-radius:14px">

@@ -608,33 +608,34 @@ try:
 except Exception as e:
     out.append(f"Searches: couldn't read ({str(e)[:80]})")
 
-# FOX PRO PRICE TEST (Nov 2-16, agreed Oct 25): returning visitors see a waitlist card, A = $3/month or $29/year, B = $5/month or
-# $49/year. Per device (a device that saw it in several sessions counts once). Rule: build Pro if 5%+ of viewers join at a price;
-# both pass -> the higher price unless the lower one gets clearly more people (p < 0.05)
+# FOUNDING LIST (Nov 6, Bastien picked card "A"; growth spec): Fox Pro founding-list joins by place and by ?ref, vs target 60
+# (floor 40 by Nov 30; under 25 by Nov 24 = Black Friday traffic isn't converting). Places: site (returning-member card),
+# email-friday-pro / email-saturday-pro / email-alert-pro / email-welcome-pro (email links), youre-in (line after a sign-up).
+# Counted from Nov 17 (before that only previews and the site test's robot see the card). One session = one join at most.
 try:
-    import math as _m
-    view, join, no = {"A": set(), "B": set()}, {"A": set(), "B": set()}, {"A": set(), "B": set()}
-    did = {}
+    fv, fj, fn = Counter(), Counter(), Counter()
+    jref = Counter()
+    seen_j = set()
     for e in rows:
         d_ = e.get("detail") or ""
-        # before Nov 2 only robots saw the card (site test ?pro=1; their keepalive sends leaked past the stand-in until Oct 28)
-        if e["kind"] == "signup-step" and d_.startswith(("pro-view|", "pro-join|", "pro-no|")) and str(e["at"])[:10] >= "2026-11-02":
-            k, a_ = d_.split("|")[:2]
-            dev_ = e["sid"]            # one session = one device here (sessions don't carry the device id)
-            {"pro-view": view, "pro-join": join, "pro-no": no}[k].setdefault(a_, set()).add(dev_)
-    if view["A"] or view["B"]:
-        def zt(y1, n1, y2, n2):
-            if not n1 or not n2:
-                return 1.0
-            p_ = (y1 + y2) / (n1 + n2)
-            se = _m.sqrt(p_ * (1 - p_) * (1 / n1 + 1 / n2)) or 1
-            return _m.erfc(abs(y1 / n1 - y2 / n2) / se / _m.sqrt(2))
-        nA, nB, jA, jB = len(view["A"]), len(view["B"]), len(join["A"] & view["A"]), len(join["B"] & view["B"])
-        out.append(f"FOX PRO PRICE TEST (sessions that saw the card): $3/$29 (A) {pct(jA, nA)} joined of {nA}, 'No thanks' {len(no['A'])} | "
-                   f"$5/$49 (B) {pct(jB, nB)} joined of {nB}, 'No thanks' {len(no['B'])} | difference p={zt(jA, nA, jB, nB):.3f} "
-                   f"| rule: build at a price where 5%+ join")
+        if e["kind"] != "signup-step" or str(e["at"])[:10] < "2026-11-17" or not d_.startswith(("pro-view|", "pro-join|", "pro-no|")):
+            continue
+        k, pl = (d_.split("|") + [""])[:2]
+        if pl in ("A", "B"):
+            continue                    # the old price-test card
+        if k == "pro-view":
+            fv[pl] += 1
+        elif k == "pro-no":
+            fn[pl] += 1
+        elif e["sid"] not in seen_j:
+            seen_j.add(e["sid"]); fj[pl] += 1
+            jref[S[e["sid"]]["ref"] or "(none)"] += 1
+    tot = sum(fj.values())
+    out.append(f"FOUNDING LIST: {tot} joined (target 60, floor 40 by Nov 30; 25 by Nov 24) | by place: "
+               + (", ".join(f"{k} {v} (of {fv[k]} views, {fn[k]} no thanks)" for k, v in fj.most_common()) or "none yet")
+               + " | by ?ref: " + (", ".join(f"{k} {v}" for k, v in jref.most_common(6)) or "none"))
 except Exception as e:
-    out.append(f"Fox Pro test: couldn't read ({str(e)[:80]})")
+    out.append(f"FOUNDING LIST: couldn't read ({str(e)[:80]})")
 
 # Race gear lists (Oct 23, Bastien: "a tracker to see how and if people are using the gear checklist")
 try:
