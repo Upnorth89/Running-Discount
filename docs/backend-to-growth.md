@@ -1242,3 +1242,17 @@ What's built (nothing visible to visitors):
 - Back from Stripe (`?pro=welcome`): "Welcome to Fox Pro, Founding Fox #007. A receipt is on its way to your inbox."
 - Site test "Fox Pro checkout screen (before Stripe)". Next: the Stripe test prices (CAD) via stripe-setup.yml, then piece #2 (Pro perks).
 Note: the screen always shows $36 for now; once 100 are paid it must show $45 (piece #2 reads the live count).
+
+## Nov 6 (afternoon): your shoe-page round, morning audit and price-adjust table, done
+- **Wide sizes, one table per width** (Clifton 10): a regular card's wide sizes now go only into the "· wide" table, each size at its best
+  price across both sources (men's 11 wide: $129.99 Brainsport, the $143.88 row is gone). check.py fails on any wide row in a regular table.
+- **Badge vs price line:** the hero badge reads the same history as the price line and its N stops at the last day the price was cheaper
+  (under 30 = no badge); forest green (#24492F, white) instead of orange. Clifton 10: badge gone (it was cheaper Oct 4). check.py fails when
+  a badge's N spans a date its price line names as cheaper. List-card "lowest in N days" labels still use the homepage rule (same lo/hd) - say if you see one disagree.
+- **Women's table first:** only for visitors whose saved profile is women's or "both"; no saved size = men's first. As designed on Oct 18.
+- **Morning audit:** 1 The Run House wide shoes (title "(Wide)" / tag "Wide", Size option only) now read as wide, any Shopify store; 2 pickleball
+  (store tags pickleball/tennis/padel, "PKL") out; 3 Iron Legs re-read on ironlegs.ca: 25 km = "min. 1L" (own line), others 1.5 L;
+  4 cup line + "no cups" answer removed (no Iron Legs page mentions cups); 5 prenatal/postnatal products out of Nutrition (Nuun vitamin tabs stay).
+  Take effect at the next store read (pickleball, wide, prenatal) or at once (Iron Legs).
+- **Price-adjust table:** thanks. Drafts fixed: "about 25 stores" -> the real 8 (EN + « 8 boutiques que nous avons vérifiées »), the Sporting Life
+  "until Dec 2" mock -> Altitude Sports with its real published words. #5 will read the list from one data file you can edit.

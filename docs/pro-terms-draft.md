@@ -50,7 +50,7 @@ What Fox Pro is not: we don't sell gear, and we can't make a store change a pric
 - Free months from referrals have no cash value.
 
 ## 7. Price protection: you buy, we watch, you claim
-- Bought something at a store that publishes a price-match or price-adjustment window? Tap **"I bought it"**. About 25 stores publish one today; the list is at [page].
+- Bought something at a store that publishes a price-match or price-adjustment window? Tap **"I bought it"**. 8 stores we've read publish one today; the list is at [page].
 - We check the same item, in your size and colour, on the store's own page every morning until that store's window ends.
 - If the price drops, we email you the next morning with the new price, the difference, and a message you can send to the store.
 - **The store decides.** We never guarantee a refund or a price adjustment. Each store's own policy and exclusions apply (proof of purchase, final sale items, marketplace sellers, its own deadlines). We don't contact the store for you.
@@ -147,7 +147,7 @@ Ce que Fox Pro n'est pas : on ne vend pas d'équipement, et on ne peut pas oblig
 - Les mois gratuits obtenus par parrainage n'ont aucune valeur en argent.
 
 ## 7. Protection de prix : vous achetez, on surveille, vous réclamez
-- Vous avez acheté dans une boutique qui publie un délai d'ajustement de prix ? Touchez **« Je l'ai acheté »**. Environ 25 boutiques en publient un aujourd'hui ; la liste est sur [page].
+- Vous avez acheté dans une boutique qui publie un délai d'ajustement de prix ? Touchez **« Je l'ai acheté »**. 8 boutiques que nous avons vérifiées en publient un aujourd'hui ; la liste est sur [page].
 - Chaque matin, on vérifie le même article, dans votre taille et votre couleur, sur le site de la boutique, jusqu'à la fin de son délai.
 - Si le prix baisse, on vous écrit le lendemain matin avec le nouveau prix, la différence et un message prêt à envoyer à la boutique.
 - **C'est la boutique qui décide.** On ne garantit jamais un remboursement ni un ajustement de prix. La politique de chaque boutique et ses exclusions s'appliquent (preuve d'achat, ventes finales, vendeurs tiers, ses propres délais). On ne communique pas avec la boutique à votre place.

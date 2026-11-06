@@ -2151,6 +2151,15 @@ SIZE_OPT = re.compile(r"^((us|eu|uk|men'?s|women'?s|mens|womens|shoe)\s+)?(size|
 WIDTH_OPT = re.compile(r"^(width|shoe width|shoe fit|fit|largeur)$", re.I)
 WIDTH_VAL = re.compile(r"(?i)^(2a|aa|b|d|2e|ee|4e|6e|regular|medium|standard|wide|x-?wide|extra wide|narrow)(\s*\([^)]*\))?$")
 
+def title_wide(p):
+    """A shoe product that is a wide one by its title or the store's own tags (no width option)."""
+    tags = p.get("tags") or []
+    if isinstance(tags, str):
+        tags = tags.split(",")
+    return bool(re.search(r"\((?:extra |x-?)?wide\)|\b(?:extra |x-?)?wide\b|\(\s*(?:2e|4e|ee)\s*\)", p.get("title") or "", re.I)
+                or any(str(t).strip().lower() in ("wide", "extra wide", "x-wide", "xwide", "wide shoe") for t in tags))
+
+
 def width_word(w, title):
     """A width option value -> the words canon_shoe() reads. Men's D and women's B are regular; women's D is wide."""
     w = (w or "").strip().lower()
@@ -2217,6 +2226,10 @@ def hidden_product(p):
     if any(t in ("activity:soccer", "soccer apparel", "gs soccer") or t.startswith("apparel type:soccer") for t in tl) \
             or re.search(r"\bsoccer\b", p.get("product_type") or "", re.I):
         return True
+    # Nov 6 (growth's morning audit): The Run House's Diadora "Troffeo 2 AF PKL" (pickleball) came in as a running shoe: its tags say so
+    if any(t in ("pickleball", "tennis", "padel", "court shoes", "pickleball shoes", "tennis shoes") for t in tl) \
+            and not re.search(r"\brun", p.get("title") or "", re.I):
+        return True
     # Nov 6 (data audit): Foveo files a Black Diamond "Circuit 2 Shoes" (73% off) as product type "Lifestyle": a store saying lifestyle/casual
     # about footwear means it isn't for running or hiking
     if re.fullmatch(r"(lifestyle|casual)( shoes?| footwear| sneakers?)?", (p.get("product_type") or "").strip().lower()) \
@@ -2273,6 +2286,8 @@ def shopify_items(st, base, prods, group_fn, fx=1.0, size_aware=False, size_fn=N
                 label = vals[si]
                 if wi is not None and g == "shoes":   # US shops: width as its own option ("D", "2E", "Wide", "Medium")
                     label += width_word(vals[wi], (p.get("title") or "") + " | " + (p.get("product_type") or ""))
+                elif g == "shoes" and title_wide(p):   # Nov 6 (growth): The Run House "Arahi 9 - BLACK / WHITE (Wide)", tag "Wide",
+                    label += " Wide"                    # Size option only: the colour cut took "(Wide)" with it, so 7 wide shoes read regular
             else:
                 rest = " / ".join(x for x in (v.get("option2"), v.get("option3")) if x)
                 key = o1 if len(opts) > 1 else ""
@@ -4144,7 +4159,7 @@ CASUAL_SHOE = re.compile(r"\b(sandal|sandale|clog|sabot|slipper|pantoufle|mule|f
 # court and lifestyle shoes from running brands (ASICS tennis/pickleball lines, retro sneakers)
 MOC_SNEAKER = re.compile(r"\bmoc(?:casin)?s?\b|\bsneakers?\b", re.I)   # Nov 6 (data audit): Merrell Jungle Moc, Antora 3 Thermo Moc, "Hiking Sneakers",
                                                                         # "Wrapt Sneaker" on the running side (Morphaxis "Trail Running Sneaker" stays)
-COURT_SHOE = re.compile(r"\btyrol\b|pick[el]+ball|\btennis\b|\bpadel\b|\bcourt\b|gel[- ]?(resolution|dedicate|game|challenger|1130|nyc|kahana)|solution speed", re.I)
+COURT_SHOE = re.compile(r"\btyrol\b|pick[el]+ball|\bpkl\b|\btennis\b|\bpadel\b|\bcourt\b|gel[- ]?(resolution|dedicate|game|challenger|1130|nyc|kahana)|solution speed", re.I)
 # lifestyle lines stores file under running (brand + model; Foot Locker, Oct 4, 2026)
 LIFESTYLE_SHOE = re.compile(r"^(new balance\s+(740|2002r?|9060|530|1906r?)|on\s+(cloud\s?6|cloudtilt|cloudzone|cloud\s?5|cloudnova|roger)"
                             r"|salomon\s+xt-?(6|pathway|whisper|4|quest)|asics\s+gel-?(kayano\s?(14|20)|k1011)"
@@ -4234,6 +4249,9 @@ def tidy_food(offers):
         if BYOB.search(o["n"]) or re.fullmatch(r"(?=.*\d)[A-Z0-9-]{6,}", o["n"].strip()) \
                 or re.search(r"\btest product\b", o["n"], re.I):   # Oct 30: Satisfy's "TEST PRODUCT WOMEN" at $542
             o["g"] = "_drop"           # other shoppers' saved bundles ("Build Your Own Bundle · Bundle20740_2026-09-14T17:33")
+            continue
+        if o.get("g") == "nutrition" and re.search(r"\b(pre-?natal|post-?natal)\b", o["n"], re.I):
+            o["g"] = "_drop"           # Nov 6 (growth): Root'd prenatal vitamins (The Run House) are not running fuel
             continue
         b = tidy_brand(o["b"]).lower()        # "Darn Tough Vermont" -> "darn tough"
         if b in CAMP_BRANDS:

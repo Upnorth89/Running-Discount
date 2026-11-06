@@ -1272,23 +1272,24 @@ RACES.update({
     # ironlegs.ca/100km, /50mile, /partners (60 km), /20km (25 km night race), /relay "Mandatory Gear" + "Suggested Gear" (read Oct 28, 2026).
     # Relay: bear spray is "suggested" on its page but mandatory in the 2026 Racer Guide -> L (ask the race). Every aid station is cupless.
     "iron-legs": {
-        "name": "Iron Legs Mountain Races", "short": "Iron Legs", "de": "de l'", "le": "l'", "unit": "label", "cupless": True,
+        # Nov 6 (growth's audit): re-read on ironlegs.ca per distance: the 25 km page (/20km) says "min. 1L" (others 1.5 L); no page mentions
+        # cups, so the cup line and the "no cups" answer are gone (every line in the race's own words)
+        "name": "Iron Legs Mountain Races", "short": "Iron Legs", "de": "de l'", "le": "l'", "unit": "label",
         "where": {"en": "Kananaskis (Elbow Valley), AB", "fr": "Kananaskis (vallée de l'Elbow), Alb."},
         "when": {"en": "August 7, 2027", "fr": "7 août 2027"},
         "dists": ["100K", "50M", "60K", "25K", "RELAY"], "default": "100K",
         "labels": {"25K": {"en": "25 km night race", "fr": "25 km de nuit"}, "RELAY": {"en": "50 mile relay", "fr": "Relais 50 milles"}},
         "src": "https://www.ironlegs.ca/100km",
-        "read": {"en": "October 28, 2026", "fr": "28 octobre 2026"},
+        "read": {"en": "November 6, 2026", "fr": "6 novembre 2026"},
         "items": _r([
             (_SIN("headlamp", "Headlamp", "Lampe frontale", "Required after Powderface (aid station 4); the night race carries it from the start.",
                   "Exigée après Powderface (ravito 4); dès le départ pour la course de nuit."), "MMMMM", True),
             (_SIN("jacket", "Wind and water resistant jacket", "Manteau coupe-vent et déperlant", "Needed for the mountain ascents (relay: after aid station 4).",
                   "Pour les montées en montagne (relais : après le ravito 4)."), "MMMRM", True),
-            (_SIN("water", "Hydration pack or bottles: 1.5 L or more", "Sac d'hydratation ou gourdes : 1,5 L ou plus", "1 L on the 25 km night race.",
-                  "1 L pour le 25 km de nuit."), "MMMMM", False),
+            (_SIN("water", "Hydration pack or bottles: 1.5 L or more", "Sac d'hydratation ou gourdes : 1,5 L ou plus"), "MMM M", False),
+            (_SIN("water2", "Hydration pack or bottles: 1 L or more", "Sac d'hydratation ou gourdes : 1 L ou plus"), "   M ", False),
             (_SIN("bear", "Bear spray", "Chasse-ours en aérosol"), "MMMML", False),
             (_SIN("bib", "Race bib", "Dossard", "Handed out by the race.", "Remis par la course."), "PPPPP", False),
-            (_SIN("cup", "Reusable cup", "Gobelet réutilisable", "The aid stations are cupless.", "Les ravitos n'ont pas de verres."), "RRRRR", False),
             (_SIN("longpants", "Tights or pants", "Collant ou pantalon"), "RRRRR", False),
             (_SIN("food", "Food", "Nourriture"), "RRRRR", False),
             (_SIN("gloves", "Gloves", "Gants"), "RRRRR", False),

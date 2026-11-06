@@ -590,7 +590,7 @@ h1{font:800 clamp(30px,7vw,44px)/1.05 var(--display);margin:6px 0 4px;letter-spa
 .hero b{font:800 26px/1 var(--display)}
 .hero s{color:var(--muted)}
 .tag{display:inline-block;font:700 12px var(--body);letter-spacing:.04em;text-transform:uppercase;color:var(--moss)}
-.badge{display:inline-block;background:var(--hivis);color:var(--hivis-ink);border:1.5px solid var(--ink);border-radius:6px;font:700 13px var(--body);padding:2px 8px;margin-top:6px}
+.badge{display:inline-block;background:var(--hivis);color:var(--hivis-ink);border:1.5px solid var(--ink);border-radius:6px;font:700 13px var(--body);padding:2px 8px;margin-top:6px}.badge.lowb{background:#24492F;color:#fff;border-color:#24492F}
 .facts{font-size:14px;color:var(--muted)}
 h2{font:700 24px/1.1 var(--display);margin:22px 0 8px}
 table{width:100%;border-collapse:collapse;background:var(--card);border:1.5px solid var(--line);border-radius:12px;overflow:hidden;font-size:15px}
@@ -1269,6 +1269,9 @@ def short_date(d, L):
     return f"{d.day} {MONTHS['fr'][d.month - 1]}" if fr else f"{MONTHS['en'][d.month - 1]} {d.day}"
 
 
+CHEAPER_AGO = []    # filled by price_chart(): days since each version was last cheaper than today (read by model_page's badge)
+
+
 def price_chart(its, L, updated, prefix=""):
     """One small step chart per version (men's / women's / unisex), regular width only; "" until 7+ days of history."""
     today = (datetime.fromisoformat(updated.replace("Z", "+00:00")) if updated else datetime.now(timezone.utc)).astimezone(HOME_TZ).date()
@@ -1305,6 +1308,9 @@ def price_chart(its, L, updated, prefix=""):
             continue
         lo_i, lo = min(pts, key=lambda t: (t[1], -t[0]))         # the most recent day at the lowest price
         now = pts[-1][1]
+        cheaper = [i for i, v in pts if v < now - 0.005]          # Nov 6: the hero badge's "N days" stops at the last cheaper day
+        if cheaper:
+            CHEAPER_AGO.append(len(days) - 1 - cheaper[-1])
         if now <= lo:                                              # good news only: today is the lowest, 30+ days (badge rule)
             if len(days) - 1 >= 30 and max(v for _, v in pts) > now * 1.02:   # Nov 3: days of history (as the badge counts), not days listed
                 blocks.append((lab, "good", "✓ " + L["pwLow"].format(n=min(len(days) - 1, 60), today=money(now))))
@@ -1346,6 +1352,26 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None,
     for lab, rows, d in groups:
         merged[lab].extend(rows)
         first.setdefault(lab, d)
+    # Nov 6 (growth's daily round, Hoka Clifton 10: "11 (wide)" $143.88 in the Men's table while "Men's · wide" said 11 wide $129.99):
+    # one table per width. Wide sizes of a regular card move into the "· wide" table; each size keeps its best price across both.
+    wsuf = f" ({L['wide']})"
+    for lab in list(merged):
+        if first[lab].get("w") or not any(k.endswith(wsuf) for k, _ in merged[lab]):
+            continue
+        wlab = f"{lab} · {L['wide']}"
+        merged[wlab].extend((k[:-len(wsuf)], v) for k, v in merged[lab] if k.endswith(wsuf))
+        merged[lab] = [(k, v) for k, v in merged[lab] if not k.endswith(wsuf)]
+        first.setdefault(wlab, dict(first[lab], w=True, _regkey=True))
+    for lab in list(merged):                 # one row per size: the cheapest store
+        best_rows = {}
+        for k, v in merged[lab]:
+            if k not in best_rows or v[0] < best_rows[k][0]:
+                best_rows[k] = v
+        merged[lab] = list(best_rows.items())
+        if not merged[lab]:
+            del merged[lab]
+    gi = lambda lab: ({"men": 0, "women": 1}.get((first[lab].get("sx") or ["u"])[0], 2) if len(first[lab].get("sx") or []) == 1 else 2, bool(first[lab].get("w")))
+    merged = {lab: merged[lab] for lab in sorted(merged, key=gi)}
     # Oct 26: the page's photo (hero + Google's product data); `first` above is per table, so the photo comes from the items
     # (it read first["img"] on that dict and never found one: no shoe page had a photo)
     photo = next((d["img"] for _, _, d in groups if d.get("img")), "") or next((d["img"] for d in its if d.get("img")), "")
@@ -1376,13 +1402,18 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None,
     out.append(f'<p class="crumbs"><a href="/{L["dir"]}/">{L["all"]}</a> › {bl}</p>')
     out.append(f'<h1>{esc(name)}</h1><p class="sub">{L["h1sub"]}</p>')
     t = L["types"].get(first.get("t") or "", "")
+    CHEAPER_AGO.clear()
+    per_pw, all_pw = price_chart(its, L, updated, "us|" if L.get("dir", "").startswith("us/") else "")
     if best:
         p, reg = best[0], best[1]
         off = round(100 * (1 - p / reg)) if reg and p < reg * 0.99 else 0
         line = L["from"].format(price=money(p), reg=money(reg), p=off) if off else L["fromFull"].format(price=money(p))
         # "Is this deal real?": good news only (Bastien's call): the best price today is the lowest in 30+ days of history
         lows = [d for d in its if d.get("hd", 0) >= HISTORY_DAYS and d.get("lo") is not None and min(e[1] for e in d["sz"]) <= d["lo"] + 0.01 and (d.get("hi") or 0) > min(e[1] for e in d["sz"]) * 1.02]   # a real drop
-        badge = f'<span class="badge">{L["low"].format(d=min(60, max(d["hd"] for d in lows)))}</span>' if lows and off else ""   # 60-day window
+        # Nov 6 (growth: badge "35 days" over a line "It was $89.94 on Oct 4", 33 days ago): N never reaches back past a day the price
+        # line's history was cheaper; under 30 = no badge. Forest green like the homepage stamp (Nov 3), not orange.
+        nd = min([60, max(d["hd"] for d in lows)] + [a - 1 for a in CHEAPER_AGO]) if lows else 0
+        badge = f'<span class="badge lowb">✓ {L["low"].format(d=nd)}</span>' if lows and off and nd >= HISTORY_DAYS else ""   # 60-day window
         img = f'<img src="{esc(photo)}" alt="{esc(name)}" loading="lazy" referrerpolicy="no-referrer">' if photo else ""
         out.append(f'<div class="hero">{img}<div>{f"<span class=tag>{esc(t)}</span>" if t else ""}<p>{line}</p>{badge}'
                    f'<p class="facts">{L["facts"].format(sizes=len(allrows), stores=n_stores, date=fmt_date(updated, L))}</p></div></div>')
@@ -1414,13 +1445,12 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None,
                    f'<form novalidate><input type="email" autocomplete="email" inputmode="email" placeholder="{esc(L["emailPh"])}" aria-label="Email" required>'
                    f'<button type="submit">{L["alertBtn"]}</button></form><p class="msg" aria-live="polite"></p></section>')
     lang_q = L["q"]
-    per_pw, all_pw = price_chart(its, L, updated, "us|" if L.get("dir", "").startswith("us/") else "")
     out.append('<div class="gts">')      # the visitor's own cut moves first (script below: CSS order, the tables keep their DOM order)
     for lab, rows in merged.items():
         d0 = first[lab]
         sx = d0.get("sx") or []
         tg = "men" if sx == ["men"] else "women" if sx == ["women"] else "unisex"
-        key = f'{d0["b"]}|{d0["n"]}|{d0["g"]}|{1 if d0.get("w") else 0}'.lower()          # the site's itemKey()
+        key = f'{d0["b"]}|{d0["n"]}|{d0["g"]}|{1 if d0.get("w") and not d0.get("_regkey") else 0}'.lower()   # the site's itemKey() (wide sizes of a regular card: that card)
         watch = f'<a class="watch" href="/?watch={quote(key)}{lang_q}" rel="nofollow">♡ {L["watch"]}</a>' if d0.get("of") else ""
         rows = sorted({k: v for k, v in rows}.items(), key=lambda kv: size_sort(kv[0]))
         out.append(f'<div class="gt" data-g="{tg}"><div class="th2"><h2>{esc(lab)}</h2>{watch}</div><table data-g="{tg}" data-w="{1 if d0.get("w") else 0}" data-key="{esc(key)}" data-b="{esc(d0["b"])}" data-n="{esc(d0["n"])}"><thead><tr><th>{L["size"]}</th><th>{L["price"]}</th><th>{L["store"]}</th></tr></thead><tbody>')

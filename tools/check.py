@@ -161,10 +161,29 @@ def main():
             raise RuntimeError(f"only {n} shoe pages")
         # Oct 24: a shoe page with nothing in stock is noindex and out of the sitemap; nothing in the sitemap is noindex
         sm = set(re.findall(r"<loc>https://thegearfox\.com([^<]+)</loc>", (site / "sitemap.xml").read_text()))
-        hidden = 0
+        hidden = nbadge = 0
+        sys.path.insert(0, str(ROOT / "scraper"))
+        import shoe_pages as SPg
+        from datetime import datetime as _dt
+        from zoneinfo import ZoneInfo as _Z
+        today = _dt.now(_Z("America/Vancouver")).date()
         for p in [q for d in ("shoes", "chaussures", "us/shoes") for q in (site / d).glob("*/index.html")]:
             h = p.read_text()
             u = "/" + str(p.parent.relative_to(site)) + "/"
+            # Nov 6 (growth: Clifton 10 "11 (wide)" $143.88 in the Men's table, 11 wide $129.99 in "Men's · wide"): one table per width
+            for tb in re.findall(r'<table data-g="[^"]*" data-w="0".*?</table>', h, re.S):
+                if re.search(r'<tr data-s="[^"]*\((?:wide|large)\)"', tb):
+                    raise RuntimeError(f"{u}: a wide size inside a regular-width table")
+            # Nov 6 (growth: badge "35 days" over "It was $89.94 on Oct 4", 33 days ago): the badge never spans a cheaper day
+            mb = re.search(r"Lowest price we've seen in (\d+) days", h.split('<div class="gts">')[0])
+            if mb:
+                nbadge += 1
+                for mon, day in re.findall(r"It was \S+ on ([A-Z][a-z]{2}) (\d+) ", h):
+                    d0 = today.replace(month=SPg.MONTHS["en"].index(mon) + 1, day=int(day))
+                    if d0 > today:
+                        d0 = d0.replace(year=today.year - 1)
+                    if (today - d0).days <= int(mb.group(1)):
+                        raise RuntimeError(f"{u}: badge says lowest in {mb.group(1)} days but the price line says it was cheaper on {mon} {day}")
             if 'content="noindex' in h:
                 hidden += 1
                 if u in sm:
@@ -187,7 +206,7 @@ def main():
                     raise RuntimeError(f"/{d}/{slug}/ forwards to /{d}/{to}/, which forwards again (two hops)")
                 if f"/{d}/{to}/" not in sm:
                     raise RuntimeError(f"/{d}/{slug}/ forwards to /{d}/{to}/, which isn't in the sitemap (noindex or missing)")
-        return f"{n} shoe pages, {hidden} kept out of Google (out of stock or forwarded), {fwd} forwards in one hop to live pages"
+        return f"{n} shoe pages, {hidden} kept out of Google (out of stock or forwarded), {fwd} forwards in one hop to live pages; one table per width; {nbadge} 'lowest' badges agree with their price lines"
     step("Shoe pages, list pages, sitemap", pages)
 
     def real_drop_rule():   # Oct 23: Black Friday "is this deal real?" labels = the homepage badge's rule, good news only
