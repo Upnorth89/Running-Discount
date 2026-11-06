@@ -58,3 +58,5 @@ Nov 6 team pass on the card (CMO, copywriter, members-lead, compliance): REJECTE
 - Fine print: "Planned from Dec 2. 30-day full refund. Cancel online anytime." / « Prévu dès le 2 décembre. Remboursement complet sous 30 jours. Annulation en ligne en tout temps. » (compliance + members-lead: "The store decides any refund" read as OUR refund rule)
 - Under button: "Free to join. Nothing to pay now. Your free account stays free." / « … Votre compte gratuit le reste. »
 - Nov 27 state for people on the list: "You're on the founding list. Your link arrives Wednesday, Dec 2." (no button)
+
+Nov 6 (Bastien: "1-3 verbatim on the card", compliance fixed the words): ticks now, in this order: "It drops after you buy? We email you how to ask the store for the difference." / « Le prix baisse après l’achat ? On vous écrit comment demander la différence au magasin. » ; "Morning price-drop alerts" / « Alertes de baisse le matin même » ; "Unlimited watchlist (free: 5 from Dec 2)" / « Liste de suivi illimitée (5 sans Pro dès le 2 déc.) ». Sent to backend (fpT1-3).
