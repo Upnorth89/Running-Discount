@@ -41,3 +41,13 @@ FR : Voulez-vous un accès en premier à l'une des 100 places de membre fondateu
 EN: Our data: of shoes on sale Oct 15, about 1 in 6 got cheaper again within 3 weeks at a store we track (not always the same one).
 FR : Nos données : des chaussures en solde le 15 octobre, environ 1 sur 6 a encore baissé en 3 semaines dans un magasin qu'on suit (pas toujours le même).
 Source: docs/ideas-night-nov5.md (520 of 2,919 = 17.8%, alert rule 10% or $10).
+
+Nov 6 team pass on the card (CMO, copywriter, members-lead, compliance), FINAL wording pending Bastien's OK:
+- Pill: "100 FOUNDING SPOTS" / « 100 PLACES FONDATRICES » (compliance: "first 100 members" implied the list holds a spot)
+- Sub: "We watch the price after you buy. Get the launch link first." / « On surveille le prix après votre achat. Recevez le lien de lancement en premier. » (CMO)
+- Price: "$36 CAD / YEAR", "$45/year after the 100 founding spots" / « 45 $/an après les 100 places fondatrices » (copywriter)
+- Lock: "Founding price locked while your membership renews without a gap." / « Prix fondateur bloqué tant que l'abonnement se renouvelle sans interruption. » (compliance)
+- Ticks: Morning price-drop alerts (+ proof: "Of shoes on sale Oct 15, about 1 in 6 got cheaper again within 3 weeks at a store we track.") / "Watch as many items as you like (free: 5)" (members-lead) / "An email if it drops after you buy" (copywriter)
+- Fine print: "Planned from Dec 2. 30-day full refund. Cancel online anytime." / « Prévu dès le 2 décembre. Remboursement complet sous 30 jours. Annulation en ligne en tout temps. » (compliance + members-lead: "The store decides any refund" read as OUR refund rule)
+- Under button: "Free to join. Nothing to pay now. Your free account stays free." / « … Votre compte gratuit le reste. »
+- Nov 27 state for people on the list: "You're on the founding list. Your link arrives Wednesday, Dec 2." (no button)
