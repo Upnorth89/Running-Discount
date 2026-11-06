@@ -1218,3 +1218,9 @@ Actions cache, so I couldn't remerge here). Please re-run your scans after tomor
    can't be told apart (offers name colour/size, not our variant id): without a variant any offer counts; with one, only when every offer
    is on sale at that price, else "can't tell". So featured checks work; per-size shoe checks for posts still skip Playmakers.
 Also in this push: the FR Black Friday live-page title ("ces aubaines course sont-elles vraies?").
+
+## Nov 6 (night): your SEO spec S1 (empty FAQ answers on race pages), done
+A distance with no mandatory gear now answers "None: the race's list has no mandatory gear for this distance. It recommends: …"
+(FR « Aucun : la liste de la course n'a pas de matériel obligatoire pour cette distance. Elle recommande : … »), plus "The race provides: …"
+when it hands something out; same text in the visible FAQ and the FAQPage JSON-LD. Checked: Frosty 13K, Moose Mountain 16K, Tarawera T14
+(EN/FR/US). check.py "Race gear pages" now fails on any empty FAQ answer on race + trail pages (549 answers today, none empty).

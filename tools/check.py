@@ -219,12 +219,27 @@ def main():
                 n = len(re.findall(r'<button type="button" class="wt"', h))
                 if n < want:
                     raise RuntimeError(f"/{d}/{slug}/ has only {n} picks")
+        # Nov 6 (growth SEO): a distance with no mandatory gear had an EMPTY FAQ answer (Frosty 13K, Moose Mountain 16K, Tarawera T14)
+        nq = 0
+        for d in ("races", "courses", "us/races", "hikes", "randonnees", "us/hikes"):
+            for f in (site / d).glob("*/index.html"):
+                for m in re.finditer(r'<script type="application/ld\+json">(.*?)</script>', f.read_text(), re.S):
+                    try:
+                        ld = json.loads(m.group(1))
+                    except ValueError:
+                        continue
+                    for x in ld if isinstance(ld, list) else [ld]:
+                        if isinstance(x, dict) and x.get("@type") == "FAQPage":
+                            for q in x.get("mainEntity") or []:
+                                nq += 1
+                                if not ((q.get("acceptedAnswer") or {}).get("text") or "").strip():
+                                    raise RuntimeError(f"/{d}/{f.parent.name}/: empty FAQ answer to '{q.get('name')}'")
         for must in ["races/index.html", "courses/index.html", "us/races/index.html"]:
             if not (site / must).exists():
                 raise RuntimeError(f"{must} missing")
         if "/races/" not in (site / "sitemap.xml").read_text():
             raise RuntimeError("race pages missing from sitemap.xml")
-        return f"{len(race_pages.RACES)} races, each EN + FR (Canadian stores) + US"
+        return f"{len(race_pages.RACES)} races, each EN + FR (Canadian stores) + US; {nq} FAQ answers, none empty"
     step("Race gear pages", races)
 
     def race_remind():  # Oct 31: "Remind me 30 days before the race": box on dated races, and a sample email from today's data

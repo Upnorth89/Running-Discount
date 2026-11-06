@@ -1387,7 +1387,7 @@ S = {
         "srcLink": "official list", "srcRead": "From the race's official list (as published when we read it, {date}). Rules can change: check the {link} before race day.", "notAff": "The Gear Fox isn't affiliated with the race.",
         "boxH": "Get gear deals in your size every Friday until race day", "boxTxt": "Free. One email on Friday mornings with the best deals in your sizes. Unsubscribe in one tap.",
         "boxBtn": "Send me the deals", "faqH": "Quick answers",
-        "qList": "What is the mandatory gear for {the}{short} {d}?", "aList": "{items}.",
+        "qList": "What is the mandatory gear for {the}{short} {d}?", "aList": "{items}.", "aNone": "None: the race's list has no mandatory gear for this distance.", "aRec": "It recommends: {items}.",
         "qJacket": "Is a windbreaker enough for {thename}{name}?", "aJacket": "No. The race asks for a jacket with an attached hood and a waterproof, breathable membrane (on the {dists}). Windbreakers aren't accepted.",
         "qCup": "Do {thename}{name} aid stations have cups?", "aCup": "No. The aid stations have no cups: bring your own reusable cup.",
         "kbBest": "From {p} · {n} picks", "kbBestN": "Not in your size today", "aisle": "Race gear lists",
@@ -1419,7 +1419,7 @@ S = {
         "srcLink": "liste officielle", "srcRead": "Selon la liste officielle de la course (telle que publiée quand nous l'avons lue, le {date}). Les règles peuvent changer : vérifiez la {link} avant la course.", "notAff": "The Gear Fox n'est pas affilié à la course.",
         "boxH": "Les aubaines de matériel dans votre taille, chaque vendredi jusqu'à la course", "boxTxt": "Gratuit. Un courriel le vendredi matin avec les meilleures aubaines dans vos tailles. Désabonnement en un clic.",
         "boxBtn": "Envoyez-moi les aubaines", "faqH": "Réponses rapides",
-        "qList": "Quel est le matériel obligatoire {des}{short} {d}?", "aList": "{items}.",
+        "qList": "Quel est le matériel obligatoire {des}{short} {d}?", "aList": "{items}.", "aNone": "Aucun : la liste de la course n'a pas de matériel obligatoire pour cette distance.", "aRec": "Elle recommande : {items}.",
         "qJacket": "Un coupe-vent suffit-il pour {le}{name}?", "aJacket": "Non. La course demande un manteau avec capuchon attaché et une membrane imperméable et respirante (sur le {dists}). Les coupe-vent ne sont pas acceptés.",
         "qCup": "Y a-t-il des verres aux ravitaillements {de}{name}?", "aCup": "Non. Les ravitaillements n'ont pas de verres : apportez votre gobelet réutilisable.",
         "kbBest": "Dès {p} · {n} choix", "kbBestN": "Rien dans votre taille aujourd'hui", "aisle": "Listes de matériel de course",
@@ -1854,6 +1854,10 @@ def page(slug, race, L, items, stores, pages=None, fx=1.0):
             ans = s["aOnly"].format(prov=", ".join(prov), items=", ".join(must))
         else:
             ans = (s["aList"].format(items=", ".join(must)) if must else "") + (" " if must and prov else "") + (s["aProv"].format(items=", ".join(prov)) if prov else "")
+        if not must:   # Nov 6 (growth SEO): Frosty 13K, Moose Mountain 16K, Tarawera T14 had an EMPTY answer
+            rec = [txt["en" if L == "us" else L][0] for kind, lv, txt, _ in race["items"] if lv[i] == "R" and kind not in inkit]
+            ans = " ".join(x for x in (s["aNone"], s["aRec"].format(items=", ".join(rec)) if rec and not race.get("suggested") else "",
+                                       s["aProv"].format(items=", ".join(prov)) if prov else "") if x)
         faq.append((s["qList"].format(d=dlab(race, d, L), **fmt), ans))
     if race.get("faq_jacket"):        # Harricana: "windbreakers will not be accepted"
         faq.append((s["qJacket"].format(**fmt), s["aJacket"].format(**{**fmt, "dists": dlabs(race, L, [d for i, d in enumerate(race["dists"]) if dict((k, lv) for k, lv, *_ in race["items"])["jacket"][i] == "M"])})))
