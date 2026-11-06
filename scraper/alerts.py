@@ -270,10 +270,9 @@ def main():
             (W.ROOT / "email" / "alert-preview.html").write_text(body)
             print(f"{mask(who)}: DRY RUN {subject!r}")
             continue
-        r = requests.post("https://api.resend.com/emails", timeout=60,
-                          headers={"Authorization": f"Bearer {os.environ['RESEND_API_KEY']}"},
-                          json={"from": W.FROM, "to": [who], "subject": subject, "html": body, "text": text,
-                                "headers": {"List-Unsubscribe": f"<{W.SITE_URL}?unsub={tok}>"}})
+        import mailer      # Nov 6: paced + retried on 429; a failed send keeps the watches as they were (tomorrow retries)
+        r = mailer.send({"from": W.FROM, "to": [who], "subject": subject, "html": body, "text": text,
+                         "headers": {"List-Unsubscribe": f"<{W.SITE_URL}?unsub={tok}>"}})
         if r.ok:
             sent += 1
             print(f"{mask(who)}: sent {len(p['drops'])} drops, {len(p['backs'])} back in size")

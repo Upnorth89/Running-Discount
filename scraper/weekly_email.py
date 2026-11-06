@@ -737,10 +737,9 @@ def main():
             out.write_text(body)
             print(f"{mask(who)}: DRY RUN, {len(sale)} deals, subject: {subject!r}, wrote {out}")
             continue
-        r = requests.post("https://api.resend.com/emails", timeout=60,
-                          headers={"Authorization": f"Bearer {os.environ['RESEND_API_KEY']}"},
-                          json={"from": FROM, "to": [who], "reply_to": REPLY_TO, "subject": subject, "html": body, "text": text,
-                                **({"headers": {"List-Unsubscribe": f"<{SITE_URL}?unsub={p['token']}>"}} if p.get("token") else {})})
+        import mailer      # Nov 6: paced (Resend takes 2 a second) + retried on 429; a failed send is never stamped
+        r = mailer.send({"from": FROM, "to": [who], "reply_to": REPLY_TO, "subject": subject, "html": body, "text": text,
+                         **({"headers": {"List-Unsubscribe": f"<{SITE_URL}?unsub={p['token']}>"}} if p.get("token") else {})})
         if r.ok:
             print(f"{mask(who)}: sent {len(sale)} deals" + (" + watchlist news" if has_watch else ""))
             if not SEND_TO:

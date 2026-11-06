@@ -74,16 +74,15 @@ def main():
         if DRY:
             print(f"would remind ({lang}): {x['email'][:3]}…")
             continue
-        m = requests.post("https://api.resend.com/emails", timeout=30, headers={"Authorization": f"Bearer {RESEND}"},
-                          json={"from": FROM, "to": [x["email"]], "reply_to": "hello@thegearfox.com", "subject": T[lang]["subject"],
-                                "html": letter(lang, url)})
+        import mailer      # Nov 6: paced + retried on 429 (the old 0.6 s sleep is inside it now)
+        m = mailer.send({"from": FROM, "to": [x["email"]], "reply_to": "hello@thegearfox.com", "subject": T[lang]["subject"],
+                         "html": letter(lang, url)}, key=RESEND)
         if m.ok:
             sent += 1
             requests.patch(f"{SB}/rest/v1/subscribers", headers={**h, "Prefer": "return=minimal"}, timeout=30,
                            params={"email": f"eq.{x['email']}"}, json={"confirm_reminded_at": now.isoformat()})
         else:
             print(f"confirm reminder not sent: HTTP {m.status_code} {scrub(m.text[:120])}")
-        time.sleep(0.6)            # Resend allows 2 a second
     print(f"confirm reminders: {len(rows)} waiting, {sent} sent")
     return 0
 

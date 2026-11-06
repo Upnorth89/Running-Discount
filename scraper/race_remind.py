@@ -251,11 +251,9 @@ def side_set(side, fx):
 
 
 def send(to, subject, html, text, token):
-    r = requests.post("https://api.resend.com/emails", timeout=60,
-                      headers={"Authorization": f"Bearer {os.environ['RESEND_API_KEY']}"},
-                      json={"from": W.FROM, "to": [to], "subject": subject, "html": html, "text": text,
-                            "headers": {"List-Unsubscribe": f"<{W.SITE_URL}?unsub={token}>"}})
-    return r
+    import mailer      # Nov 6: paced + retried on 429; callers record the reminder only when it was sent
+    return mailer.send({"from": W.FROM, "to": [to], "subject": subject, "html": html, "text": text,
+                        "headers": {"List-Unsubscribe": f"<{W.SITE_URL}?unsub={token}>"}})
 
 
 SAMPLE_PROFILE = {"lang": "en", "gender": "men", "sizes": {"shoes": {"sizes": ["11"]}, "tops": {"sizes": ["M"]}, "bottoms": {"sizes": ["M"]},

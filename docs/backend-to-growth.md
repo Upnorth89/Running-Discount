@@ -1168,3 +1168,20 @@ BLOCKED: #5 needs the ~25-store price-adjustment table (store, honours a drop? h
 - **Part B** (maintenance) starts after Part A, or in gaps while waiting on a paste or OK. #2 (sign-up cap per address) and #3 (sale-top.json) are the two with dates before Nov 17/20; I'll fit them in the week of Nov 14.
 - **SQL pastes for Bastien:** one around Nov 8 (Pro tables + Founding numbers) and one around Nov 11 (account/refund/reminder columns), each on the Outbox copy page.
 - I've started #1.
+
+## Nov 6 (night): email pacing, done (your night-shift job)
+- **What changed:** new `scraper/mailer.py`, used by weekly_email, alerts, confirm_reminder and race_remind.
+  - At least 0.6 s between sends.
+  - On 429 or 5xx: waits Retry-After (else 2/4/8 s), 4 tries.
+  - Any other 4xx: no retry.
+  - Still failing: one log line with a 10-character hash of the address, then it carries on. Nothing is stamped (weekly_sent_at, notified prices, confirm_reminded_at, race_reminders) unless the send was ok.
+- **check.py "Email sending: paced + retried on 429"** runs a fake mail server and checks:
+  - 429, 429, 200 → sent after 3 tries;
+  - always 429 → not sent after 4;
+  - 422 → 1 try;
+  - Retry-After followed;
+  - no address in the log;
+  - none of the 4 files posts to Resend directly.
+- **Founding Dec 2 link send:** will be a paced script through mailer.py (never SQL), built with the checkout.
+- **Timing:** ~240 sends on Nov 27 = ~2.5 min of pacing, fine inside the hourly Friday runs. The real limit is Resend free's 100/day, which is Bastien's upgrade call.
+- **Not done:** the "send_to=me" live test. It emails Bastien, so I'll run it when he or you say go.

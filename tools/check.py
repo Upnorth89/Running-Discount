@@ -406,6 +406,62 @@ def main():
         return f"Friday box EN/FR + 'on the list' state, alert line, nothing for real members while off (FOUND_LIVE={F.FOUND_LIVE})"
     step("Fox Pro founding list: email box + alert line", founding)
 
+    def mail_pacing():   # Nov 6 (growth): Resend takes 2 a second; every bulk send goes through scraper/mailer.py
+        sys.path.insert(0, str(ROOT / "scraper"))
+        import mailer, threading
+        from http.server import BaseHTTPRequestHandler, HTTPServer
+        plan, hits = [], []
+
+        class H(BaseHTTPRequestHandler):
+            def do_POST(self):
+                self.rfile.read(int(self.headers.get("Content-Length") or 0))
+                code = plan.pop(0) if plan else 200
+                hits.append(code)
+                self.send_response(code)
+                if code == 429:
+                    self.send_header("Retry-After", "1")
+                self.end_headers()
+                self.wfile.write(b"{}")
+
+            def log_message(self, *a):
+                pass
+        srv = HTTPServer(("127.0.0.1", 0), H)
+        threading.Thread(target=srv.serve_forever, daemon=True).start()
+        old = mailer.URL
+        mailer.URL = f"http://127.0.0.1:{srv.server_port}/emails"
+        slept, logs = [], []
+        try:
+            def one(codes):
+                plan[:] = codes; hits.clear()
+                return mailer.send({"to": ["someone@example.com"]}, key="x", log=logs.append, sleep=slept.append)
+            r1 = one([429, 429, 200])
+            n1 = len(hits)
+            r2 = one([429, 429, 429, 429, 429])
+            n2 = len(hits)
+            r3 = one([422])
+            n3 = len(hits)
+        finally:
+            mailer.URL = old
+            srv.shutdown()
+        bad = []
+        if not (r1.ok and n1 == 3):
+            bad.append(f"429, 429, 200: sent={r1.ok} after {n1} tries (want sent after 3)")
+        if r2.ok or n2 != mailer.TRIES:
+            bad.append(f"always 429: ok={r2.ok} after {n2} tries (want not sent after {mailer.TRIES})")
+        if r3.ok or n3 != 1:
+            bad.append(f"422: {n3} tries (want 1, no retry)")
+        if any("@" in x for x in logs):
+            bad.append("the log shows an email address")
+        if not any(abs(x - 1.0) < 0.01 for x in slept):
+            bad.append("Retry-After wasn't followed")
+        for f in ("weekly_email.py", "alerts.py", "confirm_reminder.py", "race_remind.py"):
+            if "api.resend.com/emails" in (ROOT / "scraper" / f).read_text():
+                bad.append(f"{f} still posts to Resend directly")
+        if bad:
+            raise RuntimeError("; ".join(bad))
+        return "429 twice then sent; always 429 = not sent after 4 (not stamped); 422 not retried; Retry-After followed; no address in logs"
+    step("Email sending: paced + retried on 429 (mailer.py)", mail_pacing)
+
     def hreflang():   # Nov 4 (growth's SEO audit): Google ignores one-way hreflang; every twin must name this page back
         rx = re.compile(r'<link rel="alternate" hreflang="([^"]+)" href="https://thegearfox.com(/[^"]*)">')
         bad, n = [], 0
