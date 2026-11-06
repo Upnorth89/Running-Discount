@@ -1143,7 +1143,7 @@ Object.assign(I18N.en,{fpPill:"FOUNDING MEMBERS",fpH:"Good gear.<br>Better timin
   fpIn:"Want first access to one of 100 numbered founding spots ($36/year, locked while you stay)?",fpAdd:"Add me"});
 /* Fox Pro checkout lead-in (Nov 7, piece 1; fox-pro-look.md): total yearly price first, no tax added, renewal date + reminder, refund,
    cancel online, terms link BEFORE the pay button. Only with ?pro=checkout (members), test mode until Bastien's OK. */
-Object.assign(I18N.en,{coPill:"CHECKOUT",coH:"Fox Pro founding membership",coPer:"CAD a year",coPerUS:"USD a year",coTax:"No tax added. That's the total.",
+Object.assign(I18N.en,{coPill:"CHECKOUT",coH:"Fox Pro founding membership",coPer:"CAD a year",coPerUS:"a year",coAmtUS:"US$36",coTax:"No tax added. That's the total.",
   coRenew:"Renews on {date} at the same price. We email you 45 days before.",coRefund:"Full refund within 30 days of paying, no questions asked.",
   coCancel:"Cancel online any time from My account.",coTerms:"Read the Fox Pro terms",coPay:"Continue to secure payment →",
   coFine:"Payment by Stripe. We never see your card.",coTest:"TEST MODE: nothing is charged. Card 4242 4242 4242 4242, any future date, any 3 digits.",
@@ -1151,7 +1151,7 @@ Object.assign(I18N.en,{coPill:"CHECKOUT",coH:"Fox Pro founding membership",coPer
   coClosed:"Fox Pro payments aren't open yet.",coUS:"Fox Pro in US dollars opens soon.",coMember:"Fox Pro is for members: sign up with your email first.",
   coWelcome:"Welcome to Fox Pro, Founding Fox #{n}. A receipt is on its way to your inbox.",coWelcomeR:"Welcome to Fox Pro. A receipt is on its way to your inbox.",
   coSetting:"Payment received. Your Fox Pro is being set up: it shows here within a minute."});
-Object.assign(I18N.fr,{coPill:"PAIEMENT",coH:"Fox Pro, abonnement fondateur",coPer:"CAD par an",coPerUS:"USD par an",coTax:"Aucune taxe ajoutée. C'est le total.",
+Object.assign(I18N.fr,{coPill:"PAIEMENT",coH:"Fox Pro, abonnement fondateur",coPer:"CAD par an",coPerUS:"par an",coAmtUS:"36\u00a0$\u00a0US",coTax:"Aucune taxe ajoutée. C'est le total.",
   coRenew:"Se renouvelle le {date} au même prix. On vous écrit 45 jours avant.",coRefund:"Remboursement complet dans les 30 jours suivant le paiement, sans questions.",
   coCancel:"Annulez en ligne en tout temps dans Mon compte.",coTerms:"Lire les conditions Fox Pro",coPay:"Continuer vers le paiement sécurisé →",
   coFine:"Paiement par Stripe. Nous ne voyons jamais votre carte.",coTest:"MODE TEST : rien n'est facturé. Carte 4242 4242 4242 4242, toute date future, 3 chiffres au choix.",
@@ -2767,7 +2767,7 @@ function coHTML(){fpFonts();
   if(!coSeen){coSeen=true;ana("signup-step","pro-checkout-view")}
   return `<section class="signup fpcard coCard" id="coCard" aria-labelledby="coT"><div class="fptop"><span class="fpbrand">FOX PRO</span><span class="fppill">${t("coPill")}</span></div>
     <h3 id="coT" class="fphl1">${t("coH")}</h3>
-    <div class="fpprice"><span class="fpamt">${t("fpAmt")}</span><span class="fpper"><b>${US()?t("coPerUS"):t("coPer")}</b><span>${t("coTax")}</span></span></div>
+    <div class="fpprice"><span class="fpamt">${US()?t("coAmtUS"):t("fpAmt")}</span><span class="fpper"><b>${US()?t("coPerUS"):t("coPer")}</b><span>${t("coTax")}</span></span></div>
     <p class="fplock"><svg width="18" height="20" viewBox="0 0 18 20" aria-hidden="true"><rect x="2" y="8.5" width="14" height="10" rx="2" fill="none" stroke="#24492F" stroke-width="1.8"/><path d="M5.5 8.5V6a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="#24492F" stroke-width="1.8"/></svg>${t("fpLock")}</p>
     <ul class="fpticks"><li>${t("coRenew").replace("{date}",coDate())}</li><li>${t("coRefund")}</li><li>${t("coCancel")}</li></ul>
     <a class="fpnext coterms" id="coTerms" href="/terms-pro.html${LANG==="fr"?"?lang=fr":""}" target="_blank" rel="noopener">${t("coTerms")}</a>

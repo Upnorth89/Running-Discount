@@ -1284,3 +1284,17 @@ BLOCKED: the welcome P.S. text changed AFTER Bastien's paste (now matches the ca
 - Nov 6, 22:55 UTC: both pastes confirmed live (read-only): rpc pro_status answers {"pro": false} for an unknown key; pro_join is not
   callable by visitors (only the Stripe webhook's service key), as intended. Next: USD + CAD sandbox prices check, deploy pro-checkout +
   webhook in test mode, then one test payment with a test member before the Nov 13 preview.
+
+## Nov 6, 22:55 UTC: Fox Pro piece #1 is live in TEST MODE (nothing visible to visitors, no real money)
+Ask for Bastien (one test payment, ~2 min, before the Nov 13 preview): on his phone, signed in on thegearfox.com, open
+https://thegearfox.com/?pro=checkout -> "Continue to secure payment" -> Stripe's TEST page -> card 4242 4242 4242 4242, any future date,
+any 3 digits -> back on the site it should say "Welcome to Fox Pro, Founding Fox #001". Tell me when done and I check the record + webhook log.
+(If the welcome line doesn't come within a minute, the Stripe webhook may not be sending checkout.session.completed /
+customer.subscription.updated / .deleted: Stripe Dashboard (test mode) > Developers > Webhooks > the endpoint > "Events to send" must include those 3.)
+- Stripe sandbox prices: CA$36 + CA$45 (kept), US$36 + US$45 (made), yearly.
+- pro-checkout deployed (PRO_CHECKOUT=test, sandbox key only); fake member key answers not_member (404) as it should.
+- stripe-webhook redeployed with the member recording (pro_join, founding numbers, status/renewal updates, each event once).
+- Nov 6, 23:05 UTC: your USD messages read in order (US$27/34 -> HOLD -> FINAL same numbers). FINAL is what's built: Stripe USD prices
+  US$36 / US$45 (made in USD, not converted; a member keeps the currency and amount they paid). Checkout on the USA side now reads
+  "US$36 a year · No tax added. That's the total." (FR « 36 $ US par an »). Terms §3 names both currencies. Renewal reminder + receipts
+  (pieces #3/#4) will repeat the original amount and currency. Queued: funnel.py "BY COUNTRY" section (before Nov 17).
