@@ -2,6 +2,13 @@
 
 Nov 6: the Friday email box + site card use Bastien's card design: https://claude.ai/artifact/X4E2mvP2mdfsWod67evvUM (headline "Good gear. Better timing." / « Le bon équipement. Au bon moment. »; same price + rule lines as below).
 
+## FINAL (Nov 6, Bastien: "yes swap it for the final card"; marketing pass done)
+Cards: https://claude.ai/artifact/X4E2mvP2mdfsWod67evvUM ("1 · Join the list" + "2 · On the list").
+Card 1 (his design): FOUNDING MEMBERS / Good gear. Better timing. / Get the Fox Pro launch link first. / $36 CAD / year, $45/year after the founding round / [lock] Founding price locked while you stay. / ✓ Morning price-drop alerts ✓ Unlimited watchlist ✓ Price-drop emails after you buy / Planned from Dec 2. 30-day full refund. / [Join the founding list →] / Free to join. Nothing to pay now. / 100 numbered memberships. First 100 to pay.
+Card 2: LIST CONFIRMED / You're on the list. / Your founding link is coming by email. / WATCH YOUR INBOX: Planned for Wednesday, December 2 (compliance) / $36 CAD / year, Founding price locked while you stay. / Watch the gear you want now → (/?show=watch; CMO; stop if <10% of card-2 views click by Nov 24) / 100 numbered memberships. First 100 to pay.
+FR (copywriter): « 45 $/an après l'offre fondatrice », « SURVEILLEZ VOS COURRIELS », « Prix fondateur garanti tant que vous restez membre. », « Prévu le mercredi 2 décembre », « Favoris illimités » kept (site says « Vos favoris »).
+Instagram Story version (social-producer): card 1 without button/free line/No thanks, space for the link sticker ("Nothing to pay now"), ?ref=ig-story-pro.
+
 Places + estimates (members-lead): Friday email Nov 20/21 + Nov 27 (8-12 joins), returning-member site card Nov 17-30 (6-12),
 drop-alert line Nov 17-Dec 1 (5-8), welcome email Nov 17-30 (1-3). CMO: + a line on the "You're in" step after every sign-up spot
 (non-members 15-36); total 35-70, target 60, floor 40. Stop rules: < 25 by Nov 24 = BF traffic not converting; < 40 on Nov 30 = open Jan 5.
