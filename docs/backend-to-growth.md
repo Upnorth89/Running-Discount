@@ -1266,3 +1266,8 @@ Note: the screen always shows $36 for now; once 100 are paid it must show $45 (p
 - Nov 6 evening, your 2 items: (1) Resend send counts: the morning email gets, from Dec 10, "Busiest email day in the last 7: N on <day>
   (Resend free plan: 100 a day[, close / over it])" (scraper/mail_health.py, counts what Resend actually sent, Supabase's sign-up emails included).
   (2) "the The North Face": already fixed since Nov 3 (tidy_words); the live page reads "Email me when The North Face Altamesa 300 drops".
+
+## Nov 6, 22:19 UTC: Safe Links check after the Nov 6 weekly email (scheduled re-run)
+mail-check.yml: "Microsoft: 9 watches, 0 within 5 min, 0 within 60 min; other: 173 watches, 0 within 5 min, 0 within 60 min" (76 emails to
+Microsoft addresses, all delivered). Microsoft's link scanner did NOT make watches from the email links, so MS_AUTOWATCH stays True for the
+Nov 13 "watch one thing" box. No code change.
