@@ -76,3 +76,45 @@ Count: 15 checked, 15 prices right, 11 fully right, 4 with a size/category/name 
 ## Notes (not bugs)
 - Several US Shopify handles don't match the product (sportsbasement "nimbus-29" = Nimbus 28, runnersplus "velocity-nitro-4" = Nitro 3, therunnersshop "brooks-womens-shield…-copy" = men's). We follow the title, which is right: keep it that way (url_gender must not override a title that names the gender).
 - RunFree stores still listed in "stores" with Oct 31 dates, but none of their items are in either file (KEEP_HOURS works).
+
+# Nov 6 morning (live sale.json + sale-us.json updated 11:42 UTC Nov 6)
+
+RESULT: PROBLEMS. 18 products checked: 18 prices right (price, regular, size in stock, currency), 4 with a size or category problem, all at the new store The Run House. 0 skipped (no 403/429/captcha). Race list Iron Legs: 2 problems (wording). Yesterday's 8 bugs not repeated here.
+
+## How I checked
+- Same method as last night: TheGearFoxBot UA, robots.txt first (TheGearFoxBot + ClaudeBot), 3 s between requests, Shopify .js (Canadian cookies for CA shops). US: sale-us.json CAD / 1.3989. Run House: 7 product pages (cap 20).
+- Featured = top-scoring shoes (featured_check.py score, 5+ sale sizes). Deepest = highest % off.
+- New stores since Nov 4 (git log): Speedland (runspeedland.com), The Run House (therunhouse.com), Hettas (hettas.com). Speedland and Hettas have 0 sale items today (nothing to check on sale.json; deals*.json not read). Speedland shoes at Pacers checked instead.
+
+| # | Item | Store | Ours | Store page | Verdict |
+|---|---|---|---|---|---|
+| 1 | NB FuelCell SuperComp LD-X - Unisex, M:6 (featured #1 CA) | lecoureurnordique.ca | $50, was $229.99 | "6.0 H / 7.5 F / Régulière" $50 / $229.99, in stock | right |
+| 2 | Saucony Endorphin Elite - Women's, 5 | borealrunning.com | $99.95, was $349.95 | ViziBlue / 5 / B $99.95 / $349.95, in stock | right |
+| 3 | adidas Megaride - Women's, 5 | svpsports.ca | $59.99, was $229.99 | Blk/Slv / W5 $59.99 / $229.99, in stock | right |
+| 4 | Naked T/R Trail - Unisex, M:6 | trailrunnerstore.com | $76, was $247 | M6 / W7 $76 / $247, in stock | right |
+| 5 | Naked T/r Trail, M:6 (featured #1 US) | nakedsportsinnovations.com (USD shop) | US$45, was US$180 | Men's6/Women's7 $45 / $180, in stock | right |
+| 6 | Nike Alphafly 3 - Women's, M:3.5/W:5 | gazellesports.com | US$134.99, was US$285 | M3.5/W5 $134.99 / $285, in stock | right |
+| 7 | ASICS Studio Luxe Headband (deepest CA, 85%) | ca.shop.runningroom.com | $3, was $19.99 | $3.00 / $19.99 CAD, InStock | right |
+| 8 | ASICS Wild Camo Sprinter Tights - Women's, XS (85%) | svpsports.ca | $9.99, was $64.99 | Pur/Wht / XS $9.99 / $64.99, in stock | right |
+| 9 | Stance PEAKS SS, XL (deepest US, 84%) | stance.com | US$4.70, was US$29 | SEA BLUE / XL $4.70 / $29, in stock | right |
+| 10 | Falke RU3 Comfort Invisible Socks, 35-36 (83%) | fit2run.com | US$2.98, was US$18 | White - Mix / 35 - 36 $2.98 / $18, in stock | right |
+| 11 | Speedland GL:PDX - Unisex, M:5 | pacersrunning.com | US$99.95, was US$250 | M5/W6.5 / D $99.95 / $250, in stock | right (typed daily; store tags Trail Running: low) |
+| 12 | Saucony Endorphin Trainer - Men's, 8.5 | therunhouse.com | US$134.95, was US$180 | "Men's Endorphin Trainer" 8.5 $134.95 / $180 (handle says endorphin-pro-4: title wins, right) | right |
+| 13 | Saucony Endorphin Trainer - Women's, 6 | therunhouse.com | US$134.95, was US$180 | "Women's Endorphin Trainer" 6 (handle says mens) | right |
+| 14 | Root'd Essential Prenatal Nutrition + Electrolytes, 30 Pack | therunhouse.com | US$54.99, was US$59.99 | $54.99 / $59.99 | price right (a prenatal vitamin under Nutrition: low, see bug 4) |
+| 15 | Hoka Clifton 10 - Women's, 11 | therunhouse.com | US$103.95, was US$155, REGULAR width | "HOKA Women's Clifton 10 - WHITE / CIELO BLUE (Wide)" 11 $103.95 / $155 | price right, SIZE WRONG (wide shown as regular, bug 1) |
+| 16 | NB Fresh Foam X 880 v15 GTX - Men's, 7 | therunhouse.com | US$174.99, regular width | "New Balance Mens 880v15 Gore-tex® - BLACK (Wide)", tag "wide" | SIZE WRONG (bug 1) |
+| 17 | Merrell Moab 3 Hiking Shoes - Men's, 7 | therunhouse.com | US$145, regular width | "Men's Merrell Moab 3 - Walnut Wide" | SIZE WRONG (bug 1) |
+| 18 | Diadora Troffeo 2 AF PKL - (101.179105-C9453) - Women's, 7.5 | therunhouse.com | US$60, was US$105, shoes/daily | $60 / $105; tags "pickleball", "tennis" | price right, CATEGORY WRONG (bug 2) |
+
+## Race list: Iron Legs Mountain Races (/races/iron-legs/), vs ironlegs.ca /100km, /50mile, /partners (60 km), /20km (25 km), /relay, home (read Nov 6)
+- Date August 7, 2027: matches. Mandatory per distance (headlamp, jacket M except 25K = R, water, bear spray M except relay = L, bib = P): matches. Suggested lines and the 25K's missing sunglasses/sunscreen: match.
+- PROBLEM A (wording): "Quick answers" says the 25 km night race needs "Hydration pack or bottles: 1.5 L or more". The race's /20km page: "Hydration pack or water bottles - min. 1L". The note on the line says 1 L, but the FAQ answer (race_pages.py `qList`/`aList`) uses the line's name only.
+- PROBLEM B (added line): "Reusable cup" shown as Recommended on every distance + FAQ "No. The aid stations have no cups". None of the 6 pages read today mention cups (our RACES comment says "Every aid station is cupless", source not on the current site; maybe the 2026 Racer Guide).
+
+## Bugs for backend (worst first)
+1. The Run House (US): shoes whose width is only in the TITLE ("(Wide)", "Walnut Wide") are filed as regular width, so regular-width shoppers see a wide shoe at that price. 7 cards today: Hoka Clifton 10 W (2 colours), Merrell Moab 3 M/W (3), NB 880v15 GTX M/W (2). Evidence: titles above, tags "wide" / "cw-group:...--wide"; ours: size keys without "~W", card w=false. Products with a width word the reader catches (ASICS "wide" items) are fine. Cause: Shopify reader width comes from the option (`width_word`, scrape.py ~2154) and these products have only a Size option. Fix: in the Shopify reader, a title with "Wide"/"(Wide)"/"Extra Wide" (or tag "wide", cw-group ending "--wide") = every size "~W"; then move "Wide" out of the name so it merges with the wide card. Check: 0 therunhouse offers whose URL or title says wide without "~W".
+2. The Run House: Diadora "Troffeo 2 AF PKL" (2 cards, women's) = pickleball/tennis shoes on the running side, with the style code in the name. Store tags "pickleball", "tennis". Fix: COURT_SHOE also catches "PKL", "pickleball", and Shopify tags pickleball/tennis/court; the code "(101.179105-C9453)" falls under yesterday's bug 3 rule.
+3. Iron Legs FAQ (Problem A): FAQ answers should use the distance's own amount when a line has a per-distance note (25 km: "1 L or more"); simplest: an `faq` text per distance in RACES for the water line. Fix wording only after re-reading /20km.
+4. Iron Legs cup line (Problem B): keep "aid stations are cupless" only if the race's own current material says it (name the source); otherwise drop the "Reusable cup" R line and the cup FAQ. If it comes from the 2026 guide, show it as a note, not "Recommended by the race".
+5. (low) The Run House carries Root'd prenatal/daily vitamins ("Essential Prenatal Nutrition", "Advanced Daily Nutrition formulated for her", 6 cards) with pack sizes and "Mom & Dad Bundle" as sizes. Prices right; not running fuel. Fix: drop "prenatal"/"daily nutrition"/multivitamin names, or keep the gels collection only.
