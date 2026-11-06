@@ -28,6 +28,7 @@ Nov 4 r/ultrarunning: use the drafted gear-list post in docs/reddit-drafts/ultra
 ## Log (newest first)
 | Date | Sub | Posted? | Visits from it (7 days) |
 |------|-----|---------|-------------------------|
+| Nov 6 | r/FrugalMaleFashionCDN (week D Friday: 7 CA men's shoes, shoe page links only, common-size rule dropped Endorphin Elite 2 / Cielo X1 2.0 / Prime X3 Strung; post_check all match; rules unread from here: Bastien checks the sidebar; ?ref=reddit-frugalmalefashioncdn) | waiting | |
 | Nov 5 | r/sneakerscanada (Bastien's pick: the 7 Canada lines of the RunningDeals post, EVO SL + Prime X3 first; rules unread from here: Bastien checks the sidebar first; ?ref=reddit-sneakerscanada) | yes (Nov 5 evening) | |
 | Nov 5 | r/RunningDeals weekly (10 CA + 9 US shoes, sorted by % off, shoe page links only, CAD/USD headers; social-producer + cmo reviewed; post_check all match; ?ref=reddit-runningdeals) | yes (Nov 5 evening; 7 CA + 7 US after the common-size check, short format) | |
 | Nov 4 | r/ultrarunning (5 CA + 5 US trail shoes, shoe page links only, + race gear lists line /races/?ref=reddit-ultra; Hoka Rocket X left out: failed post_check; ?ref=reddit-ultrarunning) | skipped (Bastien, Nov 4: "There's no traction there"). Dropped from the rotation | |
