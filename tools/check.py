@@ -381,13 +381,13 @@ def main():
         sale = [d for d in W.match(items, base) if d["pct"] >= 1 and d["g"] != "nutrition"]
         bad = []
         for lang, words in (("en", ("Good gear.", "$36", "Join the founding list", "Free to join. Nothing to pay now.")),
-                            ("fr", ("Le bon équipement.", "36&nbsp;$", "M'inscrire à la liste", "Rien à payer maintenant."))):
+                            ("fr", ("Le bon équipement.", "36&nbsp;$", "M’inscrire à la liste", "Rien à payer maintenant."))):
             _, body, text = W.build({**base, "lang": lang, "_test": True}, list(sale), None, None)
             bad += [f"{lang}: no {w!r}" for w in words if w not in body]
             if "pro=join&amp;em=" not in body or "pro=join&em=" not in text:
                 bad.append(f"{lang}: join link missing")
         _, body, _ = W.build({**base, "lang": "en", "_test": True, "pro_wait": {"at": "x"}}, list(sale), None, None)
-        if "You're on" not in body or "Join the founding list" in body:
+        if "You’re on the list." not in body or "Join the founding list" in body or "show=watch" not in body:
             bad.append("on the list: not the 'You're on the list' box")
         if not F.FOUND_LIVE:
             _, body, _ = W.build({**base, "lang": "en"}, list(sale), None, None)

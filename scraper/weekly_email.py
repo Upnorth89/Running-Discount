@@ -455,7 +455,8 @@ def founding_box(p, lang):
     if listed and not (p.get("_test") or day == "2026-11-27"):
         return "", ""
     url = shop_link(p) + f"&pro=join&em={em_day()}-pro"
-    return F.box(lang, url, listed=listed, ready=F.FOUND_READY or day < "2026-11-27")
+    return F.box(lang, url, listed=listed, ready=F.FOUND_READY or day < "2026-11-27",
+                 watch_url=shop_link(p) + f"&show=watch&em={em_day()}-pro")
 
 
 def build(p, sale, watch=None, watching=None):

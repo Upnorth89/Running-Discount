@@ -384,31 +384,41 @@ input[type=text],input[type=email],input[type=search]{width:100%;font:inherit;co
 
 /* Friday email card */
 .signup{background:var(--band);color:var(--band-ink);border-radius:14px;padding:18px;margin:0 0 30px}
-/* Fox Pro founding card (Nov 6, Bastien's pick "A"): one fixed cream look in both themes; Georgia when Source Serif isn't loaded */
-.signup.fpcard{--fc:#F8F5EF;--fs:#EFE7DC;--ff:#24492F;--fk:#121A16;--fst:#5C5A55;--fr:#C8581E;--fse:"Source Serif 4",Georgia,"Times New Roman",serif;max-width:420px;margin-left:auto;margin-right:auto;box-sizing:border-box;background:var(--fc);color:var(--fk);border:0;border-radius:20px;padding:22px 22px 18px;box-shadow:0 1px 2px rgba(0,0,0,.06),0 10px 30px rgba(0,0,0,.08);display:grid;gap:14px;text-align:left}
-.fpcard .fptop{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-bottom:12px;border-bottom:1px solid #C9CFC4}
-.fpcard .fpbrand{font:700 15px/1 Inter,var(--body);letter-spacing:.2em;color:var(--ff)}
-.fpcard .fppill{font:700 12px/1 Inter,var(--body);letter-spacing:.1em;color:var(--ff);border:1.5px solid var(--ff);border-radius:999px;padding:5px 12px;white-space:nowrap}
-.signup.fpcard .fphl{font:800 clamp(32px,9.5vw,40px)/1.04 var(--fse);letter-spacing:-.02em;margin:2px 0 0;color:var(--fk);text-wrap:balance}
-.fpcard .fpsub{margin:0;font:400 18px/1.3 var(--fse);color:var(--fst);text-wrap:balance}
-.fpcard .fpprice{background:var(--fs);border-radius:14px;padding:14px 16px;display:grid;gap:6px}
-.fpcard .fprow{display:flex;align-items:center;gap:10px 12px;flex-wrap:wrap}
-.fpcard .fpamt{font:800 clamp(37px,10vw,46px)/1 var(--fse);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.fpcard .fpper{font:700 12.5px/1 Inter,var(--body);letter-spacing:.12em}
-.fpcard .fpafter{font:400 14px/1.25 var(--fse);color:var(--fst);border-left:1px solid #C9BFB1;padding-left:14px}
-.fpcard .fplock{margin:0;font:italic 400 16px var(--fse);color:var(--ff);text-wrap:balance}
-.fpcard .fpticks{list-style:none;margin:2px 0 0;padding:0;display:grid;gap:8px}
-.fpcard .fpticks li{display:flex;gap:10px;align-items:flex-start;font:600 17px/1.3 var(--fse);text-wrap:balance}
-.fpcard .fpticks svg{flex:none;margin-top:1px}
-.fpcard .fpfine{margin:0;font:400 14px var(--fse);color:var(--fst);text-align:center;text-wrap:balance}
-.fpcard .fpfree{margin-top:-4px}
-.fpcard .fpcta{display:flex;justify-content:center;align-items:center;width:100%;min-height:50px;border:0;background:var(--fr);color:#fff;border-radius:10px;padding:13px 16px;font:700 18px var(--fse);cursor:pointer}
+/* Fox Pro founding cards (Nov 6, Bastien's final pick): 1 = join, 2 = on the list. One fixed cream look in both themes.
+   Source Serif 4 (headline, price) + Figtree (body), loaded only when a card shows (fpFonts); Georgia/system until then. */
+.signup.fpcard{--fc:#F9F6F0;--fk:#121A16;--fst:#55524C;--fru:#CFCBC2;--ff:#24492F;--fsa:#E3E8DA;--fr:#C8581E;--fo:#D9480F;
+  --fse:"Source Serif 4",Georgia,"Times New Roman",serif;--fsa2:"Figtree",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  max-width:420px;margin-left:auto;margin-right:auto;box-sizing:border-box;background:var(--fc);color:var(--fk);border:1px solid var(--fru);border-radius:18px;
+  padding:22px 22px 18px;box-shadow:0 10px 28px rgba(0,0,0,.07);display:grid;gap:14px;text-align:left;font-family:var(--fsa2)}
+.fpcard .fptop{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-bottom:12px;border-bottom:1px solid var(--fru)}
+.fpcard .fpbrand{font:700 15px/1 var(--fsa2);letter-spacing:.2em;color:var(--ff);white-space:nowrap}
+.fpcard .fppill{font:700 11.5px/1 var(--fsa2);letter-spacing:.14em;color:var(--ff);border:1.5px solid var(--ff);border-radius:999px;padding:5px 12px;white-space:nowrap}
+.fpcard .fpstat{font:700 11.5px/1 var(--fsa2);letter-spacing:.14em;color:var(--ff);white-space:nowrap;display:flex;align-items:center;gap:7px}
+.fpcard .fpstat:before{content:"";width:9px;height:9px;border-radius:50%;background:#2E7D3A}
+.signup.fpcard .fphl{font:800 clamp(33px,10vw,42px)/1.02 var(--fse);letter-spacing:-.02em;margin:0;color:var(--fk);text-wrap:balance}
+.signup.fpcard .fphl1{font:800 clamp(23px,7.6vw,37px)/1.05 var(--fse);letter-spacing:-.02em;margin:0;color:var(--fk);white-space:nowrap}
+.fpcard .fpsub{margin:0;font:400 17px/1.35 var(--fsa2);color:var(--fst);text-wrap:balance}
+.fpcard .fpprice{display:flex;align-items:center;gap:12px}
+.fpcard .fpamt{font:800 clamp(48px,13vw,58px)/.9 var(--fse);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.fpcard .fpper{display:grid;gap:2px}.fpcard .fpper b{font:700 18px var(--fsa2)}.fpcard .fpper span{font:400 14px/1.25 var(--fsa2);color:var(--fst)}
+.fpcard .fplock{display:flex;align-items:center;gap:9px;margin:0;font:700 16px var(--fsa2);color:var(--ff);padding-bottom:12px;border-bottom:1px solid var(--fru)}
+.fpcard .fplock svg{flex:none}
+.fpcard .fpticks{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+.fpcard .fpticks li{display:flex;gap:12px;align-items:flex-start;font:500 17px/1.35 var(--fsa2)}
+.fpcard .fpticks li:before{content:"✓";color:#2E7D3A;font-weight:700;font-size:18px;line-height:1.2;width:18px;flex:none}
+.fpcard .fpfine{margin:0;font:400 14px var(--fsa2);color:var(--fst);text-align:center;text-wrap:balance}
+.fpcard .fpcta{display:flex;justify-content:center;align-items:center;width:100%;min-height:50px;border:0;background:var(--fr);color:#fff;border-radius:10px;padding:13px 16px;font:700 18px var(--fsa2);cursor:pointer}
 .fpcard .fpcta:focus-visible{outline:3px solid var(--ff);outline-offset:2px}
-.fpcard .fpfoot{margin:0;font:400 13px/1.4 var(--fse);color:var(--fst);text-align:center;padding-top:10px;border-top:1px solid #C9CFC4}
-.fpcard .fpno{justify-self:center;background:none;border:0;padding:6px 10px;min-height:0;font:500 14px Inter,var(--body);color:var(--fst);text-decoration:underline;cursor:pointer}
+.fpcard .fpfoot{margin:0;font:400 14px/1.4 var(--fsa2);color:var(--fst);text-align:center;padding-top:12px;border-top:1px solid var(--fru);text-wrap:balance}
+.fpcard .fpno{justify-self:center;background:none;border:0;padding:6px 10px;min-height:0;font:500 14px var(--fsa2);color:var(--fst);text-decoration:underline;cursor:pointer}
+.fpcard .fpinbox{background:var(--fsa);border-radius:12px;padding:14px 16px;display:grid;gap:8px}
+.fpcard .fpinbox small{font:700 12px var(--fsa2);letter-spacing:.16em;color:var(--ff)}
+.fpcard .fpinbox i{display:block;width:44px;height:3px;background:var(--fo);border-radius:2px}
+.fpcard .fpinbox b{font:700 22px/1.15 var(--fsa2);color:var(--ff)}
+.fpcard .fpkeep{display:grid;gap:2px}.fpcard .fpkeep b{font:700 18px var(--fsa2)}.fpcard .fpkeep span{font:400 16px var(--fsa2);color:var(--fst)}
+.fpcard .fpnext{font:700 16px var(--fsa2);color:var(--ff);text-decoration:underline;text-underline-offset:3px}
 .fpin{margin:8px 0 0}
-.fpcard .fpbrand{white-space:nowrap}.fpcard .fpfoot{text-wrap:balance}
-@media(max-width:359px){.signup.fpcard{padding:18px 16px 14px}.fpcard .fpbrand{letter-spacing:.12em;font-size:14px}.fpcard .fppill{font-size:10.5px;letter-spacing:.06em;padding:4px 9px}}
+@media(max-width:360px){.signup.fpcard{padding:18px 16px 14px}.fpcard .fpbrand{letter-spacing:.12em}.fpcard .fppill,.fpcard .fpstat{letter-spacing:.08em;font-size:10.5px}.fpcard .fppill{padding:4px 9px}}
 .signup.procard{--pg:#0E2621;--pc:#F4EEE2;--pm:#D5DED8;--po:#FF6A13;--pk:#14201B;background:radial-gradient(120% 90% at 85% 10%,#163A30 0,var(--pg) 60%);color:#fff;border:0;border-radius:18px;text-align:left;padding:20px 20px 18px;max-width:780px;margin-left:auto;margin-right:auto;box-sizing:border-box;overflow:hidden}.procard .protop{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 14px}.procard .pbrand{display:flex;align-items:center;gap:10px;font:700 15px/1 Inter,var(--body);letter-spacing:.04em;text-transform:uppercase;color:#fff}.procard .pbrand img{width:36px;height:36px;border-radius:50%;display:block}.procard .cs{display:inline-flex;align-items:center;font:700 12px/1 Inter,var(--body);letter-spacing:.08em;text-transform:uppercase;color:#BFE6CC;background:rgba(143,212,168,.16);border:1px solid rgba(143,212,168,.45);padding:7px 12px;border-radius:99px;white-space:nowrap}.procard .progrid,.procard .proleft{display:flex;flex-direction:column}.procard .progrid>.prorc{display:none}.procard .prorc{margin:18px 0 2px}.signup.procard h3{font:700 40px/1.04 Poppins,Inter,var(--body);letter-spacing:-.025em;color:#fff;margin:0 0 12px}.procard h3 .ul{position:relative;display:inline-block}.procard h3 .ul svg{position:absolute;left:-2%;bottom:-.2em;width:104%;height:.32em;overflow:visible}.procard .prosub{font:400 16px/1.45 Inter,var(--body);color:var(--pm);margin:0;max-width:24em}.procard .prorc{position:relative;justify-self:center;width:min(74%,232px);align-self:center;background:var(--pc);color:var(--pk);padding:22px 20px 18px;transform:rotate(3deg);filter:drop-shadow(0 12px 20px rgba(0,0,0,.35));clip-path:polygon(0 3%,5% .5%,11% 2.6%,17% .4%,24% 2.4%,31% .8%,38% 2.8%,46% .5%,53% 2.3%,61% .6%,68% 2.6%,75% .9%,82% 2.4%,88% 3.8%,94% 7%,100% 11%,100% 100%,96% 98.6%,90% 99.8%,83% 98.4%,75% 99.6%,67% 98.2%,58% 99.7%,49% 98.4%,40% 99.8%,31% 98.3%,22% 99.6%,13% 98.5%,6% 99.7%,0 98.6%)}.procard .prorc:after{content:"";position:absolute;right:0;top:0;width:13%;height:11%;background:linear-gradient(225deg,transparent 48%,#D9D1C1 50%,#EDE6D8 80%)}.procard .prorc .r{display:flex;justify-content:space-between;gap:12px;font:500 16px/1.5 Inter,var(--body)}.procard .prorc .r b{font-weight:700}.procard .prorc hr{border:0;border-top:1.5px solid #CFC6B3;margin:10px 0 12px}.procard .prorc .lab{text-align:center;font:700 17px/1.2 Inter,var(--body)}.procard .prorc .big{position:relative;display:block;width:max-content;margin:8px auto 0;padding:10px 22px 2px;font:700 54px/1 Kalam,cursive;letter-spacing:-.02em}.procard .prorc .big svg{position:absolute;inset:0 -14px -6px;width:calc(100% + 28px);height:calc(100% + 6px);overflow:visible;transform:rotate(-4deg);z-index:-1}.procard .prorc .big{isolation:isolate}.procard .prosteps{list-style:none;padding:0;margin:20px 0 18px;display:flex;justify-content:center;gap:26px}.procard .prosteps li{display:flex;flex-direction:column;align-items:center;gap:8px}.procard .prosteps svg{width:28px;height:28px}.procard .prosteps strong{font:600 14.5px/1.2 Inter,var(--body);color:#fff;white-space:nowrap}.procard #proForm{display:flex;flex-direction:column;align-items:center;gap:8px;margin:0}.procard .pfw{position:relative;display:flex;justify-content:center;width:auto;max-width:100%;transition:width .25s ease}.procard #proForm .proin{display:none;width:100%}.procard #proForm.open .pfw{width:min(100%,420px)}.procard #proForm.open .proin{display:block}.procard #proForm input{width:100%;margin:0;box-sizing:border-box;min-height:52px;border:2px solid #fff;border-radius:99px;background:#fff;font:16px Inter,var(--body);padding:0 64px 0 20px;color:var(--pk)}.procard #proForm input:focus{outline:3px solid var(--po);outline-offset:2px}.procard #proForm button,.procard #proJoin{display:block;margin-left:auto!important;margin-right:auto!important;min-height:50px;margin:0;border:0;border-radius:99px;background:var(--po);color:var(--pk);font:700 17px Inter,var(--body);padding:0 30px;width:auto;cursor:pointer}.procard #proForm.open button{position:absolute;right:5px;top:5px;bottom:5px;width:auto!important;min-height:0;padding:0 16px;font-size:19px}.procard #proForm.open .jl{display:none}.procard #proForm .profine{display:none;margin:0;text-align:center;font-size:12.5px;color:#AFC0B6;max-width:30em}.procard #proForm.open .profine{display:block}@keyframes pfIn{from{opacity:0;transform:scaleX(.6)}to{opacity:1;transform:none}}@media(prefers-reduced-motion:reduce){.procard #proForm.open .proin{animation:none}}.procard .proprice{display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;gap:4px 10px;margin:12px 0 0;font:400 13.5px/1.4 Inter,var(--body);color:var(--pm)}.procard .proprice b{color:#fff;font-weight:700;font-size:15px}.procard .proprice .dot{opacity:.6}.procard .proprice button{font:inherit;color:#fff;padding:0;min-height:0;background:none;border:0;text-decoration:underline;cursor:pointer}.procard .err{color:#FFB4A8;margin:8px 0 0}.procard.propoll .pph{font-size:28px;margin:0 0 6px}.procard .ppl{display:flex;flex-direction:column;gap:8px;margin:14px 0 4px}.procard .ppo{text-align:left;min-height:46px;padding:10px 14px 10px 44px;border-radius:12px;border:1.5px solid rgba(213,222,216,.35);background:rgba(255,255,255,.04);color:#fff;font:500 15px/1.3 Inter,var(--body);cursor:pointer;position:relative}.procard .ppo:before{content:"";position:absolute;left:14px;top:50%;width:18px;height:18px;margin-top:-9px;border-radius:5px;border:1.5px solid rgba(213,222,216,.6)}.procard .ppo[aria-pressed=true]{border-color:#8FD4A8;background:rgba(143,212,168,.12)}.procard .ppo[aria-pressed=true]:before{background:#8FD4A8 url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Cpath d=%27M3.5 8.5l3 3 6-7%27 fill=%27none%27 stroke=%27%2314201B%27 stroke-width=%272.2%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E") center/14px no-repeat;border-color:#8FD4A8}.procard .proprice .ppgo{min-height:48px;border:0;border-radius:99px;background:var(--po);color:var(--pk);font:700 16px Inter,var(--body);padding:0 30px;cursor:pointer;text-decoration:none;margin-right:8px}.procard.propoll .proprice{align-items:center;margin-top:16px}@media(max-width:359px){.procard.propoll .pph{font-size:23px}}@media(max-width:359px){.signup.procard h3{font-size:34px}.procard .prosteps{gap:12px}.procard .prosteps strong{font-size:13px}.procard #proForm input{font-size:15px;padding-left:16px}.procard #proForm button{width:100%}}@media(min-width:620px){.signup.procard{padding:26px 30px 22px}.procard .progrid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);align-items:center;gap:24px}.procard .proleft{display:block}.procard .proleft .prorc{display:none}.procard .progrid>.prorc{display:block}.signup.procard h3{font-size:54px}.procard .prorc{width:100%;max-width:280px;margin:0}.procard .prorc .r{font-size:18px}.procard .prorc .lab{font-size:19px}.procard .prorc .big{font-size:64px}}
 .rcwrap{position:relative}.rcsug{display:flex;flex-direction:column;background:var(--card);border-radius:10px;overflow:hidden;margin-top:4px}.rcsug:empty{display:none}.rcsug button{all:unset;cursor:pointer;padding:11px 14px;font:500 15px/1.25 var(--body);color:var(--ink);border-top:1px solid var(--line)}.rcsug button:first-child{border-top:0}.rcsug button:active,.rcsug button:hover{background:var(--mist)}
 .runcard #suForm{flex-direction:column}.runcard #suForm input,.runcard #suForm .primary{flex:none;width:100%}.runcard #suForm .primary{min-height:48px;line-height:1.15;padding:8px 16px}
@@ -1122,18 +1132,19 @@ const HIKE=()=>SPORT==="hike";
 let LANG=LINK_LANG||LS0("gf-lang")||((LS0("rd-profile")||{}).lang)||(/^fr/i.test(navigator.language||"")?"fr":"en");
 function t(k,...a){const v=(I18N[LANG]&&I18N[LANG][k]!==undefined)?I18N[LANG][k]:I18N.en[k];return typeof v==="function"?v(...a):v}
 /* Fox Pro founding list (Nov 6, Bastien picked card "A"; words: docs/founding-ask-copy-nov5.md + artifact X4E2mvP2mdfsWod67evvUM). */
-Object.assign(I18N.en,{fpPill:"FIRST 100 MEMBERS",fpH:"Good gear.<br>Better timing.",fpSub:"Get the Fox Pro launch link first.",fpAmt:"$36",fpPer:"CAD / YEAR",
-  fpAfter:"$45 / year after<br>the founding round",fpLock:"Founding price locked while you stay.",fpT1:"Morning price-drop alerts",fpT2:"Unlimited watchlist",
-  fpT3:"Price-drop emails after you buy",fpPlan:"Planned from Dec 2. 30-day full refund.",fpJoin:"Join the founding list →",fpFree:"Free to join. Nothing to pay now.",
-  fpFoot:"100 numbered spots. Memberships go to the first 100 who pay.",fpThanks:"You're on the founding list. Your link arrives Wednesday, Dec 2.",
-  fpOnH:"You're on<br>the list.",fpOnSub:"Your founding link arrives Wednesday, Dec 2.",fpOnFoot:"$36 CAD / year, founding price locked while you stay.<br>100 numbered spots. Memberships go to the first 100 who pay.",
+Object.assign(I18N.en,{fpPill:"FOUNDING MEMBERS",fpH:"Good gear.<br>Better timing.",fpSub:"Get the Fox Pro launch link first.",fpAmt:"$36",fpPer:"CAD / year",
+  fpAfter:"$45/year after the founding round",fpLock:"Founding price locked while you stay.",fpT1:"Morning price-drop alerts",fpT2:"Unlimited watchlist",
+  fpT3:"Price-drop emails after you buy",fpPlan:"Planned from Dec 2. 30-day full refund.",fpJoin:"Join the founding list\u00a0→",fpFree:"Free to join. Nothing to pay now.",
+  fpFoot:"100 numbered memberships. First 100 to pay.",fpThanks:"You're on the founding list.",
+  fpStat:"LIST CONFIRMED",fpOnH:"You’re on the list.",fpOnSub:"Your founding link is coming by email.",fpInbox:"WATCH YOUR INBOX",fpDate:"Planned for Wednesday, December\u00a02",
+  fpKeep:"$36 CAD / year",fpNext:"Watch the gear you want now →",
   fpIn:"Want first access to one of 100 numbered founding spots ($36/year, locked while you stay)?",fpAdd:"Add me"});
-Object.assign(I18N.fr,{fpPill:"100 PREMIERS MEMBRES",fpH:"Le bon équipement.<br>Au bon moment.",fpSub:"Recevez le lien de lancement Fox Pro en premier.",fpAmt:"36\u00a0$",fpPer:"CAD / AN",
-  fpAfter:"45\u00a0$ / an après<br>la ronde fondatrice",fpLock:"Prix fondateur garanti tant que vous restez.",fpT1:"Alertes de baisse chaque matin",fpT2:"Favoris illimités",
-  fpT3:"Un courriel si le prix baisse après l'achat",fpPlan:"Prévu dès le 2 décembre. Remboursement complet sous 30\u00a0jours.",fpJoin:"M'inscrire à la liste →",
-  fpFree:"Inscription gratuite. Rien à payer maintenant.",fpFoot:"100 places numérotées. Elles vont aux 100 premiers qui paient.",
-  fpThanks:"Vous êtes sur la liste des fondateurs. Votre lien arrive le mercredi 2 décembre.",fpOnH:"Vous êtes<br>sur la liste.",fpOnSub:"Votre lien fondateur arrive le mercredi 2 décembre.",
-  fpOnFoot:"36\u00a0$ CAD / an, prix fondateur garanti tant que vous restez.<br>100 places numérotées. Elles vont aux 100 premiers qui paient.",
+Object.assign(I18N.fr,{fpPill:"MEMBRES FONDATEURS",fpH:"Le bon équipement.<br>Au bon moment.",fpSub:"Recevez le lien de lancement Fox Pro en premier.",fpAmt:"36\u00a0$",fpPer:"CAD / an",
+  fpAfter:"45\u00a0$/an après l’offre fondatrice",fpLock:"Prix fondateur garanti tant que vous restez membre.",fpT1:"Alertes de baisse chaque matin",fpT2:"Favoris illimités",
+  fpT3:"Un courriel si le prix baisse après l’achat",fpPlan:"Prévu dès le 2 décembre. Remboursement complet sous 30\u00a0jours.",fpJoin:"M’inscrire à la liste\u00a0→",
+  fpFree:"Inscription gratuite. Rien à payer maintenant.",fpFoot:"100 abonnements numérotés. Les 100 premiers à payer.",fpThanks:"Vous êtes sur la liste des fondateurs.",
+  fpStat:"INSCRIPTION CONFIRMÉE",fpOnH:"Vous êtes sur la liste.",fpOnSub:"Votre lien fondateur arrivera par courriel.",fpInbox:"SURVEILLEZ VOS COURRIELS",fpDate:"Prévu le mercredi 2\u00a0décembre",
+  fpKeep:"36\u00a0$ CAD / an",fpNext:"Suivez dès maintenant l’équipement que vous voulez →",
   fpIn:"Voulez-vous un accès en premier à l'une des 100 places de membre fondateur (36\u00a0$/an, prix garanti tant que vous restez)?",fpAdd:"Ajoutez-moi"});
 const num=n=>Number(n).toLocaleString(LANG==="fr"?"fr-CA":"en-CA");
 function applyStatic(){
@@ -2725,20 +2736,31 @@ const onList=()=>!!LS.get("gf-pro");
 let fpSeen=false,fpScrolled=false;
 function fpShow(){if(!(sub&&sub.active)||LS.get("gf-nopro"))return false;
   return FP_PREVIEW||PROJOIN||(fpWindow()&&ANA.nv()>=2)}
-function fpJoin(place){LS.set("gf-pro",{at:vanDay(),via:place});ana("signup-step",`pro-join|${place}`);saveProfile();toast(t("fpThanks"));renderAll()}
+function fpJoin(place){LS.set("gf-pro",{at:vanDay(),via:place});fpJust=true;fpSeen=false;ana("signup-step",`pro-join|${place}`);saveProfile();toast(t("fpThanks"));renderAll()}
+let fpJust=false;     // joined during this visit: card 2 ("You're on the list") stays in the slot
+function fpFonts(){if(document.getElementById("fpFonts"))return;const l=document.createElement("link");l.id="fpFonts";l.rel="stylesheet";
+  l.href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,700;8..60,800&family=Figtree:wght@400;500;600;700&display=swap";document.head.appendChild(l)}
 function proHTML(){
   if(!fpShow())return "";
-  if(onList())return PROJOIN?`<section class="signup fpcard fpon" id="fpOn"><div class="fptop"><span class="fpbrand">FOX PRO</span><span class="fppill">${t("fpPill")}</span></div>
-    <h3 class="fphl">${t("fpOnH")}</h3><p class="fpsub">${t("fpOnSub")}</p><p class="fpfoot">${t("fpOnFoot")}</p></section>`:"";
+  if(onList()){if(!(PROJOIN||fpJust))return "";fpFonts();
+    if(!fpSeen){fpSeen=true;ana("signup-step",`pro-on-view|${FP_PLACE}`)}
+    return `<section class="signup fpcard fpon" id="fpOn"><div class="fptop"><span class="fpbrand">FOX PRO</span><span class="fpstat">${t("fpStat")}</span></div>
+    <h3 class="fphl1">${t("fpOnH")}</h3><p class="fpsub">${t("fpOnSub")}</p>
+    <div class="fpinbox"><small>${t("fpInbox")}</small><i></i><b>${t("fpDate")}</b></div>
+    <div class="fpkeep"><b>${t("fpKeep")}</b><span>${t("fpLock")}</span></div>
+    <a class="fpnext" id="fpNext" href="/?show=watch">${t("fpNext")}</a>
+    <p class="fpfoot">${t("fpFoot")}</p></section>`}
+  fpFonts();
   if(!fpSeen){fpSeen=true;ana("signup-step",`pro-view|${FP_PLACE}`)}
-  const tk=`<svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="10" fill="none" stroke="#24492F" stroke-width="1.6"/><path d="M6.5 11.5l3 3 6-6.5" fill="none" stroke="#24492F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const lock=`<svg width="18" height="20" viewBox="0 0 18 20" aria-hidden="true"><rect x="2" y="8.5" width="14" height="10" rx="2" fill="none" stroke="#24492F" stroke-width="1.8"/><path d="M5.5 8.5V6a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="#24492F" stroke-width="1.8"/></svg>`;
   return `<section class="signup fpcard" aria-labelledby="fpT"><div class="fptop"><span class="fpbrand">FOX PRO</span><span class="fppill">${t("fpPill")}</span></div>
     <h3 id="fpT" class="fphl">${t("fpH")}</h3><p class="fpsub">${t("fpSub")}</p>
-    <div class="fpprice"><div class="fprow"><span class="fpamt">${t("fpAmt")}</span><span class="fpper">${t("fpPer")}</span><span class="fpafter">${t("fpAfter")}</span></div><p class="fplock">${t("fpLock")}</p></div>
-    <ul class="fpticks"><li>${tk}${t("fpT1")}</li><li>${tk}${t("fpT2")}</li><li>${tk}${t("fpT3")}</li></ul>
+    <div class="fpprice"><span class="fpamt">${t("fpAmt")}</span><span class="fpper"><b>${t("fpPer")}</b><span>${t("fpAfter")}</span></span></div>
+    <p class="fplock">${lock}${t("fpLock")}</p>
+    <ul class="fpticks"><li>${t("fpT1")}</li><li>${t("fpT2")}</li><li>${t("fpT3")}</li></ul>
     <p class="fpfine">${t("fpPlan")}</p>
     <button class="fpcta" type="button" id="fpJoin">${t("fpJoin")}</button>
-    <p class="fpfine fpfree">${t("fpFree")}</p>
+    <p class="fpfine">${t("fpFree")}</p>
     <p class="fpfoot">${t("fpFoot")}</p>
     <button type="button" id="fpNo" class="fpno">${t("noThanks")}</button></section>`;
 }
@@ -2830,6 +2852,7 @@ function runCardHTML(){
 function bindSignup(){
   if(G.ready&&$("gBtnCard"))setTimeout(()=>G.render(),0);   // Oct 29: Google first on the sign-up card
   const fj=$("fpJoin");if(fj)fj.addEventListener("click",()=>fpJoin(FP_PLACE));
+  const fx=$("fpNext");if(fx)fx.addEventListener("click",()=>ana("signup-step",`pro-next|${FP_PLACE}`));
   const fn=$("fpNo");if(fn)fn.addEventListener("click",()=>{LS.set("gf-nopro",1);ana("signup-step",`pro-no|${FP_PLACE}`);renderAll()});
   if(PROJOIN&&!fpScrolled){const c=$("fpJoin")||$("fpOn");if(c){fpScrolled=true;setTimeout(()=>c.closest("section").scrollIntoView({block:"center"}),300)}}
   document.querySelectorAll(".ppo").forEach(b=>b.addEventListener("click",()=>{const k=b.dataset.pw;proPick=proPick.includes(k)?proPick.filter(x=>x!==k):[...proPick,k];b.setAttribute("aria-pressed",proPick.includes(k))}));

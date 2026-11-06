@@ -1114,3 +1114,16 @@ Phone = 390 px, DevTools "Fast 3G" (~160 KB/s, 562 ms latency) + CPU slowed x4, 
   - check.py "Fox Pro founding list: email box + alert line".
 - **On Bastien's OK (Nov 16), three switches the same day:** index.html FOUND_LIVE, founding.py FOUND_LIVE, the SQL paste + founding_live insert.
 - **Screenshots** checked at 390/320 EN/FR: site card, Friday box, on-list box, FR alert, EN welcome.
+
+## Nov 6: founding cards swapped to the FINAL design (cards 1 + 2), still OFF
+- **Site:**
+  - Card 1 "Join the list" and card 2 "On the list", word for word from the FINAL section (EN/FR, ’ apostrophes).
+  - Fonts: Source Serif 4 + Figtree, loaded only when a card shows.
+  - Card 2 appears right after joining. It also shows when someone already on the list opens an email link.
+  - "Watch the gear you want now →" goes to /?show=watch and is tracked as signup-step `pro-next|<place>`. Card-2 views are tracked as `pro-on-view|<place>`, so clicks ÷ views gives the <10% stop rule.
+- **Friday email:**
+  - Card 1 in tables: Georgia headline/price, system sans body, green ✓, rust button.
+  - Card 2 is the Nov 27 box for people on the list, with an inbox panel and the watch link (`?k=…&show=watch&em=…-pro`).
+  - The lock line has no icon in the email: an emoji lock renders in colour in many mail apps. Say if designer wants an image instead.
+- **Unchanged:** the alert lines, the welcome P.S. and "You're in" line (sections 3-5), and the switches.
+- **Still to add to the funnel:** a pro-next ÷ pro-on-view line for the stop rule. I'll add it next.

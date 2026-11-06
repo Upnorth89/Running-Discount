@@ -819,13 +819,15 @@ def site_flow(base, per, accented):
                 if not page.locator(".fpcard").count():
                     return "no card slot for a member on this visit: skipped"
                 txt = page.inner_text(".fpcard")
-                for w in ("Good gear", "$36", "$45 / year after", "Join the founding list", "Free to join. Nothing to pay now.", "100 numbered spots"):
+                for w in ("Good gear", "$36", "$45/year after", "Join the founding list", "Free to join. Nothing to pay now.", "100 numbered memberships"):
                     assert w in txt, f"card is missing {w!r}"
                 assert "$3/month" not in txt and "for life" not in txt.lower(), "card says $3/month or 'for life'"
                 page.click("#fpJoin"); page.wait_for_timeout(500)
                 saved = page.evaluate("() => JSON.parse(localStorage.getItem('gf-pro') || 'null')")
                 assert saved and saved.get("via") == "site", f"joining saved {saved!r}"
                 assert not page.locator("#fpJoin").count(), "the card stayed after joining"
+                c2 = page.inner_text("#fpOn") if page.locator("#fpOn").count() else ""
+                assert "You’re on the list." in c2 and "December" in c2, "after joining, card 2 ('You're on the list') doesn't show"
                 go("?pro=join&em=friday-pro")
                 on = page.locator("#fpOn").count() and not page.locator("#fpJoin").count()
                 assert on, "an email link for someone already on the list doesn't show 'You're on the list'"
@@ -837,7 +839,7 @@ def site_flow(base, per, accented):
                 go("?pro=1")
                 assert not page.locator(".fpcard").count(), "'No thanks' didn't hide the card"
                 assert not off, "the card shows without ?pro=1 while FOUND_LIVE is off"
-                return "member card: words, one-tap join saved, 'on the list' state, email link never joins by itself, No thanks hides it, off until switched on"
+                return "member card: words, one-tap join saved, card 2 after joining, 'on the list' state, email link never joins by itself, No thanks hides it, off until switched on"
             finally:
                 clean()
                 go("")
