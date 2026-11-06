@@ -42,7 +42,7 @@ EN: Our data: of shoes on sale Oct 15, about 1 in 6 got cheaper again within 3 w
 FR : Nos données : des chaussures en solde le 15 octobre, environ 1 sur 6 a encore baissé en 3 semaines dans un magasin qu'on suit (pas toujours le même).
 Source: docs/ideas-night-nov5.md (520 of 2,919 = 17.8%, alert rule 10% or $10).
 
-Nov 6 team pass on the card (CMO, copywriter, members-lead, compliance), FINAL wording pending Bastien's OK:
+Nov 6 team pass on the card (CMO, copywriter, members-lead, compliance): REJECTED by Bastien ("I like the other version i sent you better"). Card = his mockup's words, with ONE change: "Retailers decide any refund" -> "30-day full refund" (it read as our own refund rule). Kept from the pass: the Nov 27 "You're on the founding list" state. Team pass wording, for the record:
 - Pill: "100 FOUNDING SPOTS" / « 100 PLACES FONDATRICES » (compliance: "first 100 members" implied the list holds a spot)
 - Sub: "We watch the price after you buy. Get the launch link first." / « On surveille le prix après votre achat. Recevez le lien de lancement en premier. » (CMO)
 - Price: "$36 CAD / YEAR", "$45/year after the 100 founding spots" / « 45 $/an après les 100 places fondatrices » (copywriter)
