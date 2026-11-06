@@ -12,6 +12,7 @@ Callers feature only True: what we can't see today, we don't post.
 
   python scraper/livecheck.py URL PRICE [VARIANT]     check one by hand
 """
+import json
 import re
 import sys
 from urllib.parse import urlparse
@@ -38,7 +39,7 @@ def _shopify(url, price, variant, us=False, tol=0.01):
         # Oct 31: The Feed moved to a headless Shopify front (Next.js): every product.js 404s while the product page is fine,
         # so all its featured deals read "sale ended". A 404 only means "gone" when the product page is gone too.
         p = S.get(url, cookies=None if us else CA_COOKIES, timeout=30)
-        return None if p.status_code == 200 else False
+        return _jsonld(p.text, price, variant, tol) if p.status_code == 200 else False
     if "json" not in (r.headers.get("content-type") or "") and not r.text.lstrip().startswith("{"):
         return None
     vs = r.json().get("variants") or []
@@ -47,6 +48,37 @@ def _shopify(url, price, variant, us=False, tol=0.01):
     ok = [v for v in vs if v.get("available") and v["price"] / 100 <= price + tol
           and (v.get("compare_at_price") or 0) > v["price"]]
     return bool(ok)
+
+
+def _jsonld(html, price, variant, tol=0.01):
+    """Nov 6 (data audit): headless Shopify fronts (Playmakers, The Feed) answer 404 for product.js while the page carries JSON-LD
+    offers: price, availability and a ListPrice (the regular price). Their offers name colour/size, not our variant id, so one size
+    can't be told apart: with a variant, only a page where EVERY offer is in stock at this price (or lower) on sale counts; without
+    one, any such offer does. Anything else = None (can't tell), never "ended"."""
+    offers = []
+    for m in re.finditer(r'<script[^>]*application/ld\+json[^>]*>(.*?)</script>', html or "", re.S):
+        try:
+            d = json.loads(m.group(1))
+        except ValueError:
+            continue
+        for x in d if isinstance(d, list) else [d]:
+            if isinstance(x, dict) and x.get("@type") == "Product":
+                o = x.get("offers") or []
+                offers += o if isinstance(o, list) else (o.get("offers") or [o]) if isinstance(o, dict) else []
+    def sale(o):
+        try:
+            now = float(o.get("price") or 0)
+            ps = o.get("priceSpecification") or []
+            reg = max((float(q.get("price") or 0) for q in (ps if isinstance(ps, list) else [ps])
+                       if isinstance(q, dict) and "ListPrice" in str(q.get("priceType"))), default=0)
+        except (TypeError, ValueError):
+            return False
+        return "InStock" in str(o.get("availability")) and 0 < now <= price + tol and reg > now
+    if not offers:
+        return None
+    if variant:
+        return True if all(sale(o) for o in offers) else None
+    return True if any(sale(o) for o in offers) else None
 
 
 def _page(url, price):

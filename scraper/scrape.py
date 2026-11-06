@@ -2154,8 +2154,10 @@ WIDTH_VAL = re.compile(r"(?i)^(2a|aa|b|d|2e|ee|4e|6e|regular|medium|standard|wid
 def width_word(w, title):
     """A width option value -> the words canon_shoe() reads. Men's D and women's B are regular; women's D is wide."""
     w = (w or "").strip().lower()
-    women = re.search(r"\bwom[ae]n", title, re.I)
-    if re.search(r"wide|\b[246]e\b|\bee+\b|extra", w) or (women and w == "d"):
+    # Nov 6 (data audit): Le Coureur titles say "FEMME", Frontrunners' start "W Brooks ...": women's B was read as men's B = Narrow,
+    # which hid ~630 regular women's sizes. Callers may add the store's product type ("Womens Shoes - Trail") after the title.
+    women = re.search(r"\bwom[ae]n|\bwmns?\b|\bladies\b|\bfemmes?\b|^\s*w\b|\(w\)", title, re.I)
+    if re.search(r"wide|\b[246]e\b|\bee+\b|\bxw\b|extra", w) or (women and w == "d"):
         return " Wide"
     if re.search(r"narrow|\b2a\b|\baa\b", w) or (not women and w == "b"):
         return " Narrow"
@@ -2215,6 +2217,11 @@ def hidden_product(p):
     if any(t in ("activity:soccer", "soccer apparel", "gs soccer") or t.startswith("apparel type:soccer") for t in tl) \
             or re.search(r"\bsoccer\b", p.get("product_type") or "", re.I):
         return True
+    # Nov 6 (data audit): Foveo files a Black Diamond "Circuit 2 Shoes" (73% off) as product type "Lifestyle": a store saying lifestyle/casual
+    # about footwear means it isn't for running or hiking
+    if re.fullmatch(r"(lifestyle|casual)( shoes?| footwear| sneakers?)?", (p.get("product_type") or "").strip().lower()) \
+            and re.search(r"\b(shoes?|sneakers?|footwear|chaussures?|souliers?)\b", f'{p.get("title") or ""} {p.get("product_type") or ""}', re.I):
+        return True
     h = (p.get("handle") or "").lower()
     return bool(USED_RX.search(p.get("title") or "") or h.endswith("-used") or "-like-new" in h or "factory-second" in h)
 
@@ -2265,7 +2272,7 @@ def shopify_items(st, base, prods, group_fn, fx=1.0, size_aware=False, size_fn=N
                 key = " / ".join(x for i, x in enumerate(vals) if i not in (si, wi) and x)
                 label = vals[si]
                 if wi is not None and g == "shoes":   # US shops: width as its own option ("D", "2E", "Wide", "Medium")
-                    label += width_word(vals[wi], p.get("title") or "")
+                    label += width_word(vals[wi], (p.get("title") or "") + " | " + (p.get("product_type") or ""))
             else:
                 rest = " / ".join(x for x in (v.get("option2"), v.get("option3")) if x)
                 key = o1 if len(opts) > 1 else ""
@@ -3774,7 +3781,7 @@ BOREAL_DESC = {"waterproof", "road", "trail", "running", "maximal-cushion", "and
 US_SHOPS |= {k for k, _, sd, *_ in WOO_SITES + LIGHTSPEED_SITES if sd == "us"}   # Nov 1: generic readers' US stores
 
 
-OFF33_KEEP = {"GTX", "GORE-TEX", "WP", "WIDE", "TR", "TRAIL", "MAX", "PLUS", "PRO", "SE", "LITE", "EKIDEN", "SPIKE", "BOA"}
+OFF33_KEEP = {"GTX", "GORE-TEX", "GORETEX", "WATERPROOF", "MID", "LOW", "GRVL", "CSWP", "WP", "WIDE", "TR", "TRAIL", "MAX", "PLUS", "PRO", "SE", "LITE", "EKIDEN", "SPIKE", "BOA"}
 
 
 def qc_prods(st, prods):
@@ -3834,7 +3841,7 @@ def qc_prods(st, prods):
             nums = [i for i, w in enumerate(ws[:sl]) if re.fullmatch(r"v?\d+(\.\d+)?\+?|[A-Za-z-]*\d+", w) and i > 1]
             if nums and (shoe or sl < len(ws)):                                 # cut the colour after the model number
                 k = nums[-1] + 1
-                while k < sl and ws[k].upper().strip(",") in OFF33_KEEP:
+                while k < sl and ws[k].upper().strip(",®™") in OFF33_KEEP:   # Nov 6: "GORE-TEX®" kept its ® and missed
                     k += 1
                 t = " ".join(ws[:k])
             elif sl < len(ws):
@@ -4135,6 +4142,8 @@ CLOTH_VEST_WORDS = re.compile(r"hybrid|insulated|shield|\bwind|thermal|\bdown\b|
 CASUAL_BRANDS = {"ambler", "birkenstock", "wolky", "teva", "crocs", "ugg", "blundstone", "dr. martens", "clarks", "oofos", "billy footwear", "vessi", "pony"}   # Ambler (Oct 8): toques, and its only "shoe" is a wool slipper; Pony (Oct 30): retro sneakers in SVP's running collection led the Friday email's shoes at $14.99
 CASUAL_SHOE = re.compile(r"\b(sandal|sandale|clog|sabot|slipper|pantoufle|mule|flip[- ]flops?|ellipse flip|loafer|slide|clearwater cnx|ks86|recovery (flip|slide)|ora recovery|bobs|casual sneaker|leather sneaker|chelsea|traction bootie)s?\b", re.I)   # Oct 19 (mystery shop): Skechers BOBS, Keen KS86 Leather, Xero "Casual Sneaker"
 # court and lifestyle shoes from running brands (ASICS tennis/pickleball lines, retro sneakers)
+MOC_SNEAKER = re.compile(r"\bmoc(?:casin)?s?\b|\bsneakers?\b", re.I)   # Nov 6 (data audit): Merrell Jungle Moc, Antora 3 Thermo Moc, "Hiking Sneakers",
+                                                                        # "Wrapt Sneaker" on the running side (Morphaxis "Trail Running Sneaker" stays)
 COURT_SHOE = re.compile(r"\btyrol\b|pick[el]+ball|\btennis\b|\bpadel\b|\bcourt\b|gel[- ]?(resolution|dedicate|game|challenger|1130|nyc|kahana)|solution speed", re.I)
 # lifestyle lines stores file under running (brand + model; Foot Locker, Oct 4, 2026)
 LIFESTYLE_SHOE = re.compile(r"^(new balance\s+(740|2002r?|9060|530|1906r?)|on\s+(cloud\s?6|cloudtilt|cloudzone|cloud\s?5|cloudnova|roger)"
@@ -4604,7 +4613,8 @@ def tidy_shoes(offers):
             o["g"] = "tops"            # Brooks Shield Hybrid / Run Visible Insulated, Craft SubZ: clothing vests, not hydration vests
         if o["g"] == "shoes":
             if (o["b"] or "").lower() in CASUAL_BRANDS or (o["b"] or "").lower() in BIKE_SHOE_BRANDS or CASUAL_SHOE.search(o["n"]) or SOCCER.search(o["n"]) or COURT_SHOE.search(o["n"]) \
-                    or LIFESTYLE_SHOE.search(f'{o["b"]} {o["n"]}'):
+                    or LIFESTYLE_SHOE.search(f'{o["b"]} {o["n"]}') \
+                    or (MOC_SNEAKER.search(o["n"]) and not re.search(r"\btrail running\b|\brunning sneaker|\bhik(?:e|ing)\b", o["n"], re.I)):
                 continue
             w = shoe_width_from_name(o["n"], name_gender(o["n"]) or o.get("sx"))
             if w == "narrow":
@@ -4626,7 +4636,7 @@ BRAND_CANON = {"hoka one one": "Hoka", "hoka": "Hoka", "asics": "ASICS", "satisf
 
 # US shops often list the parent company or distributor as the vendor (Oct 6, 2026: "Asics Corp." on all 480 US ASICS items,
 # "Brooks Sports, Inc. #105856", "Ing Source, Inc" = Injinji, "Medi USA" = CEP): company words go, then this map
-BRAND_ALIAS = {"kuhl": "KÜHL", "kühl": "KÜHL",   # Oct 30: KÜHL (79) = KUHL (32) on the USA side
+BRAND_ALIAS = {"kuhl": "KÜHL", "kühl": "KÜHL", "farm to feet warehouse": "Farm to Feet",   # Oct 30: KÜHL (79) = KUHL (32) on the USA side
                "acg": "Nike", "nike acg": "Nike",   # Nov 1: a store files Nike ACG under brand "ACG" ("Nike Men's ACG Pegasus Trail"): a second card
                "o'neill sunglasses": "O'Neill", "o’neill sunglasses": "O'Neill", "o'neill": "O'Neill", "o’neill": "O'Neill",   # Oct 31
                "cure hydration": "Cure", "balmoral sports": "Balmoral", "inner self": "Inner Self", "krono nutrition": "Krono", "kronobar": "Krono", "grynd food": "Grynd", "grynd food inc": "Grynd", "fast bundle": "Upika", "upika": "Upika", "brix rechargé par la nature": "Brix", "brix recharge par la nature": "Brix", "asics america": "ASICS", "asics": "ASICS", "brooks sports": "Brooks", "nike usa": "Nike", "nike team sale": "Nike",
@@ -4700,6 +4710,35 @@ def soften_caps(n):
     return " ".join("-".join(part(x) for x in word.split("-")) for word in n.split(" "))
 
 ASICS_KEEP = re.compile(r"\b(lite|show|platinum|wide|extra|gtx|gore|tex|tr|trail|plus|pro|paris|tokyo|mk|sps|elite|max|knit|nyc)\b", re.I)
+
+
+def _fr_key(b, n):
+    """Model words only: no brand, gender, 'running shoes', lower case (to compare shoe names across stores)."""
+    n = re.sub(r"^(M|W|U|Men's|Women's|Unisex)\s+", "", (n or "").strip(), flags=re.I)
+    n = tidy_name(b or "", n).lower()
+    if b and n.startswith(b.lower() + " "):
+        n = n[len(b) + 1:]
+    n = re.sub(r"\s*-?\s*\b(men's|women's|unisex|mens|womens)$", "", n)
+    n = re.sub(r"\b(trail |road )?running shoes?\b|\bshoes?\b", "", n)
+    return re.sub(r"\s+", " ", n).strip(" -")
+
+
+def _fr_cut(b, n, known):
+    """'W Brooks Ghost Trail Atlantic Deep/Black/Green' -> 'W Brooks Ghost Trail': cut the slash-joined colour words (letters on both
+    sides of every '/', so 'S/Lab' stays: one letter) and as many words before them as needed to reach a model other stores sell;
+    no match: cut after the last word with a digit or GTX, else only the slash words."""
+    m = re.search(r"\s((?:[A-Za-z']+\s){0,3}[A-Za-z']{2,}(?:/[A-Za-z' ]*[A-Za-z]{2,})+)$", n)
+    if not m:
+        return n
+    head, tail = n[:m.start()], m.group(1).split()
+    pre = next(i for i, w in enumerate(tail) if "/" in w)          # words before the first slash word
+    for k in range(pre, -1, -1):
+        c = (head + " " + " ".join(tail[:k])).strip()
+        if (b or "").lower() + "|" + _fr_key(b, c) in known:
+            return c
+    words = (head + " " + " ".join(tail[:pre])).split()
+    last = max((i for i, w in enumerate(words) if re.search(r"\d|^gtx$", w, re.I)), default=None)
+    return " ".join(words[:last + 1] if last is not None else words)
 
 
 def tidy_name(b, n):
@@ -4867,9 +4906,54 @@ NOT_ANY_SIDE = re.compile(r"swim ?suits?|swimwear|\bswim (trunks?|shorts?|tops?|
                           r"\bcomforter\b|\bduvet\b", re.I)
 
 
+# Nov 6 (growth's data audit): REI's ski/snow pants and bibs (148), cycling clothing (266), blankets and Confluence/Gazelle dresses and
+# cardigans were on the USA running side. Clothing groups only (an "MTB" sunglass or a bike hydration pack stays). Kept: cross-country ski
+# tights/jackets (Decathlon, winter runners wear them), running "bike shorts" (Hoka Elaro, UA Motion: short tights) unless the brand only
+# makes cycling clothes, dresses with "run" in the name.
+CYCLING_BRANDS = {"canari", "castelli", "rapha", "le col", "endura", "giro", "pearl izumi", "peppermint cycling co", "ostroy", "7mesh",
+                  "specialized", "fox racing", "troy lee designs", "primal", "zoic", "shimano", "assos", "sportful", "velocio", "pactimo"}
+NOT_RUN_CLOTH = re.compile(r"\bsnow\b|(?<!cross-country )(?<!nordic )(?<!xc )\bski (?:pants?|bibs?|jackets?|shell|gloves?|mitts?|mittens?|socks?)\b"
+                           r"|(?<!race )\bbibs?\b(?!\s*(?:belts?|holders?|clips?|toggles?|magnets?|numbers?|boards?|fasten))|\bcycling\b|\bbike (?:jersey|shirt|pants?|tights?|gloves?|socks?|jacket|vest|liner shorts?)\b|\bchamois\b"
+                           r"|\bmtb\b|mountain bike|\bblankets?\b(?!\s+jacket)|\bcardigans?\b|\bdress(?:es)?\b", re.I)
+CLOTH_GROUPS = ("tops", "bottoms", "bras", "socks", "gloves", "headwear")
+
+
+def not_run_cloth(o):
+    n = o.get("n") or ""
+    if o.get("g") not in CLOTH_GROUPS and not re.search(r"\bblankets?\b", n, re.I):
+        return False
+    if re.search(r"\brun(?:ning)?\b", n, re.I):
+        return False               # Kiprun "Cycling Shorts, Run 900 Light", a running dress
+    if NOT_RUN_CLOTH.search(n):
+        return True
+    return bool(re.search(r"\bbike shorts?\b", n, re.I) and (o.get("b") or "").strip().lower() in CYCLING_BRANDS)
+
+
+def odd_regular(items):
+    """Nov 6 (growth's data audit): REI's The North Face "Snoga Pants" at US$163.83 "was" US$750: a regular price 5x the brand's usual for that
+    category (8+ items), on an ordinary sale price (at most 2x the usual) that it claims to cut by 75%+, is a store typo, not a deal. The
+    "was" goes (the size shows at full price, which is the price the store really asks). A looser rule (the gift page's 1.8x) hit real
+    $170 Stella McCartney leggings and $750 Helly Hansen jackets."""
+    regs = {}
+    for it in items:
+        r = max((e[3] for e in it["sz"] if len(e) > 3 and e[3]), default=0)
+        if r:
+            regs.setdefault(((it.get("b") or "").lower(), it.get("g")), []).append(r)
+    for it in items:
+        rs = regs.get(((it.get("b") or "").lower(), it.get("g"))) or []
+        if len(rs) < 8:
+            continue
+        med = statistics.median(rs)
+        for e in it["sz"]:
+            if len(e) > 3 and e[3] and e[1] and e[3] > 5 * med and e[1] <= 2 * med and e[3] > 4 * e[1]:
+                e[3] = e[1]
+    return items
+
+
 def display_tidy(items):
     """Nov 5 (growth's search round: "Nike Vaporfly 4 Road Racing Shoes"): the merge key already ignores "Road Racing Shoes" (so the
     cards and shoe pages are right); the card's name drops it too. "Running Shoes" stays: it can carry "Trail" (Tomir 2.0 Trail)."""
+    odd_regular(items)
     for it in items:
         if it.get("g") == "shoes":
             it["n"] = re.sub(r"\s+(?:Road\s+)?Racing\s+Shoes?(?=\s+-\s+(?:Men's|Women's|Unisex)$|$)", "", it["n"])
@@ -4878,7 +4962,7 @@ def display_tidy(items):
 
 def merge(offers):
     """Same product at several stores -> one item; each size keeps the cheapest store."""
-    offers = [o for o in offers if not NOT_ANY_SIDE.search(o.get("n") or "")]
+    offers = [o for o in offers if not NOT_ANY_SIDE.search(o.get("n") or "") and not not_run_cloth(o)]
     for o in offers:
         if (o["b"] or "").strip().lower() in ("not specified", "n/a", "none", "unknown", "default"):   # Brainsport leaves some blank
             m = re.match(r"^(?:(?:Men|Women|Kid)[’']?s\s+)?(\S+)", o["n"])
@@ -4898,6 +4982,20 @@ def merge(offers):
         if re.search(r"[*(\[]\s*final\s*sale\s*[*)\]]", n, re.I):
             o["fs"] = 1                # "*FINAL SALE*", "(FINAL SALE)" (The Trail Runner Store): the card's label says it
         n = re.sub(r"\s*[*(\[]\s*(?:final\s*sale|sale|clearance)\s*[*)\]]\s*", " ", n, flags=re.I).strip()
+        # Nov 6 (data audit): sale words, style codes and colour codes in names made one product several cards
+        if re.search(r"\bfinal\s*sale\b", n, re.I):
+            o["fs"] = 1                # Foveo "Circuit 2 Shoes - Women's - FINAL SALE"
+        n = re.sub(r"(?:\s+-)?\s+\b(?:final\s*sale|clearance|solde|warehouse\s*sale)\b(?=\s+-\s|$)", "", n, flags=re.I)   # Performance Running,
+        n = re.sub(r"\s+-\s+\d{6}-\d{3}(?=\s+-\s|$)", "", n)                       # La Boutique du Lac, Farm to Feet; PR Run & Walk "211542-001"
+        if o["g"] in ("shoes", "tops", "bottoms", "bras", "socks", "headwear", "gloves"):   # Performance Running " - 010 Black", " - C15 Pearl Grey"
+            n = re.sub(r"\s+-\s+[A-Z]?\d{2,3}\s+(?!(?:units?|servings?|sachets?|portions?|oz|ml|l|mm|cm|in|pack|pk|count)\b)[A-Za-z][A-Za-z /]*?(?=\s+-\s|$)", "", n, flags=re.I)
+            n = re.sub(r"\s*-?,\s*[A-Za-z][A-Za-z ]*/[A-Za-z][A-Za-z /]*(?=\s+-\s|$)", "", n)   # District Vision ", Black/Dove", Athletic Annex "-, IVORY/FIRE"
+        m = re.search(r"\s+(F/W|H/M)(?=\s+-\s|$)", n)        # La Boutique du Lac "Aero Glide 4 F/W" (femme/women); SAXX "W/F" = with fly
+        if m and o["g"] in ("shoes", "tops", "bottoms", "socks"):
+            n = n[:m.start()] + n[m.end():] + (" - Women's" if "F" in m.group(1) else " - Men's")
+            o["sx"] = ["women"] if "F" in m.group(1) else ["men"]
+        if o.get("st") == "runningroom":   # "- RN2387", "- RACE#ATTACH", "- 7710": store codes
+            n = re.sub(r"\s+-\s+(?:[A-Z]{1,3}\d{3,6}|RACE#\w+|\d{4})$", "", n)
         m = re.match(r"^\(([MWU])\)\s+(.+)", n)
         if m:
             n = m.group(2) + ("" if re.search(r"\b(wom[ae]n|men)[’']?s\b", m.group(2), re.I)
@@ -4943,6 +5041,9 @@ def merge(offers):
                                                                     or re.match(r"babolat", o["b"] or "", re.I)
                                                                     or re.search(r"\btest\b", f'{o["b"]} {o["n"]}', re.I)))]
     offers = tidy_clothes(tidy_gear(tidy_nutrition(tidy_shoes(drop_kids(tidy_us_names(offers))))))
+    # Nov 6 (data audit): Frontrunners writes the colourway into shoe names with no dash ("W Brooks Ghost Trail Atlantic Deep/Black/Green"),
+    # so every colour became its own card. Other stores' shoe names (brand, model words) tell where the model ends.
+    known = {(o["b"] or "").lower() + "|" + _fr_key(o["b"], o["n"]) for o in offers if o["g"] == "shoes" and o.get("st") not in GENDER_PREFIX_STORES}
     items, tidied = {}, []
     for o in offers:
         if ((o["b"] or "").strip() in ("", "0") or re.fullmatch(r"\d+", (o["b"] or "").strip())) and o.get("st") in OWN_BRAND:   # brand stores that leave the brand blank or "0"
@@ -4955,6 +5056,8 @@ def merge(offers):
         if o.get("st") in GENDER_PREFIX_STORES:
             o["n"] = re.sub(r"\s*\*[^*]{1,12}\*", "", o["n"]).strip()                 # "*SALE*"
             o["n"] = re.sub(r"\s+-\s*[^-]*/[^-]*$", "", o["n"]) if o["g"] == "shoes" else o["n"]   # " - White/Black" colour
+            if o["g"] == "shoes":
+                o["n"] = _fr_cut(o["b"], o["n"], known)                              # " Atlantic Deep/Black/Green" colour, no dash
             o["n"] = tidy_name(o["b"] or "", o["n"])                                  # brand first, then the gender
             m = re.match(r"^(M|W|U|Unisex|Men[’']?s|Women[’']?s)\s+(.+)", o["n"], re.I)
             if m:

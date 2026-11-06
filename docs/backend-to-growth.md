@@ -1185,3 +1185,36 @@ BLOCKED: #5 needs the ~25-store price-adjustment table (store, honours a drop? h
 - **Founding Dec 2 link send:** will be a paced script through mailer.py (never SQL), built with the checkout.
 - **Timing:** ~240 sends on Nov 27 = ~2.5 min of pacing, fine inside the hourly Friday runs. The real limit is Resend free's 100/day, which is Bastien's upgrade call.
 - **Not done:** the "send_to=me" live test. It emails Bastien, so I'll run it when he or you say go.
+
+## Nov 6 (night): your Nov 6 data audit, fixes 1-8 (backend)
+
+All 8 built and tested on the live store data / today's sale files; they take effect at the next store read (raw offers live only in the
+Actions cache, so I couldn't remerge here). Please re-run your scans after tomorrow's morning read.
+1. **Women's B = narrow (Le Coureur, Frontrunners):** `width_word` now reads FEMME, "W " at the start, WMNS, Ladies, "(W)" and the
+   store's product type ("Womens Shoes - Trail"). Checked on their live products.json: women's B -> regular, D -> wide, 2A -> narrow.
+   It was bigger than Le Coureur: Frontrunners had ~196 women's sizes hidden the same way. Also "XW" now = wide.
+   Not fixed: **Fit2Run** (455 "~N" sizes). Its titles AND tags carry no gender ("Brooks Glycerin Max 3", widths B/D/2A), so I can't tell a
+   women's B from a men's B; calling them regular would show women's shoes in men's sizes. Needs a gender source first (separate job).
+   Athletic Annex's 77 women's ~N are real "2A Narrow": right as is.
+2. **Frontrunners colour names:** the colour run with "/" is cut back to the model name another store sells ("W Brooks Ghost Trail Atlantic
+   Deep/Black/Green" -> Ghost Trail); no match -> cut after the last number/GTX. "S/Lab" stays (one letter).
+3. **Codes + sale words:** "FINAL SALE" (sets the final-sale flag), Clearance, Solde, Warehouse Sale; PR Run & Walk "211542-001";
+   Performance Running " - 010 Black" / " - C15 Pearl Grey" (clothing + shoes only, never "24 Units" / "20 Oz"); ", Black/Dove" and
+   "-, IVORY/FIRE"; La Boutique du Lac "F/W" -> Women's, "H/M" -> Men's; Running Room "- RN2387 / RACE#ATTACH / 7710";
+   brand "Farm to Feet Warehouse" -> Farm to Feet. 75 names change on today's files. SAXX "W/F" left alone (= "with fly").
+4. **Lifestyle shoes:** a store product type "Lifestyle"/"Casual" on footwear is dropped (Foveo Circuit 2); names with moc/moccasin/sneaker
+   drop from shoes. Kept on purpose: "Trail Running Sneaker" (Morphaxis) and **"Hiking Sneakers"** (Speedarc Matis Mid GTX is a real hiking
+   shoe; the same merge feeds the Hiking side). Pushing back on that one row.
+5. **33-off:** "GORE-TEX®" (the ®), MID, LOW, GRVL, CSWP kept: "Accentor Sport 3 GORE-TEX", "X Ultra 4 MID GTX", "Aero Blaze 3 GRVL GTX".
+6. **Ski/snow + bike + blankets + dresses:** clothing groups only, both sides: snow/ski pants and bibs, cycling/bike jerseys, bib shorts,
+   chamois, MTB; "bike shorts" only from cycling brands (Canari, Rapha, Endura…) so Hoka Elaro / UA Motion stay; blankets; dresses and
+   cardigans; anything with "run"/"running" in the name stays (Kiprun "Cycling Shorts, Run 900"); race bib belts stay; cross-country ski
+   tights/jackets stay (Canada, Decathlon: winter runners). Today: 373 US listings, 2 CA (OR Snowcrew Bibs + the Kiprun one, now kept).
+   Confluence's product-type grouping NOT done (its dresses/cardigan are gone with this rule; "Ultralight - Women's" twins remain).
+7. **Odd regular price:** your 1.8x gift-page rule hit 32 CA + 36 US real prices (Stella McCartney leggings $170, Helly Hansen jackets).
+   Shipped a strict one instead: regular > 5x the brand's usual for that category AND the sale price ordinary (<= 2x usual) AND 75%+ off ->
+   the "was" goes (shows at full price, the price the store really asks). Today it hits exactly one: TNF Snoga Pants.
+8. **Playmakers (and The Feed):** when product.js 404s, livecheck reads the page's JSON-LD offers (price, InStock, ListPrice). One size
+   can't be told apart (offers name colour/size, not our variant id): without a variant any offer counts; with one, only when every offer
+   is on sale at that price, else "can't tell". So featured checks work; per-size shoe checks for posts still skip Playmakers.
+Also in this push: the FR Black Friday live-page title ("ces aubaines course sont-elles vraies?").
