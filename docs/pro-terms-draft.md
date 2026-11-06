@@ -24,14 +24,14 @@ What Fox Pro is not: we don't sell gear, and we can't make a store change a pric
 - **Founding price: $36 a year** (that's $3 a month), for the first 100 numbered spots only. Spot 101 and after pay the regular price.
 - **Regular price: $45 a year.**
 - You pay in Canadian dollars on our Canada side and in US dollars on our USA side: the same numbers (US$36 a year founding, US$45 regular; Bastien, Oct 31).
-- **Plus applicable taxes.** Checkout shows the taxes and the total before you pay. [LAWYER + accountant: GST/HST, BC PST, QST on a digital membership; showing the all-in price.]
+- **No tax added. That's the total.** The price you see is the full amount you pay; we add no sales tax. [Accountant: GST/HST, BC PST, QST registration thresholds; revisit if we must start charging tax, with 45 days' notice before a renewal.]
 - Yearly only, paid upfront for the year. Checkout shows the total yearly price first.
 - **Founding price locked while you stay.** Your $36 renews every year for as long as your membership renews without a gap. The lock ends if you cancel and your year runs out, or if a renewal payment fails and isn't fixed within [N] days. If you come back later, you pay that day's price.
 - Payments go through Stripe. We never see or store your full card number.
 
 ## 4. Automatic yearly renewal
 - Fox Pro renews automatically every year on the same date, with the same payment method, at your price.
-- **We email you 30 days before each renewal** with the date, the amount (taxes included) and a link to cancel. [LAWYER: Québec and other provinces' renewal-notice rules (timing, content, and whether the contract may renew without the notice); US state auto-renewal laws for the USA side, e.g. California.]
+- **We email you 45 days before each renewal** with the date, the amount and currency you'll pay, and a link to cancel. [LAWYER: Québec and other provinces' renewal-notice rules (timing, content, and whether the contract may renew without the notice); US state auto-renewal laws for the USA side, e.g. California.]
 - If a renewal payment fails, we email you and try again over [N] days. If it still doesn't go through, Pro ends and your account goes back to free. Your watchlist stays; items over the free limit stop being watched.
 
 ## 5. Cancel anytime, online
@@ -44,7 +44,7 @@ What Fox Pro is not: we don't sell gear, and we can't make a store change a pric
 
 ## 6. Refunds
 - **Full refund within 30 days of your first payment.** One request is enough: tap "Refund me" in My account or write to hello@thegearfox.com. No form, no reason needed. [BASTIEN: does the 30 days also apply after each yearly renewal charge? I recommend yes. People who forget about a renewal ask their bank for the money back otherwise, which costs us fees.]
-- We refund the full amount, taxes included, to your original payment method within [N] business days. Your bank may take a few more days to show it.
+- We refund the full amount to your original payment method within [N] business days. Your bank may take a few more days to show it.
 - A refund ends Pro right away. [BASTIEN: does a refunded founding number go back to the pool or stay retired?]
 - **After 30 days, no partial refunds** for unused months, except where the law requires one [LAWYER] or in the cases in sections 2, 10 and 11.
 - Free months from referrals have no cash value.
@@ -121,14 +121,14 @@ Ce que Fox Pro n'est pas : on ne vend pas d'équipement, et on ne peut pas oblig
 - **Prix fondateur : 36 $ par année** (soit 3 $ par mois), pour les 100 premières places numérotées seulement. À partir de la place 101, c'est le prix régulier.
 - **Prix régulier : 45 $ par année.**
 - Vous payez en dollars canadiens du côté Canada et en dollars américains du côté États-Unis ([montants en $ US]) [BASTIEN].
-- **Plus les taxes applicables.** La page de paiement affiche les taxes et le total avant que vous payiez. [LAWYER + comptable : TPS/TVH, TVP de la C.-B., TVQ]
+- **Aucune taxe ajoutée. C'est le total.** Le prix affiché est le montant complet que vous payez ; nous n'ajoutons aucune taxe de vente. [Comptable : seuils d'inscription TPS/TVH, TVP de la C.-B., TVQ]
 - Abonnement annuel seulement, payé d'avance. La page de paiement affiche d'abord le prix total de l'année.
 - **Prix fondateur bloqué tant que vous restez membre.** Votre 36 $ se renouvelle chaque année tant que l'abonnement se renouvelle sans interruption. Il se perd si vous annulez et que votre année se termine, ou si un paiement de renouvellement échoue et n'est pas réglé dans les [N] jours. Si vous revenez plus tard, vous payez le prix du jour.
 - Les paiements passent par Stripe. On ne voit et ne garde jamais votre numéro de carte complet.
 
 ## 4. Renouvellement annuel automatique
 - Fox Pro se renouvelle automatiquement chaque année à la même date, avec le même mode de paiement, à votre prix.
-- **On vous écrit 30 jours avant chaque renouvellement** avec la date, le montant (taxes comprises) et un lien pour annuler. [LAWYER : règles du Québec et des autres provinces sur l'avis de renouvellement ; lois des États américains pour le côté É.-U.]
+- **On vous écrit 45 jours avant chaque renouvellement** avec la date, le montant et la devise, et un lien pour annuler. [LAWYER : règles du Québec et des autres provinces sur l'avis de renouvellement ; lois des États américains pour le côté É.-U.]
 - Si un paiement de renouvellement échoue, on vous écrit et on réessaie pendant [N] jours. S'il ne passe toujours pas, Pro prend fin et votre compte redevient gratuit. Votre liste de suivi reste ; les articles au-delà de la limite gratuite ne sont plus suivis.
 
 ## 5. Annulez en tout temps, en ligne
@@ -141,7 +141,7 @@ Ce que Fox Pro n'est pas : on ne vend pas d'équipement, et on ne peut pas oblig
 
 ## 6. Remboursements
 - **Remboursement complet dans les 30 jours suivant votre premier paiement.** Une seule demande suffit : touchez « Me rembourser » dans Mon compte ou écrivez à hello@thegearfox.com. Pas de formulaire, pas besoin de raison. [BASTIEN : aussi après chaque renouvellement ?]
-- On rembourse le montant complet, taxes comprises, sur votre mode de paiement d'origine dans les [N] jours ouvrables. Votre banque peut prendre quelques jours de plus pour l'afficher.
+- On rembourse le montant complet sur votre mode de paiement d'origine dans les [N] jours ouvrables. Votre banque peut prendre quelques jours de plus pour l'afficher.
 - Un remboursement met fin à Pro tout de suite. [BASTIEN : le numéro fondateur retourne-t-il au lot ?]
 - **Après 30 jours, aucun remboursement partiel** des mois non utilisés, sauf si la loi l'exige [LAWYER] ou dans les cas des sections 2, 10 et 11.
 - Les mois gratuits obtenus par parrainage n'ont aucune valeur en argent.

@@ -1298,3 +1298,24 @@ customer.subscription.updated / .deleted: Stripe Dashboard (test mode) > Develop
   US$36 / US$45 (made in USD, not converted; a member keeps the currency and amount they paid). Checkout on the USA side now reads
   "US$36 a year · No tax added. That's the total." (FR « 36 $ US par an »). Terms §3 names both currencies. Renewal reminder + receipts
   (pieces #3/#4) will repeat the original amount and currency. Queued: funnel.py "BY COUNTRY" section (before Nov 17).
+
+## Nov 6, 23:50 UTC: Bastien's test payment + the "2,239 new" bug
+- Test payment: the welcome line "Founding Fox #001" can only come from pro_status, so the record exists with founding_no 1 in test
+  mode. Counts for the row + each Stripe event once: mail-check.yml now prints a "FOX PRO:" line (counts only); I run it after this push
+  and add the line below.
+- Receipt email: Stripe does NOT email receipts in test mode, so none arrived (expected). In live mode our own purchase email (piece #4:
+  terms + price + renewal date + refund) is the receipt; until #4 ships the welcome line's "A receipt is on its way" is only true live
+  with Stripe receipts turned on. I'll make #4 send it ourselves so we don't depend on a Stripe setting.
+- "New since your last visit 2,239" (of 2,324): not today's renames (those only change ~75 names and land at the next read). The saved list
+  was whatever the FIRST screen of the previous visit held (a search, one category, an email link, the watchlist), so the next visit
+  counted nearly everything as new. Fixed: the list is always every sale deal in your sizes on that side (Canada/USA x running/hiking);
+  a list from the other side counts nothing; a "new" count above half of today's deals is treated as a stale list (shows nothing, logs
+  filter "newset-reset"). Old saved lists have no side mark, so the first visit after this ships shows no "new" count, then normal.
+  Site test "'New since your last visit' never counts from a stale list".
+- Nov 7, 00:05 UTC: your compliance catch + checkout musts, done: terms draft says "We email you 45 days before each renewal" and
+  "No tax added. That's the total." (EN/FR; refund lines no longer say "taxes included"). Checkout: "Renews automatically on <date> at
+  $36 CAD until you cancel." right above the pay button (terms link stays above it); USA side: an UNTICKED box "I agree: Fox Pro renews
+  automatically every year on <date> at US$36 until I cancel. I can cancel online anytime in My account." and the pay button stays
+  locked until it's ticked (analytics pro-checkout-agree). Site test covers both. Bastien's ChatGPT design can swap in as CSS later.
+- Piece #3/#5 spec (My account grid of "I bought it" items: tiles, status pills, one rust "Dropped $Z: claim it", sort, empty state,
+  header totals) received; building it Nov 11-13 with the store list from docs/price-adjust-table-nov6.md.

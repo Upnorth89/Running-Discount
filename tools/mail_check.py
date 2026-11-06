@@ -202,6 +202,26 @@ try:
 except Exception as e:
     out.append(f"SAFE LINKS CHECK: failed ({str(e)[:160]})")
 
+# Nov 6 (Fox Pro piece #1): members and Stripe events, counts only (no address, no Stripe ids)
+try:
+    r = requests.get(f"{sb}/rest/v1/pro_members", headers=SH, timeout=30,
+                     params={"select": "founding_no,plan,currency,amount_cents,status,cancel_at_end,current_period_end,livemode,refunded_at,first_paid_at"})
+    r.raise_for_status()
+    ms = r.json()
+    ev = requests.get(f"{sb}/rest/v1/pro_events", headers=SH, timeout=30, params={"select": "type,received_at"})
+    ev.raise_for_status()
+    evs = ev.json()
+    kinds = {}
+    for e in evs:
+        kinds[e["type"]] = kinds.get(e["type"], 0) + 1
+    out.append("FOX PRO: " + (f"{len(ms)} members: " + "; ".join(
+        f"#{m['founding_no'] or '-'} {m['plan']} {m['amount_cents'] / 100:g} {m['currency'].upper()} {m['status']}"
+        f"{' (test)' if not m['livemode'] else ''}{' cancels at end' if m['cancel_at_end'] else ''}"
+        f"{' refunded' if m['refunded_at'] else ''} renews {(m['current_period_end'] or '?')[:10]} paid {m['first_paid_at'][:16]}" for m in ms)
+        if ms else "0 members") + f" | Stripe events recorded once each: {len(evs)} ({', '.join(f'{k} {v}' for k, v in sorted(kinds.items()))})")
+except Exception as e:
+    out.append(f"FOX PRO: couldn't read ({str(e)[:160]})")
+
 text = "\n".join(out)
 print(text)
 if os.environ.get("GITHUB_ACTIONS"):

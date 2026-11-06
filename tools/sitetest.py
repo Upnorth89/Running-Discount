@@ -867,7 +867,8 @@ def site_flow(base, per, accented):
                 if not page.locator("#coCard").count():
                     return "no card slot for a member on this visit: skipped"
                 txt = page.inner_text("#coCard")
-                for w in ("$36", "CAD a year", "No tax added", "Renews on", "45 days before", "Full refund within 30 days", "Cancel online", "Read the Fox Pro terms"):
+                for w in ("$36", "CAD a year", "No tax added", "Renews on", "45 days before", "Full refund within 30 days", "Cancel online", "Read the Fox Pro terms",
+                          "Renews automatically on", "$36 CAD until you cancel"):
                     assert w in txt, f"checkout screen is missing {w!r}"
                 order = page.evaluate("() => { const a = document.getElementById('coTerms'), b = document.getElementById('coPay');"
                                       " return !!(a && b && (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING)) }")
@@ -886,11 +887,41 @@ def site_flow(base, per, accented):
                 go("?pro=checkout&lang=fr")
                 ft = page.inner_text("#coCard") if page.locator("#coCard").count() else ""
                 assert "Lire les conditions Fox Pro" in ft and "Aucune taxe" in ft, "French checkout screen missing its words"
-                return "members only, words (total, no tax, renewal + 45-day email, refund, cancel), terms before pay, pay opens Stripe with the member key, 'not open yet' when closed, French"
+                page.evaluate("() => localStorage.setItem('gf-country', 'us')")     # USA: California auto-renewal consent, unticked
+                go("?pro=checkout&lang=en&c=us")
+                ut = page.inner_text("#coCard") if page.locator("#coCard").count() else ""
+                assert "US$36" in ut and "I agree" in ut, "US checkout: no US$36 or no renewal consent box"
+                assert page.locator("#coAgree").is_checked() is False, "US consent box comes ticked"
+                assert page.locator("#coPay").is_disabled(), "US pay button works before the renewal consent is ticked"
+                page.check("#coAgree")
+                assert not page.locator("#coPay").is_disabled(), "ticking the consent box doesn't enable pay"
+                page.evaluate("() => localStorage.setItem('gf-country', 'ca')")
+                return "members only, words (total, no tax, renewal + 45-day email, refund, cancel, renews automatically), terms before pay, pay opens Stripe with the member key, 'not open yet' when closed, French, USA consent box unticked + pay locked until ticked"
             finally:
                 page.evaluate("() => localStorage.removeItem('gf-sub')")
                 go("")
         check("Fox Pro checkout screen (before Stripe)")(pro_checkout, page)
+
+        def new_since():   # Nov 6 (Bastien's phone: "New since your last visit 2,239" over 2,324 deals): never a count from a stale or narrow list
+            prof = page.evaluate("() => localStorage.getItem('rd-profile')")
+            if not prof:
+                return "no saved sizes on this visit: skipped"
+            def visit(base):
+                page.evaluate("b => { localStorage.setItem('gf-last', JSON.stringify(b)); localStorage.removeItem('gf-base') }", base)
+                page.goto(base_url, wait_until="domcontentloaded")
+                page.wait_for_selector("section.grp .deal", timeout=20000)
+                page.wait_for_timeout(600)
+                return page.evaluate("() => window.gfNewCount()")
+            old = int(__import__("time").time() * 1000) - 7 * 3600 * 1000
+            r1 = visit({"at": old, "keys": ["x|y|shoes|0"] * 5, "c": "ca|run"})          # a first screen that held 5 deals
+            assert r1["n"] <= r1["all"] / 2, f"a 5-deal saved list gave {r1['n']} new of {r1['all']}"
+            r2 = visit({"at": old, "keys": [], "c": "us|run"})                         # saved on the USA side
+            assert r2["n"] == 0, f"a list from the USA side gave {r2['n']} new"
+            saved = page.evaluate("() => JSON.parse(localStorage.getItem('gf-last')||'{}')")
+            assert len(saved.get("keys") or []) >= r2["all"] * 0.9, f"saved {len(saved.get('keys') or [])} keys for {r2['all']} deals in your size"
+            return f"stale 5-deal list -> {r1['n']} new, other side -> 0, saved list = every sale deal in your sizes ({len(saved['keys'])})"
+        base_url = base
+        check("'New since your last visit' never counts from a stale list")(new_since, page)
 
         def pro_poll():   # Oct 28 (Bastien: "put all 6 together"): after joining the waitlist, "What would you use most?" with 6 Pro ideas
             page.goto(base + "?propoll=1", wait_until="domcontentloaded")
