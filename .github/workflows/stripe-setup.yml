@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       what:
-        description: "check | portal | webhook | all"
+        description: "check | portal | prices | webhook | checkout | all"
         required: true
         default: "check"
 
@@ -28,7 +28,7 @@ jobs:
         with:
           version: latest
       - name: Stripe key check / portal (temporary helper)
-        if: inputs.what != 'webhook'
+        if: inputs.what != 'webhook' && inputs.what != 'checkout'
         run: |
           set -e
           NONCE=$(openssl rand -hex 24); echo "::add-mask::$NONCE"
@@ -38,8 +38,9 @@ jobs:
           call() { curl -sS -H "x-setup-nonce: $NONCE" "https://$PROJECT.supabase.co/functions/v1/stripe-setup?do=$1"; echo; }
           echo "KEY CHECK: $(call check)"
           if [ "${{ inputs.what }}" = "portal" ] || [ "${{ inputs.what }}" = "all" ]; then echo "PORTAL: $(call portal)"; fi
+          if [ "${{ inputs.what }}" = "prices" ] || [ "${{ inputs.what }}" = "all" ]; then echo "PRICES: $(call prices)"; fi
       - name: Remove the temporary helper
-        if: always() && inputs.what != 'webhook'
+        if: always() && inputs.what != 'webhook' && inputs.what != 'checkout'
         run: |
           supabase functions delete stripe-setup --project-ref "$PROJECT" --yes || true
           supabase secrets unset --project-ref "$PROJECT" --yes SETUP_NONCE || true
@@ -51,3 +52,13 @@ jobs:
           sleep 5
           code=$(curl -s -o /dev/null -w '%{http_code}' -X POST "https://$PROJECT.supabase.co/functions/v1/stripe-webhook" -d '{}')
           echo "WEBHOOK URL: https://$PROJECT.supabase.co/functions/v1/stripe-webhook (unsigned test answered $code: 503 = secret not saved yet, 400 = refusing unsigned, both correct)"
+      - name: Deploy the checkout (test mode)
+        # Nov 7: PRO_CHECKOUT=test opens it on the sandbox key only (a live key answers "closed" until it says live)
+        if: inputs.what == 'checkout' || inputs.what == 'all'
+        run: |
+          set -e
+          supabase secrets set --project-ref "$PROJECT" --yes PRO_CHECKOUT=test >/dev/null
+          supabase functions deploy pro-checkout --project-ref "$PROJECT" --yes --no-verify-jwt --use-api
+          supabase functions deploy stripe-webhook --project-ref "$PROJECT" --yes --no-verify-jwt --use-api
+          sleep 6
+          echo "CHECKOUT (fake key, expect not_member 404): $(curl -s -w ' %{http_code}' -X POST -H 'content-type: application/json' "https://$PROJECT.supabase.co/functions/v1/pro-checkout" -d '{"k":"00000000-0000-0000-0000-000000000000"}')"

@@ -134,6 +134,7 @@ def stub(ctx):
     # sign-up/analytics functions answer "null" (nothing reaches Supabase); trackers and Google stay out; photos skipped (speed)
     ctx.add_init_script(NO_KEEPALIVE)      # a keepalive send skips the routes below and reached the real database (Oct 28)
     ctx.route("**/rest/v1/rpc/**", lambda r: r.fulfill(status=200, content_type="application/json", body="null"))
+    ctx.route("**/functions/v1/**", lambda r: r.fulfill(status=403, content_type="application/json", body='{"error":"closed"}'))   # Nov 7: Fox Pro checkout
     ctx.route(re.compile(r"umami|googletagmanager|accounts\.google|gstatic"), lambda r: r.abort())
     ctx.route(re.compile(r"^https?://(?!127\.0\.0\.1).*\.(jpe?g|png|webp|gif|avif)(\?.*)?$", re.I), lambda r: r.abort())
     # A/B tests (Oct 18): the robot is group A unless a check asks otherwise (test "welcome" B skips the welcome screen)
@@ -844,6 +845,52 @@ def site_flow(base, per, accented):
                 clean()
                 go("")
         check("Fox Pro founding-list card")(pro_card, page)
+
+        def pro_checkout():   # Nov 7 (Fox Pro piece 1): the lead-in before Stripe, members only, ?pro=checkout
+            KEY = "11111111-1111-4111-8111-111111111111"
+            sent = []
+            def fn(r):
+                sent.append(json.loads(r.request.post_data or "{}"))
+                r.fulfill(status=200, content_type="application/json", body=json.dumps({"url": base + "?stripe-test=1"}))
+            def go(q):
+                page.goto(base + q, wait_until="domcontentloaded")
+                page.wait_for_selector("section.grp .deal", timeout=20000)
+                page.wait_for_timeout(500)
+            page.evaluate("() => localStorage.removeItem('gf-sub')")
+            try:
+                go("?pro=checkout")
+                assert not page.locator("#coCard").count(), "the checkout screen shows to a visitor who isn't a member"
+                page.evaluate(f"() => localStorage.setItem('gf-sub', JSON.stringify({{key:'{KEY}',email:'t@example.com',active:true}}))")
+                go("")
+                assert not page.locator("#coCard").count(), "the checkout screen shows without ?pro=checkout"
+                go("?pro=checkout")
+                if not page.locator("#coCard").count():
+                    return "no card slot for a member on this visit: skipped"
+                txt = page.inner_text("#coCard")
+                for w in ("$36", "CAD a year", "No tax added", "Renews on", "45 days before", "Full refund within 30 days", "Cancel online", "Read the Fox Pro terms"):
+                    assert w in txt, f"checkout screen is missing {w!r}"
+                order = page.evaluate("() => { const a = document.getElementById('coTerms'), b = document.getElementById('coPay');"
+                                      " return !!(a && b && (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING)) }")
+                assert order, "the terms link isn't before the pay button"
+                assert "$3/month" not in txt and "for life" not in txt.lower(), "checkout says $3/month or 'for life'"
+                page.route("**/functions/v1/pro-checkout", fn)
+                with page.expect_navigation(timeout=10000):
+                    page.click("#coPay")
+                assert "stripe-test=1" in page.url, f"pay didn't open the payment page ({page.url})"
+                assert sent and sent[0].get("k") == KEY and sent[0].get("side") in ("ca", "us"), f"checkout sent {sent!r}"
+                page.unroute("**/functions/v1/pro-checkout", fn)
+                go("?pro=checkout")
+                page.click("#coPay"); page.wait_for_timeout(800)
+                msg = page.inner_text("#coMsg")
+                assert "aren't open yet" in msg, f"a closed checkout says {msg!r}"
+                go("?pro=checkout&lang=fr")
+                ft = page.inner_text("#coCard") if page.locator("#coCard").count() else ""
+                assert "Lire les conditions Fox Pro" in ft and "Aucune taxe" in ft, "French checkout screen missing its words"
+                return "members only, words (total, no tax, renewal + 45-day email, refund, cancel), terms before pay, pay opens Stripe with the member key, 'not open yet' when closed, French"
+            finally:
+                page.evaluate("() => localStorage.removeItem('gf-sub')")
+                go("")
+        check("Fox Pro checkout screen (before Stripe)")(pro_checkout, page)
 
         def pro_poll():   # Oct 28 (Bastien: "put all 6 together"): after joining the waitlist, "What would you use most?" with 6 Pro ideas
             page.goto(base + "?propoll=1", wait_until="domcontentloaded")

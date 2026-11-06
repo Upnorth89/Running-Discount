@@ -2,6 +2,7 @@
 // It never returns or logs the key: only "test"/"live" mode, "ok" or Stripe's error code.
 // Actions: ?do=check   -> asks Stripe for the account balance (proves STRIPE_SECRET_KEY works)
 //          ?do=portal  -> sets the customer portal (cancel at period end, no reason asked, no retention offer)
+//          ?do=prices  -> Fox Pro yearly prices with lookup keys (Nov 7)
 // Guard: the caller must send the SETUP_NONCE secret the workflow set a moment before (random per run).
 const KEY = Deno.env.get("STRIPE_SECRET_KEY") ?? "";
 const NONCE = Deno.env.get("SETUP_NONCE") ?? "";
@@ -65,6 +66,22 @@ Deno.serve(async (req) => {
         card_update: c.features?.payment_method_update?.enabled, invoices: c.features?.invoice_history?.enabled,
       } : undefined,
     });
+  }
+  if (what === "prices") {      // Nov 7: Fox Pro yearly prices (CAD now; USD once Bastien sets the amounts), found later by lookup_key
+    const want = [["fox_pro_founding_cad", "cad", 3600, "Founding Fox (#001-#100)"], ["fox_pro_regular_cad", "cad", 4500, "Fox Pro"]];
+    let prod = (await stripe("/products/search?query=" + encodeURIComponent("metadata['gf']:'fox_pro'"))).j?.data?.[0];
+    if (!prod) prod = (await stripe("/products", new URLSearchParams({ name: "Fox Pro (The Gear Fox)", "metadata[gf]": "fox_pro",
+      description: "Yearly membership: same-morning drop alerts, unlimited watchlist, full price history, price protection." }))).j;
+    if (!prod?.id) return out({ mode: m, result: "product failed" });
+    const res: Record<string, string> = {};
+    for (const [look, cur, cents, nick] of want) {
+      const have = (await stripe(`/prices?lookup_keys[]=${look}&limit=1`)).j?.data?.[0];
+      if (have && have.unit_amount === cents && have.active) { res[look] = `kept ${cents / 100} ${cur}/year`; continue; }
+      const r = await stripe("/prices", new URLSearchParams({ product: prod.id, currency: String(cur), unit_amount: String(cents),
+        "recurring[interval]": "year", lookup_key: String(look), transfer_lookup_key: "true", nickname: String(nick), tax_behavior: "inclusive" }));
+      res[look] = r.status === 200 ? `made ${Number(cents) / 100} ${cur}/year` : (r.j?.error?.message || `http ${r.status}`);
+    }
+    return out({ mode: m, product: prod.id ? "ok" : "missing", prices: res });
   }
   return out({ error: "unknown action" }, 400);
 });

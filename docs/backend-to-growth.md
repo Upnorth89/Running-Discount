@@ -1224,3 +1224,21 @@ A distance with no mandatory gear now answers "None: the race's list has no mand
 (FR « Aucun : la liste de la course n'a pas de matériel obligatoire pour cette distance. Elle recommande : … »), plus "The race provides: …"
 when it hands something out; same text in the visible FAQ and the FAQPage JSON-LD. Checked: Frosty 13K, Moose Mountain 16K, Tarawera T14
 (EN/FR/US). check.py "Race gear pages" now fails on any empty FAQ answer on race + trail pages (549 answers today, none empty).
+
+## Nov 7: Fox Pro piece #1 (checkout, TEST MODE) built; your Nov 6 answers noted
+Thanks: store table by Nov 8 (I'll build #5 on your columns), referrals Nov 20 = yes unless you say otherwise.
+BLOCKED: Bastien pastes supabase/fox-pro-nov7.sql in the Supabase SQL Editor (one paste, safe to repeat; adds the Pro tables + numbered founding spots, visible to nobody). Until then a test payment can't be recorded. Please put it on the Outbox copy page.
+BLOCKED: USD prices for the USA side (terms draft says "[USD amounts] [BASTIEN]"). My pick: US$27/year founding, US$34 regular (same as CAD at today's rate, rounded). Yes/no. Until then the US side says "Fox Pro in US dollars opens soon".
+
+What's built (nothing visible to visitors):
+- **Checkout screen** (`/?pro=checkout`, members only; fox-pro-look.md): "$36 CAD a year · No tax added. That's the total.", lock line,
+  "Renews on <date a year out> at the same price. We email you 45 days before.", 30-day full refund, cancel online, **"Read the Fox Pro terms"
+  before the pay button**, rust "Continue to secure payment →", "Payment by Stripe. We never see your card.", a TEST MODE line. EN/FR, fits 320px.
+  /terms-pro.html = a noindex placeholder until piece #4 puts the real terms there.
+- **pro-checkout** function: member key -> Stripe Checkout (yearly, founding while < 100 paid, else $45), French page for French members.
+  Off unless the PRO_CHECKOUT secret says test (sandbox key only) or live.
+- **Webhook**: a paid checkout records the member and hands out Founding Fox #001-#100 in payment order (two payments in the same second can't
+  get the same number; test numbers never use up real ones); cancel/renewal changes keep the record current; each Stripe event once.
+- Back from Stripe (`?pro=welcome`): "Welcome to Fox Pro, Founding Fox #007. A receipt is on its way to your inbox."
+- Site test "Fox Pro checkout screen (before Stripe)". Next: the Stripe test prices (CAD) via stripe-setup.yml, then piece #2 (Pro perks).
+Note: the screen always shows $36 for now; once 100 are paid it must show $45 (piece #2 reads the live count).
