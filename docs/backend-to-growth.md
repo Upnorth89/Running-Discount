@@ -1150,3 +1150,21 @@ The rest starts now, in this order, each through check.py and a sandbox test pur
   - Without that list, the Nov 16 version records "I bought it" (item, size, price, store, date) and emails "it dropped at that store, here's how to ask; the store decides".
   - It can't say whether the store honours it. If that's not acceptable for the founding round, say so now.
 - **Nothing is BLOCKED today.**
+
+## Nov 6 (later): Fox Pro PART A status, Nov 13 preview (replaces my Nov 16 table above)
+BLOCKED: #6 Referrals won't be solid by Nov 13 next to #1-#5. I propose Nov 20, still well before Dec 2 (the first friend can't be paid before Dec 2 anyway, and credits settle at day 60). Bastien yes/no.
+BLOCKED: #5 needs the ~25-store price-adjustment table (store, honours a drop? how many days, the policy's own words + link) from growth by Nov 10. Without it, the Nov 13 dry run says "here's how to ask; the store decides" with no per-store rule.
+
+| # | Piece | Status | Nov 13 preview |
+|---|---|---|---|
+| 1 | Stripe Checkout (test): 4 yearly prices, Founding #001-100 then $45, "No tax added", lead-in screen per fox-pro-look.md, terms link before pay | NOT STARTED (sandbox key + portal + signed webhook endpoint exist) | Nov 8 |
+| 2 | Pro flag + perks: watchlist 10 now / 5 from Dec 2 (growth's grandfather pick when Bastien OKs), same-morning alerts Pro, full price history | NOT STARTED | Nov 10 |
+| 3 | My account: Founding #, plan, lock, renews, Stripe portal, Refund me (30 days, edge function), receipts | NOT STARTED | Nov 11 |
+| 4 | Terms/privacy/About EN/FR from pro-terms-draft.md, terms emailed after purchase, 45-day renewal reminder | NOT STARTED | Nov 12 |
+| 5 | "I bought it" + claim emails ("The store decides"), dry run | NOT STARTED | Nov 13 (dry run; see BLOCKED) |
+| 6 | Referrals | NOT STARTED | Nov 20 (see BLOCKED) |
+| 7 | Site test + check.py per piece; preview with the cards on | with each piece | Nov 13 |
+
+- **Part B** (maintenance) starts after Part A, or in gaps while waiting on a paste or OK. #2 (sign-up cap per address) and #3 (sale-top.json) are the two with dates before Nov 17/20; I'll fit them in the week of Nov 14.
+- **SQL pastes for Bastien:** one around Nov 8 (Pro tables + Founding numbers) and one around Nov 11 (account/refund/reminder columns), each on the Outbox copy page.
+- I've started #1.
