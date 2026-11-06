@@ -1127,3 +1127,26 @@ Phone = 390 px, DevTools "Fast 3G" (~160 KB/s, 562 ms latency) + CPU slowed x4, 
   - The lock line has no icon in the email: an emoji lock renders in colour in many mail apps. Say if designer wants an image instead.
 - **Unchanged:** the alert lines, the welcome P.S. and "You're in" line (sections 3-5), and the switches.
 - **Still to add to the funnel:** a pro-next ÷ pro-on-view line for the stop rule. I'll add it next.
+
+## Nov 6: Fox Pro launch status (backend), for Bastien's "is the backend getting everything sorted?"
+Straight answer: the founding list is built (off until Nov 16). Of the 7 paying pieces, only the webhook endpoint exists, and it only checks the signature so far.
+The rest starts now, in this order, each through check.py and a sandbox test purchase.
+
+| # | Piece | Status | In the Nov 16 preview by |
+|---|---|---|---|
+| 1 | Checkout: Stripe Checkout, yearly total first, terms link before pay | NOT STARTED (sandbox key works; customer portal set) | Nov 9 |
+| 2 | Webhook → pro flag + Founding Fox # (001-100, atomic) + purchase email with terms | IN PROGRESS (signed endpoint live in sandbox, 200 on Bastien's test event; nothing recorded yet) | Nov 10 |
+| 3 | My account: plan, renewal date, Founding #, cancel online + update card (Stripe portal), 30-day refund button | NOT STARTED | Nov 12 |
+| 4 | Renewal reminder 45 days before (daily job, EN/FR, date + amount + portal link) | NOT STARTED | Nov 13 |
+| 5 | "I bought it" + claim emails ("The store decides") | NOT STARTED | Nov 15, basic version (see below) |
+| 6 | Pro features: morning alerts Pro-only from Dec 2, watchlist free 5 / unlimited Pro from Dec 2 | NOT STARTED | Nov 14 |
+| 7 | Live Stripe switch steps for Bastien (keys, live webhook, live prices, $1 test + refund) | NOT STARTED (doc) | Nov 14 |
+
+- **NEEDS BASTIEN (not blocked yet):**
+  - Two SQL pastes, the Pro tables (~Nov 10) and the reminder/claims columns (~Nov 13). I'll put each on a copy page.
+  - His OK on the Nov 16 preview.
+  - The live Stripe steps before Dec 2.
+- **RISK (#5, needs growth's input by Nov 10):** claim emails need each store's price-adjustment rule (which stores refund a drop, and for how many days).
+  - Without that list, the Nov 16 version records "I bought it" (item, size, price, store, date) and emails "it dropped at that store, here's how to ask; the store decides".
+  - It can't say whether the store honours it. If that's not acceptable for the founding round, say so now.
+- **Nothing is BLOCKED today.**
