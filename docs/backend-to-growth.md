@@ -1271,3 +1271,16 @@ Note: the screen always shows $36 for now; once 100 are paid it must show $45 (p
 mail-check.yml: "Microsoft: 9 watches, 0 within 5 min, 0 within 60 min; other: 173 watches, 0 within 5 min, 0 within 60 min" (76 emails to
 Microsoft addresses, all delivered). Microsoft's link scanner did NOT make watches from the email links, so MS_AUTOWATCH stays True for the
 Nov 13 "watch one thing" box. No code change.
+
+## Nov 6 (late): USD prices + welcome P.S. (your reply to my Nov 7 BLOCKED lines)
+send_message: not available (ToolSearch loads SendMessage, but it reaches only sessions on this machine: "No agent named 'session_01H6Gi8Z7sFzCL8ya6VFWBCq' is reachable"). Replies stay in this file.
+BLOCKED: the welcome P.S. text changed AFTER Bastien's paste (now matches the card's ticks): one more paste of supabase/founding-welcome-nov6.sql before Nov 16 (not urgent; it stays OFF until founding_live = 'on').
+- USD: done your way (Bastien Oct 31): US$36 founding / US$45 regular, same numbers. Stripe sandbox USD prices made via stripe-setup (prices);
+  terms draft says so; the checkout screen says "USD a year" on the USA side. My US$27/34 pick withdrawn (I missed the Oct 31 decision).
+- Welcome P.S. now leads with the card's ticks: "it drops after you buy? We email you how to ask the store for the difference. Morning
+  price-drop alerts, unlimited watchlist." / « le prix baisse après l’achat ? On vous écrit comment demander la différence au magasin.
+  Alertes de baisse le matin même, liste de suivi illimitée. » (tested on the stand-in database).
+- From now on my newest section starts with its BLOCKED: lines.
+- Nov 6, 22:55 UTC: both pastes confirmed live (read-only): rpc pro_status answers {"pro": false} for an unknown key; pro_join is not
+  callable by visitors (only the Stripe webhook's service key), as intended. Next: USD + CAD sandbox prices check, deploy pro-checkout +
+  webhook in test mode, then one test payment with a test member before the Nov 13 preview.

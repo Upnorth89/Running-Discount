@@ -1,7 +1,7 @@
 // Fox Pro checkout (Nov 7, 2026, piece 1). The site's lead-in screen posts {k, side, lang}; we answer {url} = a Stripe Checkout page.
 // k = the member's own key (subscribers.token, the ?k= of their links): only members can pay (Pro is an upgrade of a member).
 // Price: Founding ($36/year CAD) while fewer than 100 founding spots are paid, else regular ($45/year). Looked up by Stripe lookup_key,
-// so no price id lives in the code. USD prices: only once Bastien sets the amounts (the US side answers "not_yet" until they exist).
+// so no price id lives in the code. USD: the same numbers (US$36 / US$45, Bastien Oct 31).
 // OFF switch: PRO_CHECKOUT secret must be "test" (sandbox key only) or "live"; anything else answers "closed".
 const KEY = Deno.env.get("STRIPE_SECRET_KEY") ?? "";
 const OPEN = Deno.env.get("PRO_CHECKOUT") ?? "";

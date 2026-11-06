@@ -68,7 +68,9 @@ Deno.serve(async (req) => {
     });
   }
   if (what === "prices") {      // Nov 7: Fox Pro yearly prices (CAD now; USD once Bastien sets the amounts), found later by lookup_key
-    const want = [["fox_pro_founding_cad", "cad", 3600, "Founding Fox (#001-#100)"], ["fox_pro_regular_cad", "cad", 4500, "Fox Pro"]];
+    const want = [["fox_pro_founding_cad", "cad", 3600, "Founding Fox (#001-#100)"], ["fox_pro_regular_cad", "cad", 4500, "Fox Pro"],
+                  // Bastien (Oct 31): the same numbers in US dollars on the USA side
+                  ["fox_pro_founding_usd", "usd", 3600, "Founding Fox (#001-#100), USD"], ["fox_pro_regular_usd", "usd", 4500, "Fox Pro, USD"]];
     let prod = (await stripe("/products/search?query=" + encodeURIComponent("metadata['gf']:'fox_pro'"))).j?.data?.[0];
     if (!prod) prod = (await stripe("/products", new URLSearchParams({ name: "Fox Pro (The Gear Fox)", "metadata[gf]": "fox_pro",
       description: "Yearly membership: same-morning drop alerts, unlimited watchlist, full price history, price protection." }))).j;

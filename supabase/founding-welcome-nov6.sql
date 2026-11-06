@@ -33,13 +33,13 @@ begin
   if fp then
     if fr then
       ps_txt := 'P.-S. Recevez le lien en premier : 100 places numérotées de membre fondateur à 36 $/an, prix garanti tant que vous restez membre (45 $/an ensuite). '
-             || 'Les places vont aux 100 premiers qui paient. Fox Pro, prévu dès le 2 décembre : alertes de baisse chaque matin, favoris illimités, historique complet des prix. '
+             || 'Les places vont aux 100 premiers qui paient. Fox Pro, prévu dès le 2 décembre : le prix baisse après l’achat ? On vous écrit comment demander la différence au magasin. Alertes de baisse le matin même, liste de suivi illimitée. '
              || 'S''inscrire à la liste est gratuit. Rien à payer maintenant.';
       ps := ps_txt || ' <a href="' || base || '&pro=join&em=welcome-pro" style="color:#C8581E;font-weight:bold">Je m''inscris</a>';
       ps_txt := ps_txt || ' Je m''inscris : ' || base || '&pro=join&em=welcome-pro';
     else
       ps_txt := 'P.S. Get the link first: 100 numbered Founding Fox spots at $36/year, price locked while you stay (everyone after pays $45/year). '
-             || 'Spots go to the first 100 who pay. Fox Pro, planned from Dec 2: morning drop alerts, unlimited watchlist, full price history. '
+             || 'Spots go to the first 100 who pay. Fox Pro, planned from Dec 2: it drops after you buy? We email you how to ask the store for the difference. Morning price-drop alerts, unlimited watchlist. '
              || 'Joining the list is free. Nothing to pay now.';
       ps := ps_txt || ' <a href="' || base || '&pro=join&em=welcome-pro" style="color:#C8581E;font-weight:bold">Join the founding list</a>';
       ps_txt := ps_txt || ' Join the founding list: ' || base || '&pro=join&em=welcome-pro';

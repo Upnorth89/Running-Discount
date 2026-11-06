@@ -23,7 +23,7 @@ What Fox Pro is not: we don't sell gear, and we can't make a store change a pric
 ## 3. Price
 - **Founding price: $36 a year** (that's $3 a month), for the first 100 numbered spots only. Spot 101 and after pay the regular price.
 - **Regular price: $45 a year.**
-- You pay in Canadian dollars on our Canada side and in US dollars on our USA side ([USD amounts]) [BASTIEN].
+- You pay in Canadian dollars on our Canada side and in US dollars on our USA side: the same numbers (US$36 a year founding, US$45 regular; Bastien, Oct 31).
 - **Plus applicable taxes.** Checkout shows the taxes and the total before you pay. [LAWYER + accountant: GST/HST, BC PST, QST on a digital membership; showing the all-in price.]
 - Yearly only, paid upfront for the year. Checkout shows the total yearly price first.
 - **Founding price locked while you stay.** Your $36 renews every year for as long as your membership renews without a gap. The lock ends if you cancel and your year runs out, or if a renewal payment fails and isn't fixed within [N] days. If you come back later, you pay that day's price.
@@ -211,7 +211,6 @@ Questions, remboursement, n'importe quoi : hello@thegearfox.com. Une vraie perso
 16. Overall: whether the USA side needs separate US terms.
 
 **[BASTIEN] decisions:**
-- USD amounts.
 - Does the 30-day refund also apply after each renewal? I recommend yes.
 - Does a refunded founding number go back to the pool?
 - Is the 12-month referral cap in total or per year?
