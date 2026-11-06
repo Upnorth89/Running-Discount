@@ -614,11 +614,18 @@ except Exception as e:
 # Counted from Nov 17 (before that only previews and the site test's robot see the card). One session = one join at most.
 try:
     fv, fj, fn = Counter(), Counter(), Counter()
+    onv, nxt = set(), set()        # card 2 ("You're on the list") views and "Watch the gear you want now" clicks, per session
     jref = Counter()
     seen_j = set()
     for e in rows:
         d_ = e.get("detail") or ""
-        if e["kind"] != "signup-step" or str(e["at"])[:10] < "2026-11-17" or not d_.startswith(("pro-view|", "pro-join|", "pro-no|")):
+        if e["kind"] != "signup-step" or str(e["at"])[:10] < "2026-11-17":
+            continue
+        if d_.startswith("pro-on-view|"):
+            onv.add(e["sid"]); continue
+        if d_.startswith("pro-next|"):
+            nxt.add(e["sid"]); continue
+        if not d_.startswith(("pro-view|", "pro-join|", "pro-no|")):
             continue
         k, pl = (d_.split("|") + [""])[:2]
         if pl in ("A", "B"):
@@ -633,7 +640,8 @@ try:
     tot = sum(fj.values())
     out.append(f"FOUNDING LIST: {tot} joined (target 60, floor 40 by Nov 30; 25 by Nov 24) | by place: "
                + (", ".join(f"{k} {v} (of {fv[k]} views, {fn[k]} no thanks)" for k, v in fj.most_common()) or "none yet")
-               + " | by ?ref: " + (", ".join(f"{k} {v}" for k, v in jref.most_common(6)) or "none"))
+               + " | by ?ref: " + (", ".join(f"{k} {v}" for k, v in jref.most_common(6)) or "none")
+               + f" | card 2 'Watch the gear' clicks: {len(nxt & onv)} of {len(onv)} views" + (f" ({100 * len(nxt & onv) // len(onv)}%; stop if under 10% by Nov 24)" if onv else ""))
 except Exception as e:
     out.append(f"FOUNDING LIST: couldn't read ({str(e)[:80]})")
 
