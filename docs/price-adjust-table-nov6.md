@@ -31,3 +31,9 @@ Running Room (363) unclear + excludes sale items; Le Coureur Nordique (355) no p
 | SVP, Le Coureur Nordique, Au Pied Sportif, Fit First, VanRunCo, Frontrunners, The Feed, Pacers, Athletic Annex, Sports Basement | unclear: refund/store-policy/terms pages say nothing on price drops (Sports Basement: a 30-day gift-card offer seen in search results only, unconfirmed) | | | | | |
 
 Click numbers: docs/decisions.md (Nov 1 row).
+
+## Nov 6 updates from Bastien (his browser; robots can't read these pages)
+- Sporting Life: LIKELY YES, 14-day price adjustment + price match (Google AI summary citing sportinglife.ca Help & FAQs: "To qualify for a price match or a 14-day price adjustment…"; online purchases: contact customer care within 14 days; competitor must be an authorized Canadian retailer with a physical store in the ship-to province, identical model/colour/size, new, in stock at both, CAD). Needs the store page's own text before it goes in a claim email.
+- REI: Bastien says 14 days (to confirm with REI's own page text).
+- MEC: Bastien says 30 days + price match (to confirm with MEC's own page text).
+- Running Room: Bastien says 10 days + price match; our read of its own page: 10 days, but it excludes "sale-priced items… Black Friday… Boxing Day" and matches local physical competitors only. Ask the store whether a drop on its own site after an online purchase counts.
