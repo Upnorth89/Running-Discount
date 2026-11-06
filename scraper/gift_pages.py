@@ -150,7 +150,7 @@ def page(lang, data):
             name = re.sub(r"\s*-\s*Unisex$", "", d["n"])
             pr = (f'{money(c["p"])} <s>{money(c["r"])}</s> <em>−{round(c["off"] * 100)}{" %" if lang == "fr" else "%"}</em>' if c["sale"]
                   else f'{money(c["p"])} <span class="fpl">{SP.esc(s["fp"])}</span>')
-            watch = "" if c["sale"] else (f'<a class="wt" href="{L["home"]}{"&" if "?" in L["home"] else "?"}watch={quote(item_key(d))}&amp;ref=gifts">'
+            watch = "" if c["sale"] else (f'<a class="wt" href="{L["home"]}{"&" if "?" in L["home"] else "?"}watch={quote(item_key(d))}&amp;ref=gifts" rel="nofollow">'
                                           f'{SP.esc(s["watch"])}</a>')
             html.append(f'<div class="gf"><a class="go" href="{SP.esc(c["url"])}" target="_blank" rel="noopener nofollow" data-store="{SP.esc(SP.host(c["url"]))}">'
                         f'<span class="ph" data-b="{SP.esc(d["b"])}"><img src="{SP.esc(d["img"])}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.add(`nop`);this.remove()"></span>'

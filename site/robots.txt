@@ -9,5 +9,8 @@ Disallow: /deals.json
 Disallow: /deals-us.json
 Disallow: /deals-hike.json
 Disallow: /deals-hike-us.json
+# Nov 6 (Search Console: 73 "duplicate without canonical" = homepage ?watch=<item> action links): watch links are actions, not pages
+Disallow: /*?watch=
+Disallow: /*&watch=
 
 Sitemap: https://thegearfox.com/sitemap.xml

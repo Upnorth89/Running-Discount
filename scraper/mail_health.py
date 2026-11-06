@@ -12,12 +12,19 @@ emails it sent (GET /emails, newest first, last 7 days) and:
 Needs RESEND_API_KEY; SUPABASE_URL + SUPABASE_SECRET_KEY to mark addresses. Never prints a whole address.
 """
 import os
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 
 import requests
 
 BOUNCE_WARN = 0.04
 DAYS = 7
+VAN = ZoneInfo("America/Vancouver")
+PER_DAY = {}         # emails Resend sent per Vancouver day, filled by read()
+# Nov 6 (Bastien: Resend Pro for one month, ~Nov 19 - Dec 18, then back to the free plan): from Dec 10 the morning email names the busiest
+# day of the last week, so we know whether the free plan's 100 a day is enough after Dec 18
+BUSY_FROM = date(2026, 12, 10)
+FREE_DAY = 100
 
 
 def mask(e):
@@ -32,6 +39,7 @@ def read(days=DAYS):
         return None
     since = datetime.now(timezone.utc) - timedelta(days=days)
     sent, bounced, complained, after = 0, [], [], None
+    PER_DAY.clear()
     for _ in range(40):                                   # 40 pages x 100 = 4,000 emails, more than a week's worth today
         params = {"limit": 100, **({"after": after} if after else {})}
         r = requests.get("https://api.resend.com/emails", headers={"Authorization": f"Bearer {key}"}, params=params, timeout=30)
@@ -50,6 +58,8 @@ def read(days=DAYS):
                 old = True
                 break
             sent += 1
+            day = at.astimezone(VAN).date()
+            PER_DAY[day] = PER_DAY.get(day, 0) + 1
             ev = (m.get("last_event") or "").lower()
             to = (m.get("to") or [""])[0].lower()
             if ev == "bounced":
@@ -100,6 +110,10 @@ def summary():
     rate = len(bounced) / sent if sent else 0
     line = (f"- Email, last {DAYS} days: {sent} sent, {len(bounced)} bounced ({rate:.1%}), {len(complained)} marked as spam"
             + (f"; {marked} addresses newly stopped" if marked else "") + "\n")
+    if datetime.now(VAN).date() >= BUSY_FROM and PER_DAY:
+        d, n = max(PER_DAY.items(), key=lambda kv: kv[1])
+        line += (f"- Busiest email day in the last {DAYS}: {n} on {d:%a %b %d} (Resend free plan: {FREE_DAY} a day"
+                 + (": over it" if n > FREE_DAY else ", close" if n > FREE_DAY * 0.8 else "") + ")\n")
     probs = []
     if sent >= 20 and rate > BOUNCE_WARN:
         probs.append(("bounce", f"{rate:.0%} of our emails bounced in the last {DAYS} days ({len(bounced)} of {sent}): typo'd "

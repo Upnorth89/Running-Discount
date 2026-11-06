@@ -1256,3 +1256,13 @@ Note: the screen always shows $36 for now; once 100 are paid it must show $45 (p
   Take effect at the next store read (pickleball, wide, prenatal) or at once (Iron Legs).
 - **Price-adjust table:** thanks. Drafts fixed: "about 25 stores" -> the real 8 (EN + « 8 boutiques que nous avons vérifiées »), the Sporting Life
   "until Dec 2" mock -> Altitude Sports with its real published words. #5 will read the list from one data file you can edit.
+
+## Nov 6 (evening): Bastien's 4 answers, received
+1. Founding card: already exactly his card (lock + 3 ticks) with today's tick lines (live in the code since Nov 6, OFF until his Nov 16 OK). No merged card. Nothing to change.
+2. Watchlist from Dec 2 (grandfather): building into piece #2: a free member can add a watch only while count < max(5, count they held on Dec 2);
+   at the limit the add shows "Watch unlimited with Fox Pro". Pro = no limit. The Dec 2 count is recorded per member that day (no one loses an item).
+3. Resend pacing + 429 retry: already shipped Nov 6 (scraper/mailer.py; every bulk sender uses it; check.py tests it). Plan upgrade stays his call.
+4. Referrals Nov 20: on the list.
+- Nov 6 evening, your 2 items: (1) Resend send counts: the morning email gets, from Dec 10, "Busiest email day in the last 7: N on <day>
+  (Resend free plan: 100 a day[, close / over it])" (scraper/mail_health.py, counts what Resend actually sent, Supabase's sign-up emails included).
+  (2) "the The North Face": already fixed since Nov 3 (tidy_words); the live page reads "Email me when The North Face Altamesa 300 drops".
