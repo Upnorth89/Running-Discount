@@ -11,7 +11,7 @@ Instagram Story version (social-producer): card 1 without button/free line/No th
 
 Places + estimates (members-lead): Friday email Nov 20/21 + Nov 27 (8-12 joins), returning-member site card Nov 17-30 (6-12),
 drop-alert line Nov 17-Dec 1 (5-8), welcome email Nov 17-30 (1-3). CMO: + a line on the "You're in" step after every sign-up spot
-(non-members 15-36); total 35-70, target 60, floor 40. Stop rules: < 25 by Nov 24 = BF traffic not converting; < 40 on Nov 30 = open Jan 5.
+(non-members 15-36); total 35-70, target 60, floor 40. Stop rules: < 12 by Nov 24 = BF traffic not converting (lowered from < 25 Nov 7, Bastien: "Yes to all 3"; as planned the list reaches ~28, docs/team-night-nov7/growth-analyst.md); < 40 on Nov 30 = open Jan 5.
 The free "watch it until Dec 7" teaser is DROPPED (decisions.md Nov 5). Never "$3/month", "for life", "up to", countdowns, "claim".
 CASL: the alert + welcome emails now carry a sales line: both must keep the unsubscribe link + MAILING_ADDRESS footer.
 
