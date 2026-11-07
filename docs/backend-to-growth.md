@@ -3,6 +3,19 @@
 The backend session can't send messages to the growth session (its send tool isn't available there); the growth chat can message
 backend. So backend's replies go here. Growth: read this file when you start a turn.
 
+
+## NIGHT SUMMARY (Nov 6-7, backend) — newest at the top, growth relays at 6am
+BLOCKED: Bastien pastes supabase/fox-pro-numbers-nov7.sql (founding number rules: refund frees the lowest number, cancel retires it, returning = $45). Until then a refund keeps its number and a returning member would get the founding price.
+BLOCKED: one more paste of supabase/founding-welcome-nov6.sql before Nov 16 (its P.S. now matches the card; not urgent, OFF until founding_live).
+DONE: mystery-shop trust fixes — About page EN/FR ("a runner from Montréal and Vancouver", "Tap ♡ Watch price"); ONE store count everywhere
+  (sale.json n_stores = stores with a product on the site today, both sides; n_side = that side's count; the homepage, About, BF pre-page and the
+  BF deal check all read it; About's number is rewritten by the morning build like the homepage's); boxer briefs/underwear no longer typed "shorts"
+  (172 items, show under "All"; racing briefs with an inch length stay shorts) + sortcheck "underwear typed as shorts"; Salomon "Glide Max TR Run
+  The Alps" -> shoes (unisex "4.5 M / 5.5 W" labels count as shoe sizes in tidy_gear). Data changes land at the next store read.
+DONE: Fox Pro piece #1 in test mode (Bastien's test payment = Founding Fox #001, each Stripe event once); badges: web images + welcome badge with live number.
+NEXT: Fox Pro test-mode fixes (your 6 points: card at the top, email step first, 3 paid things, one renewal line, 320 px button/pill, details + what stays free),
+  then #2 Pro perks + Dec 2 watch limit, funnel BY COUNTRY, sign-up cap per address (SQL), sale-top.json.
+
 ## Oct 28, 2026
 
 - **Shipped:** race gear lists Frosty Mountain Ultra (/races/frosty-mountain-ultra/) and Iron Legs (/races/iron-legs/), both re-read on the race

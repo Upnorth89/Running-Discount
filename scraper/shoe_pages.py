@@ -1900,6 +1900,10 @@ def main():
         # Black Friday: live from now on so it is known to search engines well before Nov 27
         bf_rows = [r for r in kinds["all"] if r[2]["sizes"] >= 6][:40]
         n_ca = len({host(u) for d in items for u in d["of"]})     # Nov 3: the real count of Canadian stores in today's data (was "60+")
+        try:   # Nov 7: one source with the deal check page: the Canadian side's count written by scrape.py
+            n_ca = int(json.loads((site / "sale.json").read_text()).get("n_side") or n_ca)
+        except Exception:
+            pass
         cta = qs_box(L, L["bfCta"], "black-friday")
         p = site / L["bfDir"] / "index.html"
         p.parent.mkdir(parents=True, exist_ok=True)
@@ -1956,6 +1960,12 @@ def main():
             ns = int(json.loads((site / "sale.json").read_text()).get("n_stores") or 0)
             if ns >= 20:
                 html_ = re.sub(r"more than \d+ running stores", f"more than {ns // 10 * 10} running stores", html_)
+                ab = site / "about.html"     # Nov 7 (mystery shop: About said "more than 150" while the homepage said 153): same number
+                if ab.exists():
+                    at = ab.read_text()
+                    at = re.sub(r"more than \d+ running shops", f"more than {ns // 10 * 10} running shops", at)
+                    at = re.sub(r"plus de \d+ boutiques de course", f"plus de {ns // 10 * 10} boutiques de course", at)
+                    ab.write_text(at)
         except Exception:
             pass
         idx.write_text(html_)

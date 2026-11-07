@@ -4319,8 +4319,10 @@ def tidy_gear(offers):
             continue
         n = o["n"]
         shoe_brand = (o["b"] or "").lower() in SHOE_BRANDS
-        if (GEAR_SHOE.search(n) or shoe_brand) and o.get("sz") and all(re.match(r"^([MW]:)?\d{1,2}([.,][05])?$", str(e[0]).strip()) for e in o["sz"]):
-            o["g"] = "shoes"           # numbered sizes too: a real shoe, not "shoe bag" or laces
+        shoe_lab = lambda l: bool(re.match(r"^([MW]:)?\d{1,2}([.,][05])?$", str(l).strip())) or (canon_shoe(l) or ["OS"]) != ["OS"]
+        if (GEAR_SHOE.search(n) or shoe_brand) and o.get("sz") and all(shoe_lab(e[0]) for e in o["sz"]):
+            o["g"] = "shoes"           # numbered sizes too: a real shoe, not "shoe bag" or laces. Nov 7 (mystery shop): unisex labels
+                                       # "4.5 M / 5.5 W" count (Salomon "Glide Max TR Run The Alps" at La Boutique du Lac was gear)
         elif GEAR_ARM.search(n):
             o["g"] = "tops"            # arm sleeves / warmers: with tops, in the clothing size
         elif GEAR_LEG.search(n):
@@ -4448,6 +4450,10 @@ def garment_type(g, n):
             return "trail"                       # "Lowa Amplux Trail Running Shoes": a trail runner from a hiking brand
     if g == "gear" and STROLLER.search(n):
         return None                              # Nov 5: a stroller isn't a light, pole or bottle ("Chariot Sleek Cup Holder")
+    if g == "bottoms" and re.search(r"\bboxers?\b|\bbriefs?\b|underwear|\btrunks?\b|\bbikini\b|\bthong\b|\bhipster\b", n, re.I) \
+            and not re.search(r"\bbrief(?:s)?\s+(?:lined|liner)|with brief|built-in brief|swim", n, re.I) \
+            and not (re.search(r"\d(?:\.\d)?\s*(?:\"|''|”|in\b|inch)", n) and not re.search(r"boxer|underwear|trunk", n, re.I)):
+        return None                              # Nov 7 (mystery shop): ~40 boxer briefs were "Men's shorts"; underwear shows under "All" only
     for k, rx in TYPES.get(g, []):
         if rx.search(n):
             return k
@@ -5645,6 +5651,12 @@ def main():
     offers = [o for o in offers if o.get("st") not in US_SHOPS and not o.get("no_ca")]   # US shops may not ship to Canada
     items = display_tidy(merge(offers))
     report_groups(items)
+    us_items = display_tidy(merge(us_offers))
+    # Nov 7 (growth's mystery shop: homepage 153, About "more than 150", FR BF "98 boutiques", deal check "83"): the store count = stores
+    # with at least one product on the site today (either side), not every store key in the offers (turned-off stores, kept copies)
+    live_st = {st for it in items + us_items for st in it.get("_st") or []}
+    n_side_ca = len({st for it in items for st in it.get("_st") or []})        # pages that are about one side say that side's count
+    n_side_us = len({st for it in us_items for st in it.get("_st") or []})
     for it in items:
         it.pop("_st", None)
     items.sort(key=lambda i: (i["g"], i["b"].lower(), i["n"].lower()))
@@ -5653,20 +5665,19 @@ def main():
         usd = round(fx_to_cad("USD"), 4)            # for the site's CAD/USD switch
     except Exception:
         usd = FX_FALLBACK["USD"]
-    n_ca = n_us = len({o["st"] for o in offers} | {o["st"] for o in us_offers})   # "N stores checked daily": one total, both sides
-    OUT.write_text(json.dumps({"v": 2, "updated": now(), "stores": stamps, "data_at": data_at, "n_stores": n_ca, "failed": why, "fails": fails, "fx": {"USD": usd}, "items": items},
+    n_ca = n_us = len(live_st)   # "N stores checked daily": one total, both sides, stores with products on the site today
+    OUT.write_text(json.dumps({"v": 2, "updated": now(), "stores": stamps, "data_at": data_at, "n_stores": n_ca, "n_side": n_side_ca, "failed": why, "fails": fails, "fx": {"USD": usd}, "items": items},
                               separators=(",", ":"), ensure_ascii=False))
     # the site loads sale items first: same shape, only items with at least one size on sale
     sale = [i for i in items if any(e[1] < e[3] for e in i["sz"])]   # same test as the site's % off
-    (OUT.parent / "sale.json").write_text(json.dumps({"v": 2, "updated": now(), "stores": stamps, "n_stores": n_ca, "fx": {"USD": usd}, "items": sale},
+    (OUT.parent / "sale.json").write_text(json.dumps({"v": 2, "updated": now(), "stores": stamps, "n_stores": n_ca, "n_side": n_side_ca, "fx": {"USD": usd}, "items": sale},
                                                      separators=(",", ":"), ensure_ascii=False))
-    us_items = display_tidy(merge(us_offers))
     for it in us_items:
         it.pop("_st", None)
     us_items.sort(key=lambda i: (i["g"], i["b"].lower(), i["n"].lower()))
-    (OUT.parent / "deals-us.json").write_text(json.dumps({"v": 2, "country": "us", "updated": now(), "stores": stamps, "n_stores": n_us,
+    (OUT.parent / "deals-us.json").write_text(json.dumps({"v": 2, "country": "us", "updated": now(), "stores": stamps, "n_stores": n_us, "n_side": n_side_us,
                                                           "fx": {"USD": usd}, "items": us_items}, separators=(",", ":"), ensure_ascii=False))
-    (OUT.parent / "sale-us.json").write_text(json.dumps({"v": 2, "country": "us", "updated": now(), "stores": stamps, "n_stores": n_us,
+    (OUT.parent / "sale-us.json").write_text(json.dumps({"v": 2, "country": "us", "updated": now(), "stores": stamps, "n_stores": n_us, "n_side": n_side_us,
                                                          "fx": {"USD": usd}, "items": [i for i in us_items if any(e[1] < e[3] for e in i["sz"])]},
                                                         separators=(",", ":"), ensure_ascii=False))
     print(f"USA side: {len(us_items)} items ({sum(1 for i in us_items if i['g'] == 'shoes')} shoes) from {len(us_offers)} listings",

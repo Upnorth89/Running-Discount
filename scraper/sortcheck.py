@@ -84,6 +84,8 @@ def check(items, store=None):
             hits["tops"].append(ex)
         if g == "bottoms" and TOP_W.search(n) and not BOTTOM_W.search(n) and not re.search(r"bottoms?|brief|boxer", n, re.I):
             hits["bottoms"].append(ex)
+        if g == "bottoms" and i.get("t") == "short" and re.search(r"\bboxers?\b|underwear|\btrunks?\b", n, re.I):
+            hits["undies"].append(ex)           # Nov 7 (mystery shop): boxer briefs shown as "Men's shorts"
         if re.search(r"\bwomen'?s\b|\bfemme\b", n, re.I) and sx == ["men"] and not re.search(r"\bmen'?s\b", n, re.I):
             hits["gender"].append(ex)
         if re.search(r"(?<!wo)\bmen'?s\b|\bhomme\b", n, re.I) and not re.search(r"women", n, re.I) and sx == ["women"]:
@@ -164,7 +166,7 @@ def check(items, store=None):
     LABEL = {"capnothat": "bottle/flask caps under Hats", "socknotrun": "ski or fan socks under running Socks",
              "warmer": "arm/knee/leg warmers outside clothing/socks", "stroller": "running strollers outside gear (or with a type)", "socktop": "clothing filed as socks", "notrun": "not running or hiking gear (slippers, swimwear, bike/climbing shoes, avalanche, bedding)", "trailurl": "trail shoes named without \"Trail\" (typed road)", "junk": "junk listings (saved bundles, placeholders)", "food": "non-food under Nutrition",
              "shoes": "non-shoes under Shoes (laces, sprays, socks…)", "cloth": "clothing under gear/accessories",
-             "tops": "bottoms under Tops", "bottoms": "tops under Bottoms", "gender": "name and gender disagree",
+             "tops": "bottoms under Tops", "bottoms": "tops under Bottoms", "undies": "underwear typed as shorts", "gender": "name and gender disagree",
              "type": "trail shoes typed road/race", "brandname": "a product name in the brand field",
              "brands": "one brand under two spellings", "twins": "one shoe on two cards (same shoe page)", "odd": "food or shoes from a brand that sells neither"}
     return sorted(((k, LABEL[k], v) for k, v in hits.items()), key=lambda x: -len(x[2]))
