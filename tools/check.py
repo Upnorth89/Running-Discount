@@ -223,6 +223,31 @@ def main():
         return f"{len(cases)} cases"
     step("Black Friday real-drop labels: the rule", real_drop_rule)
 
+    def size_type_rules():   # Nov 7 (growth's data audit): unisex sizes, long tights typed as shorts, brief-lined shorts
+        import importlib
+        sys.path.insert(0, str(ROOT / "scraper"))
+        SC = importlib.import_module("scrape")
+        it = {"g": "shoes", "sx": ["men", "women"], "_ca": [True, False],
+              "sz": {"9.5": (185.95, 1, 200, None), "W:9.5": (188.88, 0, 200, None), "M:8": (150, 0, 200, None), "8": (140, 1, 200, None)}}
+        SC.unisex_men([it])
+        if set(it["sz"]) != {"W:9.5", "M:8", "M:9.5"} or it["sz"]["M:8"][0] != 150:
+            raise RuntimeError(f"unisex sizes: {it['sz']}")
+        want = {'ColdSnap Run Tight 28"': "tight", 'Sleek Pocket High Rise Legging 27"': "tight", 'Align Pant 25"': "pant",
+                "Tempo Brief-Lined Running Shorts": "short", "Run Fast Inner Briefs Running Shorts": "short",
+                "DLYShort 5 Inch Long Brief": "short", 'Pace Breaker 7" Short': "short", 'Boxer Brief 6"': None}
+        bad = [f"{n} -> {SC.garment_type('bottoms', n)}" for n, t in want.items() if SC.garment_type("bottoms", n) != t]
+        if bad:
+            raise RuntimeError("; ".join(bad))
+        extra = ""
+        if not NO_RAW:
+            d = json.loads((site / "deals.json").read_text())["items"]
+            left = [x["n"] for x in d if x["g"] == "shoes" and len(x.get("sx") or []) > 1 and any(re.match(r"\d", str(e[0])) for e in x["sz"])]
+            if left:
+                raise RuntimeError(f"{len(left)} unisex shoe cards still have a bare size: {left[:3]}")
+            extra = "; no unisex card with a bare size"
+        return "unisex bare sizes read as men's, Canadian price kept; 28\" tights/27\" leggings/25\" pants not shorts; brief-lined shorts stay shorts" + extra
+    step("Sizes and types: unisex shoes, shorts vs tights (rules)", size_type_rules)
+
     def races():        # race gear lists (Oct 21): built from the same data, after the shoe pages
         r = subprocess.run([sys.executable, str(ROOT / "scraper" / "race_pages.py"), str(site)], capture_output=True, text=True, timeout=600)
         if r.returncode:

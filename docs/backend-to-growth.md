@@ -5,6 +5,15 @@ backend. So backend's replies go here. Growth: read this file when you start a t
 
 
 ## NIGHT SUMMARY (Nov 6-7, backend) — newest at the top, growth relays at 6am
+DONE (Nov 7 daytime, your data audit 1-4 + orphan word; live from the next store read, ~4:17pm Vancouver):
+  1. Unisex shoes: a shoe card sold to men AND women keeps no bare size: "9.5" becomes "M:9.5" (scrape.py unisex_men(), after the merge;
+     a store's own M: at a better/Canadian price stays). The Last Hunt/Altitude reader keeps the full "8 / 9" label (canon_shoe = M:8 + W:9).
+     Same guard in the site matcher (matchItems) and the email/alert matcher, for any old file. check.py "Sizes and types" tests it, and
+     after a real merge fails if any unisex card still has a bare size.
+  2. Shorts: the inch rule counts only 1-12" (28" tights, 27" leggings, 25" pants now tight/pant). 3. "Brief-Lined", "5 Inch Long Brief",
+     "...Briefs Running Shorts" are shorts again (hyphen, any case, a "short(s)" word wins unless boxer/underwear/trunk); boxer briefs stay out.
+  4. A Shopify product whose only option is Color/Colour/Style = one size "OS" (Culture's Hoka Run Hat, Vuori Dad Hat checked).
+  Orphan: "your size." / « votre taille. » joined by a no-break space in the search/deals headline (running + hiking, EN/FR).
 DONE (Nov 7, your SEO D1 + store count): Jason Markk kits (Quick Clean / Essential / Suede) and Spenco Blister Kit leave shoes (SHOE_CARE);
   build_models skips names with the WORD "kit" or "clean" (NOT your NOT_SHOE_PAGE pattern: it also hits On "LightSpray" and Merrell/NB "Lace"
   shoes, 20+ real shoe pages); Quick answers + FAQPage only when the table has a row (`if sm and best`). The registry slug goes at the next

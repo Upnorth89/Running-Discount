@@ -1651,6 +1651,9 @@ def product(base, slug, st, g, img):
         if not any((r.get("availability") or {}).get("isOnStock") for r in res):
             continue
         raw = attr(v["attributesRaw"], "size_1") or attr(v["attributesRaw"], "size")
+        full = attr(v["attributesRaw"], "size")
+        if full and re.fullmatch(r"\s*\d{1,2}(?:\.5)?\s*/\s*\d{1,2}(?:\.5)?\s*", str(full)):
+            raw = full     # Nov 7 (audit): unisex "8 / 9" = men's 8 / women's 9; size_1 kept only "8" (canon_shoe reads both)
         sz = norm_size(raw)
         price = round((disc if disc is not None else reg * 100) / 100, 2)
         if sz not in sizes or price < sizes[sz][0]:
@@ -2292,6 +2295,8 @@ def shopify_items(st, base, prods, group_fn, fx=1.0, size_aware=False, size_fn=N
                 rest = " / ".join(x for x in (v.get("option2"), v.get("option3")) if x)
                 key = o1 if len(opts) > 1 else ""
                 label = rest if len(opts) > 1 else o1
+                if len(opts) == 1 and re.match(r"^(colou?rs?|couleurs?|colou?rway|style)$", opts[0].strip()):
+                    label = "OS"          # Nov 7 (audit): a hat whose only option is Color read "White"/"Mineral Blue" as sizes: one size
             if size_fn and g != "shoes":        # shoe labels are read by canon_shoe() in merge()
                 label = size_fn(label)
             if collapse and si is not None:
@@ -4356,7 +4361,7 @@ TYPES = {
                        r"crew ?neck|mid[- ]?layer|midlayer|base ?layer|long[- ]?sleeve|long tee|\bl/?s\b|manches longues|thermal|layer one"),
              ("tee", r"tank|singlet|camisole|\bcami\b|d[ée]bardeur|crop|t-?shirt|\btee\b|\btech t\b|\bt\b|short[- ]?sleeve|\bs/?s\b|\bss\b|"
                      r"manches courtes|\btop\b|jersey|shirt|polo|sleeveless|\bcrew\b|go time|tunic")],
-    "bottoms": [("short", r"short|cuissard|brief|culotte|skort|jupe|skirt|\d(\.\d)?\s*(\"|''|”|in\b|inch)|buns|splitty|speedsters|shredsters"),
+    "bottoms": [("short", r"short|cuissard|brief|culotte|skort|jupe|skirt|\b(?:[1-9]|1[0-2])(?:\.\d)?\s*(?:\"|''|”|in\b|inch)|buns|splitty|speedsters|shredsters"),   # Nov 7 (audit): an inseam of 1-12" only (28" tights were shorts)
                 ("tight", r"tight|legging|collant|capri|7/8|3/4|leggy|base ?layer bottom"),
                 ("pant", r"pant|pantalon|jogger|trouser|sweats|cargo|jeans")],
 }
@@ -4453,6 +4458,25 @@ def tidy_clothes(offers):
             o["g"] = "gear"
     return out
 
+def unisex_men(items):
+    """Nov 7 (audit, trust): a shoe card sold to men AND women keeps no bare size: "9.5" there is a men's 9.5 (unisex shoes are sold
+    on the men's scale; unmarked, it matched a women's 9.5 = a men's ~8). It becomes "M:9.5" (a store's own "M:9.5" at a better
+    price stays). Women match only real "W:" sizes. Returns how many sizes changed. items: dicts with g, sx, sz {key: (price, oi, …)}, _ca."""
+    n = 0
+    for it in items:
+        if it["g"] != "shoes" or not ("men" in it["sx"] and "women" in it["sx"]):
+            continue
+        for k in [k for k in it["sz"] if re.match(r"\d", k)]:
+            v, mk = it["sz"].pop(k), "M:" + k
+            si = it.get("_si", {}).pop(k, None)
+            cur = it["sz"].get(mk)
+            if cur is None or (it["_ca"][v[1]], -v[0]) > (it["_ca"][cur[1]], -cur[0]):
+                it["sz"][mk] = v
+                it.setdefault("_si", {})[mk] = si
+            n += 1
+    return n
+
+
 def garment_type(g, n):
     """tops: tee / layer / jacket; bottoms: short / tight / pant; shoes: hike / trail / race / daily;
     gear: sun / light / pole / bottle; None when the name doesn't say (shown under "All" only)."""
@@ -4463,8 +4487,9 @@ def garment_type(g, n):
     if g == "gear" and STROLLER.search(n):
         return None                              # Nov 5: a stroller isn't a light, pole or bottle ("Chariot Sleek Cup Holder")
     if g == "bottoms" and re.search(r"\bboxers?\b|\bbriefs?\b|underwear|\btrunks?\b|\bbikini\b|\bthong\b|\bhipster\b", n, re.I) \
-            and not re.search(r"\bbrief(?:s)?\s+(?:lined|liner)|with brief|built-in brief|swim", n, re.I) \
-            and not (re.search(r"\d(?:\.\d)?\s*(?:\"|''|”|in\b|inch)", n) and not re.search(r"boxer|underwear|trunk", n, re.I)):
+            and not re.search(r"\bbrief(?:s)?[\s-]+(?:lined|liner)|with brief|built-in brief|swim", n, re.I) \
+            and not ((re.search(r"\d(?:\.\d)?\s*(?:\"|''|”|in\b|inch)", n, re.I) or re.search(r"shorts?\b", n, re.I))
+                     and not re.search(r"boxer|underwear|trunk", n, re.I)):   # Nov 7 (audit): "Brief-Lined", "5 Inch Long Brief", "…Briefs Running Shorts" stay shorts
         return None                              # Nov 7 (mystery shop): ~40 boxer briefs were "Men's shorts"; underwear shows under "All" only
     for k, rx in TYPES.get(g, []):
         if rx.search(n):
@@ -5276,6 +5301,9 @@ def merge(offers):
                 if cur is None or (pref and it["_ca"][oi], -price) > (pref and it["_ca"][cur[1]], -cur[0]):
                     it["sz"][k] = (price, oi, reg, vid)
                     it.setdefault("_si", {})[k] = (o.get("szimg") or {}).get(size)    # that size's colour photo (or none)
+    unisex_fix = unisex_men(items.values())
+    if unisex_fix:
+        print(f"unisex shoes: {unisex_fix} bare sizes read as men's (M:)", file=sys.stderr)
     # one spelling per brand ("adidas"/"Adidas", "SmartWool"/"Smartwool"): the most common one, all-capitals last
     spell = collections.defaultdict(collections.Counter)
     for it in items.values():

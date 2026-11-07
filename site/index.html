@@ -890,7 +890,7 @@ const PL=(n,one,many)=>n===1?one:many;
 const I18N={
 en:{
   tagline:"OUTFOX FULL PRICE",
-  rd:{nav:{deals:"Deals",shoes:"Shoes",apparel:"Apparel",packs:"Packs",gear:"Gear",races:"Race lists",shoePrices:"Shoe prices"},h1:["Find running gear deals","in your ","exact size."],h1n:n=>[`${n} deals`,"in your ","size."],h1q:(n,c)=>[`${n} ${c===1?"result":"results"}`,"in your ","size."],
+  rd:{nav:{deals:"Deals",shoes:"Shoes",apparel:"Apparel",packs:"Packs",gear:"Gear",races:"Race lists",shoePrices:"Shoe prices"},h1:["Find running gear deals","in your ","exact size."],h1n:n=>[`${n} deals`,"in your\u00a0","size."],h1q:(n,c)=>[`${n} ${c===1?"result":"results"}`,"in your\u00a0","size."],
     sub:n=>`Twice a day we check ${n} running stores in Canada and the USA and show you the best prices in stock, in your size. No more guessing.`,
     ph:"Search shoes, apparel, packs, brands…",phS:"Search shoes, brands…",go:"Search",size:"Your size",cat:"Category",brand:"Brand",price:"Price",store:"Retailer",sale:"On sale only",more:"More filters",under:m=>`Under ${m}`,
     note:["Real deals.","Real sizes.","Real retailers."],tiles:{shoes:"Shoes",apparel:"Apparel",packs:"Packs & Vests",acc:"Accessories",nutrition:"Nutrition",gear:"Gear & Watches"},n:n=>`${n} ${(String(n).replace(/<[^>]*>/g,"").trim()==="1")?"deal":"deals"}`,
@@ -1007,7 +1007,7 @@ en:{
 },
 fr:{
   tagline:"FLAIREZ LES AUBAINES",
-  rd:{nav:{deals:"Aubaines",shoes:"Chaussures",apparel:"Vêtements",packs:"Sacs",gear:"Équipement",races:"Courses",shoePrices:"Prix des chaussures"},h1:["Les aubaines de course","dans votre ","taille exacte."],h1q:(n,c)=>[`${n} ${c===1?"résultat":"résultats"}`,"à votre ","taille."],h1n:n=>[`${n} aubaines`,"à votre ","taille."],
+  rd:{nav:{deals:"Aubaines",shoes:"Chaussures",apparel:"Vêtements",packs:"Sacs",gear:"Équipement",races:"Courses",shoePrices:"Prix des chaussures"},h1:["Les aubaines de course","dans votre ","taille exacte."],h1q:(n,c)=>[`${n} ${c===1?"résultat":"résultats"}`,"à votre\u00a0","taille."],h1n:n=>[`${n} aubaines`,"à votre\u00a0","taille."],
     sub:n=>`Deux fois par jour, on vérifie ${n} boutiques de course au Canada et aux États-Unis et on vous montre les meilleurs prix en stock, dans votre taille. Fini les devinettes.`,
     ph:"Chercher chaussures, vêtements, sacs, marques…",phS:"Chaussures, marques…",go:"Chercher",size:"Votre taille",cat:"Catégorie",brand:"Marque",price:"Prix",store:"Boutique",sale:"En solde seulement",more:"Plus de filtres",under:m=>`Moins de ${m}`,
     note:["Vrais rabais.","Vraies tailles.","Vraies boutiques."],tiles:{shoes:"Chaussures",apparel:"Vêtements",packs:"Sacs et vestes d'hydratation",acc:"Accessoires",nutrition:"Nutrition",gear:"Équipement et montres"},n:n=>`${n} ${(String(n).replace(/<[^>]*>/g,"").trim()==="1")?"aubaine":"aubaines"}`,
@@ -1789,7 +1789,7 @@ const HIKE_TXT={en:{mRaces:"Trail gear lists",mShoes:"Boot prices by model",wSho
   clothSizeH:"Clothing size <small>jackets, pants, socks, gloves</small>",clothMore:"Different size in pants, socks or shirts?",
   by_tops:"Shirts & jackets",by_bottoms:"Pants & shorts",moreSizes:"+ Kind of hiking, favourite brands",
   wIntro:half=>`<b>${half?"More than half of":"Many"} hiking deals aren't available in your size.</b> Twice a day we check ${num(nStoresH())} outdoor stores ${US()?"across the US":"across Canada and the USA"} and show you only the ones that are.`,
-  rd:{h1:["Find hiking gear deals","in your ","exact size."],h1n:n=>[`${n} hiking deals`,"in your ","size."],
+  rd:{h1:["Find hiking gear deals","in your ","exact size."],h1n:n=>[`${n} hiking deals`,"in your\u00a0","size."],
     sub:n=>`Twice a day we check ${n} outdoor stores in Canada and the USA and show you the best prices in stock, in your size. No more guessing.`,
     why2:["No more guessing",()=>"Every store's price for the same boot or jacket, side by side."],
     kinds:{hike:"hiking shoes",boot:"hiking boots",approach:"approach shoes",shell:"rain jacket",insulated:"insulated layer",fleece:"fleece",wind:"wind jacket",
@@ -1806,7 +1806,7 @@ const HIKE_TXT={en:{mRaces:"Trail gear lists",mShoes:"Boot prices by model",wSho
   clothSizeH:"Taille de vêtements <small>manteaux, pantalons, bas, gants</small>",clothMore:"Une autre taille en pantalons, bas ou chandails?",
   by_tops:"Chandails et manteaux",by_bottoms:"Pantalons et shorts",moreSizes:"+ Type de randonnée, marques préférées",
   wIntro:half=>`<b>${half?"Plus de la moitié des ":"Beaucoup d'"}aubaines de randonnée ne sont pas offertes dans votre taille.</b> Deux fois par jour, on vérifie ${num(nStoresH())} boutiques de plein air ${US()?"partout aux États-Unis":"au Canada et aux États-Unis"} et on vous montre seulement celles qui le sont.`,
-  rd:{h1:["Les aubaines de randonnée","dans votre ","taille exacte."],h1n:n=>[`${n} aubaines de randonnée`,"à votre ","taille."],
+  rd:{h1:["Les aubaines de randonnée","dans votre ","taille exacte."],h1n:n=>[`${n} aubaines de randonnée`,"à votre\u00a0","taille."],
     sub:n=>`Deux fois par jour, on vérifie ${n} boutiques de plein air au Canada et aux États-Unis et on vous montre les meilleurs prix en stock, dans votre taille. Fini les devinettes.`,
     why2:["Fini les devinettes",()=>"Le prix de chaque boutique pour la même botte ou le même manteau, côte à côte."],
     kinds:{hike:"chaussures de randonnée",boot:"bottes de randonnée",approach:"chaussures d'approche",shell:"manteau imperméable",insulated:"couche isolante",fleece:"laine polaire",
@@ -2149,7 +2149,8 @@ function matchItems(p,list){
           if(e[0]==="OS")return true;
           const k=shoeKey(e[0]);if(!k||k.w==="N")return false;
           if(k.g==="E"){const wideE=k.w==="W";return (wideE?wantWide:wantReg)&&(sz.eu||[]).map(String).includes(k.n)}   // EU-only boots: the visitor's EU size
-          if(k.g&&G&&k.g!==G)return false;                     // "M:10" is for men, "W:11" for women
+          const kg=k.g||(d.sx.length>1?"M":"");                // Nov 7 (audit): a bare size on a unisex shoe is a men's size
+          if(kg&&G&&kg!==G)return false;                       // "M:10" is for men, "W:11" for women
           const wide=k.w==="W"||(!k.w&&d.w);
           if(wide?!wantWide:!wantReg)return false;
           if(wantW){const isW=k.g==="W"||(!k.g&&d.sx.length===1&&d.sx[0]==="women");return (isW?wantW:want).includes(k.n)}

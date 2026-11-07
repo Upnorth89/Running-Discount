@@ -151,7 +151,8 @@ def match(items, p):
                     k = SHOE_KEY.match(str(e[0]))
                     if not k or k.group(3) == "N":
                         return False
-                    if k.group(1) and G and k.group(1) != G:
+                    kg = k.group(1) or ("M" if len(d["sx"] or []) > 1 else "")   # Nov 7 (audit): bare size on a unisex shoe = men's
+                    if kg and G and kg != G:
                         return False
                     wide = k.group(3) == "W" or (not k.group(3) and d["w"])
                     if (wide and not want_wide) or (not wide and not want_reg):
