@@ -393,13 +393,16 @@ def size_sort(s):
     return (w, float(m.group(1).replace(",", ".")) if m else 99, s)
 
 
+KIT_PAGE = re.compile(r"\bkit\b|\bclean\b", re.I)   # narrow on purpose: On "LightSpray" and "Lace" shoes are real shoes
+
+
 def build_models(items):
     models = defaultdict(list)
     for d in items:
         if d["g"] != "shoes" or d.get("t") == "spike":
             continue
         name = base_model(d["n"])
-        if not name:
+        if not name or KIT_PAGE.search(d["n"]):   # Nov 7 (growth SEO D1): a cleaning/blister kit filed as a shoe gets no page (forward_old drops it)
             continue
         models[slugify(f'{d["b"]} {name}')].append(d)
     return models
@@ -699,6 +702,15 @@ def gift_season(today=None):
     from zoneinfo import ZoneInfo
     d = today or datetime.datetime.now(ZoneInfo("America/Vancouver")).date()
     return bool(os.environ.get("GIFT_MENU")) or (11, 15) <= (d.month, d.day) <= (12, 26)
+
+
+def gift_links(today=None):
+    """Nov 8 - Dec 26 (Vancouver date): the season link rows point to the gift page (Nov 7, Bastien OK'd the SEO lead's spec: Google
+    needs ~2 weeks of links before the Nov 15 menu item). GIFT_MENU=1 forces it."""
+    import datetime
+    from zoneinfo import ZoneInfo
+    d = today or datetime.datetime.now(ZoneInfo("America/Vancouver")).date()
+    return bool(os.environ.get("GIFT_MENU")) or (11, 8) <= (d.month, d.day) <= (12, 26)
 
 
 def menu_links(L, other_path):
@@ -1497,7 +1509,8 @@ def model_page(slug, its, stores, L, updated, related, brand_models, paths=None,
     out.append(f'<section class="alts" id="alts" hidden data-t="{kind}" data-src="/{L["dir"]}/alts.json" data-slug="{slug}" data-b="{esc(brand)}" '
                f'data-dir="/{L["dir"]}/" data-h="{esc(L["altH"][kind])}" data-h0="{esc(L["altH0"][kind])}" data-in="{esc(L["altIn"])}" '
                f'data-n="{esc(L["altN"])}" data-fr="{1 if L["lang"] == "fr-CA" else 0}"><h2></h2><div class="altw"><button type="button" class="arr l" aria-label="‹" disabled>‹</button><div class="altrow"></div><button type="button" class="arr r" aria-label="›">›</button></div></section>')
-    if sm:     # a few lines Google (and people) can read: what it is, where it's cheapest, sizes, today's answers
+    if sm and best:     # Nov 7 (growth SEO D1): Quick answers/FAQPage only from rows on the table (a "Not in stock" page has none)
+        # a few lines Google (and people) can read: what it is, where it's cheapest, sizes, today's answers
         # Nov 3 (growth's walk: "31 sizes in stock" over "46 sizes", "The Last Hunt is the cheapest in the most sizes" over a table that
         # mostly named Le Coureur Nordique): every number here counts the tables on this page
         cheap = Counter(r[2] for _, r in allrows)
@@ -1621,7 +1634,7 @@ def card_list(L, rows):
 
 def season_links(L, today=None, gifts=True):
     """Nov 4 (SEO L2/L3, Bastien OK'd): Black Friday (+ the deal check, Canada) Nov 1 - Dec 1, Boxing Day (Canada) Dec 2 - Jan 3,
-    the gift page while gift_season() is on. Vancouver date; pages are rebuilt every morning, so each link leaves after its window."""
+    the gift page while gift_links() is on (Nov 8 - Dec 26). Vancouver date; pages are rebuilt every morning, so each link leaves after its window."""
     import datetime
     d = today or datetime.datetime.now(HOME_TZ).date()
     us, fr = L["lang"] == "en-US", L["lang"] == "fr-CA"
@@ -1633,7 +1646,7 @@ def season_links(L, today=None, gifts=True):
             out.append(("/vendredi-fou/direct/", "Vérification Vendredi fou") if fr else ("/black-friday/live/", "Black Friday deal check"))
     elif (md >= (12, 2) or md <= (1, 3)) and L.get("bdDir"):
         out.append((f'/{L["bdDir"]}/', "Aubaines du Boxing Day" if fr else "Boxing Day running shoe deals"))
-    if gifts and gift_season(d):
+    if gifts and gift_links(d):
         out.append(("/us/gifts-for-runners/", "Gifts for runners") if us else ("/cadeaux-coureurs/", "Cadeaux pour coureurs") if fr
                    else ("/gifts-for-runners/", "Gifts for runners"))
     return out

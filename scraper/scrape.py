@@ -4571,7 +4571,7 @@ BIKE_SHOE_BRANDS = {"leatt", "five ten", "shimano", "giro", "fizik", "northwave"
 SHOE_CARE = re.compile(r"\blaces?\b|\blacets?\b|quicklace|cleaner|cleaning|repel|deodou?ri[sz]er|\bwipes\b|spike wrench|"
                        r"\bspray\b|\bpackage\b.*spikes|\bshoe ?(bag|tree|horn)\b|\binsoles?\b|quick-?clip|"
                        r"replacement spikes|\d+ count\b|roll-?on|foot shield|installation|"
-                       r"care kit|yaktrax|microspikes|ice (cleats?|grips?|traction)|traction (devices?|aids?)", re.I)   # Oct 26: Grangers kit, Yaktrax Run
+                       r"care kit|\b(?:clean|essential|suede|blister) kit\b|quick clean|yaktrax|microspikes|ice (cleats?|grips?|traction)|traction (devices?|aids?)", re.I)   # Oct 26: Grangers kit, Yaktrax Run
 LEAD_SHOE = re.compile(r"^(trail |road )?running shoes?\s*[-–,]\s*", re.I)      # Stampeak (NNormal), Decathlon: "Trail running shoes - Tomir 2.0"
 ONE_COLOUR = re.compile(r"\s+[-–]\s+(black|white|beige|blue|green|orange|red|brown|burgundy|grey|gray|pink|purple|yellow|navy)(?=\s+[-–]\s+(men|women|unisex))", re.I)
 

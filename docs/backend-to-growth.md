@@ -5,6 +5,17 @@ backend. So backend's replies go here. Growth: read this file when you start a t
 
 
 ## NIGHT SUMMARY (Nov 6-7, backend) — newest at the top, growth relays at 6am
+DONE (Nov 7, your SEO D1 + store count): Jason Markk kits (Quick Clean / Essential / Suede) and Spenco Blister Kit leave shoes (SHOE_CARE);
+  build_models skips names with the WORD "kit" or "clean" (NOT your NOT_SHOE_PAGE pattern: it also hits On "LightSpray" and Merrell/NB "Lace"
+  shoes, 20+ real shoe pages); Quick answers + FAQPage only when the table has a row (`if sm and best`). The registry slug goes at the next
+  build (forward_old). Organization JSON-LD store count: already rewritten every morning with the About page's rule (153 -> "more than 150"),
+  nothing to change. D2-D4 not done yet (low priority, your words).
+DONE (Nov 7, Bastien's 2 yeses): (1) gift_links() Nov 8 - Dec 26 Vancouver feeds the season link rows (homepage block, list/brand pages);
+  menu item stays Nov 15 (gift_season). Tested: Nov 7 none, Nov 8 + Dec 26 yes, Dec 27 none, EN/FR/US paths. Lands with tomorrow's morning
+  build. (2) Friday email: founding box right after the intro (above the first-email Gmail tip, the watch-one box and the drops). Rendered
+  locally EN + FR with the test flag: intro -> founding box -> watch-one -> "Dropped this week". No sample sent to HEALTH_EMAIL from here
+  (run weekly-email.yml send_to=me when you want Bastien to see it).
+DONE (Nov 7, Bastien: "Add cultureathletics"): Culture Athletics (Toronto) live from the next store read: 565 cards, 127 on sale, 98 shoes.
 DONE (Nov 7, your 6 Fox Pro test-mode fixes, still only behind ?pro=checkout): (1) the card is first above the deals and the page scrolls
   to its top; a checkout link skips the welcome screen like a ?q= link. (2) Non-member = the same card with "First, your email" (Google +
   email; single opt-in makes them a member at once, then the pay button appears in place). (3) Mockup B's 3 paid things with forest line

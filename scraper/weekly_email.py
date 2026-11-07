@@ -519,7 +519,7 @@ def build(p, sale, watch=None, watching=None):
                       f'padding:10px 14px;font:14px/1.45 Arial,sans-serif;color:#17201C">{tr(lang, "first_gmail" if gmail else "first_other")}</div></td></tr>')
     w1, w1_text = watch_one(p, sale, drops, lang) if watching is False else ("", "")
     fp, fp_text = founding_box(p, lang)
-    first_note += fp + w1
+    first_note = fp + first_note + w1    # Nov 7 (growth, Bastien yes): the founding box right after the intro, the one ask above the fold
     w1_text = fp_text + w1_text
     body = f'''<!doctype html><html lang="{lang}"><body style="margin:0;background:#EEF1EC">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#EEF1EC"><tr><td align="center" style="padding:20px 12px">
