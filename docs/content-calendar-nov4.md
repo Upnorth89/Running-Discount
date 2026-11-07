@@ -148,8 +148,7 @@ Speed 5 men's $119.99 every day since Oct 12) + the % stat, all re-checked the m
 
 **Fri Nov 27 (Black Friday)** · Friday email for everyone (BF + founding line "the list gets Fox Pro first, Wed Dec 2", or the January swap
 line) · auto · 0 min
-· Reddit r/ultrarunning (week C Friday, `--kind trail`, his own story first, as Bastien asked Oct 29 "not a shoe list") · trail shoe pages
-+ /races/?ref=reddit-ultrarunning-bf · Claude drafts, Bastien adds 2 lines of his own · **8 min**
+· ~~Reddit r/ultrarunning~~ REMOVED Nov 7 (Bastien: "Yes to all 3"; dropped Nov 4, no traction). Slot left empty.
 · Instagram Story x2: morning "BF live check updated this morning" (?ref=ig-story-bf) + evening founding reminder ("The founding list closes
 Nov 30. Nothing to pay now." Real date, no timer graphic) (?ref=ig-story-founding) · Bastien posts Claude's frames · **4 min**
 
