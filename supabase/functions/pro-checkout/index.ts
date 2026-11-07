@@ -57,7 +57,9 @@ Deno.serve(async (req) => {
   if (mem && !mem.refunded_at && ["active", "trialing", "past_due"].includes(mem.status)) return out({ error: "already_pro" }, 409);
 
   const t = await db("rpc/pro_founding_taken", { p_live: live });
-  const founding = typeof t.j === "number" && t.j < FOUNDING;
+  // Nov 7 (members-lead): a member who held a founding number and cancelled comes back at the regular price (their number is retired)
+  const back = mem ? await db("rpc/pro_returning", { p_sub: sub.id }) : { j: false };
+  const founding = typeof t.j === "number" && t.j < FOUNDING && back.j !== true;
   const look = `fox_pro_${founding ? "founding" : "regular"}_${cur}`;
   const p = await stripe(`/prices?active=true&lookup_keys[]=${look}&limit=1`);
   const price = p.j?.data?.[0];

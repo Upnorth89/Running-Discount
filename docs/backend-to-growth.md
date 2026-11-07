@@ -1323,3 +1323,15 @@ customer.subscription.updated / .deleted: Stripe Dashboard (test mode) > Develop
   paid 2026-11-06T23:32 | Stripe events recorded once each: 3 (checkout.session.completed 1, customer.subscription.created 1, invoice.paid 1)".
   Record right (Founding Fox #001, CA$36, test mode, renewal a year out), webhook took each event once. No Stripe receipt in test mode (expected).
   Piece #1 done in test mode. Next: #2 Pro perks + the Dec 2 watch limit (grandfathered).
+
+## Nov 7, 02:30 UTC: Fox Pro badges (your c830a98), first part done
+BLOCKED: Bastien pastes supabase/fox-pro-numbers-nov7.sql (the number rules below; one paste, safe to repeat). Until then refunds can't free a number and a returning cancelled member would be charged the founding price.
+- Web images in site/img/pro/: founding/pro badge 192/384/760 webp (+192 png for emails), icons 48/96/128 webp (+96 png). 9 KB a phone badge.
+- Welcome after paying (?pro=welcome): the plain orange box is now the badge (168 px) + "Founding Fox #007" + "Welcome to Fox Pro. Your
+  founding price is locked while you stay." (FR « Renard fondateur n° 007 »); Pro badge + "Fox Pro member" after #100. The number is LIVE
+  text per the README (gold #E3B85A, Source Serif 4 800, 9.2% of the width; "top 80.2%" read as the number's top edge: centred there it sat
+  on the fox's tag). Under 64 px: icon + "Founding Fox #007". Checked at 390/320. Site test covers it.
+- Number rules (members-lead), tested on the stand-in DB: 3 payers #1 #2 #3; the same Stripe event again keeps #3; #1 refunded -> next payer
+  gets #1 (lowest free); #2 cancelled later -> retired forever, comes back on the regular plan + Pro badge (checkout asks pro_returning and
+  charges $45); a refunded member who comes back = a new payer; test numbers never touch real ones. pro_status now also says badge founding|pro.
+- Still to place (with pieces #3/#4): ☰ icon beside "My account", My account header, one line in Pro emails, renewal reminder.

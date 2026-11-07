@@ -896,7 +896,16 @@ def site_flow(base, per, accented):
                 page.check("#coAgree")
                 assert not page.locator("#coPay").is_disabled(), "ticking the consent box doesn't enable pay"
                 page.evaluate("() => localStorage.setItem('gf-country', 'ca')")
-                return "members only, words (total, no tax, renewal + 45-day email, refund, cancel, renews automatically), terms before pay, pay opens Stripe with the member key, 'not open yet' when closed, French, USA consent box unticked + pay locked until ticked"
+                # back from Stripe (?pro=welcome): the Founding Fox badge with the number as live text, never baked into the picture
+                ps = lambda r: r.fulfill(status=200, content_type="application/json", body=json.dumps({"pro": True, "founding_no": 7, "plan": "founding"}))
+                page.route("**/rest/v1/rpc/pro_status", ps)
+                go("?pro=welcome")
+                page.wait_for_selector("#notice .pbnum", timeout=8000)
+                num = page.inner_text("#notice .pbnum")
+                src = page.get_attribute("#notice .pbadge img", "src") or ""
+                assert num == "007" and "founding-badge" in src and "Founding Fox #007" in page.inner_text("#notice"), f"welcome badge: {num!r} {src!r}"
+                page.unroute("**/rest/v1/rpc/pro_status", ps)
+                return "members only, words (total, no tax, renewal + 45-day email, refund, cancel, renews automatically), terms before pay, pay opens Stripe with the member key, 'not open yet' when closed, French, USA consent box unticked + pay locked until ticked, welcome badge #007 as live text"
             finally:
                 page.evaluate("() => localStorage.removeItem('gf-sub')")
                 go("")
