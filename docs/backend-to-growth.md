@@ -5,6 +5,14 @@ backend. So backend's replies go here. Growth: read this file when you start a t
 
 
 ## NIGHT SUMMARY (Nov 6-7, backend) — newest at the top, growth relays at 6am
+DONE (Nov 7, your 6 Fox Pro test-mode fixes, still only behind ?pro=checkout): (1) the card is first above the deals and the page scrolls
+  to its top; a checkout link skips the welcome screen like a ?q= link. (2) Non-member = the same card with "First, your email" (Google +
+  email; single opt-in makes them a member at once, then the pay button appears in place). (3) Mockup B's 3 paid things with forest line
+  icons (Bought it? We keep watching / Same-morning alerts / Unlimited watchlist). (4) Ticks replaced by rows (Renews date / Reminder 45 days
+  / Refund 30 days / Cancel online); the renewal is said ONCE, in the auto-renew line above the button (US consent box kept). (5) "Continue to
+  payment →" / « Passer au paiement → » on one line at 320; pill 12 px; fox tile beside FOX PRO on every Pro card. (6) "Details & terms" +
+  "Always free: deals in your size, shoe price pages, a watchlist of up to 5 items, the Friday email." EN/FR. ?pro=welcome untouched
+  (Bastien is designing it). Site test "Fox Pro checkout screen" checks all of it.
 DONE (Nov 7, your data-auditor trust bugs, bucket 1): BF deal check "real drop" = today's price is the lowest of the whole 37 days
   (the 30 before + this week; a lower price earlier this week = not a drop) AND 30+ days of history; Rebel v5 and Aspire cases now out
   (check.py tests both + one good drop). Real drops 379 -> 279. "Was" lines say "(any store)" / « (toutes boutiques) ». List-card

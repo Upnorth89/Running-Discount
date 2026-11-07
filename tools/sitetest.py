@@ -858,8 +858,18 @@ def site_flow(base, per, accented):
                 page.wait_for_timeout(500)
             page.evaluate("() => localStorage.removeItem('gf-sub')")
             try:
-                go("?pro=checkout")
-                assert not page.locator("#coCard").count(), "the checkout screen shows to a visitor who isn't a member"
+                go("?pro=checkout")      # Nov 7: a visitor who isn't a member gets the email step inside the card, never a payment button
+                if page.locator("#coCard").count():
+                    assert page.locator("#coCard #suForm").count() and not page.locator("#coPay").count(), "non-member checkout: no email step, or a pay button"
+                    assert "for members" in page.inner_text("#coCard"), "non-member checkout doesn't say it's for members"
+                    sr = lambda r: r.fulfill(status=200, content_type="application/json", body=json.dumps("k:" + KEY))
+                    page.route("**/rest/v1/rpc/subscribe", sr)
+                    page.fill("#coCard #suEmail", "t@example.com"); page.click("#coCard #suForm button[type=submit]")
+                    page.wait_for_selector("#coPay", timeout=8000)
+                    page.unroute("**/rest/v1/rpc/subscribe", sr)
+                    nonmem = "non-member: email step then pay, "
+                else:
+                    nonmem = "non-member: no slot on this visit, "
                 page.evaluate(f"() => localStorage.setItem('gf-sub', JSON.stringify({{key:'{KEY}',email:'t@example.com',active:true}}))")
                 go("")
                 assert not page.locator("#coCard").count(), "the checkout screen shows without ?pro=checkout"
@@ -867,9 +877,19 @@ def site_flow(base, per, accented):
                 if not page.locator("#coCard").count():
                     return "no card slot for a member on this visit: skipped"
                 txt = page.inner_text("#coCard")
-                for w in ("$36", "CAD a year", "No tax added", "Renews on", "45 days before", "Full refund within 30 days", "Cancel online", "Read the Fox Pro terms",
+                for w in ("$36", "CAD a year", "No tax added", "Bought it? We keep watching", "Same-morning alerts", "Unlimited watchlist",
+                          "45 days before", "Full, within 30 days", "Online, anytime", "Always free", "Details & terms",
                           "Renews automatically on", "$36 CAD until you cancel"):
                     assert w in txt, f"checkout screen is missing {w!r}"
+                assert txt.count("Renews automatically") == 1 and "at the same price" not in txt, "checkout says the renewal twice"
+                first = page.evaluate("() => { const c = document.getElementById('coCard'), g = document.querySelector('section.grp');"
+                                      " return !!(c && g && (c.compareDocumentPosition(g) & Node.DOCUMENT_POSITION_FOLLOWING)) }")
+                assert first, "?pro=checkout: the card isn't above the deals"
+                bh = page.evaluate("() => document.getElementById('coPay').getBoundingClientRect().height")
+                assert bh < 60, f"pay button wraps to 2 lines ({bh:.0f}px tall)"
+                assert page.evaluate("() => document.getElementById('coPay').scrollWidth <= document.getElementById('coPay').clientWidth + 1"), "pay button text is cut off"
+                pill = page.evaluate("() => parseFloat(getComputedStyle(document.querySelector('#coCard .fppill')).fontSize)")
+                assert pill >= 12, f"checkout pill text is {pill}px (min 12)"
                 order = page.evaluate("() => { const a = document.getElementById('coTerms'), b = document.getElementById('coPay');"
                                       " return !!(a && b && (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING)) }")
                 assert order, "the terms link isn't before the pay button"
@@ -886,7 +906,7 @@ def site_flow(base, per, accented):
                 assert "aren't open yet" in msg, f"a closed checkout says {msg!r}"
                 go("?pro=checkout&lang=fr")
                 ft = page.inner_text("#coCard") if page.locator("#coCard").count() else ""
-                assert "Lire les conditions Fox Pro" in ft and "Aucune taxe" in ft, "French checkout screen missing its words"
+                assert "Détails et conditions" in ft and "Aucune taxe" in ft and "Toujours gratuit" in ft, "French checkout screen missing its words"
                 page.evaluate("() => localStorage.setItem('gf-country', 'us')")     # USA: California auto-renewal consent, unticked
                 go("?pro=checkout&lang=en&c=us")
                 ut = page.inner_text("#coCard") if page.locator("#coCard").count() else ""
@@ -905,7 +925,7 @@ def site_flow(base, per, accented):
                 src = page.get_attribute("#notice .pbadge img", "src") or ""
                 assert num == "007" and "founding-badge" in src and "Founding Fox #007" in page.inner_text("#notice"), f"welcome badge: {num!r} {src!r}"
                 page.unroute("**/rest/v1/rpc/pro_status", ps)
-                return "members only, words (total, no tax, renewal + 45-day email, refund, cancel, renews automatically), terms before pay, pay opens Stripe with the member key, 'not open yet' when closed, French, USA consent box unticked + pay locked until ticked, welcome badge #007 as live text"
+                return nonmem + "card above the deals, words (total, no tax, 3 paid things, rows, always free, renews automatically once), pill 12px+, terms before pay, pay opens Stripe with the member key, 'not open yet' when closed, French, USA consent box unticked + pay locked until ticked, welcome badge #007 as live text"
             finally:
                 page.evaluate("() => localStorage.removeItem('gf-sub')")
                 go("")
