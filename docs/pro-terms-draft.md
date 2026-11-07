@@ -222,7 +222,7 @@ Questions, remboursement, n'importe quoi : hello@thegearfox.com. Une vraie perso
 **[LAWYER] list (19 spots):**
 1. §1 Business identity: legal or registered name, sole proprietor vs company, and whether a phone number is required in distance-contract disclosures (Québec, Ontario, BC).
 2. §2 Refund rule when a listed feature is removed mid-year.
-3. §3 Taxes (with the accountant): GST/HST, BC PST, QST on a digital membership, and whether the total including tax must be the headline price.
+3. §3 Taxes: DECIDED Nov 5 (no registration or tax line at launch; under the GST $30k / BC PST $10k / QST thresholds). Lawyer only confirms the "No tax added. That's the total." wording; accountant at income-tax time.
 4. §4 Renewal notice: Québec and other provinces' timing and content; whether a renewal without notice is valid. USA side: state auto-renewal laws (e.g. California).
 5. §5 Online cancellation under Québec Bill 10; whether Québec or other provinces give a right to cancel mid-year with a pro-rated refund.
 6. §6 "No partial refunds after 30 days": where the law requires otherwise.
