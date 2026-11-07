@@ -3599,6 +3599,8 @@ SHOPIFY_STORES = [
     ("aerobicsfirst",  "https://www.aerobicsfirst.com",      "gear"),   # Aerobics First (Halifax)
     ("cityparkrunners", "https://www.cityparkrunners.com",   "gear"),   # City Park Runners (Winnipeg)
     ("runnersshop",    "https://www.therunnersshop.com",     "gear"),   # The Runners Shop (Toronto, since 1975)
+    ("cultureathletics","https://cultureathletics.com",      "gear"),   # Culture Athletics (Toronto running + yoga shop; Nov 7, Bastien: "Add cultureathletics"):
+                                                                        # Shopify, CAD, ships to Canada only; robots allow products
     ("strides",        "https://www.stridesrunning.com",     "gear"),   # Strides Running Store (Calgary, Canmore)
     # added 2026-10-06
     ("brainsport",     "https://www.brainsport.ca",          "gear"),   # Brainsport (Saskatoon, SK)
@@ -4037,6 +4039,15 @@ def make_shopify_scraper(st, base, kind):
             prods = [p for p in prods if not (any(re.search(r"(^|-)casual$|^originals$|lifestyle", t.strip(), re.I) for t in (p.get("tags") or []))
                                               and not re.search(r"\brunning\b|\btrainer\b|adistar", p.get("title") or "", re.I))
                      and not re.search(r"\b(NMD|Ozweego|Oztral|X_?PLR ?Boost|Run 70s|Swift Run)\b", p.get("title") or "", re.I)]
+        if st == "cultureathletics":   # Nov 7: one product per colour, "Womens Adizero EVO SL - Off White / Ice Gold Met. / Granite": on a name
+            # that starts with Mens/Womens/Unisex the part after the last " - " is always the colour (checked on all 780); it goes so colours
+            # and other stores' cards join ("(2 Pack)" stays). Names without a gender (gel flavours, goodr model names) are left as they are.
+            for p in prods:
+                t = p.get("title") or ""
+                m = re.match(r"^((?:Mens|Womens|Unisex|Men's|Women's)\b.+)\s-\s((?:(?!\s-\s).)+)$", t)   # the LAST " - " ("Hi-Res Yellow" keeps its dash)
+                if m:
+                    pk = re.search(r"\(\d+\s*Pack\)", m.group(2), re.I)
+                    p["title"] = m.group(1) + (" " + pk.group(0) if pk else "")
         if st == "runhouse":   # Nov 5: The Run House lists one product per colour ("HOKA Men's Clifton 11 - FADED NAVY / SLATE BLUE"): the colour
             # and style codes go so its colours (and other stores' cards) join; casual-tagged shoes, Reebok Club C / Nano (court, gym) and its own merch out
             keep = []
@@ -4119,6 +4130,7 @@ FINAL_SALE = {"lasthunt": 1,
               "strides": 2, "aerobicsfirst": 2, "blacktoe": 2, "runnersshop": 2, "vanrunco": 2, "districtvision": 2,
               "fitfirst": 2, "endurance": 2, "cityparkrunners": 2, "capra": 2, "forerunners": 2, "tifosi": 2, "naak": 2,
               "xact": 2, "squirrels": 2,
+              "cultureathletics": 40,   # Culture Athletics (Nov 7 policy): 40%+ off = final sale; 1-39% off = exchange or store credit
               "lecoureur": 40, "janji": 40}
 FINAL_TAG = re.compile(r"final.?sale|vente.?finale", re.I)
 
