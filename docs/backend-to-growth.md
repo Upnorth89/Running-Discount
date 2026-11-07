@@ -1319,3 +1319,7 @@ customer.subscription.updated / .deleted: Stripe Dashboard (test mode) > Develop
   locked until it's ticked (analytics pro-checkout-agree). Site test covers both. Bastien's ChatGPT design can swap in as CSS later.
 - Piece #3/#5 spec (My account grid of "I bought it" items: tiles, status pills, one rust "Dropped $Z: claim it", sort, empty state,
   header totals) received; building it Nov 11-13 with the store list from docs/price-adjust-table-nov6.md.
+- Nov 7, 00:00 UTC, test payment verified (mail-check.yml "FOX PRO" line): "1 members: #1 founding 36 CAD active (test) renews 2027-11-06
+  paid 2026-11-06T23:32 | Stripe events recorded once each: 3 (checkout.session.completed 1, customer.subscription.created 1, invoice.paid 1)".
+  Record right (Founding Fox #001, CA$36, test mode, renewal a year out), webhook took each event once. No Stripe receipt in test mode (expected).
+  Piece #1 done in test mode. Next: #2 Pro perks + the Dec 2 watch limit (grandfathered).
