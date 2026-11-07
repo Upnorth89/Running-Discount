@@ -27,7 +27,7 @@ S = {
         h1="Real drops this week", s1="Lower than any price in the 30 days before, by 10% or $10.",
         h2="Not new: same “sale” price for weeks", s2="30%+ off the tag, at the same price for at least 3 weeks. Not a bad price, just not a Black Friday price.",
         h3="Went up lately: watch for a “drop” back", s3="Up 10%+ in the last 3 weeks. If it “drops” on Black Friday, it may just be back where it was.",
-        was="Was {p} before {d}", same="Same price since {d}", start="Same price since we started tracking ({d})", up="Was {p} on {d}",
+        was="Best price before {d}: {p} (any store)", same="Same price since {d}", start="Same price since we started tracking ({d})", up="Best price on {d}: {p} (any store)",
         at="{p} CAD at {s}", sizes=lambda n, shoe: f"{n} sizes", none="Nothing in this list today.", more="Show all {n}",
         jH="For journalists", j="Free to quote with a link to this page. Need a cut by store, brand or category for your Black Friday story? Email hello@thegearfox.com.",
         mH="How we check", m="We record the best price of every product at {n} stores twice a day since Oct. 2, size by size. A “real drop” must be lower than every price in the 30 days before it. We don't judge stores: a price that hasn't moved can still be a good one.",
@@ -39,7 +39,7 @@ S = {
         h1="Vraies baisses cette semaine", s1="Plus bas que tous les prix des 30 jours précédents, d’au moins 10 % ou 10 $.",
         h2="Pas nouveau : le même prix « en solde » depuis des semaines", s2="30 % et plus de rabais sur l’étiquette, au même prix depuis au moins 3 semaines. Pas un mauvais prix, juste pas un prix du Vendredi fou.",
         h3="En hausse récemment : attention à une « baisse » de retour", s3="Plus de 10 % de hausse dans les 3 dernières semaines. S’il « baisse » au Vendredi fou, il revient peut-être juste à son prix d’avant.",
-        was="Était à {p} avant le {d}", same="Même prix depuis le {d}", start="Même prix depuis le début de notre suivi ({d})", up="{p} le {d}",
+        was="Meilleur prix avant le {d} : {p} (toutes boutiques)", same="Même prix depuis le {d}", start="Même prix depuis le début de notre suivi ({d})", up="Meilleur prix le {d} : {p} (toutes boutiques)",
         at="{p} CAD chez {s}", sizes=lambda n, shoe: f"{n} {'pointures' if shoe else 'tailles'}", none="Rien dans cette liste aujourd’hui.", more="Voir les {n}",
         jH="Pour les journalistes", j="Libre de citer avec un lien vers cette page. Besoin des chiffres par boutique, marque ou catégorie pour votre reportage? Écrivez à hello@thegearfox.com.",
         mH="Notre méthode", m="On note le meilleur prix de chaque produit dans {n} boutiques deux fois par jour depuis le 2 octobre, pointure par pointure. Une « vraie baisse » doit être plus basse que tous les prix des 30 jours précédents. On ne juge pas les boutiques : un prix qui ne bouge pas peut quand même être bon.",
@@ -91,6 +91,25 @@ def show_name(d, lang):
     return f"{d['b']} {n}" + (f" ({S[lang]['g'][g]})" if g else "")
 
 
+def real_drop(h, best, today, n_sizes):
+    """A real drop this week: (was, day) or None. was = the lowest price in the 30 days before this week, day = the first day this week
+    the price went under it. Nov 7 (growth's data audit, 12 + 90 of 379 wrong): needs 30+ days of history (the badge rule), and today must
+    be the lowest of the WHOLE 37 days, this week included (NB Rebel v5 at JD: $70 on Nov 4, $90 today, was shown "$90, was $143")."""
+    if not h or n_sizes < 3 or d0(h[0][0]) > today - timedelta(days=30):
+        return None
+    wk = price_on(h, today - timedelta(days=7))
+    prior = [e[1] for e in h if today - timedelta(days=37) <= d0(e[0]) < today - timedelta(days=7)] + ([wk] if wk else [])
+    week = [e for e in h if today - timedelta(days=7) <= d0(e[0]) <= today]
+    if not wk or not prior or d0(h[-1][0]) <= today - timedelta(days=7) or best >= min(prior) - 0.01:
+        return None
+    if any(e[1] < best - 0.01 for e in week):
+        return None                                   # it was cheaper earlier this week: today went up, not down
+    gap = min(prior) - best
+    if gap < 5 or (gap < 10 and gap / min(prior) < 0.10):
+        return None
+    return min(prior), next((d0(e[0]) for e in week if e[1] < min(prior) - 0.01), d0(h[-1][0]))
+
+
 def build(site):
     sale = json.loads((site / "sale.json").read_text())
     upd = sale.get("updated")
@@ -129,12 +148,9 @@ def build(site):
             if p14 is not None:
                 n_old += 1
                 n_flat += p14 <= best + 0.01
-        wk = price_on(h, today - timedelta(days=7))
-        prior = [e[1] for e in h if today - timedelta(days=37) <= d0(e[0]) < today - timedelta(days=7)] + ([wk] if wk else [])
-        if wk and prior and since > today - timedelta(days=7) and best < min(prior) - 0.01 and len(at) >= 3:
-            gap = min(prior) - best
-            if gap >= 5 and (gap >= 10 or gap / min(prior) >= 0.10):
-                real.append(dict(row, was=min(prior), gap=gap, day=since))
+        rd = real_drop(h, best, today, len(at))
+        if rd:
+            real.append(dict(row, was=rd[0], gap=rd[0] - best, day=rd[1]))
         if onsale and (today - since).days >= 21 and (regp - best) / regp >= 0.30 and len(at) >= 3 and regp >= 60:
             flat.append(dict(row, day=since, start=since <= first_day, off=round(100 * (regp - best) / regp)))
         p21 = price_on(h, today - timedelta(days=21))

@@ -289,6 +289,18 @@ def main():
     step("Race reminders: box + sample email (EN/FR/US)", race_remind)
 
     def bf_live():      # Oct 27: the live Black Friday deal check, from the real price history (history branch)
+        # Nov 7 (growth's data audit): the "real drop" rule, on the audit's own cases
+        sys.path.insert(0, str(ROOT / "scraper"))
+        import bf_live as BFL
+        from datetime import date as _date
+        T = _date(2026, 11, 6)
+        rebel = [["2026-09-20", 143], ["2026-10-31", 70], ["2026-11-01", 90], ["2026-11-02", 70], ["2026-11-04", 70], ["2026-11-06", 90]]
+        if BFL.real_drop(rebel, 90, T, 5):
+            raise RuntimeError("a price that went UP this week (NB Rebel v5: $70 on Nov 4, $90 today) counts as a real drop")
+        if BFL.real_drop([["2026-10-29", 203.96], ["2026-10-31", 151.16], ["2026-11-04", 146.36], ["2026-11-06", 146.36]], 146.36, T, 3):
+            raise RuntimeError("an item tracked for 8 days (OR Aspire pants) counts as a real drop (needs 30+ days)")
+        if BFL.real_drop([["2026-09-01", 150], ["2026-11-03", 120]], 120, T, 5) != (150, _date(2026, 11, 3)):
+            raise RuntimeError("a real $30 drop on Nov 3 after 2 months at $150 isn't found")
         hist = Path(tempfile.gettempdir()) / "gf-check-prices.jsonl"
         r = subprocess.run("git fetch -q --depth=1 origin history && git show FETCH_HEAD:prices.jsonl", shell=True, cwd=ROOT, capture_output=True, text=True, timeout=300)
         if r.returncode or len(r.stdout) < 1000:

@@ -1119,6 +1119,34 @@ def low_days(its):
     return min(60, max(d["hd"] for d in lows)) if lows else 0
 
 
+SUM_PREFIX = [""]     # history key prefix for summary()'s badge cap: "" Canada, "us|" USA (set by build_us)
+
+
+def cheaper_ago(its, price, prefix=None):
+    """Nov 7 (growth's data audit: 4 of 54 list cards said "lowest in 35 days" while another version of the model was cheaper inside
+    those days): days since ANY version on the card last had a lower best price in our history (60-day window), or None."""
+    prefix = SUM_PREFIX[0] if prefix is None else prefix
+    today = datetime.now(HOME_TZ).date()
+    ago = None
+    for d in its:
+        for e in HIST.get(prefix + f"{d['b']}|{d['n']}|{d['g']}|{1 if d.get('w') else 0}".lower()) or []:
+            day = date.fromisoformat(str(e[0])[:10])
+            if e[1] < price - 0.005 and (today - day).days <= 60:
+                a = (today - day).days
+                ago = a if ago is None else min(ago, a)
+    return ago
+
+
+def lowd_capped(its, gender, price):
+    n = low_days([d for d in its if (not gender or not d.get("sx") or gender in d["sx"]) and d.get("sz")
+                  and abs(min(e[1] for e in d["sz"]) - price) < 0.01])
+    if n:
+        ago = cheaper_ago([d for d in its if not gender or not d.get("sx") or gender in d["sx"]], price)
+        if ago is not None:
+            n = min(n, ago - 1)
+    return n if n >= HISTORY_DAYS else 0
+
+
 def summary(its, stores, gender=None):
     """Today's numbers for one model (optionally one gender): best price, its discount, store, sizes, stores."""
     sizes, by_store, best = 0, defaultdict(set), None
@@ -1154,8 +1182,7 @@ def summary(its, stores, gender=None):
                                  and (len(best[4]) != 1 or (d.get("sx") or []) == list(best[4]))))   # that cut's sizes only
     return {"price": best[0], "reg": best[1], "off": off, "top": top, "store": stores.get(best[2], [best[2]])[0], "url": best[3],
             "sizes": sizes, "stores": len(carriers), "sale_sizes": sale_sizes, "best_sizes": at_best,
-            "lowd": low_days([d for d in its if (not gender or not d.get("sx") or gender in d["sx"]) and d.get("sz")
-                              and abs(min(e[1] for e in d["sz"]) - best[0]) < 0.01]) if off >= 10 else 0,   # the version at that price
+            "lowd": lowd_capped(its, gender, best[0]) if off >= 10 else 0,   # the version at that price, capped by every version's history
             "best_sx": best[4][0] if len(best[4]) == 1 else None,
             "most": stores.get(most[0], [most[0]])[0], "most_n": len(most[1]),
             "img": next((d["img"] for d in its if d.get("img")), None), "t": its[0].get("t") or ""}
@@ -1822,6 +1849,7 @@ nm.hidden=any||!w.length;document.querySelector(".jump").hidden=!!w.length})})()
 
 def main():
     site = Path(sys.argv[1] if len(sys.argv) > 1 else "site")
+    SUM_PREFIX[0] = ""
     import os
     n_hist = load_history(os.environ.get("HISTORY_FILE") or "hist/prices.jsonl")
     print(f"price history: {n_hist} products")
@@ -2084,6 +2112,7 @@ def build_us(site, stores, ca_models, ca_brands):
     by_brand = defaultdict(list)
     for s_, v in live.items():
         by_brand[v["b"].lower()].append(s_)
+    SUM_PREFIX[0] = "us|"            # the USA side's history is in USD under "us|" keys
     summ = {sl: summary(models[sl], stores) for sl in live if models.get(sl)}
     summ = {k: v for k, v in summ.items() if v}
     gsumm = {g: {sl: summary(models[sl], stores, g) for sl in summ} for g in ("women", "men")}

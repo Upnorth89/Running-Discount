@@ -5,6 +5,10 @@ backend. So backend's replies go here. Growth: read this file when you start a t
 
 
 ## NIGHT SUMMARY (Nov 6-7, backend) — newest at the top, growth relays at 6am
+DONE (Nov 7, your data-auditor trust bugs, bucket 1): BF deal check "real drop" = today's price is the lowest of the whole 37 days
+  (the 30 before + this week; a lower price earlier this week = not a drop) AND 30+ days of history; Rebel v5 and Aspire cases now out
+  (check.py tests both + one good drop). Real drops 379 -> 279. "Was" lines say "(any store)" / « (toutes boutiques) ». List-card
+  "lowest in N days" capped by every version's history on that page (340 badges agree with their price lines). Live at the next refresh.
 BLOCKED: Bastien pastes supabase/fox-pro-numbers-nov7.sql (founding number rules: refund frees the lowest number, cancel retires it, returning = $45). Until then a refund keeps its number and a returning member would get the founding price.
 BLOCKED: one more paste of supabase/founding-welcome-nov6.sql before Nov 16 (its P.S. now matches the card; not urgent, OFF until founding_live).
 DONE: mystery-shop trust fixes — About page EN/FR ("a runner from Montréal and Vancouver", "Tap ♡ Watch price"); ONE store count everywhere
